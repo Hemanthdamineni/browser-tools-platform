@@ -14,7 +14,8 @@
   --border: 226 232 240;
   --text: 15 23 42;
   --text-muted: 71 85 105;
-  --accent: 5 150 105;
+  --accent: 4 120 87;
+  --accent-strong: 6 78 59;
   --accent-fg: 255 255 255;
   --ring: 16 185 129;
   --danger: 220 38 38;
@@ -30,6 +31,7 @@
   --text: 226 232 240;
   --text-muted: 148 163 184;
   --accent: 52 211 153;
+  --accent-strong: 110 231 183;
   --accent-fg: 2 44 34;
   --ring: 52 211 153;
   --danger: 248 113 113;
@@ -46,6 +48,7 @@
     --text: 226 232 240;
     --text-muted: 148 163 184;
     --accent: 52 211 153;
+    --accent-strong: 110 231 183;
     --accent-fg: 2 44 34;
     --ring: 52 211 153;
     --danger: 248 113 113;

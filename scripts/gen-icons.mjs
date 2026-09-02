@@ -14,7 +14,7 @@ const OUT = join(dirname(fileURLToPath(import.meta.url)), '..', 'public', 'icons
 mkdirSync(OUT, { recursive: true });
 
 // palette
-const BG = [5, 150, 105, 255]; // brand-600
+const BG = [4, 120, 87, 255]; // brand-600
 const FG = [255, 255, 255, 255];
 const TRANSPARENT = [0, 0, 0, 0];
 

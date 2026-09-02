@@ -1,0 +1,17 @@
+Toolbench bundles the following third-party open-source libraries. Each is
+loaded only by the specific tools that need it, and runs entirely in the
+visitor's browser.
+
+- pdf-lib            — MIT      — https://github.com/Hopding/pdf-lib
+- pdfjs-dist         — Apache-2.0 — https://github.com/mozilla/pdf.js
+- fflate             — MIT      — https://github.com/101arrowz/fflate
+- yaml               — ISC      — https://github.com/eemeli/yaml
+- diff               — BSD-3-Clause — https://github.com/kpdecker/jsdiff
+- marked             — MIT      — https://github.com/markedjs/marked
+- qrcode-generator   — MIT      — https://github.com/kazuhikoarase/qrcode-generator
+- cronstrue          — MIT      — https://github.com/bradymholt/cronstrue
+
+Build-time only (not shipped to visitors): astro, tailwindcss, typescript,
+vitest, playwright, eslint, prettier.
+
+Full licence texts are in the corresponding node_modules/<pkg>/LICENSE files.
