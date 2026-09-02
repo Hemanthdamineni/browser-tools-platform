@@ -1,0 +1,115 @@
+---
+import type { ToolMeta } from '@/lib/types';
+import { CATEGORIES } from '@/lib/categories';
+import { relatedTools } from '@/lib/registry';
+import Icon from './Icon.astro';
+import PrivacyBadge from './PrivacyBadge.astro';
+import TextWorkbench from './workbench/TextWorkbench.astro';
+import FileWorkbench from './workbench/FileWorkbench.astro';
+import ToolCard from './ToolCard.astro';
+
+interface Props {
+  meta: ToolMeta;
+}
+const { meta } = Astro.props;
+const category = CATEGORIES[meta.category];
+const related = relatedTools(meta);
+---
+
+<article class="mx-auto max-w-4xl">
+  <nav
+    class="flex items-center gap-1.5 text-sm text-[rgb(var(--text-muted))]"
+    aria-label="Breadcrumb"
+  >
+    <a class="hover:text-[rgb(var(--accent))]" href="/tools">Tools</a>
+    <Icon name="chevron-right" size={14} />
+    <a class="hover:text-[rgb(var(--accent))]" href={`/categories/${category.id}`}
+      >{category.name}</a
+    >
+    <Icon name="chevron-right" size={14} />
+    <span class="text-[rgb(var(--text))]">{meta.name}</span>
+  </nav>
+
+  <header class="mt-4">
+    <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">{meta.name}</h1>
+    <p class="mt-2 max-w-prose text-[rgb(var(--text-muted))]">{meta.description}</p>
+    <div class="mt-3"><PrivacyBadge privacy={meta.privacy} /></div>
+  </header>
+
+  <div class="mt-6">
+    {meta.input === 'file' ? <FileWorkbench meta={meta} /> : <TextWorkbench meta={meta} />}
+  </div>
+
+  {
+    meta.faq && meta.faq.length > 0 && (
+      <section class="mt-10">
+        <h2 class="text-lg font-bold">Questions</h2>
+        <div class="mt-3 divide-y rounded-xl border">
+          {meta.faq.map((f) => (
+            <details class="group px-4 py-3">
+              <summary class="flex cursor-pointer list-none items-center justify-between gap-4 font-medium">
+                {f.q}
+                <Icon
+                  name="chevron-down"
+                  size={16}
+                  class="transition-transform group-open:rotate-180"
+                />
+              </summary>
+              <p class="mt-2 text-sm text-[rgb(var(--text-muted))]">{f.a}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  <section class="prose-tool mt-10 max-w-prose">
+    <h2>How it works</h2>
+    <p>
+      {meta.name} runs entirely in your browser tab. Your input is processed by JavaScript
+      {meta.input === 'file' ? ' (and, for large files, a background Web Worker)' : ''} on this device
+      — nothing is uploaded to a server, and the page works offline once it has loaded.
+    </p>
+    {
+      meta.privacy.network !== 'none' && (
+        <p>
+          Network use: this tool may contact{' '}
+          {(meta.privacy.network as string[]).map((n) => (
+            <code>{n}</code>
+          ))}
+          . See the <a href="/privacy">privacy model</a> for details.
+        </p>
+      )
+    }
+    {
+      meta.credits && meta.credits.length > 0 && (
+        <>
+          <h3>Built with</h3>
+          <ul>
+            {meta.credits.map((c) => (
+              <li>
+                <a href={c.url} rel="noopener">
+                  {c.name}
+                </a>{' '}
+                — {c.license}
+              </li>
+            ))}
+          </ul>
+        </>
+      )
+    }
+  </section>
+
+  {
+    related.length > 0 && (
+      <section class="mt-10">
+        <h2 class="text-lg font-bold">Related tools</h2>
+        <div class="mt-3 grid gap-3 sm:grid-cols-2">
+          {related.map((t) => (
+            <ToolCard meta={t.meta} showCategory />
+          ))}
+        </div>
+      </section>
+    )
+  }
+</article>

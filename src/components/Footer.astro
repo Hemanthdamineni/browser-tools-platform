@@ -1,0 +1,67 @@
+---
+import { site } from '@/lib/site';
+import { TOOL_COUNT } from '@/lib/registry';
+import Icon from './Icon.astro';
+
+const year = new Date().getFullYear();
+const groups = Object.entries(site.footer);
+---
+
+<footer class="mt-16 border-t surface-subtle">
+  <div class="mx-auto max-w-content px-4 py-10 sm:px-6">
+    <div class="grid gap-8 sm:grid-cols-2 md:grid-cols-4">
+      <div>
+        <div class="flex items-center gap-2 font-bold">
+          <span
+            class="grid h-7 w-7 place-items-center rounded-lg text-[15px]"
+            style="background-color: rgb(var(--accent)); color: rgb(var(--accent-fg))"
+            aria-hidden="true">T</span
+          >
+          {site.shortName}
+        </div>
+        <p class="mt-3 max-w-xs text-sm text-[rgb(var(--text-muted))]">
+          {TOOL_COUNT} tools that run on your device. No uploads, no accounts, no tracking.
+        </p>
+      </div>
+
+      {
+        groups.map(([title, links]) => (
+          <div>
+            <h2 class="text-xs font-semibold uppercase tracking-wide text-[rgb(var(--text-muted))]">
+              {title}
+            </h2>
+            <ul class="mt-3 space-y-2 text-sm">
+              {links.map((l) => (
+                <li>
+                  <a class="hover:text-[rgb(var(--accent))]" href={l.href}>
+                    {l.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+    </div>
+
+    <div
+      class="mt-10 flex flex-col gap-3 border-t pt-6 text-sm text-[rgb(var(--text-muted))] sm:flex-row sm:items-center sm:justify-between"
+    >
+      <p>© {year} {site.name}. MIT licensed.</p>
+      <div class="flex items-center gap-4">
+        <span class="chip"><Icon name="shield-check" size={14} /> Processed on your device</span>
+        {
+          site.social.github && (
+            <a
+              class="flex items-center gap-1.5 hover:text-[rgb(var(--accent))]"
+              href={site.social.github}
+              rel="noopener"
+            >
+              <Icon name="github" size={16} /> Source
+            </a>
+          )
+        }
+      </div>
+    </div>
+  </div>
+</footer>

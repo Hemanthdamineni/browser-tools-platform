@@ -1,0 +1,121 @@
+/**
+ * Tool registry — zero manual wiring.
+ *
+ * Drop a `<id>.meta.ts` + `<id>.tool.ts` pair anywhere under `src/tools/` and it
+ * is picked up automatically:
+ *   - `.meta.ts` modules are eagerly imported (they are tiny) so cards, search,
+ *     SEO and `getStaticPaths()` work at build time.
+ *   - `.tool.ts` modules are left as lazy import factories, so a tool's code (and
+ *     any heavy dependency it pulls in) only downloads when someone runs it.
+ */
+
+import type { CategoryId, RegisteredTool, ToolMeta } from './types';
+import { CATEGORIES, CATEGORY_LIST } from './categories';
+
+const metaModules = import.meta.glob<{ meta: ToolMeta }>('../tools/**/*.meta.ts', {
+  eager: true,
+});
+const toolModules = import.meta.glob('../tools/**/*.tool.ts');
+
+function toolKey(path: string): string {
+  return path.replace(/\.(meta|tool)\.ts$/, '');
+}
+
+function basename(path: string): string {
+  return toolKey(path).split('/').pop() ?? '';
+}
+
+function build(): RegisteredTool[] {
+  const loaders = new Map<string, () => Promise<{ default: never }>>();
+  for (const [path, loader] of Object.entries(toolModules)) {
+    loaders.set(toolKey(path), loader as () => Promise<{ default: never }>);
+  }
+
+  const tools: RegisteredTool[] = [];
+  const seen = new Set<string>();
+
+  for (const [path, mod] of Object.entries(metaModules)) {
+    const meta = mod.meta;
+    if (!meta) {
+      throw new Error(`${path} does not export "meta"`);
+    }
+    const load = loaders.get(toolKey(path));
+    if (!load) {
+      throw new Error(`${path} has no matching ".tool.ts" implementation`);
+    }
+    if (seen.has(meta.id)) {
+      throw new Error(`Duplicate tool id "${meta.id}" (${path})`);
+    }
+    if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(meta.id)) {
+      throw new Error(`Tool id "${meta.id}" must be kebab-case (${path})`);
+    }
+    if (basename(path) !== meta.id) {
+      throw new Error(
+        `File name must match tool id: ${path} exports id "${meta.id}" (expected "${meta.id}.meta.ts")`,
+      );
+    }
+    if (!(meta.category in CATEGORIES)) {
+      throw new Error(`Tool "${meta.id}" has unknown category "${meta.category}"`);
+    }
+    seen.add(meta.id);
+    tools.push({ meta, load: load as RegisteredTool['load'] });
+  }
+
+  return tools.sort((a, b) => a.meta.name.localeCompare(b.meta.name));
+}
+
+export const ALL_TOOLS: RegisteredTool[] = build();
+
+export const VISIBLE_TOOLS = ALL_TOOLS.filter((t) => !t.meta.hidden);
+
+export function getTool(id: string): RegisteredTool | undefined {
+  return ALL_TOOLS.find((t) => t.meta.id === id);
+}
+
+export function toolsInCategory(category: CategoryId): RegisteredTool[] {
+  return VISIBLE_TOOLS.filter((t) => t.meta.category === category);
+}
+
+export function categoriesWithCounts() {
+  return CATEGORY_LIST.map((c) => ({
+    ...c,
+    count: toolsInCategory(c.id).length,
+  })).filter((c) => c.count > 0);
+}
+
+export function relatedTools(meta: ToolMeta, limit = 4): RegisteredTool[] {
+  const explicit = (meta.related ?? [])
+    .map((id) => getTool(id))
+    .filter((t): t is RegisteredTool => !!t && !t.meta.hidden);
+
+  if (explicit.length >= limit) return explicit.slice(0, limit);
+
+  const sameCategory = toolsInCategory(meta.category).filter(
+    (t) => t.meta.id !== meta.id && !explicit.some((e) => e.meta.id === t.meta.id),
+  );
+  return [...explicit, ...sameCategory].slice(0, limit);
+}
+
+/** Compact index shipped to the client for instant search. */
+export interface SearchEntry {
+  id: string;
+  name: string;
+  summary: string;
+  category: CategoryId;
+  categoryName: string;
+  keywords: string[];
+  href: string;
+}
+
+export const SEARCH_INDEX: SearchEntry[] = VISIBLE_TOOLS.map((t) => ({
+  id: t.meta.id,
+  name: t.meta.name,
+  summary: t.meta.summary,
+  category: t.meta.category,
+  categoryName: CATEGORIES[t.meta.category].name,
+  keywords: t.meta.keywords,
+  href: `/tools/${t.meta.id}`,
+}));
+
+export const TOOL_COUNT = VISIBLE_TOOLS.length;
+export const CATEGORY_COUNT = categoriesWithCounts().length;

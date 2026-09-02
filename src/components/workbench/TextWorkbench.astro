@@ -1,0 +1,310 @@
+---
+import type { ToolMeta } from '@/lib/types';
+import OptionsFields from './OptionsFields.astro';
+import Icon from '@/components/Icon.astro';
+
+interface Props {
+  meta: ToolMeta;
+}
+const { meta } = Astro.props;
+const hasInput = true;
+const options = meta.options ?? [];
+const examples = meta.examples ?? [];
+const p = meta.id;
+---
+
+<section
+  class="surface rounded-xl p-4 sm:p-6"
+  data-text-workbench
+  data-tool-id={meta.id}
+  aria-label={`${meta.name} workbench`}
+>
+  {
+    examples.length > 0 && (
+      <div class="mb-4 flex flex-wrap items-center gap-2">
+        <span class="text-xs font-medium text-[rgb(var(--text-muted))]">Try:</span>
+        {examples.map((ex, i) => (
+          <button
+            type="button"
+            class="chip hover:text-[rgb(var(--text))]"
+            data-example={i}
+            data-example-payload={JSON.stringify({
+              input: ex.input ?? '',
+              options: ex.options ?? {},
+            })}
+          >
+            {ex.title}
+          </button>
+        ))}
+      </div>
+    )
+  }
+
+  {
+    hasInput && (
+      <div class="mb-4">
+        <div class="mb-1.5 flex items-center justify-between">
+          <label for={`${p}-input`} class="text-sm font-medium">
+            Input
+          </label>
+          <div class="flex gap-1.5">
+            <button type="button" class="btn btn-ghost !py-1 !px-2 text-xs" data-paste>
+              Paste
+            </button>
+            <button type="button" class="btn btn-ghost !py-1 !px-2 text-xs" data-clear>
+              Clear
+            </button>
+          </div>
+        </div>
+        <textarea
+          id={`${p}-input`}
+          class="field"
+          rows="8"
+          spellcheck="false"
+          autocapitalize="off"
+          autocomplete="off"
+          data-input
+          placeholder="Type or paste here…"
+        />
+        <p class="mt-1 text-xs text-[rgb(var(--text-muted))]" data-input-stats aria-live="off" />
+      </div>
+    )
+  }
+
+  {
+    options.length > 0 && (
+      <details class="mb-4 rounded-lg border" open>
+        <summary class="cursor-pointer select-none px-3 py-2 text-sm font-medium">Options</summary>
+        <div class="border-t p-3">
+          <OptionsFields options={options} idPrefix={p} />
+        </div>
+      </details>
+    )
+  }
+
+  <div class="flex flex-wrap items-center gap-2">
+    <button type="button" class="btn btn-primary" data-run>
+      <Icon name="zap" size={16} /> Run
+    </button>
+    <label class="flex items-center gap-2 text-sm text-[rgb(var(--text-muted))]">
+      <input type="checkbox" class="h-4 w-4 rounded" data-live checked />
+      Run as I type
+    </label>
+    <span class="ml-auto text-xs text-[rgb(var(--text-muted))]" data-timing aria-live="polite"
+    ></span>
+  </div>
+
+  <div
+    class="mt-4 rounded-lg border px-3 py-2 text-sm"
+    style="border-color: rgb(var(--danger)); color: rgb(var(--danger))"
+    role="alert"
+    data-error
+    hidden
+  >
+  </div>
+
+  <div class="mt-4" hidden data-result-wrap>
+    <div class="mb-1.5 flex items-center justify-between">
+      <span class="text-sm font-medium">Output</span>
+      <div class="flex gap-1.5">
+        <button type="button" class="btn btn-ghost !py-1 !px-2 text-xs" data-copy>
+          <Icon name="copy" size={14} /> Copy
+        </button>
+        <button type="button" class="btn btn-ghost !py-1 !px-2 text-xs" data-download>
+          <Icon name="download" size={14} /> Download
+        </button>
+      </div>
+    </div>
+    <div data-output></div>
+    <div
+      class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-[rgb(var(--text-muted))]"
+      data-stats
+    >
+    </div>
+    <ul class="mt-2 space-y-1 text-xs" data-notes></ul>
+  </div>
+</section>
+
+<script>
+  import { runToolById } from '@/lib/worker/client';
+  import { copyText, readClipboardText } from '@/lib/clipboard';
+  import { downloadText } from '@/lib/files';
+  import { formatDuration, formatNumber } from '@/lib/format';
+  import {
+    readOptions,
+    applyShowWhen,
+    bindRangeOutputs,
+    showError,
+    clearError,
+    renderTextResult,
+  } from './shared';
+  import type { TextRunResult } from '@/lib/types';
+
+  const DEBOUNCE = 180;
+
+  document.querySelectorAll<HTMLElement>('[data-text-workbench]').forEach((root) => {
+    const toolId = root.dataset.toolId!;
+    const input = root.querySelector<HTMLTextAreaElement>('[data-input]');
+    const runBtn = root.querySelector<HTMLButtonElement>('[data-run]')!;
+    const liveBox = root.querySelector<HTMLInputElement>('[data-live]')!;
+    const errorBox = root.querySelector<HTMLElement>('[data-error]')!;
+    const resultWrap = root.querySelector<HTMLElement>('[data-result-wrap]')!;
+    const outputHost = root.querySelector<HTMLElement>('[data-output]')!;
+    const statsHost = root.querySelector<HTMLElement>('[data-stats]')!;
+    const notesHost = root.querySelector<HTMLUListElement>('[data-notes]')!;
+    const timing = root.querySelector<HTMLElement>('[data-timing]')!;
+    const inputStats = root.querySelector<HTMLElement>('[data-input-stats]');
+    const optionsRoot = root.querySelector<HTMLElement>('[data-options]') ?? root;
+
+    let last: TextRunResult | null = null;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let controller: AbortController | null = null;
+    let runSeq = 0;
+
+    bindRangeOutputs(root);
+    applyShowWhen(optionsRoot);
+
+    function updateInputStats() {
+      if (!inputStats || !input) return;
+      const v = input.value;
+      inputStats.textContent = v
+        ? `${formatNumber(v.length)} chars · ${formatNumber(v.split(/\n/).length)} lines`
+        : '';
+    }
+
+    async function run() {
+      const seq = ++runSeq;
+      controller?.abort();
+      controller = new AbortController();
+      clearError(errorBox);
+      runBtn.disabled = true;
+      const started = performance.now();
+      try {
+        const result = await runToolById<TextRunResult>(
+          toolId,
+          { text: input?.value ?? '', options: readOptions(optionsRoot) },
+          { signal: controller.signal },
+        );
+        if (seq !== runSeq) return;
+        last = result;
+        renderTextResult(outputHost, result);
+        resultWrap.hidden = false;
+
+        statsHost.innerHTML = '';
+        for (const [k, v] of Object.entries(result.stats ?? {})) {
+          const s = document.createElement('span');
+          s.innerHTML = `<span class="font-medium">${k}:</span> ${v}`;
+          statsHost.appendChild(s);
+        }
+        notesHost.innerHTML = '';
+        for (const w of result.warnings ?? []) {
+          const li = document.createElement('li');
+          li.style.color = 'rgb(var(--warning))';
+          li.textContent = `⚠ ${w}`;
+          notesHost.appendChild(li);
+        }
+        for (const n of result.notes ?? []) {
+          const li = document.createElement('li');
+          li.className = 'text-[rgb(var(--text-muted))]';
+          li.textContent = n;
+          notesHost.appendChild(li);
+        }
+        timing.textContent = formatDuration(performance.now() - started);
+      } catch (err) {
+        if (seq !== runSeq) return;
+        const e = err as Error & { hint?: string };
+        if (e.name === 'AbortError') return;
+        resultWrap.hidden = true;
+        showError(errorBox, e.message || 'Something went wrong.', e.hint);
+      } finally {
+        if (seq === runSeq) runBtn.disabled = false;
+      }
+    }
+
+    function schedule() {
+      if (!liveBox.checked) return;
+      clearTimeout(timer);
+      timer = setTimeout(run, DEBOUNCE);
+    }
+
+    runBtn.addEventListener('click', run);
+    input?.addEventListener('input', () => {
+      updateInputStats();
+      schedule();
+    });
+    optionsRoot.addEventListener('input', () => {
+      applyShowWhen(optionsRoot);
+      schedule();
+    });
+    optionsRoot.addEventListener('change', () => {
+      applyShowWhen(optionsRoot);
+      schedule();
+    });
+
+    root.querySelector('[data-clear]')?.addEventListener('click', () => {
+      if (input) {
+        input.value = '';
+        updateInputStats();
+      }
+      resultWrap.hidden = true;
+      clearError(errorBox);
+    });
+    root.querySelector('[data-paste]')?.addEventListener('click', async () => {
+      const t = await readClipboardText();
+      if (t != null && input) {
+        input.value = t;
+        updateInputStats();
+        run();
+      }
+    });
+
+    root.querySelector('[data-copy]')?.addEventListener('click', async () => {
+      if (!last) return;
+      const ok = await copyText(last.output);
+      (window as unknown as { toast?: (m: string) => void }).toast?.(ok ? 'Copied' : 'Copy failed');
+    });
+    root.querySelector('[data-download]')?.addEventListener('click', () => {
+      if (!last) return;
+      if ((last.render ?? 'text') === 'image') {
+        const a = document.createElement('a');
+        a.href = last.output;
+        a.download = last.filename ?? `${toolId}.png`;
+        a.click();
+        return;
+      }
+      downloadText(last.output, last.filename ?? `${toolId}.txt`);
+    });
+
+    root.querySelectorAll<HTMLButtonElement>('[data-example]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        try {
+          const payload = JSON.parse(btn.dataset.examplePayload!) as {
+            input: string;
+            options: Record<string, unknown>;
+          };
+          if (input) input.value = payload.input;
+          for (const [k, v] of Object.entries(payload.options)) {
+            const el = optionsRoot.querySelector<HTMLInputElement | HTMLSelectElement>(
+              `[data-opt-key="${k}"]`,
+            );
+            if (!el) continue;
+            if ((el as HTMLInputElement).type === 'checkbox')
+              (el as HTMLInputElement).checked = Boolean(v);
+            else el.value = String(v);
+          }
+          applyShowWhen(optionsRoot);
+          updateInputStats();
+          run();
+        } catch {
+          /* malformed example */
+        }
+      });
+    });
+
+    updateInputStats();
+    // Auto-run once if an example / default produces output without input.
+    if (!input?.value && (root.querySelector('[data-example]') || toolId.includes('generat'))) {
+      run();
+    }
+  });
+</script>

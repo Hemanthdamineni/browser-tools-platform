@@ -1,0 +1,26 @@
+---
+import type { GetStaticPaths } from 'astro';
+import Layout from '@/components/Layout.astro';
+import ToolPage from '@/components/ToolPage.astro';
+import { ALL_TOOLS } from '@/lib/registry';
+import { softwareAppJsonLd, faqJsonLd, breadcrumbJsonLd } from '@/lib/seo';
+
+export const getStaticPaths = (() => {
+  return ALL_TOOLS.map((tool) => ({
+    params: { tool: tool.meta.id },
+    props: { meta: tool.meta },
+  }));
+}) satisfies GetStaticPaths;
+
+const { meta } = Astro.props;
+---
+
+<Layout
+  title={meta.name}
+  description={meta.summary}
+  path={`/tools/${meta.id}`}
+  noindex={meta.hidden}
+  jsonLd={[softwareAppJsonLd(meta), faqJsonLd(meta), breadcrumbJsonLd(meta)]}
+>
+  <ToolPage meta={meta} />
+</Layout>

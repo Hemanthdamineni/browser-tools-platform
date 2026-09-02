@@ -1,0 +1,82 @@
+---
+import { site } from '@/lib/site';
+
+interface Props {
+  title: string;
+  description?: string;
+  /** Path-only canonical, e.g. "/tools/base64". Defaults to current URL. */
+  path?: string;
+  noindex?: boolean;
+  /** JSON-LD objects to embed. */
+  jsonLd?: (Record<string, unknown> | null)[];
+  ogType?: 'website' | 'article';
+}
+
+const {
+  title,
+  description = site.description,
+  path,
+  noindex = false,
+  jsonLd = [],
+  ogType = 'website',
+} = Astro.props;
+
+const canonical = new URL(path ?? Astro.url.pathname, site.url).toString();
+const fullTitle = title === site.name ? title : `${title} · ${site.name}`;
+const schemas = jsonLd.filter(Boolean) as Record<string, unknown>[];
+---
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>{fullTitle}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+{noindex && <meta name="robots" content="noindex, nofollow" />}
+
+<meta name="generator" content={Astro.generator} />
+<meta name="theme-color" content={site.themeColor} />
+<meta name="color-scheme" content="light dark" />
+<meta name="application-name" content={site.name} />
+<meta name="apple-mobile-web-app-title" content={site.shortName} />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+
+<meta property="og:site_name" content={site.name} />
+<meta property="og:type" content={ogType} />
+<meta property="og:title" content={fullTitle} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:image" content={new URL('/og.png', site.url).toString()} />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={fullTitle} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={new URL('/og.png', site.url).toString()} />
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="icon" href="/favicon.ico" sizes="32x32" />
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+<link rel="manifest" href="/manifest.webmanifest" />
+<link rel="sitemap" href="/sitemap.xml" />
+
+<link
+  rel="search"
+  type="application/opensearchdescription+xml"
+  title={site.name}
+  href="/opensearch.xml"
+/>
+
+{schemas.map((s) => <script type="application/ld+json" set:html={JSON.stringify(s)} />)}
+
+{/* Resolve theme before first paint to avoid a flash. */}
+<script is:inline>
+  (function () {
+    try {
+      var stored = localStorage.getItem('tb-theme');
+      var sys = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      var theme = stored === 'dark' || stored === 'light' ? stored : sys;
+      document.documentElement.setAttribute('data-theme', theme);
+    } catch (_e) {
+      document.documentElement.setAttribute('data-theme', 'light');
+    }
+  })();
+</script>

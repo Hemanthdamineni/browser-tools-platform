@@ -1,0 +1,41 @@
+---
+import type { ToolMeta } from '@/lib/types';
+import { CATEGORIES } from '@/lib/categories';
+import Icon from './Icon.astro';
+
+interface Props {
+  meta: ToolMeta;
+  showCategory?: boolean;
+}
+const { meta, showCategory = false } = Astro.props;
+const category = CATEGORIES[meta.category];
+---
+
+<a
+  href={`/tools/${meta.id}`}
+  class="group surface flex flex-col gap-2 rounded-xl p-4 transition-colors hover:border-[rgb(var(--accent))]"
+>
+  <div class="flex items-start justify-between gap-2">
+    <span
+      class="grid h-9 w-9 shrink-0 place-items-center rounded-lg"
+      style="background-color: rgb(var(--bg-inset))"
+      aria-hidden="true"
+    >
+      <Icon name={category.icon} size={18} />
+    </span>
+    {
+      meta.status === 'beta' && (
+        <span class="chip !py-0.5 text-[10px] uppercase tracking-wide">beta</span>
+      )
+    }
+  </div>
+  <div>
+    <h3 class="font-semibold leading-tight group-hover:text-[rgb(var(--accent))]">{meta.name}</h3>
+    <p class="mt-1 text-sm text-[rgb(var(--text-muted))] line-clamp-2">{meta.summary}</p>
+  </div>
+  {
+    showCategory && (
+      <span class="mt-auto pt-1 text-xs text-[rgb(var(--text-muted))]">{category.name}</span>
+    )
+  }
+</a>

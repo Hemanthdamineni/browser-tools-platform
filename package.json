@@ -1,0 +1,59 @@
+{
+  "name": "toolbench",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "Toolbench - a fast, privacy-first collection of browser utilities. Every tool runs entirely on your device; nothing is uploaded.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write \"src/**/*.{ts,astro,css,md}\" \"*.{mjs,json,md}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,astro,css,md}\" \"*.{mjs,json,md}\"",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "verify": "npm run check && npm run lint && npm run test && npm run build"
+  },
+  "dependencies": {
+    "@astrojs/tailwind": "^5.1.5",
+    "astro": "^4.16.19",
+    "cronstrue": "^3.24.0",
+    "diff": "^5.2.2",
+    "fflate": "^0.8.2",
+    "marked": "^14.1.4",
+    "pdf-lib": "^1.17.1",
+    "pdfjs-dist": "^4.10.38",
+    "qrcode-generator": "^2.0.4",
+    "tailwindcss": "^3.4.19",
+    "yaml": "^2.9.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@eslint/js": "^9.39.5",
+    "@playwright/test": "^1.62.1",
+    "@types/diff": "^5.2.3",
+    "@types/node": "^22.20.1",
+    "@typescript-eslint/eslint-plugin": "^8.69.0",
+    "@typescript-eslint/parser": "^8.69.0",
+    "@vitest/coverage-v8": "^2.1.9",
+    "astro-eslint-parser": "^1.4.0",
+    "axe-core": "^4.13.0",
+    "eslint": "^9.39.5",
+    "eslint-plugin-astro": "^1.7.0",
+    "globals": "^14.0.0",
+    "jsdom": "^25.0.1",
+    "prettier": "^3.9.6",
+    "prettier-plugin-astro": "^0.14.1",
+    "typescript": "^5.9.3",
+    "vitest": "^2.1.9"
+  }
+}

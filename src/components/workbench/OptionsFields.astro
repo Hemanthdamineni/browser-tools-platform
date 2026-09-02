@@ -1,0 +1,104 @@
+---
+import type { ToolOption } from '@/lib/types';
+
+interface Props {
+  options: ToolOption[];
+  idPrefix: string;
+}
+const { options, idPrefix } = Astro.props;
+
+const fieldId = (key: string) => `${idPrefix}-opt-${key}`;
+---
+
+<div class="grid gap-4 sm:grid-cols-2" data-options>
+  {
+    options.map((opt) => {
+      const id = fieldId(opt.key);
+      const showWhen = opt.showWhen ? JSON.stringify(opt.showWhen) : undefined;
+      return (
+        <div
+          class="flex flex-col gap-1"
+          data-option-wrap={opt.key}
+          data-show-when={showWhen}
+          class:list={[opt.type === 'textarea' && 'sm:col-span-2']}
+        >
+          <label for={id} class="text-sm font-medium">
+            {opt.label}
+          </label>
+
+          {opt.type === 'select' && (
+            <select id={id} class="field" data-opt-key={opt.key} data-opt-type="select">
+              {opt.choices.map((c) => (
+                <option value={c.value} selected={c.value === opt.default}>
+                  {c.label}
+                </option>
+              ))}
+            </select>
+          )}
+
+          {opt.type === 'boolean' && (
+            <label class="flex items-center gap-2 text-sm">
+              <input
+                id={id}
+                type="checkbox"
+                class="h-4 w-4 rounded"
+                data-opt-key={opt.key}
+                data-opt-type="boolean"
+                checked={opt.default}
+              />
+              <span class="text-[rgb(var(--text-muted))]">{opt.help}</span>
+            </label>
+          )}
+
+          {(opt.type === 'number' || opt.type === 'range') && (
+            <div class="flex items-center gap-3">
+              <input
+                id={id}
+                type={opt.type === 'range' ? 'range' : 'number'}
+                class:list={['field', opt.type === 'range' && 'p-0 accent-[rgb(var(--accent))]']}
+                data-opt-key={opt.key}
+                data-opt-type="number"
+                value={opt.default}
+                min={opt.min}
+                max={opt.max}
+                step={opt.step ?? 1}
+              />
+              {opt.type === 'range' && (
+                <output class="w-12 text-right text-sm tabular-nums" data-range-out={opt.key}>
+                  {opt.default}
+                </output>
+              )}
+            </div>
+          )}
+
+          {opt.type === 'text' && (
+            <input
+              id={id}
+              type="text"
+              class="field"
+              data-opt-key={opt.key}
+              data-opt-type="text"
+              value={opt.default}
+              placeholder={opt.placeholder}
+            />
+          )}
+
+          {opt.type === 'textarea' && (
+            <textarea
+              id={id}
+              class="field !min-h-[5rem]"
+              data-opt-key={opt.key}
+              data-opt-type="text"
+              placeholder={opt.placeholder}
+              set:text={opt.default}
+            />
+          )}
+
+          {opt.help && opt.type !== 'boolean' && (
+            <p class="text-xs text-[rgb(var(--text-muted))]">{opt.help}</p>
+          )}
+        </div>
+      );
+    })
+  }
+</div>

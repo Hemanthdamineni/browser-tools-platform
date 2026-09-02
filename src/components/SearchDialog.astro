@@ -1,0 +1,138 @@
+---
+import { SEARCH_INDEX } from '@/lib/registry';
+---
+
+<dialog
+  id="search-dialog"
+  class="m-0 w-full max-w-xl rounded-xl border p-0 backdrop:bg-black/40 sm:mt-[12vh] sm:ml-[50%] sm:-translate-x-1/2"
+  style="background-color: rgb(var(--bg)); color: rgb(var(--text))"
+  aria-label="Search tools"
+>
+  <form method="dialog" class="flex items-center gap-2 border-b px-3 py-2">
+    <label for="search-input" class="sr-only">Search tools</label>
+    <input
+      id="search-input"
+      type="search"
+      autocomplete="off"
+      spellcheck="false"
+      placeholder="Search tools…"
+      class="field border-0 bg-transparent text-base focus:outline-none"
+    />
+    <button value="close" class="btn btn-ghost !px-2 text-xs" aria-label="Close search">Esc</button>
+  </form>
+  <ul id="search-results" class="max-h-[60vh] overflow-y-auto p-2" role="listbox"></ul>
+  <p id="search-empty" hidden class="px-4 py-8 text-center text-sm text-[rgb(var(--text-muted))]">
+    No tools match that.
+  </p>
+</dialog>
+
+<script is:inline define:vars={{ index: SEARCH_INDEX }}>
+  window.__TB_SEARCH_INDEX__ = index;
+</script>
+
+<script>
+  interface Entry {
+    id: string;
+    name: string;
+    summary: string;
+    categoryName: string;
+    keywords: string[];
+    href: string;
+  }
+
+  const dialog = document.getElementById('search-dialog') as HTMLDialogElement | null;
+  const input = document.getElementById('search-input') as HTMLInputElement | null;
+  const list = document.getElementById('search-results') as HTMLUListElement | null;
+  const empty = document.getElementById('search-empty');
+  const index: Entry[] =
+    (window as unknown as { __TB_SEARCH_INDEX__: Entry[] }).__TB_SEARCH_INDEX__ ?? [];
+  if (!dialog || !input || !list) throw new Error('search dom missing');
+
+  let active = -1;
+  let results: Entry[] = [];
+
+  function score(e: Entry, q: string): number {
+    const n = e.name.toLowerCase();
+    const hay = `${n} ${e.summary} ${e.categoryName} ${e.keywords.join(' ')}`.toLowerCase();
+    if (!hay.includes(q)) return 0;
+    let s = 1;
+    if (n === q) s += 100;
+    else if (n.startsWith(q)) s += 40;
+    else if (n.includes(q)) s += 20;
+    if (e.keywords.some((k) => k.toLowerCase() === q)) s += 15;
+    return s;
+  }
+
+  function render() {
+    const q = input!.value.trim().toLowerCase();
+    results = q
+      ? index
+          .map((e) => ({ e, s: score(e, q) }))
+          .filter((r) => r.s > 0)
+          .sort((a, b) => b.s - a.s)
+          .slice(0, 12)
+          .map((r) => r.e)
+      : index.slice(0, 8);
+    active = results.length ? 0 : -1;
+    list!.innerHTML = results
+      .map(
+        (e, i) => `
+        <li role="option" aria-selected="${i === active}">
+          <a href="${e.href}" data-i="${i}"
+             class="flex flex-col gap-0.5 rounded-lg px-3 py-2 ${i === active ? 'bg-[rgb(var(--bg-inset))]' : ''}">
+            <span class="text-sm font-semibold">${escape(e.name)}</span>
+            <span class="text-xs text-[rgb(var(--text-muted))]">${escape(e.summary)}</span>
+          </a>
+        </li>`,
+      )
+      .join('');
+    empty?.toggleAttribute('hidden', results.length !== 0);
+  }
+
+  function escape(s: string) {
+    return s.replace(
+      /[&<>"']/g,
+      (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!,
+    );
+  }
+
+  function move(delta: number) {
+    if (!results.length) return;
+    active = (active + delta + results.length) % results.length;
+    render();
+    list!.querySelector(`[data-i="${active}"]`)?.scrollIntoView({ block: 'nearest' });
+  }
+
+  function open() {
+    if (dialog!.open) return;
+    dialog!.showModal();
+    input!.value = '';
+    render();
+    input!.focus();
+  }
+
+  window.addEventListener('toolbench:search', open);
+  input.addEventListener('input', render);
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      move(1);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      move(-1);
+    } else if (e.key === 'Enter') {
+      const sel = results[active];
+      if (sel) {
+        e.preventDefault();
+        location.href = sel.href;
+      }
+    }
+  });
+  list.addEventListener('mousemove', (e) => {
+    const el = (e.target as HTMLElement).closest('[data-i]');
+    if (el) {
+      active = Number(el.getAttribute('data-i'));
+      render();
+    }
+  });
+</script>

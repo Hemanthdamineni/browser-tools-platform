@@ -1,0 +1,165 @@
+/** DOM helpers shared by the text + file workbenches. */
+import type { OptionValues, TextRunResult } from '@/lib/types';
+import { escapeHtml } from '@/lib/format';
+
+export function readOptions(root: ParentNode): OptionValues {
+  const values: OptionValues = {};
+  root.querySelectorAll<HTMLElement>('[data-opt-key]').forEach((el) => {
+    const key = el.dataset.optKey!;
+    const type = el.dataset.optType;
+    if (type === 'boolean') {
+      values[key] = (el as HTMLInputElement).checked;
+    } else if (type === 'number') {
+      values[key] = Number((el as HTMLInputElement).value);
+    } else {
+      values[key] = (el as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement).value;
+    }
+  });
+  return values;
+}
+
+export function applyShowWhen(root: ParentNode): void {
+  const values = readOptions(root);
+  root.querySelectorAll<HTMLElement>('[data-show-when]').forEach((wrap) => {
+    try {
+      const cond = JSON.parse(wrap.dataset.showWhen!) as { key: string; value: unknown };
+      wrap.hidden = values[cond.key] !== cond.value;
+    } catch {
+      /* ignore malformed condition */
+    }
+  });
+}
+
+export function bindRangeOutputs(root: ParentNode): void {
+  root.querySelectorAll<HTMLInputElement>('input[type="range"][data-opt-key]').forEach((input) => {
+    const out = root.querySelector<HTMLOutputElement>(`[data-range-out="${input.dataset.optKey}"]`);
+    if (out) input.addEventListener('input', () => (out.value = input.value));
+  });
+}
+
+export function showError(box: HTMLElement, message: string, hint?: string): void {
+  box.hidden = false;
+  box.innerHTML = `<strong class="font-semibold">${escapeHtml(message)}</strong>${
+    hint ? `<br><span class="opacity-80">${escapeHtml(hint)}</span>` : ''
+  }`;
+}
+
+export function clearError(box: HTMLElement): void {
+  box.hidden = true;
+  box.textContent = '';
+}
+
+/** Render a TextRunResult into `host`. Every branch is XSS-safe. */
+export function renderTextResult(host: HTMLElement, result: TextRunResult): void {
+  const kind = result.render ?? 'text';
+  host.innerHTML = '';
+
+  if (kind === 'image') {
+    const img = document.createElement('img');
+    img.src = result.output;
+    img.alt = 'Generated output';
+    img.className = 'max-h-[420px] rounded-lg border bg-white';
+    host.appendChild(img);
+    return;
+  }
+
+  if (kind === 'colors') {
+    let colors: string[] = [];
+    try {
+      colors = JSON.parse(result.output);
+    } catch {
+      colors = [];
+    }
+    const grid = document.createElement('div');
+    grid.className = 'flex flex-wrap gap-2';
+    colors.forEach((c) => {
+      const sw = document.createElement('button');
+      sw.type = 'button';
+      sw.title = `Copy ${c}`;
+      sw.className = 'h-16 w-24 rounded-lg border text-[11px] font-mono';
+      sw.style.backgroundColor = c;
+      sw.style.color = readableOn(c);
+      sw.textContent = c;
+      sw.addEventListener('click', () => navigator.clipboard?.writeText(c));
+      grid.appendChild(sw);
+    });
+    host.appendChild(grid);
+    return;
+  }
+
+  if (kind === 'table') {
+    let data: { headers: string[]; rows: string[][] } = { headers: [], rows: [] };
+    try {
+      data = JSON.parse(result.output);
+    } catch {
+      /* fall back to text */
+    }
+    const wrap = document.createElement('div');
+    wrap.className = 'overflow-x-auto rounded-lg border';
+    const table = document.createElement('table');
+    table.className = 'w-full text-left text-sm';
+    const thead = document.createElement('thead');
+    thead.innerHTML = `<tr>${data.headers
+      .map(
+        (h) =>
+          `<th class="border-b bg-[rgb(var(--bg-inset))] px-3 py-2 font-semibold">${escapeHtml(h)}</th>`,
+      )
+      .join('')}</tr>`;
+    const tbody = document.createElement('tbody');
+    tbody.innerHTML = data.rows
+      .map(
+        (r) =>
+          `<tr>${r.map((c) => `<td class="border-b px-3 py-1.5 align-top font-mono text-xs">${escapeHtml(String(c))}</td>`).join('')}</tr>`,
+      )
+      .join('');
+    table.append(thead, tbody);
+    wrap.appendChild(table);
+    host.appendChild(wrap);
+    return;
+  }
+
+  if (kind === 'diff') {
+    const pre = document.createElement('pre');
+    pre.className = 'overflow-x-auto rounded-lg border p-3 text-xs leading-relaxed';
+    pre.innerHTML = result.output
+      .split('\n')
+      .map((line) => {
+        const safe = escapeHtml(line);
+        if (line.startsWith('+') && !line.startsWith('+++'))
+          return `<span style="color: rgb(var(--accent))">${safe}</span>`;
+        if (line.startsWith('-') && !line.startsWith('---'))
+          return `<span style="color: rgb(var(--danger))">${safe}</span>`;
+        if (line.startsWith('@@')) return `<span class="opacity-60">${safe}</span>`;
+        return safe;
+      })
+      .join('\n');
+    host.appendChild(pre);
+    return;
+  }
+
+  // text / code / html-escaped → read-only textarea for easy select+copy
+  const ta = document.createElement('textarea');
+  ta.readOnly = true;
+  ta.className = 'field';
+  ta.rows = Math.min(20, Math.max(4, result.output.split('\n').length + 1));
+  ta.value = result.output;
+  host.appendChild(ta);
+  if (kind === 'code' && result.language) {
+    const tag = document.createElement('span');
+    tag.className = 'chip mt-2';
+    tag.textContent = result.language;
+    host.appendChild(tag);
+  }
+}
+
+function readableOn(bg: string): string {
+  // crude luminance check for swatch label colour
+  const m = /^#?([\da-f]{2})([\da-f]{2})([\da-f]{2})/i.exec(bg.trim());
+  if (!m || !m[1] || !m[2] || !m[3]) return '#000';
+  const lin = (hex: string) => {
+    const c = parseInt(hex, 16) / 255;
+    return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  };
+  const L = 0.2126 * lin(m[1]) + 0.7152 * lin(m[2]) + 0.0722 * lin(m[3]);
+  return L > 0.4 ? '#000' : '#fff';
+}

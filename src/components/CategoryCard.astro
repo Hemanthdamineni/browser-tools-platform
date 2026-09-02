@@ -1,0 +1,29 @@
+---
+import type { Category } from '@/lib/types';
+import Icon from './Icon.astro';
+
+interface Props {
+  category: Category & { count: number };
+}
+const { category } = Astro.props;
+---
+
+<a
+  href={`/categories/${category.id}`}
+  class="group surface flex items-start gap-3 rounded-xl p-4 transition-colors hover:border-[rgb(var(--accent))]"
+>
+  <span
+    class="grid h-10 w-10 shrink-0 place-items-center rounded-lg"
+    style="background-color: rgb(var(--accent) / 0.12); color: rgb(var(--accent))"
+    aria-hidden="true"
+  >
+    <Icon name={category.icon} size={20} />
+  </span>
+  <div>
+    <h3 class="font-semibold group-hover:text-[rgb(var(--accent))]">
+      {category.name}
+      <span class="text-sm font-normal text-[rgb(var(--text-muted))]">· {category.count}</span>
+    </h3>
+    <p class="mt-0.5 text-sm text-[rgb(var(--text-muted))]">{category.blurb}</p>
+  </div>
+</a>

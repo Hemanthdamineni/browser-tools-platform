@@ -1,0 +1,120 @@
+---
+import Layout from '@/components/Layout.astro';
+import ToolCard from '@/components/ToolCard.astro';
+import CategoryCard from '@/components/CategoryCard.astro';
+import Icon from '@/components/Icon.astro';
+import { site } from '@/lib/site';
+import { VISIBLE_TOOLS, categoriesWithCounts, TOOL_COUNT, CATEGORY_COUNT } from '@/lib/registry';
+
+const categories = categoriesWithCounts();
+const featured = VISIBLE_TOOLS.filter((t) =>
+  [
+    'base64',
+    'json-format',
+    'hash',
+    'uuid',
+    'url-encode',
+    'jwt-decode',
+    'qr-code',
+    'image-resize',
+  ].includes(t.meta.id),
+).slice(0, 8);
+const pillars = [
+  {
+    icon: 'shield-check',
+    title: 'Nothing is uploaded',
+    text: 'Your files and text are processed by code running in your tab. They never touch a server.',
+  },
+  {
+    icon: 'zap',
+    title: 'Fast and offline',
+    text: 'No round-trips. Install it once and every tool keeps working with no connection.',
+  },
+  {
+    icon: 'lock',
+    title: 'No accounts, no tracking',
+    text: 'No sign-up, no cookies, no analytics by default. Open source and auditable.',
+  },
+];
+---
+
+<Layout title={site.name} description={site.description} path="/">
+  <section class="py-10 text-center sm:py-16">
+    <p class="chip mx-auto">
+      <Icon name="shield-check" size={14} /> Runs on your device — nothing uploaded
+    </p>
+    <h1 class="mx-auto mt-4 max-w-3xl text-3xl font-extrabold tracking-tight sm:text-5xl">
+      {site.tagline}
+    </h1>
+    <p class="mx-auto mt-4 max-w-xl text-[rgb(var(--text-muted))]">
+      {TOOL_COUNT} file and text utilities across {CATEGORY_COUNT} categories. Free, no sign-up, works
+      offline.
+    </p>
+    <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
+      <a href="/tools" class="btn btn-primary"
+        >Browse all tools <Icon name="arrow-right" size={16} /></a
+      >
+      <button type="button" class="btn btn-ghost" data-open-search>
+        <Icon name="search" size={16} /> Search
+      </button>
+    </div>
+  </section>
+
+  <section class="grid gap-4 sm:grid-cols-3">
+    {
+      pillars.map((p) => (
+        <div class="surface rounded-xl p-4">
+          <span
+            class="grid h-9 w-9 place-items-center rounded-lg"
+            style="background-color: rgb(var(--accent) / 0.12); color: rgb(var(--accent))"
+            aria-hidden="true"
+          >
+            <Icon name={p.icon} size={18} />
+          </span>
+          <h2 class="mt-3 font-semibold">{p.title}</h2>
+          <p class="mt-1 text-sm text-[rgb(var(--text-muted))]">{p.text}</p>
+        </div>
+      ))
+    }
+  </section>
+
+  {
+    featured.length > 0 && (
+      <section class="mt-12">
+        <div class="flex items-end justify-between">
+          <h2 class="text-xl font-bold">Popular tools</h2>
+          <a class="text-sm hover:text-[rgb(var(--accent))]" href="/tools">
+            See all {TOOL_COUNT} →
+          </a>
+        </div>
+        <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {featured.map((t) => (
+            <ToolCard meta={t.meta} />
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  <section class="mt-12">
+    <h2 class="text-xl font-bold">Browse by category</h2>
+    <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      {categories.map((c) => <CategoryCard category={c} />)}
+    </div>
+  </section>
+
+  <section class="mt-12 surface rounded-xl p-6 text-center">
+    <h2 class="text-lg font-bold">Install it as an app</h2>
+    <p class="mx-auto mt-2 max-w-lg text-sm text-[rgb(var(--text-muted))]">
+      {site.name} is a Progressive Web App. Add it to your home screen or desktop on Windows, macOS, Linux,
+      Android and iOS — it then runs fullscreen and works entirely offline.
+    </p>
+    <a href="/about#install" class="btn btn-ghost mt-4">How to install</a>
+  </section>
+</Layout>
+
+<script>
+  document
+    .querySelector('[data-open-search]')
+    ?.addEventListener('click', () => window.dispatchEvent(new CustomEvent('toolbench:search')));
+</script>

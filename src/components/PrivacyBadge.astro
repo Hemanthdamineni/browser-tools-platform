@@ -1,0 +1,39 @@
+---
+import type { ToolPrivacy } from '@/lib/types';
+import Icon from './Icon.astro';
+
+interface Props {
+  privacy: ToolPrivacy;
+  compact?: boolean;
+}
+const { privacy, compact = false } = Astro.props;
+const noNetwork = privacy.network === 'none';
+---
+
+<div class:list={['flex flex-wrap gap-1.5', compact && 'text-xs']}>
+  <span
+    class="chip"
+    style="background-color: rgb(var(--accent) / 0.12); color: rgb(var(--accent))"
+    title="All processing happens in your browser"
+  >
+    <Icon name="shield-check" size={14} /> On-device
+  </span>
+  {
+    noNetwork ? (
+      <span class="chip" title="This tool makes no network requests while running">
+        <Icon name="wifi-off" size={14} /> No network
+      </span>
+    ) : (
+      <span class="chip" title={`Contacts: ${(privacy.network as string[]).join(', ')}`}>
+        <Icon name="globe" size={14} /> {(privacy.network as string[]).length} endpoint(s)
+      </span>
+    )
+  }
+  {
+    privacy.offline && (
+      <span class="chip" title="Works without an internet connection once loaded">
+        <Icon name="zap" size={14} /> Offline-ready
+      </span>
+    )
+  }
+</div>

@@ -1,0 +1,61 @@
+---
+import Layout from '@/components/Layout.astro';
+import { site } from '@/lib/site';
+import { TOOL_COUNT } from '@/lib/registry';
+---
+
+<Layout
+  title="About"
+  description={`What ${site.name} is and how to install it.`}
+  path="/about"
+  narrow
+>
+  <article class="prose-tool max-w-prose">
+    <h1 class="text-2xl font-bold tracking-tight text-[rgb(var(--text))] sm:text-3xl">
+      About {site.name}
+    </h1>
+    <p>
+      {site.name} is a growing collection of {TOOL_COUNT} small utilities — encoders, hashers, formatters,
+      converters, generators, image and PDF helpers — that all run on your device. It exists because the
+      common "online tool" pattern of uploading a file to a stranger's server is unnecessary for most
+      of these tasks: the browser can do them itself.
+    </p>
+
+    <h2 id="how">How it works</h2>
+    <p>
+      The site is fully static. Each tool is a self-contained module that is only downloaded when
+      you open it, so the app stays small. Heavier jobs run in a Web Worker so the interface never
+      freezes. There is no backend.
+    </p>
+
+    <h2 id="install">Install as an app</h2>
+    <p>{site.name} is a Progressive Web App and installs on every major platform:</p>
+    <ul>
+      <li>
+        <strong>Chrome / Edge (desktop)</strong>: click the install icon in the address bar, or menu
+        → "Install {site.shortName}".
+      </li>
+      <li><strong>Android (Chrome)</strong>: menu → "Add to Home screen" / "Install app".</li>
+      <li><strong>iOS / iPadOS (Safari)</strong>: Share → "Add to Home Screen".</li>
+      <li><strong>macOS (Safari 17+)</strong>: File → "Add to Dock".</li>
+      <li>
+        <strong>Firefox</strong>: use it as a normal tab, or a browser add-on for site-specific
+        windows.
+      </li>
+    </ul>
+    <p>Once installed it opens in its own window and works with no internet connection.</p>
+
+    <h2>Open source</h2>
+    <p>
+      The code is MIT-licensed and available <a href={site.repository} rel="noopener">on GitHub</a>.
+      Issues and tool suggestions are welcome. Adding a tool is intentionally small — see
+      <code>docs/ADDING-A-TOOL.md</code>.
+    </p>
+
+    <h2>No warranty</h2>
+    <p>
+      These tools are provided as-is. For anything safety-critical (legal, financial, medical),
+      verify results independently.
+    </p>
+  </article>
+</Layout>

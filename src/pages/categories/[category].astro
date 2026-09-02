@@ -1,0 +1,47 @@
+---
+import type { GetStaticPaths } from 'astro';
+import Layout from '@/components/Layout.astro';
+import ToolCard from '@/components/ToolCard.astro';
+import Icon from '@/components/Icon.astro';
+import { CATEGORY_LIST } from '@/lib/categories';
+import { toolsInCategory } from '@/lib/registry';
+
+export const getStaticPaths = (() => {
+  return CATEGORY_LIST.map((category) => ({
+    params: { category: category.id },
+    props: { category, tools: toolsInCategory(category.id) },
+  })).filter((entry) => entry.props.tools.length > 0);
+}) satisfies GetStaticPaths;
+
+const { category, tools } = Astro.props;
+const sorted = [...tools].sort((a, b) => a.meta.name.localeCompare(b.meta.name));
+---
+
+<Layout title={category.name} description={category.blurb} path={`/categories/${category.id}`}>
+  <nav
+    class="flex items-center gap-1.5 text-sm text-[rgb(var(--text-muted))]"
+    aria-label="Breadcrumb"
+  >
+    <a class="hover:text-[rgb(var(--accent))]" href="/categories">Categories</a>
+    <Icon name="chevron-right" size={14} />
+    <span class="text-[rgb(var(--text))]">{category.name}</span>
+  </nav>
+
+  <header class="mt-4 flex items-start gap-3">
+    <span
+      class="grid h-11 w-11 shrink-0 place-items-center rounded-xl"
+      style="background-color: rgb(var(--accent) / 0.12); color: rgb(var(--accent))"
+      aria-hidden="true"
+    >
+      <Icon name={category.icon} size={22} />
+    </span>
+    <div>
+      <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">{category.name}</h1>
+      <p class="mt-1 text-[rgb(var(--text-muted))]">{category.blurb}</p>
+    </div>
+  </header>
+
+  <div class="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+    {sorted.map((t) => <ToolCard meta={t.meta} />)}
+  </div>
+</Layout>

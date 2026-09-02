@@ -1,0 +1,256 @@
+---
+import type { ToolMeta } from '@/lib/types';
+import OptionsFields from './OptionsFields.astro';
+import Icon from '@/components/Icon.astro';
+
+interface Props {
+  meta: ToolMeta;
+}
+const { meta } = Astro.props;
+const options = meta.options ?? [];
+const p = meta.id;
+---
+
+<section
+  class="surface rounded-xl p-4 sm:p-6"
+  data-file-workbench
+  data-tool-id={meta.id}
+  data-accept={meta.accept ?? ''}
+  data-multiple={meta.multiple ? 'true' : 'false'}
+  aria-label={`${meta.name} workbench`}
+>
+  <div
+    class="drop-zone flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-4 py-10 text-center transition-colors"
+    data-drop
+    role="button"
+    tabindex="0"
+    aria-label="Choose files or drop them here"
+  >
+    <Icon name="download" size={28} class="opacity-60" />
+    <p class="text-sm font-medium">
+      Drop {meta.multiple ? 'files' : 'a file'} here, or <span class="link">browse</span>
+    </p>
+    {meta.accept && <p class="text-xs text-[rgb(var(--text-muted))]">Accepts: {meta.accept}</p>}
+    <p class="text-xs text-[rgb(var(--text-muted))]">Files stay on your device.</p>
+  </div>
+
+  <ul class="mt-3 space-y-1.5 text-sm" data-file-list></ul>
+
+  {
+    options.length > 0 && (
+      <details class="mt-4 rounded-lg border" open>
+        <summary class="cursor-pointer select-none px-3 py-2 text-sm font-medium">Options</summary>
+        <div class="border-t p-3">
+          <OptionsFields options={options} idPrefix={p} />
+        </div>
+      </details>
+    )
+  }
+
+  <div class="mt-4 flex flex-wrap items-center gap-2">
+    <button type="button" class="btn btn-primary" data-run disabled>
+      <Icon name="zap" size={16} /> Process
+    </button>
+    <button type="button" class="btn btn-ghost" data-cancel hidden>Cancel</button>
+    <button type="button" class="btn btn-ghost" data-reset hidden>Reset</button>
+  </div>
+
+  <div class="mt-3" hidden data-progress-wrap>
+    <div class="h-2 overflow-hidden rounded-full" style="background-color: rgb(var(--bg-inset))">
+      <div
+        class="h-full transition-[width]"
+        style="width:0%; background-color: rgb(var(--accent))"
+        data-progress-bar
+      >
+      </div>
+    </div>
+    <p class="mt-1 text-xs text-[rgb(var(--text-muted))]" data-progress-msg aria-live="polite"></p>
+  </div>
+
+  <div
+    class="mt-4 rounded-lg border px-3 py-2 text-sm"
+    style="border-color: rgb(var(--danger)); color: rgb(var(--danger))"
+    role="alert"
+    data-error
+    hidden
+  >
+  </div>
+
+  <div class="mt-4" hidden data-result-wrap>
+    <div class="mb-2 flex items-center justify-between">
+      <span class="text-sm font-medium" data-result-title>Results</span>
+      <button type="button" class="btn btn-ghost !py-1 !px-2 text-xs" data-download-all hidden>
+        <Icon name="archive" size={14} /> Download all (.zip)
+      </button>
+    </div>
+    <ul class="space-y-2" data-outputs></ul>
+    <ul class="mt-2 space-y-1 text-xs" data-notes></ul>
+  </div>
+</section>
+
+<script>
+  import { runToolById } from '@/lib/worker/client';
+  import { createDropZone, downloadBlob, downloadZip } from '@/lib/files';
+  import { formatBytes } from '@/lib/format';
+  import { readOptions, applyShowWhen, bindRangeOutputs, showError, clearError } from './shared';
+  import type { FileRunResult } from '@/lib/types';
+
+  document.querySelectorAll<HTMLElement>('[data-file-workbench]').forEach((root) => {
+    const toolId = root.dataset.toolId!;
+    const accept = root.dataset.accept || undefined;
+    const multiple = root.dataset.multiple === 'true';
+    const dropEl = root.querySelector<HTMLElement>('[data-drop]')!;
+    const listEl = root.querySelector<HTMLUListElement>('[data-file-list]')!;
+    const runBtn = root.querySelector<HTMLButtonElement>('[data-run]')!;
+    const cancelBtn = root.querySelector<HTMLButtonElement>('[data-cancel]')!;
+    const resetBtn = root.querySelector<HTMLButtonElement>('[data-reset]')!;
+    const errorBox = root.querySelector<HTMLElement>('[data-error]')!;
+    const progressWrap = root.querySelector<HTMLElement>('[data-progress-wrap]')!;
+    const progressBar = root.querySelector<HTMLElement>('[data-progress-bar]')!;
+    const progressMsg = root.querySelector<HTMLElement>('[data-progress-msg]')!;
+    const resultWrap = root.querySelector<HTMLElement>('[data-result-wrap]')!;
+    const outputsEl = root.querySelector<HTMLUListElement>('[data-outputs]')!;
+    const notesEl = root.querySelector<HTMLUListElement>('[data-notes]')!;
+    const downloadAllBtn = root.querySelector<HTMLButtonElement>('[data-download-all]')!;
+    const optionsRoot = root.querySelector<HTMLElement>('[data-options]') ?? root;
+
+    let files: File[] = [];
+    let controller: AbortController | null = null;
+    let outputs: { filename: string; blob: Blob }[] = [];
+
+    bindRangeOutputs(root);
+    applyShowWhen(optionsRoot);
+
+    function renderList() {
+      listEl.innerHTML = files
+        .map(
+          (f, i) => `
+        <li class="flex items-center justify-between gap-3 rounded-lg border px-3 py-1.5">
+          <span class="truncate">${f.name}</span>
+          <span class="flex items-center gap-2 shrink-0 text-xs text-[rgb(var(--text-muted))]">
+            ${formatBytes(f.size)}
+            <button type="button" data-remove="${i}" aria-label="Remove ${f.name}" class="hover:text-[rgb(var(--danger))]">✕</button>
+          </span>
+        </li>`,
+        )
+        .join('');
+      runBtn.disabled = files.length === 0;
+      resetBtn.hidden = files.length === 0;
+    }
+
+    function addFiles(incoming: File[]) {
+      files = multiple ? [...files, ...incoming] : incoming.slice(0, 1);
+      clearError(errorBox);
+      resultWrap.hidden = true;
+      renderList();
+    }
+
+    const dz = createDropZone(dropEl, { accept, multiple, onFiles: addFiles });
+
+    listEl.addEventListener('click', (e) => {
+      const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-remove]');
+      if (!btn) return;
+      files.splice(Number(btn.dataset.remove), 1);
+      renderList();
+    });
+
+    optionsRoot.addEventListener('input', () => applyShowWhen(optionsRoot));
+    optionsRoot.addEventListener('change', () => applyShowWhen(optionsRoot));
+
+    async function run() {
+      if (!files.length) return;
+      controller = new AbortController();
+      clearError(errorBox);
+      runBtn.disabled = true;
+      cancelBtn.hidden = false;
+      progressWrap.hidden = false;
+      progressBar.style.width = '0%';
+      progressMsg.textContent = 'Working…';
+      outputs = [];
+
+      try {
+        const result = await runToolById<FileRunResult>(
+          toolId,
+          { files, options: readOptions(optionsRoot) },
+          {
+            signal: controller.signal,
+            onProgress: (fraction, message) => {
+              progressBar.style.width = `${Math.round(Math.min(1, Math.max(0, fraction)) * 100)}%`;
+              if (message) progressMsg.textContent = message;
+            },
+          },
+        );
+        progressBar.style.width = '100%';
+        progressMsg.textContent = 'Done';
+        outputs = result.outputs;
+        renderOutputs(result);
+      } catch (err) {
+        const e = err as Error & { hint?: string };
+        if (e.name !== 'AbortError') showError(errorBox, e.message || 'Processing failed', e.hint);
+        else progressMsg.textContent = 'Cancelled';
+      } finally {
+        runBtn.disabled = false;
+        cancelBtn.hidden = true;
+        controller = null;
+      }
+    }
+
+    function renderOutputs(result: FileRunResult) {
+      resultWrap.hidden = false;
+      outputsEl.innerHTML = '';
+      result.outputs.forEach((o, i) => {
+        const li = document.createElement('li');
+        li.className = 'flex items-center justify-between gap-3 rounded-lg border px-3 py-2';
+        const left = document.createElement('div');
+        left.className = 'flex min-w-0 items-center gap-3';
+        if (o.previewUrl) {
+          const img = document.createElement('img');
+          img.src = o.previewUrl;
+          img.alt = '';
+          img.className = 'h-10 w-10 rounded object-cover';
+          left.appendChild(img);
+        }
+        const name = document.createElement('span');
+        name.className = 'truncate text-sm';
+        name.textContent = `${o.filename} · ${formatBytes(o.blob.size)}`;
+        left.appendChild(name);
+        const dl = document.createElement('button');
+        dl.type = 'button';
+        dl.className = 'btn btn-ghost !py-1 !px-2 text-xs shrink-0';
+        dl.textContent = 'Save';
+        dl.addEventListener('click', () => downloadBlob(o.blob, o.filename));
+        li.append(left, dl);
+        outputsEl.appendChild(li);
+        void i;
+      });
+      downloadAllBtn.hidden = result.outputs.length < 2;
+      notesEl.innerHTML = '';
+      for (const w of result.warnings ?? []) {
+        const li = document.createElement('li');
+        li.style.color = 'rgb(var(--warning))';
+        li.textContent = `⚠ ${w}`;
+        notesEl.appendChild(li);
+      }
+      for (const n of result.notes ?? []) {
+        const li = document.createElement('li');
+        li.className = 'text-[rgb(var(--text-muted))]';
+        li.textContent = n;
+        notesEl.appendChild(li);
+      }
+    }
+
+    runBtn.addEventListener('click', run);
+    cancelBtn.addEventListener('click', () => controller?.abort());
+    resetBtn.addEventListener('click', () => {
+      files = [];
+      outputs = [];
+      renderList();
+      resultWrap.hidden = true;
+      progressWrap.hidden = true;
+      clearError(errorBox);
+    });
+    downloadAllBtn.addEventListener('click', () => downloadZip(outputs, `${toolId}-output.zip`));
+
+    window.addEventListener('beforeunload', () => dz.destroy(), { once: true });
+  });
+</script>

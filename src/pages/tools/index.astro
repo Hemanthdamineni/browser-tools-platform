@@ -1,0 +1,132 @@
+---
+import Layout from '@/components/Layout.astro';
+import ToolCard from '@/components/ToolCard.astro';
+import Icon from '@/components/Icon.astro';
+import { VISIBLE_TOOLS, categoriesWithCounts, TOOL_COUNT } from '@/lib/registry';
+
+const categories = categoriesWithCounts();
+const tools = [...VISIBLE_TOOLS].sort((a, b) => a.meta.name.localeCompare(b.meta.name));
+---
+
+<Layout
+  title="All tools"
+  description={`Browse all ${TOOL_COUNT} browser-based tools. Everything runs on your device.`}
+  path="/tools"
+>
+  <header class="max-w-prose">
+    <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">All tools</h1>
+    <p class="mt-2 text-[rgb(var(--text-muted))]">
+      {TOOL_COUNT} utilities, all running locally in your browser. Filter by category or search.
+    </p>
+  </header>
+
+  <div class="mt-6 flex flex-wrap items-center gap-2">
+    <label class="relative flex-1 sm:max-w-xs">
+      <span class="sr-only">Filter tools</span>
+      <Icon
+        name="search"
+        size={16}
+        class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 opacity-60"
+      />
+      <input
+        id="filter"
+        type="search"
+        placeholder="Filter…"
+        class="field pl-9"
+        autocomplete="off"
+      />
+    </label>
+    <div class="flex flex-wrap gap-1.5" id="cat-filters">
+      <button class="chip is-active" data-cat="all" aria-pressed="true">All</button>
+      {
+        categories.map((c) => (
+          <button class="chip" data-cat={c.id} aria-pressed="false">
+            {c.name} <span class="opacity-60">{c.count}</span>
+          </button>
+        ))
+      }
+    </div>
+  </div>
+
+  <p class="mt-4 text-sm text-[rgb(var(--text-muted))]" id="result-count" aria-live="polite"></p>
+
+  <div class="mt-2 grid gap-3 sm:grid-cols-2 lg:grid-cols-3" id="grid">
+    {
+      tools.map((t) => (
+        <div
+          data-tool
+          data-name={t.meta.name.toLowerCase()}
+          data-cat={t.meta.category}
+          data-kw={t.meta.keywords.join(' ').toLowerCase()}
+        >
+          <ToolCard meta={t.meta} showCategory />
+        </div>
+      ))
+    }
+  </div>
+
+  <p hidden id="empty" class="mt-8 text-center text-[rgb(var(--text-muted))]">
+    No tools match. Try another word.
+  </p>
+</Layout>
+
+<style>
+  .chip.is-active {
+    background-color: rgb(var(--accent) / 0.15);
+    color: rgb(var(--accent));
+  }
+</style>
+
+<script>
+  const filter = document.getElementById('filter') as HTMLInputElement;
+  const grid = document.getElementById('grid')!;
+  const items = Array.from(grid.querySelectorAll<HTMLElement>('[data-tool]'));
+  const count = document.getElementById('result-count')!;
+  const empty = document.getElementById('empty')!;
+  const catButtons = Array.from(
+    document.querySelectorAll<HTMLButtonElement>('#cat-filters [data-cat]'),
+  );
+  let activeCat = 'all';
+
+  function apply() {
+    const q = filter.value.trim().toLowerCase();
+    let shown = 0;
+    for (const el of items) {
+      const matchCat = activeCat === 'all' || el.dataset.cat === activeCat;
+      const matchText =
+        !q ||
+        el.dataset.name!.includes(q) ||
+        el.dataset.kw!.includes(q) ||
+        el.dataset.cat!.includes(q);
+      const show = matchCat && matchText;
+      el.hidden = !show;
+      if (show) shown++;
+    }
+    count.textContent = `${shown} tool${shown === 1 ? '' : 's'}`;
+    empty.hidden = shown !== 0;
+  }
+
+  filter.addEventListener('input', apply);
+  catButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      activeCat = btn.dataset.cat!;
+      catButtons.forEach((b) => {
+        const on = b === btn;
+        b.classList.toggle('is-active', on);
+        b.setAttribute('aria-pressed', String(on));
+      });
+      apply();
+    });
+  });
+
+  // Deep link: /tools?category=image or /tools?q=hash
+  const params = new URLSearchParams(location.search);
+  const cat = params.get('category');
+  const q = params.get('q');
+  if (q) filter.value = q;
+  if (cat && catButtons.some((b) => b.dataset.cat === cat)) {
+    catButtons.find((b) => b.dataset.cat === cat)!.click();
+  } else {
+    apply();
+  }
+</script>

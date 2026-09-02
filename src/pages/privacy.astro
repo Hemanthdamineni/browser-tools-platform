@@ -1,0 +1,106 @@
+---
+import Layout from '@/components/Layout.astro';
+import { VISIBLE_TOOLS } from '@/lib/registry';
+import { CATEGORIES } from '@/lib/categories';
+import { site } from '@/lib/site';
+
+const withNetwork = VISIBLE_TOOLS.filter((t) => t.meta.privacy.network !== 'none');
+const total = VISIBLE_TOOLS.length;
+---
+
+<Layout
+  title="Privacy model"
+  description={`How ${site.name} keeps your data on your device — the verifiable details.`}
+  path="/privacy"
+  narrow
+>
+  <article class="prose-tool max-w-prose">
+    <h1 class="text-2xl font-bold tracking-tight text-[rgb(var(--text))] sm:text-3xl">
+      Privacy model
+    </h1>
+    <p>
+      {site.name} is a static website. When you open a tool, your browser downloads a small amount of
+      JavaScript and runs it locally. The data you paste or the files you choose are handled by that code
+      <strong>in your browser tab</strong>. They are never sent to us or anyone else.
+    </p>
+
+    <h2>What we do not do</h2>
+    <ul>
+      <li>No file or text uploads. There is no server that could receive them.</li>
+      <li>No accounts, logins or email collection.</li>
+      <li>No advertising and no third-party analytics or tracking scripts.</li>
+      <li>
+        No cookies. Preferences (like light/dark theme) use <code>localStorage</code> on your device only.
+      </li>
+      <li>No web fonts or CDNs — every asset is served from this origin.</li>
+    </ul>
+
+    <h2>How you can verify it</h2>
+    <ul>
+      <li>
+        Open your browser's developer tools → Network tab, use any tool, and watch: no request
+        carries your content.
+      </li>
+      <li>Turn off your connection after the page loads. Tools keep working.</li>
+      <li>
+        Read the source. The project is open source ({' '}
+        <a href={site.repository} rel="noopener">on GitHub</a>).
+      </li>
+      <li>
+        Our automated tests fail the build if a tool page makes an unexpected cross-origin request.
+      </li>
+    </ul>
+
+    <h2>Tools that use the network</h2>
+    {
+      withNetwork.length === 0 ? (
+        <p>
+          <strong>None.</strong> All {total} tools currently run with zero network requests once
+          loaded.
+        </p>
+      ) : (
+        <table>
+          <thead>
+            <tr>
+              <>
+                <th>Tool</th>
+                <th>Contacts</th>
+                <th>Why</th>
+              </>
+            </tr>
+          </thead>
+          <tbody>
+            {withNetwork.map((t) => (
+              <tr>
+                <td>
+                  <a href={`/tools/${t.meta.id}`}>{t.meta.name}</a>
+                </td>
+                <td>
+                  {(t.meta.privacy.network as string[]).map((n) => (
+                    <code>{n}</code>
+                  ))}
+                </td>
+                <td>{CATEGORIES[t.meta.category].name}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )
+    }
+
+    <h2>Third-party code</h2>
+    <p>
+      Some tools bundle small open-source libraries (for example <code>pdf-lib</code> for PDF editing
+      or <code>fflate</code> for zip archives). These run locally, same as everything else. Each tool
+      page lists what it uses under "Built with", and the full list is in the repository's <code
+        >NOTICE</code
+      > file.
+    </p>
+
+    <h2>Changes</h2>
+    <p>
+      If this ever changes — for instance if an optional online feature is added — it will be
+      opt-in, clearly labelled on the tool, and listed in the table above.
+    </p>
+  </article>
+</Layout>

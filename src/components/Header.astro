@@ -1,0 +1,104 @@
+---
+import { site } from '@/lib/site';
+import Icon from './Icon.astro';
+import ThemeToggle from './ThemeToggle.astro';
+
+const path = Astro.url.pathname;
+const isActive = (href: string) => path === href || path.startsWith(href + '/');
+---
+
+<header
+  class="sticky top-0 z-40 border-b backdrop-blur"
+  style="background-color: rgb(var(--bg) / 0.85)"
+>
+  <div class="mx-auto flex h-14 max-w-content items-center gap-3 px-4 sm:px-6">
+    <a href="/" class="flex shrink-0 items-center gap-2 font-bold tracking-tight">
+      <span
+        class="grid h-7 w-7 place-items-center rounded-lg text-[15px]"
+        style="background-color: rgb(var(--accent)); color: rgb(var(--accent-fg))"
+        aria-hidden="true">T</span
+      >
+      <span>{site.shortName}</span>
+    </a>
+
+    <nav class="ml-2 hidden items-center gap-1 md:flex" aria-label="Primary">
+      {
+        site.nav.map((item) => (
+          <a
+            href={item.href}
+            class="rounded-lg px-3 py-1.5 text-sm font-medium transition-colors hover:bg-[rgb(var(--bg-inset))]"
+            style={isActive(item.href) ? 'color: rgb(var(--accent))' : ''}
+            aria-current={isActive(item.href) ? 'page' : undefined}
+          >
+            {item.label}
+          </a>
+        ))
+      }
+    </nav>
+
+    <div class="ml-auto flex items-center gap-2">
+      <button
+        type="button"
+        id="search-open"
+        class="btn btn-ghost gap-2 !px-2.5 text-[rgb(var(--text-muted))] sm:!px-3"
+        aria-label="Search tools"
+        aria-keyshortcuts="/"
+      >
+        <Icon name="search" size={16} />
+        <span class="hidden text-sm sm:inline">Search</span>
+        <kbd
+          class="hidden rounded border px-1.5 text-[11px] font-medium text-[rgb(var(--text-muted))] sm:inline"
+          >/</kbd
+        >
+      </button>
+      <ThemeToggle />
+      <button
+        type="button"
+        id="menu-toggle"
+        class="btn btn-ghost !px-2 md:hidden"
+        aria-label="Open menu"
+        aria-expanded="false"
+        aria-controls="mobile-nav"
+      >
+        <Icon name="menu" />
+      </button>
+    </div>
+  </div>
+
+  <nav id="mobile-nav" hidden class="border-t px-4 py-2 md:hidden" aria-label="Mobile">
+    {
+      site.nav.map((item) => (
+        <a
+          href={item.href}
+          class="block rounded-lg px-3 py-2 text-sm font-medium hover:bg-[rgb(var(--bg-inset))]"
+          aria-current={isActive(item.href) ? 'page' : undefined}
+        >
+          {item.label}
+        </a>
+      ))
+    }
+  </nav>
+</header>
+
+<script>
+  const btn = document.getElementById('menu-toggle');
+  const nav = document.getElementById('mobile-nav');
+  btn?.addEventListener('click', () => {
+    const open = nav?.hasAttribute('hidden');
+    if (open) nav?.removeAttribute('hidden');
+    else nav?.setAttribute('hidden', '');
+    btn.setAttribute('aria-expanded', String(!!open));
+    btn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+  });
+
+  document.getElementById('search-open')?.addEventListener('click', () => {
+    window.dispatchEvent(new CustomEvent('toolbench:search'));
+  });
+  window.addEventListener('keydown', (e) => {
+    const t = e.target as HTMLElement;
+    if (e.key === '/' && !/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) && !t.isContentEditable) {
+      e.preventDefault();
+      window.dispatchEvent(new CustomEvent('toolbench:search'));
+    }
+  });
+</script>

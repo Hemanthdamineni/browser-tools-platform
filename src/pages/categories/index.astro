@@ -1,0 +1,20 @@
+---
+import Layout from '@/components/Layout.astro';
+import CategoryCard from '@/components/CategoryCard.astro';
+import { categoriesWithCounts } from '@/lib/registry';
+
+const categories = categoriesWithCounts();
+---
+
+<Layout title="Categories" description="Every tool, grouped by what it does." path="/categories">
+  <header class="max-w-prose">
+    <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">Categories</h1>
+    <p class="mt-2 text-[rgb(var(--text-muted))]">
+      {categories.length} groups, {categories.reduce((n, c) => n + c.count, 0)} tools.
+    </p>
+  </header>
+
+  <div class="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+    {categories.map((c) => <CategoryCard category={c} />)}
+  </div>
+</Layout>

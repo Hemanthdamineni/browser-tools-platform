@@ -1,0 +1,44 @@
+---
+import Icon from './Icon.astro';
+---
+
+<button
+  type="button"
+  id="theme-toggle"
+  class="btn btn-ghost !px-2"
+  aria-label="Switch between light and dark theme"
+  title="Toggle theme"
+>
+  <span class="dark:hidden"><Icon name="moon" /></span>
+  <span class="hidden dark:inline"><Icon name="sun" /></span>
+</button>
+
+<script>
+  const KEY = 'tb-theme';
+  const root = document.documentElement;
+  const mql = window.matchMedia('(prefers-color-scheme: dark)');
+
+  function stored(): 'light' | 'dark' | null {
+    try {
+      const v = localStorage.getItem(KEY);
+      return v === 'light' || v === 'dark' ? v : null;
+    } catch {
+      return null;
+    }
+  }
+
+  document.getElementById('theme-toggle')?.addEventListener('click', () => {
+    const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try {
+      localStorage.setItem(KEY, next);
+    } catch {
+      /* private mode */
+    }
+  });
+
+  // Follow the OS setting only while the user has not chosen explicitly.
+  mql.addEventListener('change', (e) => {
+    if (stored() === null) root.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+  });
+</script>
