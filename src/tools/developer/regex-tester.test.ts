@@ -1,0 +1,75 @@
+import { describe, it, expect } from 'vitest';
+import { ToolError } from '@/lib/types';
+import tool from './regex-tester.tool';
+
+type Res = { output: string; render?: string };
+const run = (text: string, options: Record<string, string | number | boolean> = {}) =>
+  tool.run({ text, options }) as Res;
+
+const table = (r: Res) => JSON.parse(r.output) as { headers: string[]; rows: string[][] };
+
+describe('regex-tester', () => {
+  it('lists matches with headers, index and empty groups', () => {
+    const r = run('order a1, item b22, code c333', { pattern: '\\d+', mode: 'matches' });
+    expect(r.render).toBe('table');
+    const t = table(r);
+    expect(t.headers).toEqual(['#', 'Match', 'Groups', 'Index']);
+    expect(t.rows.map((row) => row[1])).toEqual(['1', '22', '333']);
+    expect(t.rows[0]![2]).toBe('{}');
+    expect(t.rows[0]![3]).toBe('7');
+  });
+
+  it('reports numbered and named capture groups as JSON', () => {
+    const r = run('2024-09', { pattern: '(?<y>\\d{4})-(\\d{2})', mode: 'matches' });
+    const t = table(r);
+    expect(t.rows[0]![1]).toBe('2024-09');
+    expect(JSON.parse(t.rows[0]![2]!)).toEqual({ '1': '2024', '2': '09', y: '2024' });
+  });
+
+  it('replace: applies a literal replacement', () => {
+    expect(
+      run('hello world', { pattern: '[aeiou]', flags: 'g', mode: 'replace', replacement: '*' })
+        .output,
+    ).toBe('h*ll* w*rld');
+  });
+
+  it('replace: supports $1 / $2 back-references', () => {
+    expect(
+      run('user@host', { pattern: '(\\w+)@(\\w+)', mode: 'replace', replacement: '$2.$1' }).output,
+    ).toBe('host.user');
+  });
+
+  it('split: one piece per line', () => {
+    expect(run('red, green, blue', { pattern: ',\\s*', mode: 'split' }).output).toBe(
+      'red\ngreen\nblue',
+    );
+  });
+
+  it('highlight: wraps every match in << >>', () => {
+    expect(run('a1 b2', { pattern: '\\d', mode: 'highlight' }).output).toBe('a<<1>> b<<2>>');
+  });
+
+  it('highlight: skips zero-length matches without looping', () => {
+    expect(run('abc', { pattern: 'x*', mode: 'highlight' }).output).toBe('abc');
+  });
+
+  it('empty input → empty output', () => {
+    expect(run('', { pattern: '.' }).output).toBe('');
+  });
+
+  it('empty input → empty output even with no pattern supplied', () => {
+    expect(run('', {}).output).toBe('');
+  });
+
+  it('throws ToolError when the pattern is missing', () => {
+    expect(() => run('abc', {})).toThrow(ToolError);
+  });
+
+  it('throws ToolError on invalid flags', () => {
+    expect(() => run('abc', { pattern: '.', flags: 'gz' })).toThrow(ToolError);
+  });
+
+  it('throws ToolError on an invalid regex, surfacing the JS message', () => {
+    expect(() => run('abc', { pattern: '(', flags: 'g' })).toThrow(ToolError);
+  });
+});
