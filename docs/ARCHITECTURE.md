@@ -93,3 +93,27 @@ cross-origin request is made by a tool that declares `network: 'none'`.
 - Worker + main thread each bundle a copy of a tool's module. Small today;
   revisit if the catalogue's worker tools get heavy.
 - True multi-GB streaming hashing/compression (needs an incremental-hash lib).
+
+## Worker/main-thread chunk dedupe — won't do (documented) {#chunk-dedupe}
+
+Investigated under E2-S4-T1 (2026-09): every `*.tool.ts` module is bundled twice
+— once in the main graph (lazy `import()` from the workbenches) and once inside
+the generic worker bundle (`tool.worker.ts`'s `import.meta.glob`). Measured
+~460 KB raw of ~860 KB in `dist/_astro/` are these paired tool chunks (each copy
+is independently tree-shaken, so the copies are not byte-identical).
+
+The obvious fix — a Vite `build.rollupOptions.output.manualChunks` entry for
+`src/tools/**` + heavy vendor libs — **cannot** dedupe here: Vite compiles the
+worker graph as a *separate Rollup build* with its own chunk graph and hashed
+output. Chunk ids are never shared across the two builds, and no
+`manualChunks`/`shared-chunk` configuration can make the main graph reference a
+worker-build chunk (or vice versa) without a fragile custom emit/rewrite plugin
+that would couple us to Vite internals and break across Astro/Vite upgrades.
+
+Accepting the duplication keeps the build boring and each graph independently
+tree-shaken (a text tool that never runs in the worker still only costs one
+small copy). Revisit only if the *duplicated* bytes grow an order of magnitude
+(e.g. after Batch C's canvas/pdf tools): trigger is total `_astro/` > 5 MB raw,
+at which point the right move is per-tool "prefer worker" routing instead of
+chunk surgery.
+

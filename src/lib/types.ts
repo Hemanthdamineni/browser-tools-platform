@@ -151,7 +151,10 @@ export interface TextRunInput extends RunContext {
   options: OptionValues;
 }
 
-/** How the shared workbench should present `output`. All variants are XSS-safe. */
+/**
+ * How the shared workbench should present `output`. All variants are XSS-safe.
+ * `'audio'` — `output` is a `data:`/`blob:` audio URL → shown in `<audio controls>`, downloadable.
+ */
 export type OutputRender =
   | 'text' // plain, in a <textarea>/<pre>
   | 'code' // monospace block, optional language label
@@ -159,6 +162,7 @@ export type OutputRender =
   | 'colors' // `output` is JSON `string[]` of CSS colors → swatches
   | 'table' // `output` is JSON `{ headers: string[], rows: string[][] }`
   | 'diff' // `output` is a unified diff → colorised, read-only
+  | 'audio' // `output` is a data:/blob: audio URL → <audio controls> + download
   | 'html-escaped'; // `output` shown literally (never parsed as HTML)
 
 export interface TextRunResult {
@@ -187,7 +191,13 @@ export interface OutputFile {
 }
 
 export interface FileRunResult {
+  /**
+   * Files produced by the tool. May be empty when `report` is set (a
+   * report-only result — e.g. metadata/inspection tools that only show a table).
+   */
   outputs: OutputFile[];
+  /** Optional inline result shown in the workbench (not a download). */
+  report?: { output: string; render?: OutputRender; language?: string };
   notes?: string[];
   warnings?: string[];
   stats?: Record<string, string | number>;

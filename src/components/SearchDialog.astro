@@ -103,13 +103,28 @@ import { SEARCH_INDEX } from '@/lib/registry';
     list!.querySelector(`[data-i="${active}"]`)?.scrollIntoView({ block: 'nearest' });
   }
 
+  let lastTrigger: Element | null = null;
+
   function open() {
     if (dialog!.open) return;
-    dialog!.showModal();
+    // Remember the trigger so we can restore focus when the dialog closes.
+    lastTrigger = document.activeElement;
+    dialog!.showModal(); // native <dialog> traps Tab focus while open
     input!.value = '';
     render();
     input!.focus();
   }
+
+  dialog.addEventListener('close', () => {
+    if (lastTrigger instanceof HTMLElement) lastTrigger.focus();
+    lastTrigger = null;
+  });
+  dialog.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && dialog!.open) {
+      e.preventDefault(); // make Esc handling explicit + idempotent
+      dialog!.close();
+    }
+  });
 
   window.addEventListener('toolbench:search', open);
   input.addEventListener('input', render);

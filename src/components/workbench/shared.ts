@@ -63,6 +63,26 @@ export function renderTextResult(host: HTMLElement, result: TextRunResult): void
     return;
   }
 
+  if (kind === 'audio') {
+    const wrap = document.createElement('div');
+    wrap.className = 'flex flex-wrap items-center gap-3';
+    const audio = document.createElement('audio');
+    audio.controls = true;
+    audio.src = result.output; // set via property, never innerHTML (XSS-safe)
+    audio.preload = 'metadata';
+    wrap.appendChild(audio);
+    if (result.filename) {
+      const dl = document.createElement('a');
+      dl.href = result.output;
+      dl.download = result.filename;
+      dl.className = 'btn btn-ghost !py-1 !px-2 text-xs';
+      dl.textContent = `Download ${result.filename}`;
+      wrap.appendChild(dl);
+    }
+    host.appendChild(wrap);
+    return;
+  }
+
   if (kind === 'colors') {
     let colors: string[] = [];
     try {
@@ -141,6 +161,7 @@ export function renderTextResult(host: HTMLElement, result: TextRunResult): void
   const ta = document.createElement('textarea');
   ta.readOnly = true;
   ta.className = 'field';
+  ta.setAttribute('aria-label', 'Result output');
   ta.rows = Math.min(20, Math.max(4, result.output.split('\n').length + 1));
   ta.value = result.output;
   host.appendChild(ta);

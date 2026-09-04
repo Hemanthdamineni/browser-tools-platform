@@ -41,7 +41,7 @@ const tools = [...VISIBLE_TOOLS].sort((a, b) => a.meta.name.localeCompare(b.meta
       {
         categories.map((c) => (
           <button class="chip" data-cat={c.id} aria-pressed="false">
-            {c.name} <span class="opacity-60">{c.count}</span>
+            {c.name} <span>{c.count}</span>
           </button>
         ))
       }

@@ -76,3 +76,76 @@ test('search dialog opens and finds a tool', async ({ page, baseURL }) => {
   await input.fill('base64');
   await expect(page.locator('#search-results a').first()).toContainText(/base64/i);
 });
+
+test('option fields are accessible (axe on tools with select/boolean/range/number options)', async ({
+  page,
+  baseURL,
+}) => {
+  // password: select + boolean options; hex: select options
+  for (const path of ['/tools/password', '/tools/hex']) {
+    await page.goto(`${baseURL}${path}`);
+    // Every visible option control is programmatically labelled.
+    const unlabelled = await page.evaluate(() => {
+      const bad: string[] = [];
+      document
+        .querySelectorAll('[data-options] select, [data-options] input')
+        .forEach((el) => {
+          const labelled =
+            el.getAttribute('aria-label') ||
+            el.getAttribute('aria-labelledby') ||
+            (el.id && document.querySelector(`label[for="${el.id}"]`)) ||
+            el.closest('label');
+          if (!labelled) bad.push(el.getAttribute('data-opt-key') ?? el.outerHTML.slice(0, 60));
+        });
+      return bad;
+    });
+    expect(unlabelled, path).toEqual([]);
+    // Help text is wired via aria-describedby where present.
+    const brokenDesc = await page.evaluate(() => {
+      const bad: string[] = [];
+      document
+        .querySelectorAll('[data-options] [aria-describedby]')
+        .forEach((el) => {
+          const id = el.getAttribute('aria-describedby')!;
+          if (!document.getElementById(id)) bad.push(id);
+        });
+      return bad;
+    });
+    expect(brokenDesc, path).toEqual([]);
+    // Axe passes on the page.
+    await page.addScriptTag({ path: AXE_PATH });
+    const results = await page.evaluate(async () => {
+      // @ts-expect-error injected
+      return await window.axe.run(document, {
+        runOnly: ['wcag2a', 'wcag2aa'],
+        resultTypes: ['violations'],
+      });
+    });
+    const serious = results.violations.filter(
+      (v: { impact: string }) => v.impact === 'serious' || v.impact === 'critical',
+    );
+    expect(serious, path).toEqual([]);
+  }
+});
+
+test('search dialog traps focus, supports Esc and restores focus to the trigger', async ({
+  page,
+  baseURL,
+}) => {
+  await page.goto(`${baseURL}/`);
+  const trigger = page.getByRole('button', { name: /search/i }).first();
+  await trigger.focus();
+  await page.keyboard.press('/');
+  await expect(page.locator('#search-dialog')).toBeVisible();
+  await expect(page.locator('#search-input')).toBeFocused();
+
+  // Focus is trapped inside the native <dialog>: Tab cycles within it.
+  for (let i = 0; i < 12; i++) await page.keyboard.press('Tab');
+  expect(await page.evaluate(() => document.activeElement?.closest('dialog') !== null)).toBe(true);
+
+  // Esc closes the dialog…
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#search-dialog')).not.toBeVisible();
+  // …and focus returns to the trigger.
+  await expect(trigger).toBeFocused();
+});

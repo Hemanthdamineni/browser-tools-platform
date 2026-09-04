@@ -37,7 +37,7 @@
 - **Do not change** a shipped tool's `meta.id` — it is a public URL.
 - **Do not introduce a backend, an API call, telemetry, analytics, cookies, web
   fonts, or any external network request.** Toolbench is 100% static and
-  on-device. A tool that cannot be done client-side is marked *deferred* — do not
+  on-device. A tool that cannot be done client-side is marked _deferred_ — do not
   fake it.
 - **Do not "improve" the design system, colours, or component API** as a
   side-effect of a tool task.
@@ -60,14 +60,14 @@ without the codebase rotting.
 
 ### 1.2 Non-negotiable principles
 
-| Principle | What it means in code |
-| --- | --- |
-| On-device only | `run()` never calls `fetch`, `XMLHttpRequest`, `WebSocket`, or loads a remote URL. |
-| Honest privacy | `meta.privacy.network` is `'none'` for every tool here. An e2e test fails the build if a tool page makes a cross-origin request. |
+| Principle        | What it means in code                                                                                                                  |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| On-device only   | `run()` never calls `fetch`, `XMLHttpRequest`, `WebSocket`, or loads a remote URL.                                                     |
+| Honest privacy   | `meta.privacy.network` is `'none'` for every tool here. An e2e test fails the build if a tool page makes a cross-origin request.       |
 | Lightweight core | Each tool's code is a lazily-imported module. Heavy libs (`pdf-lib`, `pdfjs-dist`, `fflate`, `marked`) load only when their tool runs. |
-| Pure logic | `run()` is a pure function of its input. No DOM, no globals mutation. This makes it unit-testable and worker-portable. |
-| Accessible | Every control labelled; keyboard operable; visible focus; `prefers-reduced-motion` respected; no colour-only signalling. |
-| No surprises | Errors are friendly `ToolError`s with a hint. Output is never rendered as raw HTML. |
+| Pure logic       | `run()` is a pure function of its input. No DOM, no globals mutation. This makes it unit-testable and worker-portable.                 |
+| Accessible       | Every control labelled; keyboard operable; visible focus; `prefers-reduced-motion` respected; no colour-only signalling.               |
+| No surprises     | Errors are friendly `ToolError`s with a hint. Output is never rendered as raw HTML.                                                    |
 
 ### 1.3 Tech stack & versions (do not change)
 
@@ -153,11 +153,11 @@ build 79 pages, `astro check` 0 errors, eslint clean.
 
 ### 2.1 A tool is THREE co-located files under `src/tools/<category>/`
 
-| File | Contents | When loaded |
-| --- | --- | --- |
-| `<id>.meta.ts` | `export const meta: ToolMeta` — metadata only, tiny | eagerly, at build (cards, search, SEO, routing) |
-| `<id>.tool.ts` | `import { meta } from './<id>.meta'; ... export default { meta, run }` | lazily, only when the tool runs |
-| `<id>.test.ts` | Vitest unit tests importing `./<id>.tool` | test run only |
+| File           | Contents                                                               | When loaded                                     |
+| -------------- | ---------------------------------------------------------------------- | ----------------------------------------------- |
+| `<id>.meta.ts` | `export const meta: ToolMeta` — metadata only, tiny                    | eagerly, at build (cards, search, SEO, routing) |
+| `<id>.tool.ts` | `import { meta } from './<id>.meta'; ... export default { meta, run }` | lazily, only when the tool runs                 |
+| `<id>.test.ts` | Vitest unit tests importing `./<id>.tool`                              | test run only                                   |
 
 **Registry rules enforced at build time** (violating any of these fails
 `npm run build` and `src/lib/registry.test.ts`):
@@ -166,8 +166,8 @@ build 79 pages, `astro check` 0 errors, eslint clean.
   and **equals the filename base** (`json-format` ⇒ `json-format.meta.ts` /
   `json-format.tool.ts` / `json-format.test.ts`).
 - `meta.category` is one of: `encoding crypto security text data developer web
-  color datetime numbers converters generators network image pdf archive audio
-  misc`.
+color datetime numbers converters generators network image pdf archive audio
+misc`.
 - `<id>.tool.ts` **imports** `meta` from `./<id>.meta` and re-exports it in the
   default object — single source of truth, never copy the object.
 - `meta.summary.length <= 120`.
@@ -176,25 +176,25 @@ build 79 pages, `astro check` 0 errors, eslint clean.
 
 ```ts
 export interface ToolMeta {
-  id: string;                 // kebab-case, === filename base, permanent
-  name: string;               // Title Case, US spelling, e.g. "JSON Formatter"
-  category: CategoryId;        // exactly the one assigned in the spec
-  summary: string;             // <= 120 chars; card subtitle + meta description fallback
-  description: string;         // 1–3 sentences shown at top of the tool page
-  keywords: string[];          // 5–12; US spelling primary, may also add GB spelling + synonyms
-  privacy: { processing: 'on-device'; network: 'none'; offline: true };  // ALWAYS exactly this
+  id: string; // kebab-case, === filename base, permanent
+  name: string; // Title Case, US spelling, e.g. "JSON Formatter"
+  category: CategoryId; // exactly the one assigned in the spec
+  summary: string; // <= 120 chars; card subtitle + meta description fallback
+  description: string; // 1–3 sentences shown at top of the tool page
+  keywords: string[]; // 5–12; US spelling primary, may also add GB spelling + synonyms
+  privacy: { processing: 'on-device'; network: 'none'; offline: true }; // ALWAYS exactly this
   input: 'text' | 'file';
-  accept?: string;             // file input accept attr, only when input:'file' (e.g. 'image/*')
-  multiple?: boolean;          // allow multiple files, only when input:'file'
-  options?: ToolOption[];      // see 2.3
-  examples?: { title: string; input?: string; options?: OptionValues }[];  // 2–3; one-click fills the workbench
-  faq?: { q: string; a: string }[];   // 1–3
-  related?: string[];          // 2–4 other tool ids (may reference not-yet-built ids; that's fine)
-  credits?: { name: string; url: string; license: string }[];  // ONLY if a task says to use a lib
-  status?: 'stable' | 'beta';  // use 'stable' unless the spec says 'beta'
-  worker?: boolean;            // see 2.5 / 2.6 — usually omit
-  hidden?: boolean;            // omit
-  updated?: string;            // omit
+  accept?: string; // file input accept attr, only when input:'file' (e.g. 'image/*')
+  multiple?: boolean; // allow multiple files, only when input:'file'
+  options?: ToolOption[]; // see 2.3
+  examples?: { title: string; input?: string; options?: OptionValues }[]; // 2–3; one-click fills the workbench
+  faq?: { q: string; a: string }[]; // 1–3
+  related?: string[]; // 2–4 other tool ids (may reference not-yet-built ids; that's fine)
+  credits?: { name: string; url: string; license: string }[]; // ONLY if a task says to use a lib
+  status?: 'stable' | 'beta'; // use 'stable' unless the spec says 'beta'
+  worker?: boolean; // see 2.5 / 2.6 — usually omit
+  hidden?: boolean; // omit
+  updated?: string; // omit
 }
 ```
 
@@ -202,12 +202,30 @@ export interface ToolMeta {
 
 ```ts
 type ToolOption =
-  | { key; label; help?; showWhen?; type: 'select';   default: string;  choices: {value:string;label:string}[] }
-  | { key; label; help?; showWhen?; type: 'boolean';  default: boolean }
-  | { key; label; help?; showWhen?; type: 'number';   default: number;  min?; max?; step? }
-  | { key; label; help?; showWhen?; type: 'range';    default: number;  min: number; max: number; step? }
-  | { key; label; help?; showWhen?; type: 'text';     default: string;  placeholder? }
-  | { key; label; help?; showWhen?; type: 'textarea'; default: string;  placeholder? };
+  | {
+      key;
+      label;
+      help?;
+      showWhen?;
+      type: 'select';
+      default: string;
+      choices: { value: string; label: string }[];
+    }
+  | { key; label; help?; showWhen?; type: 'boolean'; default: boolean }
+  | { key; label; help?; showWhen?; type: 'number'; default: number; min?; max?; step? }
+  | {
+      key;
+      label;
+      help?;
+      showWhen?;
+      type: 'range';
+      default: number;
+      min: number;
+      max: number;
+      step?;
+    }
+  | { key; label; help?; showWhen?; type: 'text'; default: string; placeholder? }
+  | { key; label; help?; showWhen?; type: 'textarea'; default: string; placeholder? };
 ```
 
 - `key` is what appears in `input.options`. `default` is mandatory and typed to
@@ -263,36 +281,44 @@ interface FileRunInput  { files: File[]; options: OptionValues; signal?: AbortSi
 
 ```ts
 interface TextRunResult {
-  output: string;                 // ALWAYS a string
-  render?: 'text'|'code'|'image'|'colors'|'table'|'diff';   // default 'text'
-  language?: string;              // for render:'code', e.g. 'json','yaml','sql','html','css','typescript'
-  filename?: string;              // suggested download name
-  notes?: string[];               // neutral info lines under the output
-  warnings?: string[];            // shown with a ⚠ marker
-  stats?: Record<string, string | number>;   // small key/value facts row
+  output: string; // ALWAYS a string
+  render?: 'text' | 'code' | 'image' | 'colors' | 'table' | 'diff'; // default 'text'
+  language?: string; // for render:'code', e.g. 'json','yaml','sql','html','css','typescript'
+  filename?: string; // suggested download name
+  notes?: string[]; // neutral info lines under the output
+  warnings?: string[]; // shown with a ⚠ marker
+  stats?: Record<string, string | number>; // small key/value facts row
 }
 ```
 
-| `render` | shape of `output` | how it displays |
-| --- | --- | --- |
-| `'text'` (default) | any string | read-only textarea |
-| `'code'` | any string | monospace block + `language` label |
-| `'image'` | a `data:` URL (e.g. `data:image/svg+xml;base64,${btoa(svg)}`) | `<img>` + download |
-| `'colors'` | `JSON.stringify(cssColorString[])` e.g. `["#ff0000","rgb(0 128 0)"]` | swatch grid, click to copy |
-| `'table'` | `JSON.stringify({ headers: string[], rows: string[][] })` (all cells strings) | HTML table |
-| `'diff'` | unified-diff-ish text (lines start `+`, `-`, `@@`) | colourised read-only block |
+| `render`           | shape of `output`                                                             | how it displays                                 |
+| ------------------ | ----------------------------------------------------------------------------- | ----------------------------------------------- |
+| `'text'` (default) | any string                                                                    | read-only textarea                              |
+| `'code'`           | any string                                                                    | monospace block + `language` label              |
+| `'image'`          | a `data:` URL (e.g. `data:image/svg+xml;base64,${btoa(svg)}`)                 | `<img>` + download                              |
+| `'audio'`          | a `data:`/`blob:` audio URL (e.g. `data:audio/wav;base64,…`)                  | `<audio controls>` + download link (`filename`) |
+| `'colors'`         | `JSON.stringify(cssColorString[])` e.g. `["#ff0000","rgb(0 128 0)"]`          | swatch grid, click to copy                      |
+| `'table'`          | `JSON.stringify({ headers: string[], rows: string[][] })` (all cells strings) | HTML table                                      |
+| `'diff'`           | unified-diff-ish text (lines start `+`, `-`, `@@`)                            | colourised read-only block                      |
 
 **Nothing is ever parsed as HTML.** For `markdown-to-html` / `meta-tags` etc.
-you output the HTML *source* as `render:'code' language:'html'` — you never render
+you output the HTML _source_ as `render:'code' language:'html'` — you never render
 it.
 
 ### 2.6 `FileRunResult` (for `input: 'file'` tools)
 
 ```ts
-interface OutputFile { filename: string; blob: Blob; previewUrl?: string }
+interface OutputFile {
+  filename: string;
+  blob: Blob;
+  previewUrl?: string;
+}
 interface FileRunResult {
-  outputs: OutputFile[];          // 1..n produced files (may be empty only if `report` is set — see E2-S1)
-  notes?: string[]; warnings?: string[]; stats?: Record<string, string | number>;
+  outputs: OutputFile[]; // 1..n produced files; may be `[]` when `report` is set
+  report?: { output: string; render?: OutputRender; language?: string }; // inline result shown in the workbench (not a download)
+  notes?: string[];
+  warnings?: string[];
+  stats?: Record<string, string | number>;
 }
 ```
 
@@ -332,7 +358,7 @@ Import the tool default and call `run` directly. Cover, at minimum:
 import { describe, it, expect } from 'vitest';
 import tool from './<id>.tool';
 const run = (text: string, options: Record<string, string | number | boolean> = {}) =>
-  tool.run({ text, options }) as { output: string };   // add `await` + Promise type if async
+  tool.run({ text, options }) as { output: string }; // add `await` + Promise type if async
 ```
 
 ### 2.9 Full worked example — copy this shape exactly
@@ -403,7 +429,10 @@ function run(input: TextRunInput): TextRunResult {
       output = text.split('\n').reverse().join('\n');
       break;
     case 'words-in-line':
-      output = text.split('\n').map((l) => l.split(/(\s+)/).reverse().join('')).join('\n');
+      output = text
+        .split('\n')
+        .map((l) => l.split(/(\s+)/).reverse().join(''))
+        .join('\n');
       break;
     default:
       output = chars(text).reverse().join('');
@@ -440,7 +469,7 @@ You will rarely touch UI, but tools influence it through `meta` and `render`.
 
 - **Colours** are CSS custom properties on `:root` / `:root[data-theme='dark']`
   in `src/styles/global.css`: `--bg --bg-subtle --bg-inset --border --text
-  --text-muted --accent --accent-strong --accent-fg --ring --danger --warning`.
+--text-muted --accent --accent-strong --accent-fg --ring --danger --warning`.
   Use `rgb(var(--accent))` etc. Contrast is WCAG AA — do not introduce new
   hard-coded colours in any component.
 - **Components** already exist for buttons (`.btn .btn-primary .btn-ghost`),
@@ -457,6 +486,7 @@ You will rarely touch UI, but tools influence it through `meta` and `render`.
 ## 4. DEFINITION OF DONE
 
 ### Per tool
+
 - [ ] 3 files created, filename === `meta.id`, correct category.
 - [ ] `run()` pure, `resolveOptions` first line, correct `render`.
 - [ ] Every option implemented AND covered by a test.
@@ -469,6 +499,7 @@ You will rarely touch UI, but tools influence it through `meta` and `render`.
       each option, confirm output + copy/download + friendly errors.
 
 ### Per story / epic
+
 - [ ] All child tasks done.
 - [ ] `npm run test:e2e` green (a11y + privacy + smoke).
 - [ ] `npm run build` clean; new tool pages appear in `dist/` and in
@@ -488,19 +519,19 @@ You will rarely touch UI, but tools influence it through `meta` and `render`.
 
 ## 6. EPICS OVERVIEW
 
-| ID | Epic | Status | Rough size |
-| --- | --- | --- | --- |
-| E0 | Foundation (architecture, workbench, PWA, CI, e2e) | `[x]` done | — |
-| E1 | Tool Batch A — encoding / text / crypto / security / data / developer | `[x]` done (64 tools) | — |
-| E2 | Foundation enhancements (inline reports, audio render, worker dedupe, a11y polish) | `[ ]` | 8 tasks |
-| E3 | Tool Batch B — web / color / datetime / numbers / generators / network | `[ ]` | ~52 tools |
-| E4 | Tool Batch C — image / pdf / archive / audio / misc (file & canvas tools) | `[ ]` | ~48 tools |
-| E5 | Quality & hardening (adversarial review, fuzz, perf budgets, cross-browser) | `[ ]` | 9 tasks |
-| E6 | SEO & content depth (per-tool long-form, structured data, OG images) | `[ ]` | 7 tasks |
-| E7 | PWA / performance / UX polish (install UX, offline, Lighthouse, motion) | `[ ]` | 9 tasks |
-| E8 | Astro 7 upgrade (clears `npm audit`; Tailwind v4 migration) | `[ ]` | 6 tasks |
-| E9 | Internationalisation scaffolding | `[ ]` | 5 tasks |
-| E10 | Launch & operations (domain, deploy, monitoring, runbook, roadmap cadence) | `[ ]` | 8 tasks |
+| ID  | Epic                                                                               | Status                | Rough size |
+| --- | ---------------------------------------------------------------------------------- | --------------------- | ---------- |
+| E0  | Foundation (architecture, workbench, PWA, CI, e2e)                                 | `[x]` done            | —          |
+| E1  | Tool Batch A — encoding / text / crypto / security / data / developer              | `[x]` done (64 tools) | —          |
+| E2  | Foundation enhancements (inline reports, audio render, worker dedupe, a11y polish) | `[ ]`                 | 8 tasks    |
+| E3  | Tool Batch B — web / color / datetime / numbers / generators / network             | `[ ]`                 | ~52 tools  |
+| E4  | Tool Batch C — image / pdf / archive / audio / misc (file & canvas tools)          | `[ ]`                 | ~48 tools  |
+| E5  | Quality & hardening (adversarial review, fuzz, perf budgets, cross-browser)        | `[ ]`                 | 9 tasks    |
+| E6  | SEO & content depth (per-tool long-form, structured data, OG images)               | `[ ]`                 | 7 tasks    |
+| E7  | PWA / performance / UX polish (install UX, offline, Lighthouse, motion)            | `[ ]`                 | 9 tasks    |
+| E8  | Astro 7 upgrade (clears `npm audit`; Tailwind v4 migration)                        | `[ ]`                 | 6 tasks    |
+| E9  | Internationalisation scaffolding                                                   | `[ ]`                 | 5 tasks    |
+| E10 | Launch & operations (domain, deploy, monitoring, runbook, roadmap cadence)         | `[ ]`                 | 8 tasks    |
 
 Recommended order: **E2 → E3 → E4 → E5 → E6 → E7 → E8 → E10**, with E9 optional /
 anytime. E3 and E4 tools within a category can be parallelised freely (disjoint
@@ -540,8 +571,7 @@ files).
       JSON-LD, canonical, OpenGraph/Twitter, sitemap.
 - [x] **Security headers / CSP** via `public/_headers`, `netlify.toml`,
       `vercel.json` (`default-src 'self'`, `connect-src 'self' blob:`, etc.).
-- [x] **CI** (`.github/workflows/ci.yml`): check + lint + format check + coverage
-      + build + `npm audit --omit=dev --audit-level=critical`; separate e2e job.
+- [x] **CI** (`.github/workflows/ci.yml`): check + lint + format check + coverage + build + `npm audit --omit=dev --audit-level=critical`; separate e2e job.
 - [x] **e2e** (Playwright): axe-core WCAG 2A/2AA on core pages; every tool page
       renders a working workbench; search dialog; **privacy assertion** — every
       `network:'none'` tool page is exercised and the test fails on any
@@ -589,6 +619,12 @@ Foundation reference tools: `base64`, `uuid`, `color-convert`, `file-hash`.
 
 ## EPIC E2 — Foundation Enhancements
 
+> **Environment note (2026-09-04):** `npm run test:e2e` was run per task and is
+> green (7/7). The Playwright `mobile-safari` project cannot launch in this
+> sandbox because WebKit's system libraries can't be installed without sudo
+> (`npx playwright install-deps` requires root); all runs therefore used
+> `--project=chromium`. Re-run the full matrix in CI where deps are available.
+
 **Goal:** unlock the tool families in E4 (file tools that show an inline
 report; audio tools; canvas tools) and pay down small a11y/perf debt.
 **These are the ONLY tasks allowed to edit `src/lib/**` and `src/components/**`.**
@@ -602,7 +638,7 @@ listing, audio info, checksums) need to show **text / a table** inline, not just
 emit a file. Add an optional `report` channel to `FileRunResult` and render it in
 `FileWorkbench`.
 
-- [ ] **E2-S1-T1** — `src/lib/types.ts`: add to `FileRunResult`:
+- [x] **E2-S1-T1** — `src/lib/types.ts`: add to `FileRunResult`:
   ```ts
   /** Optional inline result shown in the workbench (not a download). */
   report?: { output: string; render?: OutputRender; language?: string };
@@ -610,21 +646,21 @@ emit a file. Add an optional `report` channel to `FileRunResult` and render it i
   Also relax the doc comment so `outputs` may be `[]` when `report` is set.
   `OutputRender` is the existing exported union — add `'audio'` to it now
   (used by E2-S2): `'text'|'code'|'image'|'colors'|'table'|'diff'|'audio'`.
-- [ ] **E2-S1-T2** — `src/components/workbench/shared.ts`: `renderTextResult`
-  already handles `text/code/image/colors/table/diff`. Add an `'audio'` branch:
-  create `<audio controls src={output}>` (output is a `data:` or `blob:` URL) +
-  a download `<a>`. Keep it XSS-safe (set `.src`, never `innerHTML` the URL).
-- [ ] **E2-S1-T3** — `src/components/workbench/FileWorkbench.astro`: after
-  rendering `outputs`, if `result.report` is present, render it into a
-  `[data-report]` container by calling the shared `renderTextResult` with
-  `{ output: report.output, render: report.render, language: report.language }`.
-  Show it above the outputs list. Import `renderTextResult` from `./shared`.
-- [ ] **E2-S1-T4** — Add a unit test `src/components/workbench/shared.test.ts`
-  (new) covering `renderTextResult` for each render kind incl. `audio` and a
-  `report`-only result (jsdom). Wire it into the existing vitest include glob if
-  needed (it already matches `src/**/*.test.ts`).
-- [ ] **E2-S1-T5** — Update `docs/ADDING-A-TOOL.md` §"File tool" with the
-  `report` field and the `audio` render kind. Update this file's §2.5/§2.6.
+- [x] **E2-S1-T2** — `src/components/workbench/shared.ts`: `renderTextResult`
+      already handles `text/code/image/colors/table/diff`. Add an `'audio'` branch:
+      create `<audio controls src={output}>` (output is a `data:` or `blob:` URL) +
+      a download `<a>`. Keep it XSS-safe (set `.src`, never `innerHTML` the URL).
+- [x] **E2-S1-T3** — `src/components/workbench/FileWorkbench.astro`: after
+      rendering `outputs`, if `result.report` is present, render it into a
+      `[data-report]` container by calling the shared `renderTextResult` with
+      `{ output: report.output, render: report.render, language: report.language }`.
+      Show it above the outputs list. Import `renderTextResult` from `./shared`.
+- [x] **E2-S1-T4** — Add a unit test `src/components/workbench/shared.test.ts`
+      (new) covering `renderTextResult` for each render kind incl. `audio` and a
+      `report`-only result (jsdom). Wire it into the existing vitest include glob if
+      needed (it already matches `src/**/*.test.ts`).
+- [x] **E2-S1-T5** — Update `docs/ADDING-A-TOOL.md` §"File tool" with the
+      `report` field and the `audio` render kind. Update this file's §2.5/§2.6.
 
 **DoD:** an example file tool (use `file-hash` — change it to also set
 `report` with a `render:'table'` of `[algorithm, hash, filename]` rows) shows the
@@ -632,63 +668,63 @@ table inline; `file-hash.test.ts` updated; gate + e2e green.
 
 ### Story E2-S2 — Audio render + tone generator support
 
-- [ ] **E2-S2-T1** — Depends on E2-S1-T1 (adds `'audio'` to `OutputRender`) and
-  E2-S1-T2 (renderer). Verify a **text** tool can return
-  `{ output: 'data:audio/wav;base64,...', render: 'audio', filename: 'tone.wav' }`
-  and it plays + downloads in `TextWorkbench`. `TextWorkbench.astro`'s
-  `renderTextResult` call already covers it via shared.ts; only add the
-  `render:'audio'` case to the **download button** logic in `TextWorkbench.astro`
-  (treat like `image`: use `output` as the `href`, `filename` as download name).
-- [ ] **E2-S2-T2** — Add a pure-JS **WAV encoder** helper at
-  `src/lib/audio.ts` (NEW file, allowed under this epic):
-  `encodeWavPCM16(channels: Float32Array[], sampleRate: number): Uint8Array` and
-  `wavDataUri(bytes: Uint8Array): string`. RIFF/WAVE, PCM 16-bit, interleaved.
-  Unit-test it (`src/lib/audio.test.ts`) with a 1-sample known byte layout.
-  This is imported by E4 audio tools AND by the `tone-generator` text tool
-  (spec §9).
+- [x] **E2-S2-T1** — Depends on E2-S1-T1 (adds `'audio'` to `OutputRender`) and
+      E2-S1-T2 (renderer). Verify a **text** tool can return
+      `{ output: 'data:audio/wav;base64,...', render: 'audio', filename: 'tone.wav' }`
+      and it plays + downloads in `TextWorkbench`. `TextWorkbench.astro`'s
+      `renderTextResult` call already covers it via shared.ts; only add the
+      `render:'audio'` case to the **download button** logic in `TextWorkbench.astro`
+      (treat like `image`: use `output` as the `href`, `filename` as download name).
+- [x] **E2-S2-T2** — Add a pure-JS **WAV encoder** helper at
+      `src/lib/audio.ts` (NEW file, allowed under this epic):
+      `encodeWavPCM16(channels: Float32Array[], sampleRate: number): Uint8Array` and
+      `wavDataUri(bytes: Uint8Array): string`. RIFF/WAVE, PCM 16-bit, interleaved.
+      Unit-test it (`src/lib/audio.test.ts`) with a 1-sample known byte layout.
+      This is imported by E4 audio tools AND by the `tone-generator` text tool
+      (spec §9).
 
 ### Story E2-S3 — Canvas helper for image tools
 
-- [ ] **E2-S3-T1** — `src/lib/image.ts` (NEW): helpers used by E4 image tools,
-  worker-safe (use `OffscreenCanvas` + `createImageBitmap`, fall back to
-  `ToolError` if unavailable):
+- [x] **E2-S3-T1** — `src/lib/image.ts` (NEW): helpers used by E4 image tools,
+      worker-safe (use `OffscreenCanvas` + `createImageBitmap`, fall back to
+      `ToolError` if unavailable):
   - `decodeImage(blob: Blob): Promise<ImageBitmap>`
   - `drawToBlob(bitmap|canvas, { width, height, type, quality }): Promise<Blob>`
   - `canvasFor(width, height): OffscreenCanvas` (throws `ToolError` if no
     `OffscreenCanvas`)
   - `readPixels(bitmap, maxSample = 100_000): Uint8ClampedArray` (downscale-sample
     for palette/analysis)
-  Unit-test what is testable in jsdom (guards, type strings); the pixel paths are
-  covered by e2e in E5.
-- [ ] **E2-S3-T2** — Confirm `capabilities.ts` exposes `offscreenCanvas`,
-  `createImageBitmap`, `imageOutputType(mime)` (it does). No change expected;
-  add any missing one here.
+    Unit-test what is testable in jsdom (guards, type strings); the pixel paths are
+    covered by e2e in E5.
+- [x] **E2-S3-T2** — Confirm `capabilities.ts` exposes `offscreenCanvas`,
+      `createImageBitmap`, `imageOutputType(mime)` (it does). No change expected;
+      add any missing one here.
 
 ### Story E2-S4 — Worker/main-thread chunk dedupe
 
-- [ ] **E2-S4-T1** — Currently a tool's module is bundled twice (once for the
-  main-thread lazy import, once inside `tool.worker.ts`'s glob). Investigate a
-  Vite `manualChunks` / shared-chunk config in `astro.config.mjs` `vite.build`
-  so `src/tools/**` and heavy vendor libs resolve to one shared chunk across the
-  main graph and the worker graph. Measure `dist/_astro` total before/after.
-  If it can't be done cleanly without risk, document why in
-  `docs/ARCHITECTURE.md` and close the task as "won't do (documented)".
+- [x] **E2-S4-T1** (closed as "won't do (documented)" — see docs/ARCHITECTURE.md#chunk-dedupe) — Currently a tool's module is bundled twice (once for the
+      main-thread lazy import, once inside `tool.worker.ts`'s glob). Investigate a
+      Vite `manualChunks` / shared-chunk config in `astro.config.mjs` `vite.build`
+      so `src/tools/**` and heavy vendor libs resolve to one shared chunk across the
+      main graph and the worker graph. Measure `dist/_astro` total before/after.
+      If it can't be done cleanly without risk, document why in
+      `docs/ARCHITECTURE.md` and close the task as "won't do (documented)".
 
 ### Story E2-S5 — Small a11y / UX debt
 
-- [ ] **E2-S5-T1** — `TextWorkbench.astro`: the live-run debounce (180ms) can
-  fire heavy tools on every keystroke. Add: skip auto-run when `input.length`
+- [x] **E2-S5-T1** — `TextWorkbench.astro`: the live-run debounce (180ms) can
+      fire heavy tools on every keystroke. Add: skip auto-run when `input.length`
   > 50_000 unless the user presses Run; show a hint. Keep manual Run always
-  working.
-- [ ] **E2-S5-T2** — `FileWorkbench.astro`: announce progress and completion to
-  screen readers via an `aria-live="polite"` region (progress % text). Verify
-  with axe + manual VoiceOver/NVDA note in the PR.
-- [ ] **E2-S5-T3** — `OptionsFields.astro`: ensure every `range` input has a
-  visible current-value `<output>` and `aria-describedby` wiring; every `select`
-  a programmatic label. Add axe assertions to `e2e/smoke.spec.ts` for a tool
-  page with each option type (e.g. `/tools/password`, `/tools/hex`).
-- [ ] **E2-S5-T4** — `SearchDialog.astro`: trap focus within the dialog, restore
-  focus to the trigger on close, and support `Esc`. Add an e2e test.
+  > working.
+- [x] **E2-S5-T2** — `FileWorkbench.astro`: announce progress and completion to
+      screen readers via an `aria-live="polite"` region (progress % text). Verify
+      with axe + manual VoiceOver/NVDA note in the PR.
+- [x] **E2-S5-T3** — `OptionsFields.astro`: ensure every `range` input has a
+      visible current-value `<output>` and `aria-describedby` wiring; every `select`
+      a programmatic label. Add axe assertions to `e2e/smoke.spec.ts` for a tool
+      page with each option type (e.g. `/tools/password`, `/tools/hex`).
+- [x] **E2-S5-T4** — `SearchDialog.astro`: trap focus within the dialog, restore
+      focus to the trigger on close, and support `Esc`. Add an e2e test.
 
 ---
 
@@ -700,40 +736,49 @@ table inline; `file-hash.test.ts` updated; gate + e2e green.
 parallel. One commit per story.
 
 ### Story E3-S1 — Web utilities (10 tools) → `src/tools/web/`
+
 - [ ] `url-parse` · [ ] `basic-auth` · [ ] `data-uri` · [ ] `punycode`
 - [ ] `meta-tags` · [ ] `robots-txt` · [ ] `gitignore` · [ ] `editorconfig`
 - [ ] `mime-lookup` · [ ] `port-lookup`
 
 ### Story E3-S2 — Web / CSS generators (4 tools) → `src/tools/web/`
+
 - [ ] `css-units` · [ ] `gradient-css` · [ ] `box-shadow` · [ ] `cubic-bezier`
 
 ### Story E3-S3 — Web lookups (2 tools) → `src/tools/web/`
+
 - [ ] `http-status` · [ ] `user-agent`
 
 ### Story E3-S4 — Colour (6 tools) → `src/tools/color/`
+
 - [ ] `color-contrast` · [ ] `color-palette` · [ ] `color-blend`
 - [ ] `color-random` · [ ] `color-blindness` · [ ] `color-name`
 
 ### Story E3-S5 — Date & time (7 tools) → `src/tools/datetime/`
+
 - [ ] `timestamp` · [ ] `timezone-convert` · [ ] `duration-convert`
 - [ ] `date-diff` · [ ] `date-add` · [ ] `age-calculator` · [ ] `week-number`
 
 ### Story E3-S6 — Numbers & maths (13 tools) → `src/tools/numbers/`
+
 - [ ] `unit-convert` · [ ] `roman-numeral` · [ ] `number-to-words`
 - [ ] `percentage` · [ ] `statistics` · [ ] `prime-tools` · [ ] `random-number`
 - [ ] `gcd-lcm` · [ ] `scientific-notation` · [ ] `fraction` · [ ] `ratio`
 - [ ] `base-n-logic` · [ ] `roman-numeral-date` _(optional — see §9; skip if low value)_
 
 ### Story E3-S7 — Generators (10 tools) → `src/tools/generators/`
+
 - [ ] `nanoid` · [ ] `ulid` · [ ] `random-data` · [ ] `lorem-ipsum`
 - [ ] `qr-code` · [ ] `placeholder-svg` · [ ] `vcard` · [ ] `ical-event`
 - [ ] `utm-builder` · [ ] `otp-uri`
 
 ### Story E3-S8 — Network (8 tools) → `src/tools/network/`
+
 - [ ] `ip-info` · [ ] `cidr-calculator` · [ ] `ip-range` · [ ] `subnet-split`
 - [ ] `ipv6-tools` · [ ] `mac-address` · [ ] `ptr-record` · [ ] `asn-lookup` _(see §9 note — may be data-heavy; deferrable)_
 
 ### Story E3-S9 — Batch B integration
+
 - [ ] Full gate + `npm run test:e2e`.
 - [ ] `src/pages/index.astro` featured list already references `qr-code` —
       confirm it now resolves (it will once `qr-code` exists). No edit needed
@@ -759,8 +804,10 @@ Per-tool specs in **§9**. Each file tool must: validate input type, honour
 says) set `report`.
 
 ### Story E4-S1 — Image, canvas-based (11 tools) → `src/tools/image/`
+
 `meta`: `input:'file'`, `accept:'image/*'`, `multiple` per spec, `worker` omitted
 (defaults true — canvas runs in the worker via `OffscreenCanvas`).
+
 - [ ] `image-resize` · [ ] `image-compress` · [ ] `image-convert`
 - [ ] `image-crop` · [ ] `image-rotate` · [ ] `image-to-datauri`
 - [ ] `datauri-to-image` · [ ] `image-metadata` _(report; EXIF parse)_
@@ -768,41 +815,51 @@ says) set `report`.
 - [ ] `svg-to-png`
 
 ### Story E4-S2 — Image, multi-output (3 tools) → `src/tools/image/`
+
 - [ ] `favicon-generator` _(one image → 16/32/48/180/192/512 PNG + .ico, zipped)_
 - [ ] `image-spritesheet` _(N images → one sheet PNG + a CSS/JSON map)_
 - [ ] `image-diff` _(two images → a difference PNG + `report` stats)_
 
 ### Story E4-S3 — PDF (11 tools) → `src/tools/pdf/`
+
 `accept:'application/pdf'` (or `image/*` for images-to-pdf). `credits`: pdf-lib
 MIT and/or pdfjs-dist Apache-2.0 per tool.
+
 - [ ] `pdf-merge` · [ ] `pdf-split` · [ ] `pdf-extract-pages` · [ ] `pdf-rotate`
 - [ ] `pdf-delete-pages` · [ ] `pdf-page-numbers` · [ ] `pdf-watermark`
 - [ ] `pdf-metadata` _(report + rewrite)_ · [ ] `pdf-to-images` _(pdfjs render → zip)_
 - [ ] `images-to-pdf` · [ ] `pdf-extract-text` _(pdfjs → .txt + report)_
 
 ### Story E4-S4 — Archives & files (10 tools) → `src/tools/archive/`
+
 `credits`: fflate MIT.
+
 - [ ] `zip-create` · [ ] `zip-extract` · [ ] `zip-inspect` _(report: table)_
 - [ ] `gzip` _(compress/decompress)_ · [ ] `tar-create` · [ ] `tar-extract`
 - [ ] `file-split` · [ ] `file-join` · [ ] `base64-file`
 - [ ] `file-metadata` _(report: name/size/type/mtime + SHA-256)_
 
 ### Story E4-S5 — Audio, Web Audio API (10 tools) → `src/tools/audio/`
+
 `accept:'audio/*'`, **`meta.worker = false`** (AudioContext is main-thread).
 `OfflineAudioContext` for rendering. Output WAV via `src/lib/audio.ts` (E2-S2).
+
 - [ ] `audio-info` _(report: table)_ · [ ] `audio-to-wav` · [ ] `audio-trim`
 - [ ] `audio-normalize` · [ ] `audio-gain` · [ ] `audio-fade`
 - [ ] `audio-reverse` · [ ] `audio-merge` _(multiple)_ · [ ] `audio-channels`
       _(stereo↔mono, extract L/R)_ · [ ] `audio-speed` _(resample; pitch note)_
 
 ### Story E4-S6 — Generators that emit media/audio → `src/tools/generators/` or `misc`
+
 - [ ] `tone-generator` _(text tool; sine/square/saw/triangle/noise → WAV
       data URI, `render:'audio'`)_ — depends on E2-S2.
 - [ ] `metronome-click` _(text tool; BPM/bars → a click-track WAV,
       `render:'audio'`)_ — depends on E2-S2.
 
 ### Story E4-S7 — Everyday tools (8 tools) → `src/tools/misc/`
+
 All `input:'text'`, pure.
+
 - [ ] `calculator` _(safe expression evaluator — NO `eval`/`Function`)_
 - [ ] `programmer-calculator` _(bitwise ops across bases)_
 - [ ] `tip-calculator` · [ ] `loan-calculator` _(amortisation summary)_
@@ -810,6 +867,7 @@ All `input:'text'`, pure.
 - [ ] `random-picker` _(pick N / shuffle / make teams from a list)_
 
 ### Story E4-S8 — Batch C integration
+
 - [ ] Full gate + `npm run test:e2e` (image/audio/pdf paths need real browser —
       add smoke specs in `e2e/tools-c.spec.ts` that upload a tiny fixture PNG /
       WAV / PDF from `e2e/fixtures/` and assert an output/report appears and no
@@ -825,6 +883,7 @@ All `input:'text'`, pure.
 ## EPIC E5 — Quality & Hardening
 
 ### Story E5-S1 — Adversarial review of every tool
+
 - [ ] **E5-S1-T1** — For each category dir, run a focused review pass: verify one
       known-answer by hand per tool against an authoritative source (RFC, MDN,
       `iconv`, `openssl`, `python -c`, etc.); confirm `resolveOptions` usage,
@@ -836,7 +895,7 @@ All `input:'text'`, pure.
       (new, under `src/lib` — authorised here): iterate `ALL_TOOLS`, assert for
       each: `summary.length<=120`; `keywords.length>=3`; `examples.length>=1`;
       `related.length>=1`; `privacy` deep-equals `{processing:'on-device',
-      network:'none', offline:true}`; every `select` option's `default` is in its
+network:'none', offline:true}`; every `select` option's `default` is in its
       `choices`; every `showWhen.key` refers to a real sibling option; `input`
       is `'text'|'file'`; if `input:'file'` then `accept` is set. Load each
       `.tool.ts` and assert `typeof default.run === 'function'` and
@@ -844,6 +903,7 @@ All `input:'text'`, pure.
 - [ ] **E5-S1-T3** — Fix everything E5-S1-T2 flags.
 
 ### Story E5-S2 — Fuzz / property tests for parsers
+
 - [ ] **E5-S2-T1** — For round-trippable tools (base64, base32, hex, base58,
       ascii85, url-encode, html-entities, unicode-escape, quoted-printable,
       backslash-escape, json-escape, punycode, querystring, dotenv), add a
@@ -856,6 +916,7 @@ All `input:'text'`, pure.
       or throw `ToolError` — never hang.
 
 ### Story E5-S3 — Performance budgets
+
 - [ ] **E5-S3-T1** — Add `scripts/check-bundle.mjs`: after `npm run build`,
       assert `dist/` initial route JS (home page) gzip < 20 KB, any single
       `_astro/*.js` < 250 KB gzip, total `_astro` < 2 MB gzip. Wire into CI as a
@@ -864,11 +925,12 @@ All `input:'text'`, pure.
       approved dep add for this task only**) on `/`, `/tools`, `/tools/base64`,
       `/tools/image-resize`: assert Perf ≥ 95, A11y = 100, Best-Practices ≥ 95,
       SEO = 100. Add `.lighthouserc.json`. Add to CI.
-- [ ] **E5-S3-T3** — For heavy file tools (pdf-to-images, image-*, audio-*),
+- [ ] **E5-S3-T3** — For heavy file tools (pdf-to-images, image-_, audio-_),
       add a note in each tool's `faq` about practical size limits and confirm
       `onProgress` + cancel work with a large fixture (manual + e2e).
 
 ### Story E5-S4 — Cross-browser & mobile
+
 - [ ] **E5-S4-T1** — Extend `playwright.config.ts` projects: add `firefox`,
       `webkit`, `Pixel 7`. Run the full e2e matrix in CI (allow-fail webkit
       audio initially, document any gaps).
@@ -878,6 +940,7 @@ All `input:'text'`, pure.
       (new).
 
 ### Story E5-S5 — Security review
+
 - [ ] **E5-S5-T1** — Confirm CSP in `public/_headers` still fits (workers +
       `blob:` + `wasm-unsafe-eval` if any WASM sneaks in — there should be none).
       Add a test that greps `dist/**/*.js` for `http://` / `https://` string
@@ -896,6 +959,7 @@ All `input:'text'`, pure.
 Thin utility pages get penalised. Every tool page needs unique, useful prose.
 
 ### Story E6-S1 — Long-form content per tool
+
 - [ ] **E6-S1-T1** — Extend `ToolMeta` (E2-authorised edit to `types.ts` — do it
       as part of this task): add optional
       `article?: { heading: string; body: string }[]` (plain paragraphs, no
@@ -911,6 +975,7 @@ Thin utility pages get penalised. Every tool page needs unique, useful prose.
       `faq` entries answering actual user questions.
 
 ### Story E6-S2 — Structured data & discovery
+
 - [ ] **E6-S2-T1** — Add `HowTo` JSON-LD (in `src/lib/seo.ts`) for tools whose
       `article` includes step content; render on the page.
 - [ ] **E6-S2-T2** — Add an `ItemList` JSON-LD to `/tools` and each
@@ -919,6 +984,7 @@ Thin utility pages get penalised. Every tool page needs unique, useful prose.
       have it).
 
 ### Story E6-S3 — Per-tool Open Graph images
+
 - [ ] **E6-S3-T1** — Extend `scripts/gen-icons.mjs` (or new
       `scripts/gen-og.mjs`, Node zlib only) to generate a per-tool
       `dist`-time OG PNG (1200×630, brand field, tool name, category) — or a
@@ -928,6 +994,7 @@ Thin utility pages get penalised. Every tool page needs unique, useful prose.
       `/og/<id>.png` when present.
 
 ### Story E6-S4 — Content pages
+
 - [ ] **E6-S4-T1** — `/guides` index + a few evergreen guides ("Base64 explained",
       "Which hash should I use?", "Cron syntax cheat sheet", "Colour contrast &
       WCAG") as `.astro` pages under `src/pages/guides/`. Cross-link to the
@@ -965,8 +1032,7 @@ Thin utility pages get penalised. Every tool page needs unique, useful prose.
 
 ## EPIC E8 — Astro 7 Upgrade (clears `npm audit`)
 
-`npm audit` flags Astro 4.16 + esbuild/vite/sharp advisories fixed only in Astro
-7. None are reachable in the static production artifact (dev-server / SSR / adapter
+`npm audit` flags Astro 4.16 + esbuild/vite/sharp advisories fixed only in Astro 7. None are reachable in the static production artifact (dev-server / SSR / adapter
 only — see `SECURITY.md`), but a clean audit matters for trust.
 
 - [ ] **E8-T1** — Branch. `npm i astro@7` (latest 7.x). Read Astro 5→6→7 migration
@@ -1041,16 +1107,17 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
 > options / algorithm / errors / tests / related. Where an exact expected value
 > is given, use it verbatim in a test. "US spelling" applies to `name` and
 > `keywords`. All privacy is `{processing:'on-device', network:'none', offline:true}`.
-> "empty input → `{output:''}`" unless marked *(generator)*.
+> "empty input → `{output:''}`" unless marked _(generator)_.
 
-### 9.A — WEB  (`src/tools/web/`)
+### 9.A — WEB (`src/tools/web/`)
 
-#### url-parse — URL Parser  (web · text · table · —)
+#### url-parse — URL Parser (web · text · table · —)
+
 - **summary:** Break a URL into protocol, host, path, query parameters and hash.
 - **options:** `base` text='' — optional base URL to resolve a relative input against.
 - **algorithm:** `new URL(input, base || undefined)`. Build a `table` with rows:
   `href, protocol, username, password, host, hostname, port, origin, pathname,
-  decoded pathname (decodeURIComponent), hash`. Then one row per search param as
+decoded pathname (decodeURIComponent), hash`. Then one row per search param as
   `["query: <key>", <value>]` (iterate `url.searchParams`, repeated keys each get
   their own row). `stats`: `{ params: searchParams size }`.
 - **errors:** `new URL` throws → `ToolError('That is not a valid URL.', 'Include the scheme, e.g. https://')`.
@@ -1061,7 +1128,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   `"not a url"` → throws `/valid URL/`.
 - **related:** querystring, basic-auth, utm-builder, punycode
 
-#### basic-auth — HTTP Basic Auth Header  (web · text · code · —)
+#### basic-auth — HTTP Basic Auth Header (web · text · code · —)
+
 - **options:** `mode` select=`build` (`build`|`decode`); `username` text=''
   [showWhen mode=build]; `password` text='' [showWhen mode=build].
 - **algorithm:** build → `output = 'Authorization: Basic ' + btoa(unescape(encodeURIComponent(user + ':' + pass)))`
@@ -1075,7 +1143,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   (that is `:` encoded) — acceptable; add a `warning` "no username or password".
 - **related:** url-parse, jwt-decode, base64
 
-#### data-uri — Data URI Converter  (web · text · text · —)
+#### data-uri — Data URI Converter (web · text · text · —)
+
 - **options:** `mode` select=`encode` (`encode`|`decode`); `mimeType` text=`text/plain` [showWhen mode=encode];
   `charset` boolean=true (append `;charset=utf-8`) [showWhen mode=encode];
   `encoding` select=`base64` (`base64`|`url`) [showWhen mode=encode].
@@ -1092,7 +1161,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   `data:text/plain,hello%20world` → `hello world`.
 - **related:** base64, url-encode, image-to-datauri
 
-#### punycode — Punycode / IDN Converter  (web · text · text · —)
+#### punycode — Punycode / IDN Converter (web · text · text · —)
+
 - **options:** `mode` select=`to-ascii` (`to-ascii`|`to-unicode`).
 - **algorithm:** Implement RFC 3492 Punycode + the domain wrapper (split on `.`,
   encode/decode each label, prefix `xn--` for non-ASCII labels on to-ascii;
@@ -1105,7 +1175,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   ASCII-only `example.com` unchanged both directions.
 - **related:** url-parse, url-encode, unicode-escape
 
-#### meta-tags — HTML Meta Tag Generator  (web · text · code[html] · —)
+#### meta-tags — HTML Meta Tag Generator (web · text · code[html] · —)
+
 - **options:** `title` text='' ; `description` text='' ; `canonicalUrl` text='' ;
   `imageUrl` text='' ; `ogType` select=`website` (`website`|`article`) ;
   `twitterCard` select=`summary_large_image` (`summary`|`summary_large_image`) ;
@@ -1121,7 +1192,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   A value with `"` is escaped to `&quot;`.
 - **related:** robots-txt, gitignore, open-graph (see §10)
 
-#### robots-txt — robots.txt Generator  (web · text · code · —)
+#### robots-txt — robots.txt Generator (web · text · code · —)
+
 - **options:** `preset` select=`allow-all` (`allow-all`|`block-all`|`block-ai-bots`|`custom`);
   `userAgents` text=`*` [showWhen preset=custom] (comma-separated);
   `disallow` textarea='' [showWhen preset=custom] (one path/line);
@@ -1130,7 +1202,7 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
 - **algorithm:** `allow-all` → `User-agent: *\nAllow: /`. `block-all` →
   `User-agent: *\nDisallow: /`. `block-ai-bots` → a `Disallow: /` block for each
   of: `GPTBot, ChatGPT-User, CCBot, Google-Extended, anthropic-ai, ClaudeBot,
-  PerplexityBot, Bytespider, Amazonbot, FacebookBot`, then `User-agent: *\nAllow: /`.
+PerplexityBot, Bytespider, Amazonbot, FacebookBot`, then `User-agent: *\nAllow: /`.
   `custom` → one block per user-agent with the allow/disallow lines. Append
   `Crawl-delay: N` (if >0) and `Sitemap: <url>` (if set).
 - **tests:** `block-all` → exact `User-agent: *\nDisallow: /\n`. `block-ai-bots`
@@ -1138,7 +1210,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   appears when set.
 - **related:** gitignore, editorconfig, meta-tags
 
-#### gitignore — .gitignore Generator  (web · text · code · —)
+#### gitignore — .gitignore Generator (web · text · code · —)
+
 - **options:** `stack` select=`node` (`node`|`python`|`rust`|`go`|`java-maven`|`macos`|`windows`|`linux`|`jetbrains`|`vscode`|`general`).
 - **algorithm:** Embed a compact 10–25 line template per stack (dependency dirs,
   build output, env files, logs, coverage, editor/OS cruft). Always prepend the
@@ -1150,7 +1223,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   `.DS_Store`. No duplicate lines.
 - **related:** editorconfig, robots-txt
 
-#### editorconfig — .editorconfig Generator  (web · text · code · —)
+#### editorconfig — .editorconfig Generator (web · text · code · —)
+
 - **options:** `indentStyle` select=`space` (`space`|`tab`); `indentSize` number=2 (1..8);
   `endOfLine` select=`lf` (`lf`|`crlf`); `charset` select=`utf-8` (`utf-8`|`latin1`);
   `trimTrailingWhitespace` boolean=true; `insertFinalNewline` boolean=true;
@@ -1164,7 +1238,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   `indent_size = tab`).
 - **related:** gitignore
 
-#### mime-lookup — MIME Type Lookup  (web · text · table · —)
+#### mime-lookup — MIME Type Lookup (web · text · table · —)
+
 - **options:** `mode` select=`ext-to-mime` (`ext-to-mime`|`mime-to-ext`).
 - **algorithm:** Embed a map of ~180 common extensions ⇄ MIME types (images,
   docs/office, audio, video, archives, code, fonts, data). `ext-to-mime`: accept
@@ -1176,10 +1251,11 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   "Unknown extension".
 - **related:** data-uri, http-status, file-metadata
 
-#### port-lookup — Network Port Lookup  (web · text · table · —)
+#### port-lookup — Network Port Lookup (web · text · table · —)
+
 - **options:** none.
 - **algorithm:** Embed ~160 well-known ports: `{ port, protocol('TCP'|'UDP'|'TCP/UDP'),
-  service, description }` (20/21 FTP, 22 SSH, 23 Telnet, 25/465/587 SMTP, 53 DNS,
+service, description }` (20/21 FTP, 22 SSH, 23 Telnet, 25/465/587 SMTP, 53 DNS,
   67/68 DHCP, 80/443 HTTP(S), 110/995 POP3, 123 NTP, 143/993 IMAP, 161/162 SNMP,
   389/636 LDAP(S), 3000/3001 dev, 3306 MySQL, 3389 RDP, 5432 Postgres, 5672
   AMQP, 6379 Redis, 8080/8443 HTTP-alt, 9000 misc, 9092 Kafka, 11211 Memcached,
@@ -1190,9 +1266,10 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   empty → many rows (>100).
 - **related:** ip-info, http-status, cidr-calculator
 
-### 9.B — WEB / CSS  (`src/tools/web/`)
+### 9.B — WEB / CSS (`src/tools/web/`)
 
-#### css-units — CSS Unit Converter  (web · text · table · —)
+#### css-units — CSS Unit Converter (web · text · table · —)
+
 - **options:** `fromUnit` select=`px` (`px`|`rem`|`em`|`pt`|`pc`|`in`|`cm`|`mm`|`%`);
   `toUnit` select=`rem` (`px`|`rem`|`em`|`pt`|`%`); `rootFontSize` number=16;
   `parentFontSize` number=16; `percentBase` number=16.
@@ -1206,14 +1283,15 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   `12pt` → `px` `16`. Empty → `{output:''}`.
 - **related:** aspect-ratio, gradient-css
 
-#### gradient-css — CSS Gradient Generator  (web · text · code[css] · —)
+#### gradient-css — CSS Gradient Generator (web · text · code[css] · —)
+
 - **options:** `type` select=`linear` (`linear`|`radial`|`conic`); `angle` number=90 (0..360) [showWhen type=linear];
   `shape` select=`ellipse` (`circle`|`ellipse`) [showWhen type=radial];
   `stops` textarea=`#4f46e5 0%\n#ec4899 100%` (one `color [position]` per line).
 - **algorithm:** Parse each non-blank stop line: first token = colour (validate
   with a small hex/rgb/hsl/named check), optional 2nd token = position. Emit
   `background-color: <first colour>;` fallback + `background-image:
-  linear-gradient(<angle>deg, <stops>)` / `radial-gradient(<shape>, <stops>)` /
+linear-gradient(<angle>deg, <stops>)` / `radial-gradient(<shape>, <stops>)` /
   `conic-gradient(from <angle>deg, <stops>)`. `render:'code' language:'css'`.
 - **errors:** <2 valid stops → `ToolError('Add at least two colour stops.')`;
   bad colour → `ToolError('"<token>" is not a colour.')`.
@@ -1221,7 +1299,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   and `background-color: #4f46e5;`. `type=radial` → `radial-gradient(ellipse,`.
 - **related:** box-shadow, color-palette, color-blend
 
-#### box-shadow — CSS Box Shadow Generator  (web · text · code[css] · —)
+#### box-shadow — CSS Box Shadow Generator (web · text · code[css] · —)
+
 - **options:** `offsetX` number=0; `offsetY` number=4; `blur` number=12; `spread` number=0;
   `color` text=`rgba(0,0,0,0.15)`; `inset` boolean=false; `layers` number=1 (1..6).
 - **algorithm:** For `layers>1`, emit N comma-separated shadows with progressively
@@ -1232,7 +1311,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   `inset=true` → starts `box-shadow: inset `. `layers=3` → two commas.
 - **related:** gradient-css, glassmorphism (see §10)
 
-#### cubic-bezier — Cubic Bezier Explorer  (web · text · table · —)
+#### cubic-bezier — Cubic Bezier Explorer (web · text · table · —)
+
 - **options:** `samples` number=11 (3..25).
 - **algorithm:** Parse `input` as four comma/space-separated numbers `x1,y1,x2,y2`;
   require `0<=x1<=1` and `0<=x2<=1` (y unrestricted). Compute the CSS easing
@@ -1248,9 +1328,10 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   progress `0`, t=1 → `1`. `0,0,1,1` → nearest `linear`, progress ≈ t.
 - **related:** gradient-css, animate (see §10)
 
-### 9.C — WEB LOOKUPS  (`src/tools/web/`)
+### 9.C — WEB LOOKUPS (`src/tools/web/`)
 
-#### http-status — HTTP Status Code Reference  (web · text · table · —)
+#### http-status — HTTP Status Code Reference (web · text · table · —)
+
 - **options:** `category` select=`all` (`all`|`1xx`|`2xx`|`3xx`|`4xx`|`5xx`).
 - **algorithm:** Embed the full standard list (100–103, 200–208, 226, 300–308,
   400–418, 421–429, 431, 451, 500–511) as `{ code, name, meaning }`. Input: a
@@ -1261,11 +1342,12 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   `category=5xx`, empty input → all rows start with `5`. `429` present.
 - **related:** port-lookup, mime-lookup, user-agent
 
-#### user-agent — User-Agent Parser  (web · text · table · —)
+#### user-agent — User-Agent Parser (web · text · table · —)
+
 - **options:** none.
 - **algorithm:** Pure-JS heuristic regex parser. Detect, in order: bots
   (`bot|crawler|spider|curl|wget|python-requests|Googlebot|bingbot|DuckDuckBot|
-  Slackbot|facebookexternalhit`), then browser (Edge `Edg/`, Opera `OPR/`,
+Slackbot|facebookexternalhit`), then browser (Edge `Edg/`, Opera `OPR/`,
   Samsung `SamsungBrowser/`, Chrome `Chrome/` (not Edge/OPR), Firefox
   `Firefox/`, Safari `Version/.*Safari`, IE `MSIE|Trident`), OS
   (`Windows NT x.y` → 10/11/8.1/…; `Mac OS X x_y`; `Android x`; `iPhone OS x_y`;
@@ -1275,19 +1357,20 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   Version, OS, OS version, Engine, Device type, Is bot.
 - **errors:** empty → `ToolError('Paste a User-Agent string.')`.
 - **tests:** `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36
-  (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36` → Browser `Chrome`, OS
+(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36` → Browser `Chrome`, OS
   `Windows`, OS version `10`, Engine `Blink`, Device `desktop`, Is bot `No`.
   `curl/8.4.0` → Is bot `Yes`, Browser `curl`.
 - **related:** http-status, ip-info
 
-### 9.D — COLOUR  (`src/tools/color/`)
+### 9.D — COLOUR (`src/tools/color/`)
 
 > Do **not** import `color-convert.tool.ts`. Write a small self-contained parser
 > in each file: accept `#rgb`, `#rgba`, `#rrggbb`, `#rrggbbaa`, `rgb()/rgba()`
 > (comma or space syntax), `hsl()/hsla()`, and the 148 CSS named colours. A
 > shared ~60-line helper copied into each file is fine.
 
-#### color-contrast — Color Contrast Checker  (color · text · table · —)
+#### color-contrast — Color Contrast Checker (color · text · table · —)
+
 - **options:** `second` textarea=`#ffffff` (the background colour).
 - **algorithm:** Parse fg=`input`, bg=`second`. Relative luminance per WCAG 2.1
   (sRGB → linear, `0.2126R+0.7152G+0.0722B`). Ratio `(L1+0.05)/(L2+0.05)`.
@@ -1301,7 +1384,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   `{output:''}`.
 - **related:** color-convert, color-palette, color-name
 
-#### color-palette — Color Palette Generator  (color · text · colors · —)
+#### color-palette — Color Palette Generator (color · text · colors · —)
+
 - **options:** `scheme` select=`tints-shades`
   (`tints-shades`|`monochromatic`|`complementary`|`analogous`|`triadic`|`tetradic`|`split-complementary`);
   `count` number=7 (3..12).
@@ -1317,7 +1401,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   respected for `tints-shades`.
 - **related:** color-convert, gradient-css, color-blend
 
-#### color-blend — Color Blend / Mix  (color · text · colors · —)
+#### color-blend — Color Blend / Mix (color · text · colors · —)
+
 - **options:** `second` text=`#ffffff`; `ratio` range=50 (0..100); `space` select=`rgb` (`rgb`|`hsl`).
 - **algorithm:** Parse A=`input`, B=`second`. Mix at `ratio/100` (0 = all A) in
   the chosen space (rgb: per-channel lerp; hsl: lerp H along the shorter arc, S,
@@ -1328,7 +1413,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   ratio 0 → blended == A. ratio 100 → blended == B.
 - **related:** color-palette, gradient-css
 
-#### color-random — Random Color Generator  (color · text · colors · —) *(generator)*
+#### color-random — Random Color Generator (color · text · colors · —) _(generator)_
+
 - **options:** `count` number=8 (1..48); `format` select=`hex` (`hex`|`rgb`|`hsl`);
   `style` select=`any` (`any`|`warm`|`cool`|`pastel`|`vivid`|`grayscale`|`earth`).
 - **algorithm:** `crypto.getRandomValues` for randomness. `style` constrains HSL:
@@ -1341,7 +1427,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   assert exact colours.
 - **related:** color-palette, random-data
 
-#### color-blindness — Colour Blindness Simulator  (color · text · colors · —)
+#### color-blindness — Colour Blindness Simulator (color · text · colors · —)
+
 - **options:** `type` select=`deuteranopia` (`protanopia`|`deuteranopia`|`tritanopia`|`achromatopsia`);
   `severity` range=100 (0..100).
 - **algorithm:** Input = one colour per line (hex/rgb/etc), OR a single colour.
@@ -1356,7 +1443,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   achromatopsia → R==G==B.
 - **related:** color-contrast, color-palette
 
-#### color-name — Nearest CSS Colour Name  (color · text · table · —)
+#### color-name — Nearest CSS Colour Name (color · text · table · —)
+
 - **options:** none.
 - **algorithm:** Parse input colour → RGB. Compute distance (weighted Euclidean
   or CIE76 in Lab — Lab preferred) to all 148 CSS named colours; return the
@@ -1367,14 +1455,15 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   (small distance). `#7fffd4` → `aquamarine` exact.
 - **related:** color-convert, color-contrast, color-palette
 
-### 9.E — DATE & TIME  (`src/tools/datetime/`)
+### 9.E — DATE & TIME (`src/tools/datetime/`)
 
 > `Date` and `Date.now()` **are** allowed in tool code. Tests that assert a
 > relative-time or "now" value must pass a fixed reference — so give these tools
 > an optional way to accept the reference instant (an `asOf` / `second` option or
 > the input itself). Never make a test depend on the wall clock.
 
-#### timestamp — Unix Timestamp Converter  (datetime · text · table · —)
+#### timestamp — Unix Timestamp Converter (datetime · text · table · —)
+
 - **options:** `unit` select=`auto` (`auto`|`seconds`|`milliseconds`);
   `timezone` select=`utc` (`utc`|`local`); `output` select=`all` (`all`|`iso`|`rfc2822`|`relative`|`epoch`).
 - **algorithm:** input empty → `new Date()`. Numeric input → epoch: `auto` treats
@@ -1390,7 +1479,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   empty → a table (don't assert the value).
 - **related:** timezone-convert, date-diff, duration-convert, cron-parser
 
-#### timezone-convert — Timezone Converter  (datetime · text · table · —)
+#### timezone-convert — Timezone Converter (datetime · text · table · —)
+
 - **options:** `fromZone` select=`UTC` (list ~28 IANA zones: UTC, America/New_York,
   America/Chicago, America/Denver, America/Los_Angeles, America/Sao_Paulo,
   Europe/London, Europe/Paris, Europe/Berlin, Europe/Moscow, Africa/Cairo,
@@ -1404,7 +1494,7 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   compute the offset by comparing, adjust (one iteration handles all but the DST
   gap edge — acceptable, note it). Then render that instant for each target zone
   via `Intl.DateTimeFormat(undefined, { timeZone, weekday, year, month, day,
-  hour, minute, timeZoneName:'shortOffset' })`. `render:'table'` headers
+hour, minute, timeZoneName:'shortOffset' })`. `render:'table'` headers
   `["Zone","Local time"]`.
 - **errors:** unparseable input → `ToolError`.
 - **tests:** input `2024-01-15 12:00`, fromZone `UTC`, targets `world` → the
@@ -1412,7 +1502,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   `07:00` (EST). Assert substrings, not the whole formatted string.
 - **related:** timestamp, date-diff, week-number
 
-#### duration-convert — Duration Converter  (datetime · text · table · —)
+#### duration-convert — Duration Converter (datetime · text · table · —)
+
 - **options:** `mode` select=`auto` (`auto`|`from-seconds`);
   `output` select=`all` (`all`|`human`|`iso8601`|`clock`|`seconds`|`components`).
 - **algorithm:** Parse input as total seconds if numeric & `from-seconds` or
@@ -1427,7 +1518,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   seconds `90`.
 - **related:** timestamp, date-diff
 
-#### date-diff — Date Difference Calculator  (datetime · text · table · —)
+#### date-diff — Date Difference Calculator (datetime · text · table · —)
+
 - **options:** `second` text='' (the other date; empty → now).
 - **algorithm:** A=`input` (empty → now), B=`second` (empty → now). `render:'table'`
   rows: total ms, seconds, minutes, hours, days, weeks; calendar breakdown
@@ -1440,7 +1532,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   A after B → magnitude same, note says "after".
 - **related:** date-add, age-calculator, week-number
 
-#### date-add — Date Add / Subtract  (datetime · text · table · —)
+#### date-add — Date Add / Subtract (datetime · text · table · —)
+
 - **options:** `operation` select=`add` (`add`|`subtract`); `years` number=0;
   `months` number=0; `weeks` number=0; `days` number=0; `hours` number=0; `minutes` number=0.
 - **algorithm:** Base=`input` (empty → now). Apply years then months
@@ -1453,19 +1546,21 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   90 minutes → `...T01:30:00`.
 - **related:** date-diff, age-calculator
 
-#### age-calculator — Age Calculator  (datetime · text · table · —)
+#### age-calculator — Age Calculator (datetime · text · table · —)
+
 - **options:** `asOf` text='' (reference date; empty → today).
 - **algorithm:** birth=`input`. If birth > asOf or unparseable → `ToolError`.
   `render:'table'` rows: age `"Y years, M months, D days"`; total days, weeks,
   months, hours; day of week born; next birthday date + days until (from asOf);
   western zodiac sign (date-range table).
 - **tests:** birth `2000-01-01`, asOf `2024-01-01` → age `24 years, 0 months,
-  0 days`, day born `Saturday`. birth `2000-06-15`, asOf `2024-06-14` → age
+0 days`, day born `Saturday`. birth `2000-06-15`, asOf `2024-06-14` → age
   `23 years, 11 months, 30 days` (or `... 29/30` — assert years `23`). future
   birthdate → throws.
 - **related:** date-diff, week-number
 
-#### week-number — Week Number & Calendar Facts  (datetime · text · table · —)
+#### week-number — Week Number & Calendar Facts (datetime · text · table · —)
+
 - **options:** none (input empty → today).
 - **algorithm:** For the given date: ISO 8601 week number + ISO week-year
   (Thursday rule), day of year (1–366), days remaining in year, quarter (Q1–Q4),
@@ -1477,9 +1572,10 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   `2024-12-31` → day of year `366`.
 - **related:** date-diff, timestamp
 
-### 9.F — NUMBERS & MATHS  (`src/tools/numbers/`)
+### 9.F — NUMBERS & MATHS (`src/tools/numbers/`)
 
-#### unit-convert — Unit Converter  (numbers · text · table · —)
+#### unit-convert — Unit Converter (numbers · text · table · —)
+
 - **options:** `category` select=`length`
   (`length`|`mass`|`temperature`|`volume`|`area`|`speed`|`data-storage`|`time`|`pressure`|`energy`|`angle`);
   `from` text='' ; `to` text=''.
@@ -1497,7 +1593,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   `1` `GiB` → `MiB` `1024`. unknown unit → throws with a unit list.
 - **related:** css-units, data-size, scientific-notation
 
-#### roman-numeral — Roman Numeral Converter  (numbers · text · code · —)
+#### roman-numeral — Roman Numeral Converter (numbers · text · code · —)
+
 - **options:** `mode` select=`auto` (`auto`|`to-roman`|`to-number`);
   `extended` boolean=false (vinculum notation `(IV)`=4000, up to 3,999,999).
 - **algorithm:** to-roman: standard subtractive table; without `extended`, range
@@ -1511,7 +1608,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   `3999` → `MMMCMXCIX`. `4000` no extended → throws; with extended → `(IV)`.
 - **related:** number-to-words, number-base
 
-#### number-to-words — Number to Words  (numbers · text · text · —)
+#### number-to-words — Number to Words (numbers · text · text · —)
+
 - **options:** `style` select=`cardinal` (`cardinal`|`ordinal`);
   `letterCase` select=`lower` (`lower`|`sentence`|`title`|`upper`);
   `useAnd` boolean=true (`one hundred and one` vs `one hundred one`).
@@ -1526,12 +1624,13 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   `twenty-first`. `1000000` → `one million`. title case → `One Thousand ...`.
 - **related:** roman-numeral, fraction
 
-#### percentage — Percentage Calculator  (numbers · text · text · —)
+#### percentage — Percentage Calculator (numbers · text · text · —)
+
 - **options:** `mode` select=`percent-of`
   (`percent-of`|`what-percent`|`percent-change`|`increase-by`|`decrease-by`);
   `a` number=0; `b` number=0.
 - **algorithm:** `percent-of`: `a% of b = a/100*b`. `what-percent`: `a is
-  (a/b*100)% of b`. `percent-change`: `((b-a)/a*100)%` (signed). `increase-by`:
+(a/b*100)% of b`. `percent-change`: `((b-a)/a*100)%` (signed). `increase-by`:
   `a*(1+b/100)`. `decrease-by`: `a*(1-b/100)`. Output the number + a one-line
   explanation sentence. Ignore `input.text` (options only). `stats`: the result.
 - **errors:** division by zero (`what-percent` b=0, `percent-change` a=0) →
@@ -1541,7 +1640,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   b=0 what-percent → throws.
 - **related:** ratio, fraction, statistics
 
-#### statistics — Statistics Calculator  (numbers · text · table · —)
+#### statistics — Statistics Calculator (numbers · text · table · —)
+
 - **options:** none.
 - **algorithm:** Tokenise `input` on `[\s,;]+`; keep finite numbers, count
   skipped non-numeric tokens (put in a `note`). Compute: count, sum, min, max,
@@ -1555,7 +1655,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   tokens counted.
 - **related:** percentage, random-number, gcd-lcm
 
-#### prime-tools — Prime Number Tools  (numbers · text · table · —)
+#### prime-tools — Prime Number Tools (numbers · text · table · —)
+
 - **options:** none.
 - **algorithm:** Parse `input` as a positive integer (BigInt for parsing; use
   `Number` when ≤ 2^53). `render:'table'` rows: is prime; prime factorisation
@@ -1570,7 +1671,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   `97` → is prime `Yes`. `1` → is prime `No`, previous prime `none`.
 - **related:** gcd-lcm, number-base, fraction
 
-#### random-number — Random Number Generator  (numbers · text · code · —) *(generator)*
+#### random-number — Random Number Generator (numbers · text · code · —) _(generator)_
+
 - **options:** `mode` select=`integers` (`integers`|`decimals`|`dice`|`coin`);
   `min` number=1; `max` number=100; `count` number=5 (1..1000);
   `unique` boolean=false [showWhen mode=integers];
@@ -1584,11 +1686,12 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
 - **errors:** `min > max`; `unique` range too small; bad dice string → `ToolError`.
 - **tests:** `mode=integers count=1000 min=1 max=6` → 1000 lines, every value in
   1..6. `unique count=5 min=1 max=5` → the multiset `{1,2,3,4,5}`. `unique
-  count=5 min=1 max=3` → throws. `dice=2d6` → two roll lines + `Total: N` with
+count=5 min=1 max=3` → throws. `dice=2d6` → two roll lines + `Total: N` with
   N in 2..12.
 - **related:** random-string, random-picker, random-data
 
-#### gcd-lcm — GCD & LCM Calculator  (numbers · text · table · —)
+#### gcd-lcm — GCD & LCM Calculator (numbers · text · table · —)
+
 - **options:** none.
 - **algorithm:** Tokenise integers (`[\s,;]+`). Compute GCD (Euclid, fold) and LCM
   (`a*b/gcd`, **BigInt** to avoid overflow). `render:'table'` rows: GCD, LCM,
@@ -1599,7 +1702,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   `8 9` → pairwise coprime `Yes`. `4 6` → `No`.
 - **related:** prime-tools, fraction, ratio
 
-#### scientific-notation — Scientific Notation Converter  (numbers · text · table · —)
+#### scientific-notation — Scientific Notation Converter (numbers · text · table · —)
+
 - **options:** `mode` select=`auto` (`auto`|`to-scientific`|`to-engineering`|`to-decimal`);
   `sigFigs` number=6 (1..15).
 - **algorithm:** Parse `input` (accepts `1.23e4`, `1.23E4`, `12300`, `0.0012`).
@@ -1615,7 +1719,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   decimal `1500`.
 - **related:** unit-convert, number-base, fraction
 
-#### fraction — Fraction Converter  (numbers · text · table · —)
+#### fraction — Fraction Converter (numbers · text · table · —)
+
 - **options:** `mode` select=`decimal-to-fraction` (`decimal-to-fraction`|`fraction-to-decimal`);
   `maxDenominator` number=1000000; `mixedNumber` boolean=true.
 - **algorithm:** decimal-to-fraction: detect a repeating decimal in the input
@@ -1630,7 +1735,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   → decimal `0.75`. `1/3` → decimal `0.(3)`. `7/2` mixed → `3 1/2`.
 - **related:** ratio, percentage, scientific-notation
 
-#### ratio — Ratio Calculator  (numbers · text · table · —)
+#### ratio — Ratio Calculator (numbers · text · table · —)
+
 - **options:** `mode` select=`simplify` (`simplify`|`scale`|`convert`);
   `scaleValue` number=0 [showWhen mode=scale]; `scalePart` number=1 (1..10) [showWhen mode=scale].
 - **algorithm:** Parse `input` like `16:9` or `2:3:5` (also `16/9`, `16 to 9`).
@@ -1642,7 +1748,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   `1:0.5625`. `2:3` scale scaleValue=10 scalePart=1 → `10:15`.
 - **related:** fraction, percentage, aspect-ratio, gcd-lcm
 
-#### base-n-logic — Programmer Number Explorer  (numbers · text · table · —)
+#### base-n-logic — Programmer Number Explorer (numbers · text · table · —)
+
 - **options:** `bits` select=`32` (`8`|`16`|`32`|`64`); `signed` boolean=true.
 - **algorithm:** Parse `input` (accepts `0x`, `0b`, `0o`, decimal, leading `-`).
   Use BigInt. `render:'table'` rows: decimal, hex, octal, binary (grouped by 4),
@@ -1653,17 +1760,19 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
 - **tests:** `255` bits=8 → binary `1111 1111`, hex `0xFF`, popcount `8`.
   `-1` bits=8 signed → two's complement `1111 1111`. `0b1010` → decimal `10`.
 - **related:** number-base, chmod-calculator, programmer-calculator
-- **note:** *Optional / lower priority — `number-base` + `programmer-calculator`
-  (E4) may cover this. Skip if time-constrained.*
+- **note:** _Optional / lower priority — `number-base` + `programmer-calculator`
+  (E4) may cover this. Skip if time-constrained._
 
-#### roman-numeral-date — Roman Numeral Date  (numbers · text · text · —)
-- **note:** *Optional novelty tool. Convert `2024-01-31` → `XXXI · I · MMXXIV`
+#### roman-numeral-date — Roman Numeral Date (numbers · text · text · —)
+
+- **note:** _Optional novelty tool. Convert `2024-01-31` → `XXXI · I · MMXXIV`
   and back. Only build if §10 backlog is empty. Spec: `mode` add/parse; separator
-  option. Standard roman conversion per part.*
+  option. Standard roman conversion per part._
 
-### 9.G — GENERATORS  (`src/tools/generators/`)
+### 9.G — GENERATORS (`src/tools/generators/`)
 
-#### nanoid — NanoID Generator  (generators · text · code · —) *(generator)*
+#### nanoid — NanoID Generator (generators · text · code · —) _(generator)_
+
 - **options:** `size` number=21 (2..64); `alphabet` select=`url-safe`
   (`url-safe`|`lowercase`|`uppercase`|`numbers`|`hex`|`alphanumeric`|`custom`);
   `custom` text='' [showWhen alphabet=custom]; `count` number=1 (1..200).
@@ -1671,13 +1780,14 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   nanoid algorithm: `mask = (2 << Math.floor(Math.log2(alphabet.length - 1))) - 1`,
   read random bytes, `byte & mask`, reject if `>= alphabet.length`. `render:'code'`,
   one id per line. `stats`: `{ 'entropy per id': '<bits> bits' }` = `size *
-  log2(alphabet.length)`.
+log2(alphabet.length)`.
 - **errors:** empty custom alphabet, or alphabet length < 2 → `ToolError`.
 - **tests:** `size=21` default → each line length 21, only `[A-Za-z0-9_-]`.
   `alphabet=hex size=8` → `[0-9a-f]{8}`. `count=50` → 50 lines, all unique.
 - **related:** uuid, ulid, random-string
 
-#### ulid — ULID Generator  (generators · text · code · —) *(generator)*
+#### ulid — ULID Generator (generators · text · code · —) _(generator)_
+
 - **options:** `count` number=1 (1..200); `monotonic` boolean=false; `lowercase` boolean=false.
 - **algorithm:** Crockford base32 (`0123456789ABCDEFGHJKMNPQRSTVWXYZ`, no
   I/L/O/U). 26 chars = 48-bit ms timestamp (`Date.now()`, 10 chars) + 80-bit
@@ -1691,7 +1801,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   in the test, allow a window).
 - **related:** uuid, nanoid, snowflake
 
-#### random-data — Fake Data Generator  (generators · text · code · —) *(generator)*
+#### random-data — Fake Data Generator (generators · text · code · —) _(generator)_
+
 - **options:** `dataset` select=`person`
   (`person`|`contact`|`address`|`network`|`commerce`|`company`|`lorem`|`ids`);
   `rows` number=10 (1..500); `format` select=`json` (`json`|`csv`|`sql`);
@@ -1712,7 +1823,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   `format=sql` → 5 lines starting `INSERT INTO data`.
 - **related:** random-string, lorem-ipsum, uuid
 
-#### lorem-ipsum — Lorem Ipsum Generator  (generators · text · code|text · —) *(generator)*
+#### lorem-ipsum — Lorem Ipsum Generator (generators · text · code|text · —) _(generator)_
+
 - **options:** `unit` select=`paragraphs` (`paragraphs`|`sentences`|`words`|`list-items`);
   `count` number=3 (1..200); `startWithLorem` boolean=true;
   `format` select=`plain` (`plain`|`html`|`markdown`).
@@ -1723,11 +1835,12 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   `- ` items. `render:'code'` when format≠plain else `text`. Use
   `crypto.getRandomValues` (or a seeded PRNG) for word/length choice.
 - **tests:** `unit=words count=5` → 5 space-separated words. `unit=paragraphs
-  count=2 format=html` → contains `<p>` twice. `startWithLorem` → output starts
+count=2 format=html` → contains `<p>` twice. `startWithLorem` → output starts
   `Lorem ipsum dolor sit amet`.
 - **related:** random-data, text-repeat
 
-#### qr-code — QR Code Generator  (generators · text · image · qrcode-generator)
+#### qr-code — QR Code Generator (generators · text · image · qrcode-generator)
+
 - **options:** `contentType` select=`text` (`text`|`url`|`wifi`|`email`|`sms`|`geo`|`tel`);
   `wifiPassword` text='' [showWhen contentType=wifi];
   `wifiEncryption` select=`WPA` (`WPA`|`WEP`|`nopass`) [showWhen contentType=wifi];
@@ -1737,13 +1850,13 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   `WIFI:T:<enc>;S:<input>;P:<pw>;;`; `email` → `mailto:<input>`; `sms` →
   `smsto:<input>`; `tel` → `tel:<input>`; `geo` → `geo:<input>`.
   `import qrcode from 'qrcode-generator'; const qr = qrcode(0, ecc);
-  qr.addData(payload); qr.make();`. Then **build the SVG yourself** from
+qr.addData(payload); qr.make();`. Then **build the SVG yourself** from
   `qr.getModuleCount()` and `qr.isDark(r,c)`: a `<svg>` with `width/height =
-  (count + margin*2) * cellSize`, a background `<rect>` in `light`, and one
+(count + margin*2) * cellSize`, a background `<rect>` in `light`, and one
   `<rect>` per dark module in `dark` (offset by `margin*cellSize`).
   `output = 'data:image/svg+xml;base64,' + btoa(svg)`, `render:'image'`,
   `filename:'qr.svg'`. `credits: [{ name:'qrcode-generator',
-  url:'https://github.com/kazuhikoarase/qrcode-generator', license:'MIT' }]`.
+url:'https://github.com/kazuhikoarase/qrcode-generator', license:'MIT' }]`.
 - **errors:** payload too long for any version at the chosen ecc (qrcode-generator
   throws) → `ToolError('Too much data for one QR code.', 'Shorten the text or lower the error-correction level.')`.
 - **tests:** `input='https://example.com'` → output starts
@@ -1753,7 +1866,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   testable helper and assert `WIFI:T:WPA;S:MyNet;P:secret;;`).
 - **related:** placeholder-svg, data-uri, vcard
 
-#### placeholder-svg — Placeholder Image Generator  (generators · text · image · —) *(generator)*
+#### placeholder-svg — Placeholder Image Generator (generators · text · image · —) _(generator)_
+
 - **options:** `width` number=600 (16..4000); `height` number=400 (16..4000);
   `bg` text=`#e2e8f0`; `fg` text=`#64748b`; `label` text='' (empty → `WxH`);
   `fontSize` number=0 (0 → auto = `min(w,h)/6`).
@@ -1767,12 +1881,13 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   (or `600x400`). `label=Hero` → contains `>Hero<`.
 - **related:** qr-code, data-uri, image-placeholder
 
-#### vcard — vCard Generator  (generators · text · code · —)
+#### vcard — vCard Generator (generators · text · code · —)
+
 - **options:** `mode` select=`build` (`build`|`parse`); and [showWhen mode=build]:
   `firstName` text, `lastName` text, `org` text, `jobTitle` text, `email` text,
   `phone` text, `website` text, `address` text, `note` text.
 - **algorithm:** build → emit vCard 3.0: `BEGIN:VCARD\nVERSION:3.0\nN:<last>;<first>;;;\n
-  FN:<first> <last>\n` then `ORG:`, `TITLE:`, `EMAIL;TYPE=INTERNET:`, `TEL;TYPE=CELL:`,
+FN:<first> <last>\n` then `ORG:`, `TITLE:`, `EMAIL;TYPE=INTERNET:`, `TEL;TYPE=CELL:`,
   `URL:`, `ADR;TYPE=HOME:;;<address>;;;;`, `NOTE:` for non-empty fields, then
   `END:VCARD`. Escape `\ ; , \n` per RFC 6350 (`\\`, `\;`, `\,`, `\n`).
   parse → read a pasted vCard, `render:'table'` of the fields found.
@@ -1783,16 +1898,17 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   `END:VCARD`. A `note` with `,` is escaped to `\,`. parse round-trips the FN.
 - **related:** ical-event, qr-code, meta-tags
 
-#### ical-event — iCalendar Event Generator  (generators · text · code · —)
+#### ical-event — iCalendar Event Generator (generators · text · code · —)
+
 - **options:** `summary` text; `startDateTime` text (`YYYY-MM-DD HH:MM`, local);
   `endDateTime` text; `allDay` boolean=false; `location` text; `description` text;
   `url` text; `reminderMinutes` number=0 (0..1440, 0 → no alarm).
 - **algorithm:** Emit `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Toolbench//EN\n
-  CALSCALE:GREGORIAN\nBEGIN:VEVENT\n` with `UID:<crypto-random-hex>@toolbench`,
+CALSCALE:GREGORIAN\nBEGIN:VEVENT\n` with `UID:<crypto-random-hex>@toolbench`,
   `DTSTAMP:<nowUTC>`, `DTSTART`/`DTEND` as `YYYYMMDDTHHMMSSZ` (convert the local
   wall-clock via the runtime offset) or `;VALUE=DATE:YYYYMMDD` for allDay,
   escaped `SUMMARY`/`LOCATION`/`DESCRIPTION`/`URL`, optional `BEGIN:VALARM\n
-  ACTION:DISPLAY\nTRIGGER:-PT<reminder>M\nEND:VALARM`, then `END:VEVENT\nEND:VCALENDAR`.
+ACTION:DISPLAY\nTRIGGER:-PT<reminder>M\nEND:VALARM`, then `END:VEVENT\nEND:VCALENDAR`.
   Fold lines > 75 octets per RFC 5545. `render:'code'`, `filename:'event.ics'`.
 - **errors:** missing/invalid start, or end before start → `ToolError`.
 - **tests:** summary `Launch` start `2024-06-01 09:00` end `2024-06-01 10:00` →
@@ -1800,7 +1916,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   `allDay=true` → `DTSTART;VALUE=DATE:20240601`. `reminderMinutes=15` → `TRIGGER:-PT15M`.
 - **related:** vcard, date-add, timezone-convert
 
-#### utm-builder — UTM Campaign URL Builder  (generators · text · text · —)
+#### utm-builder — UTM Campaign URL Builder (generators · text · text · —)
+
 - **options:** `source` text; `medium` text; `campaign` text; `term` text;
   `content` text; `lowercase` boolean=false; `stripExisting` boolean=true.
 - **algorithm:** `input` = base URL (`new URL(input)`). If `stripExisting`, delete
@@ -1815,7 +1932,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   with `stripExisting` → replaced.
 - **related:** url-parse, querystring
 
-#### otp-uri — OTP Auth URI Generator  (generators · text · text · —) *(generator)*
+#### otp-uri — OTP Auth URI Generator (generators · text · text · —) _(generator)_
+
 - **options:** `type` select=`totp` (`totp`|`hotp`); `issuer` text=`Toolbench`;
   `account` text=`user@example.com`; `secretInput` text='' (empty → generate);
   `secretBytes` number=20 (16..64); `digits` select=`6` (`6`|`8`);
@@ -1824,7 +1942,7 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
 - **algorithm:** If `secretInput` blank, generate `secretBytes` random bytes and
   RFC 4648 base32-encode (no padding). Build
   `otpauth://<type>/<encodeURIComponent(issuer)>:<encodeURIComponent(account)>?
-  secret=<b32>&issuer=<enc issuer>&algorithm=<algo>&digits=<n>&<period=|counter=><v>`.
+secret=<b32>&issuer=<enc issuer>&algorithm=<algo>&digits=<n>&<period=|counter=><v>`.
   Output the URI and, on the next line, `Secret (base32): <b32>`. `render:'text'`.
   `faq`: does NOT compute live 6-digit codes (needs the current time; a separate
   concern) — and never send a real secret anywhere.
@@ -1835,9 +1953,10 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   `period`.
 - **related:** qr-code, random-string, hmac
 
-### 9.H — NETWORK  (`src/tools/network/`)
+### 9.H — NETWORK (`src/tools/network/`)
 
-#### ip-info — IP Address Info  (network · text · table · —)
+#### ip-info — IP Address Info (network · text · table · —)
+
 - **options:** none.
 - **algorithm:** Detect IPv4 (`d.d.d.d`, each 0–255) or IPv6 (`::` compression,
   `d.d.d.d` suffix allowed). `render:'table'` rows: version; canonical form;
@@ -1855,7 +1974,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   `2001:0db8:0000:0000:0000:0000:0000:0001`.
 - **related:** cidr-calculator, ptr-record, mac-address
 
-#### cidr-calculator — CIDR / Subnet Calculator  (network · text · table · —)
+#### cidr-calculator — CIDR / Subnet Calculator (network · text · table · —)
+
 - **options:** none.
 - **algorithm:** Parse `input` `addr/prefix` (bare addr → `/32` or `/128`).
   **v4:** network address, prefix, netmask, wildcard mask, broadcast, first
@@ -1870,7 +1990,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   `2001:db8::/48` → total `2^80`.
 - **related:** ip-info, subnet-split, ip-range
 
-#### ip-range — IP Range ⇄ CIDR  (network · text · code · —)
+#### ip-range — IP Range ⇄ CIDR (network · text · code · —)
+
 - **options:** `mode` select=`range-to-cidr` (`range-to-cidr`|`cidr-to-range`).
 - **algorithm:** IPv4 only (v6 → `faq` note). range-to-cidr: input
   `A - B` (or `A-B`) → the **minimal** set of aligned CIDR blocks covering
@@ -1884,7 +2005,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   (256 addresses).
 - **related:** cidr-calculator, subnet-split, ip-info
 
-#### subnet-split — Subnet Splitter  (network · text · table · —)
+#### subnet-split — Subnet Splitter (network · text · table · —)
+
 - **options:** `mode` select=`by-new-prefix`
   (`by-new-prefix`|`by-subnet-count`|`by-hosts-per-subnet`);
   `newPrefix` number=24 (1..32) [showWhen mode=by-new-prefix];
@@ -1902,7 +2024,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   `10.0.0.0/16` by-subnet-count 8 → 8 rows of `/19`.
 - **related:** cidr-calculator, ip-range
 
-#### ipv6-tools — IPv6 Toolkit  (network · text · text|table · —)
+#### ipv6-tools — IPv6 Toolkit (network · text · text|table · —)
+
 - **options:** `mode` select=`compress` (`compress`|`expand`|`to-integer`|`from-integer`|`eui64`).
 - **algorithm:** compress → RFC 5952 shortest form (lowercase, longest zero-run
   → `::`, leftmost on tie). expand → full 8 groups of 4 hex. to-integer → 128-bit
@@ -1917,7 +2040,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   `fe80::21a:2bff:fe3c:4d5e`.
 - **related:** ip-info, mac-address, cidr-calculator
 
-#### mac-address — MAC Address Formatter  (network · text · table · —)
+#### mac-address — MAC Address Formatter (network · text · table · —)
+
 - **options:** none.
 - **algorithm:** Parse a MAC-48 in any of colon / hyphen / dot (`xxxx.xxxx.xxxx`)
   / bare 12-hex. `render:'table'` rows: colon form (lower), hyphen form,
@@ -1930,7 +2054,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   multicast `Yes`.
 - **related:** ip-info, ipv6-tools
 
-#### ptr-record — Reverse DNS Name Builder  (network · text · text · —)
+#### ptr-record — Reverse DNS Name Builder (network · text · text · —)
+
 - **options:** `mode` select=`ip-to-ptr` (`ip-to-ptr`|`ptr-to-ip`).
 - **algorithm:** ip-to-ptr: IPv4 → `d.c.b.a.in-addr.arpa`; IPv6 → expand, reverse
   the 32 nibbles, join with `.`, append `.ip6.arpa`. ptr-to-ip: reverse the
@@ -1940,23 +2065,25 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   `1.0.0.0.` … `.8.b.d.0.1.0.0.2.ip6.arpa` (32 nibbles). round-trip both.
 - **related:** ip-info, cidr-calculator
 
-#### asn-lookup — ASN Info  (network · text · table · —)
-- **note:** *Data-heavy (needs an AS-number → name/country table). Building it
+#### asn-lookup — ASN Info (network · text · table · —)
+
+- **note:** _Data-heavy (needs an AS-number → name/country table). Building it
   offline means embedding a large dataset (~100k rows). **Defer** unless a
   compact curated subset (top ~500 ASNs) is acceptable — if so, spec: input an
   AS number or "AS15169" → name, country, type. Otherwise skip; there is no
-  privacy-safe live lookup.*
+  privacy-safe live lookup._
 
-### 9.I — IMAGE  (`src/tools/image/`) — file tools, canvas in the worker
+### 9.I — IMAGE (`src/tools/image/`) — file tools, canvas in the worker
 
 > `meta.input='file'`, `accept='image/*'`, `worker` omitted (defaults true).
 > Use `src/lib/image.ts` (E2-S3). Decode with `createImageBitmap`, draw to an
 > `OffscreenCanvas`, encode with `canvas.convertToBlob({ type, quality })`.
 > If `OffscreenCanvas` is unavailable → `ToolError('Your browser cannot process
-> images off the main thread.', 'Update to a recent Chrome, Edge or Firefox.')`.
+images off the main thread.', 'Update to a recent Chrome, Edge or Firefox.')`.
 > Honour `signal`; call `onProgress(i/files.length, file.name)` per file.
 
-#### image-resize — Resize Image  (image · file · — · —) `multiple`
+#### image-resize — Resize Image (image · file · — · —) `multiple`
+
 - **options:** `mode` select=`fit` (`fit`|`fill`|`exact`|`percent`|`max-width`|`max-height`);
   `width` number=800; `height` number=600; `percent` number=50 (1..400) [showWhen mode=percent];
   `format` select=`original` (`original`|`png`|`jpeg`|`webp`); `quality` range=90 (10..100) [showWhen format≠png];
@@ -1972,7 +2099,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   `max-width 800 of 400×300 no upscale → 400×300`).
 - **related:** image-compress, image-convert, image-crop
 
-#### image-compress — Compress Image  (image · file · — · —) `multiple`
+#### image-compress — Compress Image (image · file · — · —) `multiple`
+
 - **options:** `format` select=`auto` (`auto`|`jpeg`|`webp`); `quality` range=75 (10..100);
   `maxWidth` number=0 (0 = no limit); `stripMetadata` boolean=true (canvas re-encode drops EXIF anyway — note it).
 - **algorithm:** Re-encode via canvas at `quality`. `auto` → keep JPEG as JPEG,
@@ -1983,7 +2111,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
 - **tests:** dimension/param helper unit test; e2e for real bytes.
 - **related:** image-resize, image-convert
 
-#### image-convert — Convert Image Format  (image · file · — · —) `multiple`
+#### image-convert — Convert Image Format (image · file · — · —) `multiple`
+
 - **options:** `to` select=`webp` (`png`|`jpeg`|`webp`|`avif`); `quality` range=90 (10..100) [showWhen to≠png];
   `background` text=`#ffffff` (matte for transparency → JPEG).
 - **algorithm:** Decode, draw (fill `background` first if target has no alpha),
@@ -1993,7 +2122,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
 - **tests:** capability helper unit test (`imageOutputType('image/webp')`); e2e.
 - **related:** image-compress, svg-to-png
 
-#### image-crop — Crop Image  (image · file · — · —)
+#### image-crop — Crop Image (image · file · — · —)
+
 - **options:** `mode` select=`aspect` (`aspect`|`pixels`); `aspect` text=`1:1` [showWhen mode=aspect];
   `anchor` select=`center` (`center`|`top`|`bottom`|`left`|`right`|`top-left`|`top-right`|`bottom-left`|`bottom-right`) [showWhen mode=aspect];
   `x` number=0 [showWhen mode=pixels]; `y` number=0 [showWhen mode=pixels];
@@ -2006,7 +2136,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   of `400×300` → `{x:50,y:0,w:300,h:300}`.
 - **related:** image-resize, image-rotate
 
-#### image-rotate — Rotate / Flip Image  (image · file · — · —) `multiple`
+#### image-rotate — Rotate / Flip Image (image · file · — · —) `multiple`
+
 - **options:** `rotate` select=`0` (`0`|`90`|`180`|`270`); `flip` select=`none` (`none`|`horizontal`|`vertical`|`both`);
   `format` select=`original` (`original`|`png`|`jpeg`|`webp`).
 - **algorithm:** Canvas transform: swap w/h for 90/270; apply `scale(-1,1)` etc
@@ -2014,7 +2145,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
 - **tests:** helper `outputSize(w,h,rotate)` — `90` of `400×300` → `300×400`.
 - **related:** image-crop, image-resize
 
-#### image-to-datauri — Image → Data URI  (image · file · report[code] · —)
+#### image-to-datauri — Image → Data URI (image · file · report[code] · —)
+
 - **options:** `wrap` select=`raw` (`raw`|`css-background`|`html-img`); `mediaQueryComment` boolean=false.
 - **algorithm:** Read file → `data:<type>;base64,<...>`. `wrap` `css-background`
   → `background-image: url("<datauri>");`; `html-img` → `<img src="<datauri>" alt="">`.
@@ -2025,7 +2157,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   unit-test that.
 - **related:** datauri-to-image, data-uri, base64-file
 
-#### datauri-to-image — Data URI → Image File  (image · file · — · —)
+#### datauri-to-image — Data URI → Image File (image · file · — · —)
+
 - **options:** none. `accept=''` (accept a `.txt` containing a data URI, or paste
   — this one is unusual: still `input:'file'`, read the file as text).
 - **algorithm:** Read the file text, match `data:(image/[^;,]+)(;base64)?,(.*)`,
@@ -2034,7 +2167,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
 - **tests:** pure helper `parseDataUri(str)` → `{ mime, bytes }`.
 - **related:** image-to-datauri, data-uri
 
-#### image-metadata — Image Metadata & EXIF Viewer  (image · file · report[table] · —)
+#### image-metadata — Image Metadata & EXIF Viewer (image · file · report[table] · —)
+
 - **options:** none.
 - **algorithm:** Read the file as an `ArrayBuffer`. Always report: file name,
   MIME, byte size, and pixel dimensions (from `createImageBitmap`). For JPEG:
@@ -2042,23 +2176,25 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   decode the common tags (Make, Model, DateTimeOriginal, Orientation, ExposureTime,
   FNumber, ISO, FocalLength, LensModel, GPSLatitude/Longitude → decimal). For
   PNG: read `tEXt`/`iTXt`/`pHYs`/`tIME` chunks. `report: { render: 'table',
-  headers ["Tag","Value"] }`. Emit no output file.
+headers ["Tag","Value"] }`. Emit no output file.
 - **errors:** unreadable → `ToolError`.
 - **tests:** pure EXIF parser unit test with a tiny hand-built JPEG APP1 buffer
   (Orientation=6). e2e for a real photo.
 - **related:** image-compress (strips metadata), exif-remove (§10)
 
-#### image-palette — Extract Colour Palette  (image · file · report[colors] · —)
+#### image-palette — Extract Colour Palette (image · file · report[colors] · —)
+
 - **options:** `colors` number=6 (2..16); `algorithm` select=`median-cut` (`median-cut`|`k-means`|`most-frequent`).
 - **algorithm:** Decode, downscale-sample (`readPixels`, ~10k px). Quantise to
   `colors` swatches by the chosen method. `report: { output:
-  JSON.stringify(hexArray), render: 'colors' }`. `stats`: dominant colour, is the
+JSON.stringify(hexArray), render: 'colors' }`. `stats`: dominant colour, is the
   image mostly light or dark.
 - **tests:** pure quantiser unit test on a synthetic pixel array (two-colour
   image → two swatches).
 - **related:** color-palette, color-name
 
-#### svg-to-png — SVG → PNG  (image · file · — · —)
+#### svg-to-png — SVG → PNG (image · file · — · —)
+
 - **options:** `scale` number=2 (1..8); `width` number=0 (0 = from SVG); `height` number=0;
   `background` text=`transparent`.
 - **algorithm:** Read SVG text; determine intrinsic size (`width`/`height` attrs
@@ -2071,15 +2207,17 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   → `{w:100,h:50}`; `viewBox="0 0 200 100"` → `{w:200,h:100}`.
 - **related:** image-convert, placeholder-svg
 
-#### image-placeholder-blurhash — BlurHash / LQIP  (image · file · report · —)
-- **note:** *Optional. Compute a BlurHash string + a tiny base64 LQIP data URI
+#### image-placeholder-blurhash — BlurHash / LQIP (image · file · report · —)
+
+- **note:** _Optional. Compute a BlurHash string + a tiny base64 LQIP data URI
   from a downscaled sample. BlurHash encode is ~80 lines of well-known code (MIT
   reference). Report the hash + the LQIP `<img>` snippet. Build only after the
-  core image tools.*
+  core image tools._
 
-### 9.J — IMAGE, MULTI-OUTPUT  (`src/tools/image/`)
+### 9.J — IMAGE, MULTI-OUTPUT (`src/tools/image/`)
 
-#### favicon-generator — Favicon Generator  (image · file · — · fflate)
+#### favicon-generator — Favicon Generator (image · file · — · fflate)
+
 - **options:** `sizes` — fixed set 16/32/48/180/192/512 (no option, or a
   `include512` boolean=true); `background` text=`transparent` (matte for the .ico
   PNGs if needed); `padding` number=0 (0..30 %, for maskable).
@@ -2092,7 +2230,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
 - **tests:** pure ICO-builder + resize-math unit tests.
 - **related:** image-resize, placeholder-svg
 
-#### image-spritesheet — Sprite Sheet Builder  (image · file · — · —) `multiple`
+#### image-spritesheet — Sprite Sheet Builder (image · file · — · —) `multiple`
+
 - **options:** `layout` select=`grid` (`grid`|`horizontal`|`vertical`|`packed`);
   `columns` number=0 (0 = auto) [showWhen layout=grid]; `padding` number=2;
   `format` select=`png` (`png`|`webp`).
@@ -2104,7 +2243,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   positions `(0,0),(12,0),(0,12)`, sheet `24×24`... compute exact).
 - **related:** favicon-generator, image-resize
 
-#### image-diff — Image Difference  (image · file · report[table] · —) `multiple` (exactly 2)
+#### image-diff — Image Difference (image · file · report[table] · —) `multiple` (exactly 2)
+
 - **options:** `threshold` range=10 (0..100); `output` select=`heatmap` (`heatmap`|`highlight`|`side-by-side`).
 - **algorithm:** Require exactly 2 images (else `ToolError`). If sizes differ,
   scale the second to the first (note it). Per-pixel compare; `heatmap` = red
@@ -2114,7 +2254,7 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
 - **tests:** pure `comparePixels(a,b,threshold)` unit test on small arrays.
 - **related:** diff-text, image-metadata
 
-### 9.K — PDF  (`src/tools/pdf/`) — file tools
+### 9.K — PDF (`src/tools/pdf/`) — file tools
 
 > `import { PDFDocument, StandardFonts, rgb, degrees } from 'pdf-lib'` (MIT) for
 > editing; `import * as pdfjsLib` from `pdfjs-dist` (Apache-2.0) for
@@ -2125,7 +2265,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
 > Honour `signal`, call `onProgress`. Encrypted/password PDFs → `ToolError`
 > ("This PDF is password-protected — unlock it first.").
 
-#### pdf-merge — Merge PDFs  (pdf · file · — · pdf-lib) `multiple`
+#### pdf-merge — Merge PDFs (pdf · file · — · pdf-lib) `multiple`
+
 - **options:** `outputName` text=`merged.pdf`; `keepBookmarks` boolean=false (pdf-lib
   loses outlines — note it).
 - **algorithm:** `PDFDocument.create()`, for each input `copyPages` all pages in
@@ -2136,7 +2277,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   (pdf-lib runs in Node) — generate the fixtures in-test with pdf-lib.
 - **related:** pdf-split, images-to-pdf
 
-#### pdf-split — Split PDF  (pdf · file · — · pdf-lib)
+#### pdf-split — Split PDF (pdf · file · — · pdf-lib)
+
 - **options:** `mode` select=`every-page` (`every-page`|`ranges`|`fixed-size`);
   `ranges` text=`1-3,5,7-` [showWhen mode=ranges]; `size` number=10 [showWhen mode=fixed-size].
 - **algorithm:** `every-page` → one PDF per page. `ranges` → parse `1-3,5,7-`
@@ -2147,7 +2289,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   1 pages. `every-page` → 5 outputs.
 - **related:** pdf-merge, pdf-extract-pages, pdf-delete-pages
 
-#### pdf-extract-pages — Extract Pages  (pdf · file · — · pdf-lib)
+#### pdf-extract-pages — Extract Pages (pdf · file · — · pdf-lib)
+
 - **options:** `pages` text=`1,3,5-7`.
 - **algorithm:** Parse the page list (1-indexed, ranges, open-ended). `copyPages`
   those into one new PDF, in the given order. Output one file.
@@ -2156,20 +2299,23 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   the original page 5 (assert via text if the fixture pages carry a label).
 - **related:** pdf-split, pdf-delete-pages
 
-#### pdf-rotate — Rotate Pages  (pdf · file · — · pdf-lib)
+#### pdf-rotate — Rotate Pages (pdf · file · — · pdf-lib)
+
 - **options:** `angle` select=`90` (`90`|`180`|`270`); `pages` text=`all`.
 - **algorithm:** `pages='all'` or a list. For each, `page.setRotation(degrees((page.getRotation().angle + angle) % 360))`.
 - **tests:** Vitest: rotate all pages of a fixture by 90, reload, assert rotation.
 - **related:** pdf-delete-pages, pdf-page-numbers
 
-#### pdf-delete-pages — Delete Pages  (pdf · file · — · pdf-lib)
+#### pdf-delete-pages — Delete Pages (pdf · file · — · pdf-lib)
+
 - **options:** `pages` text=`2,4`.
 - **algorithm:** Parse the list; `removePage` from the highest index down. Error
   if it would remove every page.
 - **tests:** 5-page fixture, `pages='2,4'` → 3-page output.
 - **related:** pdf-extract-pages, pdf-split
 
-#### pdf-page-numbers — Add Page Numbers  (pdf · file · — · pdf-lib)
+#### pdf-page-numbers — Add Page Numbers (pdf · file · — · pdf-lib)
+
 - **options:** `position` select=`bottom-center`
   (`bottom-center`|`bottom-right`|`bottom-left`|`top-center`|`top-right`|`top-left`);
   `format` select=`n` (`n`|`n-of-total`|`page-n`|`page-n-of-total`);
@@ -2182,7 +2328,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   growth).
 - **related:** pdf-watermark, pdf-metadata
 
-#### pdf-watermark — Watermark PDF  (pdf · file · — · pdf-lib)
+#### pdf-watermark — Watermark PDF (pdf · file · — · pdf-lib)
+
 - **options:** `text` text=`CONFIDENTIAL`; `opacity` range=15 (5..100);
   `rotation` number=45 (-90..90); `fontSize` number=48; `color` text=`#ff0000`;
   `pages` text=`all`; `position` select=`center` (`center`|`tile`).
@@ -2192,7 +2339,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
 - **tests:** Vitest: no throw, output opens, page count unchanged.
 - **related:** pdf-page-numbers, pdf-metadata
 
-#### pdf-metadata — View / Edit PDF Metadata  (pdf · file · report[table] · pdf-lib)
+#### pdf-metadata — View / Edit PDF Metadata (pdf · file · report[table] · pdf-lib)
+
 - **options:** `title` text=''; `author` text=''; `subject` text=''; `keywords` text='';
   `creator` text=''; `producer` text=''; `clearAll` boolean=false.
 - **algorithm:** Load; `report` (table) the current Title/Author/Subject/Keywords/
@@ -2202,7 +2350,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
 - **tests:** Vitest: set title on a fixture, reload, `getTitle() === 'X'`.
 - **related:** pdf-page-numbers, image-metadata
 
-#### pdf-to-images — PDF → Images  (pdf · file · — · pdfjs-dist, fflate)
+#### pdf-to-images — PDF → Images (pdf · file · — · pdfjs-dist, fflate)
+
 - **options:** `format` select=`png` (`png`|`jpeg`|`webp`); `scale` number=2 (1..4);
   `pages` text=`all`; `quality` range=90 [showWhen format≠png].
 - **algorithm:** Load with pdfjs; for each selected page, `getViewport({scale})`,
@@ -2214,7 +2363,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   network.
 - **related:** images-to-pdf, pdf-extract-text
 
-#### images-to-pdf — Images → PDF  (pdf · file · — · pdf-lib) `multiple`, `accept='image/*'`
+#### images-to-pdf — Images → PDF (pdf · file · — · pdf-lib) `multiple`, `accept='image/*'`
+
 - **options:** `pageSize` select=`fit` (`fit`|`a4`|`letter`); `orientation` select=`auto` (`auto`|`portrait`|`landscape`) [showWhen pageSize≠fit];
   `margin` number=0; `fitMode` select=`contain` (`contain`|`cover`) [showWhen pageSize≠fit].
 - **algorithm:** For each image: `embedJpg`/`embedPng` (convert WebP/others to PNG
@@ -2224,7 +2374,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
 - **tests:** Vitest with 2 tiny PNG buffers → 2-page PDF.
 - **related:** pdf-to-images, pdf-merge
 
-#### pdf-extract-text — Extract Text from PDF  (pdf · file · report[text] · pdfjs-dist)
+#### pdf-extract-text — Extract Text from PDF (pdf · file · report[text] · pdfjs-dist)
+
 - **options:** `layout` select=`reading-order` (`reading-order`|`raw`|`by-page`);
   `pageBreaks` boolean=true.
 - **algorithm:** pdfjs `getTextContent()` per page; join items with spacing
@@ -2236,7 +2387,7 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
 - **tests:** e2e with a text fixture PDF → report contains the known sentence.
 - **related:** pdf-to-images, html-to-text
 
-### 9.L — ARCHIVES & FILES  (`src/tools/archive/`) — `credits: fflate MIT`
+### 9.L — ARCHIVES & FILES (`src/tools/archive/`) — `credits: fflate MIT`
 
 > `import { zipSync, unzipSync, gzipSync, gunzipSync, strToU8, strFromU8, zip, unzip } from 'fflate'`.
 > Prefer the async callback forms (`zip`, `unzip`) for large inputs; wrap in a
@@ -2244,7 +2395,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
 > in ~80 lines (512-byte header blocks, 512-byte padding, two zero blocks at
 > end).
 
-#### zip-create — Create ZIP  (archive · file · — · fflate) `multiple`
+#### zip-create — Create ZIP (archive · file · — · fflate) `multiple`
+
 - **options:** `level` number=6 (0..9); `zipName` text=`bundle.zip`; `flatten` boolean=false (drop any path, use basename).
 - **algorithm:** Build `{ [name]: Uint8Array }` from the files; `zip(...)` →
   output one `.zip`. `stats`: file count, total in, zip out, ratio.
@@ -2252,7 +2404,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   contents + names.
 - **related:** zip-extract, zip-inspect, tar-create
 
-#### zip-extract — Extract ZIP  (archive · file · — · fflate, and `report` list)
+#### zip-extract — Extract ZIP (archive · file · — · fflate, and `report` list)
+
 - **options:** `filter` text='' (only extract entries whose path contains this).
 - **algorithm:** `unzip(...)`; emit each entry as an output file (name = entry
   path with `/` → `__` or keep; **strip any `../`** to prevent path escapes).
@@ -2263,7 +2416,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
 - **tests:** Vitest round-trip with zip-create output.
 - **related:** zip-create, zip-inspect
 
-#### zip-inspect — Inspect ZIP  (archive · file · report[table] · fflate)
+#### zip-inspect — Inspect ZIP (archive · file · report[table] · fflate)
+
 - **options:** none.
 - **algorithm:** `unzip` (or parse the central directory) → `report` (table)
   headers `["Path","Size","Compressed","Ratio","CRC32","Modified"]`. `stats`:
@@ -2272,7 +2426,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
 - **tests:** Vitest on a known zip.
 - **related:** zip-extract, file-metadata
 
-#### gzip — Gzip Compress / Decompress  (archive · file · — · fflate)
+#### gzip — Gzip Compress / Decompress (archive · file · — · fflate)
+
 - **options:** `mode` select=`auto` (`auto`|`compress`|`decompress`); `level` number=6 (0..9) [showWhen mode≠decompress].
 - **algorithm:** `auto` → sniff the gzip magic (`1f 8b`) → decompress, else
   compress. Output `<name>.gz` or `<name without .gz>`. `stats`: sizes + ratio.
@@ -2280,7 +2435,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
 - **tests:** Vitest: `gzipSync`/`gunzipSync` round-trip via the tool.
 - **related:** zip-create, base64-file
 
-#### tar-create — Create TAR  (archive · file · — · —) `multiple`
+#### tar-create — Create TAR (archive · file · — · —) `multiple`
+
 - **options:** `tarName` text=`archive.tar`; `gzip` boolean=false (also gzip → `.tar.gz`, uses fflate).
 - **algorithm:** ustar writer. Each file → a 512-byte header (name, mode `0000644`,
   uid/gid `0`, size octal, mtime octal, checksum, typeflag `0`, `ustar\000`) +
@@ -2288,7 +2444,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
 - **tests:** Vitest: create a tar, parse it back with your tar-extract reader.
 - **related:** tar-extract, zip-create
 
-#### tar-extract — Extract TAR  (archive · file · — · —) `+ report list`
+#### tar-extract — Extract TAR (archive · file · — · —) `+ report list`
+
 - **options:** none. `accept` includes `.tar` and `.tar.gz`/`.tgz`.
 - **algorithm:** If gzip magic → `gunzipSync` first. Read 512-byte headers; for
   each regular file (typeflag `0`/`\0`) emit an output file (size from the octal
@@ -2297,7 +2454,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
 - **tests:** Vitest round-trip with tar-create.
 - **related:** tar-create, zip-extract
 
-#### file-split — Split File into Chunks  (archive · file · — · —)
+#### file-split — Split File into Chunks (archive · file · — · —)
+
 - **options:** `mode` select=`by-size` (`by-size`|`by-count`); `chunkSize` number=5
   [showWhen mode=by-size]; `chunkUnit` select=`MB` (`KB`|`MB`) [showWhen mode=by-size];
   `count` number=4 [showWhen mode=by-count].
@@ -2308,7 +2466,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   concatenation equals the original.
 - **related:** file-join, file-metadata
 
-#### file-join — Join File Chunks  (archive · file · — · —) `multiple`
+#### file-join — Join File Chunks (archive · file · — · —) `multiple`
+
 - **options:** `sort` select=`name` (`name`|`upload-order`); `outputName` text=`joined.bin`.
 - **algorithm:** Sort the parts (natural sort on `.partNNN` when `name`), concat
   their bytes → one file. If a `.manifest.json` is among the inputs, verify the
@@ -2316,7 +2475,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
 - **tests:** Vitest round-trip with file-split.
 - **related:** file-split
 
-#### base64-file — File ⇄ Base64  (archive · file · — · —)
+#### base64-file — File ⇄ Base64 (archive · file · — · —)
+
 - **options:** `mode` select=`auto` (`auto`|`encode`|`decode`); `wrap` number=0 (0 = no wrap, else wrap at N).
 - **algorithm:** `auto` → if the file is a `.txt`/`.b64` whose content is valid
   base64 → decode to bytes (output `<name>.bin` or, if a `data:` URI, honour its
@@ -2324,7 +2484,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
 - **tests:** Vitest round-trip on a small binary buffer.
 - **related:** base64, data-uri, gzip
 
-#### file-metadata — File Metadata & Checksum  (archive · file · report[table] · —) `multiple`
+#### file-metadata — File Metadata & Checksum (archive · file · report[table] · —) `multiple`
+
 - **options:** `algorithms` select=`sha-256` (`sha-256`|`sha-1`|`sha-512`|`all`).
 - **algorithm:** Per file: name, MIME (or "unknown"), byte size (+ human), last
   modified (ISO), and the selected digests (via `crypto.subtle`; `all` = SHA-1 +
@@ -2334,7 +2495,7 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   `ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad`.
 - **related:** file-hash, hash, zip-inspect
 
-### 9.M — AUDIO  (`src/tools/audio/`) — `meta.worker = false`, main thread
+### 9.M — AUDIO (`src/tools/audio/`) — `meta.worker = false`, main thread
 
 > `accept='audio/*'`. Decode with
 > `new AudioContext().decodeAudioData(arrayBuffer)` (or `OfflineAudioContext` for
@@ -2344,7 +2505,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
 > m4a, flac in Chrome/Firefox; Safari varies) — on failure →
 > `ToolError('This browser could not decode that audio file.')`.
 
-#### audio-info — Audio File Info  (audio · file · report[table] · —)
+#### audio-info — Audio File Info (audio · file · report[table] · —)
+
 - **options:** none.
 - **algorithm:** Decode → `report` (table): file name, MIME, byte size, duration
   (s + mm:ss), sample rate, channels, total samples, estimated bitrate
@@ -2354,7 +2516,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   a plausible duration.
 - **related:** audio-to-wav, audio-normalize
 
-#### audio-to-wav — Convert Audio to WAV  (audio · file · — · —) `multiple`
+#### audio-to-wav — Convert Audio to WAV (audio · file · — · —) `multiple`
+
 - **options:** `sampleRate` select=`original` (`original`|`8000`|`16000`|`22050`|`44100`|`48000`);
   `channels` select=`original` (`original`|`mono`|`stereo`); `bitDepth` select=`16` (`16`).
 - **algorithm:** Decode; optionally resample (linear or use `OfflineAudioContext`
@@ -2363,7 +2526,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
 - **tests:** e2e round-trip; unit-test the WAV header via `src/lib/audio.ts`.
 - **related:** audio-info, audio-trim
 
-#### audio-trim — Trim / Clip Audio  (audio · file · — · —)
+#### audio-trim — Trim / Clip Audio (audio · file · — · —)
+
 - **options:** `start` text=`0:00` (accepts `SS`, `M:SS`, `H:MM:SS`, or seconds);
   `end` text='' (empty → end of file); `fadeIn` number=0 (ms); `fadeOut` number=0 (ms).
 - **algorithm:** Decode; slice the sample range `[start,end)`; apply linear fades;
@@ -2372,7 +2536,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   slice.
 - **related:** audio-fade, audio-to-wav
 
-#### audio-normalize — Normalise Audio  (audio · file · — · —)
+#### audio-normalize — Normalise Audio (audio · file · — · —)
+
 - **options:** `mode` select=`peak` (`peak`|`rms`); `targetDb` number=-1 (peak, -30..0) / `-14` (rms LUFS-ish).
 - **algorithm:** Decode; `peak` → scale so the max |sample| hits `10^(targetDb/20)`;
   `rms` → scale so the RMS hits the target (simple RMS, note it's not true LUFS).
@@ -2381,27 +2546,31 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   `[1.0]`).
 - **related:** audio-gain, audio-info
 
-#### audio-gain — Adjust Volume  (audio · file · — · —)
+#### audio-gain — Adjust Volume (audio · file · — · —)
+
 - **options:** `gainDb` number=0 (-60..24); `hardClip` boolean=true (else soft-clip tanh).
 - **algorithm:** Multiply by `10^(gainDb/20)`; clip. Encode WAV. `warning` if
   clipping occurred and `hardClip`.
 - **tests:** unit gain math.
 - **related:** audio-normalize, audio-fade
 
-#### audio-fade — Fade In / Out  (audio · file · — · —)
+#### audio-fade — Fade In / Out (audio · file · — · —)
+
 - **options:** `fadeInMs` number=1000; `fadeOutMs` number=1000; `curve` select=`linear` (`linear`|`exponential`|`logarithmic`).
 - **algorithm:** Apply the gain envelope over the first/last N ms per `curve`.
   Encode WAV.
 - **tests:** unit-test the envelope value at t=0 (=0), t=fade (=1), midpoint per curve.
 - **related:** audio-trim, audio-gain
 
-#### audio-reverse — Reverse Audio  (audio · file · — · —)
+#### audio-reverse — Reverse Audio (audio · file · — · —)
+
 - **options:** none.
 - **algorithm:** Decode; reverse each channel's samples; encode WAV.
 - **tests:** unit-test array reversal on a channel; e2e for a real file.
 - **related:** audio-trim
 
-#### audio-merge — Merge / Concatenate Audio  (audio · file · — · —) `multiple`
+#### audio-merge — Merge / Concatenate Audio (audio · file · — · —) `multiple`
+
 - **options:** `mode` select=`concat` (`concat`|`mix`); `gapMs` number=0 [showWhen mode=concat];
   `matchLoudness` boolean=false.
 - **algorithm:** Decode all. `concat` → append (resample all to the max sample
@@ -2412,7 +2581,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
 - **tests:** unit-test concat length = sum of lengths + gaps.
 - **related:** audio-channels, audio-normalize
 
-#### audio-channels — Channel Tools  (audio · file · — · —)
+#### audio-channels — Channel Tools (audio · file · — · —)
+
 - **options:** `operation` select=`to-mono`
   (`to-mono`|`to-stereo`|`swap`|`left-only`|`right-only`|`mid-side`).
 - **algorithm:** `to-mono` = average channels; `to-stereo` = duplicate; `swap` =
@@ -2421,7 +2591,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
 - **tests:** unit-test `to-mono` of `[[1,1],[−1,−1]]` (L,R) → `[0,0]`.
 - **related:** audio-merge, audio-to-wav
 
-#### audio-speed — Change Speed  (audio · file · — · —)
+#### audio-speed — Change Speed (audio · file · — · —)
+
 - **options:** `rate` number=100 (25..400, percent); `preservePitch` boolean=false.
 - **algorithm:** `preservePitch=false` → resample (playback-rate change; pitch
   shifts too — note it). `preservePitch=true` → a simple time-stretch (OLA /
@@ -2432,9 +2603,10 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   no-preserve path.
 - **related:** audio-trim, audio-reverse
 
-### 9.N — GENERATORS (media)  (`src/tools/generators/`)
+### 9.N — GENERATORS (media) (`src/tools/generators/`)
 
-#### tone-generator — Tone / Signal Generator  (generators · text · audio · —) *(generator)* — depends on E2-S2
+#### tone-generator — Tone / Signal Generator (generators · text · audio · —) _(generator)_ — depends on E2-S2
+
 - **options:** `waveform` select=`sine` (`sine`|`square`|`sawtooth`|`triangle`|`white-noise`|`pink-noise`);
   `frequency` number=440 (20..20000) [showWhen waveform≠white-noise & ≠pink-noise];
   `durationMs` number=2000 (50..30000); `amplitude` range=50 (0..100);
@@ -2449,7 +2621,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   WAV header (RIFF/WAVE, correct sample rate, `durationMs` → sample count).
 - **related:** metronome-click, audio-info
 
-#### metronome-click — Metronome Click Track  (generators · text · audio · —) *(generator)* — depends on E2-S2
+#### metronome-click — Metronome Click Track (generators · text · audio · —) _(generator)_ — depends on E2-S2
+
 - **options:** `bpm` number=120 (20..300); `bars` number=4 (1..64);
   `beatsPerBar` number=4 (1..16); `accentFirst` boolean=true;
   `clickHz` number=1000; `accentHz` number=1500; `sampleRate` select=`44100`.
@@ -2460,15 +2633,16 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
 - **tests:** WAV duration matches `bars*beatsPerBar*60/bpm`.
 - **related:** tone-generator
 
-### 9.O — EVERYDAY  (`src/tools/misc/`) — `input:'text'`, pure
+### 9.O — EVERYDAY (`src/tools/misc/`) — `input:'text'`, pure
 
-#### calculator — Expression Calculator  (misc · text · text · —)
+#### calculator — Expression Calculator (misc · text · text · —)
+
 - **options:** `angleMode` select=`radians` (`radians`|`degrees`); `precision` number=10 (0..15).
 - **algorithm:** A **safe** recursive-descent / shunting-yard parser+evaluator.
   **NO `eval`, NO `new Function`.** Support `+ - * / % ^` (right-assoc `^`),
   parentheses, unary minus, constants `pi e`, functions
   `sqrt cbrt abs round floor ceil sign ln log log2 exp sin cos tan asin acos
-  atan atan2 sinh cosh tanh min max pow hypot gcd factorial`, `!` postfix
+atan atan2 sinh cosh tanh min max pow hypot gcd factorial`, `!` postfix
   factorial, thousands separators ignored. `angleMode` affects trig. Output the
   numeric result (`precision` dp, trimmed) and the normalised expression as a
   `note`.
@@ -2478,7 +2652,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   → `1`. `5!` → `120`. `1/0` → throws. `2 +` → throws.
 - **related:** programmer-calculator, unit-convert
 
-#### programmer-calculator — Programmer Calculator  (misc · text · table · —)
+#### programmer-calculator — Programmer Calculator (misc · text · table · —)
+
 - **options:** `bits` select=`32` (`8`|`16`|`32`|`64`); `signed` boolean=false.
 - **algorithm:** Evaluate an integer expression with `+ - * / % & | ^ ~ << >> >>>`
   and parenthesised terms; operands may be `0x.. 0b.. 0o..` or decimal. Use
@@ -2489,7 +2664,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   → dec `255` (unsigned) / `-1` (signed). `5 % 3` → `2`.
 - **related:** number-base, base-n-logic, calculator
 
-#### tip-calculator — Tip Calculator  (misc · text · table · —)
+#### tip-calculator — Tip Calculator (misc · text · table · —)
+
 - **options:** `bill` number=0; `tipPercent` range=18 (0..40); `split` number=1 (1..50);
   `roundUp` select=`none` (`none`|`total`|`per-person`).
 - **algorithm:** tip = bill*tip%/100; total = bill+tip; per person = total/split.
@@ -2501,7 +2677,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   `39.00`, total shown as `117.00`.
 - **related:** percentage, loan-calculator
 
-#### loan-calculator — Loan / EMI Calculator  (misc · text · table · —)
+#### loan-calculator — Loan / EMI Calculator (misc · text · table · —)
+
 - **options:** `principal` number=100000; `annualRatePercent` number=6.5; `years` number=5;
   `extraMonthly` number=0.
 - **algorithm:** Monthly rate `r = rate/1200`; n = years*12; payment
@@ -2516,7 +2693,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   principal 1200, years 1 → monthly `100.00`.
 - **related:** percentage, tip-calculator
 
-#### bmi-calculator — BMI Calculator  (misc · text · table · —)
+#### bmi-calculator — BMI Calculator (misc · text · table · —)
+
 - **options:** `units` select=`metric` (`metric`|`imperial`);
   `heightCm` number=170 [showWhen units=metric]; `weightKg` number=70 [showWhen units=metric];
   `heightFt` number=5 [showWhen units=imperial]; `heightIn` number=7 [showWhen units=imperial];
@@ -2529,7 +2707,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   BMI ≈ `24.1`.
 - **related:** unit-convert, percentage
 
-#### aspect-ratio — Aspect Ratio Calculator  (misc · text · table · —)
+#### aspect-ratio — Aspect Ratio Calculator (misc · text · table · —)
+
 - **options:** `mode` select=`solve` (`solve`|`simplify`|`presets`);
   `ratioW` number=16 [showWhen mode≠presets]; `ratioH` number=9 [showWhen mode≠presets];
   `knownWidth` number=0 [showWhen mode=solve]; `knownHeight` number=0 [showWhen mode=solve].
@@ -2543,7 +2722,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   `16:9`, name `16:9`, decimal `1.778`.
 - **related:** ratio, css-units, image-resize
 
-#### data-size — Data Size Converter  (misc · text · table · —)
+#### data-size — Data Size Converter (misc · text · table · —)
+
 - **options:** `from` select=`MB` (`B`|`KB`|`MB`|`GB`|`TB`|`PB`|`KiB`|`MiB`|`GiB`|`TiB`|`PiB`|`bit`|`Kbit`|`Mbit`|`Gbit`);
   `to` select=`MiB` (same list).
 - **algorithm:** `input` = the value. Decimal units are ×1000, binary (`*iB`)
@@ -2555,7 +2735,8 @@ only — see `SECURITY.md`), but a clean audit matters for trust.
   `8` `bit` → `B` `1`.
 - **related:** unit-convert, css-units
 
-#### random-picker — Random Picker / Shuffler  (misc · text · text|table · —) *(generator-ish)*
+#### random-picker — Random Picker / Shuffler (misc · text · text|table · —) _(generator-ish)_
+
 - **options:** `mode` select=`pick` (`pick`|`shuffle`|`teams`|`order`);
   `pickCount` number=1 (1..1000) [showWhen mode=pick];
   `teamCount` number=2 (2..50) [showWhen mode=teams];
@@ -2581,6 +2762,7 @@ calculator that hurts SEO**. Promote the good ones into E3/E4-style stories with
 a full §9-shaped spec first. Grouped by theme.
 
 ### 10.1 More TEXT tools
+
 - `slug-to-title` — reverse a slug back to a readable title.
 - `whitespace-visualizer` — reveal tabs/spaces/zero-width/non-breaking chars, and
   a "clean" mode that strips zero-width + normalises NBSP.
@@ -2607,6 +2789,7 @@ a full §9-shaped spec first. Grouped by theme.
 - `snake-to-http-header` and back (`x_request_id` ⇄ `X-Request-Id`).
 
 ### 10.2 More ENCODING / CRYPTO
+
 - `base45` (RFC 9285 — used by EU COVID certs), `base62`, `base91`, `z85` (may
   fold into `ascii85`).
 - `rle` — run-length encode/decode text.
@@ -2641,6 +2824,7 @@ a full §9-shaped spec first. Grouped by theme.
   moderate effort, great SEO for "enigma simulator".
 
 ### 10.3 More DATA / DEVELOPER
+
 - `toml-to-json` / `json-to-toml` — needs a TOML parser (`smol-toml` is MIT ~8 KB;
   **would be a new dep — get sign-off**). Or write a subset parser.
 - `ini-to-json` / `json-to-ini` — pure JS, easy.
@@ -2683,6 +2867,7 @@ a full §9-shaped spec first. Grouped by theme.
 - `epoch-batch` — convert a whole column of timestamps at once.
 
 ### 10.4 More COLOUR / DESIGN / CSS
+
 - `color-mixer-n` — average/blend N colours.
 - `gradient-extract` — from an image, sample a horizontal/vertical gradient.
 - `contrast-grid` — a matrix of N colours × N colours with pass/fail (great for
@@ -2708,6 +2893,7 @@ a full §9-shaped spec first. Grouped by theme.
   dataset ~40 KB gzip; acceptable as a lazy chunk).
 
 ### 10.5 More NUMBERS / SCIENCE / UNITS
+
 - `matrix-calculator` — add/multiply/transpose/determinant/inverse (small, pure).
 - `equation-solver` — quadratic / linear systems (2–3 vars).
 - `base-converter-fraction` — non-integer base conversion (`3.14` to base 2).
@@ -2733,6 +2919,7 @@ a full §9-shaped spec first. Grouped by theme.
   epic with shared timer utilities.
 
 ### 10.6 More IMAGE / MEDIA (canvas / WebCodecs, still local)
+
 - `image-to-ascii` — ASCII-art from an image (brightness ramp). `report:'code'`.
 - `image-pixelate` / `image-dither` (Floyd–Steinberg, ordered) / `image-posterize`
   / `image-grayscale` / `image-sepia` / `image-invert` / `image-threshold`.
@@ -2767,6 +2954,7 @@ a full §9-shaped spec first. Grouped by theme.
   (embedded-dev niche, cheap).
 
 ### 10.7 More DOCUMENT / PDF / OFFICE (local)
+
 - `pdf-compress` — recompress embedded images (needs pdfjs to extract + canvas to
   re-encode + pdf-lib to rebuild). Medium-hard; high demand.
 - `pdf-crop` / `pdf-resize-pages` / `pdf-n-up` (2/4 pages per sheet) /
@@ -2798,6 +2986,7 @@ a full §9-shaped spec first. Grouped by theme.
   Helvetica layout, page numbers). Genuinely useful, moderate effort.
 
 ### 10.8 More NETWORK / DEV-OPS
+
 - `dns-record-format` — build/validate SPF, DKIM, DMARC, MX, TXT, CAA records
   (pure logic; no lookups).
 - `spf-flattener` / `spf-explain` — parse an SPF string, explain each mechanism.
@@ -2825,6 +3014,7 @@ a full §9-shaped spec first. Grouped by theme.
 - `port-scan-explainer` — (education only — describe common ports/services).
 
 ### 10.9 More GENERATORS / MISC
+
 - `barcode-generator` — Code128 / EAN-13 / UPC-A / Code39 as SVG (pure JS
   encoders, ~150 lines each). High demand.
 - `barcode-reader` — `BarcodeDetector` API where available; fall back to a note.
@@ -2864,6 +3054,7 @@ a full §9-shaped spec first. Grouped by theme.
   `status-codes-reference` — reference tables / content pages.
 
 ### 10.10 Platform features (beyond tools)
+
 - **Tool favourites / recents** — pin tools; `localStorage`; a "Recent" row on
   the home page.
 - **Command palette** — extend the search dialog to also run actions ("toggle
@@ -2897,6 +3088,7 @@ a full §9-shaped spec first. Grouped by theme.
   GitHub issue (a link, no backend).
 
 ### 10.11 Quality / infra ideas
+
 - **Visual regression** — Playwright screenshot snapshots for the home + 10 tool
   pages, per theme, per breakpoint.
 - **Mutation testing** (`stryker`) on `src/tools/**` `run()` functions — high ROI
@@ -2938,6 +3130,5 @@ a full §9-shaped spec first. Grouped by theme.
 
 ---
 
-*End of backlog. When every box in §7 and §8 is `[x]` and §10's promoted items
-are scheduled, this file is the finished specification of Toolbench.*
-
+_End of backlog. When every box in §7 and §8 is `[x]` and §10's promoted items
+are scheduled, this file is the finished specification of Toolbench._

@@ -83,6 +83,7 @@ const p = meta.id;
         <Icon name="archive" size={14} /> Download all (.zip)
       </button>
     </div>
+    <div data-report hidden class="mb-3 min-w-0"></div>
     <ul class="space-y-2" data-outputs></ul>
     <ul class="mt-2 space-y-1 text-xs" data-notes></ul>
   </div>
@@ -92,7 +93,14 @@ const p = meta.id;
   import { runToolById } from '@/lib/worker/client';
   import { createDropZone, downloadBlob, downloadZip } from '@/lib/files';
   import { formatBytes } from '@/lib/format';
-  import { readOptions, applyShowWhen, bindRangeOutputs, showError, clearError } from './shared';
+  import {
+    readOptions,
+    applyShowWhen,
+    bindRangeOutputs,
+    showError,
+    clearError,
+    renderTextResult,
+  } from './shared';
   import type { FileRunResult } from '@/lib/types';
 
   document.querySelectorAll<HTMLElement>('[data-file-workbench]').forEach((root) => {
@@ -109,6 +117,7 @@ const p = meta.id;
     const progressBar = root.querySelector<HTMLElement>('[data-progress-bar]')!;
     const progressMsg = root.querySelector<HTMLElement>('[data-progress-msg]')!;
     const resultWrap = root.querySelector<HTMLElement>('[data-result-wrap]')!;
+    const reportEl = root.querySelector<HTMLElement>('[data-report]')!;
     const outputsEl = root.querySelector<HTMLUListElement>('[data-outputs]')!;
     const notesEl = root.querySelector<HTMLUListElement>('[data-notes]')!;
     const downloadAllBtn = root.querySelector<HTMLButtonElement>('[data-download-all]')!;
@@ -175,8 +184,11 @@ const p = meta.id;
           {
             signal: controller.signal,
             onProgress: (fraction, message) => {
-              progressBar.style.width = `${Math.round(Math.min(1, Math.max(0, fraction)) * 100)}%`;
-              if (message) progressMsg.textContent = message;
+              const pct = Math.round(Math.min(1, Math.max(0, fraction)) * 100);
+              progressBar.style.width = `${pct}%`;
+              // The progress message region is aria-live="polite"; always include
+              // the percentage so screen readers announce progress + completion.
+              progressMsg.textContent = message ? `${message} — ${pct}%` : `${pct}%`;
             },
           },
         );
@@ -197,6 +209,18 @@ const p = meta.id;
 
     function renderOutputs(result: FileRunResult) {
       resultWrap.hidden = false;
+      // Inline report (e.g. metadata tables) — shown above any downloadable outputs.
+      if (result.report) {
+        renderTextResult(reportEl, {
+          output: result.report.output,
+          render: result.report.render,
+          language: result.report.language,
+        });
+        reportEl.hidden = false;
+      } else {
+        reportEl.hidden = true;
+        reportEl.innerHTML = '';
+      }
       outputsEl.innerHTML = '';
       result.outputs.forEach((o, i) => {
         const li = document.createElement('li');

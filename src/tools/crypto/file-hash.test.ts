@@ -51,4 +51,21 @@ describe('file-hash', () => {
   it('rejects an empty file list', async () => {
     await expect(tool.run({ files: [], options: {} })).rejects.toThrow(/at least one file/i);
   });
+
+  it('includes an inline table report with algorithm, hash and filename rows', async () => {
+    const r = await tool.run({
+      files: [file('abc', 'a.txt')],
+      options: { algorithm: 'SHA-256' },
+    });
+    expect(r.report).toBeDefined();
+    expect(r.report!.render).toBe('table');
+    const parsed = JSON.parse(r.report!.output) as {
+      headers: string[];
+      rows: string[][];
+    };
+    expect(parsed.headers).toEqual(['Algorithm', 'Hash', 'Filename']);
+    expect(parsed.rows).toEqual([
+      ['SHA-256', 'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad', 'a.txt'],
+    ]);
+  });
 });

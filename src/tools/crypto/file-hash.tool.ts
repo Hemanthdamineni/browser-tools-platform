@@ -20,6 +20,7 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   if (!crypto?.subtle) throw new ToolError('Web Crypto is not available in this browser.');
 
   const lines: string[] = [];
+  const tableRows: string[][] = [];
   let matched: boolean | null = null;
 
   for (let i = 0; i < files.length; i++) {
@@ -29,6 +30,7 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
     const digest = await crypto.subtle.digest(algorithm, await file.arrayBuffer());
     const hex = toHex(digest);
     lines.push(`${hex}  ${file.name}`);
+    tableRows.push([algorithm, hex, file.name]);
     if (expected) matched = matched === false ? false : hex === expected;
   }
   onProgress?.(1, 'Done');
@@ -54,6 +56,13 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
         blob: new Blob([text], { type: 'text/plain' }),
       },
     ],
+    report: {
+      output: JSON.stringify({
+        headers: ['Algorithm', 'Hash', 'Filename'],
+        rows: tableRows,
+      }),
+      render: 'table',
+    },
     warnings: warnings.length ? warnings : undefined,
     stats: { files: files.length, algorithm },
   };

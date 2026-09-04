@@ -57,6 +57,7 @@ variants are XSS-safe — `output` is never parsed as HTML):
 | `'text'` (default) | plain string                                              |
 | `'code'`           | plain string; set `language` for a label                  |
 | `'image'`          | a `data:` URL                                             |
+| `'audio'`          | a `data:` or `blob:` audio URL; set `filename` for the download link |
 | `'colors'`         | `JSON.stringify(string[])` of CSS colours                 |
 | `'table'`          | `JSON.stringify({ headers: string[], rows: string[][] })` |
 | `'diff'`           | a unified-diff string                                     |
@@ -84,6 +85,25 @@ export default tool;
 
 File tools run in a Web Worker automatically. Honour `input.signal` (abort) and
 call `input.onProgress(fraction 0..1, message)` for anything that isn't instant.
+
+#### Inline reports (`report`)
+
+A file tool that only needs to show text, a table, a colour list, etc. (metadata,
+inspection, palette, audio-info …) can return `report` instead of — or in
+addition to — downloadable files:
+
+```ts
+return {
+  outputs: [], // may be empty when `report` is set
+  report: {
+    output: JSON.stringify({ headers: ['Algorithm', 'Hash'], rows: [['SHA-256', '…']] }),
+    render: 'table', // any TextRunResult render kind ('audio' included)
+    language: 'json', // only used by render: 'code'
+  },
+};
+```
+
+The report renders at the top of the results area, above any `outputs`.
 
 ### Metadata
 

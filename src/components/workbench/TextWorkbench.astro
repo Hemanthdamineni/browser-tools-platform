@@ -141,6 +141,8 @@ const p = meta.id;
   import type { TextRunResult } from '@/lib/types';
 
   const DEBOUNCE = 180;
+  /** Above this size, typing no longer triggers the debounced auto-run. */
+  const AUTO_RUN_CHAR_LIMIT = 50_000;
 
   document.querySelectorAll<HTMLElement>('[data-text-workbench]').forEach((root) => {
     const toolId = root.dataset.toolId!;
@@ -178,6 +180,7 @@ const p = meta.id;
       controller = new AbortController();
       clearError(errorBox);
       runBtn.disabled = true;
+      updateInputStats(); // clear any "live run paused" hint left by schedule()
       const started = performance.now();
       try {
         const result = await runToolById<TextRunResult>(
@@ -223,6 +226,16 @@ const p = meta.id;
 
     function schedule() {
       if (!liveBox.checked) return;
+      // Very large inputs: skip the debounced auto-run (it can fire heavy tools
+      // on every keystroke). Manual Run always works.
+      if ((input?.value.length ?? 0) > AUTO_RUN_CHAR_LIMIT) {
+        clearTimeout(timer);
+        timer = undefined;
+        if (inputStats) {
+          inputStats.textContent = 'Large input — live run paused. Press Run to execute this tool.';
+        }
+        return;
+      }
       clearTimeout(timer);
       timer = setTimeout(run, DEBOUNCE);
     }
@@ -265,10 +278,19 @@ const p = meta.id;
     });
     root.querySelector('[data-download]')?.addEventListener('click', () => {
       if (!last) return;
-      if ((last.render ?? 'text') === 'image') {
+      const kind = last.render ?? 'text';
+      if (kind === 'image') {
         const a = document.createElement('a');
         a.href = last.output;
         a.download = last.filename ?? `${toolId}.png`;
+        a.click();
+        return;
+      }
+      if (kind === 'audio') {
+        // output is a data:/blob: audio URL; download it like an image result
+        const a = document.createElement('a');
+        a.href = last.output;
+        a.download = last.filename ?? `${toolId}.wav`;
         a.click();
         return;
       }

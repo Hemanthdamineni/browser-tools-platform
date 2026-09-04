@@ -14,6 +14,8 @@ const fieldId = (key: string) => `${idPrefix}-opt-${key}`;
   {
     options.map((opt) => {
       const id = fieldId(opt.key);
+      const helpId = `${id}-help`;
+      const describedBy = opt.help && opt.type !== 'boolean' ? helpId : undefined;
       const showWhen = opt.showWhen ? JSON.stringify(opt.showWhen) : undefined;
       return (
         <div
@@ -27,7 +29,13 @@ const fieldId = (key: string) => `${idPrefix}-opt-${key}`;
           </label>
 
           {opt.type === 'select' && (
-            <select id={id} class="field" data-opt-key={opt.key} data-opt-type="select">
+            <select
+              id={id}
+              class="field"
+              data-opt-key={opt.key}
+              data-opt-type="select"
+              aria-describedby={describedBy}
+            >
               {opt.choices.map((c) => (
                 <option value={c.value} selected={c.value === opt.default}>
                   {c.label}
@@ -62,6 +70,7 @@ const fieldId = (key: string) => `${idPrefix}-opt-${key}`;
                 min={opt.min}
                 max={opt.max}
                 step={opt.step ?? 1}
+                aria-describedby={describedBy}
               />
               {opt.type === 'range' && (
                 <output class="w-12 text-right text-sm tabular-nums" data-range-out={opt.key}>
@@ -80,6 +89,7 @@ const fieldId = (key: string) => `${idPrefix}-opt-${key}`;
               data-opt-type="text"
               value={opt.default}
               placeholder={opt.placeholder}
+              aria-describedby={describedBy}
             />
           )}
 
@@ -90,12 +100,15 @@ const fieldId = (key: string) => `${idPrefix}-opt-${key}`;
               data-opt-key={opt.key}
               data-opt-type="text"
               placeholder={opt.placeholder}
+              aria-describedby={describedBy}
               set:text={opt.default}
             />
           )}
 
           {opt.help && opt.type !== 'boolean' && (
-            <p class="text-xs text-[rgb(var(--text-muted))]">{opt.help}</p>
+            <p id={helpId} class="text-xs text-[rgb(var(--text-muted))]">
+              {opt.help}
+            </p>
           )}
         </div>
       );

@@ -32,6 +32,8 @@ test('every declared no-network tool makes zero cross-origin requests', async ({
   page,
   baseURL,
 }) => {
+  // ~0.5–1 s per tool page (visit + exercise + settle); the catalogue is 60+.
+  test.setTimeout(180_000);
   const localOnly = () => tools.filter((t) => t.privacy.network === 'none');
   const offenders: { tool: string; url: string }[] = [];
 
