@@ -737,13 +737,13 @@ parallel. One commit per story.
 
 ### Story E3-S1 — Web utilities (10 tools) → `src/tools/web/`
 
-- [ ] `url-parse` · [ ] `basic-auth` · [ ] `data-uri` · [ ] `punycode`
-- [ ] `meta-tags` · [ ] `robots-txt` · [ ] `gitignore` · [ ] `editorconfig`
-- [ ] `mime-lookup` · [ ] `port-lookup`
+- [x] `url-parse` · [x] `basic-auth` · [x] `data-uri` · [x] `punycode`
+- [x] `meta-tags` · [x] `robots-txt` · [x] `gitignore` · [x] `editorconfig`
+- [x] `mime-lookup` · [x] `port-lookup`
 
 ### Story E3-S2 — Web / CSS generators (4 tools) → `src/tools/web/`
 
-- [ ] `css-units` · [ ] `gradient-css` · [ ] `box-shadow` · [ ] `cubic-bezier`
+- [x] `css-units` · [x] `gradient-css` · [x] `box-shadow` · [x] `cubic-bezier`
 
 ### Story E3-S3 — Web lookups (2 tools) → `src/tools/web/`
 
