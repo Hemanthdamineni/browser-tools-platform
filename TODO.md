@@ -747,7 +747,7 @@ parallel. One commit per story.
 
 ### Story E3-S3 — Web lookups (2 tools) → `src/tools/web/`
 
-- [ ] `http-status` · [ ] `user-agent`
+- [x] `http-status` · [x] `user-agent`
 
 ### Story E3-S4 — Colour (6 tools) → `src/tools/color/`
 

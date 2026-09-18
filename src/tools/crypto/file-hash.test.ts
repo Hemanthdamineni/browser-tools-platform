@@ -6,7 +6,7 @@ function file(content: string, name = 'a.txt'): File {
 }
 const readText = async (r: Awaited<ReturnType<typeof tool.run>>) => r.outputs[0]!.blob.text();
 
-describe('file-hash', () => {
+describe('file-hash', async () => {
   it('computes the known SHA-256 of "abc"', async () => {
     const r = await tool.run({ files: [file('abc')], options: { algorithm: 'SHA-256' } });
     expect(await readText(r)).toContain(
@@ -49,7 +49,7 @@ describe('file-hash', () => {
   });
 
   it('rejects an empty file list', async () => {
-    await expect(tool.run({ files: [], options: {} })).rejects.toThrow(/at least one file/i);
+    await expect(await tool.run({ files: [], options: {} })).rejects.toThrow(/at least one file/i);
   });
 
   it('includes an inline table report with algorithm, hash and filename rows', async () => {

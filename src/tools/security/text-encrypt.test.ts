@@ -3,12 +3,12 @@ import { ToolError } from '@/lib/types';
 import tool from './text-encrypt.tool';
 
 type Opts = Record<string, string | number | boolean>;
-const run = (text: string, options: Opts = {}) =>
-  tool.run({ text, options }) as Promise<{ output: string; stats?: Record<string, unknown> }>;
+const run = async (text: string, options: Opts = {}) =>
+  (await tool.run({ text, options })) as { output: string; stats?: Record<string, unknown> };
 
 const PW = 'correct horse battery staple';
 
-describe('text-encrypt', () => {
+describe('text-encrypt', async () => {
   it('empty input → empty output (no password needed)', async () => {
     expect((await run('')).output).toBe('');
   });
@@ -66,9 +66,9 @@ describe('text-encrypt', () => {
     await expect(run('not a token at all', { mode: 'decrypt', password: PW })).rejects.toThrow(
       /wrong password or corrupted data/i,
     );
-    await expect(
-      run('TBenc1.!!!!not base64!!!!', { mode: 'decrypt', password: PW }),
-    ).rejects.toThrow(ToolError);
+    await expect(run('TBenc1.!!!!not base64!!!!', { mode: 'decrypt', password: PW })).rejects.toThrow(
+      ToolError,
+    );
     await expect(run('TBenc1.QUJD', { mode: 'decrypt', password: PW })).rejects.toThrow(ToolError);
   });
 

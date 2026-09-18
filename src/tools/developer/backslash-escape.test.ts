@@ -2,74 +2,72 @@ import { describe, it, expect } from 'vitest';
 import { ToolError } from '@/lib/types';
 import tool from './backslash-escape.tool';
 
-const call = (text: string, options: Record<string, string | number | boolean> = {}) =>
-  tool.run({ text, options }) as { output: string; notes?: string[] };
-const run = (text: string, options: Record<string, string | number | boolean> = {}) =>
-  call(text, options).output;
+const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
+  await tool.run({ text, options }) as { output: string; notes?: string[] };
 
-describe('backslash-escape', () => {
-  it('empty input → empty output', () => {
-    expect(run('')).toBe('');
-    expect(run('', { mode: 'unescape' })).toBe('');
+describe('backslash-escape', async () => {
+  it('empty input → empty output', async () => {
+    expect((await run('')).output).toBe('');
+    expect((await run('', { mode: 'unescape' })).output).toBe('');
   });
 
-  it('escapes tab and newline to short forms (default mode)', () => {
-    expect(run('a\tb\nc')).toBe('a\\tb\\nc');
+  it('escapes tab and newline to short forms (default mode)', async () => {
+    expect((await run('a\tb\nc')).output).toBe('a\\tb\\nc');
   });
 
-  it('doubles a real backslash', () => {
-    expect(run('a\\b')).toBe('a\\\\b');
+  it('doubles a real backslash', async () => {
+    expect((await run('a\\b')).output).toBe('a\\\\b');
   });
 
-  it('escapes NUL as \\0 and other C0 controls as \\xNN', () => {
-    expect(run('\x00')).toBe('\\0');
-    expect(run('\x07')).toBe('\\x07');
-    expect(run('\x7f')).toBe('\\x7f');
+  it('escapes NUL as \\0 and other C0 controls as \\xNN', async () => {
+    expect((await run('\x00')).output).toBe('\\0');
+    expect((await run('\x07')).output).toBe('\\x07');
+    expect((await run('\x7f')).output).toBe('\\x7f');
   });
 
-  it('escapes format characters as \\uNNNN', () => {
-    expect(run('a\u200bb')).toBe('a\\u200bb');
+  it('escapes format characters as \\uNNNN', async () => {
+    expect((await run('a\u200bb')).output).toBe('a\\u200bb');
   });
 
-  it('leaves ordinary letters, punctuation and spaces alone', () => {
-    expect(run('é世 ok!')).toBe('é世 ok!');
+  it('leaves ordinary letters, punctuation and spaces alone', async () => {
+    expect((await run('é世 ok!')).output).toBe('é世 ok!');
   });
 
-  it('unescapes the common sequences', () => {
-    expect(run('\\n\\t\\x41\\u0042', { mode: 'unescape' })).toBe('\n\tAB');
-    expect(run('\\0', { mode: 'unescape' })).toBe('\x00');
-    expect(run('a\\\\b', { mode: 'unescape' })).toBe('a\\b');
+  it('unescapes the common sequences', async () => {
+    expect((await run('\\n\\t\\x41\\u0042', { mode: 'unescape' })).output).toBe('\n\tAB');
+    expect((await run('\\0', { mode: 'unescape' })).output).toBe('\x00');
+    expect((await run('a\\\\b', { mode: 'unescape' })).output).toBe('a\\b');
   });
 
-  it('unescapes a \\u{…} code point', () => {
-    expect(run('\\u{1F600}', { mode: 'unescape' })).toBe('\u{1f600}');
+  it('unescapes a \\u{…} code point', async () => {
+    expect((await run('\\u{1F600}', { mode: 'unescape' })).output).toBe('\u{1f600}');
   });
 
-  it('drops the backslash of an unknown escape and reports it', () => {
-    const res = call('\\q\\w x', { mode: 'unescape' });
+  it('drops the backslash of an unknown escape and reports it', async () => {
+    const res = await run('\\q\\w x', { mode: 'unescape' });
     expect(res.output).toBe('qw x');
     expect(res.notes?.[0]).toMatch(/\\q, \\w/);
   });
 
-  it('throws ToolError on a code point above U+10FFFF', () => {
-    expect(() => run('\\u{110000}', { mode: 'unescape' })).toThrow(ToolError);
+  it('throws ToolError on a code point above U+10FFFF', async () => {
+    expect(run('\\u{110000}', { mode: 'unescape' })).rejects.toThrow(ToolError);
   });
 
-  it('throws ToolError on a non-hex \\u{…} body', () => {
-    expect(() => run('\\u{XYZ}', { mode: 'unescape' })).toThrow(ToolError);
+  it('throws ToolError on a non-hex \\u{…} body', async () => {
+    expect(run('\\u{XYZ}', { mode: 'unescape' })).rejects.toThrow(ToolError);
   });
 
-  it('throws ToolError on an unterminated \\u{…} escape', () => {
-    expect(() => run('\\u{1F600', { mode: 'unescape' })).toThrow(ToolError);
+  it('throws ToolError on an unterminated \\u{…} escape', async () => {
+    expect(run('\\u{1F600', { mode: 'unescape' })).rejects.toThrow(ToolError);
   });
 
-  it('round-trips control-heavy text', () => {
+  it('round-trips control-heavy text', async () => {
     const original = 'A\tB\nC\x01\x07\u200b\\end';
-    expect(run(run(original), { mode: 'unescape' })).toBe(original);
+    expect((await run((await run(original)).output, { mode: 'unescape' })).output).toBe(original);
   });
 
-  it('reports mode in stats', () => {
-    const res = tool.run({ text: 'x', options: { mode: 'escape' } }) as {
+  it('reports mode in stats', async () => {
+    const res = await tool.run({ text: 'x', options: { mode: 'escape' } }) as {
       stats?: Record<string, string | number>;
     };
     expect(res.stats?.mode).toBe('escape');

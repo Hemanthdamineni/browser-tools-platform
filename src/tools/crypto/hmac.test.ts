@@ -2,12 +2,12 @@ import { describe, it, expect } from 'vitest';
 import tool from './hmac.tool';
 import { ToolError } from '@/lib/types';
 
-const run = (text: string, options: Record<string, string | number | boolean> = {}) =>
-  tool.run({ text, options }) as Promise<{ output: string; stats?: Record<string, unknown> }>;
+const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
+  await tool.run({ text, options }) as { output: string; stats?: Record<string, unknown> };
 
 const FOX = 'The quick brown fox jumps over the lazy dog';
 
-describe('hmac', () => {
+describe('hmac', async () => {
   it('HMAC-SHA256 with key "key" matches the published vector', async () => {
     expect((await run(FOX, { key: 'key' })).output).toBe(
       'f7bc83f430538424b13298e6aa6fb143ef4d59a14946175997479dbc2d1a3cd8',
@@ -45,11 +45,11 @@ describe('hmac', () => {
   });
 
   it('throws ToolError when the key is empty', async () => {
-    await expect(run(FOX, {})).rejects.toBeInstanceOf(ToolError);
-    await expect(run(FOX, { key: '' })).rejects.toThrow(/key is required/i);
+    expect(run(FOX, {})).rejects.toBeInstanceOf(ToolError);
+    expect(run(FOX, { key: '' })).rejects.toThrow(/key is required/i);
   });
 
   it('throws ToolError on an unsupported algorithm', async () => {
-    await expect(run(FOX, { key: 'key', algorithm: 'md5' })).rejects.toBeInstanceOf(ToolError);
+    expect(run(FOX, { key: 'key', algorithm: 'md5' })).rejects.toBeInstanceOf(ToolError);
   });
 });

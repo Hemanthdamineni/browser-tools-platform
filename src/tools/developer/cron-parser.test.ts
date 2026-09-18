@@ -6,19 +6,18 @@ interface Res {
   output: string;
   stats?: Record<string, string | number>;
 }
-const run = (text: string, options: Record<string, string | number | boolean> = {}) =>
-  tool.run({ text, options }) as Res;
+const run = async (text: string, options: Record<string, string | number | boolean> = {}) => await tool.run({ text, options }) as Res;
 
 const ISO = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:00\.000Z$/;
 
-function parts(r: Res) {
+function parts(r: Awaited<ReturnType<typeof run>>) {
   const lines = r.output.split('\n');
   return { sentence: lines[0]!, blank: lines[1]!, isos: lines.slice(2) };
 }
 
-describe('cron-parser', () => {
-  it('describes "*/5 * * * *" and lists 5 future runs on 5-minute boundaries', () => {
-    const r = run('*/5 * * * *');
+describe('cron-parser', async () => {
+  it('describes "*/5 * * * *" and lists 5 future runs on 5-minute boundaries', async () => {
+    const r = await run('*/5 * * * *');
     const { sentence, blank, isos } = parts(r);
     expect(sentence).toBe('Every 5 minutes');
     expect(blank).toBe('');
@@ -35,8 +34,8 @@ describe('cron-parser', () => {
     expect(r.stats).toMatchObject({ fields: 5, seconds: 'no', 'next runs': 5 });
   });
 
-  it('honors ranges and day-of-week names (weekdays at 09:30)', () => {
-    const { isos } = parts(run('30 9 * * MON-FRI', { count: 3 }));
+  it('honors ranges and day-of-week names (weekdays at 09:30)', async () => {
+    const { isos } = parts(await run('30 9 * * MON-FRI', { count: 3 }));
     expect(isos).toHaveLength(3);
     for (const iso of isos) {
       const d = new Date(iso);
@@ -47,8 +46,8 @@ describe('cron-parser', () => {
     }
   });
 
-  it('withSeconds: parses a 6-field expression', () => {
-    const r = run('0 0 12 * * *', { withSeconds: true });
+  it('withSeconds: parses a 6-field expression', async () => {
+    const r = await run('0 0 12 * * *', { withSeconds: true });
     const { sentence, isos } = parts(r);
     expect(sentence).toBe('At 12:00 PM');
     expect(r.stats).toMatchObject({ fields: 6, seconds: 'yes' });
@@ -59,8 +58,8 @@ describe('cron-parser', () => {
     }
   });
 
-  it('withSeconds: lists sub-minute run times from a stepped seconds field', () => {
-    const { isos } = parts(run('*/30 * * * * *', { withSeconds: true, count: 4 }));
+  it('withSeconds: lists sub-minute run times from a stepped seconds field', async () => {
+    const { isos } = parts(await run('*/30 * * * * *', { withSeconds: true, count: 4 }));
     expect(isos).toHaveLength(4);
     expect(isos.map((iso) => new Date(iso).getUTCSeconds())).toEqual([0, 30, 0, 30]);
     const t = isos.map((iso) => new Date(iso).getTime());
@@ -68,25 +67,25 @@ describe('cron-parser', () => {
     expect(t[2]! - t[1]!).toBe(30_000);
   });
 
-  it('withSeconds: errors when only 5 fields are given', () => {
-    expect(() => run('0 12 * * *', { withSeconds: true })).toThrow(ToolError);
+  it('withSeconds: errors when only 5 fields are given', async () => {
+    expect(run('0 12 * * *', { withSeconds: true })).rejects.toThrow(ToolError);
   });
 
-  it('verbose: produces a wordier sentence', () => {
-    const plain = parts(run('0 12 * * *')).sentence;
-    const wordy = parts(run('0 12 * * *', { verbose: true })).sentence;
+  it('verbose: produces a wordier sentence', async () => {
+    const plain = parts(await run('0 12 * * *')).sentence;
+    const wordy = parts(await run('0 12 * * *', { verbose: true })).sentence;
     expect(plain).toBe('At 12:00 PM');
     expect(wordy).not.toBe(plain);
     expect(wordy).toContain('every day');
   });
 
-  it('count: clamps to 1..20', () => {
-    expect(parts(run('* * * * *', { count: 100 })).isos).toHaveLength(20);
-    expect(parts(run('* * * * *', { count: 0 })).isos).toHaveLength(1);
+  it('count: clamps to 1..20', async () => {
+    expect(parts(await run('* * * * *', { count: 100 })).isos).toHaveLength(20);
+    expect(parts(await run('* * * * *', { count: 0 })).isos).toHaveLength(1);
   });
 
-  it('every-minute runs are consecutive', () => {
-    const isos = parts(run('* * * * *', { count: 3 })).isos;
+  it('every-minute runs are consecutive', async () => {
+    const isos = parts(await run('* * * * *', { count: 3 })).isos;
     const t0 = new Date(isos[0]!).getTime();
     const t1 = new Date(isos[1]!).getTime();
     const t2 = new Date(isos[2]!).getTime();
@@ -94,8 +93,8 @@ describe('cron-parser', () => {
     expect(t2 - t1).toBe(60_000);
   });
 
-  it('comma lists and month names', () => {
-    const { isos } = parts(run('0 0 1 JAN,JUL *', { count: 2 }));
+  it('comma lists and month names', async () => {
+    const { isos } = parts(await run('0 0 1 JAN,JUL *', { count: 2 }));
     for (const iso of isos) {
       const d = new Date(iso);
       expect(d.getUTCDate()).toBe(1);
@@ -105,24 +104,24 @@ describe('cron-parser', () => {
     }
   });
 
-  it('day-of-month OR day-of-week when both are restricted', () => {
-    const { isos } = parts(run('0 0 13 * FRI', { count: 6 }));
+  it('day-of-month OR day-of-week when both are restricted', async () => {
+    const { isos } = parts(await run('0 0 13 * FRI', { count: 6 }));
     for (const iso of isos) {
       const d = new Date(iso);
       expect(d.getUTCDate() === 13 || d.getUTCDay() === 5).toBe(true);
     }
   });
 
-  it('empty input → empty output', () => {
-    expect(run('').output).toBe('');
+  it('empty input → empty output', async () => {
+    expect((await run('')).output).toBe('');
   });
 
-  it('throws ToolError on the wrong field count', () => {
-    expect(() => run('* * * *')).toThrow(ToolError);
-    expect(() => run('not a real cron expression here')).toThrow(ToolError);
+  it('throws ToolError on the wrong field count', async () => {
+    expect(run('* * * *')).rejects.toThrow(ToolError);
+    expect(run('not a real cron expression here')).rejects.toThrow(ToolError);
   });
 
-  it('throws ToolError on an out-of-range value', () => {
-    expect(() => run('60 * * * *')).toThrow(ToolError);
+  it('throws ToolError on an out-of-range value', async () => {
+    expect(run('60 * * * *')).rejects.toThrow(ToolError);
   });
 });

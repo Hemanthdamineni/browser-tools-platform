@@ -11,7 +11,7 @@ const run = async (text: string, options: Record<string, string | number | boole
 
 const DNS_UUID = '6ba7b810-9dad-11d1-80b4-00c04fd430c8';
 
-describe('uuid-namespace', () => {
+describe('uuid-namespace', async () => {
   it('matches the known v5 DNS vector for "python.org"', async () => {
     const r = await run('python.org', { version: 'v5', namespace: 'dns' });
     expect(r.output).toBe('886313e1-3b8a-5372-9b90-0c9aee199e5d');
@@ -65,7 +65,7 @@ describe('uuid-namespace', () => {
     await expect(
       run('name', { namespace: 'custom', customNamespace: 'not-a-uuid' }),
     ).rejects.toThrow(ToolError);
-    await expect(run('name', { namespace: 'custom', customNamespace: '' })).rejects.toThrow(
+    await expect(await run('name', { namespace: 'custom', customNamespace: '' })).rejects.toThrow(
       /custom namespace/i,
     );
   });

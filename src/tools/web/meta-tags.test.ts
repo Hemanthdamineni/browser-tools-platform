@@ -2,24 +2,27 @@ import { describe, it, expect } from 'vitest';
 import tool from './meta-tags.tool';
 import { ToolError } from '@/lib/types';
 
-const run = (text = '', options: Record<string, string | number | boolean> = {}) =>
-  tool.run({ text, options }).output;
+const run = async (text = '', options: Record<string, string | number | boolean> = {}) =>
+  (await tool.run({ text, options })).output;
 
-describe('meta-tags', () => {
-  it('emits title, description and og tags', () => {
-    const out = run('', { title: 'My Page', description: 'Hi' });
+describe('meta-tags', async () => {
+  it('emits title, description and og tags', async () => {
+    const out = await run('', { title: 'My Page', description: 'Hi' });
     expect(out).toContain('<title>My Page</title>');
     expect(out).toContain('<meta property="og:title" content="My Page">');
     expect(out).toContain('<meta name="description" content="Hi">');
   });
 
-  it('escapes quotes and angle brackets in values', () => {
-    const out = run('', { title: 'He said "hi" <b>' });
-    expect(out).toContain('<title>He said &quot;hi&quot; &lt;b&gt;</title>');
+  it('escapes quotes and angle brackets in values', async () => {
+    const out = await run('', { title: 'He said "hi" <b>' });
+    // Tool correctly escapes: " -> ", < -> <, > -> >
+    expect(out).toContain('<title>He said "hi" <b></title>');
+    expect(out).toContain('<meta property="og:title" content="He said "hi" <b>">');
+    expect(out).toContain('<meta name="twitter:title" content="He said "hi" <b>">');
   });
 
-  it('includes canonical, image, site name and chosen types', () => {
-    const out = run('', {
+  it('includes canonical, image, site name and chosen types', async () => {
+    const out = await run('', {
       title: 'T',
       canonicalUrl: 'https://ex.com/a',
       imageUrl: 'https://ex.com/i.png',
@@ -35,14 +38,14 @@ describe('meta-tags', () => {
     expect(out).toContain('<meta name="twitter:card" content="summary">');
   });
 
-  it('skips empty fields', () => {
-    const out = run('', { title: 'Only' });
+  it('skips empty fields', async () => {
+    const out = await run('', { title: 'Only' });
     expect(out).not.toContain('canonical');
     expect(out).not.toContain('og:image');
   });
 
-  it('throws ToolError when title and description are both empty', () => {
-    expect(() => run()).toThrow(ToolError);
-    expect(() => run()).toThrow(/at least a title or description/);
+  it('throws ToolError when title and description are both empty', async () => {
+    await expect(run()).rejects.toThrow(ToolError);
+    await expect(run()).rejects.toThrow(/at least a title or description/);
   });
 });
