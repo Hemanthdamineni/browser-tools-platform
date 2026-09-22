@@ -751,13 +751,13 @@ parallel. One commit per story.
 
 ### Story E3-S4 — Colour (6 tools) → `src/tools/color/`
 
-- [ ] `color-contrast` · [ ] `color-palette` · [ ] `color-blend`
-- [ ] `color-random` · [ ] `color-blindness` · [ ] `color-name`
+- [x] `color-contrast` · [x] `color-palette` · [x] `color-blend`
+- [x] `color-random` · [x] `color-blindness` · [x] `color-name`
 
 ### Story E3-S5 — Date & time (7 tools) → `src/tools/datetime/`
 
-- [ ] `timestamp` · [ ] `timezone-convert` · [ ] `duration-convert`
-- [ ] `date-diff` · [ ] `date-add` · [ ] `age-calculator` · [ ] `week-number`
+- [x] `timestamp` · [x] `timezone-convert` · [x] `duration-convert`
+- [x] `date-diff` · [x] `date-add` · [x] `age-calculator` · [x] `week-number`
 
 ### Story E3-S6 — Numbers & maths (13 tools) → `src/tools/numbers/`
 
@@ -768,9 +768,9 @@ parallel. One commit per story.
 
 ### Story E3-S7 — Generators (10 tools) → `src/tools/generators/`
 
-- [ ] `nanoid` · [ ] `ulid` · [ ] `random-data` · [ ] `lorem-ipsum`
-- [ ] `qr-code` · [ ] `placeholder-svg` · [ ] `vcard` · [ ] `ical-event`
-- [ ] `utm-builder` · [ ] `otp-uri`
+- [x] `nanoid` · [x] `ulid` · [x] `random-data` · [x] `lorem-ipsum`
+- [x] `qr-code` · [x] `placeholder-svg` · [x] `vcard` · [x] `ical-event`
+- [x] `utm-builder` · [x] `otp-uri`
 
 ### Story E3-S8 — Network (8 tools) → `src/tools/network/`
 
