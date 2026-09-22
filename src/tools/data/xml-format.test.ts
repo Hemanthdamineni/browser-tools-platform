@@ -2,7 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { ToolError } from '@/lib/types';
 import tool from './xml-format.tool';
 
-const run = async (text: string, options: Record<string, string | number | boolean> = {}) => await tool.run({ text, options }) as {
+const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
+  (await tool.run({ text, options })) as {
     output: string;
     warnings?: string[];
     stats?: Record<string, string | number>;
@@ -29,21 +30,24 @@ describe('xml-format', async () => {
 
   it('keeps comments and CDATA intact when pretty-printing', async () => {
     expect(
-      (await run('<a><!-- note --><![CDATA[x < y]]></a>', { operation: 'pretty', indent: '4' })).output,
+      (await run('<a><!-- note --><![CDATA[x < y]]></a>', { operation: 'pretty', indent: '4' }))
+        .output,
     ).toBe(['<a>', '    <!-- note -->', '    <![CDATA[x < y]]>', '</a>'].join('\n'));
   });
 
   it('minifies by stripping inter-tag whitespace', async () => {
-    expect((await run('<root>\n  <child>text</child>\n</root>', { operation: 'minify' })).output).toBe(
-      '<root><child>text</child></root>',
-    );
+    expect(
+      (await run('<root>\n  <child>text</child>\n</root>', { operation: 'minify' })).output,
+    ).toBe('<root><child>text</child></root>');
   });
 
   it('keeps processing instructions and CDATA when minifying', async () => {
     expect(
-      (await run('<?xml version="1.0"?>\n<a>\n  <!-- c -->\n  <![CDATA[d]]>\n</a>', {
-        operation: 'minify',
-      })).output,
+      (
+        await run('<?xml version="1.0"?>\n<a>\n  <!-- c -->\n  <![CDATA[d]]>\n</a>', {
+          operation: 'minify',
+        })
+      ).output,
     ).toBe('<?xml version="1.0"?><a><!-- c --><![CDATA[d]]></a>');
   });
 

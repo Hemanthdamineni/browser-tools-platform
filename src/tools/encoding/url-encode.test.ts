@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import tool from './url-encode.tool';
 
 const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
-  await tool.run({ text, options }) as { output: string };
+  (await tool.run({ text, options })) as { output: string };
 
 describe('url-encode', async () => {
   it('encodes a component', async () => {
@@ -14,7 +14,9 @@ describe('url-encode', async () => {
     );
   });
   it('decodes a component', async () => {
-    expect((await run('caf%C3%A9%20%26%20cr%C3%A8me', { mode: 'decode' })).output).toBe('café & crème');
+    expect((await run('caf%C3%A9%20%26%20cr%C3%A8me', { mode: 'decode' })).output).toBe(
+      'café & crème',
+    );
   });
   it('round-trips', async () => {
     const s = 'Ω≈ç√∫˜µ ?&=#';

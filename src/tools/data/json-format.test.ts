@@ -11,7 +11,9 @@ const run = async (text: string, options: Record<string, string | number | boole
 
 describe('json-format', async () => {
   it('pretty-prints with 2-space indent by default', async () => {
-    expect((await run('{"a":1,"b":[2,3]}')).output).toBe('{\n  "a": 1,\n  "b": [\n    2,\n    3\n  ]\n}');
+    expect((await run('{"a":1,"b":[2,3]}')).output).toBe(
+      '{\n  "a": 1,\n  "b": [\n    2,\n    3\n  ]\n}',
+    );
   });
 
   it('pretty-prints with 4 spaces', async () => {
@@ -23,7 +25,9 @@ describe('json-format', async () => {
   });
 
   it('minifies', async () => {
-    expect((await run('{\n  "a": 1,\n  "b": 2\n}', { operation: 'minify' })).output).toBe('{"a":1,"b":2}');
+    expect((await run('{\n  "a": 1,\n  "b": 2\n}', { operation: 'minify' })).output).toBe(
+      '{"a":1,"b":2}',
+    );
   });
 
   it('sorts keys recursively', async () => {
@@ -53,7 +57,9 @@ describe('json-format', async () => {
 
   it('throws ToolError with a line/column hint on a syntax error', async () => {
     await expect(run('{\n  "a": 1,\n}')).rejects.toBeInstanceOf(ToolError);
-    await expect(run('{\n  "a": 1,\n}')).rejects.toMatchObject({ hint: expect.stringMatching(/line \d+, column \d+/) });
+    await expect(run('{\n  "a": 1,\n}')).rejects.toMatchObject({
+      hint: expect.stringMatching(/line \d+, column \d+/),
+    });
   });
 
   it('empty input returns empty output', async () => {

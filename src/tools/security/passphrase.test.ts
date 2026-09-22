@@ -4,7 +4,7 @@ import tool, { WORDS } from './passphrase.tool';
 
 type Res = { output: string; render?: string; stats?: Record<string, string | number> };
 const run = async (options: Record<string, string | number | boolean> = {}, text = '') =>
-  await tool.run({ text, options }) as Res;
+  (await tool.run({ text, options })) as Res;
 
 describe('passphrase wordlist', async () => {
   it('has 1110 unique short lowercase words', async () => {

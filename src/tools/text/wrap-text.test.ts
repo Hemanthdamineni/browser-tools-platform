@@ -3,7 +3,7 @@ import tool from './wrap-text.tool';
 
 type Opts = Record<string, string | number | boolean>;
 const run = async (text: string, options: Opts = {}) =>
-  await tool.run({ text, options }) as {
+  (await tool.run({ text, options })) as {
     output: string;
     stats?: Record<string, string | number>;
   };
@@ -16,17 +16,21 @@ describe('wrap-text', async () => {
   });
 
   it('preserves blank lines between paragraphs by default', async () => {
-    expect((await run('aaa bbb\n\nccc ddd', { mode: 'wrap', width: 5 })).output).toBe('aaa\nbbb\n\nccc\nddd');
+    expect((await run('aaa bbb\n\nccc ddd', { mode: 'wrap', width: 5 })).output).toBe(
+      'aaa\nbbb\n\nccc\nddd',
+    );
   });
 
   it('merges paragraphs when preserveParagraphs is off', async () => {
-    expect((await run('aaa\n\nbbb', { mode: 'wrap', width: 80, preserveParagraphs: false })).output).toBe('aaa bbb');
+    expect(
+      (await run('aaa\n\nbbb', { mode: 'wrap', width: 80, preserveParagraphs: false })).output,
+    ).toBe('aaa bbb');
   });
 
   it('breaks over-long words when breakLongWords is on', async () => {
-    expect((await run('abcdefghij km', { mode: 'wrap', width: 4, breakLongWords: true })).output).toBe(
-      'abcd\nefgh\nij\nkm',
-    );
+    expect(
+      (await run('abcdefghij km', { mode: 'wrap', width: 4, breakLongWords: true })).output,
+    ).toBe('abcd\nefgh\nij\nkm');
   });
 
   it('leaves over-long words intact when breakLongWords is off', async () => {
@@ -40,7 +44,9 @@ describe('wrap-text', async () => {
   });
 
   it('unwraps everything to one line when preserveParagraphs is off', async () => {
-    expect((await run('a\nb\n\nc', { mode: 'unwrap', preserveParagraphs: false })).output).toBe('a b c');
+    expect((await run('a\nb\n\nc', { mode: 'unwrap', preserveParagraphs: false })).output).toBe(
+      'a b c',
+    );
   });
 
   it('empty input → empty output', async () => {

@@ -8,7 +8,8 @@ type Res = {
   notes?: string[];
   stats?: Record<string, string | number>;
 };
-const run = async (text: string, options: Record<string, string | number | boolean> = {}) => await tool.run({ text, options }) as Res;
+const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
+  (await tool.run({ text, options })) as Res;
 
 describe('json-diff', async () => {
   it('reports changed and added keys at the top level', async () => {
@@ -38,7 +39,9 @@ describe('json-diff', async () => {
     expect((await run('{ "x": [1, 2, 3] }', { second: '{ "x": [1, 9, 3] }' })).output).toBe(
       '- $.x[1]: 2\n+ $.x[1]: 9',
     );
-    expect((await run('{ "x": [1, 2] }', { second: '{ "x": [1, 2, 3] }' })).output).toBe('+ $.x[2]: 3');
+    expect((await run('{ "x": [1, 2] }', { second: '{ "x": [1, 2, 3] }' })).output).toBe(
+      '+ $.x[2]: 3',
+    );
   });
 
   it('treats a type change as a single changed path', async () => {

@@ -4,7 +4,7 @@ import tool from './mime-lookup.tool';
 type Result = { output: string; stats?: Record<string, string>; notes?: string[] };
 
 const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
-  await tool.run({ text, options }) as Result;
+  (await tool.run({ text, options })) as Result;
 
 const table = (r: Result) => JSON.parse(r.output) as { rows: string[][] };
 

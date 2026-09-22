@@ -1,0 +1,87 @@
+import type { ToolMeta } from '@/lib/types';
+
+const ZONES: [string, string][] = [
+  ['UTC', 'UTC'],
+  ['America/New_York', 'New York'],
+  ['America/Chicago', 'Chicago'],
+  ['America/Denver', 'Denver'],
+  ['America/Los_Angeles', 'Los Angeles'],
+  ['America/Sao_Paulo', 'São Paulo'],
+  ['Europe/London', 'London'],
+  ['Europe/Paris', 'Paris'],
+  ['Europe/Berlin', 'Berlin'],
+  ['Europe/Moscow', 'Moscow'],
+  ['Africa/Cairo', 'Cairo'],
+  ['Africa/Johannesburg', 'Johannesburg'],
+  ['Asia/Kolkata', 'Kolkata'],
+  ['Asia/Dubai', 'Dubai'],
+  ['Asia/Karachi', 'Karachi'],
+  ['Asia/Dhaka', 'Dhaka'],
+  ['Asia/Bangkok', 'Bangkok'],
+  ['Asia/Singapore', 'Singapore'],
+  ['Asia/Shanghai', 'Shanghai'],
+  ['Asia/Tokyo', 'Tokyo'],
+  ['Asia/Seoul', 'Seoul'],
+  ['Australia/Perth', 'Perth'],
+  ['Australia/Sydney', 'Sydney'],
+  ['Pacific/Auckland', 'Auckland'],
+  ['Pacific/Honolulu', 'Honolulu'],
+];
+
+export const meta: ToolMeta = {
+  id: 'timezone-convert',
+  name: 'Timezone Converter',
+  category: 'datetime',
+  summary: 'Convert a date and time across world timezones in one table.',
+  description:
+    'Enter a wall-clock time, pick the zone it belongs to, and see the same instant formatted for a curated set of US, European, Asian or worldwide cities — DST handled via the browser Intl database.',
+  keywords: [
+    'timezone converter',
+    'world clock',
+    'time zones',
+    'utc',
+    'gmt',
+    'dst',
+    'meeting planner',
+    'time difference',
+  ],
+  privacy: { processing: 'on-device', network: 'none', offline: true },
+  input: 'text',
+  options: [
+    {
+      key: 'fromZone',
+      label: 'Input timezone',
+      type: 'select',
+      default: 'UTC',
+      choices: ZONES.map(([value, label]) => ({ value, label })),
+    },
+    {
+      key: 'targets',
+      label: 'Show zones',
+      type: 'select',
+      default: 'world',
+      choices: [
+        { value: 'us', label: 'US zones' },
+        { value: 'europe', label: 'European zones' },
+        { value: 'asia', label: 'Asian zones' },
+        { value: 'world', label: 'Worldwide' },
+      ],
+    },
+  ],
+  examples: [
+    { title: 'Noon UTC worldwide', input: '2024-01-15 12:00' },
+    { title: 'Now, US zones', options: { targets: 'us' } },
+  ],
+  faq: [
+    {
+      q: 'How are daylight-saving transitions handled?',
+      a: 'Offsets come from the browser Intl database for each specific instant. A time inside the one-hour "spring forward" gap resolves to the offset after the gap.',
+    },
+    {
+      q: 'What input formats work?',
+      a: 'Anything like 2024-01-15, 2024-01-15 12:00, or 2024-01-15T12:00:30. Leave the input blank to use the current time.',
+    },
+  ],
+  related: ['timestamp', 'date-diff', 'week-number'],
+  status: 'stable',
+};

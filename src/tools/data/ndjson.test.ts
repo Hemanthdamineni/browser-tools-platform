@@ -3,7 +3,10 @@ import { ToolError } from '@/lib/types';
 import tool from './ndjson.tool';
 
 const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
-  (await tool.run({ text, options })) as { output: string; stats?: Record<string, string | number> };
+  (await tool.run({ text, options })) as {
+    output: string;
+    stats?: Record<string, string | number>;
+  };
 
 describe('ndjson', async () => {
   it('converts NDJSON to a compact JSON array by default', async () => {
@@ -27,7 +30,9 @@ describe('ndjson', async () => {
   });
 
   it('to-ndjson lines stay compact regardless of the indent option', async () => {
-    expect((await run('[{"a":1,"b":2}]', { mode: 'to-ndjson', indent: '2' })).output).toBe('{"a":1,"b":2}');
+    expect((await run('[{"a":1,"b":2}]', { mode: 'to-ndjson', indent: '2' })).output).toBe(
+      '{"a":1,"b":2}',
+    );
   });
 
   it('throws ToolError naming the offending line number', async () => {

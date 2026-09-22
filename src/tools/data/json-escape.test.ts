@@ -2,7 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { ToolError } from '@/lib/types';
 import tool from './json-escape.tool';
 
-const run = async (text: string, options: Record<string, string | number | boolean> = {}) => await tool.run({ text, options }) as { output: string };
+const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
+  (await tool.run({ text, options })) as { output: string };
 
 describe('json-escape', async () => {
   it('escapes text into a quoted JSON string literal', async () => {

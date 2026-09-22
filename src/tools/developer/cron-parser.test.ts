@@ -6,7 +6,8 @@ interface Res {
   output: string;
   stats?: Record<string, string | number>;
 }
-const run = async (text: string, options: Record<string, string | number | boolean> = {}) => await tool.run({ text, options }) as Res;
+const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
+  (await tool.run({ text, options })) as Res;
 
 const ISO = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:00\.000Z$/;
 

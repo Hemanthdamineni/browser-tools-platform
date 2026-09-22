@@ -2,7 +2,8 @@ import { describe, it, expect } from 'vitest';
 import tool from './ascii85.tool';
 import { ToolError } from '@/lib/types';
 
-const run = async (text: string, options: Record<string, string | number | boolean> = {}) => await tool.run({ text, options }) as { output: string };
+const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
+  (await tool.run({ text, options })) as { output: string };
 
 describe('ascii85', async () => {
   it('encodes the Adobe variant with delimiters', async () => {
@@ -15,14 +16,18 @@ describe('ascii85', async () => {
   });
 
   it('uses z for a zero group and y for four spaces (btoa)', async () => {
-    expect((await run('\x00\x00\x00\x00', { mode: 'encode', variant: 'adobe' })).output).toBe('<~z~>');
+    expect((await run('\x00\x00\x00\x00', { mode: 'encode', variant: 'adobe' })).output).toBe(
+      '<~z~>',
+    );
     expect((await run('    ', { mode: 'encode', variant: 'btoa' })).output).toBe('y');
   });
 
   it('decodes the Adobe and btoa variants', async () => {
     expect((await run('<~9jqo^Bla~>', { mode: 'decode', variant: 'adobe' })).output).toBe('Man is');
     expect((await run('87cURDZ', { mode: 'decode', variant: 'btoa' })).output).toBe('Hello');
-    expect((await run('<~z~>', { mode: 'decode', variant: 'adobe' })).output).toBe('\x00\x00\x00\x00');
+    expect((await run('<~z~>', { mode: 'decode', variant: 'adobe' })).output).toBe(
+      '\x00\x00\x00\x00',
+    );
     expect((await run('y', { mode: 'decode', variant: 'btoa' })).output).toBe('    ');
   });
 

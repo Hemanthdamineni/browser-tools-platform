@@ -3,7 +3,7 @@ import tool from './text-repeat.tool';
 
 type Opts = Record<string, string | number | boolean>;
 const run = async (text: string, options: Opts = {}) =>
-  await tool.run({ text, options }) as {
+  (await tool.run({ text, options })) as {
     output: string;
     stats?: Record<string, string | number>;
   };
@@ -26,7 +26,9 @@ describe('text-repeat', async () => {
   });
 
   it('joins with a custom separator', async () => {
-    expect((await run('x', { count: 3, separator: 'custom', custom: ' | ' })).output).toBe('x | x | x');
+    expect((await run('x', { count: 3, separator: 'custom', custom: ' | ' })).output).toBe(
+      'x | x | x',
+    );
   });
 
   it('treats an empty custom separator as a direct join', async () => {
@@ -46,7 +48,9 @@ describe('text-repeat', async () => {
   });
 
   it('throws ToolError when the output would exceed the size cap', async () => {
-    await expect(run('a'.repeat(1000), { count: 100000, separator: 'none' })).rejects.toThrow(/Output too large/i);
+    await expect(run('a'.repeat(1000), { count: 100000, separator: 'none' })).rejects.toThrow(
+      /Output too large/i,
+    );
   });
 
   it('throws ToolError on a count below 1', async () => {

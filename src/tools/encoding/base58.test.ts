@@ -3,7 +3,7 @@ import tool from './base58.tool';
 import { ToolError } from '@/lib/types';
 
 const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
-  await tool.run({ text, options }) as { output: string };
+  (await tool.run({ text, options })) as { output: string };
 
 describe('base58', async () => {
   it('encodes known values (Bitcoin alphabet)', async () => {

@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import tool from './reverse-text.tool';
 
 const r = async (text: string, by = 'characters') =>
-  (await tool.run({ text, options: { by } }) as { output: string }).output;
+  ((await tool.run({ text, options: { by } })) as { output: string }).output;
 
 describe('reverse-text', async () => {
   it('reverses characters', async () => {

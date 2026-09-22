@@ -3,7 +3,7 @@ import tool from './objectid.tool';
 import { ToolError } from '@/lib/types';
 
 const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
-  await tool.run({ text, options }) as {
+  (await tool.run({ text, options })) as {
     output: string;
     render?: string;
     stats?: Record<string, string | number>;

@@ -2,7 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { ToolError } from '@/lib/types';
 import tool from './querystring.tool';
 
-const run = async (text: string, options: Record<string, string | number | boolean> = {}) => await tool.run({ text, options }) as { output: string; render?: string; language?: string };
+const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
+  (await tool.run({ text, options })) as { output: string; render?: string; language?: string };
 
 describe('querystring', async () => {
   it('parses a query string with a leading ? and brackets arrays', async () => {
@@ -18,7 +19,9 @@ describe('querystring', async () => {
   });
 
   it('splits comma values (comma format) but keeps single values as strings', async () => {
-    expect(JSON.parse((await run('a=1,2,3&b=x', { mode: 'parse', arrayFormat: 'comma' })).output)).toEqual({
+    expect(
+      JSON.parse((await run('a=1,2,3&b=x', { mode: 'parse', arrayFormat: 'comma' })).output),
+    ).toEqual({
       a: ['1', '2', '3'],
       b: 'x',
     });
@@ -49,7 +52,9 @@ describe('querystring', async () => {
   });
 
   it('sorts keys when sortKeys is on (build)', async () => {
-    expect((await run('{ "b": 2, "a": 1 }', { mode: 'build', sortKeys: true })).output).toBe('a=1&b=2');
+    expect((await run('{ "b": 2, "a": 1 }', { mode: 'build', sortKeys: true })).output).toBe(
+      'a=1&b=2',
+    );
   });
 
   it('returns empty output for empty input', async () => {

@@ -10,14 +10,36 @@ interface RGB {
 }
 
 const NAMED: Record<string, string> = {
-  black: '#000000', white: '#ffffff', red: '#ff0000', green: '#008000',
-  blue: '#0000ff', lime: '#00ff00', navy: '#000080', teal: '#008080',
-  aqua: '#00ffff', cyan: '#00ffff', magenta: '#ff00ff', fuchsia: '#ff00ff',
-  yellow: '#ffff00', orange: '#ffa500', purple: '#800080', gray: '#808080',
-  grey: '#808080', silver: '#c0c0c0', maroon: '#800000', olive: '#808000',
-  pink: '#ffc0cb', gold: '#ffd700', indigo: '#4b0082', violet: '#ee82ee',
-  crimson: '#dc143c', coral: '#ff7f50', salmon: '#fa8072', khaki: '#f0e68c',
-  turquoise: '#40e0d0', tan: '#d2b48c',
+  black: '#000000',
+  white: '#ffffff',
+  red: '#ff0000',
+  green: '#008000',
+  blue: '#0000ff',
+  lime: '#00ff00',
+  navy: '#000080',
+  teal: '#008080',
+  aqua: '#00ffff',
+  cyan: '#00ffff',
+  magenta: '#ff00ff',
+  fuchsia: '#ff00ff',
+  yellow: '#ffff00',
+  orange: '#ffa500',
+  purple: '#800080',
+  gray: '#808080',
+  grey: '#808080',
+  silver: '#c0c0c0',
+  maroon: '#800000',
+  olive: '#808000',
+  pink: '#ffc0cb',
+  gold: '#ffd700',
+  indigo: '#4b0082',
+  violet: '#ee82ee',
+  crimson: '#dc143c',
+  coral: '#ff7f50',
+  salmon: '#fa8072',
+  khaki: '#f0e68c',
+  turquoise: '#40e0d0',
+  tan: '#d2b48c',
 };
 
 function parse(input: string): RGB {
@@ -27,7 +49,11 @@ function parse(input: string): RGB {
   const hex = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(s);
   if (hex) {
     let h = hex[1]!;
-    if (h.length === 3) h = h.split('').map((c) => c + c).join('');
+    if (h.length === 3)
+      h = h
+        .split('')
+        .map((c) => c + c)
+        .join('');
     return {
       r: parseInt(h.slice(0, 2), 16),
       g: parseInt(h.slice(2, 4), 16),
@@ -59,8 +85,7 @@ const SRGB = (c: number) => {
   return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
 };
 
-const luminance = (c: RGB) =>
-  0.2126 * SRGB(c.r) + 0.7152 * SRGB(c.g) + 0.0722 * SRGB(c.b);
+const luminance = (c: RGB) => 0.2126 * SRGB(c.r) + 0.7152 * SRGB(c.g) + 0.0722 * SRGB(c.b);
 
 function apcaLc(fg: RGB, bg: RGB): number {
   // APCA 0.0.98G "approx": linearise, scale, then subtract the perceived lightness.
@@ -70,7 +95,7 @@ function apcaLc(fg: RGB, bg: RGB): number {
   };
   const ybg = fl(bg);
   const yfg = fl(fg);
-  const contrast = (Math.abs(ybg - yfg) + 0.027) / (Math.max(ybg,yfg) + 0.027);
+  const contrast = (Math.abs(ybg - yfg) + 0.027) / (Math.max(ybg, yfg) + 0.027);
   const lc = Math.sign(yfg - ybg) * (contrast * 104 - 1.8);
   return Math.round(lc * 10) / 10;
 }
@@ -83,7 +108,7 @@ function run(input: TextRunInput): TextRunResult {
   const bg = parse(String(o.second));
   const L1 = luminance(fg);
   const L2 = luminance(bg);
-  const [hi, lo] = L1 >= L2 ? [L1,L2] : [L2,L1];
+  const [hi, lo] = L1 >= L2 ? [L1, L2] : [L2, L1];
   const ratio = (hi + 0.05) / (lo + 0.05);
   const ratioStr = ratio.toFixed(2);
 

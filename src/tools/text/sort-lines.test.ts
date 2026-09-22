@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import tool from './sort-lines.tool';
 
 const s = async (text: string, options: Record<string, string | number | boolean> = {}) =>
-  (await tool.run({ text, options }) as { output: string }).output.split('\n');
+  ((await tool.run({ text, options })) as { output: string }).output.split('\n');
 
 describe('sort-lines', async () => {
   it('alphabetical ascending / descending', async () => {
@@ -14,7 +14,11 @@ describe('sort-lines', async () => {
     ]);
   });
   it('natural sort', async () => {
-    expect(await s('file10\nfile2\nfile1', { method: 'natural' })).toEqual(['file1', 'file2', 'file10']);
+    expect(await s('file10\nfile2\nfile1', { method: 'natural' })).toEqual([
+      'file1',
+      'file2',
+      'file10',
+    ]);
   });
   it('numeric by leading number', async () => {
     expect(await s('30 c\n9 b\n100 a', { method: 'numeric' })).toEqual(['9 b', '30 c', '100 a']);

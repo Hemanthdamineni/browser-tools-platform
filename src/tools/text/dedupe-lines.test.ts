@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import tool from './dedupe-lines.tool';
 
 const d = async (text: string, options: Record<string, string | number | boolean> = {}) =>
-  (await tool.run({ text, options }) as { output: string }).output.split('\n');
+  ((await tool.run({ text, options })) as { output: string }).output.split('\n');
 
 describe('dedupe-lines', async () => {
   it('keeps first occurrence, order preserved', async () => {
@@ -25,6 +25,6 @@ describe('dedupe-lines', async () => {
     expect(await d('a\n\nb\n\na', { keepBlank: true })).toEqual(['a', '', 'b', '']);
   });
   it('empty input', async () => {
-    expect((await tool.run({ text: '', options: {} }) as { output: string }).output).toBe('');
+    expect(((await tool.run({ text: '', options: {} })) as { output: string }).output).toBe('');
   });
 });

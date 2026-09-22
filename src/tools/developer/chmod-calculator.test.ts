@@ -7,9 +7,10 @@ interface Res {
 }
 
 const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
-  await tool.run({ text, options }) as Res;
+  (await tool.run({ text, options })) as Res;
 
-const table = (r: Awaited<ReturnType<typeof run>>) => JSON.parse(r.output) as { headers: string[]; rows: string[][] };
+const table = (r: Awaited<ReturnType<typeof run>>) =>
+  JSON.parse(r.output) as { headers: string[]; rows: string[][] };
 
 describe('chmod-calculator', async () => {
   it('converts octal 755 to symbolic', async () => {

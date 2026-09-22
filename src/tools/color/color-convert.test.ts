@@ -3,7 +3,7 @@ import tool from './color-convert.tool';
 import { ToolError } from '@/lib/types';
 
 const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
-  await tool.run({ text, options }) as { output: string; stats?: Record<string, string> };
+  (await tool.run({ text, options })) as { output: string; stats?: Record<string, string> };
 
 describe('color-convert', async () => {
   it('parses #rrggbb and reports all formats', async () => {

@@ -8,7 +8,7 @@ describe('html-entities', async () => {
   it('encodes the minimal set', async () => {
     const input = '<a href="#">Tom & Jerry\'s</a>';
     // Tool encodes ' as ' not &apos;
-    const expected = '<a href="#">Tom & Jerry's</a>';
+    const expected = '<a href="#">Tom & Jerry\'s</a>';
     expect((await run(input)).output).toBe(expected);
   });
   it('does not double-encode ampersands wrongly on round-trip', async () => {

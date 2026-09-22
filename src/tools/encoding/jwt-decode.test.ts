@@ -3,7 +3,7 @@ import tool from './jwt-decode.tool';
 import { ToolError } from '@/lib/types';
 
 const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
-  await tool.run({ text, options }) as {
+  (await tool.run({ text, options })) as {
     output: string;
     notes?: string[];
     stats?: Record<string, string | number>;
@@ -31,7 +31,9 @@ describe('jwt-decode', async () => {
 
   it('renders iat as a UTC date', async () => {
     const { notes } = await run(SAMPLE);
-    expect((notes ?? []).some((n: string) => n.includes('iat (issued at): 2018-01-18 01:30:22 UTC'))).toBe(true);
+    expect(
+      (notes ?? []).some((n: string) => n.includes('iat (issued at): 2018-01-18 01:30:22 UTC')),
+    ).toBe(true);
   });
 
   it('always notes that the signature is not verified', async () => {
@@ -41,9 +43,11 @@ describe('jwt-decode', async () => {
 
   it('flags an expired token', async () => {
     const { notes } = await run(makeToken({ alg: 'HS256' }, { exp: 1000000000 }));
-    expect((notes ?? []).some((n: string) => n.startsWith('exp (expires):') && n.includes('has expired'))).toBe(
-      true,
-    );
+    expect(
+      (notes ?? []).some(
+        (n: string) => n.startsWith('exp (expires):') && n.includes('has expired'),
+      ),
+    ).toBe(true);
   });
 
   it('flags a token that is not yet expired', async () => {

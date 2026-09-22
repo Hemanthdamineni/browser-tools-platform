@@ -2,7 +2,8 @@ import { describe, it, expect } from 'vitest';
 import tool from './data-uri.tool';
 import { ToolError } from '@/lib/types';
 
-const run = async (text = '', options: Record<string, string | number | boolean> = {}) => await tool.run({ text, options });
+const run = async (text = '', options: Record<string, string | number | boolean> = {}) =>
+  await tool.run({ text, options });
 
 describe('data-uri', async () => {
   it('encodes SVG with charset and base64 by default', async () => {

@@ -2,7 +2,11 @@ import { describe, it, expect } from 'vitest';
 import { ToolError } from '@/lib/types';
 import tool from './remove-empty-lines.tool';
 
-const run = async (text: string, options: Record<string, string | number | boolean> = {}) => await tool.run({ text, options }) as { output: string; stats?: Record<string, string | number> };
+const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
+  (await tool.run({ text, options })) as {
+    output: string;
+    stats?: Record<string, string | number>;
+  };
 
 describe('remove-empty-lines', async () => {
   it('remove-all drops empty and whitespace-only lines (default)', async () => {

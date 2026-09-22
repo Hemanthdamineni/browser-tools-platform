@@ -4,10 +4,10 @@ import tool from './diff-text.tool';
 type Res = { output: string; stats?: Record<string, string | number>; notes?: string[] };
 
 const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
-  await tool.run({ text, options }) as Res;
+  (await tool.run({ text, options })) as Res;
 
 const call = async (text: string, options: Record<string, string | number | boolean> = {}) =>
-  await tool.run({ text, options }) as Res;
+  (await tool.run({ text, options })) as Res;
 
 describe('diff-text', async () => {
   it('empty A and B → empty output', async () => {
@@ -36,10 +36,12 @@ describe('diff-text', async () => {
 
   it('renders an inline line diff', async () => {
     expect(
-      (await run('apple\nbanana\ncherry', {
-        second: 'apple\nBANANA\ncherry',
-        format: 'inline',
-      })).output,
+      (
+        await run('apple\nbanana\ncherry', {
+          second: 'apple\nBANANA\ncherry',
+          format: 'inline',
+        })
+      ).output,
     ).toBe('apple\n[-banana-]\n{+BANANA+}\ncherry');
   });
 
@@ -56,11 +58,13 @@ describe('diff-text', async () => {
 
   it('renders a unified word diff', async () => {
     expect(
-      (await run('the quick brown fox', {
-        second: 'the slow brown fox',
-        granularity: 'words',
-        format: 'unified',
-      })).output,
+      (
+        await run('the quick brown fox', {
+          second: 'the slow brown fox',
+          granularity: 'words',
+          format: 'unified',
+        })
+      ).output,
     ).toBe(['--- A', '+++ B', '@@ word-level diff @@', '-quick', '+slow'].join('\n'));
   });
 
@@ -76,7 +80,9 @@ describe('diff-text', async () => {
   });
 
   it('renders a unified character diff', async () => {
-    expect((await run('kitten', { second: 'sitting', granularity: 'chars', format: 'unified' })).output).toBe(
+    expect(
+      (await run('kitten', { second: 'sitting', granularity: 'chars', format: 'unified' })).output,
+    ).toBe(
       ['--- A', '+++ B', '@@ character-level diff @@', '-k', '+s', '-e', '+i', '+g'].join('\n'),
     );
   });
@@ -90,10 +96,10 @@ describe('diff-text', async () => {
   });
 
   it('reports render kind diff', async () => {
-    const res = await tool.run({
+    const res = (await tool.run({
       text: 'x',
       options: { second: 'y' },
-    }) as { render?: string };
+    })) as { render?: string };
     expect(res.render).toBe('diff');
   });
 });

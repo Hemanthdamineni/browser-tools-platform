@@ -2,7 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { ToolError } from '@/lib/types';
 import tool from './yaml-to-json.tool';
 
-const run = async (text: string, options: Record<string, string | number | boolean> = {}) => await tool.run({ text, options }) as { output: string; language?: string };
+const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
+  (await tool.run({ text, options })) as { output: string; language?: string };
 
 describe('yaml-to-json', async () => {
   it('converts a mapping to pretty JSON with a 2-space indent by default', async () => {
@@ -20,7 +21,9 @@ describe('yaml-to-json', async () => {
   });
 
   it('sorts object keys recursively when asked', async () => {
-    expect((await run('b: 2\na: 1\n', { sortKeys: true })).output).toBe('{\n  "a": 1,\n  "b": 2\n}');
+    expect((await run('b: 2\na: 1\n', { sortKeys: true })).output).toBe(
+      '{\n  "a": 1,\n  "b": 2\n}',
+    );
     expect((await run('outer:\n  z: 1\n  a: 2\n', { sortKeys: true })).output).toBe(
       '{\n  "outer": {\n    "a": 2,\n    "z": 1\n  }\n}',
     );

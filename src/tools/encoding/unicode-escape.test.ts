@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import tool from './unicode-escape.tool';
 
 const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
-  await tool.run({ text, options }) as { output: string };
+  (await tool.run({ text, options })) as { output: string };
 
 describe('unicode-escape', async () => {
   it('escapes non-ASCII to \\uXXXX by default', async () => {

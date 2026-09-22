@@ -2,9 +2,9 @@ import { describe, it, expect } from 'vitest';
 import tool from './base64.tool';
 
 const enc = async (text: string, options: Record<string, string | number | boolean> = {}) =>
-  await tool.run({ text, options: { mode: 'encode', ...options } }) as { output: string };
+  (await tool.run({ text, options: { mode: 'encode', ...options } })) as { output: string };
 const dec = async (text: string, options: Record<string, string | number | boolean> = {}) =>
-  await tool.run({ text, options: { mode: 'decode', ...options } }) as {
+  (await tool.run({ text, options: { mode: 'decode', ...options } })) as {
     output: string;
     notes?: string[];
   };

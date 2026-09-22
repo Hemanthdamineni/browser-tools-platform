@@ -4,11 +4,9 @@ import { ToolError } from '@/lib/types';
 
 type Result = { output: string; notes?: string[] };
 
-const run = async (text: string) =>
-  await tool.run({ text, options: {} }) as Result;
+const run = async (text: string) => (await tool.run({ text, options: {} })) as Result;
 
-const table = (r: Result) =>
-  JSON.parse(r.output) as { headers: string[]; rows: string[][] };
+const table = (r: Result) => JSON.parse(r.output) as { headers: string[]; rows: string[][] };
 
 describe('port-lookup', async () => {
   it('port 22 resolves to SSH over TCP', async () => {

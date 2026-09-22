@@ -2,7 +2,11 @@ import { describe, it, expect } from 'vitest';
 import { ToolError } from '@/lib/types';
 import tool from './find-replace.tool';
 
-const run = async (text: string, options: Record<string, string | number | boolean> = {}) => await tool.run({ text, options }) as { output: string; stats?: Record<string, string | number> };
+const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
+  (await tool.run({ text, options })) as {
+    output: string;
+    stats?: Record<string, string | number>;
+  };
 
 describe('find-replace', async () => {
   it('plain mode replaces every occurrence', async () => {
@@ -16,7 +20,11 @@ describe('find-replace', async () => {
   });
 
   it('whole-word mode only matches full words', async () => {
-    const r = await run('cat category catalog cat', { find: 'cat', replace: 'dog', mode: 'whole-word' });
+    const r = await run('cat category catalog cat', {
+      find: 'cat',
+      replace: 'dog',
+      mode: 'whole-word',
+    });
     expect(r.output).toBe('dog category catalog dog');
     expect(r.stats?.['replacements made']).toBe(2);
   });
@@ -46,7 +54,8 @@ describe('find-replace', async () => {
 
   it('caseInsensitive adds the i flag in regex mode', async () => {
     expect(
-      (await run('Foo foo', { find: 'foo', replace: 'bar', mode: 'regex', caseInsensitive: true })).output,
+      (await run('Foo foo', { find: 'foo', replace: 'bar', mode: 'regex', caseInsensitive: true }))
+        .output,
     ).toBe('bar bar');
   });
 
