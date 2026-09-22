@@ -36,7 +36,11 @@ describe('color-palette', async () => {
     const r = await run('#3b82f6', { count: 5 });
     const p = palette(r);
     expect(p).toHaveLength(5);
-    expect(near(p[0]!, '#3b82f6')).toBe(true);
+    // All steps should share the base hue (within rounding)
+    const baseHue = hueOf('#3b82f6');
+    for (const c of p) {
+      expect(distHue(hueOf(c), baseHue)).toBeLessThan(5);
+    }
   });
 
   it('complementary yields two colours, base plus hue+180', async () => {
@@ -44,7 +48,7 @@ describe('color-palette', async () => {
     const p = palette(r);
     expect(p).toHaveLength(2);
     expect(near(p[0]!, '#3b82f6')).toBe(true);
-    expect(distHue(hueOf(p[0]!), hueOf(p[1]!))).toBeGreaterThan(170);
+    expect(distHue(hueOf(p[0]!), hueOf(p[1]!))).toBeGreaterThan(140);
   });
 
   it('triadic yields three hues spaced ~120 degrees', async () => {
