@@ -16,8 +16,6 @@ function rand(): number {
   return buf[0]! / 2 ** 32;
 }
 
-const randInt = (min: number, max: number) => Math.floor(rand() * (max - min + 1)) + min;
-
 function pickHue(warm: boolean): number {
   if (!warm) return rand() * 360;
   return rand() < 0.5 ? rand() * 60 : 300 + rand() * 60;

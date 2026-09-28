@@ -310,7 +310,8 @@ function run(input: TextRunInput): TextRunResult {
   if (originals.length === 0) throw new ToolError('Enter at least one colour.');
 
   const type = String(o.type);
-  const severity = Math.max(0, Math.min(100, Number(o.severity) ?? 100));
+  const rawSeverity = Number(o.severity);
+  const severity = Number.isFinite(rawSeverity) ? Math.max(0, Math.min(100, rawSeverity)) : 100;
   const simulated = originals.map((c) => simulate(c, type, severity));
 
   return {

@@ -86,6 +86,31 @@ cross-origin request is made by a tool that declares `network: 'none'`.
 `public/_headers` carries the CSP and cache rules for Netlify / Cloudflare Pages;
 `docs/DEPLOYMENT.md` translates them for other hosts.
 
+## Tool categories
+
+| Category        | Description                                  | Count |
+| --------------- | -------------------------------------------- | ----- |
+| encoding        | Encoding & Decoding                          | 10    |
+| crypto          | Hashing & Crypto                             | 4     |
+| security        | Security & Privacy                           | 4     |
+| text            | Text & Strings                               | 17    |
+| data            | Data Formats                                 | 13    |
+| developer       | Developer Utilities                          | 14    |
+| web             | Web & CSS                                    | 16    |
+| color           | Colour                                       | 7     |
+| datetime        | Date & Time                                  | 7     |
+| numbers         | Numbers & Maths                              | 2     |
+| converters      | Converters                                   | 0     |
+| generators      | Generators                                   | 11    |
+| network         | Network                                      | 0     |
+| image           | Image                                        | 0     |
+| pdf             | PDF                                          | 0     |
+| archive         | Archives & Files                             | 0     |
+| audio           | Audio                                        | 0     |
+| misc            | Everyday Tools                               | 0     |
+
+*Note: Categories with 0 tools are reserved for future expansion (E4+).*
+
 ## Known follow-ups
 
 - Astro 4 has advisories fixed only in Astro 7 (all dev-server / SSR; none affect
