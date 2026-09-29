@@ -11,7 +11,7 @@ describe('vcard', () => {
       firstName: 'Ada',
       lastName: 'Lovelace',
       email: 'ada@x.io',
-    });
+    }).output;
     expect(out).toContain('FN:Ada Lovelace');
     expect(out).toContain('N:Lovelace;Ada;;;');
     expect(out).toContain('EMAIL;TYPE=INTERNET:ada@x.io');
@@ -19,7 +19,7 @@ describe('vcard', () => {
   });
 
   it('escapes commas and semicolons in values', () => {
-    const out = run('', { mode: 'build', firstName: 'A', lastName: 'B', note: 'met, at conf' });
+    const out = run('', { mode: 'build', firstName: 'A', lastName: 'B', note: 'met, at conf' }).output;
     expect(out).toContain('NOTE:met\\, at conf');
   });
 

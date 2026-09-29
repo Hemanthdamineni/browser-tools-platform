@@ -19,7 +19,8 @@ describe('string-escape', async () => {
   });
 
   it('escapes control chars for C as octal', async () => {
-    expect((await run('x\\x01y\\t', { target: 'c' })).output).toBe('x\\\\001y\\\\t');
+    const res = await run('x\x01y\t', { target: 'c' });
+    expect(res.output).toBe('x\\001y\\t');
   });
 
   it('escapes non-ASCII for Java as \\uNNNN', async () => {
@@ -27,13 +28,11 @@ describe('string-escape', async () => {
   });
 
   it('escapes for Python with \\x and \\U', async () => {
-    expect((await run('\\xe9\\n\\u{1f600}', { target: 'python' })).output).toBe(
-      '\\\\xe9\\\\n\\\\U0001f600',
-    );
+    expect((await run('é\n😀', { target: 'python' })).output).toBe('\\xe9\\n\\U0001f600');
   });
 
   it('escapes for POSIX shell with single-quote wrapping', async () => {
-    expect((await run("it's", { target: 'shell' })).output).toBe("'it'\\\\''s'");
+    expect((await run("it's", { target: 'shell' })).output).toBe("'it'\\''s'");
   });
 
   it('escapes for SQL by doubling quotes', async () => {
@@ -47,8 +46,10 @@ describe('string-escape', async () => {
   });
 
   it('escapes for HTML and XML', async () => {
-    expect((await run('<a href="x">& \'', { target: 'html' })).output).toBe('<a href="x">& ');
-    expect((await run("<a>'", { target: 'xml' })).output).toBe('<a>&apos;');
+    expect((await run('<a href="x">& \'', { target: 'html' })).output).toBe(
+      '&lt;a href=&quot;x&quot;&gt;&amp; &#39;',
+    );
+    expect((await run("<a>'", { target: 'xml' })).output).toBe('&lt;a&gt;&apos;');
   });
 
   it('escapes for a URL component', async () => {
@@ -57,8 +58,8 @@ describe('string-escape', async () => {
 
   it('unescapes JavaScript escapes and drops unknown backslashes', async () => {
     expect(
-      (await run('\\\\x41\\\\u0042\\\\n\\\\q', { target: 'javascript', mode: 'unescape' })).output,
-    ).toBe('AB\\nq');
+      (await run('\\x41\\u0042\\n\\q', { target: 'javascript', mode: 'unescape' })).output,
+    ).toBe('AB\nq');
   });
 
   it('unescapes a JSON string with or without quotes', async () => {
@@ -67,21 +68,19 @@ describe('string-escape', async () => {
   });
 
   it('unescapes C / Python numeric escapes', async () => {
-    expect((await run('\\\\101', { target: 'c', mode: 'unescape' })).output).toBe('A');
-    expect((await run('\\\\x41\\\\U0001F600', { target: 'python', mode: 'unescape' })).output).toBe(
-      'A\\u{1f600}',
+    expect((await run('\\101', { target: 'c', mode: 'unescape' })).output).toBe('A');
+    expect((await run('\\x41\\U0001F600', { target: 'python', mode: 'unescape' })).output).toBe(
+      'A😀',
     );
   });
 
   it('unescapes HTML and XML entities', async () => {
-    expect((await run('<a>&' + '#x41;', { target: 'html', mode: 'unescape' })).output).toBe(
-      "<a>&'A",
-    );
+    expect((await run('<a>&' + '#x41;', { target: 'html', mode: 'unescape' })).output).toBe('<a>A');
     expect((await run('&apos;<', { target: 'xml', mode: 'unescape' })).output).toBe("'<");
   });
 
   it('unescapes shell, SQL and CSV', async () => {
-    expect((await run("'it'\\\\''s'", { target: 'shell', mode: 'unescape' })).output).toBe("it's");
+    expect((await run("'it'\\''s'", { target: 'shell', mode: 'unescape' })).output).toBe("it's");
     expect((await run("'O''Brien'", { target: 'sql', mode: 'unescape' })).output).toBe("O'Brien");
     expect((await run('"a""b"', { target: 'csv', mode: 'unescape' })).output).toBe('a"b');
   });
@@ -115,7 +114,7 @@ describe('string-escape', async () => {
   });
 
   it('throws ToolError on an invalid JSON string', async () => {
-    await expect(run('not\\\\xjson', { target: 'json', mode: 'unescape' })).rejects.toThrow(
+    await expect(run('"not\\xjson"', { target: 'json', mode: 'unescape' })).rejects.toThrow(
       ToolError,
     );
   });

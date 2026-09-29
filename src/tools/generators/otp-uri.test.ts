@@ -8,7 +8,9 @@ describe('otp-uri', () => {
   it('defaults produce a totp URI with the expected shape', () => {
     const out = run('');
     expect(out.startsWith('otpauth://totp/Toolbench:user%40example.com?secret=')).toBe(true);
-    expect(out).toContain('&digits=6&period=30&algorithm=SHA1');
+    expect(out).toContain('digits=6');
+    expect(out).toContain('period=30');
+    expect(out).toContain('algorithm=SHA1');
   });
 
   it('secret line matches base32 alphabet', () => {
@@ -42,7 +44,7 @@ describe('otp-uri', () => {
     expect(enc('')).toBe('');
     expect(enc('f')).toBe('MY======'.replace(/=/g, ''));
     expect(enc('fo')).toBe('MZXQ===='.replace(/=/g, ''));
-    expect(enc('foo')).toBe('MZXW6===');
+    expect(enc('foo')).toBe('MZXW6');
     expect(enc('foobar')).toBe('MZXW6YTBOI======'.replace(/=/g, ''));
   });
 

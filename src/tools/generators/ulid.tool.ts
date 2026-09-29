@@ -55,7 +55,7 @@ function run(input: TextRunInput): TextRunResult {
   for (let i = 0; i < count; i++) {
     const now = Date.now();
     let random: bigint;
-    if (monotonic && now === lastTime) {
+    if (now === lastTime && (monotonic || count > 1)) {
       random = (lastRandom + 1n) & ((1n << 80n) - 1n);
     } else {
       random = random80();

@@ -27,7 +27,11 @@ function run(input: TextRunInput): TextRunResult {
     let v = String(o[k] ?? '').trim();
     if (!v) continue;
     if (lowercase) v = v.toLowerCase();
-    url.searchParams.set(`utm_${k}`, v);
+    if (o.stripExisting || !url.searchParams.has(`utm_${k}`)) {
+      url.searchParams.set(`utm_${k}`, v);
+    } else {
+      url.searchParams.append(`utm_${k}`, v);
+    }
     applied.push([`utm_${k}`, v]);
   }
 

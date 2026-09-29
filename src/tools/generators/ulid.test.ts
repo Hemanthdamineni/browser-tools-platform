@@ -37,7 +37,7 @@ describe('ulid', () => {
   });
 
   it('decodeTime decodes known values', () => {
-    // '01ARZ3NDEKTSV4RRFFQ69G5FAV' is the canonical example ULID (1469921850945 ms).
-    expect(decodeTime('01ARZ3NDEK')).toBe(1469921850945 % 32 ** 10);
+    // '01ARZ3NDEKTSV4RRFFQ69G5FAV' is the canonical example ULID (1469922850259 ms).
+    expect(decodeTime('01ARZ3NDEK')).toBe(1469922850259);
   });
 });

@@ -7,8 +7,7 @@ const run = async (text: string, options: Record<string, string | number | boole
 describe('html-entities', async () => {
   it('encodes the minimal set', async () => {
     const input = '<a href="#">Tom & Jerry\'s</a>';
-    // Tool encodes ' as ' not &apos;
-    const expected = '<a href="#">Tom & Jerry\'s</a>';
+    const expected = '&lt;a href=&quot;#&quot;&gt;Tom &amp; Jerry&#39;s&lt;/a&gt;';
     expect((await run(input)).output).toBe(expected);
   });
   it('does not double-encode ampersands wrongly on round-trip', async () => {
