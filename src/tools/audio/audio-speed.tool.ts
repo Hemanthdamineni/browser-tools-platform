@@ -68,7 +68,9 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   input.onProgress?.(0.1, 'Decoding');
   const audio = await decodeFile(input.files[0]!);
   input.signal?.throwIfAborted?.();
-  const channels = audio.channels.map((ch) => preservePitch ? stretchChannel(ch, rate) : resampleChannel(ch, audio.sampleRate, audio.sampleRate * rate));
+  // Down-sample to fewer frames so playback at the original sample rate is
+  // faster; up-sampling to more frames makes it slower.
+  const channels = audio.channels.map((ch) => preservePitch ? stretchChannel(ch, rate) : resampleChannel(ch, audio.sampleRate, audio.sampleRate / rate));
 
   input.onProgress?.(1, 'Done');
   const duration = (channels[0]?.length ?? 0) / audio.sampleRate;

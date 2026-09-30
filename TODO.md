@@ -525,7 +525,7 @@ You will rarely touch UI, but tools influence it through `meta` and `render`.
 | E1  | Tool Batch A — encoding / text / crypto / security / data / developer              | `[x]` done (64 tools) | —          |
 | E2  | Foundation enhancements (inline reports, audio render, worker dedupe, a11y polish) | `[ ]`                 | 8 tasks    |
 | E3  | Tool Batch B — web / color / datetime / numbers / generators / network             | `[ ]`                 | ~52 tools  |
-| E4  | Tool Batch C — image / pdf / archive / audio / misc (file & canvas tools)          | `[ ]`                 | ~48 tools  |
+| E4  | Tool Batch C — image / pdf / archive / audio / misc (file & canvas tools)          | `[x]` done            | ~48 tools  |
 | E5  | Quality & hardening (adversarial review, fuzz, perf budgets, cross-browser)        | `[ ]`                 | 9 tasks    |
 | E6  | SEO & content depth (per-tool long-form, structured data, OG images)               | `[ ]`                 | 7 tasks    |
 | E7  | PWA / performance / UX polish (install UX, offline, Lighthouse, motion)            | `[ ]`                 | 9 tasks    |
@@ -876,6 +876,21 @@ All `input:'text'`, pure.
 - [x] `src/pages/index.astro` featured list references `image-resize` — confirm
       it resolves.
 - [x] Commit.
+
+### E4 — Tool Batch C `[x]` — image / pdf / archive / audio / misc, gate green
+
+- [x] 13 image tools (E4-S1/S2) with meta/tool/test each; EXIF + PNG metadata parsing.
+- [x] 11 PDF tools (E4-S3) using pdf-lib / pdfjs-dist, with tests and inline reports.
+- [x] 10 archive tools (E4-S4) using fflate, with tests; zip-inspect reports a table.
+- [x] 10 audio tools (E4-S5) with `meta.worker = false` and tests.
+- [x] tone-generator + metronome-click (E4-S6) emit WAV data URIs, `render:'audio'`.
+- [x] 8 everyday misc tools (E4-S7) with tests (calculator, tip, loan, BMI, etc.).
+- [x] E4-S8 integration: fixtures (`e2e/fixtures/` via `scripts/gen-fixtures.mjs`),
+      `e2e/tools-c.spec.ts` (image-resize / audio-info / pdf-metadata, no network),
+      featured `image-resize` resolves on the home page.
+- [x] Gate: `npm run verify` green — 0 TS errors, eslint clean, 1167 unit tests,
+      183-page Astro build. e2e chromium 10/10 green (mobile-safari WebKit not
+      installable in this sandbox — same limitation as E2; run in CI).
 
 ---
 
