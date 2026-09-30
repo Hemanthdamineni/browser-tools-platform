@@ -17,7 +17,16 @@ export default defineConfig({
     trace: 'on-first-retry',
   },
   projects: [
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    {
+      name: 'chromium',
+      use: {
+        ...devices['Desktop Chrome'],
+        launchOptions: {
+          executablePath: process.env.CHROMIUM_PATH || (process.platform === 'linux' ? '/usr/bin/chromium' : undefined),
+          args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        },
+      },
+    },
     { name: 'mobile-safari', use: { ...devices['iPhone 13'] } },
   ],
   webServer: {

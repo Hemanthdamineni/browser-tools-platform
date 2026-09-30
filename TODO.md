@@ -808,75 +808,74 @@ says) set `report`.
 `meta`: `input:'file'`, `accept:'image/*'`, `multiple` per spec, `worker` omitted
 (defaults true — canvas runs in the worker via `OffscreenCanvas`).
 
-- [ ] `image-resize` · [ ] `image-compress` · [ ] `image-convert`
-- [ ] `image-crop` · [ ] `image-rotate` · [ ] `image-to-datauri`
-- [ ] `datauri-to-image` · [ ] `image-metadata` _(report; EXIF parse)_
-- [ ] `image-palette` _(report: colors)_ · [ ] `image-placeholder-blurhash` _(optional; see §9)_
-- [ ] `svg-to-png`
+- [x] `image-resize` · [x] `image-compress` · [x] `image-convert`
+- [x] `image-crop` · [x] `image-rotate` · [x] `image-to-datauri`
+- [x] `datauri-to-image` · [x] `image-metadata` _(report; EXIF parse)_
+- [x] `image-palette` _(report: colors)_ · [x] `svg-to-png`
 
 ### Story E4-S2 — Image, multi-output (3 tools) → `src/tools/image/`
 
-- [ ] `favicon-generator` _(one image → 16/32/48/180/192/512 PNG + .ico, zipped)_
-- [ ] `image-spritesheet` _(N images → one sheet PNG + a CSS/JSON map)_
-- [ ] `image-diff` _(two images → a difference PNG + `report` stats)_
+- [x] `favicon-generator` _(one image → 16/32/48/180/192/512 PNG + .ico, zipped)_
+- [x] `image-spritesheet` _(N images → one sheet PNG + a CSS/JSON map)_
+- [x] `image-diff` _(two images → a difference PNG + `report` stats)_
 
 ### Story E4-S3 — PDF (11 tools) → `src/tools/pdf/`
 
 `accept:'application/pdf'` (or `image/*` for images-to-pdf). `credits`: pdf-lib
 MIT and/or pdfjs-dist Apache-2.0 per tool.
 
-- [ ] `pdf-merge` · [ ] `pdf-split` · [ ] `pdf-extract-pages` · [ ] `pdf-rotate`
-- [ ] `pdf-delete-pages` · [ ] `pdf-page-numbers` · [ ] `pdf-watermark`
-- [ ] `pdf-metadata` _(report + rewrite)_ · [ ] `pdf-to-images` _(pdfjs render → zip)_
-- [ ] `images-to-pdf` · [ ] `pdf-extract-text` _(pdfjs → .txt + report)_
+- [x] `pdf-merge` · [x] `pdf-split` · [x] `pdf-extract-pages` · [x] `pdf-rotate`
+- [x] `pdf-delete-pages` · [x] `pdf-page-numbers` · [x] `pdf-watermark`
+- [x] `pdf-metadata` _(report + rewrite)_ · [x] `pdf-to-images` _(pdfjs render → zip)_
+- [x] `images-to-pdf` · [x] `pdf-extract-text` _(pdfjs → .txt + report)_
 
 ### Story E4-S4 — Archives & files (10 tools) → `src/tools/archive/`
 
 `credits`: fflate MIT.
 
-- [ ] `zip-create` · [ ] `zip-extract` · [ ] `zip-inspect` _(report: table)_
-- [ ] `gzip` _(compress/decompress)_ · [ ] `tar-create` · [ ] `tar-extract`
-- [ ] `file-split` · [ ] `file-join` · [ ] `base64-file`
-- [ ] `file-metadata` _(report: name/size/type/mtime + SHA-256)_
+- [x] `zip-create` · [x] `zip-extract` · [x] `zip-inspect` _(report: table)_
+- [x] `gzip` _(compress/decompress)_ · [x] `tar-create` · [x] `tar-extract`
+- [x] `file-split` · [x] `file-join` · [x] `base64-file`
+- [x] `file-metadata` _(report: name/size/type/mtime + SHA-256)_
 
 ### Story E4-S5 — Audio, Web Audio API (10 tools) → `src/tools/audio/`
 
 `accept:'audio/*'`, **`meta.worker = false`** (AudioContext is main-thread).
 `OfflineAudioContext` for rendering. Output WAV via `src/lib/audio.ts` (E2-S2).
 
-- [ ] `audio-info` _(report: table)_ · [ ] `audio-to-wav` · [ ] `audio-trim`
-- [ ] `audio-normalize` · [ ] `audio-gain` · [ ] `audio-fade`
-- [ ] `audio-reverse` · [ ] `audio-merge` _(multiple)_ · [ ] `audio-channels`
-      _(stereo↔mono, extract L/R)_ · [ ] `audio-speed` _(resample; pitch note)_
+- [x] `audio-info` _(report: table)_ · [x] `audio-to-wav` · [x] `audio-trim`
+- [x] `audio-normalize` · [x] `audio-gain` · [x] `audio-fade`
+- [x] `audio-reverse` · [x] `audio-merge` _(multiple)_ · [x] `audio-channels`
+      _(stereo↔mono, extract L/R)_ · [x] `audio-speed` _(resample; pitch note)_
 
 ### Story E4-S6 — Generators that emit media/audio → `src/tools/generators/` or `misc`
 
-- [ ] `tone-generator` _(text tool; sine/square/saw/triangle/noise → WAV
+- [x] `tone-generator` _(text tool; sine/square/saw/triangle/noise → WAV
       data URI, `render:'audio'`)_ — depends on E2-S2.
-- [ ] `metronome-click` _(text tool; BPM/bars → a click-track WAV,
+- [x] `metronome-click` _(text tool; BPM/bars → a click-track WAV,
       `render:'audio'`)_ — depends on E2-S2.
 
 ### Story E4-S7 — Everyday tools (8 tools) → `src/tools/misc/`
 
 All `input:'text'`, pure.
 
-- [ ] `calculator` _(safe expression evaluator — NO `eval`/`Function`)_
-- [ ] `programmer-calculator` _(bitwise ops across bases)_
-- [ ] `tip-calculator` · [ ] `loan-calculator` _(amortisation summary)_
-- [ ] `bmi-calculator` · [ ] `aspect-ratio` · [ ] `data-size` _(bytes ↔ KiB/MB…)_
-- [ ] `random-picker` _(pick N / shuffle / make teams from a list)_
+- [x] `calculator` _(safe expression evaluator — NO `eval`/`Function`)_
+- [x] `programmer-calculator` _(bitwise ops across bases)_
+- [x] `tip-calculator` · [x] `loan-calculator` _(amortisation summary)_
+- [x] `bmi-calculator` · [x] `aspect-ratio` · [x] `data-size` _(bytes ↔ KiB/MB…)_
+- [x] `random-picker` _(pick N / shuffle / make teams from a list)_
 
 ### Story E4-S8 — Batch C integration
 
-- [ ] Full gate + `npm run test:e2e` (image/audio/pdf paths need real browser —
+- [x] Full gate + `npm run test:e2e` (image/audio/pdf paths need real browser —
       add smoke specs in `e2e/tools-c.spec.ts` that upload a tiny fixture PNG /
       WAV / PDF from `e2e/fixtures/` and assert an output/report appears and no
       network request is made).
-- [ ] Add fixtures: a 2×2 PNG, a 0.1s mono WAV, a 1-page PDF (generate them in a
+- [x] Add fixtures: a 2×2 PNG, a 0.1s mono WAV, a 1-page PDF (generate them in a
       `scripts/gen-fixtures.mjs`, Node-only, committed).
-- [ ] `src/pages/index.astro` featured list references `image-resize` — confirm
+- [x] `src/pages/index.astro` featured list references `image-resize` — confirm
       it resolves.
-- [ ] Commit.
+- [x] Commit.
 
 ---
 

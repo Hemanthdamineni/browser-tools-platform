@@ -30,6 +30,7 @@ describe('random-data', () => {
   it('network dataset yields plausible fields', () => {
     const [row] = JSON.parse(run('', { dataset: 'network', rows: 1 }));
     expect(row.ipv4).toMatch(/^\d+\.\d+\.\d+\.\d+$/);
+    expect(row.ipv6).toMatch(/^([0-9a-f]{4}:){7}[0-9a-f]{4}$/);
     expect(row.mac).toMatch(/^([0-9a-f]{2}:){5}[0-9a-f]{2}$/);
   });
 

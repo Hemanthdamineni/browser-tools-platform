@@ -58,17 +58,18 @@ const USER_AGENTS = [
 
 /* -------------------------------- randomness ------------------------------- */
 
-const BYTE_MAX = 256;
 function randInt(maxExclusive: number): number {
-  if (maxExclusive <= 0) return 0;
-  const limit = BYTE_MAX - (BYTE_MAX % maxExclusive);
-  const buf = new Uint8Array(1);
-  let v: number;
+  if (!Number.isSafeInteger(maxExclusive) || maxExclusive <= 0) return 0;
+  if (maxExclusive === 1) return 0;
+  const range = 0x1_0000_0000;
+  const limit = Math.floor(range / maxExclusive) * maxExclusive;
+  const buf = new Uint32Array(1);
+  let value: number;
   do {
     crypto.getRandomValues(buf);
-    v = buf[0]!;
-  } while (v >= limit);
-  return v % maxExclusive;
+    value = buf[0]!;
+  } while (value >= limit);
+  return value % maxExclusive;
 }
 const pick = <T>(arr: T[]): T => arr[randInt(arr.length)]!;
 
