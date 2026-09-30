@@ -47,7 +47,7 @@ function pngBytes(): Uint8Array {
   const chunk = (type: string, data: Uint8Array) => {
     const t = Buffer.from(type, 'latin1');
     const body = Buffer.concat([t, data]);
-    const out = Buffer.alloc(8 + body.length + 4);
+    const out = Buffer.alloc(4 + body.length + 4);
     out.writeUInt32BE(data.length, 0);
     body.copy(out, 4);
     out.writeUInt32BE(crc(body), 4 + body.length);
