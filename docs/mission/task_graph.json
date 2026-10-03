@@ -1,6 +1,6 @@
 {
   "mission": "TOOLBENCH Phase 2: Prove It At Scale",
-  "updated": "2026-10-03",
+  "updated": "2026-10-04",
   "tasks": [
     {
       "id": "P0-branch",
@@ -121,9 +121,10 @@
         "src/components/workbench",
         "src/lib/files.ts",
         "src/tools/image/image-metadata.test.ts",
-        "npx vitest run src/tools/image/image-metadata.test.ts => 8 passed (tIME two-byte year failing test fixed)"
+        "npx vitest run src/tools/image/image-metadata.test.ts => 9 passed (ExifIFDPointer red test fixed)",
+        "commit 6973b0c fix: follow ExifIFDPointer and resolve TIFF-relative value offsets"
       ],
-      "open": "Fixed: shared ZIP entry-name traversal/duplicates and PNG tIME two-byte year parsing (red test reproduced '2007-234-03' before the fix). Remaining: EXIF ExifIFDPointer, TIFF DOUBLE parsing, TAR timestamps, calculator evaluation, SVG external resources, and XSS surfaces need failing tests first."
+      "open": "Fixed: shared ZIP entry-name traversal/duplicates; PNG tIME two-byte year parsing; EXIF ExifIFDPointer traversal, TIFF-relative out-of-line values, FLOAT/DOUBLE decoding, and common SHORT/LONG variants. Red tests cover the fixes. Remaining: TAR timestamps, calculator evaluation, SVG external resources, and XSS surfaces need failing tests first."
     },
     {
       "id": "P3-video",
