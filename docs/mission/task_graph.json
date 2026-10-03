@@ -1,0 +1,22 @@
+{
+  "mission": "TOOLBENCH Phase 2: Prove It At Scale",
+  "updated": "2026-10-03",
+  "tasks": [
+    {"id":"P0-branch","title":"Dedicated phase branch and hygiene","state":"VERIFIED","evidence":["git branch phase2/verification","git status --short --branch"]},
+    {"id":"P0-toolchain","title":"Toolchain and reference CLI inventory","state":"VERIFIED","evidence":["node -v => v26.8.2","npm -v => 12.0.2","ffmpeg/ImageMagick/qpdf/poppler/zip/tar/gzip available"]},
+    {"id":"P0-inventory","title":"Per-tool inventory and status table","state":"IMPLEMENTED","evidence":["docs/mission/TOOL_STATUS.md","src/lib/registry.ts"]},
+    {"id":"P0-baseline","title":"Canonical baseline verification","state":"VERIFIED","evidence":["npm run check => 0 errors, 0 warnings, 13 hints","npm run lint => exit 0","npm run format:check => all matched","npx vitest run => 164 files and 1167 tests passed","npm run build => 183 pages built"]},
+    {"id":"P1-privacy","title":"Generic zero-network harness for every registered tool and file input","state":"READY","evidence":["e2e/privacy.spec.ts:31-101","src/pages/tools-index.json.ts:5-17"],"open":"File tool is not exercised; service-worker, websocket, requestfailed, offline, hidden-tool, and dynamic completion coverage are absent."},
+    {"id":"P1-correctness","title":"Golden outputs using trusted external reference tools","state":"READY","evidence":["src/tools/audio","src/tools/image","src/tools/pdf","src/tools/archive","scripts/gen-fixtures.mjs"],"open":"Current media tests are primarily internal round trips; no ffmpeg/ImageMagick/qpdf/archive CLI golden assertions."},
+    {"id":"P1-robustness","title":"Malformed, oversized, cancellation, memory and cleanup coverage","state":"READY","evidence":["src/lib/worker/client.ts:56-67","src/components/workbench/FileWorkbench.astro:230-278","src/lib/files.ts:3-60"],"open":"Shared worker aborts, stale UI runs, missing size/count caps, unreleased object URLs, and unsafe ZIP names require tests and fixes."},
+    {"id":"P1-browsers","title":"Chromium Firefox WebKit and mobile matrix","state":"READY","evidence":["playwright.config.ts:19-22",".github/workflows/ci.yml:53-55"],"open":"Configuration has Chromium and mobile Safari only; CI installs Chromium only."},
+    {"id":"P1-a11y","title":"Axe and keyboard coverage across all generated routes","state":"READY","evidence":["e2e/smoke.spec.ts:24-151","src/pages/tools/[tool].astro:8-13"],"open":"Axe covers 6 core routes and 2 tools; 80 tool pages and 9 category pages lack axe, plus keyboard flows."},
+    {"id":"P1-performance","title":"Bundle budgets and Lighthouse","state":"READY","evidence":[".github/workflows/ci.yml:15-42","src/lib/registry.ts:5-18"],"open":"No bundle budget or Lighthouse CI; current dist/_astro is about 1.4 MB raw."},
+    {"id":"P1-seo","title":"SEO assertions and list-page structured data","state":"READY","evidence":["src/components/BaseHead.astro:24-68","src/lib/seo.ts:9-53","dist/sitemap.xml"],"open":"List/category pages have no JSON-LD and no automated canonical/OG/sitemap/robots assertions."},
+    {"id":"P2-redteam","title":"Independent red-team findings and fixes","state":"READY","evidence":["src/tools/archive","src/tools/image/image-metadata.tool.ts","src/components/workbench"],"open":"Zip path traversal/duplicate names, image metadata parsing, calculator evaluation, SVG external resources, and XSS surfaces need failing tests first."},
+    {"id":"P3-video","title":"Video feasibility spike","state":"DEFERRED","reason":"E4 media tools are now merged, but no evidence-based WebCodecs/demuxer/license/hosting spike has been run."},
+    {"id":"P3-pwa","title":"PWA offline implementation and proof","state":"READY","evidence":["public/sw.js","e2e/privacy.spec.ts"],"open":"Service worker exists but offline E2E and zero-network integration are not proven."},
+    {"id":"P3-ci","title":"CI matrix, audit, license and budget gates","state":"READY","evidence":[".github/workflows/ci.yml"],"open":"Current CI lacks browser matrix, Lighthouse, bundle-size and generated license audit gates."},
+    {"id":"P3-docs","title":"Adding-a-tool documentation test","state":"READY","evidence":["docs/ADDING-A-TOOL.md"],"open":"No independent agent has followed the guide and added a trivial tool."}
+  ]
+}
