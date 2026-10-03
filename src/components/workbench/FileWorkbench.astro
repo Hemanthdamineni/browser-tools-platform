@@ -91,7 +91,7 @@ const p = meta.id;
 
 <script>
   import { runToolById } from '@/lib/worker/client';
-  import { createDropZone, downloadBlob, downloadZip } from '@/lib/files';
+  import { createDropZone, downloadBlob, downloadZip, validateFileSelection } from '@/lib/files';
   import { formatBytes } from '@/lib/format';
   import {
     readOptions,
@@ -157,6 +157,10 @@ const p = meta.id;
     function addFiles(incoming: File[]) {
       files = multiple ? [...files, ...incoming] : incoming.slice(0, 1);
       clearError(errorBox);
+      const limit = validateFileSelection(files);
+      if (limit) {
+        showError(errorBox, limit);
+      }
       resultWrap.hidden = true;
       renderList();
     }
@@ -175,6 +179,11 @@ const p = meta.id;
 
     async function run() {
       if (!files.length) return;
+      const limit = validateFileSelection(files);
+      if (limit) {
+        showError(errorBox, limit);
+        return;
+      }
       controller?.abort();
       const generation = ++runGeneration;
       controller = new AbortController();

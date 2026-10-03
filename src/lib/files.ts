@@ -1,30 +1,62 @@
 /** Browser-only file I/O helpers. Never import from a `.tool.ts` that must stay pure. */
 
-export function readAsText(file: Blob, encoding = 'utf-8'): Promise<string> {
+export const MAX_FILE_COUNT = 20;
+export const MAX_TOTAL_FILE_BYTES = 100 * 1024 * 1024;
+
+export function validateFileSelection(files: File[]): string | null {
+  if (files.length > MAX_FILE_COUNT) return `Choose at most ${MAX_FILE_COUNT} files.`;
+  const total = files.reduce((sum, file) => sum + file.size, 0);
+  if (total > MAX_TOTAL_FILE_BYTES) return 'Selected files exceed the 100 MB total limit.';
+  return null;
+}
+
+function readWith<T>(
+  start: (reader: FileReader) => void,
+  map: (result: FileReader['result']) => T,
+  signal?: AbortSignal,
+): Promise<T> {
   return new Promise((resolve, reject) => {
-    const r = new FileReader();
-    r.onload = () => resolve(String(r.result));
-    r.onerror = () => reject(r.error ?? new Error('Failed to read file'));
-    r.readAsText(file, encoding);
+    const reader = new FileReader();
+    const abort = () => {
+      reader.abort();
+      reject(new DOMException('The file read was cancelled.', 'AbortError'));
+    };
+    if (signal?.aborted) {
+      abort();
+      return;
+    }
+    const cleanup = () => signal?.removeEventListener('abort', abort);
+    reader.onload = () => {
+      cleanup();
+      resolve(map(reader.result));
+    };
+    reader.onerror = () => {
+      cleanup();
+      reject(reader.error ?? new Error('Failed to read file'));
+    };
+    reader.onabort = () => {
+      cleanup();
+      reject(new DOMException('The file read was cancelled.', 'AbortError'));
+    };
+    signal?.addEventListener('abort', abort, { once: true });
+    start(reader);
   });
 }
 
-export function readAsArrayBuffer(file: Blob): Promise<ArrayBuffer> {
-  return new Promise((resolve, reject) => {
-    const r = new FileReader();
-    r.onload = () => resolve(r.result as ArrayBuffer);
-    r.onerror = () => reject(r.error ?? new Error('Failed to read file'));
-    r.readAsArrayBuffer(file);
-  });
+export function readAsText(file: Blob, encoding = 'utf-8', signal?: AbortSignal): Promise<string> {
+  return readWith((reader) => reader.readAsText(file, encoding), String, signal);
 }
 
-export function readAsDataURL(file: Blob): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const r = new FileReader();
-    r.onload = () => resolve(String(r.result));
-    r.onerror = () => reject(r.error ?? new Error('Failed to read file'));
-    r.readAsDataURL(file);
-  });
+export function readAsArrayBuffer(file: Blob, signal?: AbortSignal): Promise<ArrayBuffer> {
+  return readWith(
+    (reader) => reader.readAsArrayBuffer(file),
+    (result) => result as ArrayBuffer,
+    signal,
+  );
+}
+
+export function readAsDataURL(file: Blob, signal?: AbortSignal): Promise<string> {
+  return readWith((reader) => reader.readAsDataURL(file), String, signal);
 }
 
 export function downloadBlob(blob: Blob, filename: string): void {

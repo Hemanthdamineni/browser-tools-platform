@@ -74,9 +74,10 @@
         "src/lib/files.test.ts",
         "src/components/workbench/FileWorkbench.astro",
         "e2e/workbench-robustness.spec.ts",
-        "CI=1 npx playwright test e2e/workbench-robustness.spec.ts --project=chromium => 2 passed"
+        "CI=1 npx playwright test e2e/workbench-robustness.spec.ts --project=chromium => 2 passed",
+        "npx vitest run src/lib/files.test.ts => 4 passed"
       ],
-      "open": "Missing size/count caps, FileReader cancellation, and broader malformed-input coverage remain open; shared ZIP downloads now sanitize unsafe names and preserve duplicates, and the workbench aborts/reset-invalidates runs, ignores late results, and revokes preview URLs."
+      "open": "Broader malformed-input coverage remains open; shared ZIP downloads now sanitize unsafe names and preserve duplicates, the workbench aborts/reset-invalidates runs, ignores late results, revokes preview URLs, and enforces 20-file/100 MB selection limits; FileReader helpers accept AbortSignals."
     },
     {
       "id": "P1-browsers",
