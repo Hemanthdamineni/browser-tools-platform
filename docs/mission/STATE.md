@@ -21,7 +21,7 @@ Updated: 2026-10-03
 1. Implement privacy harness file execution, context-level network assertions, offline coverage, and completion waits.
 2. Add trusted external golden-output tests for media/document/archive tools.
 3. Add failing tests and fixes for worker cancellation, stale runs, object URL cleanup, ZIP path safety, and file limits.
-4. Extend axe and keyboard coverage to all 82 current tool pages and 9 populated category pages.
+4. Extend axe and keyboard coverage to all 160 current tool pages and populated category pages.
 5. Add Firefox/WebKit/mobile CI projects, bundle budgets, Lighthouse, SEO assertions, red-team lanes, and docs-guide verification.
 
 ## Known risks
