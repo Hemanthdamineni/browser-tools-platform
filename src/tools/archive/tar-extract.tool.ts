@@ -10,7 +10,13 @@ function isGzip(bytes: Uint8Array): boolean {
 function safeName(path: string): string {
   const normalized = path.replace(/\\/g, '/');
   const parts = normalized.split('/');
-  if (!normalized || normalized.startsWith('/') || /^[A-Za-z]:/.test(normalized) || parts.some((part) => !part || part === '.' || part === '..')) return '';
+  if (
+    !normalized ||
+    normalized.startsWith('/') ||
+    /^[A-Za-z]:/.test(normalized) ||
+    parts.some((part) => !part || part === '.' || part === '..')
+  )
+    return '';
   return normalized;
 }
 async function run(input: FileRunInput): Promise<FileRunResult> {
@@ -20,7 +26,11 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   if (signal?.aborted) throw new DOMException('Aborted', 'AbortError');
   let bytes = raw;
   if (isGzip(raw)) {
-    try { bytes = gunzipSync(raw); } catch { throw new ToolError('Could not decompress this TAR.', 'The gzip wrapper is invalid.'); }
+    try {
+      bytes = gunzipSync(raw);
+    } catch {
+      throw new ToolError('Could not decompress this TAR.', 'The gzip wrapper is invalid.');
+    }
   }
   const rows: string[][] = [];
   const outputs: FileRunResult['outputs'] = [];
@@ -35,7 +45,8 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
     if (!nameField) break;
     const sizeOctal = new TextDecoder().decode(header.subarray(124, 136)).replace(/[ \0]/g, '');
     const size = sizeOctal ? parseInt(sizeOctal, 8) : 0;
-    if (!Number.isFinite(size) || size < 0 || offset + BLOCK + size > bytes.length) throw new ToolError('Invalid TAR archive.', 'A header declares an out-of-bounds file size.');
+    if (!Number.isFinite(size) || size < 0 || offset + BLOCK + size > bytes.length)
+      throw new ToolError('Invalid TAR archive.', 'A header declares an out-of-bounds file size.');
     const typeflag = String.fromCharCode(header[156] ?? 0x30);
     const name = safeName(nameField);
     const dataStart = offset + BLOCK;
@@ -48,12 +59,20 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
     } else {
       rows.push([nameField, String(size), 'skipped']);
     }
-    const advance = BLOCK + size + (BLOCK - (size % BLOCK)) % BLOCK;
+    const advance = BLOCK + size + ((BLOCK - (size % BLOCK)) % BLOCK);
     offset += advance;
   }
-  if (!count && !rows.length) throw new ToolError('Not a TAR archive.', 'No ustar header blocks were found.');
+  if (!count && !rows.length)
+    throw new ToolError('Not a TAR archive.', 'No ustar header blocks were found.');
   onProgress?.(1, 'Done');
-  return { outputs, report: { output: JSON.stringify({ headers: ['Path', 'Size', 'Status'], rows }), render: 'table' }, stats: { entries: rows.length, extracted: count } };
+  return {
+    outputs,
+    report: {
+      output: JSON.stringify({ headers: ['Path', 'Size', 'Status'], rows }),
+      render: 'table',
+    },
+    stats: { entries: rows.length, extracted: count },
+  };
 }
 const tool: FileToolModule = { meta, run };
 export default tool;

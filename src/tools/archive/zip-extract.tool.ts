@@ -19,7 +19,11 @@ function parseCentralDirectory(bytes: Uint8Array): ZipCentralEntry[] {
       break;
     }
   }
-  if (eocd < 0) throw new ToolError('Could not find the ZIP central directory.', 'The file is not a valid ZIP archive.');
+  if (eocd < 0)
+    throw new ToolError(
+      'Could not find the ZIP central directory.',
+      'The file is not a valid ZIP archive.',
+    );
   const count = view.getUint16(eocd + 10, true);
   let offset = view.getUint32(eocd + 16, true);
   const entries: ZipCentralEntry[] = [];
@@ -53,7 +57,10 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
     const raw = new Uint8Array(await file.arrayBuffer());
     const directory = parseCentralDirectory(raw);
     if (directory.some((e) => e.encrypted)) {
-      throw new ToolError('This ZIP uses encryption, which is not supported.', 'Encrypted archives must be unzipped with password-aware software.');
+      throw new ToolError(
+        'This ZIP uses encryption, which is not supported.',
+        'Encrypted archives must be unzipped with password-aware software.',
+      );
     }
     let entries: Record<string, Uint8Array>;
     try {
@@ -61,7 +68,10 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
         unzip(raw, (err, data) => (err ? reject(err) : resolve(data)));
       });
     } catch {
-      throw new ToolError('Could not read this ZIP archive.', 'The file may be invalid or use an unsupported compression method.');
+      throw new ToolError(
+        'Could not read this ZIP archive.',
+        'The file may be invalid or use an unsupported compression method.',
+      );
     }
     const list = Object.entries(entries);
     let n = 0;
@@ -69,21 +79,38 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
       if (signal?.aborted) throw new DOMException('Aborted', 'AbortError');
       const normalized = path.replace(/\\/g, '/');
       const segments = normalized.split('/');
-      const safe = normalized && !normalized.startsWith('/') && !/^[A-Za-z]:/.test(normalized) && segments.every((part) => part && part !== '.' && part !== '..') ? normalized : '';
+      const safe =
+        normalized &&
+        !normalized.startsWith('/') &&
+        !/^[A-Za-z]:/.test(normalized) &&
+        segments.every((part) => part && part !== '.' && part !== '..')
+          ? normalized
+          : '';
       const selected = !String(o.filter) || path.includes(String(o.filter));
       const available = n < 200;
       if (selected && safe && available) {
-        outputs.push({ filename: safe.replace(/\//g, '__'), blob: new Blob([bytes.slice().buffer as ArrayBuffer]) });
+        outputs.push({
+          filename: safe.replace(/\//g, '__'),
+          blob: new Blob([bytes.slice().buffer as ArrayBuffer]),
+        });
         n++;
       }
-      rows.push([path, String(bytes.length), selected && safe ? (available ? 'extracted' : 'skipped (limit)') : 'skipped']);
+      rows.push([
+        path,
+        String(bytes.length),
+        selected && safe ? (available ? 'extracted' : 'skipped (limit)') : 'skipped',
+      ]);
     }
     onProgress?.(1, 'ZIP entries processed');
   }
   return {
     outputs,
-    report: { output: JSON.stringify({ headers: ['Path', 'Size', 'Status'], rows }), render: 'table' },
-    notes: rows.length > 200 ? ['Extraction is limited to the first 200 matching entries.'] : undefined,
+    report: {
+      output: JSON.stringify({ headers: ['Path', 'Size', 'Status'], rows }),
+      render: 'table',
+    },
+    notes:
+      rows.length > 200 ? ['Extraction is limited to the first 200 matching entries.'] : undefined,
     stats: { entries: rows.length, extracted: outputs.length },
   };
 }

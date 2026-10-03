@@ -10,12 +10,20 @@ describe('pdf-split', () => {
     expect(result.stats).toMatchObject({ pages: 3, outputs: 3 });
   });
   it('honors custom ranges', async () => {
-    const result = await tool.run({ files: [await makePdf(5)], options: { mode: 'ranges', ranges: '1-2,4' } });
+    const result = await tool.run({
+      files: [await makePdf(5)],
+      options: { mode: 'ranges', ranges: '1-2,4' },
+    });
     expect(result.stats).toMatchObject({ outputs: 2 });
-    await expect(tool.run({ files: [await makePdf(3)], options: { mode: 'ranges', ranges: '1,9' } })).rejects.toThrow(/outside/i);
+    await expect(
+      tool.run({ files: [await makePdf(3)], options: { mode: 'ranges', ranges: '1,9' } }),
+    ).rejects.toThrow(/outside/i);
   });
   it('returns a single PDF when there is one group', async () => {
-    const result = await tool.run({ files: [await makePdf(2)], options: { mode: 'ranges', ranges: '1-2' } });
+    const result = await tool.run({
+      files: [await makePdf(2)],
+      options: { mode: 'ranges', ranges: '1-2' },
+    });
     expect(result.outputs[0]?.filename).toBe('split.pdf');
     expect(result.outputs[0]?.blob.type).toBe('application/pdf');
     const doc = await loadPdfBlob(result.outputs[0]!.blob);

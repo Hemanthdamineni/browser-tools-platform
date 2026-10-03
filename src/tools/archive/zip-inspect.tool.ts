@@ -25,10 +25,18 @@ function parseCentralDirectory(bytes: Uint8Array): ZipEntry[] {
       break;
     }
   }
-  if (eocd < 0) throw new ToolError('Could not find the ZIP central directory.', 'The file is not a valid ZIP archive.');
+  if (eocd < 0)
+    throw new ToolError(
+      'Could not find the ZIP central directory.',
+      'The file is not a valid ZIP archive.',
+    );
   const count = view.getUint16(eocd + 10, true);
   let offset = view.getUint32(eocd + 16, true);
-  if (offset >= bytes.length) throw new ToolError('The ZIP central directory is out of bounds.', 'The file may be truncated or a multi-part archive, which is unsupported.');
+  if (offset >= bytes.length)
+    throw new ToolError(
+      'The ZIP central directory is out of bounds.',
+      'The file may be truncated or a multi-part archive, which is unsupported.',
+    );
   const entries: ZipEntry[] = [];
   for (let i = 0; i < count; i++) {
     if (offset + 46 > bytes.length) break;
@@ -47,7 +55,15 @@ function parseCentralDirectory(bytes: Uint8Array): ZipEntry[] {
     } catch {
       path = String.fromCharCode(...nameBytes);
     }
-    entries.push({ path, method, crc32, compressed, uncompressed, dosageTime: view.getUint16(offset + 12, true), dosageDate: view.getUint16(offset + 14, true) });
+    entries.push({
+      path,
+      method,
+      crc32,
+      compressed,
+      uncompressed,
+      dosageTime: view.getUint16(offset + 12, true),
+      dosageDate: view.getUint16(offset + 14, true),
+    });
     offset += 46 + nameLen + extraLen + commentLen;
   }
   return entries;
@@ -70,7 +86,8 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   const { files, signal, onProgress } = input;
   if (!files.length) throw new ToolError('Choose a ZIP file.');
   onProgress?.(0, 'Reading');
-  const bytes = files[0]!.size === 0 ? new Uint8Array() : new Uint8Array(await files[0]!.arrayBuffer());
+  const bytes =
+    files[0]!.size === 0 ? new Uint8Array() : new Uint8Array(await files[0]!.arrayBuffer());
   if (signal?.aborted) throw new DOMException('Aborted', 'AbortError');
   const entries = parseCentralDirectory(bytes);
   if (!entries.length) throw new ToolError('No ZIP entries found.');
@@ -78,7 +95,7 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   let totalIn = 0;
   let totalOut = 0;
   for (const e of entries) {
-    const ratio = e.uncompressed ? (1 - e.compressed / e.uncompressed) : 0;
+    const ratio = e.uncompressed ? 1 - e.compressed / e.uncompressed : 0;
     rows.push([
       e.path,
       formatBytes(e.uncompressed),
@@ -93,8 +110,19 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   onProgress?.(1, 'Done');
   return {
     outputs: [],
-    report: { output: JSON.stringify({ headers: ['Path', 'Size', 'Compressed', 'Ratio', 'CRC32', 'Modified'], rows }), render: 'table' },
-    stats: { entries: entries.length, inputBytes: totalIn, outputBytes: totalOut, ratio: totalIn ? 1 - totalOut / totalIn : 0 },
+    report: {
+      output: JSON.stringify({
+        headers: ['Path', 'Size', 'Compressed', 'Ratio', 'CRC32', 'Modified'],
+        rows,
+      }),
+      render: 'table',
+    },
+    stats: {
+      entries: entries.length,
+      inputBytes: totalIn,
+      outputBytes: totalOut,
+      ratio: totalIn ? 1 - totalOut / totalIn : 0,
+    },
   };
 }
 const tool: FileToolModule = { meta, run };

@@ -26,7 +26,11 @@ export function outputMime(format: unknown, source: string): string {
 }
 
 export function extension(mime: string): string {
-  return mime === 'image/jpeg' ? 'jpg' : mime === 'image/svg+xml' ? 'svg' : mime.split('/')[1] ?? 'png';
+  return mime === 'image/jpeg'
+    ? 'jpg'
+    : mime === 'image/svg+xml'
+      ? 'svg'
+      : (mime.split('/')[1] ?? 'png');
 }
 
 export async function decode(file: File) {
@@ -34,9 +38,17 @@ export async function decode(file: File) {
   return decodeImage(file);
 }
 
-export async function encode(source: ImageBitmap | OffscreenCanvas, mime: string, quality?: number): Promise<Blob> {
+export async function encode(
+  source: ImageBitmap | OffscreenCanvas,
+  mime: string,
+  quality?: number,
+): Promise<Blob> {
   const blob = await drawToBlob(source, { type: mime, quality });
-  if (blob.type !== mime) throw new ToolError(`This browser cannot encode ${mime.replace('image/', '')}.`, 'Try WebP or PNG.');
+  if (blob.type !== mime)
+    throw new ToolError(
+      `This browser cannot encode ${mime.replace('image/', '')}.`,
+      'Try WebP or PNG.',
+    );
   return blob;
 }
 

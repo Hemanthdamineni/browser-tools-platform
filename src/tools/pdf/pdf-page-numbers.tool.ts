@@ -24,13 +24,26 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
     const page = doc.getPage(i);
     const { width, height } = page.getSize();
     const n = startAt + i - (o.skipFirst ? 1 : 0);
-    const label = format === 'n' ? String(n)
-      : format === 'n-of-total' ? `${n} of ${total}`
-      : format === 'page-n' ? `Page ${n}`
-      : `Page ${n} of ${total}`;
+    const label =
+      format === 'n'
+        ? String(n)
+        : format === 'n-of-total'
+          ? `${n} of ${total}`
+          : format === 'page-n'
+            ? `Page ${n}`
+            : `Page ${n} of ${total}`;
     const textWidth = font.widthOfTextAtSize(label, fontSize);
-    const horizontal = position.endsWith('center') ? 'center' : position.endsWith('left') ? 'left' : 'right';
-    const x = horizontal === 'left' ? margin : horizontal === 'right' ? width - margin - textWidth : (width - textWidth) / 2;
+    const horizontal = position.endsWith('center')
+      ? 'center'
+      : position.endsWith('left')
+        ? 'left'
+        : 'right';
+    const x =
+      horizontal === 'left'
+        ? margin
+        : horizontal === 'right'
+          ? width - margin - textWidth
+          : (width - textWidth) / 2;
     const y = position.startsWith('top') ? height - margin - fontSize : margin;
     page.drawText(label, { x, y, size: fontSize, font, color: rgb(0, 0, 0) });
     numbered++;

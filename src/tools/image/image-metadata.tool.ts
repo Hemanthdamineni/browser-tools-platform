@@ -51,7 +51,13 @@ interface ValueReader {
 }
 
 /** Read a single IFD value at absolute offset `off`. */
-function readIfdValue(buf: ArrayBuffer, r: ValueReader, off: number, type: number, count: number): string | number {
+function readIfdValue(
+  buf: ArrayBuffer,
+  r: ValueReader,
+  off: number,
+  type: number,
+  count: number,
+): string | number {
   const raw = new Uint8Array(buf);
   if (type === 2 || type === 7) {
     // ASCII / UNDEFINED — return the text up to the first NUL.
@@ -83,7 +89,7 @@ function readIfdValue(buf: ArrayBuffer, r: ValueReader, off: number, type: numbe
         return denom ? Math.round((r.u32(p) / denom) * 1000) / 1000 : 0;
       }
       case 12:
-        return Math.round(r.u32(p) / Math.max(1, r.u32(p + 4)) * 1000) / 1000;
+        return Math.round((r.u32(p) / Math.max(1, r.u32(p + 4))) * 1000) / 1000;
       default:
         return 0;
     }
@@ -152,7 +158,13 @@ export function readExif(buf: ArrayBuffer): Record<string, string | number> {
           const type = r.u16(p + 2);
           const count = r.u32(p + 4);
           const def = TIFF_TAGS[tag];
-          if (def && (def[1] === type || (def[1] === 3 && type === 3) || (def[1] === 2 && type === 2) || (def[1] === 5 && (type === 5 || type === 10)))) {
+          if (
+            def &&
+            (def[1] === type ||
+              (def[1] === 3 && type === 3) ||
+              (def[1] === 2 && type === 2) ||
+              (def[1] === 5 && (type === 5 || type === 10)))
+          ) {
             out[def[0]] = readIfdValue(buf, r, p + 8, type, count);
           }
           p += 12;
@@ -209,7 +221,10 @@ export function decodePngChunks(buf: ArrayBuffer): Record<string, string | numbe
     } else if (type === 'tEXt') {
       let nul = -1;
       for (let i = start; i < dataEnd; i++) {
-        if (d[i] === 0) { nul = i; break; }
+        if (d[i] === 0) {
+          nul = i;
+          break;
+        }
       }
       if (nul !== -1) {
         const key = new TextDecoder().decode(d.slice(start, nul));
@@ -219,7 +234,10 @@ export function decodePngChunks(buf: ArrayBuffer): Record<string, string | numbe
     } else if (type === 'iTXt') {
       let nul = -1;
       for (let i = start; i < dataEnd; i++) {
-        if (d[i] === 0) { nul = i; break; }
+        if (d[i] === 0) {
+          nul = i;
+          break;
+        }
       }
       if (nul !== -1) {
         const key = new TextDecoder().decode(d.slice(start, nul));

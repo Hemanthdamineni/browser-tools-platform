@@ -42,14 +42,21 @@ function run(input: TextRunInput): TextRunResult {
   const trim = Boolean(o.trimLines);
   const dropBlank = Boolean(o.dropBlank);
   const items = parseItems(input.text, trim, dropBlank);
-  if (items.length === 0) throw new ToolError('Enter at least one item to pick from.', 'One item per line, or comma-separated values.');
+  if (items.length === 0)
+    throw new ToolError(
+      'Enter at least one item to pick from.',
+      'One item per line, or comma-separated values.',
+    );
 
   if (mode === 'pick') {
     const count = Math.floor(Number(o.pickCount) || 1);
     const allowDup = Boolean(o.allowDuplicates);
     if (count < 1 || count > 1000) throw new ToolError('Pick count must be between 1 and 1000.');
     if (!allowDup && count > items.length) {
-      throw new ToolError(`Cannot pick ${count} distinct items from a list of ${items.length}.`, 'Allow duplicates or pick fewer items.');
+      throw new ToolError(
+        `Cannot pick ${count} distinct items from a list of ${items.length}.`,
+        'Allow duplicates or pick fewer items.',
+      );
     }
     const picked: string[] = [];
     if (allowDup) {
@@ -68,7 +75,11 @@ function run(input: TextRunInput): TextRunResult {
     const groups: string[][] = Array.from({ length: teams }, () => []);
     deck.forEach((item, i) => groups[i % teams]!.push(item));
     const rows = groups.map((g, i) => [String(i + 1), g.join(', ')]);
-    return { output: JSON.stringify({ headers: ['Team', 'Members'], rows }), render: 'table', stats: { teams } };
+    return {
+      output: JSON.stringify({ headers: ['Team', 'Members'], rows }),
+      render: 'table',
+      stats: { teams },
+    };
   }
 
   // shuffle / order

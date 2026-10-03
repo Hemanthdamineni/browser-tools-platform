@@ -20,7 +20,9 @@ describe('svg-to-png run', () => {
     await expect(tool.run({ files: [], options: {} })).rejects.toThrow(/Choose one SVG file/i);
   });
   it('rejects browser rasterization when createImageBitmap is unsupported', async () => {
-    const file = new File(['<svg width="10" height="10"></svg>'], 'icon.svg', { type: 'image/svg+xml' });
+    const file = new File(['<svg width="10" height="10"></svg>'], 'icon.svg', {
+      type: 'image/svg+xml',
+    });
     await expect(tool.run({ files: [file], options: {} })).rejects.toThrow();
   });
 });

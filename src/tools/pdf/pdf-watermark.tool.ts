@@ -32,7 +32,8 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
     const pageNumber = selection[i]!;
     const page = doc.getPage(pageNumber - 1)!;
     const { width, height } = page.getSize();
-    const draw = (x: number, y: number) => page.drawText(text, { x, y, size, font, color, rotate: degrees(rotation), opacity });
+    const draw = (x: number, y: number) =>
+      page.drawText(text, { x, y, size, font, color, rotate: degrees(rotation), opacity });
     if (o.position === 'tile') {
       const stepX = Math.max(widthText + 35, 90);
       const stepY = Math.max(size * 3, 80);

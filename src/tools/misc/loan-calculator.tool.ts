@@ -9,10 +9,14 @@ function run(input: TextRunInput): TextRunResult {
   const annualRate = Number(o.annualRatePercent);
   const years = Number(o.years);
   const extra = Number(o.extraMonthly);
-  if (!Number.isFinite(principal) || principal <= 0) throw new ToolError('Principal must be greater than zero.');
-  if (!Number.isFinite(annualRate) || annualRate < 0 || annualRate > 100) throw new ToolError('Annual interest rate must be between 0 and 100.');
-  if (!Number.isFinite(years) || years <= 0) throw new ToolError('Loan term must be greater than zero.');
-  if (!Number.isFinite(extra) || extra < 0) throw new ToolError('Extra monthly payment cannot be negative.');
+  if (!Number.isFinite(principal) || principal <= 0)
+    throw new ToolError('Principal must be greater than zero.');
+  if (!Number.isFinite(annualRate) || annualRate < 0 || annualRate > 100)
+    throw new ToolError('Annual interest rate must be between 0 and 100.');
+  if (!Number.isFinite(years) || years <= 0)
+    throw new ToolError('Loan term must be greater than zero.');
+  if (!Number.isFinite(extra) || extra < 0)
+    throw new ToolError('Extra monthly payment cannot be negative.');
 
   const r = annualRate / 1200;
   const n = Math.round(years * 12);

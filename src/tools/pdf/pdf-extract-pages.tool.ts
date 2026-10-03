@@ -12,7 +12,10 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   const selection = parsePages(o.pages, total, false);
 
   const out = await PDFDocument.create();
-  const pages = await out.copyPages(source, selection.map((p) => p - 1));
+  const pages = await out.copyPages(
+    source,
+    selection.map((p) => p - 1),
+  );
   pages.forEach((page) => out.addPage(page));
   const bytes = await out.save();
   input.onProgress?.(1, 'Done');

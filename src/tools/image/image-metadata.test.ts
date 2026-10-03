@@ -24,7 +24,9 @@ function exifJpegBytes(): Uint8Array {
   app1.writeUInt16BE(2 + exifPayload.length, 2);
   exifPayload.copy(app1, 4);
 
-  return new Uint8Array(Buffer.concat([Buffer.from([0xff, 0xd8]), app1, Buffer.from([0xff, 0xd9])]));
+  return new Uint8Array(
+    Buffer.concat([Buffer.from([0xff, 0xd8]), app1, Buffer.from([0xff, 0xd9])]),
+  );
 }
 
 function toArrayBuffer(bytes: Uint8Array): ArrayBuffer {
@@ -59,14 +61,14 @@ function pngBytes(): Uint8Array {
   ihdr.writeUInt32BE(1, 4); // height
   ihdr[8] = 8; // bit depth
   ihdr[9] = 6; // RGBA
-  const text = Buffer.concat([
-    Buffer.from('Author\0Claude', 'latin1'),
-  ]);
+  const text = Buffer.concat([Buffer.from('Author\0Claude', 'latin1')]);
   const phys = Buffer.alloc(9);
   phys.writeUInt32BE(2835, 0); // x
   phys.writeUInt32BE(2835, 4); // y
   phys[8] = 1; // meter
-  return new Uint8Array(Buffer.concat([sig, chunk('IHDR', ihdr), chunk('tEXt', text), chunk('pHYs', phys)]));
+  return new Uint8Array(
+    Buffer.concat([sig, chunk('IHDR', ihdr), chunk('tEXt', text), chunk('pHYs', phys)]),
+  );
 }
 
 describe('readExif', () => {
@@ -98,6 +100,8 @@ describe('image-metadata run', () => {
   });
   it('throws a decode error unsupported for non-decodable image files', async () => {
     const file = new File(['not a real image'], 'image.png', { type: 'image/png' });
-    await expect(tool.run({ files: [file], options: {} })).rejects.toThrow(/not be decoded as an image/i);
+    await expect(tool.run({ files: [file], options: {} })).rejects.toThrow(
+      /not be decoded as an image/i,
+    );
   });
 });

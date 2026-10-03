@@ -30,7 +30,10 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
     throw new ToolError(`Unknown mode "${mode}".`, 'Use by-size or by-count.');
   }
   if (chunkSize >= total) {
-    throw new ToolError('The chunk size is larger than the file.', 'Pick a smaller chunk size or more parts.');
+    throw new ToolError(
+      'The chunk size is larger than the file.',
+      'Pick a smaller chunk size or more parts.',
+    );
   }
   const base = file.name.replace(/\.[^./\\]+$/, '');
   const totalParts = Math.ceil(total / chunkSize);
@@ -48,8 +51,15 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
     onProgress?.((i + 1) / totalParts, `Writing ${name}`);
   }
   const digest = await crypto.subtle.digest('SHA-256', await file.arrayBuffer());
-  const manifest = JSON.stringify({ original: file.name, size: total, sha256: toHex(digest), parts: partList }, null, 2);
-  parts.push({ filename: `${base}.manifest.json`, blob: new Blob([manifest], { type: 'application/json' }) });
+  const manifest = JSON.stringify(
+    { original: file.name, size: total, sha256: toHex(digest), parts: partList },
+    null,
+    2,
+  );
+  parts.push({
+    filename: `${base}.manifest.json`,
+    blob: new Blob([manifest], { type: 'application/json' }),
+  });
   return {
     outputs: parts,
     stats: { parts: totalParts, inputBytes: total, chunkBytes: chunkSize },

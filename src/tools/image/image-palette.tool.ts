@@ -69,13 +69,21 @@ export function quantizePixels(
         b += color.b * color.n;
         total += color.n;
       }
-      selected.push({ r: Math.round(r / total), g: Math.round(g / total), b: Math.round(b / total), n: total });
+      selected.push({
+        r: Math.round(r / total),
+        g: Math.round(g / total),
+        b: Math.round(b / total),
+        n: total,
+      });
     }
   }
 
-  return selected.map((color) => `#${[color.r, color.g, color.b]
-    .map((value) => Math.max(0, Math.min(255, value)).toString(16).padStart(2, '0'))
-    .join('')}`);
+  return selected.map(
+    (color) =>
+      `#${[color.r, color.g, color.b]
+        .map((value) => Math.max(0, Math.min(255, value)).toString(16).padStart(2, '0'))
+        .join('')}`,
+  );
 }
 
 async function run(input: FileRunInput): Promise<FileRunResult> {

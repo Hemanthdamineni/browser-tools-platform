@@ -4,8 +4,7 @@ export const meta: ToolMeta = {
   id: 'calculator',
   name: 'Expression Calculator',
   category: 'misc',
-  summary:
-    'Evaluate a mathematical expression with a safe parser — no eval, ever.',
+  summary: 'Evaluate a mathematical expression with a safe parser — no eval, ever.',
   description:
     'Type a maths expression and get the numeric result. The calculator uses a safe recursive-descent parser (no eval, no `new Function`), supporting the four operators, exponentiation, parentheses, common functions, constants and factorials. Trig functions respect the selected angle mode.',
   keywords: [

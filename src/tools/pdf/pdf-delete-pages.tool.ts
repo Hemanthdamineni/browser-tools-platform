@@ -11,7 +11,8 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   const total = doc.getPageCount();
   abort(input);
   const selection = [...new Set(parsePages(o.pages, total, false))].sort((a, b) => b - a);
-  if (selection.length >= total) throw new ToolError('This would delete every page — a PDF needs at least one page.');
+  if (selection.length >= total)
+    throw new ToolError('This would delete every page — a PDF needs at least one page.');
 
   for (let i = 0; i < selection.length; i++) {
     doc.removePage(selection[i]! - 1);
@@ -20,7 +21,11 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
 
   const bytes = await doc.save();
   const result = output('trimmed.pdf', bytes);
-  result.stats = { inputPages: total, deleted: selection.length, remaining: total - selection.length };
+  result.stats = {
+    inputPages: total,
+    deleted: selection.length,
+    remaining: total - selection.length,
+  };
   return result;
 }
 

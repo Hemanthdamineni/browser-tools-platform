@@ -7,7 +7,17 @@ export const meta: ToolMeta = {
   summary: 'Inspect an audio file: duration, sample rate, channels, bitrate, peak and clipping.',
   description:
     'Decode an audio file on your device and show its technical details — duration, sample rate, channel count, bitrate, peak and RMS level — along with whether it clips. Nothing is uploaded.',
-  keywords: ['audio', 'info', 'metadata', 'inspector', 'wav', 'mp3', 'duration', 'sample rate', 'bitrate'],
+  keywords: [
+    'audio',
+    'info',
+    'metadata',
+    'inspector',
+    'wav',
+    'mp3',
+    'duration',
+    'sample rate',
+    'bitrate',
+  ],
   privacy: { processing: 'on-device', network: 'none', offline: true },
   input: 'file',
   accept: 'audio/*',

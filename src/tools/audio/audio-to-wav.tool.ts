@@ -20,10 +20,10 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
     if (channelMode === 'mono') channels = remixChannels(channels, 1);
     else if (channelMode === 'stereo') channels = remixChannels(channels, 2);
 
-    const targetRate = String(o.sampleRate ?? 'original') === 'original'
-      ? audio.sampleRate
-      : Number(o.sampleRate);
-    if (!Number.isFinite(targetRate) || targetRate < 1) throw new ToolError('Choose a valid sample rate.');
+    const targetRate =
+      String(o.sampleRate ?? 'original') === 'original' ? audio.sampleRate : Number(o.sampleRate);
+    if (!Number.isFinite(targetRate) || targetRate < 1)
+      throw new ToolError('Choose a valid sample rate.');
     channels = channels.map((ch) => resampleChannel(ch, audio.sampleRate, targetRate));
     outputs.push({
       filename: `${files[i]!.name.replace(/\.[^.]*$/, '') || 'audio'}.wav`,

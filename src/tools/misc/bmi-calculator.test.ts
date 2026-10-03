@@ -20,7 +20,9 @@ describe('bmi-calculator', () => {
     expect(cell(rows, 'Category')).toBe('Normal');
   });
   it('categorises underweight and obese', async () => {
-    expect(cell((await table({ heightCm: 180, weightKg: 50 })).rows, 'Category')).toBe('Underweight');
+    expect(cell((await table({ heightCm: 180, weightKg: 50 })).rows, 'Category')).toBe(
+      'Underweight',
+    );
     expect(cell((await table({ heightCm: 160, weightKg: 90 })).rows, 'Category')).toBe('Obese');
   });
   it('rejects non-positive measurements', async () => {

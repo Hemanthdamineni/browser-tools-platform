@@ -1,20 +1,48 @@
 import type { ToolMeta } from '@/lib/types';
 import { fflateCredit, pdfjsCredit } from './shared';
 export const meta: ToolMeta = {
-  id: 'pdf-to-images', name: 'PDF to Images', category: 'pdf',
+  id: 'pdf-to-images',
+  name: 'PDF to Images',
+  category: 'pdf',
   summary: 'Render selected PDF pages as PNG, JPEG, or WebP images.',
-  description: 'Convert PDF pages into image files locally using your browser worker. Multiple images are bundled into a ZIP download.',
-  keywords: ['pdf', 'images', 'png', 'jpeg', 'webp', 'render', 'convert'], privacy: { processing: 'on-device', network: 'none', offline: true },
-  input: 'file', accept: 'application/pdf',
+  description:
+    'Convert PDF pages into image files locally using your browser worker. Multiple images are bundled into a ZIP download.',
+  keywords: ['pdf', 'images', 'png', 'jpeg', 'webp', 'render', 'convert'],
+  privacy: { processing: 'on-device', network: 'none', offline: true },
+  input: 'file',
+  accept: 'application/pdf',
   options: [
-    { key: 'format', label: 'Image format', type: 'select', default: 'png', choices: [
-      { value: 'png', label: 'PNG' }, { value: 'jpeg', label: 'JPEG' }, { value: 'webp', label: 'WebP' },
-    ] },
+    {
+      key: 'format',
+      label: 'Image format',
+      type: 'select',
+      default: 'png',
+      choices: [
+        { value: 'png', label: 'PNG' },
+        { value: 'jpeg', label: 'JPEG' },
+        { value: 'webp', label: 'WebP' },
+      ],
+    },
     { key: 'scale', label: 'Scale', type: 'number', default: 2, min: 1, max: 4 },
-    { key: 'pages', label: 'Pages', type: 'text', default: 'all', placeholder: 'all or e.g. 1,3-5' },
-    { key: 'quality', label: 'Image quality (%)', type: 'range', default: 90, min: 1, max: 100, showWhen: { key: 'format', value: 'jpeg' } },
+    {
+      key: 'pages',
+      label: 'Pages',
+      type: 'text',
+      default: 'all',
+      placeholder: 'all or e.g. 1,3-5',
+    },
+    {
+      key: 'quality',
+      label: 'Image quality (%)',
+      type: 'range',
+      default: 90,
+      min: 1,
+      max: 100,
+      showWhen: { key: 'format', value: 'jpeg' },
+    },
   ],
   examples: [{ title: 'Convert PDF pages to PNG' }],
   related: ['images-to-pdf', 'pdf-extract-text'],
-  credits: [pdfjsCredit, fflateCredit], status: 'stable',
+  credits: [pdfjsCredit, fflateCredit],
+  status: 'stable',
 };

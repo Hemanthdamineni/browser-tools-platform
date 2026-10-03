@@ -5,7 +5,11 @@ import { meta } from './audio-gain.meta';
 import { dbToGain, decodeFile, toWavBlob } from './lib';
 
 /** Apply a linear gain to a channel; hard limit or tanh-soft-clip the result. */
-export function applyGain(channel: Float32Array, gain: number, hardClip: boolean): { data: Float32Array; clipped: boolean } {
+export function applyGain(
+  channel: Float32Array,
+  gain: number,
+  hardClip: boolean,
+): { data: Float32Array; clipped: boolean } {
   const out = channel.slice(0);
   let clipped = false;
   for (let i = 0; i < out.length; i++) {
@@ -39,11 +43,17 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   });
 
   input.onProgress?.(1, 'Done');
-  const warnings = clipped && hardClip
-    ? ['Clipping detected: raise headroom or use soft clipping to avoid distortion.']
-    : undefined;
+  const warnings =
+    clipped && hardClip
+      ? ['Clipping detected: raise headroom or use soft clipping to avoid distortion.']
+      : undefined;
   return {
-    outputs: [{ filename: `${input.files[0]!.name.replace(/\.[^.]*$/, '') || 'audio'}-gain.wav`, blob: toWavBlob(channels, audio.sampleRate) }],
+    outputs: [
+      {
+        filename: `${input.files[0]!.name.replace(/\.[^.]*$/, '') || 'audio'}-gain.wav`,
+        blob: toWavBlob(channels, audio.sampleRate),
+      },
+    ],
     warnings,
     stats: { gainDb, clipped: clipped && hardClip ? 'yes' : 'no' },
   };

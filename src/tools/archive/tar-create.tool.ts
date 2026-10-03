@@ -46,8 +46,16 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
     if (signal?.aborted) throw new DOMException('Aborted', 'AbortError');
     const f = files[i]!;
     const name = (f.webkitRelativePath || f.name).replace(/\\/g, '/');
-    if (!name || name.startsWith('/') || /^[A-Za-z]:/.test(name) || name.split('/').some((part) => !part || part === '.' || part === '..')) {
-      throw new ToolError('Invalid archive path.', 'Archive entry paths must be relative and cannot contain empty, dot or traversal segments.');
+    if (
+      !name ||
+      name.startsWith('/') ||
+      /^[A-Za-z]:/.test(name) ||
+      name.split('/').some((part) => !part || part === '.' || part === '..')
+    ) {
+      throw new ToolError(
+        'Invalid archive path.',
+        'Archive entry paths must be relative and cannot contain empty, dot or traversal segments.',
+      );
     }
     const data = new Uint8Array(await f.arrayBuffer());
     total += data.length;
@@ -62,19 +70,31 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   const len = parts.reduce((a, p) => a + p.length, 0);
   const tar = new Uint8Array(len);
   let off = 0;
-  for (const p of parts) { tar.set(p, off); off += p.length; }
+  for (const p of parts) {
+    tar.set(p, off);
+    off += p.length;
+  }
   let filename = String(o.tarName || 'archive.tar');
   let outBlob: Blob;
   let outBytes = tar;
   if (o.gzip) {
     outBytes = gzipSync(tar);
     if (/\.tar$/i.test(filename)) filename += '.gz';
-    else if (!/\.tar\.gz$/i.test(filename)) filename = filename.replace(/\.[^./\\]+$/, '') + '.tar.gz';
+    else if (!/\.tar\.gz$/i.test(filename))
+      filename = filename.replace(/\.[^./\\]+$/, '') + '.tar.gz';
     outBlob = new Blob([outBytes], { type: 'application/gzip' });
   } else {
     outBlob = new Blob([tar], { type: 'application/x-tar' });
   }
-  return { outputs: [{ filename, blob: outBlob }], stats: { files: files.length, inputBytes: total, outputBytes: outBytes.length, ratio: total ? outBytes.length / total : 0 } };
+  return {
+    outputs: [{ filename, blob: outBlob }],
+    stats: {
+      files: files.length,
+      inputBytes: total,
+      outputBytes: outBytes.length,
+      ratio: total ? outBytes.length / total : 0,
+    },
+  };
 }
 const tool: FileToolModule = { meta, run };
 export default tool;

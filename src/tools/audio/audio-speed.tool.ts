@@ -26,7 +26,11 @@ export function stretchChannel(input: Float32Array, rate: number): Float32Array 
       let best = Math.min(input.length - windowSize, Math.max(0, predicted));
       let bestScore = -Infinity;
       const refStart = Math.max(0, outPos - windowSize + synthesisHop);
-      for (let candidate = Math.max(0, predicted - searchRadius); candidate <= Math.min(input.length - windowSize, predicted + searchRadius); candidate++) {
+      for (
+        let candidate = Math.max(0, predicted - searchRadius);
+        candidate <= Math.min(input.length - windowSize, predicted + searchRadius);
+        candidate++
+      ) {
         let corr = 0;
         let energy = 0;
         for (let j = 0; j < synthesisHop; j++) {
@@ -36,14 +40,17 @@ export function stretchChannel(input: Float32Array, rate: number): Float32Array 
           energy += b * b;
         }
         const score = energy > 0 ? corr / Math.sqrt(energy) : -Infinity;
-        if (score > bestScore) { bestScore = score; best = candidate; }
+        if (score > bestScore) {
+          bestScore = score;
+          best = candidate;
+        }
       }
       inputPos = best;
     }
     const frame = Math.max(0, Math.min(input.length - windowSize, inputPos));
     for (let j = 0; j < windowSize && outPos + j < out.length; j++) {
       // Hann window provides smooth overlap-add edges.
-      const w = 0.5 - 0.5 * Math.cos(2 * Math.PI * j / Math.max(1, windowSize - 1));
+      const w = 0.5 - 0.5 * Math.cos((2 * Math.PI * j) / Math.max(1, windowSize - 1));
       out[outPos + j] = (out[outPos + j] ?? 0) + input[frame + j]! * w;
       weights[outPos + j] = (weights[outPos + j] ?? 0) + w;
     }
@@ -70,7 +77,11 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   input.signal?.throwIfAborted?.();
   // Down-sample to fewer frames so playback at the original sample rate is
   // faster; up-sampling to more frames makes it slower.
-  const channels = audio.channels.map((ch) => preservePitch ? stretchChannel(ch, rate) : resampleChannel(ch, audio.sampleRate, audio.sampleRate / rate));
+  const channels = audio.channels.map((ch) =>
+    preservePitch
+      ? stretchChannel(ch, rate)
+      : resampleChannel(ch, audio.sampleRate, audio.sampleRate / rate),
+  );
 
   input.onProgress?.(1, 'Done');
   const duration = (channels[0]?.length ?? 0) / audio.sampleRate;
@@ -78,9 +89,18 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
     ? ['Pitch preservation is approximate; time stretching may add artifacts.']
     : ['Resampling changes pitch as well as playback speed.'];
   return {
-    outputs: [{ filename: `${input.files[0]!.name.replace(/\.[^.]*$/, '') || 'audio'}-${ratePercent}pct.wav`, blob: toWavBlob(channels, audio.sampleRate) }],
+    outputs: [
+      {
+        filename: `${input.files[0]!.name.replace(/\.[^.]*$/, '') || 'audio'}-${ratePercent}pct.wav`,
+        blob: toWavBlob(channels, audio.sampleRate),
+      },
+    ],
     warnings,
-    stats: { ratePercent, duration: duration.toFixed(3), preservePitch: preservePitch ? 'yes (approximate)' : 'no' },
+    stats: {
+      ratePercent,
+      duration: duration.toFixed(3),
+      preservePitch: preservePitch ? 'yes (approximate)' : 'no',
+    },
   };
 }
 

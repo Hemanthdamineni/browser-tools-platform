@@ -12,13 +12,18 @@ describe('base64-file', () => {
 
   it('decodes Base64 and data URIs to bytes using a safe output name', async () => {
     const file = new File(['data:application/octet-stream;base64,AAH/'], 'encoded.txt');
-    const result = await tool.run({ files: [file], options: { mode: 'decode', outputName: '../payload.bin' } });
+    const result = await tool.run({
+      files: [file],
+      options: { mode: 'decode', outputName: '../payload.bin' },
+    });
     expect(result.outputs[0]!.filename).toBe('.._payload.bin');
     expect([...new Uint8Array(await result.outputs[0]!.blob.arrayBuffer())]).toEqual([0, 1, 255]);
   });
 
   it('rejects invalid Base64 and missing files', async () => {
-    await expect(tool.run({ files: [new File(['a?'], 'bad.txt')], options: { mode: 'decode' } })).rejects.toThrow(/invalid base64/i);
+    await expect(
+      tool.run({ files: [new File(['a?'], 'bad.txt')], options: { mode: 'decode' } }),
+    ).rejects.toThrow(/invalid base64/i);
     await expect(tool.run({ files: [], options: {} })).rejects.toThrow(/choose a file/i);
   });
 });

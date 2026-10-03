@@ -6,7 +6,8 @@ import { meta } from './pdf-merge.meta';
 async function run(input: FileRunInput): Promise<FileRunResult> {
   const o = resolve(input, meta);
   const { files, onProgress } = input;
-  if (files.length < 2) throw new ToolError('Choose at least two PDF files.', 'Merging needs two or more documents.');
+  if (files.length < 2)
+    throw new ToolError('Choose at least two PDF files.', 'Merging needs two or more documents.');
 
   const out = await PDFDocument.create();
   let totalPages = 0;
@@ -16,10 +17,13 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
     let source: PDFDocument;
     try {
       if (!file.size) throw new Error('empty');
-      source = await PDFDocument.load(new Uint8Array(await file.arrayBuffer()), { ignoreEncryption: false });
+      source = await PDFDocument.load(new Uint8Array(await file.arrayBuffer()), {
+        ignoreEncryption: false,
+      });
     } catch (error) {
       const message = error instanceof Error ? error.message : '';
-      if (/password|encrypted/i.test(message)) throw new ToolError(`"${file.name}" is password-protected — unlock it first.`);
+      if (/password|encrypted/i.test(message))
+        throw new ToolError(`"${file.name}" is password-protected — unlock it first.`);
       throw new ToolError(`"${file.name}" is not a valid, readable PDF.`);
     }
     const pages = await out.copyPages(source, source.getPageIndices());
@@ -31,7 +35,8 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   const bytes = await out.save();
   const result = output(String(o.outputName || 'merged.pdf'), bytes);
   result.stats = { files: files.length, pages: totalPages, bytes: bytes.length };
-  if (o.keepBookmarks) result.notes = ['Bookmarks are not carried over by pdf-lib; the merged file has no outline.'];
+  if (o.keepBookmarks)
+    result.notes = ['Bookmarks are not carried over by pdf-lib; the merged file has no outline.'];
   return result;
 }
 

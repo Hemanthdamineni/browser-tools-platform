@@ -15,7 +15,11 @@ async function makeTextPdf(): Promise<File> {
 describe('pdf-extract-text', () => {
   it('extracts text page by page and reports character counts', async () => {
     const progress: number[] = [];
-    const result = await tool.run({ files: [await makeTextPdf()], options: {}, onProgress: (value) => progress.push(value) });
+    const result = await tool.run({
+      files: [await makeTextPdf()],
+      options: {},
+      onProgress: (value) => progress.push(value),
+    });
     const report = JSON.parse(result.report!.output) as { headers: string[]; rows: string[][] };
     expect(result.outputs).toHaveLength(0);
     expect(report.headers).toEqual(['Page', 'Text']);
@@ -25,7 +29,10 @@ describe('pdf-extract-text', () => {
   });
   it('rejects invalid PDFs and honors cancellation', async () => {
     await expect(tool.run({ files: [makeInvalidPdf()], options: {} })).rejects.toThrow(/valid/i);
-    const controller = new AbortController(); controller.abort();
-    await expect(tool.run({ files: [await makePdf()], options: {}, signal: controller.signal })).rejects.toMatchObject({ name: 'AbortError' });
+    const controller = new AbortController();
+    controller.abort();
+    await expect(
+      tool.run({ files: [await makePdf()], options: {}, signal: controller.signal }),
+    ).rejects.toMatchObject({ name: 'AbortError' });
   });
 });

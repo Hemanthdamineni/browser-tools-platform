@@ -13,7 +13,8 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   abort(input);
   const selection = parsePages(o.pages, total);
   const angle = Number(o.angle) || 90;
-  if (![90, 180, 270].includes(angle)) throw new ToolError('Rotation must be 90, 180, or 270 degrees.');
+  if (![90, 180, 270].includes(angle))
+    throw new ToolError('Rotation must be 90, 180, or 270 degrees.');
 
   const pages = doc.getPages();
   let rotated = 0;

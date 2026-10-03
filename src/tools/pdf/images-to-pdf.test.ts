@@ -17,7 +17,10 @@ describe('images-to-pdf', () => {
     expect(Math.round(width)).toBe(595);
   });
   it('supports landscape orientation', async () => {
-    const result = await tool.run({ files: [pngFile()], options: { pageSize: 'a4', orientation: 'landscape' } });
+    const result = await tool.run({
+      files: [pngFile()],
+      options: { pageSize: 'a4', orientation: 'landscape' },
+    });
     const doc = await loadPdfBlob(result.outputs[0]!.blob);
     const { width, height } = doc.getPage(0).getSize();
     expect(width).toBeGreaterThan(height);
@@ -28,7 +31,10 @@ describe('images-to-pdf', () => {
     await expect(tool.run({ files: [text], options: {} })).rejects.toThrow(/PNG or JPEG/i);
   });
   it('honors cancellation before conversion', async () => {
-    const controller = new AbortController(); controller.abort();
-    await expect(tool.run({ files: [pngFile()], options: {}, signal: controller.signal })).rejects.toMatchObject({ name: 'AbortError' });
+    const controller = new AbortController();
+    controller.abort();
+    await expect(
+      tool.run({ files: [pngFile()], options: {}, signal: controller.signal }),
+    ).rejects.toMatchObject({ name: 'AbortError' });
   });
 });

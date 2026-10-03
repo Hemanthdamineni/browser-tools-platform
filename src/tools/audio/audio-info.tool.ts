@@ -56,7 +56,9 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
     ['Sample rate', `${a.sampleRate.toLocaleString()} Hz`],
     ['Channels', String(a.channels.length)],
   ];
-  a.channels.forEach((_, i) => rows.push([`Channel ${i + 1} peak`, fmtDb(peakOf([a.channels[i]!]))]));
+  a.channels.forEach((_, i) =>
+    rows.push([`Channel ${i + 1} peak`, fmtDb(peakOf([a.channels[i]!]))]),
+  );
   rows.push(
     ['Total samples', fmt(frames)],
     ['Estimated bitrate', durationSec > 0 ? `${Math.round(bitrate).toLocaleString()} bps` : '—'],
@@ -81,8 +83,8 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
     warnings: warnings.length ? warnings : undefined,
     stats: {
       channels: a.channels.length,
-      'sampleRate': a.sampleRate,
-      'durationMs': Math.round(durationSec * 1000),
+      sampleRate: a.sampleRate,
+      durationMs: Math.round(durationSec * 1000),
     },
   };
 }

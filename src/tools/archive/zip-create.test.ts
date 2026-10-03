@@ -10,7 +10,10 @@ const readBytes = async (r: Awaited<ReturnType<typeof tool.run>>) =>
 
 describe('zip-create', () => {
   it('zips files and round-trips through unzipSync', async () => {
-    const r = await tool.run({ files: [file('hello', 'a.txt'), file('world', 'b.txt')], options: {} });
+    const r = await tool.run({
+      files: [file('hello', 'a.txt'), file('world', 'b.txt')],
+      options: {},
+    });
     const entries = unzipSync(await readBytes(r));
     const names = Object.keys(entries).sort();
     expect(names).toEqual(['a.txt', 'b.txt']);
@@ -44,9 +47,13 @@ describe('zip-create', () => {
   it('rejects absolute and traversal entry paths', async () => {
     const traversal = new File(['x'], 'evil.txt');
     Object.defineProperty(traversal, 'webkitRelativePath', { value: '../evil.txt' });
-    await expect(tool.run({ files: [traversal], options: {} })).rejects.toThrow(/invalid archive path/i);
+    await expect(tool.run({ files: [traversal], options: {} })).rejects.toThrow(
+      /invalid archive path/i,
+    );
     const absolute = new File(['x'], 'evil.txt');
     Object.defineProperty(absolute, 'webkitRelativePath', { value: '/etc/evil.txt' });
-    await expect(tool.run({ files: [absolute], options: {} })).rejects.toThrow(/invalid archive path/i);
+    await expect(tool.run({ files: [absolute], options: {} })).rejects.toThrow(
+      /invalid archive path/i,
+    );
   });
 });

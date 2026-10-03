@@ -19,7 +19,14 @@ function run(input: TextRunInput): TextRunResult {
     const ft = Number(o.heightFt);
     const inch = Number(o.heightIn);
     const lb = Number(o.weightLb);
-    if (!Number.isFinite(ft) || ft <= 0 || !Number.isFinite(inch) || inch < 0 || !Number.isFinite(lb) || lb <= 0) {
+    if (
+      !Number.isFinite(ft) ||
+      ft <= 0 ||
+      !Number.isFinite(inch) ||
+      inch < 0 ||
+      !Number.isFinite(lb) ||
+      lb <= 0
+    ) {
       throw new ToolError('Height and weight must be positive numbers.');
     }
     heightCm = (ft * 12 + inch) * 2.54;
@@ -45,7 +52,11 @@ function run(input: TextRunInput): TextRunResult {
     ['Healthy weight range', `${low.toFixed(1)}–${high.toFixed(1)} kg`],
     ['BMI Prime', prime.toFixed(2)],
   ];
-  return { output: JSON.stringify({ headers: ['Measurement', 'Value'], rows }), render: 'table', stats: { bmi: bmiStr } };
+  return {
+    output: JSON.stringify({ headers: ['Measurement', 'Value'], rows }),
+    render: 'table',
+    stats: { bmi: bmiStr },
+  };
 }
 
 const tool: TextToolModule = { meta, run };

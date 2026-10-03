@@ -8,9 +8,12 @@ import { decodeFile, toWavBlob } from './lib';
 export function fadeEnvelope(position: number, curve: string): number {
   const t = Math.max(0, Math.min(1, position));
   switch (curve) {
-    case 'exponential': return t * t;
-    case 'logarithmic': return Math.sqrt(t);
-    default: return t;
+    case 'exponential':
+      return t * t;
+    case 'logarithmic':
+      return Math.sqrt(t);
+    default:
+      return t;
   }
 }
 
@@ -19,15 +22,16 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   if (!input.files.length) throw new ToolError('Choose an audio file.');
   const fadeInMs = Math.max(0, Number(o.fadeInMs ?? 1000));
   const fadeOutMs = Math.max(0, Number(o.fadeOutMs ?? 1000));
-  if (!Number.isFinite(fadeInMs) || !Number.isFinite(fadeOutMs)) throw new ToolError('Enter valid fade durations.');
+  if (!Number.isFinite(fadeInMs) || !Number.isFinite(fadeOutMs))
+    throw new ToolError('Enter valid fade durations.');
   const curve = String(o.curve ?? 'linear');
 
   input.onProgress?.(0.1, 'Decoding');
   const audio = await decodeFile(input.files[0]!);
   input.signal?.throwIfAborted?.();
   const length = audio.channels[0]?.length ?? 0;
-  const inFrames = Math.min(length, Math.round(fadeInMs * audio.sampleRate / 1000));
-  const outFrames = Math.min(length, Math.round(fadeOutMs * audio.sampleRate / 1000));
+  const inFrames = Math.min(length, Math.round((fadeInMs * audio.sampleRate) / 1000));
+  const outFrames = Math.min(length, Math.round((fadeOutMs * audio.sampleRate) / 1000));
 
   const channels = audio.channels.map((source) => {
     const ch = source.slice(0);
@@ -44,8 +48,17 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
 
   input.onProgress?.(1, 'Done');
   return {
-    outputs: [{ filename: `${input.files[0]!.name.replace(/\.[^.]*$/, '') || 'audio'}-faded.wav`, blob: toWavBlob(channels, audio.sampleRate) }],
-    stats: { fadeInMs: Math.round(inFrames * 1000 / audio.sampleRate), fadeOutMs: Math.round(outFrames * 1000 / audio.sampleRate), curve },
+    outputs: [
+      {
+        filename: `${input.files[0]!.name.replace(/\.[^.]*$/, '') || 'audio'}-faded.wav`,
+        blob: toWavBlob(channels, audio.sampleRate),
+      },
+    ],
+    stats: {
+      fadeInMs: Math.round((inFrames * 1000) / audio.sampleRate),
+      fadeOutMs: Math.round((outFrames * 1000) / audio.sampleRate),
+      curve,
+    },
   };
 }
 

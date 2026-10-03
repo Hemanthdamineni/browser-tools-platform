@@ -18,7 +18,8 @@ export function parseDataUri(s: string): { mime: string; bytes: Uint8Array<Array
 }
 
 async function run(input: FileRunInput): Promise<FileRunResult> {
-  if (input.files.length !== 1) throw new ToolError('Choose one text file containing an image data URI.');
+  if (input.files.length !== 1)
+    throw new ToolError('Choose one text file containing an image data URI.');
   checkAbort(input.signal);
   input.onProgress?.(0, 'Reading data URI');
   const file = input.files[0]!;

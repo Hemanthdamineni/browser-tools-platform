@@ -73,7 +73,11 @@ export async function decodeFile(file: File): Promise<DecodedAudio> {
 }
 
 /** Resample a single channel from `fromRate` to `toRate` by linear interpolation. */
-export function resampleChannel(input: Float32Array, fromRate: number, toRate: number): Float32Array {
+export function resampleChannel(
+  input: Float32Array,
+  fromRate: number,
+  toRate: number,
+): Float32Array {
   if (fromRate === toRate) return input.slice(0);
   const ratio = toRate / fromRate;
   const outLength = Math.max(1, Math.round(input.length * ratio));
@@ -92,10 +96,7 @@ export function resampleChannel(input: Float32Array, fromRate: number, toRate: n
 }
 
 /** Down/up-mix channel layout: returns `count` channels. */
-export function remixChannels(
-  channels: Float32Array[],
-  count: 1 | 2,
-): Float32Array[] {
+export function remixChannels(channels: Float32Array[], count: 1 | 2): Float32Array[] {
   if (count === 1) {
     // Average all source channels into one.
     const len = Math.max(...channels.map((c) => c.length));
@@ -150,7 +151,10 @@ export function clampChannels(channels: Float32Array[]): boolean {
 /** Common finaliser: encode channels to a WAV file Blob. */
 export function toWavBlob(channels: Float32Array[], sampleRate: number): Blob {
   const bytes = encodeWavPCM16(channels, sampleRate);
-  const buffer = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer;
+  const buffer = bytes.buffer.slice(
+    bytes.byteOffset,
+    bytes.byteOffset + bytes.byteLength,
+  ) as ArrayBuffer;
   return new Blob([buffer], { type: 'audio/wav' });
 }
 

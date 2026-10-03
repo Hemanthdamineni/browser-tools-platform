@@ -11,12 +11,17 @@ describe('file-metadata', () => {
     expect(parsed.headers).toEqual(['Name', 'MIME type', 'Size', 'Modified', 'SHA-256']);
     expect(parsed.rows[0]![0]).toBe('a.txt');
     expect(parsed.rows[0]![1]).toBe('text/plain');
-    expect(parsed.rows[0]![4]).toBe('2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824');
+    expect(parsed.rows[0]![4]).toBe(
+      '2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824',
+    );
   });
 
   it('can skip the SHA-256 hash and totals multiple files', async () => {
     const result = await tool.run({
-      files: [new File(['a'], 'one.txt', { type: 'text/plain' }), new File(['bb'], 'two.bin', { type: 'application/octet-stream' })],
+      files: [
+        new File(['a'], 'one.txt', { type: 'text/plain' }),
+        new File(['bb'], 'two.bin', { type: 'application/octet-stream' }),
+      ],
       options: { hash: false },
     });
     const parsed = JSON.parse(result.report!.output) as { rows: string[][] };
