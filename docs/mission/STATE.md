@@ -4,6 +4,10 @@ Updated: 2026-10-03
 
 ## Completed
 
+- Hardened the shared file workbench and ZIP download path, verified against a fresh build:
+  - `src/lib/files.ts` sanitizes ZIP entry names (strips traversal/absolute segments, de-duplicates) and `src/lib/files.test.ts` covers it.
+  - `src/components/workbench/FileWorkbench.astro` aborts and invalidates in-flight runs on reset/re-run, ignores late results and progress, clears rendered output, and revokes blob preview URLs.
+  - `CI=1 npx playwright test e2e/workbench-robustness.spec.ts --project=chromium` => 2 passed.
 - Added trusted external golden-output tests and verified them against installed reference CLIs:
   - `src/tools/audio/audio-to-wav.golden.test.ts` via `ffprobe` (pcm_s16le, 16 kHz, stereo, 0.1 s).
   - `src/tools/archive/zip-create.golden.test.ts` via `unzip` (entry names, nested extraction, PK signature).

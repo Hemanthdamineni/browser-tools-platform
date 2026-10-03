@@ -125,7 +125,14 @@ const p = meta.id;
 
     let files: File[] = [];
     let controller: AbortController | null = null;
+    let runGeneration = 0;
     let outputs: { filename: string; blob: Blob }[] = [];
+    const previewUrls = new Set<string>();
+
+    function revokePreviews() {
+      for (const url of previewUrls) URL.revokeObjectURL(url);
+      previewUrls.clear();
+    }
 
     bindRangeOutputs(root);
     applyShowWhen(optionsRoot);
@@ -168,6 +175,8 @@ const p = meta.id;
 
     async function run() {
       if (!files.length) return;
+      controller?.abort();
+      const generation = ++runGeneration;
       controller = new AbortController();
       clearError(errorBox);
       runBtn.disabled = true;
@@ -176,6 +185,7 @@ const p = meta.id;
       progressBar.style.width = '0%';
       progressMsg.textContent = 'Working…';
       outputs = [];
+      revokePreviews();
 
       try {
         const result = await runToolById<FileRunResult>(
@@ -184,6 +194,7 @@ const p = meta.id;
           {
             signal: controller.signal,
             onProgress: (fraction, message) => {
+              if (generation !== runGeneration) return;
               const pct = Math.round(Math.min(1, Math.max(0, fraction)) * 100);
               progressBar.style.width = `${pct}%`;
               // The progress message region is aria-live="polite"; always include
@@ -192,18 +203,22 @@ const p = meta.id;
             },
           },
         );
+        if (generation !== runGeneration) return;
         progressBar.style.width = '100%';
         progressMsg.textContent = 'Done';
         outputs = result.outputs;
         renderOutputs(result);
       } catch (err) {
+        if (generation !== runGeneration) return;
         const e = err as Error & { hint?: string };
         if (e.name !== 'AbortError') showError(errorBox, e.message || 'Processing failed', e.hint);
         else progressMsg.textContent = 'Cancelled';
       } finally {
-        runBtn.disabled = false;
-        cancelBtn.hidden = true;
-        controller = null;
+        if (generation === runGeneration) {
+          runBtn.disabled = false;
+          cancelBtn.hidden = true;
+          controller = null;
+        }
       }
     }
 
@@ -233,6 +248,7 @@ const p = meta.id;
           img.alt = '';
           img.className = 'h-10 w-10 rounded object-cover';
           left.appendChild(img);
+          if (o.previewUrl.startsWith('blob:')) previewUrls.add(o.previewUrl);
         }
         const name = document.createElement('span');
         name.className = 'truncate text-sm';
@@ -266,15 +282,33 @@ const p = meta.id;
     runBtn.addEventListener('click', run);
     cancelBtn.addEventListener('click', () => controller?.abort());
     resetBtn.addEventListener('click', () => {
+      runGeneration += 1;
+      controller?.abort();
+      controller = null;
       files = [];
       outputs = [];
+      revokePreviews();
       renderList();
       resultWrap.hidden = true;
+      outputsEl.innerHTML = '';
+      notesEl.innerHTML = '';
+      reportEl.hidden = true;
+      reportEl.innerHTML = '';
+      downloadAllBtn.hidden = true;
       progressWrap.hidden = true;
       clearError(errorBox);
     });
     downloadAllBtn.addEventListener('click', () => downloadZip(outputs, `${toolId}-output.zip`));
 
-    window.addEventListener('beforeunload', () => dz.destroy(), { once: true });
+    window.addEventListener(
+      'beforeunload',
+      () => {
+        controller?.abort();
+        runGeneration += 1;
+        revokePreviews();
+        dz.destroy();
+      },
+      { once: true },
+    );
   });
 </script>
