@@ -31,5 +31,6 @@ Updated: 2026-10-03
 - Media tests mostly use internal round trips rather than independent reference tools.
 - Video capability remains deferred pending a feasibility and licensing spike.
 - Service-worker/offline behavior is not proven by E2E.
+- `npm run test:e2e` on 2026-10-03 produced 10 Chromium passes and 10 mobile-Safari failures because WebKit was unavailable at `/home/zorro-omarchy/.cache/ms-playwright/webkit-2336/pw_run.sh`; this is an environment blocker, not a product verdict.
 
 Status vocabulary: Phase 0 is BUILT+VERIFIED; Phase 1 and Phase 2 tasks are BUILT+UNVERIFIED or READY as shown in the task graph; video is DEFERRED with reason.
