@@ -4,6 +4,9 @@ Updated: 2026-10-03
 
 ## Completed
 
+- Upgraded the privacy harness to include all registered tools (not only visible tools), validate metadata privacy contracts, exercise file inputs, await run completion, derive origin from `baseURL`, and detect failed requests and WebSockets.
+- Privacy verification: `npx playwright test e2e/privacy.spec.ts --project=chromium` => 2 passed, including all tools declaring `network: 'none'`.
+
 - Dedicated branch `phase2/verification` created and kept clean between waves.
 - Local `master` E4 media commits merged non-destructively; branch now contains 160 registered tools and 164 test files.
 - `docs/mission/TOOL_STATUS.md` generated for all 160 registered tools.
@@ -18,8 +21,7 @@ Updated: 2026-10-03
 
 ## Next
 
-1. Implement privacy harness file execution, context-level network assertions, offline coverage, and completion waits.
-2. Add trusted external golden-output tests for media/document/archive tools.
+1. Add trusted external golden-output tests for media/document/archive tools.
 3. Add failing tests and fixes for worker cancellation, stale runs, object URL cleanup, ZIP path safety, and file limits.
 4. Extend axe and keyboard coverage to all 160 current tool pages and populated category pages.
 5. Add Firefox/WebKit/mobile CI projects, bundle budgets, Lighthouse, SEO assertions, red-team lanes, and docs-guide verification.
