@@ -6,10 +6,7 @@
       "id": "P0-branch",
       "title": "Dedicated phase branch and hygiene",
       "state": "VERIFIED",
-      "evidence": [
-        "git branch phase2/verification",
-        "git status --short --branch"
-      ]
+      "evidence": ["git branch phase2/verification", "git status --short --branch"]
     },
     {
       "id": "P0-toolchain",
@@ -25,10 +22,7 @@
       "id": "P0-inventory",
       "title": "Per-tool inventory and status table",
       "state": "IMPLEMENTED",
-      "evidence": [
-        "docs/mission/TOOL_STATUS.md",
-        "src/lib/registry.ts"
-      ]
+      "evidence": ["docs/mission/TOOL_STATUS.md", "src/lib/registry.ts"]
     },
     {
       "id": "P0-baseline",
@@ -56,15 +50,18 @@
     {
       "id": "P1-correctness",
       "title": "Golden outputs using trusted external reference tools",
-      "state": "READY",
+      "state": "IN_PROGRESS",
       "evidence": [
         "src/tools/audio",
         "src/tools/image",
         "src/tools/pdf",
         "src/tools/archive",
-        "scripts/gen-fixtures.mjs"
+        "scripts/gen-fixtures.mjs",
+        "src/tools/audio/audio-to-wav.golden.test.ts",
+        "src/tools/archive/zip-create.golden.test.ts",
+        "src/tools/pdf/pdf-metadata.golden.test.ts"
       ],
-      "open": "Current media tests are primarily internal round trips; no ffmpeg/ImageMagick/qpdf/archive CLI golden assertions."
+      "open": "ffprobe, unzip, qpdf, and pdfinfo coverage now verifies audio, archive, and PDF metadata outputs; ImageMagick golden assertions and broader media coverage remain open."
     },
     {
       "id": "P1-robustness",
@@ -81,30 +78,21 @@
       "id": "P1-browsers",
       "title": "Chromium Firefox WebKit and mobile matrix",
       "state": "READY",
-      "evidence": [
-        "playwright.config.ts:19-22",
-        ".github/workflows/ci.yml:53-55"
-      ],
+      "evidence": ["playwright.config.ts:19-22", ".github/workflows/ci.yml:53-55"],
       "open": "Configuration has Chromium and mobile Safari only; CI installs Chromium only."
     },
     {
       "id": "P1-a11y",
       "title": "Axe and keyboard coverage across all generated routes",
       "state": "READY",
-      "evidence": [
-        "e2e/smoke.spec.ts:24-151",
-        "src/pages/tools/[tool].astro:8-13"
-      ],
+      "evidence": ["e2e/smoke.spec.ts:24-151", "src/pages/tools/[tool].astro:8-13"],
       "open": "Axe covers 6 core routes and 2 tools; 80 tool pages and 9 category pages lack axe, plus keyboard flows."
     },
     {
       "id": "P1-performance",
       "title": "Bundle budgets and Lighthouse",
       "state": "READY",
-      "evidence": [
-        ".github/workflows/ci.yml:15-42",
-        "src/lib/registry.ts:5-18"
-      ],
+      "evidence": [".github/workflows/ci.yml:15-42", "src/lib/registry.ts:5-18"],
       "open": "No bundle budget or Lighthouse CI; current dist/_astro is about 1.4 MB raw."
     },
     {
@@ -139,28 +127,21 @@
       "id": "P3-pwa",
       "title": "PWA offline implementation and proof",
       "state": "READY",
-      "evidence": [
-        "public/sw.js",
-        "e2e/privacy.spec.ts"
-      ],
+      "evidence": ["public/sw.js", "e2e/privacy.spec.ts"],
       "open": "Service worker exists but offline E2E and zero-network integration are not proven."
     },
     {
       "id": "P3-ci",
       "title": "CI matrix, audit, license and budget gates",
       "state": "READY",
-      "evidence": [
-        ".github/workflows/ci.yml"
-      ],
+      "evidence": [".github/workflows/ci.yml"],
       "open": "Current CI lacks browser matrix, Lighthouse, bundle-size and generated license audit gates."
     },
     {
       "id": "P3-docs",
       "title": "Adding-a-tool documentation test",
       "state": "READY",
-      "evidence": [
-        "docs/ADDING-A-TOOL.md"
-      ],
+      "evidence": ["docs/ADDING-A-TOOL.md"],
       "open": "No independent agent has followed the guide and added a trivial tool."
     }
   ]
