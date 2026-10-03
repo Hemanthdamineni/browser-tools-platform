@@ -30,7 +30,7 @@ function jsEscape(s: string): string {
     else if (cp === 0) out += '\\0';
     else if (cp === 0x2028) out += '\\u2028';
     else if (cp === 0x2029) out += '\\u2029';
-    else if (cp < 0x20 || cp === 0x7f) out += '\\x' + hex2(cp);
+    else if (cp < 0x20 || cp === 0x7f) out += '\\' + cp.toString(8).padStart(3, '0');
     else out += ch;
   }
   return out;
