@@ -43,15 +43,39 @@ export function downloadText(text: string, filename: string, type = 'text/plain'
   downloadBlob(new Blob([text], { type: `${type};charset=utf-8` }), filename);
 }
 
+/**
+ * Make output filenames safe to use as ZIP entry keys: strip any directory
+ * components (so `../x`, `/x` and `a/../b` cannot escape or nest unexpectedly)
+ * and de-duplicate collisions instead of silently overwriting an earlier entry.
+ */
+export function sanitizeZipEntryNames(names: string[]): string[] {
+  const used = new Map<string, number>();
+  return names.map((raw) => {
+    const base =
+      String(raw)
+        .replace(/\\/g, '/')
+        .split('/')
+        .filter((part) => part && part !== '.' && part !== '..')
+        .pop() ?? '';
+    const name = base || 'file';
+    const seen = used.get(name) ?? 0;
+    used.set(name, seen + 1);
+    if (seen === 0) return name;
+    const dot = name.lastIndexOf('.');
+    return dot > 0 ? `${name.slice(0, dot)}-${seen + 1}${name.slice(dot)}` : `${name}-${seen + 1}`;
+  });
+}
+
 /** Bundle multiple outputs into a .zip (fflate is loaded lazily). */
 export async function downloadZip(
   files: { filename: string; blob: Blob }[],
   zipName: string,
 ): Promise<void> {
   const { zip } = await import('fflate');
+  const names = sanitizeZipEntryNames(files.map((f) => f.filename));
   const entries: Record<string, Uint8Array> = {};
-  for (const f of files) {
-    entries[f.filename] = new Uint8Array(await f.blob.arrayBuffer());
+  for (let i = 0; i < files.length; i++) {
+    entries[names[i]!] = new Uint8Array(await files[i]!.blob.arrayBuffer());
   }
   const packed: Uint8Array = await new Promise((resolve, reject) => {
     zip(entries, { level: 6 }, (err, data) => (err ? reject(err) : resolve(data)));

@@ -27,13 +27,12 @@ Updated: 2026-10-03
 ## Next
 
 1. Extend trusted external golden-output tests for remaining image and archive/document tools.
-2. Add failing tests and fixes for worker cancellation, stale runs, object URL cleanup, ZIP path safety, and file limits.
+2. Add failing tests and fixes for stale runs, object URL cleanup, preview URL release, FileReader cancellation, and file size/count caps.
 3. Extend axe and keyboard coverage to all 160 current tool pages and populated category pages.
 4. Add Firefox/WebKit/mobile CI projects, bundle budgets, Lighthouse, SEO assertions, red-team lanes, and docs-guide verification.
 
 ## Known risks
 
-- The current E2E privacy test exercises text tools but skips the sole file tool (`crypto/file-hash`).
 - Existing browser config declares Chromium and mobile Safari; CI installs Chromium only.
 - Media tests mostly use internal round trips rather than independent reference tools; three tools now have CLI golden coverage, the rest do not.
 - Golden tests shell out to ffprobe/unzip/qpdf/pdfinfo; CI runners must have those CLIs installed or the tests will need a skip guard.

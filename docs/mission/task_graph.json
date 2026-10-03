@@ -66,13 +66,14 @@
     {
       "id": "P1-robustness",
       "title": "Malformed, oversized, cancellation, memory and cleanup coverage",
-      "state": "READY",
+      "state": "IN_PROGRESS",
       "evidence": [
         "src/lib/worker/client.ts:56-67",
         "src/components/workbench/FileWorkbench.astro:230-278",
-        "src/lib/files.ts:3-60"
+        "src/lib/files.ts:3-87",
+        "src/lib/files.test.ts"
       ],
-      "open": "Shared worker aborts, stale UI runs, missing size/count caps, unreleased object URLs, and unsafe ZIP names require tests and fixes."
+      "open": "Shared worker aborts, stale UI runs, missing size/count caps, preview URL cleanup, and FileReader cancellation remain open; shared ZIP downloads now sanitize unsafe names and preserve duplicates."
     },
     {
       "id": "P1-browsers",
