@@ -49,7 +49,7 @@ describe('file-hash', async () => {
   });
 
   it('rejects an empty file list', async () => {
-    await expect(await tool.run({ files: [], options: {} })).rejects.toThrow(/at least one file/i);
+    await expect(tool.run({ files: [], options: {} })).rejects.toThrow(/at least one file/i);
   });
 
   it('includes an inline table report with algorithm, hash and filename rows', async () => {

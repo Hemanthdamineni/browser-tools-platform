@@ -65,7 +65,7 @@ describe('uuid-namespace', async () => {
     await expect(
       run('name', { namespace: 'custom', customNamespace: 'not-a-uuid' }),
     ).rejects.toThrow(ToolError);
-    await expect(await run('name', { namespace: 'custom', customNamespace: '' })).rejects.toThrow(
+    await expect(run('name', { namespace: 'custom', customNamespace: '' })).rejects.toThrow(
       /custom namespace/i,
     );
   });

@@ -15,10 +15,15 @@ describe('meta-tags', async () => {
 
   it('escapes quotes and angle brackets in values', async () => {
     const out = await run('', { title: 'He said "hi" <b>' });
-    // Tool correctly escapes: " -> ", < -> <, > -> >
-    expect(out).toContain('<title>He said "hi" <b></title>');
-    expect(out).toContain('<meta property="og:title" content="He said "hi" <b>">');
-    expect(out).toContain('<meta name="twitter:title" content="He said "hi" <b>">');
+    // Values are escaped for HTML text/attributes; reason: repair raw-value
+    // expectation so this test matches the tool's documented safe output.
+    expect(out).toContain('<title>He said &quot;hi&quot; &lt;b&gt;</title>');
+    expect(out).toContain(
+      '<meta property="og:title" content="He said &quot;hi&quot; &lt;b&gt;">',
+    );
+    expect(out).toContain(
+      '<meta name="twitter:title" content="He said &quot;hi&quot; &lt;b&gt;">',
+    );
   });
 
   it('includes canonical, image, site name and chosen types', async () => {

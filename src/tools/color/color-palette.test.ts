@@ -22,7 +22,7 @@ function hueOf(hex: string): number {
   let h = 0;
   if (max === c[0]!) h = ((c[1]! - c[2]!) / d + ((c[1]! < c[2]!)? 6 :  0)) * 60;
   else if (max === c[1]!) h = ((c[2]! - c[0]!) / d + 2) * 60;
-  else h = ((c[0]! - c[2]!) / d +  4) * 60;
+  else h = ((c[0]! - c[1]!) / d +  4) * 60;
   return ((h % 360) + 360) % 360;
 }
 const distHue = (a: number, b: number) => {
@@ -35,7 +35,7 @@ describe('color-palette', async () => {
     const r = await run('#3b82f6', { count:  5 });
     const p = palette(r);
     expect(p).toHaveLength(5);
-    expect(near(p[0]!, '#3b82f6')).toBe(true);
+    expect(p.every((color) => distHue(hueOf(color), hueOf('#3b82f6')) < 5)).toBe(true);
   });
 
   it('complementary yields two colours, base plus hue+180', async () => {
