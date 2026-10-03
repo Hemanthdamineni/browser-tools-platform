@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import tool from './nato-phonetic.tool';
 
-const run = async (text: string, options: Record<string, string | number | boolean> = {}) => await tool.run({ text, options }) as { output: string };
+const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
+  (await tool.run({ text, options })) as { output: string };
 
 describe('nato-phonetic', async () => {
   it('spells letters with NATO words by default', async () => {

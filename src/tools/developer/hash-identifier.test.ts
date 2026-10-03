@@ -9,7 +9,8 @@ interface Res {
 const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
   (await tool.run({ text, options })) as Res;
 
-const table = (r: Awaited<ReturnType<typeof run>>) => JSON.parse(r.output) as { headers: string[]; rows: string[][] };
+const table = (r: Awaited<ReturnType<typeof run>>) =>
+  JSON.parse(r.output) as { headers: string[]; rows: string[][] };
 const types = (r: Awaited<ReturnType<typeof run>>) => table(r).rows.map((row) => row[0]);
 
 describe('hash-identifier', async () => {
@@ -40,7 +41,9 @@ describe('hash-identifier', async () => {
   });
 
   it('identifies Argon2 and reports the variant', async () => {
-    const r = await run('$argon2id$v=19$m=65536,t=3,p=4$c29tZXNhbHQ$RdescudvJCsgt3ub+b+dWRWJTmaaJObG');
+    const r = await run(
+      '$argon2id$v=19$m=65536,t=3,p=4$c29tZXNhbHQ$RdescudvJCsgt3ub+b+dWRWJTmaaJObG',
+    );
     expect(types(r)).toContain('Argon2 (id)');
   });
 

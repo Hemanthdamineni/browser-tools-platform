@@ -2,7 +2,8 @@ import { describe, it, expect } from 'vitest';
 import tool from './color-palette.tool';
 import { ToolError } from '@/lib/types';
 
-const run = async (text: string, options: Record<string, string | number | boolean> = {}) => await tool.run({ text, options });
+const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
+  await tool.run({ text, options });
 const palette = (r: Awaited<ReturnType<typeof run>>) => JSON.parse(r.output) as string[];
 
 function rgbOf(hex: string): number[] {
@@ -20,9 +21,9 @@ function hueOf(hex: string): number {
   if (max === min) return 0;
   const d = max - min;
   let h = 0;
-  if (max === c[0]!) h = ((c[1]! - c[2]!) / d + ((c[1]! < c[2]!)? 6 :  0)) * 60;
+  if (max === c[0]!) h = ((c[1]! - c[2]!) / d + (c[1]! < c[2]! ? 6 : 0)) * 60;
   else if (max === c[1]!) h = ((c[2]! - c[0]!) / d + 2) * 60;
-  else h = ((c[0]! - c[1]!) / d +  4) * 60;
+  else h = ((c[0]! - c[1]!) / d + 4) * 60;
   return ((h % 360) + 360) % 360;
 }
 const distHue = (a: number, b: number) => {
@@ -32,7 +33,7 @@ const distHue = (a: number, b: number) => {
 
 describe('color-palette', async () => {
   it('tints-shades produces count steps at the base hue', async () => {
-    const r = await run('#3b82f6', { count:  5 });
+    const r = await run('#3b82f6', { count: 5 });
     const p = palette(r);
     expect(p).toHaveLength(5);
     expect(p.every((color) => distHue(hueOf(color), hueOf('#3b82f6')) < 5)).toBe(true);
@@ -65,7 +66,7 @@ describe('color-palette', async () => {
   });
 
   it('analogous honours count', async () => {
-    const r = await run('#3b82f6', { scheme: 'analogous', count:  5 });
+    const r = await run('#3b82f6', { scheme: 'analogous', count: 5 });
     expect(palette(r)).toHaveLength(5);
   });
 

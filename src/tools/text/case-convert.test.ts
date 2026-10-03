@@ -3,7 +3,7 @@ import tool from './case-convert.tool';
 import { toWords } from './case-convert.tool';
 
 const c = async (text: string, target: string) =>
-  (await tool.run({ text, options: { target } }) as { output: string }).output;
+  ((await tool.run({ text, options: { target } })) as { output: string }).output;
 
 describe('case-convert', async () => {
   it('upper / lower', async () => {

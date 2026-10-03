@@ -1,7 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import tool from './number-base.tool';
 
-const run = async (text: string, options: Record<string, string | number | boolean> = {}) => await tool.run({ text, options }) as { output: string; stats?: Record<string, string | number> };
+const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
+  (await tool.run({ text, options })) as {
+    output: string;
+    stats?: Record<string, string | number>;
+  };
 
 describe('number-base', async () => {
   it('converts decimal to hex by default', async () => {
@@ -37,8 +41,12 @@ describe('number-base', async () => {
   });
 
   it('groups output digits by 4 when groupDigits is on', async () => {
-    expect((await run('1048575', { fromBase: 10, toBase: 16, groupDigits: true })).output).toBe('f ffff');
-    expect((await run('255', { fromBase: 10, toBase: 2, groupDigits: true })).output).toBe('1111 1111');
+    expect((await run('1048575', { fromBase: 10, toBase: 16, groupDigits: true })).output).toBe(
+      'f ffff',
+    );
+    expect((await run('255', { fromBase: 10, toBase: 2, groupDigits: true })).output).toBe(
+      '1111 1111',
+    );
   });
 
   it('keeps arbitrary precision with BigInt', async () => {

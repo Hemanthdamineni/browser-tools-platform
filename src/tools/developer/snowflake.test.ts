@@ -3,7 +3,10 @@ import tool from './snowflake.tool';
 import { ToolError } from '@/lib/types';
 
 const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
-  await tool.run({ text, options }) as { output: string; stats?: Record<string, string | number> };
+  (await tool.run({ text, options })) as {
+    output: string;
+    stats?: Record<string, string | number>;
+  };
 
 /** Parse the table output into a field → value map. */
 async function fields(text: string, options: Record<string, string | number | boolean> = {}) {

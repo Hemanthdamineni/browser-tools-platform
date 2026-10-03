@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import tool from './quoted-printable.tool';
 
 const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
-  await tool.run({ text, options }) as { output: string };
+  (await tool.run({ text, options })) as { output: string };
 
 describe('quoted-printable', async () => {
   it('decodes =XX escapes as UTF-8', async () => {

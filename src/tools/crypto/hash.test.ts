@@ -2,7 +2,8 @@ import { describe, it, expect } from 'vitest';
 import tool from './hash.tool';
 import { ToolError } from '@/lib/types';
 
-const run = async (text: string, options: Record<string, string | number | boolean> = {}) => await tool.run({ text, options }) as { output: string; stats?: Record<string, unknown> };
+const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
+  (await tool.run({ text, options })) as { output: string; stats?: Record<string, unknown> };
 
 describe('hash', async () => {
   it('MD5 of "abc" (known vector)', async () => {

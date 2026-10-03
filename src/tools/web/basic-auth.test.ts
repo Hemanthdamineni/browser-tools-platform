@@ -2,7 +2,8 @@ import { describe, it, expect } from 'vitest';
 import tool from './basic-auth.tool';
 import { ToolError } from '@/lib/types';
 
-const run = async (text = '', options: Record<string, string | number | boolean> = {}) => await tool.run({ text, options });
+const run = async (text = '', options: Record<string, string | number | boolean> = {}) =>
+  await tool.run({ text, options });
 
 describe('basic-auth', async () => {
   it('builds the RFC 7617 example header', async () => {

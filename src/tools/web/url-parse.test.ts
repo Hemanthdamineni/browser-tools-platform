@@ -6,7 +6,8 @@ interface Res {
   output: string;
   stats?: Record<string, string | number>;
 }
-const run = async (text: string, options: Record<string, string | number | boolean> = {}) => await tool.run({ text, options }) as Res;
+const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
+  (await tool.run({ text, options })) as Res;
 const table = (r: Awaited<ReturnType<typeof run>>) => JSON.parse(r.output) as { rows: string[][] };
 
 describe('url-parse', async () => {

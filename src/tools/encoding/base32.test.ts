@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import tool from './base32.tool';
 
 const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
-  await tool.run({ text, options }) as { output: string };
+  (await tool.run({ text, options })) as { output: string };
 
 describe('base32', async () => {
   it('encodes RFC 4648 vectors', async () => {

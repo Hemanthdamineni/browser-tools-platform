@@ -2,7 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { ToolError } from '@/lib/types';
 import tool from './dotenv.tool';
 
-const run = async (text: string, options: Record<string, string | number | boolean> = {}) => await tool.run({ text, options }) as { output: string; render?: string; language?: string };
+const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
+  (await tool.run({ text, options })) as { output: string; render?: string; language?: string };
 
 describe('dotenv', async () => {
   it('parses KEY=VALUE lines, skipping comments and blanks and stripping "export"', async () => {
@@ -21,12 +22,16 @@ describe('dotenv', async () => {
     expect(JSON.parse((await run('PORT=5432 # the port', { mode: 'parse' })).output)).toEqual({
       PORT: '5432',
     });
-    expect(JSON.parse((await run('MSG="a\\nb"', { mode: 'parse' })).output)).toEqual({ MSG: 'a\nb' });
+    expect(JSON.parse((await run('MSG="a\\nb"', { mode: 'parse' })).output)).toEqual({
+      MSG: 'a\nb',
+    });
   });
 
   it('does not expand ${VAR} by default', async () => {
     const src = 'HOST=localhost\nPORT=5432\nURL=proto://${HOST}:${PORT}/app';
-    expect(JSON.parse((await run(src, { mode: 'parse' })).output).URL).toBe('proto://${HOST}:${PORT}/app');
+    expect(JSON.parse((await run(src, { mode: 'parse' })).output).URL).toBe(
+      'proto://${HOST}:${PORT}/app',
+    );
   });
 
   it('expands ${VAR} from earlier keys when expand is on, but not in single quotes', async () => {
@@ -37,7 +42,9 @@ describe('dotenv', async () => {
   });
 
   it('builds .env text, quoting values with spaces or specials by default', async () => {
-    const out = await run('{ "DB_HOST": "localhost", "GREETING": "hello world" }', { mode: 'build' });
+    const out = await run('{ "DB_HOST": "localhost", "GREETING": "hello world" }', {
+      mode: 'build',
+    });
     expect(out.output).toBe('DB_HOST=localhost\nGREETING="hello world"');
     expect(out.language).toBe('bash');
   });
@@ -50,9 +57,9 @@ describe('dotenv', async () => {
   });
 
   it('leaves values unquoted when quoteValues is off', async () => {
-    expect((await run('{ "GREETING": "hello world" }', { mode: 'build', quoteValues: false })).output).toBe(
-      'GREETING=hello world',
-    );
+    expect(
+      (await run('{ "GREETING": "hello world" }', { mode: 'build', quoteValues: false })).output,
+    ).toBe('GREETING=hello world');
   });
 
   it('returns empty output for empty input', async () => {

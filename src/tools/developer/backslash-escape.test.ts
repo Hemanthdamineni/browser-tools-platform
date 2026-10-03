@@ -3,7 +3,7 @@ import { ToolError } from '@/lib/types';
 import tool from './backslash-escape.tool';
 
 const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
-  await tool.run({ text, options }) as { output: string; notes?: string[] };
+  (await tool.run({ text, options })) as { output: string; notes?: string[] };
 
 describe('backslash-escape', async () => {
   it('empty input → empty output', async () => {
@@ -67,7 +67,7 @@ describe('backslash-escape', async () => {
   });
 
   it('reports mode in stats', async () => {
-    const res = await tool.run({ text: 'x', options: { mode: 'escape' } }) as {
+    const res = (await tool.run({ text: 'x', options: { mode: 'escape' } })) as {
       stats?: Record<string, string | number>;
     };
     expect(res.stats?.mode).toBe('escape');

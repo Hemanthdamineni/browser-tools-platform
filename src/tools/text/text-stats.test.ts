@@ -4,7 +4,7 @@ import tool from './text-stats.tool';
 type Row = [string, string];
 
 async function rows(text: string): Promise<Row[]> {
-  const res = await tool.run({ text, options: {} }) as { output: string; render?: string };
+  const res = (await tool.run({ text, options: {} })) as { output: string; render?: string };
   expect(res.render).toBe('table');
   const parsed = JSON.parse(res.output) as { headers: string[]; rows: Row[] };
   expect(parsed.headers).toEqual(['Metric', 'Value']);

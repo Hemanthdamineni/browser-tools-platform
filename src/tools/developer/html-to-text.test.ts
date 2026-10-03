@@ -2,11 +2,14 @@ import { describe, it, expect } from 'vitest';
 import tool from './html-to-text.tool';
 import { ToolError } from '@/lib/types';
 
-const run = async (text: string, options: Record<string, string | number | boolean> = {}) => await tool.run({ text, options }) as { output: string };
+const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
+  (await tool.run({ text, options })) as { output: string };
 
 describe('html-to-text', async () => {
   it('heading + paragraph become blank-line separated text', async () => {
-    expect((await run('<h1>Title</h1><p>Hello <b>world</b></p>')).output).toBe('Title\n\nHello world');
+    expect((await run('<h1>Title</h1><p>Hello <b>world</b></p>')).output).toBe(
+      'Title\n\nHello world',
+    );
   });
 
   it('empty input -> empty output', async () => {
@@ -28,9 +31,9 @@ describe('html-to-text', async () => {
   });
 
   it('drops <script> and <style> contents', async () => {
-    expect((await run('<style>p{color:red}</style><p>hi</p><script>var x = 1 > 0;</script>')).output).toBe(
-      'hi',
-    );
+    expect(
+      (await run('<style>p{color:red}</style><p>hi</p><script>var x = 1 > 0;</script>')).output,
+    ).toBe('hi');
   });
 
   it('collapses runs of spaces and blank lines', async () => {
@@ -45,7 +48,11 @@ describe('html-to-text', async () => {
 
   it('preserveLinks on: appends the href', async () => {
     expect(
-      (await run('<p>See <a href="https://example.com">our site</a> now</p>', { preserveLinks: true })).output,
+      (
+        await run('<p>See <a href="https://example.com">our site</a> now</p>', {
+          preserveLinks: true,
+        })
+      ).output,
     ).toBe('See our site (https://example.com) now');
   });
 

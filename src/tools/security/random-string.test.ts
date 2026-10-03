@@ -3,7 +3,8 @@ import { ToolError } from '@/lib/types';
 import tool from './random-string.tool';
 
 type Res = { output: string; render?: string; stats?: Record<string, string | number> };
-const run = async (options: Record<string, string | number | boolean> = {}, text = '') => await tool.run({ text, options }) as Res;
+const run = async (options: Record<string, string | number | boolean> = {}, text = '') =>
+  (await tool.run({ text, options })) as Res;
 const lines = (r: Awaited<ReturnType<typeof run>>) => r.output.split('\n');
 
 describe('random-string', async () => {
@@ -21,7 +22,9 @@ describe('random-string', async () => {
     expect(lines(await run({ length: 16, charset: 'digits' }))[0]!).toMatch(/^[0-9]{16}$/);
     expect(lines(await run({ length: 20, charset: 'hex-lower' }))[0]!).toMatch(/^[0-9a-f]{20}$/);
     expect(lines(await run({ length: 20, charset: 'hex-upper' }))[0]!).toMatch(/^[0-9A-F]{20}$/);
-    expect(lines(await run({ length: 20, charset: 'base64url' }))[0]!).toMatch(/^[A-Za-z0-9_-]{20}$/);
+    expect(lines(await run({ length: 20, charset: 'base64url' }))[0]!).toMatch(
+      /^[A-Za-z0-9_-]{20}$/,
+    );
   });
 
   it('custom charset: dedupes and honours the set', async () => {
@@ -33,7 +36,9 @@ describe('random-string', async () => {
 
   it('empty custom set throws ToolError', async () => {
     expect(run({ charset: 'custom', custom: '' })).rejects.toThrow(ToolError);
-    expect(run({ charset: 'custom', custom: '' })).rejects.toThrow(/custom character set is empty/i);
+    expect(run({ charset: 'custom', custom: '' })).rejects.toThrow(
+      /custom character set is empty/i,
+    );
   });
 
   it('count option produces that many unique lines', async () => {

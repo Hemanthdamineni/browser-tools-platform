@@ -3,9 +3,10 @@ import { ToolError } from '@/lib/types';
 import tool from './json-to-jsonschema.tool';
 
 const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
-  await tool.run({ text, options }) as { output: string };
+  (await tool.run({ text, options })) as { output: string };
 
-const parsed = (r: Awaited<ReturnType<typeof run>>) => JSON.parse(r.output) as Record<string, unknown>;
+const parsed = (r: Awaited<ReturnType<typeof run>>) =>
+  JSON.parse(r.output) as Record<string, unknown>;
 
 describe('json-to-jsonschema', async () => {
   it('infers an object schema with required keys by default', async () => {
@@ -42,7 +43,9 @@ describe('json-to-jsonschema', async () => {
   });
 
   it('allows additional properties when the option is set', async () => {
-    expect(parsed(await run('{"a":1}', { additionalProperties: true })).additionalProperties).toBe(true);
+    expect(parsed(await run('{"a":1}', { additionalProperties: true })).additionalProperties).toBe(
+      true,
+    );
   });
 
   it('adds a title when provided', async () => {
@@ -68,7 +71,9 @@ describe('json-to-jsonschema', async () => {
   });
 
   it('collapses mixed primitive elements to a type array', async () => {
-    expect(parsed(await run('["a",1,null]')).items).toEqual({ type: ['integer', 'null', 'string'] });
+    expect(parsed(await run('["a",1,null]')).items).toEqual({
+      type: ['integer', 'null', 'string'],
+    });
   });
 
   it('handles empty object and empty array', async () => {

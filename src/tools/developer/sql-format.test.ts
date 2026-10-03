@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import tool from './sql-format.tool';
 
 const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
-  await tool.run({ text, options }) as { output: string };
+  (await tool.run({ text, options })) as { output: string };
 
 describe('sql-format', async () => {
   it('breaks major clauses onto their own lines and uppercases keywords', async () => {
@@ -33,7 +33,9 @@ describe('sql-format', async () => {
   });
 
   it('can leave keyword casing unchanged', async () => {
-    expect((await run('select a from t', { uppercaseKeywords: false })).output).toContain('select a');
+    expect((await run('select a from t', { uppercaseKeywords: false })).output).toContain(
+      'select a',
+    );
   });
 
   it('never reformats inside string literals or comments', async () => {

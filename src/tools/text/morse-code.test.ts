@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import tool from './morse-code.tool';
 
-const run = async (text: string, options: Record<string, string | number | boolean> = {}) => await tool.run({ text, options }) as { output: string; warnings?: string[] };
+const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
+  (await tool.run({ text, options })) as { output: string; warnings?: string[] };
 
 describe('morse-code', async () => {
   it('encodes text to Morse by default', async () => {
@@ -27,9 +28,9 @@ describe('morse-code', async () => {
 
   it('decoding tolerates extra spaces and "|" word separators', async () => {
     expect((await run('...   ---   ...', { mode: 'morse-to-text' })).output).toBe('SOS');
-    expect((await run('.... . .-.. .-.. ---|.-- --- .-. .-.. -..', { mode: 'morse-to-text' })).output).toBe(
-      'HELLO WORLD',
-    );
+    expect(
+      (await run('.... . .-.. .-.. ---|.-- --- .-. .-.. -..', { mode: 'morse-to-text' })).output,
+    ).toBe('HELLO WORLD');
   });
 
   it('round-trips a phrase', async () => {

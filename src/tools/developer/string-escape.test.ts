@@ -30,9 +30,7 @@ describe('string-escape', async () => {
     // Input is é + newline + 😀 (U+1F600). Python target emits \xNN, \n and
     // \UNNNNNNNN; reason: repair mis-escaped literal so the test asserts the
     // documented escaping behavior.
-    expect((await run('é\n😀', { target: 'python' })).output).toBe(
-      '\\xe9\\n\\U0001f600',
-    );
+    expect((await run('é\n😀', { target: 'python' })).output).toBe('\\xe9\\n\\U0001f600');
   });
 
   it('escapes for POSIX shell with single-quote wrapping', async () => {
@@ -61,9 +59,9 @@ describe('string-escape', async () => {
   });
 
   it('unescapes JavaScript escapes and drops unknown backslashes', async () => {
-    expect((await run(String.raw`\x41B\n\q`, { target: 'javascript', mode: 'unescape' })).output).toBe(
-      'AB\nq',
-    );
+    expect(
+      (await run(String.raw`\x41B\n\q`, { target: 'javascript', mode: 'unescape' })).output,
+    ).toBe('AB\nq');
   });
 
   it('unescapes a JSON string with or without quotes', async () => {
@@ -73,20 +71,20 @@ describe('string-escape', async () => {
 
   it('unescapes C / Python numeric escapes', async () => {
     expect((await run(String.raw`\101`, { target: 'c', mode: 'unescape' })).output).toBe('A');
-    expect((await run(String.raw`\x41\U0001F600`, { target: 'python', mode: 'unescape' })).output).toBe(
-      'A\u{1f600}',
-    );
+    expect(
+      (await run(String.raw`\x41\U0001F600`, { target: 'python', mode: 'unescape' })).output,
+    ).toBe('A\u{1f600}');
   });
 
   it('unescapes HTML and XML entities', async () => {
-    expect((await run('<a>&' + '#x41;', { target: 'html', mode: 'unescape' })).output).toBe(
-      '<a>A',
-    );
+    expect((await run('<a>&' + '#x41;', { target: 'html', mode: 'unescape' })).output).toBe('<a>A');
     expect((await run('&apos;<', { target: 'xml', mode: 'unescape' })).output).toBe("'<");
   });
 
   it('unescapes shell, SQL and CSV', async () => {
-    expect((await run(String.raw`'it'\''s'`, { target: 'shell', mode: 'unescape' })).output).toBe("it's");
+    expect((await run(String.raw`'it'\''s'`, { target: 'shell', mode: 'unescape' })).output).toBe(
+      "it's",
+    );
     expect((await run("'O''Brien'", { target: 'sql', mode: 'unescape' })).output).toBe("O'Brien");
     expect((await run('"a""b"', { target: 'csv', mode: 'unescape' })).output).toBe('a"b');
   });
@@ -123,11 +121,13 @@ describe('string-escape', async () => {
     // 'not\xjson' contains an invalid \x escape; the JSON unescaper must
     // reject it. (Previous literal had a doubly-escaped backslash, so the
     // invalid escape never reached the tool.) reason: repair input literal.
-    await expect(run(String.raw`not\xjson`, { target: 'json', mode: 'unescape' })).rejects.toThrow(ToolError);
+    await expect(run(String.raw`not\xjson`, { target: 'json', mode: 'unescape' })).rejects.toThrow(
+      ToolError,
+    );
   });
 
   it('reports stats', async () => {
-    const res = await tool.run({ text: 'abc', options: { target: 'url', mode: 'escape' } }) as {
+    const res = (await tool.run({ text: 'abc', options: { target: 'url', mode: 'escape' } })) as {
       stats?: Record<string, string | number>;
     };
     expect(res.stats?.target).toBe('url');

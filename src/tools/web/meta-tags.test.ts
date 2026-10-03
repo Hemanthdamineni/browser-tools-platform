@@ -18,12 +18,8 @@ describe('meta-tags', async () => {
     // Values are escaped for HTML text/attributes; reason: repair raw-value
     // expectation so this test matches the tool's documented safe output.
     expect(out).toContain('<title>He said &quot;hi&quot; &lt;b&gt;</title>');
-    expect(out).toContain(
-      '<meta property="og:title" content="He said &quot;hi&quot; &lt;b&gt;">',
-    );
-    expect(out).toContain(
-      '<meta name="twitter:title" content="He said &quot;hi&quot; &lt;b&gt;">',
-    );
+    expect(out).toContain('<meta property="og:title" content="He said &quot;hi&quot; &lt;b&gt;">');
+    expect(out).toContain('<meta name="twitter:title" content="He said &quot;hi&quot; &lt;b&gt;">');
   });
 
   it('includes canonical, image, site name and chosen types', async () => {

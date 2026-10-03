@@ -2,7 +2,8 @@ import { describe, it, expect } from 'vitest';
 import tool from './indent-text.tool';
 
 type Opts = Record<string, string | number | boolean>;
-const run = async (text: string, options: Opts = {}) => await tool.run({ text, options }) as {
+const run = async (text: string, options: Opts = {}) =>
+  (await tool.run({ text, options })) as {
     output: string;
     stats?: Record<string, string | number>;
   };

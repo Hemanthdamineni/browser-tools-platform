@@ -66,9 +66,9 @@ describe('text-encrypt', async () => {
     await expect(run('not a token at all', { mode: 'decrypt', password: PW })).rejects.toThrow(
       /wrong password or corrupted data/i,
     );
-    await expect(run('TBenc1.!!!!not base64!!!!', { mode: 'decrypt', password: PW })).rejects.toThrow(
-      ToolError,
-    );
+    await expect(
+      run('TBenc1.!!!!not base64!!!!', { mode: 'decrypt', password: PW }),
+    ).rejects.toThrow(ToolError);
     await expect(run('TBenc1.QUJD', { mode: 'decrypt', password: PW })).rejects.toThrow(ToolError);
   });
 

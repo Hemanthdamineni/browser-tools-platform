@@ -4,7 +4,7 @@ import tool from './http-status.tool';
 type Result = { output: string; notes?: string[]; render?: string };
 
 const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
-  await tool.run({ text, options }) as Result;
+  (await tool.run({ text, options })) as Result;
 
 const rows = (r: Result) => (JSON.parse(r.output) as { rows: string[][] }).rows;
 

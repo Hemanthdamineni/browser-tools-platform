@@ -4,8 +4,7 @@ import { ToolError } from '@/lib/types';
 
 type Result = { output: string };
 
-const run = async (text: string) =>
-  await tool.run({ text, options: {} }) as Result;
+const run = async (text: string) => (await tool.run({ text, options: {} })) as Result;
 
 const rows = (r: Result) => (JSON.parse(r.output) as { rows: string[][] }).rows;
 const value = (r: Result, field: string) => rows(r).find((row) => row[0] === field)![1];
@@ -31,7 +30,9 @@ describe('user-agent', async () => {
   });
 
   it('detects Firefox + macOS with OS version from underscores', async () => {
-    const r = await run('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Gecko/20100101 Firefox/121.0');
+    const r = await run(
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Gecko/20100101 Firefox/121.0',
+    );
     expect(value(r, 'Browser')).toBe('Firefox');
     expect(value(r, 'OS')).toBe('macOS');
     expect(value(r, 'OS version')).toBe('10.15.7');

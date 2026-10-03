@@ -3,9 +3,11 @@ import { ToolError } from '@/lib/types';
 import tool from './regex-tester.tool';
 
 type Res = { output: string; render?: string };
-const run = async (text: string, options: Record<string, string | number | boolean> = {}) => await tool.run({ text, options }) as Res;
+const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
+  (await tool.run({ text, options })) as Res;
 
-const table = (r: Awaited<ReturnType<typeof run>>) => JSON.parse(r.output) as { headers: string[]; rows: string[][] };
+const table = (r: Awaited<ReturnType<typeof run>>) =>
+  JSON.parse(r.output) as { headers: string[]; rows: string[][] };
 
 describe('regex-tester', async () => {
   it('lists matches with headers, index and empty groups', async () => {
@@ -27,13 +29,21 @@ describe('regex-tester', async () => {
 
   it('replace: applies a literal replacement', async () => {
     expect(
-      (await run('hello world', { pattern: '[aeiou]', flags: 'g', mode: 'replace', replacement: '*' })).output,
+      (
+        await run('hello world', {
+          pattern: '[aeiou]',
+          flags: 'g',
+          mode: 'replace',
+          replacement: '*',
+        })
+      ).output,
     ).toBe('h*ll* w*rld');
   });
 
   it('replace: supports $1 / $2 back-references', async () => {
     expect(
-      (await run('user@host', { pattern: '(\\w+)@(\\w+)', mode: 'replace', replacement: '$2.$1' })).output,
+      (await run('user@host', { pattern: '(\\w+)@(\\w+)', mode: 'replace', replacement: '$2.$1' }))
+        .output,
     ).toBe('host.user');
   });
 
@@ -44,7 +54,9 @@ describe('regex-tester', async () => {
   });
 
   it('highlight: wraps every match in << >>', async () => {
-    expect((await run('a1 b2', { pattern: '\\d', mode: 'highlight' })).output).toBe('a<<1>> b<<2>>');
+    expect((await run('a1 b2', { pattern: '\\d', mode: 'highlight' })).output).toBe(
+      'a<<1>> b<<2>>',
+    );
   });
 
   it('highlight: skips zero-length matches without looping', async () => {

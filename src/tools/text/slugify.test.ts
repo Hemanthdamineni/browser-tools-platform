@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import tool from './slugify.tool';
 
 const s = async (text: string, options: Record<string, string | number | boolean> = {}) =>
-  (await tool.run({ text, options }) as { output: string }).output;
+  ((await tool.run({ text, options })) as { output: string }).output;
 
 describe('slugify', async () => {
   it('basic title', async () => {

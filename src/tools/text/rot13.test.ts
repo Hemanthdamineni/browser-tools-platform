@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import tool from './rot13.tool';
 
 const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
-  await tool.run({ text, options }) as { output: string };
+  (await tool.run({ text, options })) as { output: string };
 
 describe('rot13', async () => {
   it('applies ROT13 to letters by default', async () => {

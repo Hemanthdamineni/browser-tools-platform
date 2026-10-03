@@ -2,7 +2,11 @@ import { describe, it, expect } from 'vitest';
 import { ToolError } from '@/lib/types';
 import tool from './json-to-typescript.tool';
 
-const run = async (text: string, options: Record<string, string | number | boolean> = {}) => await tool.run({ text, options }) as { output: string; stats?: Record<string, string | number> };
+const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
+  (await tool.run({ text, options })) as {
+    output: string;
+    stats?: Record<string, string | number>;
+  };
 
 describe('json-to-typescript', async () => {
   it('emits a root interface with a nested named type', async () => {
@@ -38,7 +42,9 @@ describe('json-to-typescript', async () => {
   });
 
   it('uses only the first element when arrayMergeSampleAll is off', async () => {
-    expect((await run('{"users":[{"a":1},{"a":2,"b":"x"}]}', { arrayMergeSampleAll: false })).output).toBe(
+    expect(
+      (await run('{"users":[{"a":1},{"a":2,"b":"x"}]}', { arrayMergeSampleAll: false })).output,
+    ).toBe(
       [
         'interface Root {',
         '  users: RootUsersItem[];',
@@ -82,7 +88,9 @@ describe('json-to-typescript', async () => {
   });
 
   it('quotes keys that are not valid identifiers', async () => {
-    expect((await run('{"a-b":1}')).output).toBe(['interface Root {', '  "a-b": number;', '}'].join('\n'));
+    expect((await run('{"a-b":1}')).output).toBe(
+      ['interface Root {', '  "a-b": number;', '}'].join('\n'),
+    );
   });
 
   it('reports the number of named types', async () => {

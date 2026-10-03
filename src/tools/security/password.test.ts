@@ -35,16 +35,18 @@ describe('password', async () => {
   });
 
   it('lowercase-only and uppercase-only branches', async () => {
-    expect(lines(await run({ length: 12, uppercase: false, digits: false, symbols: false }))[0]!).toMatch(
-      /^[a-z]{12}$/,
-    );
-    expect(lines(await run({ length: 12, lowercase: false, digits: false, symbols: false }))[0]!).toMatch(
-      /^[A-Z]{12}$/,
-    );
+    expect(
+      lines(await run({ length: 12, uppercase: false, digits: false, symbols: false }))[0]!,
+    ).toMatch(/^[a-z]{12}$/);
+    expect(
+      lines(await run({ length: 12, lowercase: false, digits: false, symbols: false }))[0]!,
+    ).toMatch(/^[A-Z]{12}$/);
   });
 
   it('symbols-only branch contains no alphanumerics', async () => {
-    const s = lines(await run({ length: 16, uppercase: false, lowercase: false, digits: false }))[0]!;
+    const s = lines(
+      await run({ length: 16, uppercase: false, lowercase: false, digits: false }),
+    )[0]!;
     expect(s).toHaveLength(16);
     expect(/[A-Za-z0-9]/.test(s)).toBe(false);
   });
@@ -67,12 +69,12 @@ describe('password', async () => {
   });
 
   it('throws ToolError when no character class is selected', async () => {
-    await expect(run({ uppercase: false, lowercase: false, digits: false, symbols: false })).rejects.toThrow(
-      ToolError,
-    );
-    await expect(run({ uppercase: false, lowercase: false, digits: false, symbols: false })).rejects.toThrow(
-      /at least one character type/i,
-    );
+    await expect(
+      run({ uppercase: false, lowercase: false, digits: false, symbols: false }),
+    ).rejects.toThrow(ToolError);
+    await expect(
+      run({ uppercase: false, lowercase: false, digits: false, symbols: false }),
+    ).rejects.toThrow(/at least one character type/i);
   });
 
   it('throws ToolError when length or count is not a number', async () => {

@@ -45,7 +45,10 @@ describe('markdown-to-html', async () => {
   });
 
   it('output is flagged as html code', async () => {
-    const res = await tool.run({ text: '# x', options: {} }) as { render?: string; language?: string };
+    const res = (await tool.run({ text: '# x', options: {} })) as {
+      render?: string;
+      language?: string;
+    };
     expect(res.render).toBe('code');
     expect(res.language).toBe('html');
   });

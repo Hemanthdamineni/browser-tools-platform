@@ -3,8 +3,11 @@ import tool from './char-frequency.tool';
 
 type Row = [string, string, string];
 
-async function rows(text: string, options: Record<string, string | number | boolean> = {}): Promise<Row[]> {
-  const res = await tool.run({ text, options }) as { output: string; render?: string };
+async function rows(
+  text: string,
+  options: Record<string, string | number | boolean> = {},
+): Promise<Row[]> {
+  const res = (await tool.run({ text, options })) as { output: string; render?: string };
   if (res.output === '') return [];
   expect(res.render).toBe('table');
   const parsed = JSON.parse(res.output) as { headers: string[]; rows: Row[] };
@@ -70,12 +73,12 @@ describe('char-frequency', async () => {
   });
 
   it('returns empty output for empty input', async () => {
-    const res = await tool.run({ text: '', options: {} }) as { output: string };
+    const res = (await tool.run({ text: '', options: {} })) as { output: string };
     expect(res.output).toBe('');
   });
 
   it('reports totals in stats', async () => {
-    const res = await tool.run({ text: 'aabbc', options: {} }) as {
+    const res = (await tool.run({ text: 'aabbc', options: {} })) as {
       stats?: Record<string, string | number>;
     };
     expect(res.stats?.total).toBe(5);

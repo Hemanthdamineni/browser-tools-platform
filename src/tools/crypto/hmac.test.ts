@@ -3,7 +3,7 @@ import tool from './hmac.tool';
 import { ToolError } from '@/lib/types';
 
 const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
-  await tool.run({ text, options }) as { output: string; stats?: Record<string, unknown> };
+  (await tool.run({ text, options })) as { output: string; stats?: Record<string, unknown> };
 
 const FOX = 'The quick brown fox jumps over the lazy dog';
 
