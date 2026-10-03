@@ -20,83 +20,128 @@ const TIFF_TAGS: Record<number, [string, number]> = {
   0x9003: ['DateTimeOriginal', 2], // ascii (Exif IFD)
 };
 
-/** Bytes-per-value for the IFD types we understand. */
-function typeSize(type: number): number {
-  switch (type) {
-    case 1: // BYTE
-    case 2: // ASCII
-    case 6: // SBYTE
-    case 7: // UNDEFINED
-      return 1;
-    case 3: // SHORT
-    case 8: // SSHORT
-      return 2;
-    case 4: // LONG
-    case 9: // SLONG
-    case 11: // FLOAT
-      return 4;
-    case 5: // RATIONAL
-    case 10: // SRATIONAL
-    case 12: // DOUBLE
-      return 8;
-    default:
-      return 1;
-  }
-}
-
 interface ValueReader {
   readonly u8: (a: number) => number;
   readonly u16: (a: number) => number;
   readonly u32: (a: number) => number;
+  readonly f32: (a: number) => number;
+  readonly f64: (a: number) => number;
 }
 
-/** Read a single IFD value at absolute offset `off`. */
+/** Bytes occupied by one value of `type`, or 0 for types we cannot size. */
+function sizeOf(type: number): number {
+  switch (type) {
+    case 1:
+    case 2:
+    case 6:
+    case 7:
+      return 1;
+    case 3:
+    case 8:
+      return 2;
+    case 4:
+    case 9:
+    case 11:
+      return 4;
+    case 5:
+    case 10:
+    case 12:
+      return 8;
+    default:
+      return 0;
+  }
+}
+
+/**
+ * Read a single IFD value. `field` is the absolute buffer offset of the entry's
+ * 4-byte value field; `base` is the buffer offset of the TIFF header, which
+ * out-of-line value offsets are relative to.
+ */
 function readIfdValue(
   buf: ArrayBuffer,
   r: ValueReader,
-  off: number,
+  field: number,
   type: number,
   count: number,
+  base: number,
 ): string | number {
+  const unit = sizeOf(type);
+  if (unit === 0 || !Number.isSafeInteger(count) || count <= 0) return '';
+  const total = unit * count;
+  if (!Number.isSafeInteger(total)) return '';
   const raw = new Uint8Array(buf);
+  const off = total <= 4 ? field : base + r.u32(field);
   if (type === 2 || type === 7) {
     // ASCII / UNDEFINED — return the text up to the first NUL.
     let s = '';
-    for (let i = 0; i < count && off + i < raw.length; i++) {
-      const c = raw[off + i];
+    for (let i = 0; i < total; i++) {
+      const at = off + i;
+      if (at >= raw.length) break;
+      const c = raw[at];
       if (c === undefined || c === 0) break;
       s += String.fromCharCode(c);
     }
     return s;
   }
-  const valueAt = (p: number): number => {
-    if (p < 0 || p + 8 > raw.length) return 0;
-    switch (type) {
-      case 1:
-      case 6:
-      case 7:
-        return r.u8(p);
-      case 3:
-      case 8:
-        return r.u16(p);
-      case 4:
-      case 9:
-      case 11:
-        return r.u32(p);
-      case 5:
-      case 10: {
-        const denom = r.u32(p + 4);
-        return denom ? Math.round((r.u32(p) / denom) * 1000) / 1000 : 0;
-      }
-      case 12:
-        return Math.round((r.u32(p) / Math.max(1, r.u32(p + 4))) * 1000) / 1000;
-      default:
-        return 0;
+  if (off < 0 || off + total > raw.length) return '';
+  switch (type) {
+    case 1:
+    case 6:
+      return r.u8(off);
+    case 3:
+    case 8:
+      return r.u16(off);
+    case 4:
+    case 9:
+      return r.u32(off);
+    case 11:
+      return Math.round(r.f32(off) * 1000) / 1000;
+    case 12:
+      return Math.round(r.f64(off) * 1000) / 1000;
+    case 5:
+    case 10: {
+      const denom = r.u32(off + 4);
+      return denom ? Math.round((r.u32(off) / denom) * 1000) / 1000 : 0;
     }
-  };
-  const totalBytes = count * typeSize(type);
-  // Value fits inline when it occupies ≤ 4 bytes; otherwise it is an offset.
-  return totalBytes <= 4 ? valueAt(off) : valueAt(r.u32(off));
+    default:
+      return '';
+  }
+}
+
+/**
+ * Walk one IFD, writing recognised tags into `out`. Returns the value of every
+ * ExifIFDPointer (0x8769) entry found so the caller can descend into the Exif
+ * sub-IFD, which is where DateTimeOriginal, ISO, FocalLength and LensModel live.
+ */
+function readIfdEntries(
+  buf: ArrayBuffer,
+  r: ValueReader,
+  start: number,
+  count: number,
+  base: number,
+  out: Record<string, string | number>,
+): number[] {
+  const pointers: number[] = [];
+  let p = start + 2;
+  for (let i = 0; i < count && p + 12 <= buf.byteLength; i++) {
+    const tag = r.u16(p);
+    const type = r.u16(p + 2);
+    const valueCount = r.u32(p + 4);
+    const field = p + 8;
+    if (tag === 0x8769 && (type === 4 || type === 3)) {
+      pointers.push(r.u32(field));
+    }
+    const def = TIFF_TAGS[tag];
+    if (def) {
+      const want = def[1];
+      // Integer tags are written as either SHORT or LONG in the wild.
+      const ok =
+        want === type || (want === 5 && (type === 5 || type === 10)) || (want === 3 && type === 4);
+      if (ok) out[def[0]] = readIfdValue(buf, r, field, type, valueCount, base);
+    }
+    p += 12;
+  }
+  return pointers;
 }
 
 /**
@@ -145,6 +190,8 @@ export function readExif(buf: ArrayBuffer): Record<string, string | number> {
           u8: (a) => d.getUint8(a),
           u16: (a) => d.getUint16(a, le),
           u32: (a) => d.getUint32(a, le),
+          f32: (a) => d.getFloat32(a, le),
+          f64: (a) => d.getFloat64(a, le),
         };
         if (r.u16(t + 2) !== 42) break; // not a TIFF header
         const ifd0Offset = r.u32(t + 4);
@@ -152,42 +199,14 @@ export function readExif(buf: ArrayBuffer): Record<string, string | number> {
         if (!Number.isFinite(ifd0) || ifd0 < 0 || ifd0 + 2 > buf.byteLength) break;
 
         const entries = r.u16(ifd0);
-        let p = ifd0 + 2;
-        for (let i = 0; i < entries && p + 12 <= buf.byteLength; i++) {
-          const tag = r.u16(p);
-          const type = r.u16(p + 2);
-          const count = r.u32(p + 4);
-          const def = TIFF_TAGS[tag];
-          if (
-            def &&
-            (def[1] === type ||
-              (def[1] === 3 && type === 3) ||
-              (def[1] === 2 && type === 2) ||
-              (def[1] === 5 && (type === 5 || type === 10)))
-          ) {
-            out[def[0]] = readIfdValue(buf, r, p + 8, type, count);
-          }
-          p += 12;
-        }
+        const pointers = readIfdEntries(buf, r, ifd0, entries, t, out);
 
-        // Follow the "next IFD" offset pointer to the Exif IFD.
-        const next = r.u32(ifd0 + 2 + entries * 12);
-        if (next && t + next + 2 <= buf.byteLength) {
-          const exif = t + next;
-          const n2 = r.u16(exif);
-          let q = exif + 2;
-          for (let i = 0; i < n2 && q + 12 <= buf.byteLength; i++) {
-            const eifd = r.u16(q);
-            if (eifd === 0x9003) {
-              out.DateTimeOriginal = readIfdValue(buf, r, q + 8, r.u16(q + 2), r.u32(q + 4));
-            } else if (eifd === 0x8827) {
-              out.ISO = readIfdValue(buf, r, q + 8, r.u16(q + 2), r.u32(q + 4));
-            } else if (eifd === 0x920a) {
-              out.FocalLength = readIfdValue(buf, r, q + 8, r.u16(q + 2), r.u32(q + 4));
-            } else if (eifd === 0xa405) {
-              out.LensModel = readIfdValue(buf, r, q + 8, r.u16(q + 2), r.u32(q + 4));
-            }
-            q += 12;
+        // The Exif IFD is reached through tag 0x8769 (ExifIFDPointer), not the
+        // "next IFD" pointer — that one leads to IFD1 (e.g. the thumbnail).
+        for (const pointer of pointers) {
+          const exif = t + pointer;
+          if (exif > ifd0 && exif + 2 <= buf.byteLength) {
+            readIfdEntries(buf, r, exif, r.u16(exif), t, out);
           }
         }
       }

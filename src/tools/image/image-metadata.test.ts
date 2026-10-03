@@ -33,6 +33,62 @@ function toArrayBuffer(bytes: Uint8Array): ArrayBuffer {
   return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer;
 }
 
+/** JPEG EXIF with an ExifIFDPointer, LensModel, and a RATIONAL FNumber. */
+function exifJpegWithPointerBytes(): Uint8Array {
+  const IFD0 = 8;
+  const EXIF_IFD = 38;
+  const DTO = 96; // DateTimeOriginal, 20-byte ASCII
+  const FNUM = 120; // FNumber, RATIONAL
+  const LENS = 128; // LensModel, ASCII
+  const tiff = Buffer.alloc(144);
+  tiff.write('II', 0, 'ascii');
+  tiff.writeUInt16LE(42, 2);
+  tiff.writeUInt32LE(IFD0, 4);
+
+  // IFD0: ExifIFDPointer (0x8769) + Orientation.
+  tiff.writeUInt16LE(2, IFD0);
+  tiff.writeUInt16LE(0x8769, IFD0 + 2);
+  tiff.writeUInt16LE(4, IFD0 + 4); // LONG
+  tiff.writeUInt32LE(1, IFD0 + 6);
+  tiff.writeUInt32LE(EXIF_IFD, IFD0 + 10);
+  tiff.writeUInt16LE(0x0112, IFD0 + 14);
+  tiff.writeUInt16LE(3, IFD0 + 16); // SHORT
+  tiff.writeUInt32LE(1, IFD0 + 18);
+  tiff.writeUInt16LE(1, IFD0 + 22);
+  tiff.writeUInt32LE(0, IFD0 + 26); // no next IFD
+
+  // Exif sub-IFD: DateTimeOriginal, FNumber, LensModel.
+  tiff.writeUInt16LE(3, EXIF_IFD);
+  tiff.writeUInt16LE(0x9003, EXIF_IFD + 2);
+  tiff.writeUInt16LE(2, EXIF_IFD + 4); // ASCII
+  tiff.writeUInt32LE(20, EXIF_IFD + 6);
+  tiff.writeUInt32LE(DTO, EXIF_IFD + 10);
+  tiff.writeUInt16LE(0x829d, EXIF_IFD + 14);
+  tiff.writeUInt16LE(5, EXIF_IFD + 16); // RATIONAL
+  tiff.writeUInt32LE(1, EXIF_IFD + 18);
+  tiff.writeUInt32LE(FNUM, EXIF_IFD + 22);
+  tiff.writeUInt16LE(0xa434, EXIF_IFD + 26);
+  tiff.writeUInt16LE(2, EXIF_IFD + 28); // ASCII
+  tiff.writeUInt32LE(10, EXIF_IFD + 30);
+  tiff.writeUInt32LE(LENS, EXIF_IFD + 34);
+  tiff.writeUInt32LE(0, EXIF_IFD + 38); // no next IFD
+
+  tiff.write('2026:03:14 15:09:26\0', DTO, 'ascii');
+  tiff.writeUInt32LE(35, FNUM); // 35/10 = 3.5
+  tiff.writeUInt32LE(10, FNUM + 4);
+  tiff.write('Prime Lens\0', LENS, 'ascii');
+
+  const payload = Buffer.concat([Buffer.from('Exif\0\0', 'latin1'), tiff]);
+  const app1 = Buffer.alloc(4 + payload.length);
+  app1[0] = 0xff;
+  app1[1] = 0xe1;
+  app1.writeUInt16BE(2 + payload.length, 2);
+  payload.copy(app1, 4);
+  return new Uint8Array(
+    Buffer.concat([Buffer.from([0xff, 0xd8]), app1, Buffer.from([0xff, 0xd9])]),
+  );
+}
+
 /** Minimal PNG with a tEXt and pHYs chunk. */
 function pngBytes(): Uint8Array {
   const crc = (data: Uint8Array): number => {
@@ -110,6 +166,14 @@ describe('readExif', () => {
   it('reads a little-endian APP1 Exif Orientation tag', () => {
     expect(readExif(toArrayBuffer(exifJpegBytes()))).toMatchObject({ Orientation: 6 });
   });
+  it('follows ExifIFDPointer and reads Exif tags', () => {
+    expect(readExif(toArrayBuffer(exifJpegWithPointerBytes()))).toMatchObject({
+      DateTimeOriginal: '2026:03:14 15:09:26',
+      FNumber: 3.5,
+      LensModel: 'Prime Lens',
+    });
+  });
+
   it('returns an empty record for a JPEG without an Exif block', () => {
     expect(readExif(toArrayBuffer(new Uint8Array([0xff, 0xd8, 0xff, 0xd9])))).toEqual({});
   });
