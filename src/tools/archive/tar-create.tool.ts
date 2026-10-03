@@ -11,6 +11,25 @@ function octal(value: number, field: number): string {
   return s.slice(0, field);
 }
 
+/**
+ * Encode a ustar numeric field. `size` and `mtime` are 12 bytes wide (11 octal
+ * digits + NUL); values too large for octal fall back to the base-256 encoding
+ * POSIX defines (leading 0x80 byte, remaining bytes big-endian).
+ */
+function numericField(value: number, field: number): Uint8Array {
+  const max = Math.pow(8, field - 1) - 1;
+  if (value <= max) return new TextEncoder().encode(octal(value, field));
+  const out = new Uint8Array(field);
+  out[0] = 0x80;
+  let v = Math.max(0, Math.floor(value));
+  for (let i = field - 1; i >= 1; i--) {
+    out[i] = v & 0xff;
+    v = Math.floor(v / 256);
+  }
+  if (v > 0) out.fill(0xff); // saturate values too large for the field
+  return out;
+}
+
 function header(name: string, size: number, mtime: number): Uint8Array {
   const block = new Uint8Array(BLOCK);
   const enc = new TextEncoder();
@@ -20,11 +39,11 @@ function header(name: string, size: number, mtime: number): Uint8Array {
     [100, '0000644\0', 8],
     [108, '0000000\0', 8],
     [116, '0000000\0', 8],
-    [124, octal(size, 11), 11],
-    [136, octal(Math.floor(mtime / 1000), 11), 11],
     [148, '        ', 8], // 8 spaces, per spec, replaced with the checksum below
   ];
   for (const [off, val, len] of fields) block.set(enc.encode(val.slice(0, len)), off);
+  block.set(numericField(size, 12), 124);
+  block.set(numericField(mtime, 12), 136);
   block[156] = 0x30; // typeflag '0' (regular file)
   block.set(enc.encode('ustar\0'), 257);
   block.set(enc.encode('00'), 263);
@@ -59,7 +78,8 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
     }
     const data = new Uint8Array(await f.arrayBuffer());
     total += data.length;
-    const mtime = Math.max(0, Math.floor(f.lastModified || Date.now()));
+    // File.lastModified is epoch milliseconds; TAR stores whole seconds.
+    const mtime = Math.max(0, Math.floor((f.lastModified || Date.now()) / 1000));
     parts.push(header(name, data.length, mtime));
     parts.push(data);
     const pad = BLOCK - (data.length % BLOCK);

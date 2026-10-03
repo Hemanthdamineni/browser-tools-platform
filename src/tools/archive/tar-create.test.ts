@@ -43,4 +43,21 @@ describe('tar-create', () => {
       /invalid archive path/i,
     );
   });
+  it('stores epoch mtime in whole seconds with a valid checksum', async () => {
+    const f = new File(['x'], 'a.txt', { lastModified: 1_700_000_000_123 });
+    const r = await tool.run({ files: [f], options: {} });
+    const packed = await bytes(r);
+    const rawField = packed.slice(136, 148);
+    const mtimeField = new TextDecoder().decode(rawField).replace(/[ \0]/g, '');
+    expect(parseInt(mtimeField, 8)).toBe(1_700_000_000); // 123 ms truncated
+    // POSIX checksum: sum the block with the checksum field read as spaces.
+    const block = packed.slice(0, 512);
+    const stored = parseInt(
+      new TextDecoder().decode(block.slice(148, 154)).replace(/[ \0]/g, ''),
+      8,
+    );
+    let sum = 0;
+    for (let i = 0; i < 512; i++) sum += i >= 148 && i < 156 ? 32 : block[i]!;
+    expect(stored).toBe(sum);
+  });
 });
