@@ -44,7 +44,7 @@ function pngBytes(): Uint8Array {
       for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
       crc32 = (crc32 >>> 8) ^ c;
     }
-    return crc32 ^ 0xffffffff;
+    return (crc32 ^ 0xffffffff) >>> 0;
   };
   const chunk = (type: string, data: Uint8Array) => {
     const t = Buffer.from(type, 'latin1');
@@ -71,6 +71,41 @@ function pngBytes(): Uint8Array {
   );
 }
 
+/** Minimal PNG carrying a tIME chunk (2-byte year, then M/D/h/m/s). */
+function pngBytesWithTime(year: number): Uint8Array {
+  const crc = (data: Uint8Array): number => {
+    let crc32 = 0xffffffff;
+    for (let i = 0; i < data.length; i++) {
+      let c = (crc32 ^ data[i]!) & 0xff;
+      for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+      crc32 = (crc32 >>> 8) ^ c;
+    }
+    return (crc32 ^ 0xffffffff) >>> 0;
+  };
+  const chunk = (type: string, data: Uint8Array) => {
+    const body = Buffer.concat([Buffer.from(type, 'latin1'), data]);
+    const out = Buffer.alloc(4 + body.length + 4);
+    out.writeUInt32BE(data.length, 0);
+    body.copy(out, 4);
+    out.writeUInt32BE(crc(body), 4 + body.length);
+    return out;
+  };
+  const sig = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
+  const ihdr = Buffer.alloc(13);
+  ihdr.writeUInt32BE(1, 0);
+  ihdr.writeUInt32BE(1, 4);
+  ihdr[8] = 8;
+  ihdr[9] = 6;
+  const time = Buffer.alloc(7);
+  time.writeUInt16BE(year, 0); // two-byte year per the PNG spec
+  time[2] = 3; // month
+  time[3] = 14; // day
+  time[4] = 15; // hour
+  time[5] = 9; // minute
+  time[6] = 26; // second
+  return new Uint8Array(Buffer.concat([sig, chunk('IHDR', ihdr), chunk('tIME', time)]));
+}
+
 describe('readExif', () => {
   it('reads a little-endian APP1 Exif Orientation tag', () => {
     expect(readExif(toArrayBuffer(exifJpegBytes()))).toMatchObject({ Orientation: 6 });
@@ -84,6 +119,11 @@ describe('readExif', () => {
 });
 
 describe('decodePngChunks', () => {
+  it('reads the two-byte PNG tIME year field', () => {
+    const bytes = pngBytesWithTime(2026);
+    expect(decodePngChunks(toArrayBuffer(bytes)).Modified).toBe('2026-03-14 15:09:26');
+  });
+
   it('extracts tEXt and pHYs metadata', () => {
     const meta = decodePngChunks(toArrayBuffer(pngBytes()));
     expect(meta.Author).toBe('Claude');

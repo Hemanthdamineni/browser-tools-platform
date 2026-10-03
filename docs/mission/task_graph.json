@@ -61,7 +61,7 @@
         "src/tools/archive/zip-create.golden.test.ts",
         "src/tools/pdf/pdf-metadata.golden.test.ts"
       ],
-      "open": "ffprobe, unzip, qpdf, and pdfinfo coverage now verifies audio, archive, and PDF metadata outputs; ImageMagick golden assertions and broader media coverage remain open."
+      "open": "ffprobe, unzip, qpdf, and pdfinfo coverage now verifies audio, archive, and PDF metadata outputs, and the PNG tIME two-byte year parser is fixed with a failing test first; ImageMagick golden assertions and broader media coverage remain open."
     },
     {
       "id": "P1-robustness",
@@ -113,13 +113,16 @@
     {
       "id": "P2-redteam",
       "title": "Independent red-team findings and fixes",
-      "state": "READY",
+      "state": "IN_PROGRESS",
       "evidence": [
         "src/tools/archive",
         "src/tools/image/image-metadata.tool.ts",
-        "src/components/workbench"
+        "src/components/workbench",
+        "src/lib/files.ts",
+        "src/tools/image/image-metadata.test.ts",
+        "npx vitest run src/tools/image/image-metadata.test.ts => 8 passed (tIME two-byte year failing test fixed)"
       ],
-      "open": "Zip path traversal/duplicate names, image metadata parsing, calculator evaluation, SVG external resources, and XSS surfaces need failing tests first."
+      "open": "Fixed: shared ZIP entry-name traversal/duplicates and PNG tIME two-byte year parsing (red test reproduced '2007-234-03' before the fix). Remaining: EXIF ExifIFDPointer, TIFF DOUBLE parsing, TAR timestamps, calculator evaluation, SVG external resources, and XSS surfaces need failing tests first."
     },
     {
       "id": "P3-video",

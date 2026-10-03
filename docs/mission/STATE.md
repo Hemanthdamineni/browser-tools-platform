@@ -4,6 +4,7 @@ Updated: 2026-10-03
 
 ## Completed
 
+- Fixed a red-team PNG metadata defect with a failing test first: PNG `tIME` years are two-byte big-endian values; the parser previously treated one byte as `year + 2000` and misaligned all fields. `npx vitest run src/tools/image/image-metadata.test.ts` => 8 passed.
 - Hardened the shared file workbench and ZIP download path, verified against a fresh build:
   - `src/lib/files.ts` sanitizes ZIP entry names (strips traversal/absolute segments, de-duplicates) and `src/lib/files.test.ts` covers it.
   - `src/components/workbench/FileWorkbench.astro` aborts and invalidates in-flight runs on reset/re-run, ignores late results and progress, clears rendered output, and revokes blob preview URLs.
@@ -31,9 +32,9 @@ Updated: 2026-10-03
 ## Next
 
 1. Extend trusted external golden-output tests for remaining image and archive/document tools.
-2. Add failing tests and fixes for stale runs, object URL cleanup, preview URL release, FileReader cancellation, and file size/count caps.
+2. Add failing tests and fixes for FileReader cancellation and file size/count caps.
 3. Extend axe and keyboard coverage to all 160 current tool pages and populated category pages.
-4. Add Firefox/WebKit/mobile CI projects, bundle budgets, Lighthouse, SEO assertions, red-team lanes, and docs-guide verification.
+4. Continue red-team tests for EXIF pointers, TIFF DOUBLE parsing, calculator evaluation, SVG external resources, and XSS; add Firefox/WebKit/mobile CI projects, bundle budgets, Lighthouse, SEO, and docs-guide verification.
 
 ## Known risks
 

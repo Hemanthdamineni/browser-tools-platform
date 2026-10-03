@@ -244,12 +244,13 @@ export function decodePngChunks(buf: ArrayBuffer): Record<string, string | numbe
         out[key] = `iTXt: ${len} bytes`;
       }
     } else if (type === 'tIME' && len >= 7) {
-      const year = d[start]! + 2000;
-      const month = String(d[start + 1]!).padStart(2, '0');
-      const day = String(d[start + 2]!).padStart(2, '0');
-      const hour = String(d[start + 3]!).padStart(2, '0');
-      const minute = String(d[start + 4]!).padStart(2, '0');
-      const second = String(d[start + 5]!).padStart(2, '0');
+      // tIME stores the year as an unsigned 16-bit big-endian value (not +2000).
+      const year = ((d[start]! << 8) | d[start + 1]!) >>> 0;
+      const month = String(d[start + 2]!).padStart(2, '0');
+      const day = String(d[start + 3]!).padStart(2, '0');
+      const hour = String(d[start + 4]!).padStart(2, '0');
+      const minute = String(d[start + 5]!).padStart(2, '0');
+      const second = String(d[start + 6]!).padStart(2, '0');
       out.Modified = `${year}-${month}-${day} ${hour}:${minute}:${second}`;
     }
 
