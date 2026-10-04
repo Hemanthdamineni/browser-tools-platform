@@ -35,4 +35,10 @@ describe('calculator', () => {
     await expect(run('globalThis')).rejects.toThrow(ToolError);
     expect((await run('')).output).toBe('');
   });
+  it('rejects empty function arguments and non-finite results', async () => {
+    await expect(run('sqrt()')).rejects.toThrow(ToolError);
+    await expect(run('min()')).rejects.toThrow(ToolError);
+    await expect(run('10 * pow(10, 308)')).rejects.toThrow(/finite number/i);
+    await expect(run('(-2)^0.5')).rejects.toThrow(/finite number/i);
+  });
 });

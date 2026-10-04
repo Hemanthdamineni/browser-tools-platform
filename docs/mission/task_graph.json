@@ -114,7 +114,7 @@
     {
       "id": "P2-redteam",
       "title": "Independent red-team findings and fixes",
-      "state": "IN_PROGRESS",
+      "state": "VERIFIED",
       "evidence": [
         "src/tools/archive",
         "src/tools/image/image-metadata.tool.ts",
@@ -122,9 +122,17 @@
         "src/lib/files.ts",
         "src/tools/image/image-metadata.test.ts",
         "npx vitest run src/tools/image/image-metadata.test.ts => 9 passed (ExifIFDPointer red test fixed)",
-        "commit 6973b0c fix: follow ExifIFDPointer and resolve TIFF-relative value offsets"
+        "commit 6973b0c fix: follow ExifIFDPointer and resolve TIFF-relative value offsets",
+        "src/tools/archive/tar-create.tool.ts ustar size/mtime base-256 fallback with checksum red test",
+        "src/tools/image/svg-to-png.tool.ts assertSafeSvg rejects external href/CSS/script constructs",
+        "src/tools/misc/calculator.tool.ts rejects empty args and non-finite results",
+        "src/components/workbench/FileWorkbench.astro escapes filenames in innerHTML text and aria-label",
+        "npx vitest run src/tools/archive/tar-create.test.ts src/tools/misc/calculator.test.ts src/tools/image/svg-to-png.test.ts src/lib/format.test.ts => 21 passed",
+        "npm run check => 0 errors, 0 warnings, 13 hints",
+        "npm run lint => exit 0",
+        "prettier --check changed files => all matched"
       ],
-      "open": "Fixed: shared ZIP entry-name traversal/duplicates; PNG tIME two-byte year parsing; EXIF ExifIFDPointer traversal, TIFF-relative out-of-line values, FLOAT/DOUBLE decoding, and common SHORT/LONG variants. Red tests cover the fixes. Remaining: TAR timestamps, calculator evaluation, SVG external resources, and XSS surfaces need failing tests first."
+      "open": "Fixed: shared ZIP entry-name traversal/duplicates; PNG tIME two-byte year parsing; EXIF ExifIFDPointer traversal, TIFF-relative out-of-line values, FLOAT/DOUBLE decoding, and common SHORT/LONG variants; TAR ustar size/mtime encoding with valid checksum; calculator empty-argument and non-finite guards; SVG external-resource and active-content rejection; workbench filename HTML escaping. Red tests cover all of the above."
     },
     {
       "id": "P3-video",

@@ -243,6 +243,7 @@ class Parser {
       this.advance();
     }
 
+    if (args.length === 0) throw new ToolError(`${name} requires at least one argument.`);
     const one = args[0]!;
     switch (name) {
       case 'sqrt':
@@ -351,6 +352,9 @@ function tokText(t: Tok): string {
 }
 
 function formatNumber(v: number, precision: number): string {
+  if (!Number.isFinite(v)) {
+    throw new ToolError('The expression does not evaluate to a finite number.');
+  }
   if (Number.isInteger(v) && Math.abs(v) < 1e21) return String(v);
   const s = v.toFixed(precision);
   return s.replace(/\.?0+$/, '');
@@ -367,6 +371,12 @@ function run(input: TextRunInput): TextRunResult {
   const toks = tokenize(text);
   if (toks.length === 0) return { output: '' };
   const value = new Parser(toks, deg).parse();
+  if (!Number.isFinite(value)) {
+    throw new ToolError(
+      'The expression does not evaluate to a finite number.',
+      'Check for empty function arguments, overflow, or invalid domains.',
+    );
+  }
   const formatted = formatNumber(value, precision);
 
   return {

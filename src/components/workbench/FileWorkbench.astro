@@ -92,7 +92,7 @@ const p = meta.id;
 <script>
   import { runToolById } from '@/lib/worker/client';
   import { createDropZone, downloadBlob, downloadZip, validateFileSelection } from '@/lib/files';
-  import { formatBytes } from '@/lib/format';
+  import { escapeHtml, formatBytes } from '@/lib/format';
   import {
     readOptions,
     applyShowWhen,
@@ -142,10 +142,10 @@ const p = meta.id;
         .map(
           (f, i) => `
         <li class="flex items-center justify-between gap-3 rounded-lg border px-3 py-1.5">
-          <span class="truncate">${f.name}</span>
+          <span class="truncate">${escapeHtml(f.name)}</span>
           <span class="flex items-center gap-2 shrink-0 text-xs text-[rgb(var(--text-muted))]">
             ${formatBytes(f.size)}
-            <button type="button" data-remove="${i}" aria-label="Remove ${f.name}" class="hover:text-[rgb(var(--danger))]">✕</button>
+            <button type="button" data-remove="${i}" aria-label="Remove ${escapeHtml(f.name)}" class="hover:text-[rgb(var(--danger))]">✕</button>
           </span>
         </li>`,
         )

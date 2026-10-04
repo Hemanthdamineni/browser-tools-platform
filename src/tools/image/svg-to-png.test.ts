@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import tool, { intrinsicSize } from './svg-to-png.tool';
+import tool, { assertSafeSvg, intrinsicSize } from './svg-to-png.tool';
 
 describe('intrinsicSize', () => {
   it('reads pixel dimensions and viewBox dimensions', () => {
@@ -12,6 +12,39 @@ describe('intrinsicSize', () => {
   it('rejects non-SVG input and SVG without usable dimensions', () => {
     expect(() => intrinsicSize('<div/>')).toThrow(/not an SVG/i);
     expect(() => intrinsicSize('<svg></svg>')).toThrow(/determine the SVG dimensions/i);
+  });
+});
+
+describe('assertSafeSvg', () => {
+  const sized = (body: string) => `<svg width="10" height="10">${body}</svg>`;
+
+  it('allows a self-contained SVG', () => {
+    expect(() => assertSafeSvg(sized('<rect width="10" height="10"/>'))).not.toThrow();
+  });
+
+  it('rejects external href, CSS url, and script constructs', () => {
+    expect(() => assertSafeSvg(sized('<image href="https://example.com/x.png"/>'))).toThrow(
+      /external resource/i,
+    );
+    expect(() => assertSafeSvg(sized('<image xlink:href="//cdn.example/x.png"/>'))).toThrow(
+      /external resource/i,
+    );
+    expect(() =>
+      assertSafeSvg(sized('<rect style="fill:url(https://example.com/x.png)"/>')),
+    ).toThrow(/external resource/i);
+    expect(() => assertSafeSvg(sized('<script>alert(1)</script>'))).toThrow(/active content/i);
+    expect(() =>
+      assertSafeSvg(sized('<foreignObject><iframe src="https://example.com"/></foreignObject>')),
+    ).toThrow(/active content/i);
+  });
+
+  it('ignores comment content while rejecting active constructs elsewhere', () => {
+    expect(() =>
+      assertSafeSvg(sized('<!-- inert comment --> <image href="https://example.com/x.png"/>')),
+    ).toThrow(/external resource/i);
+    expect(() => assertSafeSvg(sized('<image href="https://example.com/x.png"/>'))).toThrow(
+      /external resource/i,
+    );
   });
 });
 

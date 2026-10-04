@@ -27,12 +27,37 @@ export function intrinsicSize(text: string): { w: number; h: number } {
     );
   return { w, h };
 }
+
+/** Reject SVG constructs that can fetch remote resources or run script when rasterized. */
+export function assertSafeSvg(text: string): void {
+  if (!/<svg\b/i.test(text)) throw new ToolError('The file is not an SVG document.');
+  const stripped = text.replace(/<!--[\s\S]*?-->/g, '').replace(/<!\[CDATA\[[\s\S]*?\]\]>/g, '');
+  if (/<\s*(script|foreignObject|iframe|embed|object)\b/i.test(stripped)) {
+    throw new ToolError(
+      'This SVG contains active content and cannot be rasterized.',
+      'Remove script, foreignObject, and external references before converting.',
+    );
+  }
+  if (
+    /\b(?:xlink:)?href\s*=\s*["']?\s*(?:https?:|\/\/|data:|file:)/i.test(stripped) ||
+    /\b(?:src|poster)\s*=\s*["']?\s*(?:https?:|\/\/|data:|file:)/i.test(stripped) ||
+    /url\(\s*["']?\s*(?:https?:|\/\/|data:|file:)/i.test(stripped) ||
+    /@import\b/i.test(stripped)
+  ) {
+    throw new ToolError(
+      'This SVG references an external resource and cannot be rasterized.',
+      'Inline the artwork or remove remote href, src, and CSS url() references.',
+    );
+  }
+}
+
 async function run(input: FileRunInput): Promise<FileRunResult> {
   if (input.files.length !== 1) throw new ToolError('Choose one SVG file.');
   const f = input.files[0]!;
   checkAbort(input.signal);
   input.onProgress?.(0, 'Reading SVG');
   const text = await f.text();
+  assertSafeSvg(text);
   const o = resolveOptions(meta, input.options);
   const base = intrinsicSize(text);
   const w = Number(o.width) > 0 ? Number(o.width) : base.w,
