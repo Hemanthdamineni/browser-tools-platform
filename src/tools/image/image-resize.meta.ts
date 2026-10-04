@@ -1,0 +1,123 @@
+import type { ToolMeta } from '@/lib/types';
+
+export const meta: ToolMeta = {
+  id: 'image-resize',
+  name: 'Image Resizer',
+  category: 'image',
+  summary: 'Resize and convert JPG, PNG, WebP and GIF images in your browser.',
+  description:
+    'Pick a sizing mode, optionally change the output format and quality, and download the resized images. Everything runs on your device via the Canvas API — files are never uploaded. Resizing drops metadata like EXIF, which is usually desirable, but means JPEG rotation tags are baked in.',
+  keywords: [
+    'image resize',
+    'resize image',
+    'rescale',
+    'shrink photo',
+    'image dimensions',
+    'photo resizer',
+    'webp',
+    'jpg to png',
+    'width height',
+  ],
+  privacy: { processing: 'on-device', network: 'none', offline: true },
+  input: 'file',
+  multiple: true,
+  accept: 'image/*',
+  worker: true,
+  options: [
+    {
+      key: 'mode',
+      label: 'Sizing mode',
+      type: 'select',
+      default: 'fit',
+      choices: [
+        { value: 'fit', label: 'Fit (contain within box)' },
+        { value: 'fill', label: 'Fill (cover box and crop)' },
+        { value: 'exact', label: 'Exact (stretch to size)' },
+        { value: 'percent', label: 'Percentage' },
+        { value: 'max-width', label: 'Max width' },
+        { value: 'max-height', label: 'Max height' },
+      ],
+    },
+    {
+      key: 'width',
+      label: 'Width (px)',
+      type: 'number',
+      default: 800,
+      min: 1,
+      max: 10000,
+    },
+    {
+      key: 'height',
+      label: 'Height (px)',
+      type: 'number',
+      default: 600,
+      min: 1,
+      max: 10000,
+    },
+    {
+      key: 'percent',
+      label: 'Scale %',
+      type: 'number',
+      default: 50,
+      min: 1,
+      max: 400,
+      showWhen: { key: 'mode', value: 'percent' },
+    },
+    {
+      key: 'format',
+      label: 'Output format',
+      type: 'select',
+      default: 'original',
+      choices: [
+        { value: 'original', label: 'Keep original' },
+        { value: 'png', label: 'PNG' },
+        { value: 'jpeg', label: 'JPEG' },
+        { value: 'webp', label: 'WebP' },
+      ],
+    },
+    {
+      key: 'quality',
+      label: 'Quality',
+      type: 'range',
+      default: 90,
+      min: 10,
+      max: 100,
+      showWhen: { key: 'format', value: 'jpeg' },
+    },
+    {
+      key: 'upscale',
+      label: 'Allow upscaling',
+      type: 'boolean',
+      default: false,
+      help: 'When off, images smaller than the target are kept at their original size.',
+    },
+  ],
+  examples: [
+    {
+      title: '800×600 fit',
+      options: { mode: 'fit', width: 800, height: 600 },
+    },
+    { title: 'Half size', options: { mode: 'percent', percent: 50 } },
+    {
+      title: 'Convert to WebP at quality 80',
+      options: { mode: 'fit', width: 1200, height: 1000, format: 'webp', quality: 80 },
+    },
+  ],
+  faq: [
+    {
+      q: 'What does “Fit” vs “Fill” mean?',
+      a: 'Fit (contain) scales the image down so the whole picture fits inside the target box, letterboxing the shorter side with transparency (or white for JPEG). Fill (cover) scales so the box is completely covered and crops the longer side, keeping the centre.',
+    },
+    {
+      q: 'Why does “Keep original” still change my file?',
+      a: 'Canvas re-encoding rewrites the pixels: it drops EXIF/GPS metadata, bakes rotation, and can’t preserve GIF animation (GIFs become a single frame) or CMYK colour profiles. Use the original file if you need those preserved.',
+    },
+    {
+      q: 'How large an image can it handle?',
+      a: 'The whole image is decoded into memory and drawn to a canvas, so the limit is roughly your device’s free RAM — comfortably hundreds of megapixels on a desktop, less on mobile. For huge photos (4000×3000 and up) the worker keeps the page responsive while it processes.',
+    },
+  ],
+  related: ['image-convert', 'image-crop', 'image-compress', 'image-to-datauri'],
+  status: 'stable',
+  updated: '2026-10-04',
+};
