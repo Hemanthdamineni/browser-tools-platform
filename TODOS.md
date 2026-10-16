@@ -14,12 +14,12 @@ Line order is priority: top first. This file is written by a human (via review) 
 
 ## Foundations
 
-- [ ] **video-foundation** · core — Registers the `video` category. Shared lazy-loaded video engine: prefer WebCodecs + Mediabunny (MPL-2.0). ffmpeg.wasm core is GPL-2.0 (x264), so if it seems needed, report BLOCKED-DECISION instead of using it. Provide progress events, cancel, and worker execution.
-- [ ] **ml-runtime-foundation** · core — Shared loader for transformers.js / onnxruntime-web. Use WebGPU when available, falling back to WASM. Cache models in Cache Storage and show download-size and progress UI. Default model source is the HF Hub; only models with permissive licenses are allowed.
+- [ ] **video-foundation** · core — Registers the `video` category. Shared lazy-loaded video engine: prefer WebCodecs + Mediabunny (MPL-2.0). ffmpeg.wasm core is GPL-2.0 (x264), so if it seems needed, report BLOCKED-DECISION instead of using it. Provide progress events, cancel, and worker execution. ⏳ run-20261016-0951-5f1c @ 2026-10-16T09:55:37Z
+- [ ] **ml-runtime-foundation** · core — Shared loader for transformers.js / onnxruntime-web. Use WebGPU when available, falling back to WASM. Cache models in Cache Storage and show download-size and progress UI. Default model source is the HF Hub; only models with permissive licenses are allowed. ⏳ run-20261016-0951-5f1c @ 2026-10-16T09:55:37Z
 
 ## Tools
 
-- [ ] **pdf-compress** · pdf — Re-encode or downsample embedded images and clean up streams. Quality presets; show before/after size.
+- [ ] **pdf-compress** · pdf — Re-encode or downsample embedded images and clean up streams. Quality presets; show before/after size. ⏳ run-20261016-0951-5f1c @ 2026-10-16T09:55:37Z
 - [ ] **barcode-generator** · generators — bwip-js or JsBarcode. Code128, EAN-13, UPC-A, Code39, ITF, DataMatrix. SVG and PNG export.
 - [ ] **qr-scanner** · generators — Camera (getUserMedia) plus image upload. Native BarcodeDetector with jsQR or zxing-wasm fallback. Actions for detected URL, Wi-Fi, or vCard content.
 - [ ] **heic-to-jpg** · image — libheif-js / heic2any. Batch mode; JPEG, PNG, and WebP output.
