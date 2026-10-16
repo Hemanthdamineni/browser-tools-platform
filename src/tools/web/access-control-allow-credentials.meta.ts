@@ -23,5 +23,7 @@ export const meta: ToolMeta = {
     { q: 'Is false a valid value?', a: 'The CORS spec defines only true; a false value is non-standard and generally treated as absent.', },
   ],
   related: ['access-control-allow-origin', 'access-control-expose-headers', 'security-headers'],
+  hidden: true,
+  redirectTo: 'cors-headers',
   status: 'stable',
 };

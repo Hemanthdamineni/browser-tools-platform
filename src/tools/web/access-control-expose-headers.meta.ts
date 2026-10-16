@@ -23,5 +23,7 @@ export const meta: ToolMeta = {
     { q: 'How do I read custom headers cross-origin?', a: 'Add each custom header name here so the browser lets scripts access it from a cross-origin fetch.' },
   ],
   related: ['access-control-allow-origin', 'access-control-allow-methods-headers', 'security-headers'],
+  hidden: true,
+  redirectTo: 'cors-headers',
   status: 'stable',
 };

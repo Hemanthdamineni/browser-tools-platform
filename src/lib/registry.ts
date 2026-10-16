@@ -66,6 +66,31 @@ function build(): RegisteredTool[] {
 
 export const ALL_TOOLS: RegisteredTool[] = build();
 
+// Alias wiring is validated once at build time so a mistyped target fails loudly
+// instead of producing a dead page or a redirect loop.
+for (const tool of ALL_TOOLS) {
+  const target = tool.meta.redirectTo;
+  if (!target) continue;
+  if (!tool.meta.hidden) {
+    throw new Error(`Alias tool "${tool.meta.id}" must set hidden: true`);
+  }
+  const resolved = ALL_TOOLS.find((t) => t.meta.id === target);
+  if (!resolved) {
+    throw new Error(`Tool "${tool.meta.id}" redirects to unknown tool "${target}"`);
+  }
+  if (resolved.meta.redirectTo) {
+    throw new Error(`Tool "${tool.meta.id}" redirects to alias "${target}" (point at a real tool)`);
+  }
+}
+
+/** Routable-but-hidden ids kept purely as redirects to a merged replacement. */
+export const ALIAS_TOOLS = ALL_TOOLS.filter((t) => !!t.meta.redirectTo);
+
+/** The visible replacement a redirect alias points at, if any. */
+export function redirectTarget(meta: ToolMeta): RegisteredTool | undefined {
+  return meta.redirectTo ? getTool(meta.redirectTo) : undefined;
+}
+
 export const VISIBLE_TOOLS = ALL_TOOLS.filter((t) => !t.meta.hidden);
 
 export function getTool(id: string): RegisteredTool | undefined {

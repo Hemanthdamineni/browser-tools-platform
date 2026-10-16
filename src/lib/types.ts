@@ -133,6 +133,13 @@ export interface ToolMeta {
   worker?: boolean;
   /** Hidden from listings but still routable. */
   hidden?: boolean;
+  /**
+   * Alias: this tool id is kept routable for backwards compatibility but its
+   * page redirects to another tool id (e.g. a merged replacement). Set together
+   * with `hidden: true` so the alias stays out of listings, search and counts.
+   * Must name a real, non-alias tool id.
+   */
+  redirectTo?: string;
   /** ISO date, updated when behaviour changes. */
   updated?: string;
 }

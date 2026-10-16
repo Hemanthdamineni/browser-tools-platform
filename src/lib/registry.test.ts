@@ -1,5 +1,13 @@
 import { describe, it, expect } from 'vitest';
-import { ALL_TOOLS, VISIBLE_TOOLS, getTool, SEARCH_INDEX, categoriesWithCounts } from './registry';
+import {
+  ALL_TOOLS,
+  VISIBLE_TOOLS,
+  ALIAS_TOOLS,
+  getTool,
+  redirectTarget,
+  SEARCH_INDEX,
+  categoriesWithCounts,
+} from './registry';
 import { CATEGORIES } from './categories';
 
 describe('registry', () => {
@@ -50,5 +58,52 @@ describe('registry', () => {
       expect(typeof mod.default.run).toBe('function');
       expect(mod.default.meta.id).toBe(t.meta.id);
     }
+  }, 120_000); // Lazily transforming every tool module is slow on constrained machines.
+});
+
+describe('registry aliases', () => {
+  const legacyIds = [
+    'access-control-allow-origin',
+    'access-control-allow-credentials',
+    'access-control-allow-methods-headers',
+    'access-control-expose-headers',
+    'access-control-max-age',
+  ];
+
+  it('keeps every legacy access-control id routable as a hidden redirect', () => {
+    for (const id of legacyIds) {
+      const tool = getTool(id);
+      expect(tool, `${id} should still resolve`).toBeTruthy();
+      expect(tool?.meta.hidden).toBe(true);
+      expect(tool?.meta.redirectTo).toBe('cors-headers');
+      expect(redirectTarget(tool!.meta)?.meta.id).toBe('cors-headers');
+    }
+  });
+
+  it('points every alias at a real, non-alias, visible tool', () => {
+    expect(ALIAS_TOOLS.length).toBeGreaterThanOrEqual(legacyIds.length);
+    for (const alias of ALIAS_TOOLS) {
+      const target = alias.meta.redirectTo ? getTool(alias.meta.redirectTo) : undefined;
+      expect(target, `${alias.meta.id} target must exist`).toBeTruthy();
+      expect(target?.meta.id).toBe(alias.meta.redirectTo);
+      expect(target?.meta.redirectTo).toBeUndefined();
+      expect(target?.meta.hidden).not.toBe(true);
+    }
+  });
+
+  it('excludes aliases from visible tools, search and counts', () => {
+    for (const alias of ALIAS_TOOLS) {
+      expect(VISIBLE_TOOLS.some((t) => t.meta.id === alias.meta.id)).toBe(false);
+      expect(SEARCH_INDEX.some((entry) => entry.id === alias.meta.id)).toBe(false);
+    }
+    expect(SEARCH_INDEX.length).toBe(VISIBLE_TOOLS.length);
+    expect(categoriesWithCounts().reduce((sum, c) => sum + c.count, 0)).toBe(VISIBLE_TOOLS.length);
+  });
+
+  it('only returns a redirect target for alias tools', () => {
+    expect(redirectTarget(getTool('cors-headers')!.meta)).toBeUndefined();
+    expect(redirectTarget(getTool('access-control-allow-origin')!.meta)?.meta.id).toBe(
+      'cors-headers',
+    );
   });
 });

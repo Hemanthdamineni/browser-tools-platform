@@ -24,6 +24,7 @@ const { narrow = false, ...head } = Astro.props;
 <html lang={site.locale}>
   <head>
     <BaseHead {...head} />
+    <slot name="head" />
   </head>
   <body class="min-h-dvh">
     <a href="#main" class="sr-only-focusable btn btn-primary fixed left-3 top-3 z-50">

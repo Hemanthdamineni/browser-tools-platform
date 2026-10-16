@@ -23,5 +23,7 @@ export const meta: ToolMeta = {
     { q: 'When should I omit it?', a: 'If you change CORS rules often, a short value or omission avoids stale preflight caches during rollout.' },
   ],
   related: ['access-control-allow-methods-headers', 'access-control-allow-origin', 'access-control-allow-credentials'],
+  hidden: true,
+  redirectTo: 'cors-headers',
   status: 'stable',
 };

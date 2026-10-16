@@ -1,0 +1,133 @@
+import type { ToolMeta } from '@/lib/types';
+
+export const meta: ToolMeta = {
+  id: 'cors-headers',
+  name: 'CORS Headers Builder & Analyzer',
+  category: 'web',
+  summary: 'Build a full CORS policy or analyze pasted Access-Control-* response headers.',
+  description:
+    'Create any Access-Control-* response header from one form, or paste a CORS response to check it. Validates origins, method and header tokens, the wildcard-with-credentials conflict, and preflight cache time — all on your device.',
+  keywords: [
+    'CORS headers',
+    'Access-Control-Allow-Origin',
+    'Access-Control-Allow-Credentials',
+    'Access-Control-Allow-Methods',
+    'Access-Control-Allow-Headers',
+    'Access-Control-Expose-Headers',
+    'Access-Control-Max-Age',
+    'cross-origin resource sharing',
+    'preflight',
+    'wildcard credentials',
+  ],
+  privacy: { processing: 'on-device', network: 'none', offline: true },
+  input: 'text',
+  options: [
+    {
+      key: 'mode',
+      label: 'Mode',
+      type: 'select',
+      default: 'analyze',
+      choices: [
+        { value: 'analyze', label: 'Analyze headers' },
+        { value: 'build', label: 'Build headers' },
+      ],
+    },
+    {
+      key: 'target',
+      label: 'What to build',
+      type: 'select',
+      default: 'all',
+      showWhen: { key: 'mode', value: 'build' },
+      choices: [
+        { value: 'all', label: 'A full CORS policy' },
+        { value: 'allow-origin', label: 'Access-Control-Allow-Origin' },
+        { value: 'allow-credentials', label: 'Access-Control-Allow-Credentials' },
+        { value: 'allow-methods', label: 'Access-Control-Allow-Methods' },
+        { value: 'allow-headers', label: 'Access-Control-Allow-Headers' },
+        { value: 'expose-headers', label: 'Access-Control-Expose-Headers' },
+        { value: 'max-age', label: 'Access-Control-Max-Age' },
+      ],
+    },
+    {
+      key: 'origin',
+      label: 'Allowed origin',
+      type: 'text',
+      default: 'https://app.example.com',
+      help: 'Use * or one full http(s) origin. Not a list.',
+      showWhen: { key: 'mode', value: 'build' },
+    },
+    {
+      key: 'credentials',
+      label: 'Allow credentials (cookies, auth)',
+      type: 'boolean',
+      default: false,
+      showWhen: { key: 'mode', value: 'build' },
+    },
+    {
+      key: 'methods',
+      label: 'Allowed methods (comma-separated)',
+      type: 'text',
+      default: 'GET, POST, PUT, DELETE',
+      showWhen: { key: 'mode', value: 'build' },
+    },
+    {
+      key: 'headers',
+      label: 'Allowed request headers (comma-separated)',
+      type: 'text',
+      default: 'Content-Type, Authorization',
+      showWhen: { key: 'mode', value: 'build' },
+    },
+    {
+      key: 'expose',
+      label: 'Exposed response headers (comma-separated)',
+      type: 'text',
+      default: 'X-Request-Id, X-Rate-Limit',
+      showWhen: { key: 'mode', value: 'build' },
+    },
+    {
+      key: 'maxAge',
+      label: 'Preflight cache seconds',
+      type: 'text',
+      default: '600',
+      help: 'How long browsers may cache a preflight response.',
+      showWhen: { key: 'mode', value: 'build' },
+    },
+  ],
+  examples: [
+    {
+      title: 'Build a full credentialed CORS policy',
+      options: {
+        mode: 'build',
+        target: 'all',
+        origin: 'https://app.example.com',
+        credentials: true,
+        methods: 'GET, POST',
+        headers: 'Content-Type, Authorization',
+        expose: 'X-Request-Id',
+        maxAge: '600',
+      },
+    },
+    {
+      title: 'Analyze a CORS response',
+      input:
+        'Access-Control-Allow-Origin: https://app.example.com\nAccess-Control-Allow-Credentials: true\nAccess-Control-Allow-Methods: GET, POST\nAccess-Control-Max-Age: 600',
+    },
+    { title: 'Analyze a wildcard grant', input: '*' },
+  ],
+  faq: [
+    {
+      q: 'Can Access-Control-Allow-Origin be * with credentials?',
+      a: 'No. When Access-Control-Allow-Credentials: true is set, the allowed origin must name the specific requesting origin and cannot be a wildcard.',
+    },
+    {
+      q: 'Why add Vary: Origin?',
+      a: 'If the allowed origin is chosen per request, Vary: Origin stops caches serving one caller the origin grant meant for another.',
+    },
+    {
+      q: 'Which methods trigger a preflight?',
+      a: 'GET, HEAD, and POST with simple headers are sent directly; most other methods and headers trigger an OPTIONS preflight answered with Allow-Methods and Allow-Headers.',
+    },
+  ],
+  related: ['security-headers', 'timing-allow-origin', 'cross-origin-resource-policy'],
+  status: 'beta',
+};

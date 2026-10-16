@@ -24,5 +24,7 @@ export const meta: ToolMeta = {
     { q: 'What counts as a simple method?', a: 'GET, HEAD, and POST are simple; most others (PUT, DELETE, PATCH) trigger a preflight.' },
   ],
   related: ['access-control-allow-origin', 'security-headers', 'http-status'],
+  hidden: true,
+  redirectTo: 'cors-headers',
   status: 'stable',
 };

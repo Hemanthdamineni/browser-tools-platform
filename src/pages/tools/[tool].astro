@@ -2,7 +2,8 @@
 import type { GetStaticPaths } from 'astro';
 import Layout from '@/components/Layout.astro';
 import ToolPage from '@/components/ToolPage.astro';
-import { ALL_TOOLS } from '@/lib/registry';
+import { ALL_TOOLS, redirectTarget } from '@/lib/registry';
+import { site } from '@/lib/site';
 import { softwareAppJsonLd, faqJsonLd, breadcrumbJsonLd } from '@/lib/seo';
 
 export const getStaticPaths = (() => {
@@ -13,14 +14,61 @@ export const getStaticPaths = (() => {
 }) satisfies GetStaticPaths;
 
 const { meta } = Astro.props;
+
+// Alias ids (merged/renamed tools) stay routable but redirect to their
+// replacement so old links and bookmarks keep working.
+const target = redirectTarget(meta);
+const targetPath = target ? `/tools/${target.meta.id}` : '';
+const targetUrl = target ? new URL(targetPath, site.url).toString() : '';
 ---
 
-<Layout
-  title={meta.name}
-  description={meta.summary}
-  path={`/tools/${meta.id}`}
-  noindex={meta.hidden}
-  jsonLd={[softwareAppJsonLd(meta), faqJsonLd(meta), breadcrumbJsonLd(meta)]}
->
-  <ToolPage meta={meta} />
-</Layout>
+{
+  meta.redirectTo ? (
+    <Layout
+      title={`${meta.name} has moved`}
+      description={`This tool has been merged into ${target?.meta.name ?? 'a newer tool'}.`}
+      path={targetPath}
+      noindex
+    >
+      <Fragment slot="head">
+        {target && <link rel="canonical" href={targetUrl} />}
+        <meta http-equiv="refresh" content={`0;url=${targetPath}`} />
+      </Fragment>
+
+      <section
+        class="surface mx-auto max-w-xl rounded-lg p-6 text-center"
+        aria-labelledby="moved-title"
+      >
+        <h1 id="moved-title" class="text-xl font-semibold">
+          This tool has moved
+        </h1>
+        <p class="mt-2 text-sm text-[rgb(var(--text-muted))]">
+          <strong>{meta.name}</strong> is now part of{' '}
+          <strong>{target?.meta.name ?? 'a newer tool'}</strong>.
+        </p>
+        {target && (
+          <p class="mt-4">
+            <a class="btn btn-primary" href={targetPath}>
+              Continue to {target.meta.name}
+            </a>
+          </p>
+        )}
+        <noscript>
+          <p class="mt-4 text-sm text-[rgb(var(--text-muted))]">
+            Your browser did not redirect automatically. Use the link above to open the tool.
+          </p>
+        </noscript>
+      </section>
+    </Layout>
+  ) : (
+    <Layout
+      title={meta.name}
+      description={meta.summary}
+      path={`/tools/${meta.id}`}
+      noindex={meta.hidden}
+      jsonLd={[softwareAppJsonLd(meta), faqJsonLd(meta), breadcrumbJsonLd(meta)]}
+    >
+      <ToolPage meta={meta} />
+    </Layout>
+  )
+}
