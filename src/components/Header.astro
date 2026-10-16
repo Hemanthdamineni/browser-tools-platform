@@ -8,17 +8,19 @@ const isActive = (href: string) => path === href || path.startsWith(href + '/');
 ---
 
 <header
-  class="sticky top-0 z-40 border-b backdrop-blur"
-  style="background-color: rgb(var(--bg) / 0.85)"
+  class="sticky top-0 z-40 border-b"
+  style="background-color: rgb(var(--bg) / 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px)"
 >
   <div class="mx-auto flex h-14 max-w-content items-center gap-3 px-4 sm:px-6">
-    <a href="/" class="flex shrink-0 items-center gap-2 font-bold tracking-tight">
+    <a href="/" class="flex shrink-0 items-center gap-2.5 font-semibold tracking-tight" aria-label={`${site.shortName} home`}>
       <span
-        class="grid h-7 w-7 place-items-center rounded-lg text-[15px]"
-        style="background-color: rgb(var(--accent)); color: rgb(var(--accent-fg))"
-        aria-hidden="true">T</span
+        class="grid h-7 w-7 place-items-center rounded-md"
+        style="background: rgb(var(--text)); color: rgb(var(--bg))"
+        aria-hidden="true"
       >
-      <span>{site.shortName}</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a5 5 0 0 0-6.4 6.4L4 17v3h3l4.3-4.3a5 5 0 0 0 6.4-6.4L14 8.6l-1.6 1.6-1.6-1.6 3.9-3.9z"/></svg>
+      </span>
+      <span class="tracking-tight">{site.shortName}</span>
     </a>
 
     <nav class="ml-2 hidden items-center gap-1 md:flex" aria-label="Primary">
@@ -26,8 +28,12 @@ const isActive = (href: string) => path === href || path.startsWith(href + '/');
         site.nav.map((item) => (
           <a
             href={item.href}
-            class="rounded-lg px-3 py-1.5 text-sm font-medium transition-colors hover:bg-[rgb(var(--bg-inset))]"
-            style={isActive(item.href) ? 'color: rgb(var(--accent))' : ''}
+            class:list={[
+              'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+              isActive(item.href)
+                ? 'text-[rgb(var(--accent))]'
+                : 'text-[rgb(var(--text-muted))] hover:text-[rgb(var(--text))] hover:bg-[rgb(var(--bg-inset))]',
+            ]}
             aria-current={isActive(item.href) ? 'page' : undefined}
           >
             {item.label}
@@ -40,27 +46,24 @@ const isActive = (href: string) => path === href || path.startsWith(href + '/');
       <button
         type="button"
         id="search-open"
-        class="btn btn-ghost gap-2 !px-2.5 text-[rgb(var(--text-muted))] sm:!px-3"
+        class="btn btn-subtle btn-sm gap-2 !px-2.5 text-[rgb(var(--text-muted))] sm:!px-3"
         aria-label="Search tools"
         aria-keyshortcuts="/"
       >
         <Icon name="search" size={16} />
-        <span class="hidden text-sm sm:inline">Search</span>
-        <kbd
-          class="hidden rounded border px-1.5 text-[11px] font-medium text-[rgb(var(--text-muted))] sm:inline"
-          >/</kbd
-        >
+        <span class="hidden text-[13px] font-medium sm:inline">Search</span>
+        <kbd class="kbd hidden sm:inline-flex">/</kbd>
       </button>
       <ThemeToggle />
       <button
         type="button"
         id="menu-toggle"
-        class="btn btn-ghost !px-2 md:hidden"
+        class="btn btn-subtle btn-sm !px-2 md:hidden"
         aria-label="Open menu"
         aria-expanded="false"
         aria-controls="mobile-nav"
       >
-        <Icon name="menu" />
+        <Icon name="menu" size={18} />
       </button>
     </div>
   </div>
@@ -70,7 +73,12 @@ const isActive = (href: string) => path === href || path.startsWith(href + '/');
       site.nav.map((item) => (
         <a
           href={item.href}
-          class="block rounded-lg px-3 py-2 text-sm font-medium hover:bg-[rgb(var(--bg-inset))]"
+          class:list={[
+            'block rounded-md px-3 py-2.5 text-[15px] font-medium',
+            isActive(item.href)
+              ? 'text-[rgb(var(--accent))]'
+              : 'text-[rgb(var(--text))] hover:bg-[rgb(var(--bg-inset))]',
+          ]}
           aria-current={isActive(item.href) ? 'page' : undefined}
         >
           {item.label}
@@ -83,12 +91,37 @@ const isActive = (href: string) => path === href || path.startsWith(href + '/');
 <script>
   const btn = document.getElementById('menu-toggle');
   const nav = document.getElementById('mobile-nav');
-  btn?.addEventListener('click', () => {
-    const open = nav?.hasAttribute('hidden');
-    if (open) nav?.removeAttribute('hidden');
-    else nav?.setAttribute('hidden', '');
-    btn.setAttribute('aria-expanded', String(!!open));
+
+  function setOpen(open: boolean) {
+    if (!nav || !btn) return;
+    if (open) nav.removeAttribute('hidden');
+    else nav.setAttribute('hidden', '');
+    btn.setAttribute('aria-expanded', String(open));
     btn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+  }
+
+  btn?.addEventListener('click', () => setOpen(nav?.hasAttribute('hidden') ?? true));
+
+  // Close on Escape (and return focus to the toggle).
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && nav && !nav.hasAttribute('hidden')) {
+      setOpen(false);
+      btn?.focus();
+    }
+  });
+
+  // Close when the user clicks outside the header on mobile.
+  document.addEventListener('click', (e) => {
+    if (nav && !nav.hasAttribute('hidden')) {
+      const t = e.target as Node;
+      const header = document.querySelector('header');
+      if (header && !header.contains(t)) setOpen(false);
+    }
+  });
+
+  // Close when a mobile link is navigated.
+  nav?.addEventListener('click', (e) => {
+    if ((e.target as HTMLElement).closest('a')) setOpen(false);
   });
 
   document.getElementById('search-open')?.addEventListener('click', () => {

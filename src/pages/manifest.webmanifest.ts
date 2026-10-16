@@ -7,7 +7,7 @@ export const GET: APIRoute = () => {
     short_name: site.shortName,
     description: site.description,
     id: '/',
-    start_url: '/?utm_source=pwa',
+    start_url: '/',
     scope: '/',
     display: 'standalone',
     display_override: ['window-controls-overlay', 'standalone', 'minimal-ui'],

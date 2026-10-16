@@ -13,29 +13,29 @@ const category = CATEGORIES[meta.category];
 
 <a
   href={`/tools/${meta.id}`}
-  class="group surface flex flex-col gap-2 rounded-xl p-4 transition-colors hover:border-[rgb(var(--accent))]"
+  class="group surface flex min-h-[9.5rem] flex-col gap-3 rounded-lg p-4 transition-colors duration-200 hover:border-[rgb(var(--border-strong))] hover:bg-[rgb(var(--bg-subtle))]"
 >
   <div class="flex items-start justify-between gap-2">
-    <span
-      class="grid h-9 w-9 shrink-0 place-items-center rounded-lg"
-      style="background-color: rgb(var(--bg-inset))"
-      aria-hidden="true"
-    >
-      <Icon name={category.icon} size={18} />
+    <span class="text-[rgb(var(--text-muted))] transition-colors group-hover:text-[rgb(var(--accent))]" aria-hidden="true">
+      <Icon name={category.icon} size={20} />
     </span>
     {
       meta.status === 'beta' && (
-        <span class="chip !py-0.5 text-[10px] uppercase tracking-wide">beta</span>
+        <span class="rounded border px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-[rgb(var(--text-faint))]">
+          Beta
+        </span>
       )
     }
   </div>
-  <div>
-    <h3 class="font-semibold leading-tight group-hover:text-[rgb(var(--accent))]">{meta.name}</h3>
-    <p class="mt-1 text-sm text-[rgb(var(--text-muted))] line-clamp-2">{meta.summary}</p>
+  <div class="min-w-0">
+    <h3 class="font-semibold leading-snug tracking-[-0.01em] text-[rgb(var(--text))]">{meta.name}</h3>
+    <p class="mt-1.5 line-clamp-2 text-[13px] leading-relaxed text-[rgb(var(--text-muted))]">{meta.summary}</p>
   </div>
   {
     showCategory && (
-      <span class="mt-auto pt-1 text-xs text-[rgb(var(--text-muted))]">{category.name}</span>
+      <span class="mt-auto pt-1 font-mono text-[11px] uppercase tracking-wide text-[rgb(var(--text-faint))]">
+        {category.name}
+      </span>
     )
   }
 </a>

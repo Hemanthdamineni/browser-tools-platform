@@ -12,7 +12,7 @@ const p = meta.id;
 ---
 
 <section
-  class="surface rounded-xl p-4 sm:p-6"
+  class="surface rounded-lg p-4 sm:p-6"
   data-file-workbench
   data-tool-id={meta.id}
   data-accept={meta.accept ?? ''}
@@ -20,7 +20,7 @@ const p = meta.id;
   aria-label={`${meta.name} workbench`}
 >
   <div
-    class="drop-zone flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-4 py-10 text-center transition-colors"
+    class="drop-zone flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed px-4 py-10 text-center transition-colors"
     data-drop
     role="button"
     tabindex="0"
@@ -47,7 +47,7 @@ const p = meta.id;
     )
   }
 
-  <div class="mt-4 flex flex-wrap items-center gap-2">
+  <div class="mt-4 flex flex-wrap items-center gap-2.5">
     <button type="button" class="btn btn-primary" data-run disabled>
       <Icon name="zap" size={16} /> Process
     </button>
@@ -58,18 +58,18 @@ const p = meta.id;
   <div class="mt-3" hidden data-progress-wrap>
     <div class="h-2 overflow-hidden rounded-full" style="background-color: rgb(var(--bg-inset))">
       <div
-        class="h-full transition-[width]"
+        class="h-full transition-[width] duration-200 ease-out"
         style="width:0%; background-color: rgb(var(--accent))"
         data-progress-bar
       >
       </div>
     </div>
-    <p class="mt-1 text-xs text-[rgb(var(--text-muted))]" data-progress-msg aria-live="polite"></p>
+    <p class="mt-1 text-xs tabular-nums text-[rgb(var(--text-muted))]" data-progress-msg aria-live="polite"></p>
   </div>
 
   <div
     class="mt-4 rounded-lg border px-3 py-2 text-sm"
-    style="border-color: rgb(var(--danger)); color: rgb(var(--danger))"
+    style="background-color: rgb(var(--danger-soft)); border-color: rgb(var(--danger)); color: rgb(var(--danger))"
     role="alert"
     data-error
     hidden
@@ -78,8 +78,8 @@ const p = meta.id;
 
   <div class="mt-4" hidden data-result-wrap>
     <div class="mb-2 flex items-center justify-between">
-      <span class="text-sm font-medium" data-result-title>Results</span>
-      <button type="button" class="btn btn-ghost !py-1 !px-2 text-xs" data-download-all hidden>
+      <span class="text-sm font-semibold text-[rgb(var(--text))]" data-result-title>Results</span>
+      <button type="button" class="btn btn-subtle btn-sm" data-download-all hidden>
         <Icon name="archive" size={14} /> Download all (.zip)
       </button>
     </div>
@@ -240,7 +240,7 @@ const p = meta.id;
         left.appendChild(name);
         const dl = document.createElement('button');
         dl.type = 'button';
-        dl.className = 'btn btn-ghost !py-1 !px-2 text-xs shrink-0';
+        dl.className = 'btn btn-subtle btn-sm shrink-0';
         dl.textContent = 'Save';
         dl.addEventListener('click', () => downloadBlob(o.blob, o.filename));
         li.append(left, dl);

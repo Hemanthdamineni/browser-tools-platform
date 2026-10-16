@@ -62,6 +62,6 @@ export const meta: ToolMeta = {
       a: 'They are NumericDate claims — seconds since 1970-01-01 UTC. exp is when the token expires, iat when it was issued, nbf the earliest time it is valid. This tool prints each as a readable UTC date.',
     },
   ],
-  related: ['base64', 'url-encode', 'hex', 'base58'],
+  related: ['jwt-sign', 'base64', 'url-encode', 'hex'],
   status: 'stable',
 };

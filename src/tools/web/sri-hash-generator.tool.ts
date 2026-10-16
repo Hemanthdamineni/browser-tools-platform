@@ -1,0 +1,10 @@
+import type { TextToolModule, TextRunInput, TextRunResult } from '@/lib/types';
+import { ToolError } from '@/lib/types';
+import { resolveOptions } from '@/lib/options';
+import { meta } from './sri-hash-generator.meta';
+
+const SUBTLE: Record<string, string> = { sha256: 'SHA-256', sha384: 'SHA-384', sha512: 'SHA-512' };
+async function encodeBase64(bytes: Uint8Array): Promise<string> { const base64 = typeof btoa === 'function' ? btoa(String.fromCharCode(...bytes)) : Buffer.from(bytes).toString('base64'); return base64; }
+async function run(input: TextRunInput): Promise<TextRunResult> { const opts = resolveOptions(meta, input.options); const algorithm = String(opts.algorithm); if (algorithm !== 'sha256' && algorithm !== 'sha384' && algorithm !== 'sha512') throw new ToolError('Choose a supported hash algorithm.', 'Use sha256, sha384, or sha512.'); if (!input.text.trim()) return { output: '', notes: ['Paste content to generate its SRI integrity hash.'] }; const data = new TextEncoder().encode(input.text); const subtleName = SUBTLE[algorithm]!; const digest = await crypto.subtle.digest(subtleName, data); const bytes = new Uint8Array(digest); const base64 = await encodeBase64(bytes); const integrity = `${algorithm}-${base64}`; const element = String(opts.element); let output = integrity; if (element === 'script') output = `<script src="https://cdn.example.com/app.min.js" integrity="${integrity}" crossorigin="anonymous"></script>`; else if (element === 'link') output = `<link rel="stylesheet" href="https://cdn.example.com/app.min.css" integrity="${integrity}" crossorigin="anonymous">`; return { output, render: 'code', language: 'html', filename: 'sri.txt', stats: { algorithm: subtleName, 'input bytes': data.length, 'digest bytes': bytes.length }, notes: ['Copy the full snippet when using element mode; paste content should match the final deployed file byte-for-byte.', 'Cross-origin resources need crossorigin to apply SRI.'] }; }
+const tool: TextToolModule = { meta, run };
+export default tool;

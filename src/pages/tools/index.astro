@@ -14,7 +14,7 @@ const tools = [...VISIBLE_TOOLS].sort((a, b) => a.meta.name.localeCompare(b.meta
   path="/tools"
 >
   <header class="max-w-prose">
-    <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">All tools</h1>
+    <h1 class="text-2xl font-bold tracking-tight text-[rgb(var(--text))] sm:text-3xl">All tools</h1>
     <p class="mt-2 text-[rgb(var(--text-muted))]">
       {TOOL_COUNT} utilities, all running locally in your browser. Filter by category or search.
     </p>
@@ -36,12 +36,12 @@ const tools = [...VISIBLE_TOOLS].sort((a, b) => a.meta.name.localeCompare(b.meta
         autocomplete="off"
       />
     </label>
-    <div class="flex flex-wrap gap-1.5" id="cat-filters">
-      <button class="chip is-active" data-cat="all" aria-pressed="true">All</button>
+    <div class="flex flex-wrap gap-1.5" id="cat-filters" role="group" aria-label="Filter by category">
+      <button class="chip is-active" data-cat="all" aria-pressed="true" type="button">All</button>
       {
         categories.map((c) => (
-          <button class="chip" data-cat={c.id} aria-pressed="false">
-            {c.name} <span>{c.count}</span>
+          <button class="chip" data-cat={c.id} aria-pressed="false" type="button">
+            {c.name} <span class="font-mono text-[11px] tabular-nums">{c.count}</span>
           </button>
         ))
       }
@@ -65,8 +65,8 @@ const tools = [...VISIBLE_TOOLS].sort((a, b) => a.meta.name.localeCompare(b.meta
     }
   </div>
 
-  <p hidden id="empty" class="mt-8 text-center text-[rgb(var(--text-muted))]">
-    No tools match. Try another word.
+  <p hidden id="empty" class="mt-10 text-center text-[rgb(var(--text-muted))]">
+    No tools match. Try another word, or clear the filter.
   </p>
 </Layout>
 
@@ -75,6 +75,7 @@ const tools = [...VISIBLE_TOOLS].sort((a, b) => a.meta.name.localeCompare(b.meta
     background-color: rgb(var(--accent));
     color: rgb(var(--accent-fg));
   }
+  .chip + .chip { margin: 0; }
 </style>
 
 <script>
@@ -88,7 +89,7 @@ const tools = [...VISIBLE_TOOLS].sort((a, b) => a.meta.name.localeCompare(b.meta
   );
   let activeCat = 'all';
 
-  function apply() {
+  function apply(syncUrl = true) {
     const q = filter.value.trim().toLowerCase();
     let shown = 0;
     for (const el of items) {
@@ -104,9 +105,18 @@ const tools = [...VISIBLE_TOOLS].sort((a, b) => a.meta.name.localeCompare(b.meta
     }
     count.textContent = `${shown} tool${shown === 1 ? '' : 's'}`;
     empty.hidden = shown !== 0;
+
+    if (syncUrl) {
+      const params = new URLSearchParams();
+      if (q) params.set('q', q);
+      if (activeCat !== 'all') params.set('category', activeCat);
+      const next = params.toString();
+      const url = next ? `?${next}` : location.pathname;
+      history.replaceState(null, '', url);
+    }
   }
 
-  filter.addEventListener('input', apply);
+  filter.addEventListener('input', () => apply());
   catButtons.forEach((btn) => {
     btn.addEventListener('click', () => {
       activeCat = btn.dataset.cat!;
@@ -119,14 +129,20 @@ const tools = [...VISIBLE_TOOLS].sort((a, b) => a.meta.name.localeCompare(b.meta
     });
   });
 
-  // Deep link: /tools?category=image or /tools?q=hash
+  // Deep link: /tools?category=image or /tools?q=hash, plus the PWA "Search"
+  // shortcut (?focus=search) which places focus in the filter.
   const params = new URLSearchParams(location.search);
   const cat = params.get('category');
   const q = params.get('q');
-  if (q) filter.value = q;
+  if (q) {
+    filter.value = q;
+  }
   if (cat && catButtons.some((b) => b.dataset.cat === cat)) {
     catButtons.find((b) => b.dataset.cat === cat)!.click();
-  } else {
+  } else if (q) {
     apply();
+  }
+  if (params.get('focus') === 'search') {
+    filter.focus();
   }
 </script>

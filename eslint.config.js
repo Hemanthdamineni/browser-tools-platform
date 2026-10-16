@@ -16,6 +16,15 @@ export default [
       'scripts/',
       'public/sw.js',
       '**/*.d.ts',
+      // Third-party / non-product vendored trees.
+      '.dsh-open-design/',
+      '.claude/',
+      '.git/',
+      // Superseded legacy JS scaffolds — not part of the .meta.ts/.tool.ts registry
+      // or the build. Kept on disk but excluded from lint.
+      'src/tools/index.js',
+      'src/tools/pdf/pdf-to-image.js',
+      'src/tools/text-summary/',
     ],
   },
   js.configs.recommended,

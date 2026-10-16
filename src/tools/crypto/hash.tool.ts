@@ -15,7 +15,7 @@ function rotl(x: number, c: number): number {
 }
 
 /** MD5 (RFC 1321) over raw bytes, returning the 16-byte digest. */
-function md5(input: Uint8Array): Uint8Array {
+export function md5(input: Uint8Array): Uint8Array {
   const S = [
     7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 5, 9, 14, 20, 5, 9, 14, 20, 5, 9,
     14, 20, 5, 9, 14, 20, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 6, 10, 15, 21,

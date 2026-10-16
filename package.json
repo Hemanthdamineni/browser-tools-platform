@@ -26,6 +26,7 @@
   "dependencies": {
     "@astrojs/tailwind": "^5.1.5",
     "astro": "^4.16.19",
+    "compromise": "^14.17.0",
     "cronstrue": "^3.24.0",
     "diff": "^5.2.2",
     "fflate": "^0.8.2",

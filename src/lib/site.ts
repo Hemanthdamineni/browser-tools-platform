@@ -16,8 +16,8 @@ export const site = {
   /** Canonical origin. Override at build with SITE_URL. */
   url: import.meta.env.SITE_URL ?? DEFAULT_URL,
   locale: 'en',
-  themeColor: '#047857',
-  backgroundColor: '#ffffff',
+  themeColor: '#1d1d1b',
+  backgroundColor: '#faf9f7',
   repository: 'https://github.com/toolbench/toolbench',
   /** Optional: leave empty to hide social links. */
   social: {

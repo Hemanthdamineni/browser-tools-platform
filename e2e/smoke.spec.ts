@@ -46,6 +46,8 @@ test('core pages render and are accessible', async ({ page, baseURL }) => {
 });
 
 test('every tool page renders a working workbench', async ({ page, baseURL }) => {
+  // Budget scales with the catalogue so a large catalog never trips the default.
+  test.setTimeout(Math.max(30_000, tools.length * 400));
   const failures: string[] = [];
   for (const tool of tools) {
     await page.goto(`${baseURL}${tool.href}`);

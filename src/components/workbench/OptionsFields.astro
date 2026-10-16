@@ -17,53 +17,63 @@ const fieldId = (key: string) => `${idPrefix}-opt-${key}`;
       const helpId = `${id}-help`;
       const describedBy = opt.help && opt.type !== 'boolean' ? helpId : undefined;
       const showWhen = opt.showWhen ? JSON.stringify(opt.showWhen) : undefined;
+      const wide = opt.type === 'textarea';
       return (
         <div
-          class="flex flex-col gap-1"
+          class:list={['flex min-w-0 flex-col gap-1.5', wide && 'sm:col-span-2']}
           data-option-wrap={opt.key}
           data-show-when={showWhen}
-          class:list={[opt.type === 'textarea' && 'sm:col-span-2']}
         >
-          <label for={id} class="text-sm font-medium">
-            {opt.label}
-          </label>
+          {opt.type !== 'boolean' && (
+            <label for={id} class="text-sm font-medium text-[rgb(var(--text))]">
+              {opt.label}
+            </label>
+          )}
 
           {opt.type === 'select' && (
-            <select
-              id={id}
-              class="field"
-              data-opt-key={opt.key}
-              data-opt-type="select"
-              aria-describedby={describedBy}
-            >
+            <select id={id} class="field" data-opt-key={opt.key} data-opt-type="select" aria-describedby={describedBy}>
               {opt.choices.map((c) => (
-                <option value={c.value} selected={c.value === opt.default}>
-                  {c.label}
-                </option>
+                <option value={c.value} selected={c.value === opt.default}>{c.label}</option>
               ))}
             </select>
           )}
 
           {opt.type === 'boolean' && (
-            <label class="flex items-center gap-2 text-sm">
+            <label class="flex cursor-pointer items-center gap-2.5 rounded-lg border px-3 py-2 text-sm transition-colors hover:bg-[rgb(var(--bg-subtle))]">
               <input
                 id={id}
                 type="checkbox"
-                class="h-4 w-4 rounded"
+                class="h-4 w-4 shrink-0 rounded accent-[rgb(var(--accent))]"
                 data-opt-key={opt.key}
                 data-opt-type="boolean"
                 checked={opt.default}
               />
-              <span class="text-[rgb(var(--text-muted))]">{opt.help}</span>
+              <span class="text-[rgb(var(--text))]">{opt.label}</span>
             </label>
           )}
 
-          {(opt.type === 'number' || opt.type === 'range') && (
+          {opt.type === 'number' && (
+            <input
+              id={id}
+              type="number"
+              class="field"
+              data-opt-key={opt.key}
+              data-opt-type="number"
+              value={opt.default}
+              min={opt.min}
+              max={opt.max}
+              step={opt.step ?? 1}
+              aria-describedby={describedBy}
+            />
+          )}
+
+          {opt.type === 'range' && (
             <div class="flex items-center gap-3">
               <input
                 id={id}
-                type={opt.type === 'range' ? 'range' : 'number'}
-                class:list={['field', opt.type === 'range' && 'p-0 accent-[rgb(var(--accent))]']}
+                type="range"
+                class="h-1.5 w-full cursor-pointer appearance-none rounded-full accent-[rgb(var(--accent))]"
+                style="background-color: rgb(var(--bg-inset))"
                 data-opt-key={opt.key}
                 data-opt-type="number"
                 value={opt.default}
@@ -72,11 +82,9 @@ const fieldId = (key: string) => `${idPrefix}-opt-${key}`;
                 step={opt.step ?? 1}
                 aria-describedby={describedBy}
               />
-              {opt.type === 'range' && (
-                <output class="w-12 text-right text-sm tabular-nums" data-range-out={opt.key}>
-                  {opt.default}
-                </output>
-              )}
+              <output class="w-14 shrink-0 text-right font-mono text-sm tabular-nums text-[rgb(var(--text-muted))]" data-range-out={opt.key}>
+                {opt.default}
+              </output>
             </div>
           )}
 
@@ -106,9 +114,7 @@ const fieldId = (key: string) => `${idPrefix}-opt-${key}`;
           )}
 
           {opt.help && opt.type !== 'boolean' && (
-            <p id={helpId} class="text-xs text-[rgb(var(--text-muted))]">
-              {opt.help}
-            </p>
+            <p id={helpId} class="text-xs leading-relaxed text-[rgb(var(--text-muted))]">{opt.help}</p>
           )}
         </div>
       );

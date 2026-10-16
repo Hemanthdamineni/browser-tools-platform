@@ -58,7 +58,7 @@ export function renderTextResult(host: HTMLElement, result: TextRunResult): void
     const img = document.createElement('img');
     img.src = result.output;
     img.alt = 'Generated output';
-    img.className = 'max-h-[420px] rounded-lg border bg-white';
+    img.className = 'max-h-[420px] w-auto rounded-lg border'; img.style.backgroundColor = '#fff';
     host.appendChild(img);
     return;
   }
@@ -122,14 +122,14 @@ export function renderTextResult(host: HTMLElement, result: TextRunResult): void
     thead.innerHTML = `<tr>${data.headers
       .map(
         (h) =>
-          `<th class="border-b bg-[rgb(var(--bg-inset))] px-3 py-2 font-semibold">${escapeHtml(h)}</th>`,
+          `<th scope="col" class="border-b bg-[rgb(var(--bg-subtle))] px-3 py-2 text-left font-semibold text-[rgb(var(--text))]">${escapeHtml(h)}</th>`,
       )
       .join('')}</tr>`;
     const tbody = document.createElement('tbody');
     tbody.innerHTML = data.rows
       .map(
         (r) =>
-          `<tr>${r.map((c) => `<td class="border-b px-3 py-1.5 align-top font-mono text-xs">${escapeHtml(String(c))}</td>`).join('')}</tr>`,
+          `<tr>${r.map((c) => `<td class="border-b px-3 py-1.5 align-top font-mono text-xs text-[rgb(var(--text))]">${escapeHtml(String(c))}</td>`).join('')}</tr>`,
       )
       .join('');
     table.append(thead, tbody);
@@ -149,7 +149,7 @@ export function renderTextResult(host: HTMLElement, result: TextRunResult): void
           return `<span style="color: rgb(var(--accent))">${safe}</span>`;
         if (line.startsWith('-') && !line.startsWith('---'))
           return `<span style="color: rgb(var(--danger))">${safe}</span>`;
-        if (line.startsWith('@@')) return `<span class="opacity-60">${safe}</span>`;
+        if (line.startsWith('@@')) return `<span class="text-[rgb(var(--text-faint))]">${safe}</span>`;
         return safe;
       })
       .join('\n');

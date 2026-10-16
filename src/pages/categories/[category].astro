@@ -18,25 +18,22 @@ const sorted = [...tools].sort((a, b) => a.meta.name.localeCompare(b.meta.name))
 ---
 
 <Layout title={category.name} description={category.blurb} path={`/categories/${category.id}`}>
-  <nav
-    class="flex items-center gap-1.5 text-sm text-[rgb(var(--text-muted))]"
-    aria-label="Breadcrumb"
-  >
-    <a class="hover:text-[rgb(var(--accent))]" href="/categories">Categories</a>
-    <Icon name="chevron-right" size={14} />
+  <nav class="flex flex-wrap items-center gap-1.5 text-sm text-[rgb(var(--text-muted))]" aria-label="Breadcrumb">
+    <a class="transition-colors hover:text-[rgb(var(--accent))]" href="/categories">Categories</a>
+    <Icon name="chevron-right" size={14} class="shrink-0" />
     <span class="text-[rgb(var(--text))]">{category.name}</span>
   </nav>
 
   <header class="mt-4 flex items-start gap-3">
     <span
-      class="grid h-11 w-11 shrink-0 place-items-center rounded-xl"
-      style="background-color: rgb(var(--accent) / 0.12); color: rgb(var(--accent))"
+      class="grid h-11 w-11 shrink-0 place-items-center rounded-lg"
+      style="background-color: rgb(var(--accent-soft)); color: rgb(var(--accent))"
       aria-hidden="true"
     >
       <Icon name={category.icon} size={22} />
     </span>
-    <div>
-      <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">{category.name}</h1>
+    <div class="min-w-0">
+      <h1 class="text-2xl font-bold tracking-tight text-[rgb(var(--text))] sm:text-3xl">{category.name}</h1>
       <p class="mt-1 text-[rgb(var(--text-muted))]">{category.blurb}</p>
     </div>
   </header>

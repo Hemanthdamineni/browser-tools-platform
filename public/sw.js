@@ -71,8 +71,12 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(request)
         .then((res) => {
-          const copy = res.clone();
-          caches.open(RUNTIME).then((c) => c.put(request, copy));
+          // Only cache healthy responses; a 404/error must not poison the
+          // runtime cache for a URL that may become valid later.
+          if (res && res.ok) {
+            const copy = res.clone();
+            caches.open(RUNTIME).then((c) => c.put(request, copy));
+          }
           return res;
         })
         .catch(() =>

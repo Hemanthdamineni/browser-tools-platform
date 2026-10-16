@@ -2,13 +2,28 @@
 import Layout from '@/components/Layout.astro';
 ---
 
-<Layout title="Offline" noindex narrow>
+<Layout
+  title="You're offline"
+  description="You're offline. Tools you've already opened still work."
+  path="/offline"
+  noindex
+  narrow
+>
   <div class="py-16 text-center">
-    <h1 class="text-xl font-bold">You're offline</h1>
-    <p class="mt-2 text-[rgb(var(--text-muted))]">
-      This page hasn't been cached yet. Tools you've already opened still work — try one of those,
-      or reconnect to load this one.
+    <h1 class="text-xl font-bold text-[rgb(var(--text))]">You're offline</h1>
+    <p class="mx-auto mt-2 max-w-md text-[rgb(var(--text-muted))]">
+      This page hasn't been cached yet. Tools you've already opened still work. Try one of those,
+      or reconnect and try again.
     </p>
-    <a href="/" class="btn btn-primary mt-6">Go home</a>
+    <div class="mt-6 flex justify-center gap-3">
+      <a href="/" class="btn btn-primary">Go home</a>
+      <button type="button" class="btn btn-ghost" data-retry>Retry</button>
+    </div>
   </div>
 </Layout>
+
+<script>
+  document
+    .querySelector('[data-retry]')
+    ?.addEventListener('click', () => window.location.reload());
+</script>

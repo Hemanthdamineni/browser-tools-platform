@@ -14,7 +14,7 @@ const p = meta.id;
 ---
 
 <section
-  class="surface rounded-xl p-4 sm:p-6"
+  class="surface rounded-lg p-4 sm:p-6"
   data-text-workbench
   data-tool-id={meta.id}
   aria-label={`${meta.name} workbench`}
@@ -48,10 +48,10 @@ const p = meta.id;
             Input
           </label>
           <div class="flex gap-1.5">
-            <button type="button" class="btn btn-ghost !py-1 !px-2 text-xs" data-paste>
+            <button type="button" class="btn btn-subtle btn-sm" data-paste>
               Paste
             </button>
-            <button type="button" class="btn btn-ghost !py-1 !px-2 text-xs" data-clear>
+            <button type="button" class="btn btn-subtle btn-sm" data-clear>
               Clear
             </button>
           </div>
@@ -82,21 +82,21 @@ const p = meta.id;
     )
   }
 
-  <div class="flex flex-wrap items-center gap-2">
+  <div class="flex flex-wrap items-center gap-2.5">
     <button type="button" class="btn btn-primary" data-run>
-      <Icon name="zap" size={16} /> Run
+      <Icon name="zap" size={16} /> <span data-run-label>Run</span>
     </button>
-    <label class="flex items-center gap-2 text-sm text-[rgb(var(--text-muted))]">
+    <label class="flex cursor-pointer items-center gap-2 text-sm text-[rgb(var(--text-muted))]">
       <input type="checkbox" class="h-4 w-4 rounded" data-live checked />
       Run as I type
     </label>
-    <span class="ml-auto text-xs text-[rgb(var(--text-muted))]" data-timing aria-live="polite"
+    <span class="ml-auto text-xs tabular-nums text-[rgb(var(--text-muted))]" data-timing aria-live="polite"
     ></span>
   </div>
 
   <div
     class="mt-4 rounded-lg border px-3 py-2 text-sm"
-    style="border-color: rgb(var(--danger)); color: rgb(var(--danger))"
+    style="background-color: rgb(var(--danger-soft)); border-color: rgb(var(--danger)); color: rgb(var(--danger))"
     role="alert"
     data-error
     hidden
@@ -104,13 +104,13 @@ const p = meta.id;
   </div>
 
   <div class="mt-4" hidden data-result-wrap>
-    <div class="mb-1.5 flex items-center justify-between">
-      <span class="text-sm font-medium">Output</span>
+    <div class="mb-2 flex items-center justify-between">
+      <span class="text-sm font-semibold text-[rgb(var(--text))]">Output</span>
       <div class="flex gap-1.5">
-        <button type="button" class="btn btn-ghost !py-1 !px-2 text-xs" data-copy>
+        <button type="button" class="btn btn-subtle btn-sm" data-copy>
           <Icon name="copy" size={14} /> Copy
         </button>
-        <button type="button" class="btn btn-ghost !py-1 !px-2 text-xs" data-download>
+        <button type="button" class="btn btn-subtle btn-sm" data-download>
           <Icon name="download" size={14} /> Download
         </button>
       </div>
@@ -148,6 +148,7 @@ const p = meta.id;
     const toolId = root.dataset.toolId!;
     const input = root.querySelector<HTMLTextAreaElement>('[data-input]');
     const runBtn = root.querySelector<HTMLButtonElement>('[data-run]')!;
+    const runLabel = root.querySelector<HTMLElement>('[data-run-label]');
     const liveBox = root.querySelector<HTMLInputElement>('[data-live]')!;
     const errorBox = root.querySelector<HTMLElement>('[data-error]')!;
     const resultWrap = root.querySelector<HTMLElement>('[data-result-wrap]')!;
@@ -180,6 +181,8 @@ const p = meta.id;
       controller = new AbortController();
       clearError(errorBox);
       runBtn.disabled = true;
+      runBtn.setAttribute('aria-busy', 'true');
+      if (runLabel) runLabel.textContent = 'Running…';
       updateInputStats(); // clear any "live run paused" hint left by schedule()
       const started = performance.now();
       try {
@@ -196,7 +199,7 @@ const p = meta.id;
         statsHost.innerHTML = '';
         for (const [k, v] of Object.entries(result.stats ?? {})) {
           const s = document.createElement('span');
-          s.innerHTML = `<span class="font-medium">${k}:</span> ${v}`;
+          s.innerHTML = `<span class="font-medium text-[rgb(var(--text))]">${k}:</span> ${v}`;
           statsHost.appendChild(s);
         }
         notesHost.innerHTML = '';
@@ -220,7 +223,11 @@ const p = meta.id;
         resultWrap.hidden = true;
         showError(errorBox, e.message || 'Something went wrong.', e.hint);
       } finally {
-        if (seq === runSeq) runBtn.disabled = false;
+        if (seq === runSeq) {
+          runBtn.disabled = false;
+          runBtn.removeAttribute('aria-busy');
+          if (runLabel) runLabel.textContent = 'Run';
+        }
       }
     }
 
