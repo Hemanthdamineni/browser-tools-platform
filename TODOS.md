@@ -25,9 +25,9 @@ Line order is priority: top first. This file is written by a human (via review) 
 - [ ] **heic-to-jpg** · image — libheif-js / heic2any. Batch mode; JPEG, PNG, and WebP output. ⏳ run-20261016-0947-773b @ 2026-10-16T10:03:21Z
 - [ ] **image-strip-metadata** · image — Strip EXIF, GPS, and XMP. Prefer lossless JPEG segment removal; show what was removed. Batch mode. ⏳ run-20261016-0947-773b @ 2026-10-16T10:03:21Z
 - [ ] **video-to-gif** · video · after: video-foundation — Time range, fps, width, palette quality. Preview before export.
-- [ ] **pdf-sign** · pdf — Draw, type, or upload a signature. Place and resize on the page, then flatten with pdf-lib.
-- [ ] **code-beautify** · developer — Prettier standalone for JS/TS/CSS/SCSS/HTML/JSON/Markdown/YAML. Lazy-load parsers per language.
-- [ ] **code-minify** · developer — terser, lightningcss-wasm or csso, html-minifier-terser. Show bytes saved.
+- [ ] **pdf-sign** · pdf — Draw, type, or upload a signature. Place and resize on the page, then flatten with pdf-lib. ⏳ run-20261016-0957-7c37 @ 2026-10-16T10:22:40Z
+- [ ] **code-beautify** · developer — Prettier standalone for JS/TS/CSS/SCSS/HTML/JSON/Markdown/YAML. Lazy-load parsers per language. ⏳ run-20261016-0957-7c37 @ 2026-10-16T10:22:40Z
+- [ ] **code-minify** · developer — terser, lightningcss-wasm or csso, html-minifier-terser. Show bytes saved. ⏳ run-20261016-0957-7c37 @ 2026-10-16T10:22:40Z
 - [ ] **video-compress** · video · after: video-foundation — Presets by target size or quality. Warn on memory limits for long files.
 - [ ] **image-ocr** · image — tesseract.js with a language picker and self-hosted traineddata. Copy or download the text.
 - [ ] **background-remover** · image · after: ml-runtime-foundation — Use a permissively licensed model (e.g. MODNet); RMBG-1.4 is non-commercial, so don't use it. Output transparent PNG or a solid-colour background.
