@@ -8,7 +8,7 @@ The first round over-produced near-duplicate tools, especially around 80 HTTP he
 
 - [ ] **merge-cors-headers** · web — Merge the 6 `access-control-*` tools into one `cors-headers` tool. Old ids stay routable as aliases. ⏳ run-20261016-0943-f3d4 @ 2026-10-16T09:48:27Z
 - [ ] **merge-conditional-headers** · web — Merge etag, last-modified, if-match, if-none-match, if-range, if-modified-since, and if-unmodified-since into `conditional-request-headers`. Old ids become aliases. ⏳ run-20261016-0951-5f1c @ 2026-10-16T09:55:37Z
-- [ ] **merge-cache-headers** · web — Merge cache-control, cdn-cache-control, surrogate-control, expires-header, age-header, cache-status, and vary-header into `cache-headers`. Old ids become aliases.
+- [ ] **merge-cache-headers** · web — Merge cache-control, cdn-cache-control, surrogate-control, expires-header, age-header, cache-status, and vary-header into `cache-headers`. Old ids become aliases. ⏳ run-20261016-0947-773b @ 2026-10-16T10:03:21Z
 - [ ] **http-header-analyzer** · web · after: merge-cors-headers, merge-conditional-headers, merge-cache-headers — One tool where you paste any headers and each one is auto-detected and parsed. Fold the long-tail header tools in as aliases (alt-used, early-data, trailer-header, priority-header, signature-input, tracestate, and similar). Flag content-md5 and warning-header as deprecated in the UI.
 - [ ] **merge-escape-tools** · developer — `string-escape` absorbs backslash-escape, json-escape, and unicode-escape as modes. html-entities stays separate. Old ids become aliases.
 - [ ] **merge-base64** · encoding — `base64` gains a file mode; `base64-file` becomes an alias.

@@ -20,10 +20,10 @@ Line order is priority: top first. This file is written by a human (via review) 
 ## Tools
 
 - [ ] **pdf-compress** · pdf — Re-encode or downsample embedded images and clean up streams. Quality presets; show before/after size. ⏳ run-20261016-0951-5f1c @ 2026-10-16T09:55:37Z
-- [ ] **barcode-generator** · generators — bwip-js or JsBarcode. Code128, EAN-13, UPC-A, Code39, ITF, DataMatrix. SVG and PNG export.
-- [ ] **qr-scanner** · generators — Camera (getUserMedia) plus image upload. Native BarcodeDetector with jsQR or zxing-wasm fallback. Actions for detected URL, Wi-Fi, or vCard content.
-- [ ] **heic-to-jpg** · image — libheif-js / heic2any. Batch mode; JPEG, PNG, and WebP output.
-- [ ] **image-strip-metadata** · image — Strip EXIF, GPS, and XMP. Prefer lossless JPEG segment removal; show what was removed. Batch mode.
+- [x] **barcode-generator** · generators — bwip-js or JsBarcode. Code128, EAN-13, UPC-A, Code39, ITF, DataMatrix. SVG and PNG export. ✅ already exists as barcode
+- [ ] **qr-scanner** · generators — Camera (getUserMedia) plus image upload. Native BarcodeDetector with jsQR or zxing-wasm fallback. Actions for detected URL, Wi-Fi, or vCard content. ⏳ run-20261016-0947-773b @ 2026-10-16T10:03:21Z
+- [ ] **heic-to-jpg** · image — libheif-js / heic2any. Batch mode; JPEG, PNG, and WebP output. ⏳ run-20261016-0947-773b @ 2026-10-16T10:03:21Z
+- [ ] **image-strip-metadata** · image — Strip EXIF, GPS, and XMP. Prefer lossless JPEG segment removal; show what was removed. Batch mode. ⏳ run-20261016-0947-773b @ 2026-10-16T10:03:21Z
 - [ ] **video-to-gif** · video · after: video-foundation — Time range, fps, width, palette quality. Preview before export.
 - [ ] **pdf-sign** · pdf — Draw, type, or upload a signature. Place and resize on the page, then flatten with pdf-lib.
 - [ ] **code-beautify** · developer — Prettier standalone for JS/TS/CSS/SCSS/HTML/JSON/Markdown/YAML. Lazy-load parsers per language.
