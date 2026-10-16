@@ -1,23 +1,62 @@
-import type { FileToolModule, FileRunInput, FileRunResult } from '@/lib/types';
+import type { FileRunInput, FileRunResult, FileToolModule } from '@/lib/types';
 import { ToolError } from '@/lib/types';
+import { unzlibSync } from 'fflate';
 import { checkAbort, checkFiles } from './common';
 import { meta } from './image-metadata.meta';
 
-/** TIFF tag → [friendly name, IFD type number]. */
-const TIFF_TAGS: Record<number, [string, number]> = {
-  0x010f: ['Make', 2], // ascii
-  0x0110: ['Model', 2], // ascii
-  0x0112: ['Orientation', 3], // uint16
-  0x011a: ['XResolution', 5], // rational
-  0x011b: ['YResolution', 5], // rational
-  0x0132: ['DateTime', 2], // ascii
-  0x8298: ['Copyright', 2], // ascii
-  0x829a: ['ExposureTime', 5], // rational
-  0x829d: ['FNumber', 5], // rational
-  0x8827: ['ISO', 3], // uint16
-  0x920a: ['FocalLength', 5], // rational
-  0xa434: ['LensModel', 2], // ascii
-  0x9003: ['DateTimeOriginal', 2], // ascii (Exif IFD)
+/* -------------------------------------------------------------------------- */
+/*  JPEG EXIF (TIFF) parsing                                                  */
+/* -------------------------------------------------------------------------- */
+
+/** TIFF tags stored in IFD0 (the primary image directory). */
+const IFD0_TAGS: Record<number, string> = {
+  0x010e: 'ImageDescription',
+  0x010f: 'Make',
+  0x0110: 'Model',
+  0x0112: 'Orientation',
+  0x011a: 'XResolution',
+  0x011b: 'YResolution',
+  0x0128: 'ResolutionUnit',
+  0x0131: 'Software',
+  0x0132: 'DateTime',
+  0x013b: 'Artist',
+  0x8298: 'Copyright',
+};
+
+/** TIFF tags stored in the Exif sub-IFD (reached via the 0x8769 pointer). */
+const EXIF_TAGS: Record<number, string> = {
+  0x829a: 'ExposureTime',
+  0x829d: 'FNumber',
+  0x8822: 'ExposureProgram',
+  0x8827: 'ISO',
+  0x9003: 'DateTimeOriginal',
+  0x9004: 'DateTimeDigitized',
+  0x9204: 'ExposureBias',
+  0x9207: 'MeteringMode',
+  0x9209: 'Flash',
+  0x920a: 'FocalLength',
+  0x9286: 'UserComment',
+  0xa001: 'ColourSpace',
+  0xa002: 'PixelXDimension',
+  0xa003: 'PixelYDimension',
+  0xa402: 'ExposureMode',
+  0xa403: 'WhiteBalance',
+  0xa405: 'FocalLength35mm',
+  0xa434: 'LensModel',
+};
+
+const EXIF_IFD_POINTER = 0x8769;
+
+/** Human-readable meaning of the EXIF Orientation tag (1–8). */
+const ORIENTATION_MEANING: Record<number, string> = {
+  1: 'Normal (no rotation)',
+  2: 'Mirrored horizontally',
+  3: 'Rotated 180°',
+  4: 'Mirrored vertically',
+  5: 'Mirrored horizontally, rotated 270° clockwise',
+  6: 'Rotated 90° clockwise',
+  7: 'Mirrored horizontally, rotated 90° clockwise',
+  8: 'Rotated 270° clockwise',
 };
 
 /** Bytes-per-value for the IFD types we understand. */
@@ -50,134 +89,150 @@ interface ValueReader {
   readonly u32: (a: number) => number;
 }
 
-/** Read a single IFD value at absolute offset `off`. */
-function readIfdValue(buf: ArrayBuffer, r: ValueReader, off: number, type: number, count: number): string | number {
+/**
+ * Read a single IFD value. `off` points at the 12-byte entry's 4-byte value
+ * field: for values that occupy ≤ 4 bytes the data is inline, otherwise that
+ * field holds an offset to the data. TIFF store offsets relative to the TIFF
+ * header, hence `origin + r.u32(off)`.
+ */
+function readIfdValue(
+  buf: ArrayBuffer,
+  r: ValueReader,
+  origin: number,
+  off: number,
+  type: number,
+  count: number,
+): string | number {
   const raw = new Uint8Array(buf);
+  const totalBytes = count * typeSize(type);
+  const at = totalBytes <= 4 ? off : origin + r.u32(off);
+
   if (type === 2 || type === 7) {
-    // ASCII / UNDEFINED — return the text up to the first NUL.
+    // ASCII / UNDEFINED — decode the text up to the first NUL.
     let s = '';
-    for (let i = 0; i < count && off + i < raw.length; i++) {
-      const c = raw[off + i];
+    for (let i = 0; i < count && at + i < raw.length; i++) {
+      const c = raw[at + i];
       if (c === undefined || c === 0) break;
       s += String.fromCharCode(c);
     }
     return s;
   }
-  const valueAt = (p: number): number => {
-    if (p < 0 || p + 8 > raw.length) return 0;
-    switch (type) {
-      case 1:
-      case 6:
-      case 7:
-        return r.u8(p);
-      case 3:
-      case 8:
-        return r.u16(p);
-      case 4:
-      case 9:
-      case 11:
-        return r.u32(p);
-      case 5:
-      case 10: {
-        const denom = r.u32(p + 4);
-        return denom ? Math.round((r.u32(p) / denom) * 1000) / 1000 : 0;
-      }
-      case 12:
-        return Math.round(r.u32(p) / Math.max(1, r.u32(p + 4)) * 1000) / 1000;
-      default:
-        return 0;
+
+  switch (type) {
+    case 1:
+    case 6:
+      return r.u8(at);
+    case 3:
+    case 8:
+      return r.u16(at);
+    case 4:
+    case 9:
+    case 11:
+      return r.u32(at);
+    case 5:
+    case 10: {
+      const denom = r.u32(at + 4);
+      return denom ? Math.round((r.u32(at) / denom) * 1000) / 1000 : 0;
     }
+    case 12: {
+      const denom = r.u32(at + 4);
+      return denom ? Math.round((r.u32(at) / denom) * 1000) / 1000 : 0;
+    }
+    default:
+      return r.u8(at);
+  }
+}
+
+interface TiffContext {
+  buf: ArrayBuffer;
+  r: ValueReader;
+  tiffStart: number;
+}
+
+/** Walk one IFD, collecting known tags; returns the Exif sub-IFD offset if present. */
+function readIfd(
+  ctx: TiffContext,
+  ifdOffset: number,
+  tags: Record<number, string>,
+  out: Record<string, string | number>,
+): number {
+  const { buf, r, tiffStart } = ctx;
+  const ifd = tiffStart + ifdOffset;
+  if (ifd < 0 || ifd + 2 > buf.byteLength) return 0;
+
+  const entries = r.u16(ifd);
+  let subIfd = 0;
+  let p = ifd + 2;
+  for (let i = 0; i < entries; i++) {
+    if (p + 12 > buf.byteLength) break;
+    const tag = r.u16(p);
+    const type = r.u16(p + 2);
+    const count = r.u32(p + 4);
+    if (tag === EXIF_IFD_POINTER) {
+      subIfd = Number(readIfdValue(buf, r, tiffStart, p + 8, type, count));
+    } else {
+      const name = tags[tag];
+      if (name) out[name] = readIfdValue(buf, r, tiffStart, p + 8, type, count);
+    }
+    p += 12;
+  }
+  return subIfd;
+}
+
+/** Parse a TIFF header at `t` and read IFD0 plus the Exif sub-IFD into `out`. */
+function parseTiff(buf: ArrayBuffer, t: number, out: Record<string, string | number>): void {
+  if (t < 0 || t + 8 > buf.byteLength) return;
+  const d = new DataView(buf);
+  const byteOrder = d.getUint8(t);
+  if (byteOrder !== 0x49 && byteOrder !== 0x4d) return; // 'I' (LE) or 'M' (BE)
+  const le = byteOrder === 0x49;
+  const within = (a: number, size: number) => a >= 0 && a + size <= buf.byteLength;
+  const r: ValueReader = {
+    u8: (a) => (within(a, 1) ? d.getUint8(a) : 0),
+    u16: (a) => (within(a, 2) ? d.getUint16(a, le) : 0),
+    u32: (a) => (within(a, 4) ? d.getUint32(a, le) : 0),
   };
-  const totalBytes = count * typeSize(type);
-  // Value fits inline when it occupies ≤ 4 bytes; otherwise it is an offset.
-  return totalBytes <= 4 ? valueAt(off) : valueAt(r.u32(off));
+  if (r.u16(t + 2) !== 42) return; // not a TIFF header
+
+  const ctx: TiffContext = { buf, r, tiffStart: t };
+  const exifIfd = readIfd(ctx, r.u32(t + 4), IFD0_TAGS, out);
+  if (exifIfd) readIfd(ctx, exifIfd, EXIF_TAGS, out);
 }
 
 /**
- * Parse JPEG APP1 "Exif\0\0" TIFF metadata and return a record of known tags.
- * Returns an empty object when no readable EXIF block is present — callers can
- * then rely on the basic rows.
+ * Parse a JPEG APP1 "Exif\0\0" segment and return a record of known tags.
+ * Returns an empty object when no readable EXIF block is present.
  */
 export function readExif(buf: ArrayBuffer): Record<string, string | number> {
-  const d = new DataView(buf);
   const out: Record<string, string | number> = {};
+  if (buf.byteLength < 4) return out;
+  const d = new DataView(buf);
+  const exifSig = [0x45, 0x78, 0x69, 0x66, 0x00, 0x00]; // "Exif\0\0"
 
-  // Walk the JPEG segment list looking for an APP1 (0xff 0xe1) Exif segment.
   let o = 0;
   while (o + 4 <= buf.byteLength) {
-    if (d.getUint8(o) !== 0xff || d.getUint8(o + 1) === 0xff) {
+    if (d.getUint8(o) !== 0xff) {
       o++;
-      // Skip a potential 0xff padding byte so we still land on a marker.
-      if (d.getUint8(o) === 0xff && o + 1 < buf.byteLength) o++;
       continue;
     }
     const marker = d.getUint8(o + 1);
-    if (marker === 0xd8 || marker === 0xd9) {
-      // SOI / EOI — not a length-carrying segment.
-      o += 2;
+    if (marker === 0xff) {
+      o++; // fill byte
       continue;
     }
-    if (marker === 0xda) break; // start of scan — no more metadata segments
+    if (marker === 0xd8 || marker === 0xd9) {
+      o += 2; // SOI / EOI carry no length
+      continue;
+    }
+    if (marker === 0xda) break; // start of scan — metadata segments are done
     const segLen = d.getUint16(o + 2);
     if (segLen < 2) break;
-    if (marker === 0xe1) {
-      // Check the Exif header: "Exif\0\0".
-      let isExif = true;
-      const exifSig = [0x45, 0x78, 0x69, 0x66, 0x00, 0x00];
-      for (let i = 0; i < exifSig.length; i++) {
-        if (buf.byteLength <= o + 4 + i || d.getUint8(o + 4 + i) !== exifSig[i]) {
-          isExif = false;
-          break;
-        }
-      }
+
+    if (marker === 0xe1 && o + 4 + exifSig.length <= buf.byteLength) {
+      const isExif = exifSig.every((byte, i) => d.getUint8(o + 4 + i) === byte);
       if (isExif) {
-        const t = o + 10; // start of TIFF header inside the APP1 payload
-        if (t + 8 > buf.byteLength) break;
-        const endian = d.getUint8(t);
-        const le = endian === 0x49; // 'I' → little-endian
-        const r: ValueReader = {
-          u8: (a) => d.getUint8(a),
-          u16: (a) => d.getUint16(a, le),
-          u32: (a) => d.getUint32(a, le),
-        };
-        if (r.u16(t + 2) !== 42) break; // not a TIFF header
-        const ifd0Offset = r.u32(t + 4);
-        const ifd0 = t + ifd0Offset;
-        if (!Number.isFinite(ifd0) || ifd0 < 0 || ifd0 + 2 > buf.byteLength) break;
-
-        const entries = r.u16(ifd0);
-        let p = ifd0 + 2;
-        for (let i = 0; i < entries && p + 12 <= buf.byteLength; i++) {
-          const tag = r.u16(p);
-          const type = r.u16(p + 2);
-          const count = r.u32(p + 4);
-          const def = TIFF_TAGS[tag];
-          if (def && (def[1] === type || (def[1] === 3 && type === 3) || (def[1] === 2 && type === 2) || (def[1] === 5 && (type === 5 || type === 10)))) {
-            out[def[0]] = readIfdValue(buf, r, p + 8, type, count);
-          }
-          p += 12;
-        }
-
-        // Follow the "next IFD" offset pointer to the Exif IFD.
-        const next = r.u32(ifd0 + 2 + entries * 12);
-        if (next && t + next + 2 <= buf.byteLength) {
-          const exif = t + next;
-          const n2 = r.u16(exif);
-          let q = exif + 2;
-          for (let i = 0; i < n2 && q + 12 <= buf.byteLength; i++) {
-            const eifd = r.u16(q);
-            if (eifd === 0x9003) {
-              out.DateTimeOriginal = readIfdValue(buf, r, q + 8, r.u16(q + 2), r.u32(q + 4));
-            } else if (eifd === 0x8827) {
-              out.ISO = readIfdValue(buf, r, q + 8, r.u16(q + 2), r.u32(q + 4));
-            } else if (eifd === 0x920a) {
-              out.FocalLength = readIfdValue(buf, r, q + 8, r.u16(q + 2), r.u32(q + 4));
-            } else if (eifd === 0xa405) {
-              out.LensModel = readIfdValue(buf, r, q + 8, r.u16(q + 2), r.u32(q + 4));
-            }
-            q += 12;
-          }
-        }
+        parseTiff(buf, o + 10, out);
+        break;
       }
     }
     o += 2 + segLen;
@@ -185,14 +240,42 @@ export function readExif(buf: ArrayBuffer): Record<string, string | number> {
   return out;
 }
 
-/** Parse selected PNG chunk metadata (pHYs, tEXt, iTXt, tIME). */
+/* -------------------------------------------------------------------------- */
+/*  PNG chunk parsing                                                         */
+/* -------------------------------------------------------------------------- */
+
+const PNG_COLOUR_TYPES: Record<number, string> = {
+  0: 'Greyscale',
+  2: 'Truecolour',
+  3: 'Indexed',
+  4: 'Greyscale + alpha',
+  6: 'Truecolour + alpha',
+};
+
+const decoder = new TextDecoder();
+
+function nulAt(d: Uint8Array, from: number, end: number): number {
+  for (let i = from; i < end; i++) if (d[i] === 0) return i;
+  return -1;
+}
+
+/** Inflate a zlib stream from `bytes`, returning '' if it cannot be decoded. */
+function inflateText(bytes: Uint8Array): string {
+  try {
+    return decoder.decode(unzlibSync(bytes));
+  } catch {
+    return '';
+  }
+}
+
+/** Parse selected PNG chunk metadata (IHDR, pHYs, tEXt, zTXt, iTXt, tIME). */
 export function decodePngChunks(buf: ArrayBuffer): Record<string, string | number> {
   const d = new Uint8Array(buf);
   const out: Record<string, string | number> = {};
   if (d.length < 24 || d[0] !== 137 || d[1] !== 80 || d[2] !== 78 || d[3] !== 71) return out;
 
   const u32 = (o: number): number =>
-    ((d[o]! << 24) >>> 0) | ((d[o + 1]! << 16) >>> 0) | ((d[o + 2]! << 8) >>> 0) | d[o + 3]!;
+    (((d[o]! << 24) >>> 0) | ((d[o + 1]! << 16) >>> 0) | ((d[o + 2]! << 8) >>> 0) | d[o + 3]!) >>> 0;
 
   let o = 8;
   while (o + 8 <= d.length) {
@@ -200,64 +283,82 @@ export function decodePngChunks(buf: ArrayBuffer): Record<string, string | numbe
     const type = String.fromCharCode(d[o + 4]!, d[o + 5]!, d[o + 6]!, d[o + 7]!);
     const start = o + 8;
     const dataEnd = start + len;
-    if (!Number.isSafeInteger(dataEnd) || dataEnd > d.length) break; // truncated chunk — stop safely
+    if (!Number.isSafeInteger(dataEnd) || dataEnd > d.length || dataEnd < start) break;
 
-    if (type === 'pHYs' && len >= 8) {
+    if (type === 'IHDR' && len >= 13) {
+      out['Bit depth'] = `${d[start + 8]} bit`;
+      out['Colour type'] = PNG_COLOUR_TYPES[d[start + 9]!] ?? `Unknown (${d[start + 9]})`;
+    } else if (type === 'pHYs' && len >= 9) {
       const x = u32(start);
       const y = u32(start + 4);
-      out['Pixel density'] = `${x}×${y} ppu`;
-    } else if (type === 'tEXt') {
-      let nul = -1;
-      for (let i = start; i < dataEnd; i++) {
-        if (d[i] === 0) { nul = i; break; }
+      const unit = d[start + 8];
+      if (unit === 1) {
+        const dpi = (ppm: number) => Math.round(ppm * 0.0254);
+        out['Pixel density'] = `${x}×${y} px/m (≈${dpi(x)}×${dpi(y)} dpi)`;
+      } else {
+        out['Pixel density'] = `${x}×${y} px`;
       }
+    } else if (type === 'tEXt') {
+      const nul = nulAt(d, start, dataEnd);
       if (nul !== -1) {
-        const key = new TextDecoder().decode(d.slice(start, nul));
-        const value = new TextDecoder().decode(d.slice(nul + 1, dataEnd));
-        out[key] = value;
+        const key = decoder.decode(d.slice(start, nul));
+        out[key] = decoder.decode(d.slice(nul + 1, dataEnd));
+      }
+    } else if (type === 'zTXt') {
+      const nul = nulAt(d, start, dataEnd);
+      if (nul !== -1 && nul + 1 < dataEnd) {
+        const key = decoder.decode(d.slice(start, nul));
+        out[key] = inflateText(d.slice(nul + 2, dataEnd)); // skip the compression method byte
       }
     } else if (type === 'iTXt') {
-      let nul = -1;
-      for (let i = start; i < dataEnd; i++) {
-        if (d[i] === 0) { nul = i; break; }
-      }
-      if (nul !== -1) {
-        const key = new TextDecoder().decode(d.slice(start, nul));
-        out[key] = `iTXt: ${len} bytes`;
+      const keyEnd = nulAt(d, start, dataEnd);
+      if (keyEnd !== -1 && keyEnd + 2 < dataEnd) {
+        const key = decoder.decode(d.slice(start, keyEnd));
+        const compressed = d[keyEnd + 1] === 1;
+        const langEnd = nulAt(d, keyEnd + 3, dataEnd);
+        const textStart = langEnd === -1 ? -1 : nulAt(d, langEnd + 1, dataEnd);
+        if (textStart !== -1) {
+          const textBytes = d.slice(textStart + 1, dataEnd);
+          out[key] = compressed ? inflateText(textBytes) : decoder.decode(textBytes);
+        }
       }
     } else if (type === 'tIME' && len >= 7) {
-      const year = d[start]! + 2000;
-      const month = String(d[start + 1]!).padStart(2, '0');
-      const day = String(d[start + 2]!).padStart(2, '0');
-      const hour = String(d[start + 3]!).padStart(2, '0');
-      const minute = String(d[start + 4]!).padStart(2, '0');
-      const second = String(d[start + 5]!).padStart(2, '0');
-      out.Modified = `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+      const year = (d[start]! << 8) | d[start + 1]!;
+      const month = String(d[start + 2]!).padStart(2, '0');
+      const day = String(d[start + 3]!).padStart(2, '0');
+      const hour = String(d[start + 4]!).padStart(2, '0');
+      const minute = String(d[start + 5]!).padStart(2, '0');
+      const second = String(d[start + 6]!).padStart(2, '0');
+      out['Modified'] = `${year}-${month}-${day} ${hour}:${minute}:${second}`;
     }
 
-    o = dataEnd + 4; // skip CRC
+    o = dataEnd + 4; // skip the CRC
     if (type === 'IEND') break;
   }
   return out;
 }
 
+/* -------------------------------------------------------------------------- */
+/*  Tool entry point                                                          */
+/* -------------------------------------------------------------------------- */
+
 async function run(input: FileRunInput): Promise<FileRunResult> {
   checkFiles(input.files);
-  const f = input.files[0]!;
+  const file = input.files[0]!;
   checkAbort(input.signal);
   input.onProgress?.(0, 'Reading metadata');
-  const buf = await f.arrayBuffer();
+  const buf = await file.arrayBuffer();
 
   const rows: [string, string][] = [
-    ['Filename', f.name],
-    ['MIME type', f.type],
-    ['File size', `${f.size} bytes`],
+    ['Filename', file.name],
+    ['MIME type', file.type || 'unknown'],
+    ['File size', `${file.size} bytes`],
   ];
 
   try {
-    const b = await createImageBitmap(f);
-    rows.push(['Pixel dimensions', `${b.width} × ${b.height}`]);
-    b.close();
+    const bitmap = await createImageBitmap(file);
+    rows.push(['Pixel dimensions', `${bitmap.width} × ${bitmap.height}`]);
+    bitmap.close();
   } catch {
     throw new ToolError(
       'That file could not be decoded as an image.',
@@ -265,10 +366,14 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
     );
   }
 
-  if (f.type === 'image/jpeg') {
-    const ex = readExif(buf);
-    for (const [k, v] of Object.entries(ex)) rows.push([k, String(v)]);
-  } else if (f.type === 'image/png') {
+  if (file.type === 'image/jpeg') {
+    const exif = readExif(buf);
+    for (const [k, v] of Object.entries(exif)) rows.push([k, String(v)]);
+    const orientation = exif.Orientation;
+    if (typeof orientation === 'number' && ORIENTATION_MEANING[orientation]) {
+      rows.push(['Orientation (meaning)', ORIENTATION_MEANING[orientation]!]);
+    }
+  } else if (file.type === 'image/png') {
     const png = decodePngChunks(buf);
     for (const [k, v] of Object.entries(png)) rows.push([k, String(v)]);
   }
