@@ -16,6 +16,11 @@ export const meta: ToolMeta = {
     { key: 'upscale', label: 'Allow upscaling', type: 'boolean', default: false },
   ],
   examples: [{ title: 'Fit within 800 × 600', options: { mode: 'fit', width: 800, height: 600 } }],
-  faq: [{ q: 'Are images uploaded?', a: 'No. Images are processed locally in your browser.' }],
-  related: ['image-compress','image-convert','image-crop'], status: 'beta',
+  faq: [
+    { q: 'Are images uploaded?', a: 'No. Images are processed locally in your browser.' },
+    { q: 'Does it respect photo orientation?', a: 'Yes — EXIF orientation is applied while decoding so portrait photos are not rotated.' },
+  ],
+  related: ['image-compress','image-convert','image-crop'],
+  status: 'stable',
+  updated: '2026-10-16',
 };

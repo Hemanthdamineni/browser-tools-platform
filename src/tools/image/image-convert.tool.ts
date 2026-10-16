@@ -1,11 +1,78 @@
 import type { FileToolModule, FileRunInput, FileRunResult } from '@/lib/types';
-import { ToolError } from '@/lib/types'; import { resolveOptions } from '@/lib/options'; import { canvasFor, decodeImage } from '@/lib/image'; import { checkAbort, checkFiles, extension, stem, parseHexColor } from './common'; import { meta } from './image-convert.meta';
+import { ToolError } from '@/lib/types';
+import { resolveOptions } from '@/lib/options';
+import { checkFiles, extension, parseHexColor, stem } from './common';
+import {
+  assertCanvasBudget,
+  context2d,
+  createCanvas,
+  decodeOriented,
+  encodeCanvas,
+  flattenForJpeg,
+  runBatch,
+} from './image-batch';
+import { meta } from './image-convert.meta';
 
-export function imageOutputType(mime: string): string { return mime; }
+const FORMATS = ['png', 'jpeg', 'webp', 'avif'] as const;
+
+/** Identity helper kept for backwards-compatible imports. */
+export function imageOutputType(mime: string): string {
+  return mime;
+}
+
+/** Validate the requested target format and return its MIME type. */
+export function convertMime(to: unknown): string {
+  const value = String(to ?? 'webp');
+  if (!(FORMATS as readonly string[]).includes(value)) {
+    throw new ToolError(`“${value}” is not a supported output format.`, 'Choose PNG, JPEG, WebP or AVIF.');
+  }
+  return `image/${value}`;
+}
+
+/** Turn a hex colour into a CSS rgb() string for JPEG flattening. */
+export function backgroundColor(value: unknown): string {
+  const rgb = parseHexColor(String(value ?? '#ffffff'));
+  if (!rgb) {
+    throw new ToolError('Enter the JPEG background as a hex colour, such as #ffffff.', 'Use a 3- or 6-digit hex value.');
+  }
+  return `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
+}
 
 async function run(input: FileRunInput): Promise<FileRunResult> {
-  const o = resolveOptions(meta, input.options); checkFiles(input.files, true); const to = String(o.to); const targetMime = `image/${to}`; const outputs=[]; let originalBytes=0,outputBytes=0;
-  for(let i=0;i<input.files.length;i++){checkAbort(input.signal);const f=input.files[i]!;originalBytes+=f.size;input.onProgress?.(i/input.files.length,`Converting ${f.name}`);const b=await decodeImage(f);try{const c=canvasFor(b.width,b.height),ctx=c.getContext('2d');if(!ctx)throw new ToolError('Could not create a drawing context.');if(targetMime==='image/jpeg'){const rgb=parseHexColor(String(o.background))??[255,255,255];ctx.fillStyle=`rgb(${rgb[0]},${rgb[1]},${rgb[2]})`;ctx.fillRect(0,0,b.width,b.height);}ctx.drawImage(b,0,0);const blob=await c.convertToBlob({type:targetMime,quality:Number(o.quality)/100});if(blob.type!==targetMime)throw new ToolError(`This browser cannot encode ${to}.`,'Try WebP or PNG.');outputs.push({filename:`${stem(f.name)}.${extension(targetMime)}`,blob});outputBytes+=blob.size;}finally{b.close();}}
-  input.onProgress?.(1,'Done');return{outputs,stats:{files:outputs.length,originalBytes,outputBytes,format:targetMime}};
+  const o = resolveOptions(meta, input.options);
+  checkFiles(input.files, true);
+
+  const targetMime = convertMime(o.to);
+  const needsBackground = targetMime === 'image/jpeg';
+  const background = needsBackground ? backgroundColor(o.background) : '#ffffff';
+  const quality = Math.min(100, Math.max(10, Number(o.quality) || 90)) / 100;
+
+  let originalBytes = 0;
+  let outputBytes = 0;
+
+  const outputs = await runBatch(input.files, input, 'Converting', async (file) => {
+    originalBytes += file.size;
+    const bitmap = await decodeOriented(file);
+    try {
+      assertCanvasBudget(bitmap.width, bitmap.height, 'source image');
+      const canvas = createCanvas(bitmap.width, bitmap.height);
+      const ctx = context2d(canvas);
+      // JPEG has no alpha; flatten onto the chosen colour. PNG/WebP/AVIF keep alpha.
+      flattenForJpeg(ctx, targetMime, canvas.width, canvas.height, background);
+      ctx.drawImage(bitmap, 0, 0);
+      const blob = await encodeCanvas(canvas, targetMime, quality);
+      outputBytes += blob.size;
+      return { filename: `${stem(file.name)}.${extension(targetMime)}`, blob };
+    } finally {
+      bitmap.close();
+    }
+  });
+
+  return {
+    outputs,
+    stats: { files: outputs.length, originalBytes, outputBytes, format: targetMime },
+  };
 }
-const tool:FileToolModule={meta,run};export default tool;
+
+const tool: FileToolModule = { meta, run };
+export default tool;

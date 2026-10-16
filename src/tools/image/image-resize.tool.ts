@@ -1,8 +1,16 @@
 import type { FileToolModule, FileRunInput, FileRunResult } from '@/lib/types';
 import { ToolError } from '@/lib/types';
 import { resolveOptions } from '@/lib/options';
-import { canvasFor, decodeImage } from '@/lib/image';
-import { checkAbort, checkFiles, outputMime, extension, stem } from './common';
+import { checkFiles, extension, outputMime, stem } from './common';
+import {
+  assertCanvasBudget,
+  context2d,
+  createCanvas,
+  decodeOriented,
+  encodeCanvas,
+  flattenForJpeg,
+  runBatch,
+} from './image-batch';
 import { meta } from './image-resize.meta';
 
 export function computeTargetSize(srcW: number, srcH: number, opts: Record<string, unknown>) {
@@ -32,26 +40,47 @@ export function computeTargetSize(srcW: number, srcH: number, opts: Record<strin
 async function run(input: FileRunInput): Promise<FileRunResult> {
   const o = resolveOptions(meta, input.options);
   checkFiles(input.files, true);
-  const outputs = []; let originalBytes = 0; let outputBytes = 0;
-  for (let i = 0; i < input.files.length; i++) {
-    checkAbort(input.signal); const file = input.files[i]!; originalBytes += file.size;
-    input.onProgress?.(i / input.files.length, `Resizing ${file.name}`);
-    const bitmap = await decodeImage(file);
+
+  const mode = String(o.mode);
+  let originalBytes = 0;
+  let outputBytes = 0;
+
+  const outputs = await runBatch(input.files, input, 'Resizing', async (file) => {
+    originalBytes += file.size;
+    const bitmap = await decodeOriented(file);
     try {
+      assertCanvasBudget(bitmap.width, bitmap.height, 'source image');
       const size = computeTargetSize(bitmap.width, bitmap.height, o);
       const mime = outputMime(o.format === 'original' ? 'original' : o.format, file.type);
-      const canvas = canvasFor(size.w, size.h); const ctx = canvas.getContext('2d');
-      if (!ctx) throw new ToolError('Could not create a drawing context.');
-      if (mime === 'image/jpeg') { ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, size.w, size.h); }
-      const mode = String(o.mode);
-      if (mode === 'fill') { const s = Math.max(size.w / bitmap.width, size.h / bitmap.height); const sw = size.w / s, sh = size.h / s; ctx.drawImage(bitmap, (bitmap.width-sw)/2, (bitmap.height-sh)/2, sw, sh, 0, 0, size.w, size.h); }
-      else ctx.drawImage(bitmap, 0, 0, size.w, size.h);
-      const blob = await canvas.convertToBlob({ type: mime, quality: Number(o.quality) / 100 });
-      if (blob.type !== mime) throw new ToolError(`This browser cannot encode ${mime}.`);
-      outputs.push({ filename: `${stem(file.name)}-${size.w}x${size.h}.${extension(mime)}`, blob }); outputBytes += blob.size;
-    } finally { bitmap.close(); }
-  }
-  input.onProgress?.(1, 'Done');
-  return { outputs, stats: { files: outputs.length, originalBytes, outputBytes, savedPercent: originalBytes ? Math.round((1-outputBytes/originalBytes)*1000)/10 : 0 } };
+      const canvas = createCanvas(size.w, size.h);
+      const ctx = context2d(canvas);
+      flattenForJpeg(ctx, mime, size.w, size.h);
+      if (mode === 'fill') {
+        const s = Math.max(size.w / bitmap.width, size.h / bitmap.height);
+        const sw = size.w / s;
+        const sh = size.h / s;
+        ctx.drawImage(bitmap, (bitmap.width - sw) / 2, (bitmap.height - sh) / 2, sw, sh, 0, 0, size.w, size.h);
+      } else {
+        ctx.drawImage(bitmap, 0, 0, size.w, size.h);
+      }
+      const blob = await encodeCanvas(canvas, mime, Number(o.quality) / 100);
+      outputBytes += blob.size;
+      return { filename: `${stem(file.name)}-${size.w}x${size.h}.${extension(mime)}`, blob };
+    } finally {
+      bitmap.close();
+    }
+  });
+
+  return {
+    outputs,
+    stats: {
+      files: outputs.length,
+      originalBytes,
+      outputBytes,
+      savedPercent: originalBytes ? Math.round((1 - outputBytes / originalBytes) * 1000) / 10 : 0,
+    },
+  };
 }
-const tool: FileToolModule = { meta, run }; export default tool;
+
+const tool: FileToolModule = { meta, run };
+export default tool;
