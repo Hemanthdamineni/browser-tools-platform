@@ -11,7 +11,7 @@ The first round over-produced near-duplicate tools, especially around 80 HTTP he
 - [ ] **merge-cache-headers** · web — Merge cache-control, cdn-cache-control, surrogate-control, expires-header, age-header, cache-status, and vary-header into `cache-headers`. Old ids become aliases. ⏳ run-20261016-0947-773b @ 2026-10-16T10:03:21Z
 - [ ] **http-header-analyzer** · web · after: merge-cors-headers, merge-conditional-headers, merge-cache-headers — One tool where you paste any headers and each one is auto-detected and parsed. Fold the long-tail header tools in as aliases (alt-used, early-data, trailer-header, priority-header, signature-input, tracestate, and similar). Flag content-md5 and warning-header as deprecated in the UI.
 - [ ] **merge-escape-tools** · developer — `string-escape` absorbs backslash-escape, json-escape, and unicode-escape as modes. html-entities stays separate. Old ids become aliases. ⏳ run-20261016-0957-7c37 @ 2026-10-16T10:22:40Z
-- [ ] **merge-base64** · encoding — `base64` gains a file mode; `base64-file` becomes an alias.
+- [ ] **merge-base64** · encoding — `base64` gains a file mode; `base64-file` becomes an alias. ⏳ run-20261016-1016-793b @ 2026-10-16T10:23:30Z
 - [ ] **merge-datauri** · web — Merge data-uri, image-to-datauri, and datauri-to-image into one tool with text and image modes. Old ids become aliases.
 - [ ] **upgrade-image-batch-1** · image — Bring image-compress, image-convert, image-resize, and image-crop to `stable`. Add tests; handle EXIF orientation, transparency, and huge-image limits; add batch mode. ⏳ run-20261016-0943-f3d4 @ 2026-10-16T09:48:27Z
 - [ ] **upgrade-image-batch-2** · image — Bring image-rotate, image-metadata, and image-palette to `stable`. ⏳ run-20261016-0943-f3d4 @ 2026-10-16T09:48:27Z

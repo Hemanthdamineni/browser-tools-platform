@@ -29,14 +29,14 @@ Line order is priority: top first. This file is written by a human (via review) 
 - [ ] **code-beautify** · developer — Prettier standalone for JS/TS/CSS/SCSS/HTML/JSON/Markdown/YAML. Lazy-load parsers per language. ⏳ run-20261016-0957-7c37 @ 2026-10-16T10:22:40Z
 - [ ] **code-minify** · developer — terser, lightningcss-wasm or csso, html-minifier-terser. Show bytes saved. ⏳ run-20261016-0957-7c37 @ 2026-10-16T10:22:40Z
 - [ ] **video-compress** · video · after: video-foundation — Presets by target size or quality. Warn on memory limits for long files.
-- [ ] **image-ocr** · image — tesseract.js with a language picker and self-hosted traineddata. Copy or download the text.
+- [ ] **image-ocr** · image — tesseract.js with a language picker and self-hosted traineddata. Copy or download the text. ⏳ run-20261016-1016-793b @ 2026-10-16T10:23:30Z
 - [ ] **background-remover** · image · after: ml-runtime-foundation — Use a permissively licensed model (e.g. MODNet); RMBG-1.4 is non-commercial, so don't use it. Output transparent PNG or a solid-colour background.
 - [ ] **screen-recorder** · video — getDisplayMedia + MediaRecorder with a mic toggle. WebM output, plus MP4 where the browser supports it.
 - [ ] **webcam-recorder** · video — getUserMedia + MediaRecorder. Share the recording code with screen-recorder.
 - [ ] **pdf-organize** · pdf — Thumbnail grid with drag-to-reorder, rotate, delete, and insert blank page.
-- [ ] **password-strength** · security — zxcvbn-ts. Show estimated crack time and feedback. The password is never stored or logged.
+- [ ] **password-strength** · security — zxcvbn-ts. Show estimated crack time and feedback. The password is never stored or logged. ⏳ run-20261016-1016-793b @ 2026-10-16T10:23:30Z
 - [ ] **markdown-preview** · developer — Split-pane live editor: GFM, code highlighting, export to HTML, print to PDF.
-- [ ] **percentage-calculator** · misc — X% of Y; X is what % of Y; % change; increase/decrease by %.
+- [ ] **percentage-calculator** · misc — X% of Y; X is what % of Y; % change; increase/decrease by %. ⏳ run-20261016-1016-793b @ 2026-10-16T10:23:30Z
 - [ ] **gst-calculator** · misc — Add or remove GST; CGST/SGST/IGST split. Verify current slab rates against an official source before shipping.
 - [ ] **sip-calculator** · misc — SIP, step-up SIP, and lumpsum, with a growth chart. Add a "not financial advice" note.
 - [ ] **compound-interest** · misc — Compounding frequency, periodic contributions, and a yearly schedule table.
