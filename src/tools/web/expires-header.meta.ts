@@ -23,5 +23,6 @@ export const meta: ToolMeta = {
     { q: 'What format should I send?', a: 'Use IMF-fixdate, for example Wed, 21 Oct 2030 07:28:00 GMT. This tool does not make network requests.' },
   ],
   related: ['cache-control', 'date-header', 'if-modified-since'],
+  hidden: true,
   status: 'stable',
 };

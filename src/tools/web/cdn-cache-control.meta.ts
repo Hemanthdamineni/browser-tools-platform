@@ -23,5 +23,6 @@ export const meta: ToolMeta = {
     { q: 'Are stale responses always safe?', a: 'No. Stale serving can expose outdated or user-specific data; pair policies with correct cache keys and privacy controls.' },
   ],
   related: ['cache-control', 'surrogate-control', 'expires-header'],
+  hidden: true,
   status: 'stable',
 };

@@ -1,12 +1,16 @@
 import type { TextToolModule, TextRunInput, TextRunResult } from '@/lib/types';
-import { ToolError } from '@/lib/types';
 import { resolveOptions } from '@/lib/options';
 import { meta } from './cdn-cache-control.meta';
+import { renderFamily } from './cache-headers.tool';
 
-const TOKEN = /^[!#$%&'*+.^_`|~0-9A-Za-z-]+$/;
-const SECONDS = new Set(['max-age', 's-maxage', 'stale-while-revalidate', 'stale-if-error', 'min-fresh', 'max-stale']);
-function splitDirectives(text: string): string[] { const result: string[] = []; let current = ''; let quoted = false; for (const char of text) { if (char === '"') quoted = !quoted; if (char === ',' && !quoted) { if (current.trim()) result.push(current.trim()); current = ''; } else current += char; } if (current.trim()) result.push(current.trim()); return result; }
-function inspect(text: string): { directives: [string, string | null][]; issues: string[] } { const directives: [string, string | null][] = []; const issues: string[] = []; const seen = new Set<string>(); for (const part of splitDirectives(text)) { const index = part.indexOf('='); const name = (index < 0 ? part : part.slice(0, index)).trim().toLowerCase(); const value = index < 0 ? null : part.slice(index + 1).trim(); if (!TOKEN.test(name)) issues.push(`Invalid directive token: ${name}`); if (seen.has(name)) issues.push(`Duplicate directive: ${name}`); seen.add(name); if (value !== null && !value) issues.push(`Directive ${name} has an empty value`); if (SECONDS.has(name) && value !== null && !/^\d+$/.test(value.replace(/^"|"$/g, ''))) issues.push(`${name} must be a non-negative integer number of seconds`); if (name === 'no-store' && value !== null) issues.push('no-store does not take a value'); if (name === 'public' && value !== null) issues.push('public does not take a value'); directives.push([name, value]); } if (seen.has('no-store') && ['public', 'max-age', 's-maxage'].some((name) => seen.has(name))) issues.push('no-store conflicts with directives that permit storage or freshness'); return { directives, issues }; }
-function run(input: TextRunInput): TextRunResult { const options = resolveOptions(meta, input.options); const mode = String(options.mode); if (mode !== 'build' && mode !== 'analyze') throw new ToolError('Choose a supported CDN-Cache-Control mode.'); const value = mode === 'build' ? String(options.directives) : input.text; if (mode === 'build') { const result = inspect(value); if (!result.directives.length || result.issues.length) throw new ToolError(result.issues[0] ?? 'Enter at least one cache directive.'); return { output: result.directives.map(([name, directiveValue]) => directiveValue === null ? name : `${name}=${directiveValue}`).join(', '), render: 'code', language: 'http', filename: 'cdn-cache-control.txt', stats: { directives: result.directives.length } }; } if (!value.trim()) return { output: JSON.stringify({ headers: ['Directive', 'Value', 'Status'], rows: [] }), render: 'table', notes: ['Paste comma-separated CDN-Cache-Control directives.'] }; const result = inspect(value); const rows = result.directives.map(([name, directiveValue]) => [name, directiveValue ?? '', result.issues.length ? 'Review' : 'Valid']); return { output: JSON.stringify({ headers: ['Directive', 'Value', 'Status'], rows }), render: 'table', stats: { directives: result.directives.length, issues: result.issues.length }, notes: result.issues.length ? result.issues : ['CDN-Cache-Control behavior depends on CDN support and precedence; verify provider semantics and cache privacy.'] }; }
+/**
+ * Legacy route kept for URL stability. This tool is now a thin delegate to the
+ * unified `cache-headers` tool with the "cdn-cache-control" family preselected; the
+ * original option keys and behaviour are unchanged.
+ */
+function run(input: TextRunInput): TextRunResult {
+  return renderFamily('cdn-cache-control', input, resolveOptions(meta, input.options));
+}
+
 const tool: TextToolModule = { meta, run };
 export default tool;

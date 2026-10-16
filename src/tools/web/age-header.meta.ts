@@ -23,5 +23,6 @@ export const meta: ToolMeta = {
     { q: 'Is a large Age a problem?', a: 'A very large Age suggests a shared cache has held the copy for too long; compare it to the Cache-Control max-age to see whether the cached copy is stale.' },
   ],
   related: ['cache-control', 'expires-header', 'date-header'],
+  hidden: true,
   status: 'stable',
 };

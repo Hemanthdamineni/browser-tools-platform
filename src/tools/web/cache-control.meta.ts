@@ -30,5 +30,6 @@ export const meta: ToolMeta = {
     { q: 'Can this know whether a response is safe to cache?', a: 'No. It can flag suspicious combinations such as public caching with sensitive-looking headers, but cache safety depends on content, authorization, and deployment context.' },
   ],
   related: ['security-headers', 'content-disposition', 'http-status'],
+  hidden: true,
   status: 'stable',
 };
