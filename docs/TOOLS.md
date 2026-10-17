@@ -1,6 +1,6 @@
 # Complete Tool List
 
-Total: **261** tools across **17** categories.
+Total: **268** tools across **18** categories.
 
 Generated from `src/tools/**/*.meta.ts` (source of truth).
 
@@ -46,6 +46,12 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `color-palette` | Color Palette Generator | text | stable | Generate tints, shades, complementary, triadic and analogous color palettes. |
 | `color-convert` | Colour Converter | text | stable | Convert a colour between HEX, RGB, HSL, HSV, CMYK and OKLCH. |
 | `color-random` | Random Color Generator | text | stable | Generate random colors in a chosen style - warm, cool, pastel, vivid and more. |
+
+## converters (1)
+
+| id | name | input | status | summary |
+| --- | --- | --- | --- | --- |
+| `docx-to-markdown` | DOCX to Markdown | file | stable | Turn a Word .docx into Markdown or plain text locally — headings, lists and tables. |
 
 ## crypto (4)
 
@@ -130,10 +136,11 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `unicode-escape` | Unicode Escape / Unescape | text | stable | Convert text to and from \\uXXXX, \\xXX, \\u{...}, HTML and CSS escape forms. |
 | `url-encode` | URL Encode / Decode | text | stable | Percent-encode or decode text for use in URLs — component or whole-URL mode. |
 
-## generators (13)
+## generators (15)
 
 | id | name | input | status | summary |
 | --- | --- | --- | --- | --- |
+| `barcode` | Barcode Generator | text | stable | Create Code 128, Code 39, EAN-13/8, UPC-A and ITF-14 barcodes as crisp, scannable SVG. |
 | `random-data` | Fake Data Generator | text | stable | Generate realistic fake datasets — people, contacts, addresses, products — as JSON, CSV or SQL. |
 | `ical-event` | iCalendar Event Generator | text | stable | Create an .ics calendar event file with reminders that imports into any calendar app. |
 | `lorem-ipsum` | Lorem Ipsum Generator | text | stable | Generate lorem ipsum placeholder text as words, sentences, paragraphs, lists — plain, HTML or Markdown. |
@@ -141,6 +148,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `nanoid` | NanoID Generator | text | stable | Generate compact, URL-safe NanoIDs with unbiased randomness, in bulk. |
 | `otp-uri` | OTP Auth URI Generator | text | stable | Build otpauth:// URIs (TOTP/HOTP) with a base32 secret for authenticator apps. |
 | `placeholder-svg` | Placeholder Image Generator | text | stable | Generate sized SVG placeholder images with a custom label and colours for layouts and mockups. |
+| `qr-scanner` | QR & Barcode Scanner | file | beta | Scan QR codes and barcodes from your camera or an image — decoded on-device with actions. |
 | `qr-code` | QR Code Generator | text | stable | Generate QR codes for text, URLs, Wi-Fi, email, SMS and locations as crisp SVG. |
 | `tone-generator` | Tone / Signal Generator | text | stable | Generate a tone, waveform or noise signal as a downloadable WAV file. |
 | `ulid` | ULID Generator | text | stable | Generate sortable ULIDs (timestamp + randomness) in Crockford base32. |
@@ -152,17 +160,17 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 
 | id | name | input | status | summary |
 | --- | --- | --- | --- | --- |
-| `image-compress` | Compress Image | file | beta | Reduce image file size by re-encoding locally in your browser. |
-| `image-convert` | Convert Image Format | file | beta | Convert images between PNG, JPEG, WebP and AVIF in your browser. |
-| `image-crop` | Crop Image | file | beta | Crop an image to an aspect ratio or explicit pixel rectangle. |
+| `image-compress` | Compress Image | file | stable | Reduce image file size by re-encoding locally in your browser. |
+| `image-convert` | Convert Image Format | file | stable | Convert images between PNG, JPEG, WebP and AVIF in your browser. |
+| `image-crop` | Crop Image | file | stable | Crop an image to an aspect ratio or explicit pixel rectangle. |
 | `datauri-to-image` | Data URI to Image | file | beta | Decode an image data URI from a text file into an image file. |
-| `image-palette` | Extract Colour Palette | file | beta | Extract the dominant colour palette from an image locally. |
+| `image-palette` | Extract Colour Palette | file | stable | Extract the dominant colour palette from an image locally. |
 | `favicon-generator` | Favicon Generator | file | beta | Generate favicon, Apple touch, and Android icon assets from one image. |
 | `image-diff` | Image Difference | file | beta | Compare two images and visualize their pixel differences. |
-| `image-metadata` | Image Metadata & EXIF Viewer | file | beta | Inspect image dimensions, file details, and common JPEG EXIF tags. |
+| `image-metadata` | Image Metadata & EXIF Viewer | file | stable | Inspect image dimensions, file details, and common JPEG EXIF tags. |
 | `image-to-datauri` | Image to Data URI | file | beta | Encode an image as a data URI for HTML, CSS, or source code. |
-| `image-resize` | Resize Image | file | beta | Resize images by percentage or to exact dimensions, entirely in your browser. |
-| `image-rotate` | Rotate / Flip Image | file | beta | Rotate images by 90-degree steps or flip them horizontally and vertically. |
+| `image-resize` | Resize Image | file | stable | Resize images by percentage or to exact dimensions, entirely in your browser. |
+| `image-rotate` | Rotate / Flip Image | file | stable | Rotate images by 90-degree steps or flip them horizontally and vertically. |
 | `image-spritesheet` | Sprite Sheet Builder | file | beta | Combine multiple images into one sprite sheet with a position map. |
 | `svg-to-png` | SVG to PNG | file | beta | Rasterize an SVG image to a downloadable PNG. |
 
@@ -193,11 +201,12 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `roman-numeral` | Roman Numeral Converter | text | stable | Convert numbers to Roman numerals and back, with optional vinculum notation. |
 | `unit-convert` | Unit Converter | text | stable | Convert between units of length, mass, temperature, data and more. |
 
-## pdf (11)
+## pdf (12)
 
 | id | name | input | status | summary |
 | --- | --- | --- | --- | --- |
 | `pdf-page-numbers` | Add Page Numbers | file | stable | Stamp page numbers onto a PDF in the position and format you choose. |
+| `pdf-compress` | Compress PDF | file | beta | Shrink a PDF by re-encoding its images and rebuilding the file, with before/after size. |
 | `pdf-delete-pages` | Delete Pages | file | stable | Remove selected pages from a PDF and download the trimmed document. |
 | `pdf-extract-pages` | Extract Pages | file | stable | Pull selected pages out of a PDF into a new document. |
 | `pdf-extract-text` | Extract PDF Text | file | stable | Extract selectable text from every page of a PDF. |
@@ -244,7 +253,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `word-frequency` | Word Frequency Counter | text | stable | Count how often each word appears, with case folding, a minimum length, stop-word removal and a top-N limit. |
 | `wrap-text` | Wrap / Unwrap Text | text | stable | Hard-wrap text to a fixed column width with greedy word wrap, or unwrap wrapped lines back into paragraphs. |
 
-## web (101)
+## web (104)
 
 | id | name | input | status | summary |
 | --- | --- | --- | --- | --- |
@@ -264,10 +273,12 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `alt-svc` | Alt-Svc Builder & Analyzer | text | stable | Build or inspect HTTP Alt-Svc alternate-service advertisements. |
 | `alt-used` | Alt-Used Header Analyzer | text | stable | Validate the Alt-Used request header back to the origin. |
 | `authentication-info` | Authentication-Info Builder & Analyzer | text | stable | Build or inspect HTTP Authentication-Info parameters. |
+| `cache-headers` | Cache Headers Builder & Analyzer | text | beta | Build or analyze Cache-Control, CDN-Cache-Control, Surrogate-Control, Expires, Age, Cache-Status, and Vary. |
 | `cache-control` | Cache-Control Builder & Analyzer | text | stable | Build or review HTTP Cache-Control directives for browser and CDN caching. |
 | `cache-status` | Cache-Status Header Analyzer (RFC 9211) | text | stable | Analyze RFC 9211 Cache-Status debug fields. |
 | `cdn-cache-control` | CDN-Cache-Control Builder & Analyzer | text | stable | Build or inspect CDN-Cache-Control directives. |
 | `clear-site-data` | Clear-Site-Data Builder & Analyzer | text | stable | Build or inspect site storage-wipe signals. |
+| `conditional-request-headers` | Conditional Request Headers Builder & Analyzer | text | beta | Build and analyze ETag, Last-Modified and the If-* request conditions. |
 | `connection-header` | Connection Header Builder & Analyzer | text | stable | Build or inspect HTTP/1.1 Connection control tokens. |
 | `content-digest` | Content-Digest Builder & Analyzer | text | stable | Build or inspect HTTP Content-Digest integrity fields. |
 | `content-disposition` | Content-Disposition Builder & Parser | text | stable | Build or inspect Content-Disposition download and inline headers. |
@@ -278,6 +289,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `content-security-policy` | Content-Security-Policy Builder & Analyzer | text | stable | Build or inspect CSP directives and sources. |
 | `content-type` | Content-Type Header Builder & Parser | text | stable | Build or inspect HTTP media-type headers, charsets, and multipart boundaries. |
 | `cookie-request` | Cookie Request Header Analyzer | text | stable | Parse and inspect Cookie request-header pairs. |
+| `cors-headers` | CORS Headers Builder & Analyzer | text | beta | Build a full CORS policy or analyze pasted Access-Control-* response headers. |
 | `critical-ch` | Critical-CH Builder & Analyzer | text | stable | Build or inspect HTTP critical client-hints values. |
 | `cross-origin-embedder-policy` | Cross-Origin-Embedder-Policy Builder & Analyzer | text | stable | Build or inspect cross-origin resource embedding controls. |
 | `cross-origin-opener-policy` | Cross-Origin-Opener-Policy Builder & Analyzer | text | stable | Build or inspect browsing-context opener isolation. |
