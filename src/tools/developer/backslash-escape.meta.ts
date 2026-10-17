@@ -61,5 +61,7 @@ export const meta: ToolMeta = {
     },
   ],
   related: ['string-escape', 'unicode-escape', 'json-escape', 'hex'],
+  hidden: true,
+  redirectTo: 'string-escape',
   status: 'stable',
 };

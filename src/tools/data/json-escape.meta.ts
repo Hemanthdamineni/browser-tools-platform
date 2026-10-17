@@ -50,5 +50,7 @@ export const meta: ToolMeta = {
     },
   ],
   related: ['json-format', 'ndjson'],
+  hidden: true,
+  redirectTo: 'string-escape',
   status: 'stable',
 };

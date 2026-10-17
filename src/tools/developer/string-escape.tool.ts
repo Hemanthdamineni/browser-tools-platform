@@ -129,6 +129,210 @@ function xmlEscape(s: string): string {
 }
 
 /* -------------------------------------------------------------------------- */
+/*  Generic backslash target (absorbed from the former "backslash-escape")    */
+/* -------------------------------------------------------------------------- */
+
+const BS_NAMED: Record<string, string> = {
+  '\n': '\\n',
+  '\t': '\\t',
+  '\r': '\\r',
+  '\f': '\\f',
+  '\v': '\\v',
+};
+
+/**
+ * Real characters → backslash escape sequences. Every Unicode "Other" character
+ * (control, format, surrogate, private-use) becomes \xNN, \uNNNN, or \u{…}.
+ */
+function backslashEscape(s: string): string {
+  let out = '';
+  for (const ch of s) {
+    const cp = ch.codePointAt(0)!;
+    if (ch === '\\') {
+      out += '\\\\';
+      continue;
+    }
+    if (ch in BS_NAMED) {
+      out += BS_NAMED[ch]!;
+      continue;
+    }
+    if (cp === 0) {
+      out += '\\0';
+      continue;
+    }
+    if (/\p{C}/u.test(ch)) {
+      if (cp <= 0xff) out += '\\x' + cp.toString(16).padStart(2, '0');
+      else if (cp <= 0xffff) out += '\\u' + cp.toString(16).padStart(4, '0');
+      else out += '\\u{' + cp.toString(16) + '}';
+      continue;
+    }
+    out += ch;
+  }
+  return out;
+}
+
+interface BackslashUnescapeResult {
+  out: string;
+  unknown: string[];
+}
+
+/** Backslash escape sequences → real characters, collecting unknown escapes. */
+function backslashUnescapeStrict(s: string): BackslashUnescapeResult {
+  let out = '';
+  const unknown = new Set<string>();
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i]!;
+    if (c !== '\\') {
+      out += c;
+      continue;
+    }
+    const n = s[i + 1];
+    if (n === undefined) {
+      out += '\\';
+      break;
+    }
+    if (n === 'n') {
+      out += '\n';
+      i += 1;
+    } else if (n === 't') {
+      out += '\t';
+      i += 1;
+    } else if (n === 'r') {
+      out += '\r';
+      i += 1;
+    } else if (n === 'f') {
+      out += '\f';
+      i += 1;
+    } else if (n === 'v') {
+      out += '\v';
+      i += 1;
+    } else if (n === '0') {
+      out += '\0';
+      i += 1;
+    } else if (n === '\\') {
+      out += '\\';
+      i += 1;
+    } else if (n === 'x') {
+      const m = /^[0-9a-fA-F]{2}/.exec(s.slice(i + 2));
+      if (m) {
+        out += String.fromCharCode(parseInt(m[0], 16));
+        i += 1 + m[0].length;
+      } else {
+        unknown.add('\\x');
+        out += 'x';
+        i += 1;
+      }
+    } else if (n === 'u') {
+      if (s[i + 2] === '{') {
+        const end = s.indexOf('}', i + 3);
+        if (end === -1) {
+          throw new ToolError(
+            'Unterminated \\u{…} escape.',
+            'Add the closing brace, e.g. \\u{1F600}.',
+          );
+        }
+        const body = s.slice(i + 3, end);
+        if (!/^[0-9a-fA-F]+$/.test(body)) {
+          throw new ToolError(`Invalid \\u{…} escape: "${body}" is not hexadecimal.`);
+        }
+        const value = parseInt(body, 16);
+        if (value > 0x10ffff) {
+          throw new ToolError(`Code point U+${body.toUpperCase()} is above the U+10FFFF maximum.`);
+        }
+        out += String.fromCodePoint(value);
+        i = end;
+      } else {
+        const m = /^[0-9a-fA-F]{4}/.exec(s.slice(i + 2));
+        if (m) {
+          out += String.fromCharCode(parseInt(m[0], 16));
+          i += 1 + m[0].length;
+        } else {
+          unknown.add('\\u');
+          out += 'u';
+          i += 1;
+        }
+      }
+    } else {
+      unknown.add('\\' + n);
+      out += n;
+      i += 1;
+    }
+  }
+  return { out, unknown: [...unknown] };
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Unicode target (absorbed from the former "unicode-escape")                */
+/* -------------------------------------------------------------------------- */
+
+function unicodeHex(n: number, width: number): string {
+  return n.toString(16).toUpperCase().padStart(width, '0');
+}
+
+function unicodeEscapeChar(cp: number, style: string): string {
+  switch (style) {
+    case 'python':
+      return cp > 0xffff ? `\\U${unicodeHex(cp, 8)}` : `\\u${unicodeHex(cp, 4)}`;
+    case 'css':
+      return `\\${unicodeHex(cp, 6)} `;
+    case 'html':
+      return `&#x${unicodeHex(cp, 4)};`;
+    case 'unicode-plus':
+      return `U+${unicodeHex(cp, 4)}`;
+    default: {
+      // JavaScript / JSON: astral code points become a surrogate pair.
+      if (cp > 0xffff) {
+        const h = cp - 0x10000;
+        const hi = 0xd800 + (h >> 10);
+        const lo = 0xdc00 + (h & 0x3ff);
+        return `\\u${unicodeHex(hi, 4)}\\u${unicodeHex(lo, 4)}`;
+      }
+      return `\\u${unicodeHex(cp, 4)}`;
+    }
+  }
+}
+
+function unicodeEscape(text: string, style: string, all: boolean): string {
+  let out = '';
+  for (const ch of text) {
+    const cp = ch.codePointAt(0)!;
+    if (all || cp > 127) out += unicodeEscapeChar(cp, style);
+    else out += ch;
+  }
+  return out;
+}
+
+function codePointFromHex(hexStr: string): string {
+  const n = parseInt(hexStr, 16);
+  if (Number.isNaN(n) || n < 0 || n > 0x10ffff) return '';
+  try {
+    return String.fromCodePoint(n);
+  } catch {
+    return '';
+  }
+}
+
+function unicodeUnescape(text: string): string {
+  let out = text;
+  // \u{XXXXX}
+  out = out.replace(/\\u\{([0-9a-fA-F]{1,6})\}/g, (_, h: string) => codePointFromHex(h));
+  // \uXXXX
+  out = out.replace(/\\u([0-9a-fA-F]{4})/g, (_, h: string) => codePointFromHex(h));
+  // \U00XXXXXX (Python)
+  out = out.replace(/\\U([0-9a-fA-F]{8})/g, (_, h: string) => codePointFromHex(h));
+  // \xXX
+  out = out.replace(/\\x([0-9a-fA-F]{2})/g, (_, h: string) => codePointFromHex(h));
+  // U+XXXX
+  out = out.replace(/U\+([0-9a-fA-F]{4,6})/g, (_, h: string) => codePointFromHex(h));
+  // &#xHHHH; and &#DDDD;
+  out = out.replace(/&#x([0-9a-fA-F]+);/g, (_, h: string) => codePointFromHex(h));
+  out = out.replace(/&#(\d+);/g, (_, d: string) => codePointFromHex(parseInt(d, 10).toString(16)));
+  // CSS \HHHHHH (1–6 hex, optional trailing space)
+  out = out.replace(/\\([0-9a-fA-F]{1,6}) ?/g, (_, h: string) => codePointFromHex(h));
+  return out;
+}
+
+/* -------------------------------------------------------------------------- */
 /*  Unescape helpers                                                          */
 /* -------------------------------------------------------------------------- */
 
@@ -356,9 +560,16 @@ const LANGUAGE: Record<string, string> = {
   html: 'html',
   xml: 'xml',
   url: 'text',
+  backslash: 'text',
+  unicode: 'text',
 };
 
-function escapeFor(target: string, text: string): string {
+interface EscapeOptions {
+  style: string;
+  which: string;
+}
+
+function escapeFor(target: string, text: string, o: EscapeOptions): string {
   switch (target) {
     case 'javascript':
       return jsEscape(text);
@@ -382,6 +593,10 @@ function escapeFor(target: string, text: string): string {
       return xmlEscape(text);
     case 'url':
       return encodeURIComponent(text);
+    case 'backslash':
+      return backslashEscape(text);
+    case 'unicode':
+      return unicodeEscape(text, o.style, o.which === 'all');
     default:
       return text;
   }
@@ -409,6 +624,8 @@ function unescapeFor(target: string, text: string): string {
       return decodeEntities(text, XML_ENTITIES);
     case 'url':
       return urlUnescape(text);
+    case 'unicode':
+      return unicodeUnescape(text);
     default:
       return text;
   }
@@ -420,19 +637,62 @@ function run(input: TextRunInput): TextRunResult {
 
   const target = String(o.target);
   const mode = String(o.mode);
-  const output =
-    mode === 'unescape' ? unescapeFor(target, input.text) : escapeFor(target, input.text);
+
+  if (mode === 'unescape') {
+    if (target === 'backslash') {
+      const { out, unknown } = backslashUnescapeStrict(input.text);
+      return {
+        output: out,
+        render: 'code',
+        language: 'text',
+        notes:
+          unknown.length > 0
+            ? [
+                `Unknown escape${unknown.length > 1 ? 's' : ''} kept without the backslash: ${unknown.join(', ')}.`,
+              ]
+            : undefined,
+        stats: {
+          target,
+          mode,
+          'input chars': input.text.length,
+          'output chars': out.length,
+        },
+      };
+    }
+    const output = unescapeFor(target, input.text);
+    return {
+      output,
+      render: 'code',
+      language: LANGUAGE[target] ?? 'text',
+      stats: {
+        target,
+        mode,
+        'input chars': input.text.length,
+        'output chars': output.length,
+      },
+    };
+  }
+
+  const style = String(o.style);
+  const which = String(o.which);
+  const output = escapeFor(target, input.text, { style, which });
+
+  const stats: Record<string, string | number> = {
+    target,
+    mode,
+    'input chars': input.text.length,
+    'output chars': output.length,
+  };
+  if (target === 'unicode') {
+    stats.style = style;
+    stats.which = which;
+  }
 
   return {
     output,
     render: 'code',
     language: LANGUAGE[target] ?? 'text',
-    stats: {
-      target,
-      mode,
-      'input chars': input.text.length,
-      'output chars': output.length,
-    },
+    stats,
   };
 }
 

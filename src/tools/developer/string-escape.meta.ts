@@ -5,9 +5,9 @@ export const meta: ToolMeta = {
   name: 'String Escaper',
   category: 'developer',
   summary:
-    'Escape or unescape text for a target language or context — JS, JSON, C, Java, Python, shell, SQL, CSV, HTML, XML, URL.',
+    'Escape or unescape text for JS, JSON, C, Java, Python, shell, SQL, CSV, HTML, XML, URL, backslash or Unicode.',
   description:
-    'Make a string safe to paste inside a literal for the language or format you pick, or reverse a value that is already escaped. Each target uses its own rules: shell single-quote wrapping, SQL doubled quotes, CSV quoting, percent-encoding, entity encoding, and backslash escapes.',
+    'Make a string safe to paste inside a literal for the language or format you pick, or reverse a value that is already escaped. Each target uses its own rules: shell single-quote wrapping, SQL doubled quotes, CSV quoting, percent-encoding, entity encoding, generic backslash escapes for control characters, and Unicode code-point notations (\\uXXXX, \\xXX, \\u{…}, U+XXXX, CSS and HTML numeric forms).',
   keywords: [
     'string escape',
     'unescape',
@@ -21,6 +21,12 @@ export const meta: ToolMeta = {
     'xml escape',
     'url encode',
     'escape special characters',
+    'backslash escape',
+    'control characters',
+    'unicode escape',
+    'codepoint',
+    '\\uXXXX',
+    'U+',
   ],
   privacy: { processing: 'on-device', network: 'none', offline: true },
   input: 'text',
@@ -42,6 +48,8 @@ export const meta: ToolMeta = {
         { value: 'html', label: 'HTML text / attribute' },
         { value: 'xml', label: 'XML text / attribute' },
         { value: 'url', label: 'URL component (percent-encoding)' },
+        { value: 'backslash', label: 'Generic backslash (control characters)' },
+        { value: 'unicode', label: 'Unicode code points (\\uXXXX, U+XXXX, CSS, HTML)' },
       ],
     },
     {
@@ -52,6 +60,33 @@ export const meta: ToolMeta = {
       choices: [
         { value: 'escape', label: 'Escape' },
         { value: 'unescape', label: 'Unescape' },
+      ],
+    },
+    {
+      key: 'style',
+      label: 'Unicode escape style',
+      type: 'select',
+      default: 'js',
+      help: 'Applies to the escape direction. Unescaping always accepts every form at once.',
+      showWhen: { key: 'target', value: 'unicode' },
+      choices: [
+        { value: 'js', label: 'JavaScript / JSON (\\uXXXX, surrogate pairs)' },
+        { value: 'python', label: 'Python (\\uXXXX / \\U00XXXXXX)' },
+        { value: 'css', label: 'CSS (\\XXXXXX )' },
+        { value: 'html', label: 'HTML numeric (&#xXXXX;)' },
+        { value: 'unicode-plus', label: 'U+XXXX' },
+      ],
+    },
+    {
+      key: 'which',
+      label: 'Which characters to escape',
+      type: 'select',
+      default: 'non-ascii',
+      help: 'Applies to the Unicode escape direction.',
+      showWhen: { key: 'target', value: 'unicode' },
+      choices: [
+        { value: 'non-ascii', label: 'Only non-ASCII' },
+        { value: 'all', label: 'All characters' },
       ],
     },
   ],
@@ -71,6 +106,16 @@ export const meta: ToolMeta = {
       input: '&lt;a href=&quot;x&quot;&gt;&amp;&#39;',
       options: { target: 'html', mode: 'unescape' },
     },
+    {
+      title: 'Turn control characters into \\n \\t \\xNN',
+      input: 'a\tb\nc\x07',
+      options: { target: 'backslash', mode: 'escape' },
+    },
+    {
+      title: 'Escape emoji as Unicode',
+      input: 'A → 😀',
+      options: { target: 'unicode', mode: 'escape', style: 'js' },
+    },
   ],
   faq: [
     {
@@ -83,9 +128,17 @@ export const meta: ToolMeta = {
     },
     {
       q: 'Which unescape operations can fail?',
-      a: 'URL unescaping throws on malformed percent-encoding, and JSON unescaping throws when the text is not a valid JSON string.',
+      a: 'URL unescaping throws on malformed percent-encoding, JSON unescaping throws when the text is not a valid JSON string, and the generic backslash target throws on a malformed \\u{…} code point.',
+    },
+    {
+      q: 'What happens to an unknown backslash escape like \\q?',
+      a: 'The generic backslash target drops the backslash, keeps the letter, and lists every distinct unknown escape in a note under the output.',
+    },
+    {
+      q: 'Does escaping Unicode depend on the escape direction?',
+      a: 'The style and "which characters" options apply when escaping. Unescaping accepts every form at once — \\uXXXX, \\u{…}, \\xXX, \\UXXXXXXXX, U+XXXX, &#xHHHH; and CSS \\HHHHHH — so mixed input just works.',
     },
   ],
-  related: ['json-escape', 'html-entities', 'url-encode', 'unicode-escape'],
+  related: ['html-entities', 'url-encode', 'hex', 'base64'],
   status: 'stable',
 };

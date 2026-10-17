@@ -58,5 +58,7 @@ export const meta: ToolMeta = {
     },
   ],
   related: ['html-entities', 'hex', 'string-escape', 'base64'],
+  hidden: true,
+  redirectTo: 'string-escape',
   status: 'stable',
 };
