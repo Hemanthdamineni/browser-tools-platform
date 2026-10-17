@@ -26,5 +26,7 @@ export const meta: ToolMeta = {
     { q: 'What does * mean?', a: 'The wildcard matches any current representation in conditional request headers such as If-None-Match and If-Match.' },
   ],
   related: ['cache-control', 'checksum-validator', 'file-hash'],
+  hidden: true,
+  redirectTo: 'conditional-request-headers',
   status: 'stable',
 };

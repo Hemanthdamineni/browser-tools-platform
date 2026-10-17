@@ -26,5 +26,7 @@ export const meta: ToolMeta = {
     { q: 'Are weak tags allowed?', a: 'Yes. If-None-Match uses weak comparison, so weak tags can participate in cache validation.' },
   ],
   related: ['etag', 'if-match', 'cache-control'],
+  hidden: true,
+  redirectTo: 'conditional-request-headers',
   status: 'stable',
 };

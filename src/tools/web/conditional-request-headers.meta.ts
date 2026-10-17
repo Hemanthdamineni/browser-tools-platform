@@ -1,0 +1,179 @@
+import type { ToolMeta } from '@/lib/types';
+
+export const meta: ToolMeta = {
+  id: 'conditional-request-headers',
+  name: 'Conditional Request Headers Builder & Analyzer',
+  category: 'web',
+  summary: 'Build and analyze ETag, Last-Modified and the If-* request conditions.',
+  description:
+    'Create any of ETag, Last-Modified, If-Match, If-None-Match, If-Range, If-Modified-Since and If-Unmodified-Since from one form, or paste a header block to check it. Validates entity-tag strengths, wildcards, IMF-fixdates and strong-comparison rules — all on your device.',
+  keywords: [
+    'conditional request headers',
+    'ETag',
+    'Last-Modified',
+    'If-Match',
+    'If-None-Match',
+    'If-Range',
+    'If-Modified-Since',
+    'If-Unmodified-Since',
+    'weak etag',
+    'strong comparison',
+    'HTTP cache revalidation',
+    '304 Not Modified',
+    '412 Precondition Failed',
+  ],
+  privacy: { processing: 'on-device', network: 'none', offline: true },
+  input: 'text',
+  options: [
+    {
+      key: 'mode',
+      label: 'Mode',
+      type: 'select',
+      default: 'analyze',
+      choices: [
+        { value: 'analyze', label: 'Analyze headers' },
+        { value: 'build', label: 'Build headers' },
+        { value: 'compare', label: 'Compare entity-tags' },
+      ],
+    },
+    {
+      key: 'target',
+      label: 'Header',
+      type: 'select',
+      default: 'all',
+      help: 'Analyze a pasted block, or pick the header to build (and the value type to analyze).',
+      choices: [
+        { value: 'all', label: 'All conditional headers' },
+        { value: 'etag', label: 'ETag' },
+        { value: 'last-modified', label: 'Last-Modified' },
+        { value: 'if-match', label: 'If-Match' },
+        { value: 'if-none-match', label: 'If-None-Match' },
+        { value: 'if-range', label: 'If-Range' },
+        { value: 'if-modified-since', label: 'If-Modified-Since' },
+        { value: 'if-unmodified-since', label: 'If-Unmodified-Since' },
+      ],
+    },
+    {
+      key: 'etag',
+      label: 'Entity-tag (quoted)',
+      type: 'text',
+      default: '"v1-abc123"',
+      help: 'A quoted entity-tag such as "v1-abc123" or W/"v1-abc123".',
+      showWhen: { key: 'mode', value: 'build' },
+    },
+    {
+      key: 'weak',
+      label: 'Emit a weak tag (W/)',
+      type: 'boolean',
+      default: false,
+      showWhen: { key: 'mode', value: 'build' },
+    },
+    {
+      key: 'wildcard',
+      label: 'Use the wildcard (*) condition',
+      type: 'boolean',
+      default: false,
+      help: 'For If-Match and If-None-Match only.',
+      showWhen: { key: 'mode', value: 'build' },
+    },
+    {
+      key: 'date',
+      label: 'HTTP date',
+      type: 'text',
+      default: 'Wed, 21 Oct 2015 07:28:00 GMT',
+      showWhen: { key: 'mode', value: 'build' },
+    },
+    {
+      key: 'validatorType',
+      label: 'If-Range validator',
+      type: 'select',
+      default: 'etag',
+      choices: [
+        { value: 'etag', label: 'Strong entity-tag' },
+        { value: 'date', label: 'HTTP date' },
+      ],
+      showWhen: { key: 'mode', value: 'build' },
+    },
+    {
+      key: 'method',
+      label: 'If-None-Match request method',
+      type: 'select',
+      default: 'GET',
+      choices: ['GET', 'HEAD', 'PUT', 'POST', 'DELETE'].map((value) => ({
+        value,
+        label: value,
+      })),
+      help: 'Changes the conditional response a server may send.',
+      showWhen: { key: 'mode', value: 'build' },
+    },
+    {
+      key: 'secondTag',
+      label: 'Second tag (compare mode)',
+      type: 'text',
+      default: '',
+      showWhen: { key: 'mode', value: 'compare' },
+    },
+    {
+      key: 'comparison',
+      label: 'Comparison',
+      type: 'select',
+      default: 'weak',
+      choices: [
+        { value: 'weak', label: 'Weak (If-None-Match)' },
+        { value: 'strong', label: 'Strong (If-Match / If-Range)' },
+      ],
+      showWhen: { key: 'mode', value: 'compare' },
+    },
+  ],
+  examples: [
+    {
+      title: 'Build a full conditional set',
+      options: {
+        mode: 'build',
+        target: 'all',
+        etag: '"v1-abc123"',
+        date: 'Wed, 21 Oct 2015 07:28:00 GMT',
+        validatorType: 'etag',
+      },
+    },
+    {
+      title: 'Build a weak ETag',
+      options: { mode: 'build', target: 'etag', etag: '"v1"', weak: true },
+    },
+    {
+      title: 'Build an If-Match wildcard condition',
+      options: { mode: 'build', target: 'if-match', wildcard: true },
+    },
+    {
+      title: 'Analyze a conditional request block',
+      input:
+        'ETag: "v1-abc123"\nLast-Modified: Wed, 21 Oct 2015 07:28:00 GMT\nIf-None-Match: W/"v1-abc123"',
+    },
+    { title: 'Analyze bare entity-tags', input: 'W/"abc", "def", *' },
+    {
+      title: 'Compare validators',
+      input: 'W/"abc"',
+      options: { mode: 'compare', secondTag: '"abc"', comparison: 'weak' },
+    },
+  ],
+  faq: [
+    {
+      q: 'What is the difference between weak and strong comparison?',
+      a: 'Weak comparison treats W/"abc" and "abc" as equivalent, so it is used by If-None-Match. Strong comparison requires both tags to be strong and their opaque values to match exactly, which If-Match and If-Range need.',
+    },
+    {
+      q: 'Which headers can use the wildcard *?',
+      a: 'Only If-Match and If-None-Match accept *; it matches any current representation. ETag and If-Range must name a specific validator.',
+    },
+    {
+      q: 'Why does If-Range reject weak tags?',
+      a: 'A Range must map to the exact bytes of one representation, so If-Range requires a strong validator — a strong entity-tag or an IMF-fixdate.',
+    },
+    {
+      q: 'Does this hash or fetch anything?',
+      a: 'No. It only generates and validates header text from what you type; nothing is hashed, uploaded or requested.',
+    },
+  ],
+  related: ['cache-control', 'http-range', 'http-status'],
+  status: 'beta',
+};

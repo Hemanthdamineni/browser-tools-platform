@@ -23,5 +23,7 @@ export const meta: ToolMeta = {
     { q: 'Can I use this with GET?', a: 'It can be sent with several methods, but it is most useful for state-changing requests that must not overwrite a newer representation.' },
   ],
   related: ['if-match', 'if-modified-since', 'etag'],
+  hidden: true,
+  redirectTo: 'conditional-request-headers',
   status: 'stable',
 };
