@@ -1,5 +1,6 @@
 /**
- * Shared helpers for the batch image tools (compress / convert / resize / crop).
+ * Shared helpers for the batch image tools (compress / convert / resize /
+ * crop / rotate / metadata / palette).
  *
  * Deliberately kept in a new module rather than editing `src/lib/image.ts` or
  * `./common.ts` — those are owned by separate workstreams. Everything here is

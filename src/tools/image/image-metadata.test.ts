@@ -1,103 +1,449 @@
-import { describe, expect, it } from 'vitest';
-import { decodePngChunks, readExif } from './image-metadata.tool';
-import tool from './image-metadata.tool';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { zlibSync } from 'fflate';
+import tool, { decodePngChunks, readExif } from './image-metadata.tool';
+import { installImageMock, makeFile, type MockHandle } from './image-mock';
 
-/** Minimal JPEG: SOI + APP1 EXIF (little-endian TIFF, Orientation=6) + EOI. */
-function exifJpegBytes(): Uint8Array {
-  const header = Buffer.alloc(8);
-  Buffer.from('II', 'ascii').copy(header); // little-endian
-  header.writeUInt16LE(42, 2); // magic
-  header.writeUInt32LE(8, 4); // IFD0 offset
+let mock: MockHandle | undefined;
+afterEach(() => {
+  mock?.restore();
+  mock = undefined;
+});
 
-  const ifd = Buffer.alloc(2 + 12 + 4);
-  ifd.writeUInt16LE(1, 0); // 1 entry
-  ifd.writeUInt16LE(0x0112, 2); // Orientation
-  ifd.writeUInt16LE(3, 4); // SHORT
-  ifd.writeUInt32LE(1, 6); // count
-  ifd.writeUInt16LE(6, 10); // value
-  ifd.writeUInt32LE(0, 14); // next IFD = none
+/* -------------------------------------------------------------------------- */
+/*  Fixture builders                                                          */
+/* -------------------------------------------------------------------------- */
 
-  const exifPayload = Buffer.concat([Buffer.from('Exif\0\0', 'latin1'), header, ifd]);
-  const app1 = Buffer.alloc(4 + exifPayload.length);
-  app1[0] = 0xff;
-  app1[1] = 0xe1;
-  app1.writeUInt16BE(2 + exifPayload.length, 2);
-  exifPayload.copy(app1, 4);
+type TiffEntry = { tag: number; type: number; values: number[] | string };
 
-  return new Uint8Array(Buffer.concat([Buffer.from([0xff, 0xd8]), app1, Buffer.from([0xff, 0xd9])]));
+function typeSizeOf(type: number): number {
+  switch (type) {
+    case 1:
+    case 2:
+    case 6:
+    case 7:
+      return 1;
+    case 3:
+    case 8:
+      return 2;
+    case 4:
+    case 9:
+    case 11:
+      return 4;
+    case 5:
+    case 10:
+    case 12:
+      return 8;
+    default:
+      return 1;
+  }
+}
+
+function u16(n: number, le: boolean): number[] {
+  const b = [n & 0xff, (n >> 8) & 0xff];
+  return le ? b : b.reverse();
+}
+function u32(n: number, le: boolean): number[] {
+  const b = [n & 0xff, (n >>> 8) & 0xff, (n >>> 16) & 0xff, (n >>> 24) & 0xff];
+  return le ? b : b.reverse();
+}
+
+function encodeValue(type: number, values: number[] | string, le: boolean): number[] {
+  if (typeof values === 'string') {
+    return [...Array.from(values, (c) => c.charCodeAt(0) & 0xff), 0];
+  }
+  const per = type === 5 || type === 10 ? 4 : typeSizeOf(type);
+  const out: number[] = [];
+  for (const n of values) {
+    const word: number[] = [];
+    for (let i = 0; i < per; i++) word.push((n >>> (8 * i)) & 0xff);
+    out.push(...(le ? word : word.reverse()));
+  }
+  return out;
+}
+
+function countOf(type: number, values: number[] | string, encodedLength: number): number {
+  if (typeof values === 'string') return encodedLength;
+  return type === 5 || type === 10 ? values.length / 2 : values.length;
+}
+
+/** Build a TIFF blob: header + IFD0 (+ optional Exif sub-IFD) + value pool. */
+function buildTiff(le: boolean, ifd0: TiffEntry[], exif: TiffEntry[]): number[] {
+  const hasExif = exif.length > 0;
+  const entries0: TiffEntry[] = hasExif
+    ? [...ifd0, { tag: 0x8769, type: 4, values: [0] }]
+    : ifd0;
+  const ifd0Size = 2 + entries0.length * 12 + 4;
+  const exifStart = 8 + ifd0Size;
+  const exifSize = hasExif ? 2 + exif.length * 12 + 4 : 0;
+  if (hasExif) entries0[entries0.length - 1] = { tag: 0x8769, type: 4, values: [exifStart] };
+
+  const dataStart = 8 + ifd0Size + exifSize;
+  const data: number[] = [];
+
+  const writeIfd = (entries: TiffEntry[]): number[] => {
+    const bytes = [...u16(entries.length, le)];
+    for (const e of entries) {
+      const encoded = encodeValue(e.type, e.values, le);
+      bytes.push(...u16(e.tag, le), ...u16(e.type, le), ...u32(countOf(e.type, e.values, encoded.length), le));
+      if (encoded.length <= 4) {
+        bytes.push(...encoded, ...new Array(4 - encoded.length).fill(0));
+      } else {
+        const off = dataStart + data.length;
+        data.push(...encoded);
+        if (encoded.length % 2 !== 0) data.push(0);
+        bytes.push(...u32(off, le));
+      }
+    }
+    bytes.push(...u32(0, le));
+    return bytes;
+  };
+
+  const header = [...(le ? [0x49, 0x49] : [0x4d, 0x4d]), ...u16(42, le), ...u32(8, le)];
+  return [...header, ...writeIfd(entries0), ...(hasExif ? writeIfd(exif) : []), ...data];
+}
+
+/** Wrap a TIFF blob in a JPEG SOI + APP1 Exif segment + EOI. */
+function exifJpeg(le: boolean, ifd0: TiffEntry[], exif: TiffEntry[] = []): Uint8Array {
+  const payload = [0x45, 0x78, 0x69, 0x66, 0x00, 0x00, ...buildTiff(le, ifd0, exif)];
+  const segLen = payload.length + 2;
+  return new Uint8Array([
+    0xff,
+    0xd8,
+    0xff,
+    0xe1,
+    (segLen >> 8) & 0xff,
+    segLen & 0xff,
+    ...payload,
+    0xff,
+    0xd9,
+  ]);
 }
 
 function toArrayBuffer(bytes: Uint8Array): ArrayBuffer {
   return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer;
 }
 
-/** Minimal PNG with a tEXt and pHYs chunk. */
-function pngBytes(): Uint8Array {
-  const crc = (data: Uint8Array): number => {
-    // Simple CRC32 (the standard polynomial) for PNG chunk validation.
-    let c: number;
-    let crc32 = 0xffffffff;
-    for (let i = 0; i < data.length; i++) {
-      c = (crc32 ^ data[i]!) & 0xff;
-      for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
-      crc32 = (crc32 >>> 8) ^ c;
-    }
-    return crc32 ^ 0xffffffff;
-  };
-  const chunk = (type: string, data: Uint8Array) => {
-    const t = Buffer.from(type, 'latin1');
-    const body = Buffer.concat([t, data]);
-    const out = Buffer.alloc(4 + body.length + 4);
-    out.writeUInt32BE(data.length, 0);
-    body.copy(out, 4);
-    out.writeUInt32BE(crc(body), 4 + body.length);
-    return out;
-  };
-  const sig = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
-  const ihdr = Buffer.alloc(13);
-  ihdr.writeUInt32BE(1, 0); // width
-  ihdr.writeUInt32BE(1, 4); // height
-  ihdr[8] = 8; // bit depth
-  ihdr[9] = 6; // RGBA
-  const text = Buffer.concat([
-    Buffer.from('Author\0Claude', 'latin1'),
-  ]);
-  const phys = Buffer.alloc(9);
-  phys.writeUInt32BE(2835, 0); // x
-  phys.writeUInt32BE(2835, 4); // y
-  phys[8] = 1; // meter
-  return new Uint8Array(Buffer.concat([sig, chunk('IHDR', ihdr), chunk('tEXt', text), chunk('pHYs', phys)]));
+function crc32(data: Buffer): number {
+  let crc = 0xffffffff;
+  for (let i = 0; i < data.length; i++) {
+    let c = (crc ^ data[i]!) & 0xff;
+    for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+    crc = (crc >>> 8) ^ c;
+  }
+  return (crc ^ 0xffffffff) >>> 0;
 }
 
+function pngChunk(type: string, data: Buffer): Buffer {
+  const body = Buffer.concat([Buffer.from(type, 'latin1'), data]);
+  const out = Buffer.alloc(4 + body.length + 4);
+  out.writeUInt32BE(data.length, 0);
+  body.copy(out, 4);
+  out.writeUInt32BE(crc32(body), 4 + body.length);
+  return out;
+}
+
+const PNG_SIG = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
+
+function ihdr(width = 2, height = 1, bitDepth = 8, colourType = 6): Buffer {
+  const b = Buffer.alloc(13);
+  b.writeUInt32BE(width, 0);
+  b.writeUInt32BE(height, 4);
+  b[8] = bitDepth;
+  b[9] = colourType;
+  return b;
+}
+
+/** A PNG carrying IHDR, tEXt, zTXt, iTXt, pHYs (metre) and tIME chunks. */
+function richPng(): Uint8Array {
+  const text = Buffer.from('Author\0Claude', 'latin1');
+  const ztxt = Buffer.concat([
+    Buffer.from('Comment\0', 'latin1'),
+    Buffer.from([0]),
+    Buffer.from(zlibSync(Buffer.from('Compressed value', 'utf8'))),
+  ]);
+  const itxt = Buffer.concat([
+    Buffer.from('Title\0', 'latin1'),
+    Buffer.from([0, 0]), // uncompressed, method 0
+    Buffer.from('en\0', 'latin1'),
+    Buffer.from('Title\0', 'latin1'),
+    Buffer.from('Hello 世界', 'utf8'),
+  ]);
+  const phys = Buffer.alloc(9);
+  phys.writeUInt32BE(2835, 0);
+  phys.writeUInt32BE(2835, 4);
+  phys[8] = 1; // metre
+  const time = Buffer.from([0x07, 0xe4, 1, 2, 3, 4, 5]); // 2020-01-02 03:04:05
+  return new Uint8Array(
+    Buffer.concat([
+      PNG_SIG,
+      pngChunk('IHDR', ihdr()),
+      pngChunk('tEXt', text),
+      pngChunk('zTXt', ztxt),
+      pngChunk('iTXt', itxt),
+      pngChunk('pHYs', phys),
+      pngChunk('tIME', time),
+    ]),
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*  readExif                                                                  */
+/* -------------------------------------------------------------------------- */
+
 describe('readExif', () => {
-  it('reads a little-endian APP1 Exif Orientation tag', () => {
-    expect(readExif(toArrayBuffer(exifJpegBytes()))).toMatchObject({ Orientation: 6 });
+  const ifd0: TiffEntry[] = [
+    { tag: 0x0112, type: 3, values: [6] }, // Orientation (inline SHORT)
+    { tag: 0x010f, type: 2, values: 'Test Camera' }, // Make (offset ASCII)
+    { tag: 0x0131, type: 2, values: 'A' }, // Software (inline ASCII)
+    { tag: 0x013b, type: 2, values: 'Café IX' }, // Artist (offset, Latin-1)
+  ];
+  const exif: TiffEntry[] = [
+    { tag: 0x9003, type: 2, values: '2020:01:02 03:04:05' }, // DateTimeOriginal (offset)
+    { tag: 0x8827, type: 3, values: [200] }, // ISO (inline)
+    { tag: 0x920a, type: 5, values: [50, 1] }, // FocalLength (offset RATIONAL)
+    { tag: 0xa405, type: 3, values: [35] }, // FocalLength35mm
+    { tag: 0xa434, type: 2, values: 'Lens X' }, // LensModel (offset)
+  ];
+
+  it('reads IFD0 and the Exif sub-IFD (little-endian)', () => {
+    expect(readExif(toArrayBuffer(exifJpeg(true, ifd0, exif)))).toEqual({
+      Orientation: 6,
+      Make: 'Test Camera',
+      Software: 'A',
+      Artist: 'Café IX',
+      DateTimeOriginal: '2020:01:02 03:04:05',
+      ISO: 200,
+      FocalLength: 50,
+      FocalLength35mm: 35,
+      LensModel: 'Lens X',
+    });
   });
+
+  it('reads the same tags from a big-endian file', () => {
+    const out = readExif(toArrayBuffer(exifJpeg(false, ifd0, exif)));
+    expect(out.Orientation).toBe(6);
+    expect(out.Make).toBe('Test Camera');
+    expect(out.FocalLength).toBe(50);
+    expect(out.FocalLength35mm).toBe(35);
+    expect(out.DateTimeOriginal).toBe('2020:01:02 03:04:05');
+  });
+
+  it('reads long ASCII values stored behind an offset (>4 bytes)', () => {
+    const out = readExif(
+      toArrayBuffer(exifJpeg(true, [{ tag: 0x0110, type: 2, values: 'Model Number 3000' }])),
+    );
+    expect(out.Model).toBe('Model Number 3000');
+  });
+
+  it('rounds rational values with trailing precision', () => {
+    const out = readExif(
+      toArrayBuffer(exifJpeg(true, [], [{ tag: 0x829d, type: 5, values: [28, 10] }])),
+    );
+    expect(out.FNumber).toBe(2.8);
+  });
+
   it('returns an empty record for a JPEG without an Exif block', () => {
     expect(readExif(toArrayBuffer(new Uint8Array([0xff, 0xd8, 0xff, 0xd9])))).toEqual({});
   });
+
+  it('skips a non-Exif APP1 (e.g. XMP) and still finds the Exif segment', () => {
+    // A well-formed APP1 segment whose payload is "http://x" (not "Exif\0\0").
+    const xmp = [
+      0xff, 0xe1, 0x00, 0x0a, 0x68, 0x74, 0x74, 0x70, 0x3a, 0x2f, 0x2f, 0x78,
+    ];
+    const exifJpegBytes = exifJpeg(true, [{ tag: 0x0112, type: 3, values: [3] }]);
+    const combined = new Uint8Array([0xff, 0xd8, ...xmp, ...exifJpegBytes.slice(2)]);
+    expect(readExif(toArrayBuffer(combined)).Orientation).toBe(3);
+  });
+
   it('is safe against truncated input', () => {
     expect(readExif(toArrayBuffer(new Uint8Array([0xff, 0xd8, 0xff, 0xe1, 0x00])))).toEqual({});
   });
+
+  it('is safe against a malformed TIFF header or bad IFD offset', () => {
+    const bogus = new Uint8Array([
+      0xff, 0xd8, 0xff, 0xe1, 0x00, 0x12, 0x45, 0x78, 0x69, 0x66, 0x00, 0x00,
+      0x58, 0x58, // invalid byte order
+      0x2a, 0x00, 0x08, 0x00, 0x00, 0x00, 0xff, 0xd9,
+    ]);
+    expect(readExif(toArrayBuffer(bogus))).toEqual({});
+    expect(() => readExif(toArrayBuffer(new Uint8Array([0xff, 0xd8])))).not.toThrow();
+  });
 });
 
+/* -------------------------------------------------------------------------- */
+/*  decodePngChunks                                                           */
+/* -------------------------------------------------------------------------- */
+
 describe('decodePngChunks', () => {
-  it('extracts tEXt and pHYs metadata', () => {
-    const meta = decodePngChunks(toArrayBuffer(pngBytes()));
-    expect(meta.Author).toBe('Claude');
-    expect(meta['Pixel density']).toBe('2835×2835 ppu');
+  it('extracts IHDR, tEXt, zTXt, iTXt, pHYs and tIME metadata', () => {
+    const png = decodePngChunks(toArrayBuffer(richPng()));
+    expect(png['Bit depth']).toBe('8 bit');
+    expect(png['Colour type']).toBe('Truecolour + alpha');
+    expect(png.Author).toBe('Claude');
+    expect(png.Comment).toBe('Compressed value');
+    expect(png.Title).toBe('Hello 世界');
+    expect(png['Pixel density']).toBe('2835×2835 px/m (≈72×72 dpi)');
+    expect(png.Modified).toBe('2020-01-02 03:04:05');
   });
+
+  it('reports unspecified pixel density without a dpi conversion', () => {
+    const phys = Buffer.alloc(9);
+    phys.writeUInt32BE(72, 0);
+    phys.writeUInt32BE(72, 4);
+    phys[8] = 0; // unit unspecified
+    const bytes = Buffer.concat([PNG_SIG, pngChunk('IHDR', ihdr()), pngChunk('pHYs', phys)]);
+    expect(decodePngChunks(toArrayBuffer(new Uint8Array(bytes)))['Pixel density']).toBe('72×72 px');
+  });
+
   it('returns an empty record for a non-PNG header', () => {
     expect(decodePngChunks(toArrayBuffer(new Uint8Array([1, 2, 3, 4])))).toEqual({});
   });
+
+  it('stops safely on a truncated or over-long chunk', () => {
+    const malformed = Buffer.concat([
+      PNG_SIG,
+      pngChunk('IHDR', ihdr()),
+      Buffer.from([0xff, 0xff, 0xff, 0xff, 0x74, 0x45, 0x58, 0x74]), // bogus huge tEXt length
+    ]);
+    expect(() => decodePngChunks(toArrayBuffer(new Uint8Array(malformed)))).not.toThrow();
+    expect(decodePngChunks(toArrayBuffer(new Uint8Array(malformed)))).toEqual({
+      'Bit depth': '8 bit',
+      'Colour type': 'Truecolour + alpha',
+    });
+  });
 });
+
+/* -------------------------------------------------------------------------- */
+/*  image-metadata run                                                        */
+/* -------------------------------------------------------------------------- */
+
+interface Table {
+  headers: string[];
+  rows: string[][];
+}
+
+function tableOf(output: string): Table {
+  return JSON.parse(output) as Table;
+}
+
+const jpegFile = (bytes: Uint8Array, name = 'photo.jpg') =>
+  new File([toArrayBuffer(bytes)], name, { type: 'image/jpeg' });
 
 describe('image-metadata run', () => {
   it('rejects an empty selection', async () => {
     await expect(tool.run({ files: [], options: {} })).rejects.toThrow(/Choose an image file/i);
   });
-  it('throws a decode error unsupported for non-decodable image files', async () => {
-    const file = new File(['not a real image'], 'image.png', { type: 'image/png' });
-    await expect(tool.run({ files: [file], options: {} })).rejects.toThrow(/not be decoded as an image/i);
+
+  it('rejects a non-image file', async () => {
+    const file = new File(['x'], 'a.txt', { type: 'text/plain' });
+    await expect(tool.run({ files: [file], options: {} })).rejects.toThrow(/not an image/i);
+  });
+
+  it('throws a friendly decode error for undecodable/truncated image files', async () => {
+    mock = installImageMock({ failDecode: true });
+    const file = new File(['not a real image'], 'truncated.png', { type: 'image/png' });
+    await expect(tool.run({ files: [file], options: {} })).rejects.toThrow(
+      /not be decoded as an image/i,
+    );
+  });
+
+  it('reports file details, dimensions, EXIF tags and orientation meaning', async () => {
+    mock = installImageMock({ width: 4000, height: 3000 });
+    const bytes = exifJpeg(true, [
+      { tag: 0x0112, type: 3, values: [6] },
+      { tag: 0x010f, type: 2, values: 'Café Caméra' },
+    ]);
+    const result = await tool.run({ files: [jpegFile(bytes, 'фото.jpg')], options: {} });
+
+    const table = tableOf(result.report!.output);
+    expect(table.headers).toEqual(['Tag', 'Value']);
+    expect(table.rows).toContainEqual(['Filename', 'фото.jpg']);
+    expect(table.rows).toContainEqual(['MIME type', 'image/jpeg']);
+    expect(table.rows).toContainEqual(['Pixel dimensions', '4000 × 3000']);
+    expect(table.rows).toContainEqual(['Orientation', '6']);
+    expect(table.rows).toContainEqual(['Orientation (meaning)', 'Rotated 90° clockwise']);
+    expect(table.rows).toContainEqual(['Pixel dimensions note', 'includes the EXIF orientation turn']);
+    expect(table.rows).toContainEqual(['Make', 'Café Caméra']);
+    expect(result.report).toMatchObject({ render: 'table' });
+    expect(result.stats).toMatchObject({ files: 1, tags: table.rows.length });
+    expect(mock.bitmaps[0]!.closed).toBe(true);
+  });
+
+  it('reports PNG chunk metadata', async () => {
+    mock = installImageMock({ width: 2, height: 1 });
+    const file = new File([toArrayBuffer(richPng())], 'диаграмма.png', { type: 'image/png' });
+    const result = await tool.run({ files: [file], options: {} });
+    const table = tableOf(result.report!.output);
+    expect(table.rows).toContainEqual(['Author', 'Claude']);
+    expect(table.rows).toContainEqual(['Title', 'Hello 世界']);
+    expect(table.rows).toContainEqual(['Pixel density', '2835×2835 px/m (≈72×72 dpi)']);
+    expect(table.rows).toContainEqual(['Filename', 'диаграмма.png']);
+    expect(result.report).toMatchObject({ render: 'table' });
+  });
+
+  it('reports only the base rows for a JPEG without an EXIF block', async () => {
+    mock = installImageMock({ width: 10, height: 20 });
+    const result = await tool.run({ files: [jpegFile(exifJpeg(true, []))], options: {} });
+    const table = tableOf(result.report!.output);
+    expect(table.rows).toContainEqual(['Pixel dimensions', '10 × 20']);
+    expect(table.rows.some(([tag]) => tag === 'Make')).toBe(false);
+    expect(table.rows.some(([tag]) => tag === 'Orientation')).toBe(false);
+  });
+
+  it('requests EXIF orientation while decoding and falls back when unsupported', async () => {
+    mock = installImageMock({ width: 10, height: 20 });
+    await tool.run({ files: [jpegFile(exifJpeg(true, []))], options: {} });
+    expect(mock.bitmaps[0]!.options).toEqual({ imageOrientation: 'from-image' });
+    mock.restore();
+
+    mock = installImageMock({ width: 10, height: 20, rejectOrientation: true });
+    await tool.run({ files: [jpegFile(exifJpeg(true, []))], options: {} });
+    expect(mock.bitmaps[0]!.options).toBeUndefined();
+  });
+
+  it('inspects several files in one table, labelled by filename', async () => {
+    mock = installImageMock({ width: 5, height: 5 });
+    const onProgress = vi.fn();
+    const result = await tool.run({
+      files: [
+        jpegFile(exifJpeg(true, [{ tag: 0x010f, type: 2, values: 'Camera A' }]), 'a.jpg'),
+        new File([toArrayBuffer(richPng())], 'b.png', { type: 'image/png' }),
+      ],
+      options: {},
+      onProgress,
+    });
+
+    const table = tableOf(result.report!.output);
+    expect(table.headers).toEqual(['File', 'Tag', 'Value']);
+    expect(table.rows.every((row) => row.length === 3)).toBe(true);
+    const names = new Set(table.rows.map((row) => row[0]));
+    expect(names).toEqual(new Set(['a.jpg', 'b.png']));
+    expect(table.rows).toContainEqual(['a.jpg', 'Make', 'Camera A']);
+    expect(table.rows).toContainEqual(['b.png', 'Author', 'Claude']);
+    expect(result.stats).toMatchObject({ files: 2 });
+    expect(onProgress).toHaveBeenCalledWith(1, 'Done');
+  });
+
+  it('emits progress and honours an aborted signal', async () => {
+    mock = installImageMock();
+    const progress: number[] = [];
+    const file = jpegFile(exifJpeg(true, []), 'a.jpg');
+    await tool.run({ files: [file], options: {}, onProgress: (f) => progress.push(f) });
+    expect(progress.at(0)).toBe(0);
+    expect(progress.at(-1)).toBe(1);
+
+    const controller = new AbortController();
+    controller.abort();
+    await expect(
+      tool.run({ files: [file], options: {}, signal: controller.signal }),
+    ).rejects.toThrow(/cancel/i);
+  });
+
+  it('rejects an oversized image with a friendly error instead of crashing', async () => {
+    mock = installImageMock({ width: 20_000, height: 20_000 });
+    await expect(tool.run({ files: [makeFile('huge.png')], options: {} })).rejects.toThrow(
+      /too large/i,
+    );
   });
 });

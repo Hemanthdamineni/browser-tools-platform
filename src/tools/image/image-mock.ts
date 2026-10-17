@@ -18,10 +18,19 @@ export interface MockBitmap {
   close(): void;
 }
 
+/** Snapshot of the 2D transform applied before a draw. */
+export interface MockTransform {
+  translate: [number, number];
+  rotate: number;
+  scale: [number, number];
+}
+
 export interface MockDrawCall {
   args: unknown[];
   destW?: number;
   destH?: number;
+  /** Current transform state when `drawImage` was called. */
+  transform?: MockTransform;
 }
 
 export interface MockFillCall {
@@ -41,16 +50,19 @@ export class MockCanvas {
   encodeType: string | null = null;
   encodeSize: number;
   private readonly supports: string[];
+  private readonly pixels: number[] | undefined;
 
-  constructor(width: number, height: number, supports: string[], encodeSize: number) {
+  constructor(width: number, height: number, supports: string[], encodeSize: number, pixels?: number[]) {
     this.width = width;
     this.height = height;
     this.supports = supports;
     this.encodeSize = encodeSize;
+    this.pixels = pixels;
   }
 
   getContext(_kind: string): unknown {
     let fillStyle = '#000000';
+    const transform: MockTransform = { translate: [0, 0], rotate: 0, scale: [1, 1] };
     return {
       canvas: this,
       imageSmoothingEnabled: true,
@@ -64,12 +76,33 @@ export class MockCanvas {
       fillRect: (x: number, y: number, w: number, h: number) => {
         this.fills.push({ x, y, w, h, style: String(fillStyle) });
       },
+      translate: (x: number, y: number) => {
+        transform.translate = [x, y];
+      },
+      rotate: (angle: number) => {
+        transform.rotate = angle;
+      },
+      scale: (x: number, y: number) => {
+        transform.scale = [x, y];
+      },
       drawImage: (...args: unknown[]) => {
         const tail = args.slice(-2).map(Number);
         const destW = Number.isFinite(tail[0]) ? tail[0] : undefined;
         const destH = Number.isFinite(tail[1]) ? tail[1] : undefined;
-        this.draws.push({ args, destW, destH });
+        this.draws.push({
+          args,
+          destW,
+          destH,
+          transform: { translate: [...transform.translate], rotate: transform.rotate, scale: [...transform.scale] },
+        });
       },
+      // Palette / pixel tools read pixels back from the sampled canvas. Tests
+      // can supply a fixed RGBA buffer via `installImageMock({ pixels })`.
+      getImageData: (_x: number, _y: number, w: number, h: number) => ({
+        data: new Uint8ClampedArray(this.pixels ?? new Array(Math.max(0, w * h * 4)).fill(0)),
+        width: w,
+        height: h,
+      }),
     };
   }
 
@@ -96,6 +129,8 @@ export interface MockConfig {
   supports?: string[];
   /** Byte length of encoded blobs. */
   encodeSize?: number;
+  /** Fixed RGBA buffer returned by `getImageData` (pixel-analysis tools). */
+  pixels?: number[];
 }
 
 export interface MockHandle {
@@ -141,7 +176,7 @@ export function installImageMock(config: MockConfig = {}): MockHandle {
   }
 
   function FakeOffscreenCanvas(this: MockCanvas, width: number, height: number) {
-    const canvas = new MockCanvas(width, height, supports, encodeSize);
+    const canvas = new MockCanvas(width, height, supports, encodeSize, config.pixels);
     canvases.push(canvas);
     return canvas;
   }
