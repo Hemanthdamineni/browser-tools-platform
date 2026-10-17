@@ -35,10 +35,10 @@ Line order is priority: top first. This file is written by a human (via review) 
 - [ ] **webcam-recorder** · video — getUserMedia + MediaRecorder. Share the recording code with screen-recorder.
 - [ ] **pdf-organize** · pdf — Thumbnail grid with drag-to-reorder, rotate, delete, and insert blank page. ⏳ run-20261017-1331-f6cf @ 2026-10-17T13:39:30Z
 - [ ] **password-strength** · security — zxcvbn-ts. Show estimated crack time and feedback. The password is never stored or logged. ⚠️ run died ⏳ run-20261017-1331-f6cf @ 2026-10-17T13:39:30Z
-- [ ] **markdown-preview** · developer — Split-pane live editor: GFM, code highlighting, export to HTML, print to PDF.
-- [ ] **percentage-calculator** · misc — X% of Y; X is what % of Y; % change; increase/decrease by %. ⏳ run-20261016-1016-793b @ 2026-10-16T10:23:30Z
-- [ ] **gst-calculator** · misc — Add or remove GST; CGST/SGST/IGST split. Verify current slab rates against an official source before shipping.
-- [ ] **sip-calculator** · misc — SIP, step-up SIP, and lumpsum, with a growth chart. Add a "not financial advice" note.
+- [ ] **markdown-preview** · developer — Split-pane live editor: GFM, code highlighting, export to HTML, print to PDF. ⏳ run-20261017-1335-65b4 @ 2026-10-17T13:35:38Z
+- [ ] **percentage-calculator** · misc — X% of Y; X is what % of Y; % change; increase/decrease by %. ⚠️ run died ⏳ run-20261017-1335-65b4 @ 2026-10-17T13:35:38Z
+- [ ] **gst-calculator** · misc — Add or remove GST; CGST/SGST/IGST split. Verify current slab rates against an official source before shipping. ⏳ run-20261017-1335-65b4 @ 2026-10-17T13:35:38Z
+- [ ] **sip-calculator** · misc — SIP, step-up SIP, and lumpsum, with a growth chart. Add a "not financial advice" note. ⏳ run-20261017-1335-65b4 @ 2026-10-17T13:35:38Z
 - [ ] **compound-interest** · misc — Compounding frequency, periodic contributions, and a yearly schedule table.
 - [ ] **webcam-test** · device — Registers the `device` category. Device picker, resolution and fps readout, snapshot. Nothing leaves the device.
 - [ ] **mic-test** · device — Level meter, waveform, record and play back.
