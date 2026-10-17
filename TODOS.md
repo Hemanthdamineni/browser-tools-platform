@@ -31,10 +31,10 @@ Line order is priority: top first. This file is written by a human (via review) 
 - [ ] **video-compress** · video · after: video-foundation — Presets by target size or quality. Warn on memory limits for long files.
 - [ ] **image-ocr** · image — tesseract.js with a language picker and self-hosted traineddata. Copy or download the text. ⚠️ run died ⏳ run-20261017-1231-4139 @ 2026-10-17T12:36:35Z
 - [ ] **background-remover** · image · after: ml-runtime-foundation — Use a permissively licensed model (e.g. MODNet); RMBG-1.4 is non-commercial, so don't use it. Output transparent PNG or a solid-colour background.
-- [ ] **screen-recorder** · video — getDisplayMedia + MediaRecorder with a mic toggle. WebM output, plus MP4 where the browser supports it.
+- [ ] **screen-recorder** · video — getDisplayMedia + MediaRecorder with a mic toggle. WebM output, plus MP4 where the browser supports it. ⏳ run-20261017-1331-f6cf @ 2026-10-17T13:39:30Z
 - [ ] **webcam-recorder** · video — getUserMedia + MediaRecorder. Share the recording code with screen-recorder.
-- [ ] **pdf-organize** · pdf — Thumbnail grid with drag-to-reorder, rotate, delete, and insert blank page.
-- [ ] **password-strength** · security — zxcvbn-ts. Show estimated crack time and feedback. The password is never stored or logged. ⏳ run-20261016-1016-793b @ 2026-10-16T10:23:30Z
+- [ ] **pdf-organize** · pdf — Thumbnail grid with drag-to-reorder, rotate, delete, and insert blank page. ⏳ run-20261017-1331-f6cf @ 2026-10-17T13:39:30Z
+- [ ] **password-strength** · security — zxcvbn-ts. Show estimated crack time and feedback. The password is never stored or logged. ⚠️ run died ⏳ run-20261017-1331-f6cf @ 2026-10-17T13:39:30Z
 - [ ] **markdown-preview** · developer — Split-pane live editor: GFM, code highlighting, export to HTML, print to PDF.
 - [ ] **percentage-calculator** · misc — X% of Y; X is what % of Y; % change; increase/decrease by %. ⏳ run-20261016-1016-793b @ 2026-10-16T10:23:30Z
 - [ ] **gst-calculator** · misc — Add or remove GST; CGST/SGST/IGST split. Verify current slab rates against an official source before shipping.
