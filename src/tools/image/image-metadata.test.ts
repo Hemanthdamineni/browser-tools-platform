@@ -1,6 +1,13 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { zlibSync } from 'fflate';
 import tool, { decodePngChunks, readExif } from './image-metadata.tool';
+import { installImageMock, makeFile, type MockHandle } from './image-mock';
+
+let mock: MockHandle | undefined;
+afterEach(() => {
+  mock?.restore();
+  mock = undefined;
+});
 
 /* -------------------------------------------------------------------------- */
 /*  Fixture builders                                                          */
@@ -179,8 +186,6 @@ function richPng(): Uint8Array {
   );
 }
 
-afterEach(() => vi.unstubAllGlobals());
-
 /* -------------------------------------------------------------------------- */
 /*  readExif                                                                  */
 /* -------------------------------------------------------------------------- */
@@ -272,14 +277,14 @@ describe('readExif', () => {
 
 describe('decodePngChunks', () => {
   it('extracts IHDR, tEXt, zTXt, iTXt, pHYs and tIME metadata', () => {
-    const meta = decodePngChunks(toArrayBuffer(richPng()));
-    expect(meta['Bit depth']).toBe('8 bit');
-    expect(meta['Colour type']).toBe('Truecolour + alpha');
-    expect(meta.Author).toBe('Claude');
-    expect(meta.Comment).toBe('Compressed value');
-    expect(meta.Title).toBe('Hello 世界');
-    expect(meta['Pixel density']).toBe('2835×2835 px/m (≈72×72 dpi)');
-    expect(meta.Modified).toBe('2020-01-02 03:04:05');
+    const png = decodePngChunks(toArrayBuffer(richPng()));
+    expect(png['Bit depth']).toBe('8 bit');
+    expect(png['Colour type']).toBe('Truecolour + alpha');
+    expect(png.Author).toBe('Claude');
+    expect(png.Comment).toBe('Compressed value');
+    expect(png.Title).toBe('Hello 世界');
+    expect(png['Pixel density']).toBe('2835×2835 px/m (≈72×72 dpi)');
+    expect(png.Modified).toBe('2020-01-02 03:04:05');
   });
 
   it('reports unspecified pixel density without a dpi conversion', () => {
@@ -313,15 +318,17 @@ describe('decodePngChunks', () => {
 /*  image-metadata run                                                        */
 /* -------------------------------------------------------------------------- */
 
-function stubBitmap(width = 4000, height = 3000) {
-  const close = vi.fn();
-  vi.stubGlobal('createImageBitmap', vi.fn(async () => ({ width, height, close })));
-  return close;
+interface Table {
+  headers: string[];
+  rows: string[][];
 }
 
-function rowsOf(output: string): [string, string][] {
-  return (JSON.parse(output) as { rows: [string, string][] }).rows;
+function tableOf(output: string): Table {
+  return JSON.parse(output) as Table;
 }
+
+const jpegFile = (bytes: Uint8Array, name = 'photo.jpg') =>
+  new File([toArrayBuffer(bytes)], name, { type: 'image/jpeg' });
 
 describe('image-metadata run', () => {
   it('rejects an empty selection', async () => {
@@ -333,48 +340,95 @@ describe('image-metadata run', () => {
     await expect(tool.run({ files: [file], options: {} })).rejects.toThrow(/not an image/i);
   });
 
-  it('throws a friendly decode error for undecodable image files', async () => {
-    const file = new File(['not a real image'], 'image.png', { type: 'image/png' });
+  it('throws a friendly decode error for undecodable/truncated image files', async () => {
+    mock = installImageMock({ failDecode: true });
+    const file = new File(['not a real image'], 'truncated.png', { type: 'image/png' });
     await expect(tool.run({ files: [file], options: {} })).rejects.toThrow(
       /not be decoded as an image/i,
     );
   });
 
   it('reports file details, dimensions, EXIF tags and orientation meaning', async () => {
-    const close = stubBitmap();
+    mock = installImageMock({ width: 4000, height: 3000 });
     const bytes = exifJpeg(true, [
       { tag: 0x0112, type: 3, values: [6] },
       { tag: 0x010f, type: 2, values: 'Café Caméra' },
     ]);
-    const file = new File([toArrayBuffer(bytes)], 'фото.jpg', { type: 'image/jpeg' });
-    const result = await tool.run({ files: [file], options: {} });
-    const rows = rowsOf(result.report!.output);
+    const result = await tool.run({ files: [jpegFile(bytes, 'фото.jpg')], options: {} });
 
-    expect(rows).toContainEqual(['Filename', 'фото.jpg']);
-    expect(rows).toContainEqual(['MIME type', 'image/jpeg']);
-    expect(rows).toContainEqual(['Pixel dimensions', '4000 × 3000']);
-    expect(rows).toContainEqual(['Orientation', '6']);
-    expect(rows).toContainEqual(['Orientation (meaning)', 'Rotated 90° clockwise']);
-    expect(rows).toContainEqual(['Make', 'Café Caméra']);
-    expect(result.stats).toMatchObject({ tags: rows.length });
-    expect(close).toHaveBeenCalled();
+    const table = tableOf(result.report!.output);
+    expect(table.headers).toEqual(['Tag', 'Value']);
+    expect(table.rows).toContainEqual(['Filename', 'фото.jpg']);
+    expect(table.rows).toContainEqual(['MIME type', 'image/jpeg']);
+    expect(table.rows).toContainEqual(['Pixel dimensions', '4000 × 3000']);
+    expect(table.rows).toContainEqual(['Orientation', '6']);
+    expect(table.rows).toContainEqual(['Orientation (meaning)', 'Rotated 90° clockwise']);
+    expect(table.rows).toContainEqual(['Pixel dimensions note', 'includes the EXIF orientation turn']);
+    expect(table.rows).toContainEqual(['Make', 'Café Caméra']);
+    expect(result.report).toMatchObject({ render: 'table' });
+    expect(result.stats).toMatchObject({ files: 1, tags: table.rows.length });
+    expect(mock.bitmaps[0]!.closed).toBe(true);
   });
 
   it('reports PNG chunk metadata', async () => {
-    stubBitmap(2, 1);
+    mock = installImageMock({ width: 2, height: 1 });
     const file = new File([toArrayBuffer(richPng())], 'диаграмма.png', { type: 'image/png' });
     const result = await tool.run({ files: [file], options: {} });
-    const rows = rowsOf(result.report!.output);
-    expect(rows).toContainEqual(['Author', 'Claude']);
-    expect(rows).toContainEqual(['Title', 'Hello 世界']);
-    expect(rows).toContainEqual(['Pixel density', '2835×2835 px/m (≈72×72 dpi)']);
+    const table = tableOf(result.report!.output);
+    expect(table.rows).toContainEqual(['Author', 'Claude']);
+    expect(table.rows).toContainEqual(['Title', 'Hello 世界']);
+    expect(table.rows).toContainEqual(['Pixel density', '2835×2835 px/m (≈72×72 dpi)']);
+    expect(table.rows).toContainEqual(['Filename', 'диаграмма.png']);
     expect(result.report).toMatchObject({ render: 'table' });
   });
 
+  it('reports only the base rows for a JPEG without an EXIF block', async () => {
+    mock = installImageMock({ width: 10, height: 20 });
+    const result = await tool.run({ files: [jpegFile(exifJpeg(true, []))], options: {} });
+    const table = tableOf(result.report!.output);
+    expect(table.rows).toContainEqual(['Pixel dimensions', '10 × 20']);
+    expect(table.rows.some(([tag]) => tag === 'Make')).toBe(false);
+    expect(table.rows.some(([tag]) => tag === 'Orientation')).toBe(false);
+  });
+
+  it('requests EXIF orientation while decoding and falls back when unsupported', async () => {
+    mock = installImageMock({ width: 10, height: 20 });
+    await tool.run({ files: [jpegFile(exifJpeg(true, []))], options: {} });
+    expect(mock.bitmaps[0]!.options).toEqual({ imageOrientation: 'from-image' });
+    mock.restore();
+
+    mock = installImageMock({ width: 10, height: 20, rejectOrientation: true });
+    await tool.run({ files: [jpegFile(exifJpeg(true, []))], options: {} });
+    expect(mock.bitmaps[0]!.options).toBeUndefined();
+  });
+
+  it('inspects several files in one table, labelled by filename', async () => {
+    mock = installImageMock({ width: 5, height: 5 });
+    const onProgress = vi.fn();
+    const result = await tool.run({
+      files: [
+        jpegFile(exifJpeg(true, [{ tag: 0x010f, type: 2, values: 'Camera A' }]), 'a.jpg'),
+        new File([toArrayBuffer(richPng())], 'b.png', { type: 'image/png' }),
+      ],
+      options: {},
+      onProgress,
+    });
+
+    const table = tableOf(result.report!.output);
+    expect(table.headers).toEqual(['File', 'Tag', 'Value']);
+    expect(table.rows.every((row) => row.length === 3)).toBe(true);
+    const names = new Set(table.rows.map((row) => row[0]));
+    expect(names).toEqual(new Set(['a.jpg', 'b.png']));
+    expect(table.rows).toContainEqual(['a.jpg', 'Make', 'Camera A']);
+    expect(table.rows).toContainEqual(['b.png', 'Author', 'Claude']);
+    expect(result.stats).toMatchObject({ files: 2 });
+    expect(onProgress).toHaveBeenCalledWith(1, 'Done');
+  });
+
   it('emits progress and honours an aborted signal', async () => {
-    stubBitmap();
+    mock = installImageMock();
     const progress: number[] = [];
-    const file = new File([toArrayBuffer(exifJpeg(true, []))], 'a.jpg', { type: 'image/jpeg' });
+    const file = jpegFile(exifJpeg(true, []), 'a.jpg');
     await tool.run({ files: [file], options: {}, onProgress: (f) => progress.push(f) });
     expect(progress.at(0)).toBe(0);
     expect(progress.at(-1)).toBe(1);
@@ -384,5 +438,12 @@ describe('image-metadata run', () => {
     await expect(
       tool.run({ files: [file], options: {}, signal: controller.signal }),
     ).rejects.toThrow(/cancel/i);
+  });
+
+  it('rejects an oversized image with a friendly error instead of crashing', async () => {
+    mock = installImageMock({ width: 20_000, height: 20_000 });
+    await expect(tool.run({ files: [makeFile('huge.png')], options: {} })).rejects.toThrow(
+      /too large/i,
+    );
   });
 });

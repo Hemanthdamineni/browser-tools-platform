@@ -11,6 +11,7 @@ export const meta: ToolMeta = {
   privacy: { processing: 'on-device', network: 'none', offline: true },
   input: 'file',
   accept: 'image/*',
+  multiple: true,
   examples: [{ title: 'Inspect image metadata' }],
   faq: [
     {
@@ -21,9 +22,13 @@ export const meta: ToolMeta = {
       q: 'Is the original file changed?',
       a: 'No. The tool only reads the file you choose.',
     },
+    {
+      q: 'Can I inspect several images at once?',
+      a: 'Yes. Select multiple files and each one gets its own rows in a single table, labelled with the file name.',
+    },
   ],
   related: ['image-compress', 'image-palette'],
   credits: [{ name: 'fflate', url: 'https://github.com/101arrowz/fflate', license: 'MIT' }],
   status: 'stable',
-  updated: '2026-10-16',
+  updated: '2026-10-17',
 };

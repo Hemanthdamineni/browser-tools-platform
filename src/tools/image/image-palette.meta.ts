@@ -11,6 +11,7 @@ export const meta: ToolMeta = {
   privacy: { processing: 'on-device', network: 'none', offline: true },
   input: 'file',
   accept: 'image/*',
+  multiple: true,
   options: [
     { key: 'colors', label: 'Number of colours', type: 'number', default: 6, min: 2, max: 16 },
     {
@@ -32,8 +33,12 @@ export const meta: ToolMeta = {
       q: 'Is my image uploaded?',
       a: 'No. Sampling happens on a canvas in your browser.',
     },
+    {
+      q: 'Can I compare several images?',
+      a: 'Yes. Select multiple files and each image is listed with its dominant colour and full palette.',
+    },
   ],
   related: ['color-palette', 'color-name', 'image-metadata'],
   status: 'stable',
-  updated: '2026-10-16',
+  updated: '2026-10-17',
 };

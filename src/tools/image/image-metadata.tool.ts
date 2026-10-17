@@ -1,7 +1,7 @@
 import type { FileRunInput, FileRunResult, FileToolModule } from '@/lib/types';
-import { ToolError } from '@/lib/types';
+import { checkFiles } from './common';
+import { assertCanvasBudget, decodeOriented, runBatch } from './image-batch';
 import { unzlibSync } from 'fflate';
-import { checkAbort, checkFiles } from './common';
 import { meta } from './image-metadata.meta';
 
 /* -------------------------------------------------------------------------- */
@@ -342,11 +342,12 @@ export function decodePngChunks(buf: ArrayBuffer): Record<string, string | numbe
 /*  Tool entry point                                                          */
 /* -------------------------------------------------------------------------- */
 
-async function run(input: FileRunInput): Promise<FileRunResult> {
-  checkFiles(input.files);
-  const file = input.files[0]!;
-  checkAbort(input.signal);
-  input.onProgress?.(0, 'Reading metadata');
+/**
+ * Inspect one image and return its `[tag, value]` rows: file details, decoded
+ * pixel dimensions (EXIF orientation applied, matching the other image tools)
+ * plus any readable JPEG EXIF or PNG chunk metadata.
+ */
+async function inspectFile(file: File): Promise<[string, string][]> {
   const buf = await file.arrayBuffer();
 
   const rows: [string, string][] = [
@@ -355,15 +356,12 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
     ['File size', `${file.size} bytes`],
   ];
 
+  const bitmap = await decodeOriented(file);
   try {
-    const bitmap = await createImageBitmap(file);
+    assertCanvasBudget(bitmap.width, bitmap.height, 'image');
     rows.push(['Pixel dimensions', `${bitmap.width} × ${bitmap.height}`]);
+  } finally {
     bitmap.close();
-  } catch {
-    throw new ToolError(
-      'That file could not be decoded as an image.',
-      'Check that it is a valid PNG, JPEG, WebP, GIF or BMP file.',
-    );
   }
 
   if (file.type === 'image/jpeg') {
@@ -372,17 +370,41 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
     const orientation = exif.Orientation;
     if (typeof orientation === 'number' && ORIENTATION_MEANING[orientation]) {
       rows.push(['Orientation (meaning)', ORIENTATION_MEANING[orientation]!]);
+      if (orientation >= 5) {
+        rows.push(['Pixel dimensions note', 'includes the EXIF orientation turn']);
+      }
     }
   } else if (file.type === 'image/png') {
     const png = decodePngChunks(buf);
     for (const [k, v] of Object.entries(png)) rows.push([k, String(v)]);
   }
 
-  input.onProgress?.(1, 'Done');
+  return rows;
+}
+
+async function run(input: FileRunInput): Promise<FileRunResult> {
+  checkFiles(input.files, true);
+
+  // Batch mode: one table for every selected file, prefixed with its name.
+  const multiple = input.files.length > 1;
+  const perFile = await runBatch(input.files, input, 'Reading', (file) => inspectFile(file));
+
+  const rows: string[][] = [];
+  perFile.forEach((fileRows, index) => {
+    const name = input.files[index]!.name;
+    for (const [tag, value] of fileRows) rows.push(multiple ? [name, tag, value] : [tag, value]);
+  });
+
   return {
     outputs: [],
-    report: { output: JSON.stringify({ headers: ['Tag', 'Value'], rows }), render: 'table' },
-    stats: { tags: rows.length },
+    report: {
+      output: JSON.stringify({
+        headers: multiple ? ['File', 'Tag', 'Value'] : ['Tag', 'Value'],
+        rows,
+      }),
+      render: 'table',
+    },
+    stats: { files: input.files.length, tags: rows.length },
   };
 }
 

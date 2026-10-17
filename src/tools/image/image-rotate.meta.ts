@@ -46,8 +46,12 @@ export const meta: ToolMeta = {
       q: 'Are my images uploaded?',
       a: 'No. Rotation runs on a canvas in your browser and nothing leaves your device.',
     },
+    {
+      q: 'What about phone photos that look sideways?',
+      a: 'EXIF orientation is applied while decoding, so an upright photo stays upright. Exporting to JPEG flattens transparency onto white.',
+    },
   ],
   related: ['image-crop', 'image-resize'],
   status: 'stable',
-  updated: '2026-10-16',
+  updated: '2026-10-17',
 };

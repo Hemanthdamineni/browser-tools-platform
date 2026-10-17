@@ -1,8 +1,9 @@
 import type { FileRunInput, FileRunResult, FileToolModule } from '@/lib/types';
 import { ToolError } from '@/lib/types';
 import { resolveOptions } from '@/lib/options';
-import { readPixels, decodeImage } from '@/lib/image';
-import { checkAbort, checkFiles } from './common';
+import { readPixels } from '@/lib/image';
+import { checkFiles } from './common';
+import { assertCanvasBudget, decodeOriented, runBatch } from './image-batch';
 import { meta } from './image-palette.meta';
 
 export const ALGORITHMS = ['median-cut', 'k-means', 'most-frequent'] as const;
@@ -230,51 +231,83 @@ export function quantizePixels(
   return selected.map(hexColor);
 }
 
+/** Analysis of one sampled image: palette plus appearance statistics. */
+interface ImageAnalysis {
+  palette: string[];
+  opaque: number;
+  light: number;
+  sampledPixels: number;
+}
+
+/** Sample a decoded bitmap into a palette and luminance statistics. */
+function analyze(bitmap: ImageBitmap, count: number, algorithm: string): ImageAnalysis {
+  const pixels = readPixels(bitmap, 10_000);
+  const palette = quantizePixels(pixels, count, algorithm);
+
+  let light = 0;
+  let opaque = 0;
+  for (let i = 0; i + 3 < pixels.length; i += 4) {
+    if (pixels[i + 3]! < 32) continue;
+    opaque++;
+    const luminance = pixels[i]! * 0.2126 + pixels[i + 1]! * 0.7152 + pixels[i + 2]! * 0.0722;
+    if (luminance > 127) light++;
+  }
+
+  return { palette, opaque, light, sampledPixels: Math.floor(pixels.length / 4) };
+}
+
+function appearance(analysis: ImageAnalysis): string {
+  if (analysis.opaque === 0) return 'no opaque pixels';
+  return analysis.light > analysis.opaque / 2 ? 'mostly light' : 'mostly dark';
+}
+
 async function run(input: FileRunInput): Promise<FileRunResult> {
   const options = resolveOptions(meta, input.options);
-  checkFiles(input.files);
-  const file = input.files[0]!;
+  checkFiles(input.files, true);
 
   const algorithm = String(options.algorithm ?? 'median-cut');
   if (!(ALGORITHMS as readonly string[]).includes(algorithm)) {
-    throw new ToolError(
-      'Unknown palette algorithm.',
-      `Choose one of: ${ALGORITHMS.join(', ')}.`,
-    );
+    throw new ToolError('Unknown palette algorithm.', `Choose one of: ${ALGORITHMS.join(', ')}.`);
   }
+  const count = Number(options.colors);
 
-  checkAbort(input.signal);
-  input.onProgress?.(0, 'Sampling image');
-  const bitmap = await decodeImage(file);
-  try {
-    checkAbort(input.signal);
-    const pixels = readPixels(bitmap, 10_000);
-    const palette = quantizePixels(pixels, Number(options.colors), algorithm);
-    input.onProgress?.(0.6, 'Analysing colours');
-
-    let light = 0;
-    let opaque = 0;
-    for (let i = 0; i + 3 < pixels.length; i += 4) {
-      if (pixels[i + 3]! < 32) continue;
-      opaque++;
-      const luminance = pixels[i]! * 0.2126 + pixels[i + 1]! * 0.7152 + pixels[i + 2]! * 0.0722;
-      if (luminance > 127) light++;
+  const analyses = await runBatch(input.files, input, 'Sampling', async (file) => {
+    const bitmap = await decodeOriented(file);
+    try {
+      assertCanvasBudget(bitmap.width, bitmap.height, 'image');
+      return analyze(bitmap, count, algorithm);
+    } finally {
+      bitmap.close();
     }
+  });
 
-    input.onProgress?.(1, 'Done');
+  // A single image keeps the swatch render; several files become one table.
+  if (analyses.length === 1) {
+    const analysis = analyses[0]!;
     return {
       outputs: [],
-      report: { output: JSON.stringify(palette), render: 'colors' },
+      report: { output: JSON.stringify(analysis.palette), render: 'colors' },
       stats: {
-        dominant: palette[0] ?? 'none',
-        appearance:
-          opaque === 0 ? 'no opaque pixels' : light > opaque / 2 ? 'mostly light' : 'mostly dark',
-        sampledPixels: Math.floor(pixels.length / 4),
+        dominant: analysis.palette[0] ?? 'none',
+        appearance: appearance(analysis),
+        sampledPixels: analysis.sampledPixels,
       },
     };
-  } finally {
-    bitmap.close();
   }
+
+  const rows = analyses.map((analysis, index) => [
+    input.files[index]!.name,
+    analysis.palette[0] ?? 'none',
+    analysis.palette.length ? analysis.palette.join(', ') : '—',
+  ]);
+  return {
+    outputs: [],
+    report: {
+      output: JSON.stringify({ headers: ['File', 'Dominant', 'Palette'], rows }),
+      render: 'table',
+    },
+    stats: { files: analyses.length },
+  };
 }
 
 const tool: FileToolModule = { meta, run };
