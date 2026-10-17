@@ -14,7 +14,7 @@ Line order is priority: top first. This file is written by a human (via review) 
 
 ## Foundations
 
-- [ ] **video-foundation** · core — Registers the `video` category. Shared lazy-loaded video engine: prefer WebCodecs + Mediabunny (MPL-2.0). ffmpeg.wasm core is GPL-2.0 (x264), so if it seems needed, report BLOCKED-DECISION instead of using it. Provide progress events, cancel, and worker execution. ⏳ run-20261016-0951-5f1c @ 2026-10-16T09:55:37Z
+- [ ] **video-foundation** · core — Registers the `video` category. Shared lazy-loaded video engine: prefer WebCodecs + Mediabunny (MPL-2.0). ffmpeg.wasm core is GPL-2.0 (x264), so if it seems needed, report BLOCKED-DECISION instead of using it. Provide progress events, cancel, and worker execution. ⚠️ run died ⏳ run-20261017-1202-8af9 @ 2026-10-17T12:06:46Z
 - [ ] **ml-runtime-foundation** · core — Shared loader for transformers.js / onnxruntime-web. Use WebGPU when available, falling back to WASM. Cache models in Cache Storage and show download-size and progress UI. Default model source is the HF Hub; only models with permissive licenses are allowed. ⏳ run-20261016-0951-5f1c @ 2026-10-16T09:55:37Z
 
 ## Tools
