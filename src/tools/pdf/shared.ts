@@ -9,12 +9,15 @@ export function firstFile(input: FileRunInput): File {
   if (!input.files?.length) throw new ToolError('Choose a PDF file.');
   return input.files[0]!;
 }
-export async function loadPdf(file: File): Promise<PDFDocument> {
+export interface LoadPdfBytesOptions {
+  ignoreEncryption?: boolean;
+  /** Leave document info untouched (`false`) instead of stamping producer/mod date. */
+  updateMetadata?: boolean;
+}
+export async function loadPdfBytes(bytes: Uint8Array, options: LoadPdfBytesOptions = {}): Promise<PDFDocument> {
   try {
-    if (!file.size) throw new Error('empty');
-    const buffer = await file.arrayBuffer();
-    const bytes = new Uint8Array(buffer);
-    const doc = await PDFDocument.load(bytes, { ignoreEncryption: false });
+    if (!bytes.byteLength) throw new Error('empty');
+    const doc = await PDFDocument.load(bytes, { ignoreEncryption: false, ...options });
     if (!doc.getPageCount()) throw new Error('empty');
     return doc;
   } catch (error) {
@@ -22,6 +25,11 @@ export async function loadPdf(file: File): Promise<PDFDocument> {
     if (/password|encrypted/i.test(message)) throw new ToolError('This PDF is password-protected — unlock it first.');
     throw new ToolError('This file is not a valid, readable PDF.');
   }
+}
+export async function loadPdf(file: File): Promise<PDFDocument> {
+  if (!file.size) throw new ToolError('This file is not a valid, readable PDF.');
+  const buffer = await file.arrayBuffer();
+  return loadPdfBytes(new Uint8Array(buffer));
 }
 export function parsePages(value: unknown, total: number, allowAll = true): number[] {
   const text = String(value ?? '').trim();
