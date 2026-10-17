@@ -22,10 +22,10 @@ Line order is priority: top first. This file is written by a human (via review) 
 - [ ] **pdf-compress** · pdf — Re-encode or downsample embedded images and clean up streams. Quality presets; show before/after size. ⚠️ run died ⏳ run-20261017-1203-68f4 @ 2026-10-17T12:08:56Z
 - [x] **barcode-generator** · generators — bwip-js or JsBarcode. Code128, EAN-13, UPC-A, Code39, ITF, DataMatrix. SVG and PNG export. ✅ already exists as barcode
 - [ ] **qr-scanner** · generators — Camera (getUserMedia) plus image upload. Native BarcodeDetector with jsQR or zxing-wasm fallback. Actions for detected URL, Wi-Fi, or vCard content. ⚠️ run died ⏳ run-20261017-1203-68f4 @ 2026-10-17T12:08:56Z
-- [ ] **heic-to-jpg** · image — libheif-js / heic2any. Batch mode; JPEG, PNG, and WebP output. ⏳ run-20261016-0947-773b @ 2026-10-16T10:03:21Z
-- [ ] **image-strip-metadata** · image — Strip EXIF, GPS, and XMP. Prefer lossless JPEG segment removal; show what was removed. Batch mode. ⏳ run-20261016-0947-773b @ 2026-10-16T10:03:21Z
+- [ ] **heic-to-jpg** · image — libheif-js / heic2any. Batch mode; JPEG, PNG, and WebP output. ⚠️ run died ⏳ run-20261017-1217-432a @ 2026-10-17T12:21:04Z
+- [ ] **image-strip-metadata** · image — Strip EXIF, GPS, and XMP. Prefer lossless JPEG segment removal; show what was removed. Batch mode. ⚠️ run died ⏳ run-20261017-1217-432a @ 2026-10-17T12:21:04Z
 - [ ] **video-to-gif** · video · after: video-foundation — Time range, fps, width, palette quality. Preview before export.
-- [ ] **pdf-sign** · pdf — Draw, type, or upload a signature. Place and resize on the page, then flatten with pdf-lib. ⏳ run-20261016-0957-7c37 @ 2026-10-16T10:22:40Z
+- [ ] **pdf-sign** · pdf — Draw, type, or upload a signature. Place and resize on the page, then flatten with pdf-lib. ⚠️ run died ⏳ run-20261017-1217-432a @ 2026-10-17T12:21:04Z
 - [ ] **code-beautify** · developer — Prettier standalone for JS/TS/CSS/SCSS/HTML/JSON/Markdown/YAML. Lazy-load parsers per language. ⏳ run-20261016-0957-7c37 @ 2026-10-16T10:22:40Z
 - [ ] **code-minify** · developer — terser, lightningcss-wasm or csso, html-minifier-terser. Show bytes saved. ⏳ run-20261016-0957-7c37 @ 2026-10-16T10:22:40Z
 - [ ] **video-compress** · video · after: video-foundation — Presets by target size or quality. Warn on memory limits for long files.
