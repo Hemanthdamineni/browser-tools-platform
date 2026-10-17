@@ -23,5 +23,7 @@ export const meta: ToolMeta = {
     { q: 'Is this a universal CDN standard?', a: 'Support and precedence vary by proxy or CDN. Verify the target provider documentation before relying on it.' },
   ],
   related: ['cdn-cache-control', 'cache-control', 'content-type'],
+  hidden: true,
+  redirectTo: 'cache-headers',
   status: 'stable',
 };

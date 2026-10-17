@@ -26,5 +26,7 @@ export const meta: ToolMeta = {
     { q: 'How does it differ from Cache-Control?', a: 'Cache-Control is a request from the origin for the cache. Cache-Status records what the cache actually did. A debug header typically appended by the cache itself.' },
   ],
   related: ['cache-control', 'cdn-cache-control', 'surrogate-control'],
+  hidden: true,
+  redirectTo: 'cache-headers',
   status: 'stable',
 };

@@ -23,5 +23,7 @@ export const meta: ToolMeta = {
     { q: 'Should Vary include Authorization?', a: 'Usually private or authenticated responses need stronger cache controls. Vary alone is not an authorization boundary and cannot make unsafe content safe to cache.' },
   ],
   related: ['cache-control', 'security-headers', 'http-encoding'],
+  hidden: true,
+  redirectTo: 'cache-headers',
   status: 'stable',
 };
