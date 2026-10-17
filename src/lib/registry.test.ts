@@ -80,6 +80,27 @@ describe('registry aliases', () => {
     }
   });
 
+  const conditionalIds = [
+    'etag',
+    'last-modified',
+    'if-match',
+    'if-none-match',
+    'if-range',
+    'if-modified-since',
+    'if-unmodified-since',
+  ];
+
+  it('keeps every merged conditional id routable as a hidden redirect', () => {
+    expect(getTool('conditional-request-headers')?.meta.hidden).not.toBe(true);
+    for (const id of conditionalIds) {
+      const tool = getTool(id);
+      expect(tool, `${id} should still resolve`).toBeTruthy();
+      expect(tool?.meta.hidden).toBe(true);
+      expect(tool?.meta.redirectTo).toBe('conditional-request-headers');
+      expect(redirectTarget(tool!.meta)?.meta.id).toBe('conditional-request-headers');
+    }
+  });
+
   it('points every alias at a real, non-alias, visible tool', () => {
     expect(ALIAS_TOOLS.length).toBeGreaterThanOrEqual(legacyIds.length);
     for (const alias of ALIAS_TOOLS) {

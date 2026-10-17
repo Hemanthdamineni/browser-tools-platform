@@ -25,5 +25,7 @@ export const meta: ToolMeta = {
     { q: 'What does * mean?', a: 'The wildcard matches any current representation, and is useful for operations that should proceed only when a resource exists.' },
   ],
   related: ['etag', 'http-range', 'http-status'],
+  hidden: true,
+  redirectTo: 'conditional-request-headers',
   status: 'stable',
 };

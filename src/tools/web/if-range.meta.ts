@@ -23,5 +23,7 @@ export const meta: ToolMeta = {
     { q: 'Does this create a Range header?', a: 'No. It validates only the If-Range validator; use the HTTP Range tool to build the byte range separately.' },
   ],
   related: ['http-range', 'etag', 'if-modified-since'],
+  hidden: true,
+  redirectTo: 'conditional-request-headers',
   status: 'stable',
 };

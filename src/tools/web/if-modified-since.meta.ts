@@ -23,5 +23,7 @@ export const meta: ToolMeta = {
     { q: 'Is this as precise as an entity tag?', a: 'No. HTTP dates have one-second granularity and can miss changes made within the same second; ETags are generally more reliable.' },
   ],
   related: ['if-none-match', 'etag', 'cache-control'],
+  hidden: true,
+  redirectTo: 'conditional-request-headers',
   status: 'stable',
 };
