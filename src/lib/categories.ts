@@ -120,12 +120,19 @@ export const CATEGORIES: Record<CategoryId, Category> = {
     icon: 'audio-lines',
     order: 17,
   },
+  video: {
+    id: 'video',
+    name: 'Video',
+    blurb: 'Inspect, trim, convert and compress video — with WebCodecs and Mediabunny.',
+    icon: 'image',
+    order: 18,
+  },
   misc: {
     id: 'misc',
     name: 'Everyday Tools',
     blurb: 'Timers, calculators, pickers and other handy bits.',
     icon: 'wrench',
-    order: 18,
+    order: 19,
   },
 };
 
