@@ -1,13 +1,12 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import tool, { layoutSprites } from './image-spritesheet.tool';
-import {
-  imageFile,
-  installFakeImageEnv,
-  resetFakeImageEnv,
-  setFakeBlobType,
-  setFakeDecoder,
-  solidImage,
-} from './test-canvas';
+import { installImageMock, makeFile, blobPixels, pixelAt, type MockHandle } from './image-mock';
+
+let mock: MockHandle | undefined;
+afterEach(() => {
+  mock?.restore();
+  mock = undefined;
+});
 
 describe('layoutSprites', () => {
   const sprites = [
@@ -79,7 +78,7 @@ describe('layoutSprites', () => {
   it('rejects an empty layout', () => {
     expect(() => layoutSprites([], 'grid', 0, 0)).toThrow(/at least one image/i);
   });
-  it('normalizes malformed padding and rejects invalid or oversized dimensions', () => {
+  it('normalizes malformed padding and rejects invalid dimensions', () => {
     expect(layoutSprites([{ name: 'a', w: 10, h: 10 }], 'horizontal', 0, Number.NaN)).toMatchObject(
       {
         width: 10,
@@ -89,23 +88,31 @@ describe('layoutSprites', () => {
     expect(() => layoutSprites([{ name: 'bad', w: Infinity, h: 10 }], 'grid', 0, 0)).toThrow(
       /positive finite dimensions/i,
     );
+  });
+  it('rejects a sheet that exceeds the per-side canvas limit', () => {
     expect(() => layoutSprites([{ name: 'huge', w: 40_000, h: 1 }], 'grid', 0, 0)).toThrow(
       /too large/i,
     );
   });
+  it('rejects a sheet that exceeds the total pixel budget even when both sides fit', () => {
+    const items = Array.from({ length: 4 }, (_, i) => ({ name: `s${i}`, w: 8000, h: 8000 }));
+    expect(() => layoutSprites(items, 'grid', 2, 0)).toThrow(/too large/i);
+  });
 });
 
 describe('image-spritesheet run', () => {
-  beforeEach(() => installFakeImageEnv());
-  afterEach(() => resetFakeImageEnv());
-
-  const img = (name: string, w: number, h: number) =>
-    imageFile(name, solidImage(w, h, [10, 20, 30, 255]));
   const readRows = (output: string | undefined) => JSON.parse(output ?? '{}').rows as string[][];
+  const install = (dimensions: { width: number; height: number }[]) =>
+    installImageMock({ dimensions });
 
   it('builds a grid sheet with a JSON + CSS report', async () => {
+    mock = install([
+      { width: 10, height: 10 },
+      { width: 40, height: 20 },
+      { width: 15, height: 30 },
+    ]);
     const result = await tool.run({
-      files: [img('a.png', 10, 10), img('b.png', 40, 20), img('c.png', 15, 30)],
+      files: [makeFile('a.png'), makeFile('b.png'), makeFile('c.png')],
       options: {},
     });
     expect(result.outputs[0]!.filename).toBe('spritesheet.png');
@@ -119,38 +126,65 @@ describe('image-spritesheet run', () => {
   });
 
   it('supports horizontal, vertical and packed layouts', async () => {
-    const files = () => [img('a.png', 10, 20), img('b.png', 30, 10)];
+    const dims = [
+      { width: 10, height: 20 },
+      { width: 30, height: 10 },
+    ];
+    mock = install(dims);
     const horizontal = await tool.run({
-      files: files(),
+      files: [makeFile('a.png'), makeFile('b.png')],
       options: { layout: 'horizontal', padding: 2 },
     });
     expect(horizontal.stats).toMatchObject({ sprites: 2, width: 42, height: 20 });
+
+    mock.restore();
+    mock = install(dims);
     const vertical = await tool.run({
-      files: files(),
+      files: [makeFile('a.png'), makeFile('b.png')],
       options: { layout: 'vertical', padding: 2 },
     });
     expect(vertical.stats).toMatchObject({ sprites: 2, width: 30, height: 32 });
-    const packed = await tool.run({ files: files(), options: { layout: 'packed', padding: 2 } });
+
+    mock.restore();
+    mock = install(dims);
+    const packed = await tool.run({
+      files: [makeFile('a.png'), makeFile('b.png')],
+      options: { layout: 'packed', padding: 2 },
+    });
     expect(packed.stats).toMatchObject({ sprites: 2, width: 30, height: 32 });
   });
 
   it('honours the grid columns option', async () => {
+    mock = install([
+      { width: 10, height: 20 },
+      { width: 30, height: 10 },
+    ]);
     const result = await tool.run({
-      files: [img('a.png', 10, 20), img('b.png', 30, 10)],
+      files: [makeFile('a.png'), makeFile('b.png')],
       options: { layout: 'grid', columns: 1, padding: 0 },
     });
     expect(result.stats).toMatchObject({ sprites: 2, width: 30, height: 40 });
   });
 
-  it('handles multi-file batches', async () => {
-    const files = Array.from({ length: 5 }, (_, i) => img(`sprite-${i}.png`, 8 + i, 8 + i));
-    const result = await tool.run({ files, options: { layout: 'horizontal', padding: 1 } });
+  it('decodes every file in a batch and reports progress', async () => {
+    mock = install(Array.from({ length: 5 }, (_, i) => ({ width: 8 + i, height: 8 + i })));
+    const onProgress = vi.fn();
+    const result = await tool.run({
+      files: Array.from({ length: 5 }, (_, i) => makeFile(`sprite-${i}.png`)),
+      options: { layout: 'horizontal', padding: 1 },
+      onProgress,
+    });
     expect(result.stats?.sprites).toBe(5);
+    expect(onProgress).toHaveBeenCalledWith(1, 'Done');
   });
 
   it('disambiguates duplicate sprite names', async () => {
+    mock = install([
+      { width: 5, height: 5 },
+      { width: 5, height: 5 },
+    ]);
     const result = await tool.run({
-      files: [img('a.png', 5, 5), img('a.jpg', 5, 5)],
+      files: [makeFile('a.png'), makeFile('a.jpg', 'image/jpeg')],
       options: { layout: 'horizontal', padding: 1 },
     });
     const rows = readRows(result.report?.output);
@@ -159,44 +193,91 @@ describe('image-spritesheet run', () => {
   });
 
   it('sanitizes sprite names used as CSS classes', async () => {
-    const result = await tool.run({ files: [img('my icon@2x.png', 5, 5)], options: {} });
+    mock = install([{ width: 5, height: 5 }]);
+    const result = await tool.run({
+      files: [makeFile('my icon@2x.png')],
+      options: {},
+    });
     const rows = readRows(result.report?.output);
     expect(rows[0]![1]).toContain('.sprite-my-icon-2x');
   });
 
+  it('handles a Unicode file name', async () => {
+    mock = install([{ width: 5, height: 5 }]);
+    const result = await tool.run({ files: [makeFile('图标.png')], options: {} });
+    const rows = readRows(result.report?.output);
+    expect(rows[0]![1]).toContain('.sprite-图标');
+  });
+
+  it('draws each sprite at its computed position, leaving padding transparent', async () => {
+    mock = installImageMock({
+      dimensions: [
+        { width: 2, height: 2 },
+        { width: 2, height: 2 },
+      ],
+      colors: [
+        [255, 0, 0, 255],
+        [0, 0, 255, 255],
+      ],
+      pixelOutput: true,
+    });
+    const result = await tool.run({
+      files: [makeFile('a.png'), makeFile('b.png')],
+      options: { layout: 'horizontal', padding: 1 },
+    });
+    // Two 2×2 sprites with a 1px gap produce a 5×2 sheet.
+    expect(result.stats).toMatchObject({ sprites: 2, width: 5, height: 2 });
+    const pixels = await blobPixels(result.outputs[0]!.blob);
+    expect(pixelAt(pixels, 5, 0, 0)).toEqual([255, 0, 0, 255]);
+    expect(pixelAt(pixels, 5, 2, 0)).toEqual([0, 0, 0, 0]); // padding gap stays transparent
+    expect(pixelAt(pixels, 5, 3, 0)).toEqual([0, 0, 255, 255]);
+  });
+
   it('exports WebP when requested', async () => {
-    const result = await tool.run({ files: [img('a.png', 5, 5)], options: { format: 'webp' } });
+    mock = install([{ width: 5, height: 5 }]);
+    const result = await tool.run({ files: [makeFile('a.png')], options: { format: 'webp' } });
     expect(result.outputs[0]!.filename).toBe('spritesheet.webp');
     expect(result.outputs[0]!.blob.type).toBe('image/webp');
   });
 
   it('reports a friendly error when the browser cannot encode WebP', async () => {
-    setFakeBlobType('image/png');
+    mock = install([{ width: 5, height: 5 }]);
+    mock.setBlobType('image/png');
     await expect(
-      tool.run({ files: [img('a.png', 5, 5)], options: { format: 'webp' } }),
-    ).rejects.toThrow(/cannot encode image\/webp/i);
+      tool.run({ files: [makeFile('a.png')], options: { format: 'webp' } }),
+    ).rejects.toThrow(/cannot encode WEBP images/i);
   });
 
   it('rejects empty and non-image selections', async () => {
+    mock = installImageMock();
     await expect(tool.run({ files: [], options: {} })).rejects.toThrow(/Choose an image file/i);
     const file = new File(['x'], 'note.txt', { type: 'text/plain' });
     await expect(tool.run({ files: [file], options: {} })).rejects.toThrow(/not an image/i);
   });
 
+  it('rejects a source image that is too large', async () => {
+    mock = install([{ width: 20_000, height: 1 }]);
+    await expect(tool.run({ files: [makeFile('huge.png')], options: {} })).rejects.toThrow(
+      /too large/i,
+    );
+  });
+
   it('rethrows decode failures as a ToolError', async () => {
-    setFakeDecoder(() => {
+    mock = installImageMock();
+    mock.setDecoder(() => {
       throw new Error('boom');
     });
-    await expect(tool.run({ files: [img('a.png', 5, 5)], options: {} })).rejects.toThrow(
+    await expect(tool.run({ files: [makeFile('a.png')], options: {} })).rejects.toThrow(
       /could not be decoded/i,
     );
   });
 
   it('honours an aborted signal', async () => {
+    mock = installImageMock();
     const controller = new AbortController();
     controller.abort();
     await expect(
-      tool.run({ files: [img('a.png', 5, 5)], options: {}, signal: controller.signal }),
+      tool.run({ files: [makeFile('a.png')], options: {}, signal: controller.signal }),
     ).rejects.toThrow(/cancelled/i);
   });
 });

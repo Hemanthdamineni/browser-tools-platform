@@ -13,7 +13,13 @@ export const meta: ToolMeta = {
   accept: 'image/*',
   options: [
     { key: 'include512', label: 'Include 512px favicon', type: 'boolean', default: true },
-    { key: 'background', label: 'Background', type: 'text', default: 'transparent' },
+    {
+      key: 'background',
+      label: 'Background',
+      type: 'text',
+      default: 'transparent',
+      help: '“transparent”, or a hex colour such as #ffffff, fills the letterbox space around non-square art.',
+    },
     {
       key: 'padding',
       label: 'Maskable icon padding (%)',
@@ -21,10 +27,12 @@ export const meta: ToolMeta = {
       default: 0,
       min: 0,
       max: 30,
+      help: 'Safe-zone border applied only to the 512px Android maskable icon.',
     },
   ],
   examples: [{ title: 'Generate favicon assets' }],
   related: ['image-resize', 'image-spritesheet'],
   credits: [{ name: 'fflate', url: 'https://github.com/101arrowz/fflate', license: 'MIT' }],
   status: 'stable',
+  updated: '2026-10-17',
 };

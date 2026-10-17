@@ -1,15 +1,19 @@
 import type { FileToolModule, FileRunInput, FileRunResult } from '@/lib/types';
 import { ToolError } from '@/lib/types';
 import { resolveOptions } from '@/lib/options';
-import { canvasFor, decodeImage } from '@/lib/image';
-import { checkAbort, checkFiles } from './common';
+import { checkFiles } from './common';
+import {
+  assertCanvasBudget,
+  context2d,
+  createCanvas,
+  decodeOriented,
+  encodeCanvas,
+  runBatch,
+} from './image-batch';
 import { meta } from './image-spritesheet.meta';
 
 type Box = { name: string; w: number; h: number };
 type Position = { name: string; x: number; y: number; w: number; h: number };
-
-/** Largest sheet edge a browser canvas can be relied on to allocate. */
-const MAX_DIMENSION = 32768;
 
 /**
  * Shelf-pack sprites into rows. Items are ordered tallest-first and wrapped at a
@@ -45,7 +49,8 @@ function packSprites(items: Box[], padding: number) {
 
 /**
  * Compute sprite positions and the sheet size for a layout. Pure and exported so
- * the geometry can be unit-tested without a canvas.
+ * the geometry can be unit-tested without a canvas. Throws a `ToolError` when a
+ * sheet would exceed the shared canvas budget (so the tab cannot be crashed).
  */
 export function layoutSprites(items: Box[], layout: string, columns: number, pad: number) {
   if (!items.length) throw new ToolError('Choose at least one image.');
@@ -99,15 +104,13 @@ export function layoutSprites(items: Box[], layout: string, columns: number, pad
       w: item.w,
       h: item.h,
     }));
-    const usedColumns = Math.min(cols, items.length);
     const rows = Math.ceil(items.length / cols);
+    const usedColumns = Math.min(cols, items.length);
     width = usedColumns * cellW + (usedColumns - 1) * padding;
     height = rows * cellH + (rows - 1) * padding;
   }
 
-  if (width <= 0 || height <= 0 || width > MAX_DIMENSION || height > MAX_DIMENSION) {
-    throw new ToolError('The sprite sheet dimensions are too large to render.');
-  }
+  assertCanvasBudget(width, height, 'sprite sheet');
   return { positions, width, height };
 }
 
@@ -123,37 +126,29 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   const options = resolveOptions(meta, input.options);
   checkFiles(input.files, true);
 
-  const bitmaps: ImageBitmap[] = [];
-  try {
-    const boxes: Box[] = [];
-    const usedNames = new Map<string, number>();
-    for (let i = 0; i < input.files.length; i++) {
-      checkAbort(input.signal);
-      input.onProgress?.(i / input.files.length, `Decoding ${input.files[i]!.name}`);
-      const bitmap = await decodeImage(input.files[i]!);
-      bitmaps.push(bitmap);
-      boxes.push({
-        name: spriteName(input.files[i]!, i, usedNames),
-        w: bitmap.width,
-        h: bitmap.height,
-      });
-    }
+  const padding = Math.max(0, Math.min(64, Number(options.padding) || 0));
+  const columns = Number(options.columns);
+  const format = options.format === 'webp' ? 'webp' : 'png';
+  const mime = `image/${format}`;
 
-    const layout = layoutSprites(
-      boxes,
-      String(options.layout),
-      Number(options.columns),
-      Number(options.padding),
-    );
-    const canvas = canvasFor(layout.width, layout.height);
-    const ctx = canvas.getContext('2d');
-    if (!ctx) throw new ToolError('Could not create a drawing context.');
+  const bitmaps: ImageBitmap[] = [];
+  const boxes: Box[] = [];
+  const usedNames = new Map<string, number>();
+  try {
+    await runBatch(input.files, input, 'Decoding', async (file, index) => {
+      const bitmap = await decodeOriented(file);
+      assertCanvasBudget(bitmap.width, bitmap.height, `image “${file.name}”`);
+      bitmaps.push(bitmap);
+      boxes.push({ name: spriteName(file, index, usedNames), w: bitmap.width, h: bitmap.height });
+    });
+
+    const layout = layoutSprites(boxes, String(options.layout), columns, padding);
+    input.onProgress?.(0.9, 'Composing sprite sheet');
+    const canvas = createCanvas(layout.width, layout.height, 'sprite sheet');
+    const ctx = context2d(canvas);
     layout.positions.forEach((position, i) => ctx.drawImage(bitmaps[i]!, position.x, position.y));
 
-    const format = options.format === 'webp' ? 'webp' : 'png';
-    const mime = `image/${format}`;
-    const blob = await canvas.convertToBlob({ type: mime });
-    if (blob.type !== mime) throw new ToolError(`This browser cannot encode ${mime}.`);
+    const blob = await encodeCanvas(canvas, mime);
 
     const json = JSON.stringify(
       { width: layout.width, height: layout.height, sprites: layout.positions },
@@ -163,7 +158,7 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
     const css = layout.positions
       .map(
         (position) =>
-          `.sprite-${position.name.replace(/[^\w-]/g, '-')} { width: ${position.w}px; height: ${position.h}px; background-position: -${position.x}px -${position.y}px; }`,
+          `.sprite-${position.name.replace(/[^\w\u00c0-\uffff-]/g, '-')} { width: ${position.w}px; height: ${position.h}px; background-position: -${position.x}px -${position.y}px; }`,
       )
       .join('\n');
 

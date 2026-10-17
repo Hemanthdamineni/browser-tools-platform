@@ -1,11 +1,19 @@
 import type { FileToolModule, FileRunInput, FileRunResult } from '@/lib/types';
 import { ToolError } from '@/lib/types';
 import { resolveOptions } from '@/lib/options';
-import { canvasFor } from '@/lib/image';
-import { checkAbort } from './common';
+import { resolveBackground } from './common';
+import {
+  assertCanvasBudget,
+  context2d,
+  createCanvas,
+  encodeCanvas,
+  throwIfAborted,
+} from './image-batch';
+import { assertSafeSvg, normalizeSvgSize } from './svg-safety';
 import { meta } from './svg-to-png.meta';
 
-const MAX_DIMENSION = 16384;
+/** Refuse pathologically large SVG source text before parsing it. */
+export const MAX_SVG_BYTES = 8 * 1024 * 1024;
 
 /**
  * Read the intrinsic size of an SVG from its `width`/`height` attributes, falling
@@ -66,19 +74,34 @@ export function outputSize(
 async function run(input: FileRunInput): Promise<FileRunResult> {
   if (input.files.length !== 1) throw new ToolError('Choose one SVG file.');
   const file = input.files[0]!;
-  checkAbort(input.signal);
-  input.onProgress?.(0, 'Reading SVG');
-
-  const text = await file.text();
-  const o = resolveOptions(meta, input.options);
-  const base = intrinsicSize(text);
-  const { w, h } = outputSize(base.w, base.h, { scale: o.scale, width: o.width, height: o.height });
-  if (w < 1 || h < 1 || w > MAX_DIMENSION || h > MAX_DIMENSION) {
+  const isSvg = file.type === 'image/svg+xml' || /\.svg$/i.test(file.name);
+  if (!isSvg) {
     throw new ToolError(
-      'The requested output size is out of range.',
-      'Reduce the scale or the width/height override.',
+      'The selected file is not an SVG document.',
+      'Choose a file with a .svg extension.',
     );
   }
+  throwIfAborted(input.signal);
+  if (file.size > MAX_SVG_BYTES) {
+    throw new ToolError(
+      'That SVG is too large to rasterise safely.',
+      `The limit is ${MAX_SVG_BYTES / (1024 * 1024)} MB. Simplify or optimise the artwork first.`,
+    );
+  }
+
+  input.onProgress?.(0, 'Reading SVG');
+  const text = await file.text();
+
+  // Privacy: reject scripts, event handlers and any external reference before
+  // the bytes are handed to the decoder.
+  assertSafeSvg(text);
+
+  const o = resolveOptions(meta, input.options);
+  const base = intrinsicSize(text);
+  const size = outputSize(base.w, base.h, { scale: o.scale, width: o.width, height: o.height });
+  assertCanvasBudget(size.w, size.h, 'output');
+  const background = resolveBackground(o.background);
+
   if (typeof createImageBitmap !== 'function') {
     throw new ToolError(
       'Your browser cannot rasterize SVG files.',
@@ -86,30 +109,31 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
     );
   }
 
+  throwIfAborted(input.signal);
+  input.onProgress?.(0.4, 'Rasterizing SVG');
   let bitmap: ImageBitmap | null = null;
   try {
+    // Pin the intrinsic size so rasterisation is deterministic, then scale.
+    const normalized = normalizeSvgSize(text, base.w, base.h);
     try {
-      bitmap = await createImageBitmap(new Blob([text], { type: 'image/svg+xml' }));
+      bitmap = await createImageBitmap(new Blob([normalized], { type: 'image/svg+xml' }));
     } catch {
       throw new ToolError(
         'The SVG could not be rasterized.',
         'Check that the SVG is well-formed and self-contained.',
       );
     }
-    checkAbort(input.signal);
+    throwIfAborted(input.signal);
 
-    const canvas = canvasFor(w, h);
-    const ctx = canvas.getContext('2d');
-    if (!ctx) throw new ToolError('Could not create a drawing context.');
-    const background = String(o.background);
+    const canvas = createCanvas(size.w, size.h, 'output');
+    const ctx = context2d(canvas);
     if (background !== 'transparent') {
       ctx.fillStyle = background;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
     ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
 
-    const blob = await canvas.convertToBlob({ type: 'image/png' });
-    if (blob.type !== 'image/png') throw new ToolError('This browser could not encode a PNG.');
+    const blob = await encodeCanvas(canvas, 'image/png');
     input.onProgress?.(1, 'Done');
     return {
       outputs: [{ filename: `${file.name.replace(/\.svg$/i, '') || 'image'}.png`, blob }],

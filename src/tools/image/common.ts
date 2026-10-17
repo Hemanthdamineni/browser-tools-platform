@@ -26,7 +26,11 @@ export function outputMime(format: unknown, source: string): string {
 }
 
 export function extension(mime: string): string {
-  return mime === 'image/jpeg' ? 'jpg' : mime === 'image/svg+xml' ? 'svg' : mime.split('/')[1] ?? 'png';
+  return mime === 'image/jpeg'
+    ? 'jpg'
+    : mime === 'image/svg+xml'
+      ? 'svg'
+      : (mime.split('/')[1] ?? 'png');
 }
 
 export async function decode(file: File) {
@@ -34,9 +38,17 @@ export async function decode(file: File) {
   return decodeImage(file);
 }
 
-export async function encode(source: ImageBitmap | OffscreenCanvas, mime: string, quality?: number): Promise<Blob> {
+export async function encode(
+  source: ImageBitmap | OffscreenCanvas,
+  mime: string,
+  quality?: number,
+): Promise<Blob> {
   const blob = await drawToBlob(source, { type: mime, quality });
-  if (blob.type !== mime) throw new ToolError(`This browser cannot encode ${mime.replace('image/', '')}.`, 'Try WebP or PNG.');
+  if (blob.type !== mime)
+    throw new ToolError(
+      `This browser cannot encode ${mime.replace('image/', '')}.`,
+      'Try WebP or PNG.',
+    );
   return blob;
 }
 
@@ -45,4 +57,22 @@ export function parseHexColor(color: string): [number, number, number] | null {
   if (!m) return null;
   const s = m[1]!.length === 3 ? [...m[1]!].map((c) => c + c).join('') : m[1]!;
   return [parseInt(s.slice(0, 2), 16), parseInt(s.slice(2, 4), 16), parseInt(s.slice(4, 6), 16)];
+}
+
+/**
+ * Validate a "background" text option shared by the icon/raster tools. Accepts
+ * `transparent` or a 3/6-digit hex colour and returns a CSS colour. Anything
+ * else is a user error rather than a silently ignored value.
+ */
+export function resolveBackground(value: unknown): string {
+  const raw = String(value ?? 'transparent').trim();
+  if (raw === 'transparent') return raw;
+  const rgb = parseHexColor(raw);
+  if (!rgb) {
+    throw new ToolError(
+      'Enter “transparent” or a hex colour such as #ffffff.',
+      'Use a 3- or 6-digit hex value.',
+    );
+  }
+  return `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
 }

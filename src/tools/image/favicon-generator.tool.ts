@@ -1,9 +1,16 @@
 import type { FileToolModule, FileRunInput, FileRunResult } from '@/lib/types';
-import { ToolError } from '@/lib/types';
 import { resolveOptions } from '@/lib/options';
-import { canvasFor, decodeImage } from '@/lib/image';
-import { checkAbort, checkFiles } from './common';
+import { checkFiles, resolveBackground } from './common';
+import {
+  assertCanvasBudget,
+  context2d,
+  createCanvas,
+  decodeOriented,
+  encodeCanvas,
+  throwIfAborted,
+} from './image-batch';
 import { zipSync } from 'fflate';
+import { assertSafeSvg } from './svg-safety';
 import { meta } from './favicon-generator.meta';
 
 /**
@@ -80,38 +87,52 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   const o = resolveOptions(meta, input.options);
   checkFiles(input.files);
   const file = input.files[0]!;
-  checkAbort(input.signal);
-  input.onProgress?.(0, 'Rendering icons');
+  throwIfAborted(input.signal);
 
-  const source = await decodeImage(file);
+  // A dropped logo may be an SVG; reject external references before decoding it.
+  if (file.type === 'image/svg+xml' || /\.svg$/i.test(file.name)) {
+    assertSafeSvg(await file.text());
+  }
+
+  const background = resolveBackground(o.background);
+  const paddingPct = Number(o.padding);
+  const include512 = o.include512 !== false;
+
+  input.onProgress?.(0, 'Decoding source image');
+  const source = await decodeOriented(file);
   try {
+    assertCanvasBudget(source.width, source.height, 'source image');
+
     const sizes = [16, 32, 48, 180, 192];
-    if (o.include512) sizes.push(512);
+    if (include512) sizes.push(512);
+    const total = sizes.length + 1; // + the maskable safe-zone render
+    let done = 0;
 
-    const background = String(o.background);
-    const paddingPct = Number(o.padding);
-
-    const render = async (size: number, padding: number): Promise<Uint8Array> => {
-      const canvas = canvasFor(size, size);
-      const ctx = canvas.getContext('2d');
-      if (!ctx) throw new ToolError('Could not create a drawing context.');
+    const render = async (size: number, padding: number, label: string): Promise<Uint8Array> => {
+      throwIfAborted(input.signal);
+      input.onProgress?.(done / total, label);
+      const canvas = createCanvas(size, size, 'icon canvas');
+      const ctx = context2d(canvas);
       if (background !== 'transparent') {
         ctx.fillStyle = background;
         ctx.fillRect(0, 0, size, size);
       }
       const rect = resizeMath(source.width, source.height, size, padding);
       ctx.drawImage(source, rect.x, rect.y, rect.w, rect.h);
-      const blob = await canvas.convertToBlob({ type: 'image/png' });
-      if (blob.type !== 'image/png') throw new ToolError('Could not encode PNG icons.');
+      const blob = await encodeCanvas(canvas, 'image/png');
+      done += 1;
       return new Uint8Array(await blob.arrayBuffer());
     };
 
     const icons: Record<string, Uint8Array> = {};
-    for (const size of sizes) icons[`favicon-${size}.png`] = await render(size, 0);
+    for (const size of sizes) {
+      icons[`favicon-${size}.png`] = await render(size, 0, `Rendering ${size}px icon`);
+    }
     icons['apple-touch-icon.png'] = icons['favicon-180.png']!;
     // Android maskable icons keep a safe-zone border; padding only applies here.
-    icons['icon-maskable-512.png'] = await render(512, paddingPct);
+    icons['icon-maskable-512.png'] = await render(512, paddingPct, 'Rendering maskable icon');
 
+    throwIfAborted(input.signal);
     const ico = icoEntries(
       [icons['favicon-16.png']!, icons['favicon-32.png']!, icons['favicon-48.png']!],
       [16, 32, 48],
@@ -129,17 +150,23 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
       {
         name: 'Web App',
         icons: Object.keys(icons)
-          .concat(['favicon.ico'])
           .map((name) => {
             const size = ICON_SIZES[name] ?? 32;
             return {
               src: `/${name}`,
               sizes: `${size}x${size}`,
-              type: name.endsWith('.ico') ? 'image/x-icon' : 'image/png',
+              type: 'image/png',
               purpose: name.includes('maskable') ? 'maskable' : undefined,
             };
           })
-          .filter((icon) => icon.type !== 'image/x-icon'),
+          .concat([
+            {
+              src: '/favicon.ico',
+              sizes: '32x32',
+              type: 'image/x-icon',
+              purpose: undefined,
+            },
+          ]),
       },
       null,
       2,

@@ -18,10 +18,13 @@ export const meta: ToolMeta = {
       label: 'Layout',
       type: 'select',
       default: 'grid',
-      choices: ['grid', 'horizontal', 'vertical', 'packed'].map((value) => ({
-        value,
-        label: value,
-      })),
+      choices: [
+        { value: 'grid', label: 'Grid' },
+        { value: 'horizontal', label: 'Horizontal row' },
+        { value: 'vertical', label: 'Vertical column' },
+        { value: 'packed', label: 'Packed' },
+      ],
+      help: 'Packed tiles sprites tightly by area; grid keeps a uniform cell size.',
     },
     {
       key: 'columns',
@@ -47,4 +50,5 @@ export const meta: ToolMeta = {
   examples: [{ title: 'Grid sprite sheet' }],
   related: ['favicon-generator', 'image-resize'],
   status: 'stable',
+  updated: '2026-10-17',
 };

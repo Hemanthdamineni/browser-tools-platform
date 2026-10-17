@@ -20,16 +20,22 @@ export const meta: ToolMeta = {
       default: 10,
       min: 0,
       max: 100,
+      help: 'A pixel counts as different when its largest RGBA channel delta exceeds this percentage.',
     },
     {
       key: 'output',
       label: 'Visualization',
       type: 'select',
       default: 'heatmap',
-      choices: ['heatmap', 'highlight', 'side-by-side'].map((value) => ({ value, label: value })),
+      choices: [
+        { value: 'heatmap', label: 'Heatmap' },
+        { value: 'highlight', label: 'Highlight' },
+        { value: 'side-by-side', label: 'Side by side' },
+      ],
     },
   ],
   examples: [{ title: 'Compare two images' }],
   related: ['diff-text', 'image-metadata'],
   status: 'stable',
+  updated: '2026-10-17',
 };

@@ -44,9 +44,11 @@ export const meta: ToolMeta = {
       label: 'Background (transparent or hex)',
       type: 'text',
       default: 'transparent',
+      help: '“transparent”, or a hex colour such as #ffffff behind the artwork.',
     },
   ],
   examples: [{ title: 'Rasterize SVG at 2×' }],
   related: ['image-convert', 'image-resize'],
   status: 'stable',
+  updated: '2026-10-17',
 };
