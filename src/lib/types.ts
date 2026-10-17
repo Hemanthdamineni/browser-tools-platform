@@ -120,6 +120,11 @@ export interface ToolMeta {
   accept?: string;
   /** Allow selecting multiple files. */
   multiple?: boolean;
+  /**
+   * Render the live camera panel above the workbench. Used by scanning tools
+   * that can capture from `getUserMedia` as well as accept files.
+   */
+  camera?: boolean;
   options?: ToolOption[];
   /** Runnable examples — one click fills the workbench. */
   examples?: { title: string; input?: string; options?: OptionValues }[];

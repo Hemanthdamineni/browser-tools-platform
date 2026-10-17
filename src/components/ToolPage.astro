@@ -6,6 +6,7 @@ import Icon from './Icon.astro';
 import PrivacyBadge from './PrivacyBadge.astro';
 import TextWorkbench from './workbench/TextWorkbench.astro';
 import FileWorkbench from './workbench/FileWorkbench.astro';
+import CameraPanel from './workbench/CameraPanel.astro';
 import ToolCard from './ToolCard.astro';
 
 interface Props { meta: ToolMeta; }
@@ -36,6 +37,7 @@ const related = relatedTools(meta);
   </header>
 
   <div class="mt-7">
+    {meta.camera && <CameraPanel meta={meta} />}
     {meta.input === 'file' ? <FileWorkbench meta={meta} /> : <TextWorkbench meta={meta} />}
   </div>
 

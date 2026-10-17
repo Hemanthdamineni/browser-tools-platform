@@ -1,0 +1,113 @@
+---
+import type { ToolMeta } from '@/lib/types';
+import Icon from '@/components/Icon.astro';
+
+interface Props {
+  meta: ToolMeta;
+}
+const { meta } = Astro.props;
+const headingId = `${meta.id}-camera-heading`;
+const statusId = `${meta.id}-camera-status`;
+const deviceId = `${meta.id}-camera-device`;
+---
+
+<section
+  class="surface mb-4 rounded-lg p-4 sm:p-6"
+  data-camera-panel
+  data-tool-id={meta.id}
+  aria-labelledby={headingId}
+>
+  <div class="flex flex-wrap items-center gap-2">
+    <h2
+      id={headingId}
+      class="flex items-center gap-2 text-base font-semibold text-[rgb(var(--text))]"
+    >
+      <Icon name="camera" size={18} /> Scan with your camera
+    </h2>
+    <span class="chip">Beta</span>
+  </div>
+  <p class="mt-1.5 max-w-prose text-sm leading-relaxed text-[rgb(var(--text-muted))]">
+    Point your camera at a QR code or barcode. Frames are analysed in this tab only — nothing is
+    recorded, stored or uploaded. Camera access needs an https:// page, and your browser will ask
+    for permission the first time.
+  </p>
+
+  <div class="mt-4 flex flex-wrap items-center gap-2.5">
+    <button type="button" class="btn btn-primary" data-camera-start>
+      <Icon name="camera" size={16} /> Start camera
+    </button>
+    <button type="button" class="btn btn-ghost" data-camera-stop hidden>
+      <Icon name="stop" size={14} /> Stop camera
+    </button>
+    <button type="button" class="btn btn-subtle" data-camera-scan hidden>
+      <Icon name="zap" size={14} /> Check this frame
+    </button>
+  </div>
+
+  <div class="mt-3 flex flex-wrap items-center gap-2" data-camera-device-wrap hidden>
+    <label for={deviceId} class="text-xs font-medium text-[rgb(var(--text-muted))]">Camera</label>
+    <select id={deviceId} class="field !w-auto !py-1 text-sm" data-camera-device></select>
+  </div>
+
+  <p
+    id={statusId}
+    class="mt-3 text-sm text-[rgb(var(--text-muted))]"
+    data-camera-status
+    role="status"
+    aria-live="polite"
+  >
+    Camera off.
+  </p>
+
+  <div
+    class="mt-3 rounded-lg border px-3 py-2 text-sm"
+    style="background-color: rgb(var(--danger-soft)); border-color: rgb(var(--danger)); color: rgb(var(--danger))"
+    role="alert"
+    data-camera-error
+    hidden
+  >
+  </div>
+
+  <div class="mt-3" hidden data-camera-stage>
+    <video
+      class="w-full max-w-sm rounded-lg border bg-black"
+      data-camera-video
+      playsinline
+      muted
+      autoplay
+      aria-label="Live camera preview"></video>
+  </div>
+
+  <div
+    class="mt-3 text-xs text-[rgb(var(--text-muted))]"
+    hidden
+    data-camera-loading
+    aria-live="polite"
+  >
+    Loading the fallback decoder… this is a one-time download served from this site.
+  </div>
+
+  <div class="mt-4 space-y-3" data-camera-results></div>
+
+  <noscript>
+    <p class="mt-3 text-sm text-[rgb(var(--text-muted))]">
+      Live scanning needs JavaScript. You can still upload an image below.
+    </p>
+  </noscript>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-camera-panel]').forEach((panel) => {
+    // The panel's logic is loaded on demand so no camera code ships to pages
+    // that don't use it.
+    void import('./camera-panel')
+      .then(({ mountCameraPanel }) => mountCameraPanel(panel))
+      .catch(() => {
+        const error = panel.querySelector<HTMLElement>('[data-camera-error]');
+        if (error) {
+          error.hidden = false;
+          error.textContent = 'The camera panel could not be loaded in this browser.';
+        }
+      });
+  });
+</script>

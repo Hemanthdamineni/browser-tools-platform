@@ -9,6 +9,7 @@ visitor's browser.
 - diff               — BSD-3-Clause — https://github.com/kpdecker/jsdiff
 - marked             — MIT      — https://github.com/markedjs/marked
 - qrcode-generator   — MIT      — https://github.com/kazuhikoarase/qrcode-generator
+- jsqr               — Apache-2.0 — https://github.com/cozmo/jsQR
 - cronstrue          — MIT      — https://github.com/bradymholt/cronstrue
 
 Build-time only (not shipped to visitors): astro, tailwindcss, typescript,
