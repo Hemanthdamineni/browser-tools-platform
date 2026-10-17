@@ -11,6 +11,12 @@ visitor's browser.
 - qrcode-generator   — MIT      — https://github.com/kazuhikoarase/qrcode-generator
 - jsqr               — Apache-2.0 — https://github.com/cozmo/jsQR
 - cronstrue          — MIT      — https://github.com/bradymholt/cronstrue
+- @huggingface/transformers — Apache-2.0 — https://github.com/huggingface/transformers.js
+- onnxruntime-web     — MIT      — https://github.com/microsoft/onnxruntime
+
+Model weights are downloaded at runtime from the Hugging Face Hub only for
+models on the reviewed, permissively-licensed allow-list in
+`src/lib/ml/licenses.ts`; they are not redistributed with the site.
 
 Build-time only (not shipped to visitors): astro, tailwindcss, typescript,
 vitest, playwright, eslint, prettier.

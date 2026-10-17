@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "@astrojs/tailwind": "^5.1.5",
+    "@huggingface/transformers": "^4.3.1",
     "astro": "^4.16.19",
     "compromise": "^14.17.0",
     "cronstrue": "^3.24.0",
