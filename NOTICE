@@ -10,8 +10,17 @@ visitor's browser.
 - marked             — MIT      — https://github.com/markedjs/marked
 - qrcode-generator   — MIT      — https://github.com/kazuhikoarase/qrcode-generator
 - cronstrue          — MIT      — https://github.com/bradymholt/cronstrue
+- tesseract.js       — Apache-2.0 — https://github.com/naptha/tesseract.js
+- tesseract.js-core  — Apache-2.0 — https://github.com/naptha/tesseract.js-core
+- @tesseract.js-data
+  (eng, deu, fra, spa language models) — MIT — https://github.com/naptha/tessdata
 
 Build-time only (not shipped to visitors): astro, tailwindcss, typescript,
 vitest, playwright, eslint, prettier.
+
+The OCR engine's worker, wasm core and language models are copied into
+`public/ocr/` by `scripts/gen-ocr-assets.mjs` (run by `npm run build`), so the
+image-ocr tool loads them from this site rather than a CDN. Their licence files
+are copied alongside them.
 
 Full licence texts are in the corresponding node_modules/<pkg>/LICENSE files.
