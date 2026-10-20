@@ -7,8 +7,20 @@ const MAX_LENGTH = 2_000_000;
 
 /** Tags that never have children and never get an indented body. */
 const VOID_TAGS = new Set([
-  'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link',
-  'meta', 'param', 'source', 'track', 'wbr',
+  'area',
+  'base',
+  'br',
+  'col',
+  'embed',
+  'hr',
+  'img',
+  'input',
+  'link',
+  'meta',
+  'param',
+  'source',
+  'track',
+  'wbr',
 ]);
 
 /** Elements whose content is copied verbatim and never re-indented. */
@@ -16,11 +28,47 @@ const RAW_TAGS = new Set(['pre', 'textarea', 'script', 'style', 'xmp']);
 
 /** Elements that introduce a line break between siblings. */
 const BLOCK_TAGS = new Set([
-  'address', 'article', 'aside', 'blockquote', 'body', 'dd', 'details',
-  'div', 'dl', 'dt', 'fieldset', 'figcaption', 'figure', 'footer', 'form',
-  'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'head', 'header', 'hgroup', 'html',
-  'li', 'main', 'menu', 'nav', 'ol', 'p', 'section', 'summary', 'table',
-  'tbody', 'td', 'tfoot', 'th', 'thead', 'tr', 'ul',
+  'address',
+  'article',
+  'aside',
+  'blockquote',
+  'body',
+  'dd',
+  'details',
+  'div',
+  'dl',
+  'dt',
+  'fieldset',
+  'figcaption',
+  'figure',
+  'footer',
+  'form',
+  'h1',
+  'h2',
+  'h3',
+  'h4',
+  'h5',
+  'h6',
+  'head',
+  'header',
+  'hgroup',
+  'html',
+  'li',
+  'main',
+  'menu',
+  'nav',
+  'ol',
+  'p',
+  'section',
+  'summary',
+  'table',
+  'tbody',
+  'td',
+  'tfoot',
+  'th',
+  'thead',
+  'tr',
+  'ul',
 ]);
 
 type Token =
@@ -92,7 +140,10 @@ function tokenize(src: string): Token[] {
     if (src[i + 1] === '/') {
       const end = findTagEnd(src, i + 2);
       const stop = end === -1 ? n : end + 1;
-      const name = src.slice(i + 2, end === -1 ? n : end).trim().toLowerCase();
+      const name = src
+        .slice(i + 2, end === -1 ? n : end)
+        .trim()
+        .toLowerCase();
       tokens.push({ kind: 'close', name, raw: src.slice(i, stop) });
       i = stop;
       continue;
@@ -236,7 +287,8 @@ function renderElementLines(node: Node & { type: 'element' }, depth: number, ctx
       (ctx.prettyComments && child.type === 'comment'),
   );
   const multiLineOpen = openLines.length > 1;
-  const childLines = multiLineOpen || blockChildren ? renderChildLines(node.children, depth + 1, ctx) : [];
+  const childLines =
+    multiLineOpen || blockChildren ? renderChildLines(node.children, depth + 1, ctx) : [];
   const closeLine = pad + '</' + node.name + '>';
 
   if (!blockChildren && !multiLineOpen) {
@@ -293,7 +345,13 @@ function renderNodes(nodes: Node[], ctx: Ctx): string[] {
   return renderChildLines(nodes, 0, ctx);
 }
 
-function prettify(input: string, indentSize: number, useTabs: boolean, inlineMax: number, prettyComments: boolean): string {
+function prettify(
+  input: string,
+  indentSize: number,
+  useTabs: boolean,
+  inlineMax: number,
+  prettyComments: boolean,
+): string {
   const tokens = tokenize(input);
   const tree = buildTree(tokens);
   const ctx: Ctx = {
@@ -323,7 +381,10 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     throw new ToolError('Paste some HTML to prettify.', 'Example: <div><p>Hello</p></div>');
   }
   if (html.length > MAX_LENGTH) {
-    throw new ToolError('HTML is too large.', `Keep it under ${MAX_LENGTH.toLocaleString('en-US')} characters.`);
+    throw new ToolError(
+      'HTML is too large.',
+      `Keep it under ${MAX_LENGTH.toLocaleString('en-US')} characters.`,
+    );
   }
 
   const result = prettify(html, indentSize, useTabs, inlineMax, prettyComments);
@@ -339,7 +400,9 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
       prettyBytes,
       tags: (result.match(/<[a-zA-Z]/g) ?? []).length,
     },
-    notes: [`Formatted ${originalBytes} → ${prettyBytes} bytes at indent ${useTabs ? 'tabs' : indentSize}.`],
+    notes: [
+      `Formatted ${originalBytes} → ${prettyBytes} bytes at indent ${useTabs ? 'tabs' : indentSize}.`,
+    ],
   };
 }
 

@@ -3,8 +3,76 @@ import { ToolError } from '@/lib/types';
 import { resolveOptions } from '@/lib/options';
 import { meta } from './last-modified.meta';
 
-const IMF = /^(Mon|Tue|Wed|Thu|Fri|Sat|Sun), \d{2} (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{4} \d{2}:\d{2}:\d{2} GMT$/;
-function inspect(value: string): { date: string; issues: string[] } { const date = value.trim(); const issues: string[] = []; if (!IMF.test(date)) { const parsed = Date.parse(date); issues.push(Number.isNaN(parsed) ? 'Invalid HTTP-date; expected IMF-fixdate such as Wed, 21 Oct 2015 07:28:00 GMT' : 'Use IMF-fixdate; this appears to be an obsolete HTTP-date form'); } else { const parsed = Date.parse(date); if (Number.isNaN(parsed)) issues.push('Invalid calendar date'); else if (parsed > Date.now() + 300000) issues.push('Timestamp is more than five minutes in the future; check clock skew'); } return { date, issues }; }
-function run(input: TextRunInput): TextRunResult { const options = resolveOptions(meta, input.options); const mode = String(options.mode); if (mode !== 'build' && mode !== 'analyze') throw new ToolError('Choose a supported Last-Modified mode.'); const result = inspect(mode === 'build' ? String(options.date) : input.text); if (mode === 'build') { if (result.issues.length) throw new ToolError(result.issues[0]!); return { output: result.date, render: 'code', language: 'http', filename: 'last-modified.txt', stats: { format: 'IMF-fixdate' } }; } const values = input.text.split(/\r\n|\r|\n/).map((value) => value.trim()).filter(Boolean); if (!values.length) return { output: JSON.stringify({ headers: ['Date', 'Status', 'Assessment'], rows: [] }), render: 'table', notes: ['Paste one Last-Modified HTTP-date value.'] }; const rows = values.map((value) => { const inspected = inspect(value); return [value, inspected.issues.some((issue) => issue.startsWith('Invalid')) ? 'Invalid' : inspected.issues.length ? 'Review' : 'Valid', inspected.issues.join('; ') || 'IMF-fixdate']; }); return { output: JSON.stringify({ headers: ['Date', 'Status', 'Assessment'], rows }), render: 'table', stats: { dates: values.length, invalid: rows.filter((row) => row[1] === 'Invalid').length, review: rows.filter((row) => row[1] === 'Review').length }, notes: ['Last-Modified has one-second granularity; strong ETags are usually safer for rapid or concurrent updates.'] }; }
+const IMF =
+  /^(Mon|Tue|Wed|Thu|Fri|Sat|Sun), \d{2} (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{4} \d{2}:\d{2}:\d{2} GMT$/;
+function inspect(value: string): { date: string; issues: string[] } {
+  const date = value.trim();
+  const issues: string[] = [];
+  if (!IMF.test(date)) {
+    const parsed = Date.parse(date);
+    issues.push(
+      Number.isNaN(parsed)
+        ? 'Invalid HTTP-date; expected IMF-fixdate such as Wed, 21 Oct 2015 07:28:00 GMT'
+        : 'Use IMF-fixdate; this appears to be an obsolete HTTP-date form',
+    );
+  } else {
+    const parsed = Date.parse(date);
+    if (Number.isNaN(parsed)) issues.push('Invalid calendar date');
+    else if (parsed > Date.now() + 300000)
+      issues.push('Timestamp is more than five minutes in the future; check clock skew');
+  }
+  return { date, issues };
+}
+function run(input: TextRunInput): TextRunResult {
+  const options = resolveOptions(meta, input.options);
+  const mode = String(options.mode);
+  if (mode !== 'build' && mode !== 'analyze')
+    throw new ToolError('Choose a supported Last-Modified mode.');
+  const result = inspect(mode === 'build' ? String(options.date) : input.text);
+  if (mode === 'build') {
+    if (result.issues.length) throw new ToolError(result.issues[0]!);
+    return {
+      output: result.date,
+      render: 'code',
+      language: 'http',
+      filename: 'last-modified.txt',
+      stats: { format: 'IMF-fixdate' },
+    };
+  }
+  const values = input.text
+    .split(/\r\n|\r|\n/)
+    .map((value) => value.trim())
+    .filter(Boolean);
+  if (!values.length)
+    return {
+      output: JSON.stringify({ headers: ['Date', 'Status', 'Assessment'], rows: [] }),
+      render: 'table',
+      notes: ['Paste one Last-Modified HTTP-date value.'],
+    };
+  const rows = values.map((value) => {
+    const inspected = inspect(value);
+    return [
+      value,
+      inspected.issues.some((issue) => issue.startsWith('Invalid'))
+        ? 'Invalid'
+        : inspected.issues.length
+          ? 'Review'
+          : 'Valid',
+      inspected.issues.join('; ') || 'IMF-fixdate',
+    ];
+  });
+  return {
+    output: JSON.stringify({ headers: ['Date', 'Status', 'Assessment'], rows }),
+    render: 'table',
+    stats: {
+      dates: values.length,
+      invalid: rows.filter((row) => row[1] === 'Invalid').length,
+      review: rows.filter((row) => row[1] === 'Review').length,
+    },
+    notes: [
+      'Last-Modified has one-second granularity; strong ETags are usually safer for rapid or concurrent updates.',
+    ],
+  };
+}
 const tool: TextToolModule = { meta, run };
 export default tool;

@@ -2,8 +2,14 @@ import { describe, expect, it } from 'vitest';
 import { ToolError } from '@/lib/types';
 import tool from './proxy-authorization.tool';
 
-type Result = { output: string; filename?: string; stats?: Record<string, string | number>; notes?: string[] };
-const run = (text: string, options: Record<string, string | number | boolean> = {}) => tool.run({ text, options }) as Result;
+type Result = {
+  output: string;
+  filename?: string;
+  stats?: Record<string, string | number>;
+  notes?: string[];
+};
+const run = (text: string, options: Record<string, string | number | boolean> = {}) =>
+  tool.run({ text, options }) as Result;
 const rows = (result: Result) => JSON.parse(result.output).rows as string[][];
 
 describe('proxy-authorization', () => {
@@ -27,8 +33,12 @@ describe('proxy-authorization', () => {
   });
 
   it('rejects unsafe generated values', () => {
-    expect(() => run('', { mode: 'build', scheme: 'Basic', username: '', password: '' })).toThrow(ToolError);
-    expect(() => run('', { mode: 'build', scheme: 'Bearer', token: 'bad token' })).toThrow(ToolError);
+    expect(() => run('', { mode: 'build', scheme: 'Basic', username: '', password: '' })).toThrow(
+      ToolError,
+    );
+    expect(() => run('', { mode: 'build', scheme: 'Bearer', token: 'bad token' })).toThrow(
+      ToolError,
+    );
   });
 
   it('handles malformed input and blank analysis', () => {
@@ -37,6 +47,8 @@ describe('proxy-authorization', () => {
   });
 
   it('encodes UTF-8 Basic credentials', () => {
-    expect(run('', { mode: 'build', scheme: 'Basic', username: 'usér', password: 'päss' }).output).toContain('Basic ');
+    expect(
+      run('', { mode: 'build', scheme: 'Basic', username: 'usér', password: 'päss' }).output,
+    ).toContain('Basic ');
   });
 });

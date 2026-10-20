@@ -1,7 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import tool from './json-to-java.tool';
 
-type Result = { output: string; render?: string; language?: string; stats?: Record<string, number>; notes?: string[] };
+type Result = {
+  output: string;
+  render?: string;
+  language?: string;
+  stats?: Record<string, number>;
+  notes?: string[];
+};
 const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
   (await tool.run({ text, options })) as Result;
 

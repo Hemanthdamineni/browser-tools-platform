@@ -7,7 +7,9 @@ const run = async (text: string, options: Record<string, string | number | boole
 
 describe('json-to-html-table', () => {
   it('renders an array of objects with a header and rows', async () => {
-    const r = await run('[ { "name": "Ada", "role": "Admin", "active": true }, { "name": "Lin", "role": "Editor", "active": false } ]');
+    const r = await run(
+      '[ { "name": "Ada", "role": "Admin", "active": true }, { "name": "Lin", "role": "Editor", "active": false } ]',
+    );
     expect(r.output).toContain('<table>');
     expect(r.output).toContain('<th>name</th>');
     expect(r.output).toContain('<th>role</th>');
@@ -60,7 +62,9 @@ describe('json-to-html-table', () => {
 
   it('honours zebra and bordered themes', async () => {
     expect((await run('[{"a":1}]', { theme: 'zebra' })).output).toContain('<table class="zebra">');
-    expect((await run('[{"a":1}]', { theme: 'bordered' })).output).toContain('<table class="bordered">');
+    expect((await run('[{"a":1}]', { theme: 'bordered' })).output).toContain(
+      '<table class="bordered">',
+    );
   });
 
   it('rejects non-array, empty and invalid json input', async () => {

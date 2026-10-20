@@ -47,12 +47,14 @@ export const meta: ToolMeta = {
   examples: [
     {
       title: 'Sales dataset',
-      input: 'order_id,product,units,price,note\n1001,Widget,3,9.99,\n1002,Gadget,1,19.50,fig delayed\n1003,Widget,,12.00,',
+      input:
+        'order_id,product,units,price,note\n1001,Widget,3,9.99,\n1002,Gadget,1,19.50,fig delayed\n1003,Widget,,12.00,',
       options: {},
     },
     {
       title: 'Tab-delimited log',
-      input: 'ts\tlevel\tmsg\n2026-01-01T00:00:00Z\tINFO\tstarted\n2026-01-01T00:00:01Z\tWARN\tflaky',
+      input:
+        'ts\tlevel\tmsg\n2026-01-01T00:00:00Z\tINFO\tstarted\n2026-01-01T00:00:01Z\tWARN\tflaky',
       options: { delimiter: 'tab' },
     },
   ],

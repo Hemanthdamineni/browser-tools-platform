@@ -61,7 +61,10 @@ function parseCsv(text: string, delimiter: string): Row[] {
       } else if (ch === ' ' || ch === '\t') {
         value += ch;
       } else {
-        throw new ToolError('Unexpected character after a closing CSV quote.', `At character ${i + 1}.`);
+        throw new ToolError(
+          'Unexpected character after a closing CSV quote.',
+          `At character ${i + 1}.`,
+        );
       }
       continue;
     }
@@ -73,7 +76,10 @@ function parseCsv(text: string, delimiter: string): Row[] {
       if (ch === '\r' && text[i + 1] === '\n') i++;
     } else if (ch === '"') {
       if (!atStart || value.length > 0) {
-        throw new ToolError('Unexpected quote inside an unquoted CSV field.', `At character ${i + 1}.`);
+        throw new ToolError(
+          'Unexpected quote inside an unquoted CSV field.',
+          `At character ${i + 1}.`,
+        );
       }
       inQuotes = true;
       quoted = true;
@@ -84,7 +90,11 @@ function parseCsv(text: string, delimiter: string): Row[] {
     }
   }
 
-  if (inQuotes) throw new ToolError('Unterminated quoted CSV field.', 'A quoted field was opened but never closed.');
+  if (inQuotes)
+    throw new ToolError(
+      'Unterminated quoted CSV field.',
+      'A quoted field was opened but never closed.',
+    );
   if (row.length || value.length || quoted || afterQuote) pushRow();
   else if (rows.length === 0 && text.length === 0) return [];
 
@@ -95,9 +105,7 @@ function parseCsv(text: string, delimiter: string): Row[] {
 }
 
 function isRisky(value: string, trimLeadingWhitespace: boolean): boolean {
-  const candidate = trimLeadingWhitespace
-    ? value.replace(/^[\s\p{Cc}\p{Cf}]+/u, '')
-    : value;
+  const candidate = trimLeadingWhitespace ? value.replace(/^[\s\p{Cc}\p{Cf}]+/u, '') : value;
   return /^[=+\-@]/u.test(candidate);
 }
 
@@ -144,7 +152,9 @@ function run(input: TextRunInput): TextRunResult {
     };
   }
 
-  const output = rows.map((row) => row.map((cell) => encodeCell(cell, delimiter)).join(delimiter)).join('\r\n');
+  const output = rows
+    .map((row) => row.map((cell) => encodeCell(cell, delimiter)).join(delimiter))
+    .join('\r\n');
   return {
     output,
     render: 'code',
@@ -152,7 +162,9 @@ function run(input: TextRunInput): TextRunResult {
     filename: 'sanitized.csv',
     stats: { rows: rows.length, 'risky cells': flagged.length, 'cells protected': changed },
     notes: flagged.length
-      ? ['A protective apostrophe was prefixed to flagged values. Confirm behavior in your target spreadsheet application.']
+      ? [
+          'A protective apostrophe was prefixed to flagged values. Confirm behavior in your target spreadsheet application.',
+        ]
       : ['No formula-leading cells detected.'],
   };
 }

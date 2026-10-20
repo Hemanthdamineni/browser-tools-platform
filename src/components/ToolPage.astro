@@ -9,17 +9,24 @@ import FileWorkbench from './workbench/FileWorkbench.astro';
 import CameraPanel from './workbench/CameraPanel.astro';
 import ToolCard from './ToolCard.astro';
 
-interface Props { meta: ToolMeta; }
+interface Props {
+  meta: ToolMeta;
+}
 const { meta } = Astro.props;
 const category = CATEGORIES[meta.category];
 const related = relatedTools(meta);
 ---
 
 <article class="mx-auto max-w-4xl">
-  <nav class="flex flex-wrap items-center gap-1.5 text-sm text-[rgb(var(--text-muted))]" aria-label="Breadcrumb">
+  <nav
+    class="flex flex-wrap items-center gap-1.5 text-sm text-[rgb(var(--text-muted))]"
+    aria-label="Breadcrumb"
+  >
     <a class="transition-colors hover:text-[rgb(var(--accent))]" href="/tools">Tools</a>
     <Icon name="chevron-right" size={14} class="shrink-0" />
-    <a class="transition-colors hover:text-[rgb(var(--accent))]" href={`/categories/${category.id}`}>{category.name}</a>
+    <a class="transition-colors hover:text-[rgb(var(--accent))]" href={`/categories/${category.id}`}
+      >{category.name}</a
+    >
     <Icon name="chevron-right" size={14} class="shrink-0" />
     <span class="truncate text-[rgb(var(--text))]">{meta.name}</span>
   </nav>
@@ -27,11 +34,14 @@ const related = relatedTools(meta);
   <header class="mt-5">
     <div class="flex flex-wrap items-center gap-2">
       <span class="chip">
-        <Icon name={category.icon} size={14} /> {category.name}
+        <Icon name={category.icon} size={14} />
+        {category.name}
       </span>
       {meta.status === 'beta' && <span class="chip">Beta</span>}
     </div>
-    <h1 class="mt-3 text-2xl font-semibold tracking-[-0.02em] text-[rgb(var(--text))] sm:text-3xl">{meta.name}</h1>
+    <h1 class="mt-3 text-2xl font-semibold tracking-[-0.02em] text-[rgb(var(--text))] sm:text-3xl">
+      {meta.name}
+    </h1>
     <p class="mt-2 max-w-prose leading-relaxed text-[rgb(var(--text-muted))]">{meta.description}</p>
     <div class="mt-4"><PrivacyBadge privacy={meta.privacy} /></div>
   </header>
@@ -41,22 +51,32 @@ const related = relatedTools(meta);
     {meta.input === 'file' ? <FileWorkbench meta={meta} /> : <TextWorkbench meta={meta} />}
   </div>
 
-  {meta.faq && meta.faq.length > 0 && (
-    <section class="mt-14" aria-labelledby="questions-heading">
-      <h2 id="questions-heading" class="text-lg font-bold text-[rgb(var(--text))]">Questions</h2>
-      <div class="mt-4 divide-y overflow-hidden rounded-lg border">
-        {meta.faq.map((f) => (
-          <details class="group px-4 py-4">
-            <summary class="flex cursor-pointer list-none items-center justify-between gap-4 font-medium text-[rgb(var(--text))]">
-              <span>{f.q}</span>
-              <Icon name="chevron-down" size={16} class="shrink-0 transition-transform group-open:rotate-180" />
-            </summary>
-            <p class="mt-2 max-w-prose text-sm leading-relaxed text-[rgb(var(--text-muted))]">{f.a}</p>
-          </details>
-        ))}
-      </div>
-    </section>
-  )}
+  {
+    meta.faq && meta.faq.length > 0 && (
+      <section class="mt-14" aria-labelledby="questions-heading">
+        <h2 id="questions-heading" class="text-lg font-bold text-[rgb(var(--text))]">
+          Questions
+        </h2>
+        <div class="mt-4 divide-y overflow-hidden rounded-lg border">
+          {meta.faq.map((f) => (
+            <details class="group px-4 py-4">
+              <summary class="flex cursor-pointer list-none items-center justify-between gap-4 font-medium text-[rgb(var(--text))]">
+                <span>{f.q}</span>
+                <Icon
+                  name="chevron-down"
+                  size={16}
+                  class="shrink-0 transition-transform group-open:rotate-180"
+                />
+              </summary>
+              <p class="mt-2 max-w-prose text-sm leading-relaxed text-[rgb(var(--text-muted))]">
+                {f.a}
+              </p>
+            </details>
+          ))}
+        </div>
+      </section>
+    )
+  }
 
   <section class="prose-tool mt-14 max-w-prose">
     <h2>How it works</h2>
@@ -65,29 +85,56 @@ const related = relatedTools(meta);
       {meta.input === 'file' ? ' and, for large files, a background Web Worker' : ''} on this device.
       Nothing is uploaded, and the page works offline once it has loaded.
     </p>
-    {meta.privacy.network !== 'none' && (
-      <p>
-        Network use: this tool may contact{' '}
-        {(meta.privacy.network as string[]).map((n) => <code>{n}</code>)}. See the <a href="/privacy">privacy model</a>.
-      </p>
-    )}
-    {meta.credits && meta.credits.length > 0 && (
-      <>
-        <h3>Built with</h3>
-        <ul>
-          {meta.credits.map((c) => <li><a href={c.url} rel="noopener">{c.name}</a> · {c.license}</li>)}
-        </ul>
-      </>
-    )}
+    {
+      meta.privacy.network !== 'none' && (
+        <p>
+          Network use: this tool may contact{' '}
+          {(meta.privacy.network as string[]).map((n) => (
+            <code>{n}</code>
+          ))}
+          . See the <a href="/privacy">privacy model</a>.
+        </p>
+      )
+    }
+    {
+      meta.credits && meta.credits.length > 0 && (
+        <>
+          <h3>Built with</h3>
+          <ul>
+            {meta.credits.map((c) => (
+              <li>
+                <a href={c.url} rel="noopener">
+                  {c.name}
+                </a>{' '}
+                · {c.license}
+              </li>
+            ))}
+          </ul>
+        </>
+      )
+    }
   </section>
 
-  {related.length > 0 && (
-    <section class="mt-14" aria-labelledby="related-heading">
-      <div class="flex items-center justify-between gap-4">
-        <h2 id="related-heading" class="text-lg font-bold text-[rgb(var(--text))]">Related tools</h2>
-        <a class="text-sm font-medium text-[rgb(var(--accent))] hover:underline" href={`/categories/${category.id}`}>See category</a>
-      </div>
-      <div class="mt-4 grid gap-3 sm:grid-cols-2">{related.map((t) => <ToolCard meta={t.meta} showCategory />)}</div>
-    </section>
-  )}
+  {
+    related.length > 0 && (
+      <section class="mt-14" aria-labelledby="related-heading">
+        <div class="flex items-center justify-between gap-4">
+          <h2 id="related-heading" class="text-lg font-bold text-[rgb(var(--text))]">
+            Related tools
+          </h2>
+          <a
+            class="text-sm font-medium text-[rgb(var(--accent))] hover:underline"
+            href={`/categories/${category.id}`}
+          >
+            See category
+          </a>
+        </div>
+        <div class="mt-4 grid gap-3 sm:grid-cols-2">
+          {related.map((t) => (
+            <ToolCard meta={t.meta} showCategory />
+          ))}
+        </div>
+      </section>
+    )
+  }
 </article>

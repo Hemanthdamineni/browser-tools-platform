@@ -2,7 +2,12 @@ import { describe, expect, it } from 'vitest';
 import { ToolError } from '@/lib/types';
 import tool from './csv-sanitize.tool';
 
-type Output = { output: string; render?: string; stats?: Record<string, string | number>; notes?: string[] };
+type Output = {
+  output: string;
+  render?: string;
+  stats?: Record<string, string | number>;
+  notes?: string[];
+};
 const run = (text: string, options: Record<string, string | number | boolean> = {}) =>
   tool.run({ text, options }) as Output;
 
@@ -14,9 +19,12 @@ describe('csv-sanitize', () => {
   });
 
   it('parses quoted delimiters, escaped quotes, and newlines', () => {
-    const input = 'name,note\r\nAda,"line 1, line 2"\r\nLinus,"say ""hi"""\r\nGrace,"=SUM(\nA1:A2)"';
+    const input =
+      'name,note\r\nAda,"line 1, line 2"\r\nLinus,"say ""hi"""\r\nGrace,"=SUM(\nA1:A2)"';
     const out = run(input);
-    expect(out.output).toBe('name,note\r\nAda,"line 1, line 2"\r\nLinus,"say ""hi"""\r\nGrace,"\'=SUM(\nA1:A2)"');
+    expect(out.output).toBe(
+      'name,note\r\nAda,"line 1, line 2"\r\nLinus,"say ""hi"""\r\nGrace,"\'=SUM(\nA1:A2)"',
+    );
     expect(out.stats?.rows).toBe(4);
   });
 
@@ -35,7 +43,10 @@ describe('csv-sanitize', () => {
     expect(out.render).toBe('table');
     expect(JSON.parse(out.output)).toEqual({
       headers: ['Row', 'Column', 'Cell value'],
-      rows: [['1', '2', '=1'], ['2', '1', '+2']],
+      rows: [
+        ['1', '2', '=1'],
+        ['2', '1', '+2'],
+      ],
     });
     expect(out.stats?.['risky cells']).toBe(2);
   });
@@ -43,7 +54,10 @@ describe('csv-sanitize', () => {
   it('returns an empty result for empty input and a useful clean report', () => {
     expect(run('').output).toBe('');
     const report = run('name,value\nAda,ok', { mode: 'report' });
-    expect(JSON.parse(report.output)).toEqual({ headers: ['Row', 'Column', 'Cell value'], rows: [] });
+    expect(JSON.parse(report.output)).toEqual({
+      headers: ['Row', 'Column', 'Cell value'],
+      rows: [],
+    });
     expect(report.notes).toContain('No formula-leading cells detected.');
   });
 

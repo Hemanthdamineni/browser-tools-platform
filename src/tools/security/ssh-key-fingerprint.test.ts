@@ -1,14 +1,22 @@
 import { describe, expect, it } from 'vitest';
 import tool from './ssh-key-fingerprint.tool';
 
-type Result = { output: string; render?: string; stats?: Record<string, string | number>; notes?: string[] };
+type Result = {
+  output: string;
+  render?: string;
+  stats?: Record<string, string | number>;
+  notes?: string[];
+};
 type Table = { headers: string[]; rows: [string, string][] };
 
 const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
   (await tool.run({ text, options })) as Result;
 const table = (r: Result) => JSON.parse(r.output) as Table;
-const get = async (text: string, key: string, options: Record<string, string | number | boolean> = {}) =>
-  table(await run(text, options)).rows.find((row) => row[0] === key)?.[1];
+const get = async (
+  text: string,
+  key: string,
+  options: Record<string, string | number | boolean> = {},
+) => table(await run(text, options)).rows.find((row) => row[0] === key)?.[1];
 
 const ED25519_PUB =
   'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOCcqeCOuC04iszcemK+bZnxDaOqeRHcw5ctlGPywoQ7 edtest@example.com';
@@ -27,25 +35,37 @@ describe('ssh-key-fingerprint', () => {
     expect(await get(ED25519_PUB, 'Key type')).toBe('ssh-ed25519');
     expect(await get(ED25519_PUB, 'Key size')).toBe('256 bits');
     expect(await get(ED25519_PUB, 'Comment')).toBe('edtest@example.com');
-    expect(await get(ED25519_PUB, 'SHA256 fingerprint')).toBe('SHA256:W5AvEHjdwfU10ltHwKZi/BPwSZQzsJrPqcb22XLWk+Y');
-    expect(await get(ED25519_PUB, 'MD5 fingerprint')).toBe('MD5:43:64:5e:4d:f3:c4:d5:6e:c8:df:79:44:69:4c:5a:09');
+    expect(await get(ED25519_PUB, 'SHA256 fingerprint')).toBe(
+      'SHA256:W5AvEHjdwfU10ltHwKZi/BPwSZQzsJrPqcb22XLWk+Y',
+    );
+    expect(await get(ED25519_PUB, 'MD5 fingerprint')).toBe(
+      'MD5:43:64:5e:4d:f3:c4:d5:6e:c8:df:79:44:69:4c:5a:09',
+    );
   });
 
   it('fingerprints an RSA key with the correct bit size', async () => {
     expect(await get(RSA_PUB, 'Key type')).toBe('ssh-rsa');
     expect(await get(RSA_PUB, 'Key size')).toBe('2048 bits');
-    expect(await get(RSA_PUB, 'SHA256 fingerprint')).toBe('SHA256:/ffKZ6vHQ2H/ZJt/9ix2sUUC9m3QwSIduLg9DZXUXs4');
-    expect(await get(RSA_PUB, 'MD5 fingerprint')).toBe('MD5:c5:a6:66:f1:6f:4b:5c:c3:55:55:50:71:62:09:ec:95');
+    expect(await get(RSA_PUB, 'SHA256 fingerprint')).toBe(
+      'SHA256:/ffKZ6vHQ2H/ZJt/9ix2sUUC9m3QwSIduLg9DZXUXs4',
+    );
+    expect(await get(RSA_PUB, 'MD5 fingerprint')).toBe(
+      'MD5:c5:a6:66:f1:6f:4b:5c:c3:55:55:50:71:62:09:ec:95',
+    );
   });
 
   it('accepts a bare base64 blob and detects the type from the blob', async () => {
     expect(await get(ED_BLOB, 'Key type')).toBe('ssh-ed25519');
-    expect(await get(ED_BLOB, 'SHA256 fingerprint')).toBe('SHA256:W5AvEHjdwfU10ltHwKZi/BPwSZQzsJrPqcb22XLWk+Y');
+    expect(await get(ED_BLOB, 'SHA256 fingerprint')).toBe(
+      'SHA256:W5AvEHjdwfU10ltHwKZi/BPwSZQzsJrPqcb22XLWk+Y',
+    );
   });
 
   it('tolerates leading/trailing whitespace', async () => {
     const messy = `\n  ${ED25519_PUB}\n\t`;
-    expect(await get(messy, 'SHA256 fingerprint')).toBe('SHA256:W5AvEHjdwfU10ltHwKZi/BPwSZQzsJrPqcb22XLWk+Y');
+    expect(await get(messy, 'SHA256 fingerprint')).toBe(
+      'SHA256:W5AvEHjdwfU10ltHwKZi/BPwSZQzsJrPqcb22XLWk+Y',
+    );
   });
 
   it('rejects bad base64 with a clear error', async () => {

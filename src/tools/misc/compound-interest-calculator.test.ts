@@ -44,7 +44,13 @@ describe('compound-interest-calculator', () => {
   });
 
   it('contributions follow the ordinary-annuity formula', async () => {
-    const r = await run('annuity', { principal: 0, rate: 12, years: 1, compounding: 'monthly', contribution: 100 });
+    const r = await run('annuity', {
+      principal: 0,
+      rate: 12,
+      years: 1,
+      compounding: 'monthly',
+      contribution: 100,
+    });
     // FV of ordinary annuity = 100 * ((1.01)^12 - 1) / 0.01 ≈ 1268.25
     expect(amount(table(r).rows[0]![4]!)).toBeCloseTo(1268.25, 2);
     expect(amount(table(r).rows[0]![1]!)).toBeCloseTo(0, 2); // start = 0
@@ -64,12 +70,25 @@ describe('compound-interest-calculator', () => {
   });
 
   it('rejects a contribution with continuous compounding', async () => {
-    await expect(run('cont', { principal: 1000, rate: 5, years: 1, compounding: 'continuous', contribution: 100 }))
-      .rejects.toThrow(/continuous.*contribution/i);
+    await expect(
+      run('cont', {
+        principal: 1000,
+        rate: 5,
+        years: 1,
+        compounding: 'continuous',
+        contribution: 100,
+      }),
+    ).rejects.toThrow(/continuous.*contribution/i);
   });
 
   it('stats include ending balance, invested and interest', async () => {
-    const r = await run('stats', { principal: 10000, rate: 5, years: 5, compounding: 'monthly', contribution: 200 });
+    const r = await run('stats', {
+      principal: 10000,
+      rate: 5,
+      years: 5,
+      compounding: 'monthly',
+      contribution: 200,
+    });
     expect(r.stats?.endingBalance).toBeGreaterThan(20000);
     expect(r.stats?.totalInvested).toBeCloseTo(10000 + 200 * 60, 0);
     expect(r.stats?.totalInterest).toBeGreaterThan(0);
@@ -84,7 +103,13 @@ describe('compound-interest-calculator', () => {
   });
 
   it('handles zero rate gracefully', async () => {
-    const r = await run('zero', { principal: 1000, rate: 0, years: 3, compounding: 'annually', contribution: 100 });
+    const r = await run('zero', {
+      principal: 1000,
+      rate: 0,
+      years: 3,
+      compounding: 'annually',
+      contribution: 100,
+    });
     const rows = table(r).rows;
     console.log(JSON.stringify(rows));
     expect(amount(rows[2]![2]!)).toBeCloseTo(100, 0); // contribution per year

@@ -1,9 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import tool, { splitSentences } from './text-summarizer.tool';
 
-type Result = { output: string; render?: string; filename?: string; stats?: Record<string, string | number>; notes?: string[] };
+type Result = {
+  output: string;
+  render?: string;
+  filename?: string;
+  stats?: Record<string, string | number>;
+  notes?: string[];
+};
 
-const run = (text: string, options: Record<string, string | number | boolean> = {}) => tool.run({ text, options }) as Result;
+const run = (text: string, options: Record<string, string | number | boolean> = {}) =>
+  tool.run({ text, options }) as Result;
 
 const SAMPLE = [
   'Cats make wonderful pets.',
@@ -35,7 +42,9 @@ describe('text-summarizer', () => {
     const sentences = result.output.split('. ').map((s) => s.trim());
     expect(sentences).toHaveLength(3);
     expect(result.output).toContain('Cats make wonderful pets.');
-    expect(result.output.indexOf('Many people love cats')).toBeGreaterThan(result.output.indexOf('Cats make wonderful pets.'));
+    expect(result.output.indexOf('Many people love cats')).toBeGreaterThan(
+      result.output.indexOf('Cats make wonderful pets.'),
+    );
   });
 
   it('exposes a compression statistic', () => {
@@ -48,12 +57,17 @@ describe('text-summarizer', () => {
 
   it('does not split on abbreviations, decimals or initials', () => {
     const text = 'Dr. Smith and Mr. Jones met at 3.14 pm. Then Dr. Smith left early.';
-    expect(splitSentences(text)).toEqual(['Dr. Smith and Mr. Jones met at 3.14 pm.', 'Then Dr. Smith left early.']);
+    expect(splitSentences(text)).toEqual([
+      'Dr. Smith and Mr. Jones met at 3.14 pm.',
+      'Then Dr. Smith left early.',
+    ]);
   });
 
   it('split sentences on terminators with uppercase or digit continuation', () => {
     expect(splitSentences('One. Two! Three? Four.')).toEqual(['One.', 'Two!', 'Three?', 'Four.']);
-    expect(splitSentences('No boundary inside 3.14 here.')).toEqual(['No boundary inside 3.14 here.']);
+    expect(splitSentences('No boundary inside 3.14 here.')).toEqual([
+      'No boundary inside 3.14 here.',
+    ]);
   });
 
   it('sets a download filename', () => {

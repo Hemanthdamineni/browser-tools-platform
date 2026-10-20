@@ -4,8 +4,7 @@ export const meta: ToolMeta = {
   id: 'html-to-markdown',
   name: 'HTML to Markdown',
   category: 'developer',
-  summary:
-    'Convert an HTML snippet or page into clean Markdown, on device, no server.',
+  summary: 'Convert an HTML snippet or page into clean Markdown, on device, no server.',
   description:
     'Turn HTML into readable Markdown for docs, wikis, and migration work. Handles headings, paragraphs, ordered and unordered lists, bold/italic/strikethrough, links (inline or reference style), images, fenced code blocks, blockquotes, horizontal rules, and line breaks. Inline style blocks and scripts are dropped, and entities are decoded — all client-side, so nothing leaves the browser.',
   keywords: [

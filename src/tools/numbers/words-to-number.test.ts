@@ -16,7 +16,9 @@ describe('words-to-number', () => {
     expect((await run('one hundred')).output.trim()).toBe('100');
     expect((await run('two hundred and five')).output.trim()).toBe('205');
     expect((await run('three thousand')).output.trim()).toBe('3,000');
-    expect((await run('two billion, four hundred thirty-five million')).output.trim()).toBe('2,435,000,000');
+    expect((await run('two billion, four hundred thirty-five million')).output.trim()).toBe(
+      '2,435,000,000',
+    );
     expect((await run('one million two hundred thirty-four')).output.trim()).toBe('1,000,234');
   });
 

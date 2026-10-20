@@ -3,11 +3,19 @@ import { ToolError } from '@/lib/types';
 import tool from './css-grid.tool';
 
 type Result = { output: string; stats?: Record<string, string | number>; notes?: string[] };
-const run = (options: Record<string, string | number | boolean> = {}) => tool.run({ text: '', options }) as Result;
+const run = (options: Record<string, string | number | boolean> = {}) =>
+  tool.run({ text: '', options }) as Result;
 
 describe('css-grid', () => {
   it('generates a basic grid rule with track and alignment declarations', () => {
-    const result = run({ columns: 'repeat(3, 1fr)', rows: 'auto 1fr', gap: '1rem', selector: '.cards', justifyItems: 'center', alignItems: 'start' });
+    const result = run({
+      columns: 'repeat(3, 1fr)',
+      rows: 'auto 1fr',
+      gap: '1rem',
+      selector: '.cards',
+      justifyItems: 'center',
+      alignItems: 'start',
+    });
     expect(result.output).toContain('.cards {');
     expect(result.output).toContain('grid-template-columns: repeat(3, 1fr);');
     expect(result.output).toContain('grid-template-rows: auto 1fr;');
@@ -16,7 +24,12 @@ describe('css-grid', () => {
   });
 
   it('generates and validates named rectangular areas', () => {
-    const result = run({ columns: '240px 1fr', rows: 'auto 1fr auto', areas: 'header header\nsidebar main\nfooter footer', selector: '.dashboard' });
+    const result = run({
+      columns: '240px 1fr',
+      rows: 'auto 1fr auto',
+      areas: 'header header\nsidebar main\nfooter footer',
+      selector: '.dashboard',
+    });
     expect(result.output).toContain('grid-template-areas:');
     expect(result.output).toContain('"header header"');
     expect(result.output).toContain('"sidebar main"');
@@ -25,7 +38,12 @@ describe('css-grid', () => {
   });
 
   it('supports dot empty cells and explicit gap overrides', () => {
-    const result = run({ areas: 'header header\n. main', gap: '8px', columnGap: '16px', rowGap: '24px' });
+    const result = run({
+      areas: 'header header\n. main',
+      gap: '8px',
+      columnGap: '16px',
+      rowGap: '24px',
+    });
     expect(result.output).toContain('". main"');
     expect(result.output).toContain('column-gap: 16px;');
     expect(result.output).toContain('row-gap: 24px;');

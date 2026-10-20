@@ -78,9 +78,10 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   const o = resolveOptions(meta, input.options);
   const mode = String(o.mode ?? 'auto');
   const encodeAll = o.encodeAll === true;
-  const source = (input.text ?? '');
+  const source = input.text ?? '';
   if (!source.trim()) throw new ToolError('Paste text to encode or decode.');
-  if (source.length > MAX_LEN) throw new ToolError('Input is too large.', 'Keep it under 1,000,000 characters.');
+  if (source.length > MAX_LEN)
+    throw new ToolError('Input is too large.', 'Keep it under 1,000,000 characters.');
 
   let direction: 'encode' | 'decode';
   if (mode === 'auto') {
@@ -104,8 +105,12 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     language: 'text',
     stats: { direction: direction === 'encode' ? 0 : 1 },
     notes: [
-      direction === 'encode' ? 'Encoded to HTML entities (auto).' : 'Decoded HTML entities to text (auto).',
-      encodeAll && direction === 'encode' ? 'All printable non-ASCII replaced by numeric entities.' : '',
+      direction === 'encode'
+        ? 'Encoded to HTML entities (auto).'
+        : 'Decoded HTML entities to text (auto).',
+      encodeAll && direction === 'encode'
+        ? 'All printable non-ASCII replaced by numeric entities.'
+        : '',
     ].filter(Boolean),
   };
 }
@@ -114,11 +119,26 @@ function encodeAllMarkup(text: string): string {
   let out = '';
   for (const ch of text) {
     const code = ch.codePointAt(0)!;
-    if (ch === '&') { out += '&amp;'; continue; }
-    if (ch === '<') { out += '&lt;'; continue; }
-    if (ch === '>') { out += '&gt;'; continue; }
-    if (ch === '"') { out += '&quot;'; continue; }
-    if (ch === "'") { out += '&#39;'; continue; }
+    if (ch === '&') {
+      out += '&amp;';
+      continue;
+    }
+    if (ch === '<') {
+      out += '&lt;';
+      continue;
+    }
+    if (ch === '>') {
+      out += '&gt;';
+      continue;
+    }
+    if (ch === '"') {
+      out += '&quot;';
+      continue;
+    }
+    if (ch === "'") {
+      out += '&#39;';
+      continue;
+    }
     if (code > 126 || code < 32) out += '&#' + code + ';';
     else out += ch;
   }

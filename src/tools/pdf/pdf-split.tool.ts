@@ -4,11 +4,17 @@ import { zipSync } from 'fflate';
 import { PDFDocument, abort, loadPdf, firstFile, output, resolve } from './shared';
 import { meta } from './pdf-split.meta';
 
-async function build(source: PDFDocument, groups: number[][]): Promise<{ name: string; bytes: Uint8Array }[]> {
+async function build(
+  source: PDFDocument,
+  groups: number[][],
+): Promise<{ name: string; bytes: Uint8Array }[]> {
   const files: { name: string; bytes: Uint8Array }[] = [];
   for (let i = 0; i < groups.length; i++) {
     const doc = await PDFDocument.create();
-    const pages = await doc.copyPages(source, groups[i]!.map((p) => p - 1));
+    const pages = await doc.copyPages(
+      source,
+      groups[i]!.map((p) => p - 1),
+    );
     pages.forEach((page) => doc.addPage(page));
     files.push({ name: `part-${String(i + 1).padStart(2, '0')}.pdf`, bytes: await doc.save() });
   }
@@ -25,7 +31,8 @@ function rangeGroups(value: unknown, total: number): number[][] {
     if (!match) throw new ToolError('Enter ranges as 1-3,5,7- .');
     const start = Number(match[1]);
     const end = match[2] === undefined ? start : match[2] === '' ? total : Number(match[2]);
-    if (start < 1 || end < start || end > total) throw new ToolError(`Range "${token}" is outside this PDF (1–${total}).`);
+    if (start < 1 || end < start || end > total)
+      throw new ToolError(`Range "${token}" is outside this PDF (1–${total}).`);
     const group: number[] = [];
     for (let p = start; p <= end; p++) group.push(p);
     groups.push(group);
@@ -67,7 +74,9 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
     return result;
   }
   const entries: Record<string, Uint8Array> = {};
-  files.forEach((f) => { entries[f.name] = f.bytes; });
+  files.forEach((f) => {
+    entries[f.name] = f.bytes;
+  });
   const zip = zipSync(entries, { level: 6 });
   const result = output('split.zip', zip, 'application/zip');
   result.stats = { ...stats, bytes: zip.length };

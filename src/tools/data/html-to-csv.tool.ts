@@ -36,17 +36,24 @@ function decodeEntities(text: string): string {
     apos: "'",
     nbsp: ' ',
   };
-  return text.replace(/&(?:#x([0-9a-f]+)|#(\d+)|([a-z][a-z0-9]+));/gi, (m, hex: string, dec: string, name: string) => {
-    if (hex) {
-      const cp = parseInt(hex, 16);
-      return cp > 0 && cp <= 0x10ffff && !(cp >= 0xd800 && cp <= 0xdfff) ? String.fromCodePoint(cp) : m;
-    }
-    if (dec) {
-      const cp = parseInt(dec, 10);
-      return cp > 0 && cp <= 0x10ffff && !(cp >= 0xd800 && cp <= 0xdfff) ? String.fromCodePoint(cp) : m;
-    }
-    return named[name.toLowerCase()] ?? m;
-  });
+  return text.replace(
+    /&(?:#x([0-9a-f]+)|#(\d+)|([a-z][a-z0-9]+));/gi,
+    (m, hex: string, dec: string, name: string) => {
+      if (hex) {
+        const cp = parseInt(hex, 16);
+        return cp > 0 && cp <= 0x10ffff && !(cp >= 0xd800 && cp <= 0xdfff)
+          ? String.fromCodePoint(cp)
+          : m;
+      }
+      if (dec) {
+        const cp = parseInt(dec, 10);
+        return cp > 0 && cp <= 0x10ffff && !(cp >= 0xd800 && cp <= 0xdfff)
+          ? String.fromCodePoint(cp)
+          : m;
+      }
+      return named[name.toLowerCase()] ?? m;
+    },
+  );
 }
 
 /** Extract cell text content between matching td/th tags. */
@@ -58,7 +65,9 @@ function readCell(html: string, from: number): { text: string; next: number } {
   const inner = html.slice(lt + 1, end);
   // Strip any nested table so it does not contaminate the text.
   const withoutTable = stripNestedTables(inner);
-  const text = decodeEntities(stripTags(withoutTable)).replace(/[ \t\r]+/g, ' ').trim();
+  const text = decodeEntities(stripTags(withoutTable))
+    .replace(/[ \t\r]+/g, ' ')
+    .trim();
   return { text, next: m ? lt + 1 + m.index + m[0].length : html.length };
 }
 
@@ -147,7 +156,9 @@ function extractTables(html: string): Table[] {
 }
 
 /** Expand colspan and rowspan into a rectangular grid of cells. */
-function resolveSpans(cellRows: { text: string; colspan: number; rowspan: number }[][]): string[][] {
+function resolveSpans(
+  cellRows: { text: string; colspan: number; rowspan: number }[][],
+): string[][] {
   const grid: string[][] = [];
   let pending = new Map<number, { remaining: number; text: string }>();
   let maxWidth = 0;
@@ -184,7 +195,15 @@ function resolveSpans(cellRows: { text: string; colspan: number; rowspan: number
 function toCsv(rows: string[][]): string {
   const out: string[] = [];
   for (const row of rows) {
-    out.push(row.map((cell) => (cell.includes(',') || cell.includes('"') || /\n/.test(cell) ? '"' + cell.replace(/"/g, '""') + '"' : cell)).join(','));
+    out.push(
+      row
+        .map((cell) =>
+          cell.includes(',') || cell.includes('"') || /\n/.test(cell)
+            ? '"' + cell.replace(/"/g, '""') + '"'
+            : cell,
+        )
+        .join(','),
+    );
   }
   return out.join('\n');
 }
@@ -195,18 +214,21 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   const skipEmptyRows = o.skipEmptyRows !== false;
   const source = input.text ?? '';
   if (!source.trim()) throw new ToolError('Paste an HTML fragment containing a <table>.');
-  if (source.length > MAX_LEN) throw new ToolError('Input is too large.', 'Keep it under 1,000,000 characters.');
+  if (source.length > MAX_LEN)
+    throw new ToolError('Input is too large.', 'Keep it under 1,000,000 characters.');
 
   const tables = extractTables(source);
   const wanted = mode === 'first' ? tables.slice(0, 1) : tables;
-  if (wanted.length === 0) throw new ToolError('No <table> element found in the input.', 'Paste HTML that contains a table.');
+  if (wanted.length === 0)
+    throw new ToolError(
+      'No <table> element found in the input.',
+      'Paste HTML that contains a table.',
+    );
 
   const blocks: string[] = [];
   let tableCount = 0;
   for (const t of wanted) {
-    const rows2 = skipEmptyRows
-      ? t.rows.filter((r) => r.some((cell) => cell !== ''))
-      : t.rows;
+    const rows2 = skipEmptyRows ? t.rows.filter((r) => r.some((cell) => cell !== '')) : t.rows;
     if (rows2.length === 0) continue;
     blocks.push(toCsv(rows2));
     tableCount += 1;
@@ -219,7 +241,11 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     language: 'csv',
     stats: { tables: tableCount, rows: blocks.reduce((n, b) => n + b.split('\n').length, 0) },
     notes: [
-      'Exported ' + tableCount + ' table(s) from ' + (mode === 'first' ? 'the first match' : 'all matches') + '.',
+      'Exported ' +
+        tableCount +
+        ' table(s) from ' +
+        (mode === 'first' ? 'the first match' : 'all matches') +
+        '.',
       'Header row, if any, is the first <tr>.',
     ],
   };

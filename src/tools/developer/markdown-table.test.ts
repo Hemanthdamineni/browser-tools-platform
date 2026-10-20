@@ -9,7 +9,9 @@ const run = (text: string, options: Record<string, string | number | boolean> = 
 describe('markdown-table', () => {
   it('aligns cells and preserves parsed right alignment', () => {
     const result = run('| Name | Count |\n|---|---:|\n| pears | 3 |\n| apple | 120 |');
-    expect(result.output).toBe('| Name  | Count |\n| :----- | -----: |\n| pears | 3     |\n| apple | 120   |');
+    expect(result.output).toBe(
+      '| Name  | Count |\n| :----- | -----: |\n| pears | 3     |\n| apple | 120   |',
+    );
     expect(result.stats).toMatchObject({ rows: 3, columns: 2 });
   });
 

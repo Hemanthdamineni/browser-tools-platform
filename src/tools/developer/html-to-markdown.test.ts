@@ -37,7 +37,9 @@ describe('html-to-markdown', () => {
   });
 
   it('deduplicates repeated reference urls', async () => {
-    const r = await run('<a href="https://a.dev">a</a> <a href="https://a.dev">b</a>', { linkStyle: 'reference' });
+    const r = await run('<a href="https://a.dev">a</a> <a href="https://a.dev">b</a>', {
+      linkStyle: 'reference',
+    });
     expect(r.output).toContain('[a][1]');
     expect(r.output).toContain('[b][1]');
     expect(r.output.match(/\[1\]:/g)?.length ?? 0).toBe(1);
@@ -71,7 +73,9 @@ describe('html-to-markdown', () => {
   });
 
   it('strips comments, script, and style blocks', async () => {
-    const r = await run('<!-- hidden --><style>body{}</style><script>alert(1)</script><p>Visible</p>');
+    const r = await run(
+      '<!-- hidden --><style>body{}</style><script>alert(1)</script><p>Visible</p>',
+    );
     expect(r.output).not.toContain('hidden');
     expect(r.output).not.toContain('alert');
     expect(r.output).not.toContain('body{}');
@@ -79,13 +83,17 @@ describe('html-to-markdown', () => {
   });
 
   it('decodes entities and preserves image alt/src', async () => {
-    const r = await run('<p>A &amp; B &lt;3 &nbsp; &#169; 2026</p><img src="pic.png" alt="A photo">');
+    const r = await run(
+      '<p>A &amp; B &lt;3 &nbsp; &#169; 2026</p><img src="pic.png" alt="A photo">',
+    );
     expect(r.output).toContain('A & B <3 © 2026');
     expect(r.output).toContain('![A photo](pic.png)');
   });
 
   it('converts table rows into pipe cells', async () => {
-    const r = await run('<table><tr><th>a</th><th>b</th></tr><tr><td>1</td><td>2</td></tr></table>');
+    const r = await run(
+      '<table><tr><th>a</th><th>b</th></tr><tr><td>1</td><td>2</td></tr></table>',
+    );
     expect(r.output).toContain('a | b |');
     expect(r.output).toContain('1 | 2 |');
   });

@@ -41,7 +41,7 @@ describe('jsonpath', () => {
   });
 
   it('filters with numeric comparison', async () => {
-    const r = await run(doc("$.users[?(@.age > 25)].name", usersJson));
+    const r = await run(doc('$.users[?(@.age > 25)].name', usersJson));
     expect(parsed(r)).toEqual(['Alice', 'Bob']);
   });
 

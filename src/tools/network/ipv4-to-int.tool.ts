@@ -14,12 +14,7 @@ function ipToInt(ip: string): number | null {
 }
 
 function intToIp(value: number): string {
-  return [
-    (value >>> 24) & 255,
-    (value >>> 16) & 255,
-    (value >>> 8) & 255,
-    value & 255,
-  ].join('.');
+  return [(value >>> 24) & 255, (value >>> 16) & 255, (value >>> 8) & 255, value & 255].join('.');
 }
 
 async function run(input: TextRunInput): Promise<TextRunResult> {
@@ -39,7 +34,8 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     stats = { integer: asInt };
   } else if (/^\d+$/.test(source)) {
     const n = Number(source);
-    if (n > MAX) throw new ToolError('Value is too large.', 'IPv4 integers range from 0 to 4294967295.');
+    if (n > MAX)
+      throw new ToolError('Value is too large.', 'IPv4 integers range from 0 to 4294967295.');
     output = intToIp(n);
     reverse = String(n);
     stats = { integer: n };
@@ -53,7 +49,11 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     render: 'text',
     language: 'text',
     stats,
-    notes: [asInt !== null ? 'Dotted IPv4 converted to its unsigned 32-bit integer.' : 'Integer converted to a dotted IPv4.'].filter(Boolean),
+    notes: [
+      asInt !== null
+        ? 'Dotted IPv4 converted to its unsigned 32-bit integer.'
+        : 'Integer converted to a dotted IPv4.',
+    ].filter(Boolean),
   };
 }
 

@@ -2,8 +2,14 @@ import { describe, expect, it } from 'vitest';
 import { ToolError } from '@/lib/types';
 import tool from './access-control-allow-origin.tool';
 
-type Result = { output: string; filename?: string; stats?: Record<string, string | number>; notes?: string[] };
-const run = (text: string, options: Record<string, string | number | boolean> = {}) => tool.run({ text, options }) as Result;
+type Result = {
+  output: string;
+  filename?: string;
+  stats?: Record<string, string | number>;
+  notes?: string[];
+};
+const run = (text: string, options: Record<string, string | number | boolean> = {}) =>
+  tool.run({ text, options }) as Result;
 const rows = (result: Result) => JSON.parse(result.output).rows as string[][];
 
 describe('access-control-allow-origin', () => {
@@ -14,13 +20,19 @@ describe('access-control-allow-origin', () => {
   });
 
   it('builds with credentials for a specific origin', () => {
-    const result = run('', { mode: 'build', origin: 'https://app.example.com', credentials: 'yes' });
+    const result = run('', {
+      mode: 'build',
+      origin: 'https://app.example.com',
+      credentials: 'yes',
+    });
     expect(result.stats).toMatchObject({ wildcard: 'no', credentials: 'yes' });
   });
 
   it('rejects wildcard with credentials in build', () => {
     expect(() => run('', { mode: 'build', origin: '*', credentials: 'yes' })).toThrow(ToolError);
-    expect(() => run('', { mode: 'build', origin: 'javascript:alert(1)', credentials: 'no' })).toThrow(ToolError);
+    expect(() =>
+      run('', { mode: 'build', origin: 'javascript:alert(1)', credentials: 'no' }),
+    ).toThrow(ToolError);
   });
 
   it('analyzes wildcard and specific origins', () => {

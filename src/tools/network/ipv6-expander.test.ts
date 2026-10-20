@@ -1,8 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import tool from './ipv6-expander.tool';
 
-type Result = { output: string; filename?: string; stats?: Record<string, string | number>; notes?: string[] };
-const run = (text: string, options: Record<string, string | number | boolean> = {}) => tool.run({ text, options }) as Result;
+type Result = {
+  output: string;
+  filename?: string;
+  stats?: Record<string, string | number>;
+  notes?: string[];
+};
+const run = (text: string, options: Record<string, string | number | boolean> = {}) =>
+  tool.run({ text, options }) as Result;
 
 describe('ipv6-expander', () => {
   it('expands :: shorthand to full form', () => {

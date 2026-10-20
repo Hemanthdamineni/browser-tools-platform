@@ -11,9 +11,7 @@ const CATALOG =
 describe('xml-to-csv', () => {
   it('auto-detects repeated records and emits attributes as @ columns', async () => {
     const r = await run(CATALOG);
-    expect(r.output).toBe(
-      ['@id,title,price', '1,Dune,9.99', '2,Neuromancer,12.50'].join('\n'),
-    );
+    expect(r.output).toBe(['@id,title,price', '1,Dune,9.99', '2,Neuromancer,12.50'].join('\n'));
     expect(r.stats?.records).toBe(2);
     expect(r.stats?.columns).toBe(3);
     expect(r.language).toBe('csv');

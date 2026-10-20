@@ -23,21 +23,42 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   let action: 'compress' | 'decompress';
   if (mode === 'auto') {
     if (sniff(raw)) {
-      try { output = gunzipSync(raw); } catch { throw new ToolError('Could not decompress this file.', 'It starts with gzip magic bytes but is not a valid gzip stream.'); }
+      try {
+        output = gunzipSync(raw);
+      } catch {
+        throw new ToolError(
+          'Could not decompress this file.',
+          'It starts with gzip magic bytes but is not a valid gzip stream.',
+        );
+      }
       outName = stripGz(file.name) || file.name + '.out';
       action = 'decompress';
     } else {
-      output = gzipSync(raw, { level: Math.max(0, Math.min(9, Number(o.level) || 0)) as 0|1|2|3|4|5|6|7|8|9 });
+      output = gzipSync(raw, {
+        level: Math.max(0, Math.min(9, Number(o.level) || 0)) as
+          0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9,
+      });
       outName = /\.gz$/i.test(file.name) ? file.name : file.name + '.gz';
       action = 'compress';
     }
   } else if (mode === 'compress') {
-    output = gzipSync(raw, { level: Math.max(0, Math.min(9, Number(o.level) || 0)) as 0|1|2|3|4|5|6|7|8|9 });
+    output = gzipSync(raw, {
+      level: Math.max(0, Math.min(9, Number(o.level) || 0)) as
+        0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9,
+    });
     outName = /\.gz$/i.test(file.name) ? file.name : file.name + '.gz';
     action = 'compress';
   } else if (mode === 'decompress') {
-    if (!sniff(raw)) throw new ToolError('Not a gzip file.', 'Gzip streams start with the bytes 1F 8B.');
-    try { output = gunzipSync(raw); } catch { throw new ToolError('Could not decompress this file.', 'It starts with gzip magic bytes but is not a valid gzip stream.'); }
+    if (!sniff(raw))
+      throw new ToolError('Not a gzip file.', 'Gzip streams start with the bytes 1F 8B.');
+    try {
+      output = gunzipSync(raw);
+    } catch {
+      throw new ToolError(
+        'Could not decompress this file.',
+        'It starts with gzip magic bytes but is not a valid gzip stream.',
+      );
+    }
     outName = stripGz(file.name) || file.name + '.out';
     action = 'decompress';
   } else {
@@ -46,7 +67,12 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   onProgress?.(1, 'Done');
   return {
     outputs: [{ filename: outName, blob: new Blob([output.slice().buffer as ArrayBuffer]) }],
-    stats: { mode: action, inputBytes: raw.length, outputBytes: output.length, ratio: raw.length ? output.length / raw.length : 0 },
+    stats: {
+      mode: action,
+      inputBytes: raw.length,
+      outputBytes: output.length,
+      ratio: raw.length ? output.length / raw.length : 0,
+    },
   };
 }
 const tool: FileToolModule = { meta, run };

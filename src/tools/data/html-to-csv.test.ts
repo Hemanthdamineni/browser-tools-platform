@@ -1,13 +1,21 @@
 import { describe, expect, it } from 'vitest';
 import tool from './html-to-csv.tool';
 
-type Result = { output: string; render?: string; language?: string; stats?: Record<string, number>; notes?: string[] };
+type Result = {
+  output: string;
+  render?: string;
+  language?: string;
+  stats?: Record<string, number>;
+  notes?: string[];
+};
 const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
   (await tool.run({ text, options })) as Result;
 
 describe('html-to-csv', () => {
   it('converts a simple table to CSV', async () => {
-    const r = await run('<table><tr><th>Name</th><th>Score</th></tr><tr><td>Ada</td><td>98</td></tr></table>');
+    const r = await run(
+      '<table><tr><th>Name</th><th>Score</th></tr><tr><td>Ada</td><td>98</td></tr></table>',
+    );
     expect(r.language).toBe('csv');
     expect(r.output).toBe('Name,Score\nAda,98\n');
     expect(r.stats?.tables).toBe(1);

@@ -32,9 +32,12 @@ function isoFromDay(day: number): string {
 function isWeekend(day: number, weekend: Weekday): boolean {
   const dow = (day + 3) % 7; // 0 = Monday … 6 = Sunday
   switch (weekend) {
-    case 'fs': return dow === 4 || dow === 5;   // Fri + Sat
-    case 'tf': return dow === 3 || dow === 4;   // Thu + Fri
-    default: return dow === 5 || dow === 6;     // Sat + Sun
+    case 'fs':
+      return dow === 4 || dow === 5; // Fri + Sat
+    case 'tf':
+      return dow === 3 || dow === 4; // Thu + Fri
+    default:
+      return dow === 5 || dow === 6; // Sat + Sun
   }
 }
 
@@ -52,7 +55,12 @@ function parseHolidays(raw: string): Set<number> {
   return out;
 }
 
-function addBusinessDays(start: number, count: number, weekend: Weekday, holidays: Set<number>): number {
+function addBusinessDays(
+  start: number,
+  count: number,
+  weekend: Weekday,
+  holidays: Set<number>,
+): number {
   let day = start;
   const step = count < 0 ? -1 : 1;
   let remaining = Math.abs(count);
@@ -80,17 +88,30 @@ function run(input: TextRunInput): TextRunResult {
   const raw = input.text.trim();
 
   if (!raw) {
-    return { output: JSON.stringify({ headers: ['Property', 'Value'], rows: [] as Row[] }), render: 'table', notes: ['Add mode: START,N → the business day N working days after START. Between mode: START to END → the number of working days in between (inclusive).'] };
+    return {
+      output: JSON.stringify({ headers: ['Property', 'Value'], rows: [] as Row[] }),
+      render: 'table',
+      notes: [
+        'Add mode: START,N → the business day N working days after START. Between mode: START to END → the number of working days in between (inclusive).',
+      ],
+    };
   }
 
   if (mode === 'between') {
-    let a: number; let b: number;
+    let a: number;
+    let b: number;
     const toMatch = /^([0-9]{4}-[0-9]{2}-[0-9]{2})\s+to\s+([0-9]{4}-[0-9]{2}-[0-9]{2})$/i.exec(raw);
     const commaMatch = /^([0-9]{4}-[0-9]{2}-[0-9]{2}),\s*([0-9]{4}-[0-9]{2}-[0-9]{2})$/.exec(raw);
-    if (toMatch) { a = parseISO(toMatch[1]!); b = parseISO(toMatch[2]!); }
-    else if (commaMatch) { a = parseISO(commaMatch[1]!); b = parseISO(commaMatch[2]!); }
-    else {
-      throw new ToolError('Between mode expects "START to END" or "START,END" with YYYY-MM-DD dates (e.g. 2026-01-05 to 2026-01-16).');
+    if (toMatch) {
+      a = parseISO(toMatch[1]!);
+      b = parseISO(toMatch[2]!);
+    } else if (commaMatch) {
+      a = parseISO(commaMatch[1]!);
+      b = parseISO(commaMatch[2]!);
+    } else {
+      throw new ToolError(
+        'Between mode expects "START to END" or "START,END" with YYYY-MM-DD dates (e.g. 2026-01-05 to 2026-01-16).',
+      );
     }
     const count = countBusinessDays(a, b, weekend, holidays);
     const totalDays = Math.abs(b - a) + 1;
@@ -99,23 +120,44 @@ function run(input: TextRunInput): TextRunResult {
       ['To', isoFromDay(b)],
       ['Business days', String(count)],
       ['Weekend', weekend === 'ss' ? 'Sat + Sun' : weekend === 'fs' ? 'Fri + Sat' : 'Thu + Fri'],
-      ['Holidays applied', String(count === countBusinessDays(a, b, weekend, new Set()) ? 'none of the listed dates fall on a working day' : `skipped ${holidays.size} listed${holidays.size === 1 ? ' date' : ' dates'}`)],
+      [
+        'Holidays applied',
+        String(
+          count === countBusinessDays(a, b, weekend, new Set())
+            ? 'none of the listed dates fall on a working day'
+            : `skipped ${holidays.size} listed${holidays.size === 1 ? ' date' : ' dates'}`,
+        ),
+      ],
     ];
     return {
       output: JSON.stringify({ headers: ['Property', 'Value'], rows }),
       render: 'table',
-      stats: { businessDays: count, totalDays, ...(holidays.size ? { holidayBase: countBusinessDays(a, b, weekend, holidays), holidaySkipped: countBusinessDays(a, b, weekend, new Set()) - count } : { holidaySkipped: 0 }) },
-      notes: [`${count} business day${count === 1 ? '' : 's'} between ${isoFromDay(a)} and ${isoFromDay(b)} (inclusive).`],
+      stats: {
+        businessDays: count,
+        totalDays,
+        ...(holidays.size
+          ? {
+              holidayBase: countBusinessDays(a, b, weekend, holidays),
+              holidaySkipped: countBusinessDays(a, b, weekend, new Set()) - count,
+            }
+          : { holidaySkipped: 0 }),
+      },
+      notes: [
+        `${count} business day${count === 1 ? '' : 's'} between ${isoFromDay(a)} and ${isoFromDay(b)} (inclusive).`,
+      ],
     };
   }
 
   // mode === 'add'
   const parts = raw.split(',');
   if (parts.length < 2) {
-    throw new ToolError('Add mode expects "START,N" where START is YYYY-MM-DD and N is a whole number of business days (e.g. 2026-01-05,10). Negative N moves backwards.');
+    throw new ToolError(
+      'Add mode expects "START,N" where START is YYYY-MM-DD and N is a whole number of business days (e.g. 2026-01-05,10). Negative N moves backwards.',
+    );
   }
   const start = parseISO(parts[0]!);
-  if (!/^-?\d+$/.test(parts[1]!.trim())) throw new ToolError('The day count must be a whole number (e.g. 10 or -5).');
+  if (!/^-?\d+$/.test(parts[1]!.trim()))
+    throw new ToolError('The day count must be a whole number (e.g. 10 or -5).');
   const count = Number(parts[1]!.trim());
   if (Math.abs(count) > 100000) throw new ToolError('The day count is too large (max 100,000).');
   const res = addBusinessDays(start, count, weekend, holidays);
@@ -130,7 +172,12 @@ function run(input: TextRunInput): TextRunResult {
     output: JSON.stringify({ headers: ['Property', 'Value'], rows }),
     render: 'table',
     stats: { startDay: start, n: count, resultDay: res },
-    notes: count === 0 ? [`${isoFromDay(start)} is the first business day at/after the start.`] : [`N=${count} business day${Math.abs(count) === 1 ? '' : 's'} after ${isoFromDay(start)} lands on ${isoFromDay(res)} (${['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][(res + 3) % 7]}).`],
+    notes:
+      count === 0
+        ? [`${isoFromDay(start)} is the first business day at/after the start.`]
+        : [
+            `N=${count} business day${Math.abs(count) === 1 ? '' : 's'} after ${isoFromDay(start)} lands on ${isoFromDay(res)} (${['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][(res + 3) % 7]}).`,
+          ],
   };
 }
 

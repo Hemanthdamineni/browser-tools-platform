@@ -48,7 +48,8 @@ export const meta: ToolMeta = {
   examples: [
     {
       title: 'Nested config to env',
-      input: '{\n  "server": { "host": "localhost", "port": 8080 },\n  "debug": true,\n  "tags": ["a", "b"]\n}',
+      input:
+        '{\n  "server": { "host": "localhost", "port": 8080 },\n  "debug": true,\n  "tags": ["a", "b"]\n}',
     },
     {
       title: 'Values that need quoting',

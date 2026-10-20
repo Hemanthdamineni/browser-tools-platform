@@ -37,11 +37,13 @@ export const meta: ToolMeta = {
   examples: [
     {
       title: 'Navbar fragment',
-      input: '<nav class="navbar"><a href="/home" class="link" style="color:red">Home</a><img src="logo.png"></nav>',
+      input:
+        '<nav class="navbar"><a href="/home" class="link" style="color:red">Home</a><img src="logo.png"></nav>',
     },
     {
       title: 'Form row',
-      input: '<label for="email">Email</label>\n<input type="email" id="email" readonly><br><button disabled>Save</button>',
+      input:
+        '<label for="email">Email</label>\n<input type="email" id="email" readonly><br><button disabled>Save</button>',
     },
   ],
   faq: [

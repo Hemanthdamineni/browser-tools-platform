@@ -3,7 +3,13 @@ import { ToolError } from '@/lib/types';
 import { meta } from './ssh-key-fingerprint.meta';
 
 type Row = [string, string];
-type ParsedKey = { type: string; bits: number | null; comment: string; blob: Uint8Array; b64: string };
+type ParsedKey = {
+  type: string;
+  bits: number | null;
+  comment: string;
+  blob: Uint8Array;
+  b64: string;
+};
 
 const B64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
@@ -53,7 +59,11 @@ function hexBytesToColon(s: string): string {
 
 // ── MD5 (WebCrypto has no MD5; hand-rolled) ─────────────────────────────────
 
-const MD5_S = [7,12,17,22,7,12,17,22,7,12,17,22,7,12,17,22,5,9,14,20,5,9,14,20,5,9,14,20,5,9,14,20,4,11,16,23,4,11,16,23,4,11,16,23,4,11,16,23,6,10,15,21,6,10,15,21,6,10,15,21,6,10,15,21];
+const MD5_S = [
+  7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14,
+  20, 5, 9, 14, 20, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 6, 10, 15, 21, 6,
+  10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21,
+];
 const MD5_K: number[] = [];
 for (let i = 0; i < 64; i++) MD5_K.push(Math.floor(Math.abs(Math.sin(i + 1)) * 4294967296) >>> 0);
 
@@ -68,21 +78,36 @@ function md5(input: Uint8Array): string {
   const view = new DataView(msg.buffer);
   view.setUint32(paddedLen - 8, bitLenLo, true);
   view.setUint32(paddedLen - 4, bitLenHi, true);
-  let A0 = 0x67452301, B0 = 0xefcdab89, C0 = 0x98badcfe, D0 = 0x10325476;
+  let A0 = 0x67452301,
+    B0 = 0xefcdab89,
+    C0 = 0x98badcfe,
+    D0 = 0x10325476;
   const work = new DataView(msg.buffer);
   for (let off = 0; off < paddedLen; off += 64) {
-    let A = A0, B = B0, C = C0, D = D0;
+    let A = A0,
+      B = B0,
+      C = C0,
+      D = D0;
     for (let i = 0; i < 64; i++) {
       let F: number, g: number;
-      if (i < 16) { F = (B & C) | (~B & D); g = i; }
-      else if (i < 32) { F = (D & B) | (~D & C); g = (5 * i + 1) % 16; }
-      else if (i < 48) { F = B ^ C ^ D; g = (3 * i + 5) % 16; }
-      else { F = C ^ (B | ~D); g = (7 * i) % 16; }
+      if (i < 16) {
+        F = (B & C) | (~B & D);
+        g = i;
+      } else if (i < 32) {
+        F = (D & B) | (~D & C);
+        g = (5 * i + 1) % 16;
+      } else if (i < 48) {
+        F = B ^ C ^ D;
+        g = (3 * i + 5) % 16;
+      } else {
+        F = C ^ (B | ~D);
+        g = (7 * i) % 16;
+      }
       F = (F + A + MD5_K[i]! + work.getUint32(off + g * 4, true)) >>> 0;
       A = D;
       D = C;
       C = B;
-      B = (B + (((F << MD5_S[i]!) | (F >>> (32 - MD5_S[i]!))))) >>> 0;
+      B = (B + ((F << MD5_S[i]!) | (F >>> (32 - MD5_S[i]!)))) >>> 0;
     }
     A0 = (A0 + A) >>> 0;
     B0 = (B0 + B) >>> 0;
@@ -153,7 +178,10 @@ function bigIntBits(bytes: Uint8Array): number {
   if (remaining === 0) return 0;
   let lead = 0;
   let x = bytes[start]!;
-  while (x < 128) { x <<= 1; lead++; }
+  while (x < 128) {
+    x <<= 1;
+    lead++;
+  }
   return remaining * 8 - lead;
 }
 
@@ -179,7 +207,13 @@ function extractKey(raw: string): ParsedKey {
 function run(input: TextRunInput): Promise<TextRunResult> | TextRunResult {
   const raw = input.text.trim();
   if (!raw) {
-    return { output: JSON.stringify({ headers: ['Property', 'Value'], rows: [] as Row[] }), render: 'table', notes: ['Paste an SSH public key (ssh-rsa/ssh-ed25519… plus the base64 blob and optional comment) to compute its fingerprint.'] };
+    return {
+      output: JSON.stringify({ headers: ['Property', 'Value'], rows: [] as Row[] }),
+      render: 'table',
+      notes: [
+        'Paste an SSH public key (ssh-rsa/ssh-ed25519… plus the base64 blob and optional comment) to compute its fingerprint.',
+      ],
+    };
   }
   const parsed = extractKey(raw);
   return Promise.resolve().then(async () => {
@@ -199,7 +233,9 @@ function run(input: TextRunInput): Promise<TextRunResult> | TextRunResult {
       output: JSON.stringify({ headers: ['Property', 'Value'], rows }),
       render: 'table',
       stats: { bits: parsed.bits ?? 0, sha256: sha256Hex.slice(0, 12), md5: md5val.slice(0, 12) },
-      notes: [`The ${parsed.blob.length}-byte key blob is fingerprinted as SHA256:${sha256b64.slice(0, 31)}…`],
+      notes: [
+        `The ${parsed.blob.length}-byte key blob is fingerprinted as SHA256:${sha256b64.slice(0, 31)}…`,
+      ],
     };
   });
 }

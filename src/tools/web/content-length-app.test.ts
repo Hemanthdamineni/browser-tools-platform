@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest';
 import tool from './content-length-app.tool';
 
 type Result = { output: string; stats?: Record<string, string | number>; notes?: string[] };
-const run = (text: string, options: Record<string, string | number | boolean> = {}) => tool.run({ text, options }) as Result;
+const run = (text: string, options: Record<string, string | number | boolean> = {}) =>
+  tool.run({ text, options }) as Result;
 
 describe('content-length-app', () => {
   it('counts ASCII bytes exactly', () => {

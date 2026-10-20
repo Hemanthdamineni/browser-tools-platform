@@ -1,7 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import tool from './json-to-sql.tool';
 
-type Result = { output: string; render?: string; language?: string; stats?: Record<string, number>; notes?: string[] };
+type Result = {
+  output: string;
+  render?: string;
+  language?: string;
+  stats?: Record<string, number>;
+  notes?: string[];
+};
 const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
   (await tool.run({ text, options })) as Result;
 
@@ -16,7 +22,9 @@ describe('json-to-sql', () => {
   });
 
   it('escapes single quotes and handles null/booleans/nested values', async () => {
-    const r = await run('[{"name":"O\'Brien","ok":true,"none":null,"meta":{"a":1}}]', { table: 't' });
+    const r = await run('[{"name":"O\'Brien","ok":true,"none":null,"meta":{"a":1}}]', {
+      table: 't',
+    });
     expect(r.output).toContain("'O''Brien'");
     expect(r.output).toContain(', 1,');
     expect(r.output).toContain('NULL');

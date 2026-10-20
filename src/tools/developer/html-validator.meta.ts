@@ -30,7 +30,8 @@ export const meta: ToolMeta = {
   examples: [
     {
       title: 'A small document',
-      input: '<html>\n<head><title>T</title></head>\n<body>\n  <p>Hi</p>\n  <img src="x.png">\n</body>\n</html>',
+      input:
+        '<html>\n<head><title>T</title></head>\n<body>\n  <p>Hi</p>\n  <img src="x.png">\n</body>\n</html>',
     },
   ],
   faq: [

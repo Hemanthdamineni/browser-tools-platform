@@ -8,48 +8,138 @@ const PRESETS: Record<string, Preset> = {
   node: {
     name: 'Node.js',
     patterns: [
-      { section: 'Version control / CI', items: ['.git', '.gitignore', '.github', '.gitlab-ci.yml', 'Jenkinsfile', '.circleci'] },
-      { section: 'Dependencies (rebuilt in-image)', items: ['node_modules', 'npm-debug.log*', 'yarn-debug.log*', 'yarn-error.log*', 'pnpm-debug.log*'] },
-      { section: 'Build output & cache', items: ['dist', 'build', 'coverage', '.cache', '.npm', '.next', 'nuxt', 'storybook-static'] },
-      { section: 'Local env / tools', items: ['.env', '.env.*', '!.env.example', '.eslintcache', '.prettierignore', 'Dockerfile*', 'docker-compose*', 'README.md'] },
+      {
+        section: 'Version control / CI',
+        items: ['.git', '.gitignore', '.github', '.gitlab-ci.yml', 'Jenkinsfile', '.circleci'],
+      },
+      {
+        section: 'Dependencies (rebuilt in-image)',
+        items: [
+          'node_modules',
+          'npm-debug.log*',
+          'yarn-debug.log*',
+          'yarn-error.log*',
+          'pnpm-debug.log*',
+        ],
+      },
+      {
+        section: 'Build output & cache',
+        items: ['dist', 'build', 'coverage', '.cache', '.npm', '.next', 'nuxt', 'storybook-static'],
+      },
+      {
+        section: 'Local env / tools',
+        items: [
+          '.env',
+          '.env.*',
+          '!.env.example',
+          '.eslintcache',
+          '.prettierignore',
+          'Dockerfile*',
+          'docker-compose*',
+          'README.md',
+        ],
+      },
       { section: 'Editor & OS cruft', items: ['.vscode', '.idea', '.DS_Store', '*.log'] },
     ],
   },
   python: {
     name: 'Python',
     patterns: [
-      { section: 'Version control / CI', items: ['.git', '.gitignore', '.github', '.gitlab-ci.yml', 'Jenkinsfile', '.circleci'] },
-      { section: 'Dependencies', items: ['__pycache__', '*.py[cod]', '*$py.class', '.venv', 'venv', 'env', '.tox', '.pytest_cache', '.mypy_cache', '.ruff_cache', 'pip-wheel-metadata'] },
-      { section: 'Build output', items: ['dist', 'build', '*.egg-info', '.eggs', '.coverage', 'htmlcov'] },
-      { section: 'Local env / tools', items: ['.env', '.env.*', '!.env.example', 'Dockerfile*', 'docker-compose*', 'README.md', 'pyproject.toml', 'poetry.lock'] },
+      {
+        section: 'Version control / CI',
+        items: ['.git', '.gitignore', '.github', '.gitlab-ci.yml', 'Jenkinsfile', '.circleci'],
+      },
+      {
+        section: 'Dependencies',
+        items: [
+          '__pycache__',
+          '*.py[cod]',
+          '*$py.class',
+          '.venv',
+          'venv',
+          'env',
+          '.tox',
+          '.pytest_cache',
+          '.mypy_cache',
+          '.ruff_cache',
+          'pip-wheel-metadata',
+        ],
+      },
+      {
+        section: 'Build output',
+        items: ['dist', 'build', '*.egg-info', '.eggs', '.coverage', 'htmlcov'],
+      },
+      {
+        section: 'Local env / tools',
+        items: [
+          '.env',
+          '.env.*',
+          '!.env.example',
+          'Dockerfile*',
+          'docker-compose*',
+          'README.md',
+          'pyproject.toml',
+          'poetry.lock',
+        ],
+      },
       { section: 'Editor & OS cruft', items: ['.vscode', '.idea', '.DS_Store', '*.log'] },
     ],
   },
   java: {
     name: 'Java',
     patterns: [
-      { section: 'Version control / CI', items: ['.git', '.gitignore', '.github', '.gitlab-ci.yml', 'Jenkinsfile', '.circleci'] },
-      { section: 'Build output', items: ['target', 'build', 'out', '*.class', '*.jar', '*.war', '.gradle', 'build/generated'] },
+      {
+        section: 'Version control / CI',
+        items: ['.git', '.gitignore', '.github', '.gitlab-ci.yml', 'Jenkinsfile', '.circleci'],
+      },
+      {
+        section: 'Build output',
+        items: [
+          'target',
+          'build',
+          'out',
+          '*.class',
+          '*.jar',
+          '*.war',
+          '.gradle',
+          'build/generated',
+        ],
+      },
       { section: 'Caches', items: ['.mvn', '~/.m2', '.idea'] },
-      { section: 'Local env / tools', items: ['.env', '.env.*', '!.env.example', 'Dockerfile*', 'docker-compose*', 'README.md'] },
+      {
+        section: 'Local env / tools',
+        items: ['.env', '.env.*', '!.env.example', 'Dockerfile*', 'docker-compose*', 'README.md'],
+      },
       { section: 'Editor & OS cruft', items: ['.vscode', '.DS_Store', '*.log', 'hs_err_pid*'] },
     ],
   },
   go: {
     name: 'Go',
     patterns: [
-      { section: 'Version control / CI', items: ['.git', '.gitignore', '.github', '.gitlab-ci.yml', 'Jenkinsfile', '.circleci'] },
+      {
+        section: 'Version control / CI',
+        items: ['.git', '.gitignore', '.github', '.gitlab-ci.yml', 'Jenkinsfile', '.circleci'],
+      },
       { section: 'Dependencies', items: ['bin', 'vendor', 'go.work.sum'] },
       { section: 'Build output', items: ['dist', 'out', 'coverage.out', '*.test'] },
-      { section: 'Local env / tools', items: ['.env', '.env.*', '!.env.example', 'Dockerfile*', 'docker-compose*', 'README.md'] },
+      {
+        section: 'Local env / tools',
+        items: ['.env', '.env.*', '!.env.example', 'Dockerfile*', 'docker-compose*', 'README.md'],
+      },
       { section: 'Editor & OS cruft', items: ['.vscode', '.idea', '.DS_Store', '*.log'] },
     ],
   },
   generic: {
     name: 'Generic',
     patterns: [
-      { section: 'Version control / CI', items: ['.git', '.gitignore', '.github', '.gitlab-ci.yml', 'Jenkinsfile', '.circleci'] },
-      { section: 'Local env / tools', items: ['.env', '.env.*', '!.env.example', 'Dockerfile*', 'docker-compose*', 'README.md'] },
+      {
+        section: 'Version control / CI',
+        items: ['.git', '.gitignore', '.github', '.gitlab-ci.yml', 'Jenkinsfile', '.circleci'],
+      },
+      {
+        section: 'Local env / tools',
+        items: ['.env', '.env.*', '!.env.example', 'Dockerfile*', 'docker-compose*', 'README.md'],
+      },
       { section: 'Build & cache', items: ['dist', 'build', 'coverage', '.cache', 'tmp', '*.log'] },
       { section: 'Editor & OS cruft', items: ['.vscode', '.idea', '.DS_Store'] },
     ],

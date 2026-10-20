@@ -36,7 +36,11 @@ function canReencodeImages(): boolean {
   return typeof OffscreenCanvas !== 'undefined' && typeof createImageBitmap === 'function';
 }
 
-function decodeToBitmap(stream: PDFRawStream, image: EmbeddedImage, target: { width: number; height: number }): Promise<ImageBitmap> {
+function decodeToBitmap(
+  stream: PDFRawStream,
+  image: EmbeddedImage,
+  target: { width: number; height: number },
+): Promise<ImageBitmap> {
   if (image.filter === '/DCTDecode') {
     const blob = new Blob([stream.contents.slice()], { type: 'image/jpeg' });
     // Decode straight to the target size: full-resolution scans can be huge.
@@ -97,7 +101,9 @@ async function recodeImage(
     try {
       canvas = new OffscreenCanvas(width, height);
     } catch {
-      throw new ToolError('Your browser could not create an offscreen canvas for image compression.');
+      throw new ToolError(
+        'Your browser could not create an offscreen canvas for image compression.',
+      );
     }
     const ctx = canvas.getContext('2d');
     if (!ctx) throw new ToolError('Your browser could not create a 2D drawing context.');
@@ -151,7 +157,9 @@ async function optimizeImages(
 
   if (!canReencodeImages()) {
     stats.skipped = targets.length;
-    stats.reasons.push('this browser/worker has no OffscreenCanvas, so picture data was left untouched');
+    stats.reasons.push(
+      'this browser/worker has no OffscreenCanvas, so picture data was left untouched',
+    );
     return stats;
   }
 
@@ -164,7 +172,10 @@ async function optimizeImages(
       if (!stats.reasons.includes(decision.reason)) stats.reasons.push(decision.reason);
       continue;
     }
-    input.onProgress?.(0.1 + 0.7 * (i / targets.length), `Re-encoding image ${i + 1} of ${targets.length}`);
+    input.onProgress?.(
+      0.1 + 0.7 * (i / targets.length),
+      `Re-encoding image ${i + 1} of ${targets.length}`,
+    );
     const result = await recodeImage(stream, image, decision.width, decision.height, preset);
     if (!result) {
       stats.skipped++;
@@ -214,7 +225,8 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   let fallbackNote: string | null = null;
   if (!outputBytes) {
     // A prune we made was load-bearing after all — rebuild cleanly instead.
-    fallbackNote = 'Structural cleanup was skipped because it changed the document, so a straight rebuild was used.';
+    fallbackNote =
+      'Structural cleanup was skipped because it changed the document, so a straight rebuild was used.';
     const fresh = await loadPdfBytes(bytes, { ignoreEncryption: false, updateMetadata: false });
     if (o.stripMetadata) stripDocumentMetadata(fresh);
     outputBytes = await rebuildValid(fresh, pages);
@@ -225,13 +237,21 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   const rows: string[][] = [
     ['Original size', formatBytes(bytes.length)],
     ['Compressed size', formatBytes(outcome.improved ? outputBytes!.length : bytes.length)],
-    ['Saved', outcome.improved ? `${formatBytes(outcome.savedBytes)} (${formatPercent(outcome.percent)})` : 'none'],
+    [
+      'Saved',
+      outcome.improved
+        ? `${formatBytes(outcome.savedBytes)} (${formatPercent(outcome.percent)})`
+        : 'none',
+    ],
     ['Pages', String(pages)],
     ['Images re-encoded', String(images.processed)],
     ['Images left as-is', String(images.skipped)],
     ['Unused objects removed', String(outcome.improved && !fallbackNote ? pruned : 0)],
   ];
-  const report = { output: JSON.stringify({ headers: ['Metric', 'Value'], rows }), render: 'table' as const };
+  const report = {
+    output: JSON.stringify({ headers: ['Metric', 'Value'], rows }),
+    render: 'table' as const,
+  };
   const stats = {
     originalBytes: bytes.length,
     outputBytes: outcome.improved ? outputBytes!.length : bytes.length,
@@ -252,9 +272,13 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
 
   if (!outputBytes || !outcome.improved) {
     if (!outputBytes) {
-      warnings.push('A valid compressed copy could not be produced, so the original file is returned unchanged.');
+      warnings.push(
+        'A valid compressed copy could not be produced, so the original file is returned unchanged.',
+      );
     } else {
-      warnings.push('This PDF is already optimised — compressing it would not make it smaller, so the original file is returned unchanged.');
+      warnings.push(
+        'This PDF is already optimised — compressing it would not make it smaller, so the original file is returned unchanged.',
+      );
     }
     input.onProgress?.(1, 'No gain');
     const result = output(file.name, bytes);

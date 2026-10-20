@@ -69,9 +69,7 @@ function countOf(type: number, values: number[] | string, encodedLength: number)
 /** Build a TIFF blob: header + IFD0 (+ optional Exif sub-IFD) + value pool. */
 function buildTiff(le: boolean, ifd0: TiffEntry[], exif: TiffEntry[]): number[] {
   const hasExif = exif.length > 0;
-  const entries0: TiffEntry[] = hasExif
-    ? [...ifd0, { tag: 0x8769, type: 4, values: [0] }]
-    : ifd0;
+  const entries0: TiffEntry[] = hasExif ? [...ifd0, { tag: 0x8769, type: 4, values: [0] }] : ifd0;
   const ifd0Size = 2 + entries0.length * 12 + 4;
   const exifStart = 8 + ifd0Size;
   const exifSize = hasExif ? 2 + exif.length * 12 + 4 : 0;
@@ -84,7 +82,11 @@ function buildTiff(le: boolean, ifd0: TiffEntry[], exif: TiffEntry[]): number[] 
     const bytes = [...u16(entries.length, le)];
     for (const e of entries) {
       const encoded = encodeValue(e.type, e.values, le);
-      bytes.push(...u16(e.tag, le), ...u16(e.type, le), ...u32(countOf(e.type, e.values, encoded.length), le));
+      bytes.push(
+        ...u16(e.tag, le),
+        ...u16(e.type, le),
+        ...u32(countOf(e.type, e.values, encoded.length), le),
+      );
       if (encoded.length <= 4) {
         bytes.push(...encoded, ...new Array(4 - encoded.length).fill(0));
       } else {
@@ -248,9 +250,7 @@ describe('readExif', () => {
 
   it('skips a non-Exif APP1 (e.g. XMP) and still finds the Exif segment', () => {
     // A well-formed APP1 segment whose payload is "http://x" (not "Exif\0\0").
-    const xmp = [
-      0xff, 0xe1, 0x00, 0x0a, 0x68, 0x74, 0x74, 0x70, 0x3a, 0x2f, 0x2f, 0x78,
-    ];
+    const xmp = [0xff, 0xe1, 0x00, 0x0a, 0x68, 0x74, 0x74, 0x70, 0x3a, 0x2f, 0x2f, 0x78];
     const exifJpegBytes = exifJpeg(true, [{ tag: 0x0112, type: 3, values: [3] }]);
     const combined = new Uint8Array([0xff, 0xd8, ...xmp, ...exifJpegBytes.slice(2)]);
     expect(readExif(toArrayBuffer(combined)).Orientation).toBe(3);
@@ -262,9 +262,28 @@ describe('readExif', () => {
 
   it('is safe against a malformed TIFF header or bad IFD offset', () => {
     const bogus = new Uint8Array([
-      0xff, 0xd8, 0xff, 0xe1, 0x00, 0x12, 0x45, 0x78, 0x69, 0x66, 0x00, 0x00,
-      0x58, 0x58, // invalid byte order
-      0x2a, 0x00, 0x08, 0x00, 0x00, 0x00, 0xff, 0xd9,
+      0xff,
+      0xd8,
+      0xff,
+      0xe1,
+      0x00,
+      0x12,
+      0x45,
+      0x78,
+      0x69,
+      0x66,
+      0x00,
+      0x00,
+      0x58,
+      0x58, // invalid byte order
+      0x2a,
+      0x00,
+      0x08,
+      0x00,
+      0x00,
+      0x00,
+      0xff,
+      0xd9,
     ]);
     expect(readExif(toArrayBuffer(bogus))).toEqual({});
     expect(() => readExif(toArrayBuffer(new Uint8Array([0xff, 0xd8])))).not.toThrow();
@@ -363,7 +382,10 @@ describe('image-metadata run', () => {
     expect(table.rows).toContainEqual(['Pixel dimensions', '4000 × 3000']);
     expect(table.rows).toContainEqual(['Orientation', '6']);
     expect(table.rows).toContainEqual(['Orientation (meaning)', 'Rotated 90° clockwise']);
-    expect(table.rows).toContainEqual(['Pixel dimensions note', 'includes the EXIF orientation turn']);
+    expect(table.rows).toContainEqual([
+      'Pixel dimensions note',
+      'includes the EXIF orientation turn',
+    ]);
     expect(table.rows).toContainEqual(['Make', 'Café Caméra']);
     expect(result.report).toMatchObject({ render: 'table' });
     expect(result.stats).toMatchObject({ files: 1, tags: table.rows.length });

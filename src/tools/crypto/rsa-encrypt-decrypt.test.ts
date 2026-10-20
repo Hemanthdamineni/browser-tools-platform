@@ -1,13 +1,22 @@
 import { describe, expect, it } from 'vitest';
 import tool from './rsa-encrypt-decrypt.tool';
 
-type Result = { output: string; render?: string; stats?: Record<string, string | number>; notes?: string[] };
+type Result = {
+  output: string;
+  render?: string;
+  stats?: Record<string, string | number>;
+  notes?: string[];
+};
 
 const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
   (await tool.run({ text, options })) as Result;
 
 // --- relocate the 0x04 OCTET STRING / 0x03 BIT STRING content of a DER blob ---
-function findContent(bytes: Uint8Array, tag: number, start: number): { content: Uint8Array; end: number } {
+function findContent(
+  bytes: Uint8Array,
+  tag: number,
+  start: number,
+): { content: Uint8Array; end: number } {
   if (bytes[start] !== tag) throw new Error(`expected tag 0x${tag.toString(16)} at ${start}`);
   let i = start + 1;
   const first = bytes[i++]!;
@@ -35,7 +44,12 @@ function unwrap(structured: Uint8Array, innerTag: number): Uint8Array {
 async function keyPair() {
   const subtle = globalThis.crypto.subtle;
   const pair = await subtle.generateKey(
-    { name: 'RSA-OAEP', modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]), hash: 'SHA-256' },
+    {
+      name: 'RSA-OAEP',
+      modulusLength: 2048,
+      publicExponent: new Uint8Array([1, 0, 1]),
+      hash: 'SHA-256',
+    },
     true,
     ['encrypt', 'decrypt'],
   );
@@ -81,8 +95,14 @@ describe('rsa-encrypt-decrypt', () => {
   });
 
   it('round-trips through PKCS#1 PEM keys (RSA PUBLIC KEY / RSA PRIVATE KEY)', async () => {
-    const enc = await run(pem('RSA PUBLIC KEY', pubPkcs1), { operation: 'encrypt', payload: 'pkcs1 seal' });
-    const dec = await run(pem('RSA PRIVATE KEY', privPkcs1), { operation: 'decrypt', payload: enc.output });
+    const enc = await run(pem('RSA PUBLIC KEY', pubPkcs1), {
+      operation: 'encrypt',
+      payload: 'pkcs1 seal',
+    });
+    const dec = await run(pem('RSA PRIVATE KEY', privPkcs1), {
+      operation: 'decrypt',
+      payload: enc.output,
+    });
     expect(dec.output).toBe('pkcs1 seal');
   });
 
@@ -95,16 +115,20 @@ describe('rsa-encrypt-decrypt', () => {
   });
 
   it('rejects encrypting with a private key and decrypting with a public key', async () => {
-    await expect(run(privKey, { operation: 'encrypt', payload: 'nope' })).rejects.toThrow(/public key/i);
-    await expect(run(pubKey, { operation: 'decrypt', payload: 'AAAA' })).rejects.toThrow(/private key/i);
+    await expect(run(privKey, { operation: 'encrypt', payload: 'nope' })).rejects.toThrow(
+      /public key/i,
+    );
+    await expect(run(pubKey, { operation: 'decrypt', payload: 'AAAA' })).rejects.toThrow(
+      /private key/i,
+    );
   });
 
   it('fails to decrypt with the wrong private key', async () => {
     const { pkcs8: other } = await keyPair();
     const enc = await run(pubKey, { operation: 'encrypt', payload: 'for alice only' });
-    await expect(run(pem('PRIVATE KEY', other), { operation: 'decrypt', payload: enc.output })).rejects.toThrow(
-      /decrypt/i,
-    );
+    await expect(
+      run(pem('PRIVATE KEY', other), { operation: 'decrypt', payload: enc.output }),
+    ).rejects.toThrow(/decrypt/i);
   });
 
   it('rejects a payload that is too large for the key', async () => {
@@ -113,18 +137,29 @@ describe('rsa-encrypt-decrypt', () => {
   });
 
   it('rejects missing key, missing payload and gibberish input', async () => {
-    await expect(run('', { operation: 'encrypt', payload: 'a' })).rejects.toThrow(/paste the rsa key/i);
-    await expect(run(pubKey, { operation: 'encrypt', payload: '   ' })).rejects.toThrow(/enter the payload/i);
-    await expect(run('not a key at all', { operation: 'encrypt', payload: 'a' })).rejects.toThrow(/valid public/i);
-    await expect(run(pem('PUBLIC KEY', new Uint8Array([1, 2, 3])), { operation: 'encrypt', payload: 'a' })).rejects.toThrow(
-      /parseable public/i,
+    await expect(run('', { operation: 'encrypt', payload: 'a' })).rejects.toThrow(
+      /paste the rsa key/i,
     );
+    await expect(run(pubKey, { operation: 'encrypt', payload: '   ' })).rejects.toThrow(
+      /enter the payload/i,
+    );
+    await expect(run('not a key at all', { operation: 'encrypt', payload: 'a' })).rejects.toThrow(
+      /valid public/i,
+    );
+    await expect(
+      run(pem('PUBLIC KEY', new Uint8Array([1, 2, 3])), { operation: 'encrypt', payload: 'a' }),
+    ).rejects.toThrow(/parseable public/i);
   });
 
   it('supports a non-default OAEP hash when both sides agree', async () => {
     const subtle = globalThis.crypto.subtle;
     const pair = await subtle.generateKey(
-      { name: 'RSA-OAEP', modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]), hash: 'SHA-384' },
+      {
+        name: 'RSA-OAEP',
+        modulusLength: 2048,
+        publicExponent: new Uint8Array([1, 0, 1]),
+        hash: 'SHA-384',
+      },
       true,
       ['encrypt', 'decrypt'],
     );

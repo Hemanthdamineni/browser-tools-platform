@@ -1,4 +1,3 @@
-
 import type { TextToolModule, TextRunInput, TextRunResult } from '@/lib/types';
 import { ToolError } from '@/lib/types';
 import { resolveOptions } from '@/lib/options';
@@ -89,7 +88,8 @@ interface Parsed {
 
 function parseCmd(source: string): Parsed {
   const tokens = tokenize(source);
-  if (!tokens.length) throw new ToolError('Paste a curl command to convert.', 'It usually starts with "curl …".');
+  if (!tokens.length)
+    throw new ToolError('Paste a curl command to convert.', 'It usually starts with "curl …".');
   let url = '';
   let method = '';
   const headers: Array<[string, string]> = [];
@@ -118,7 +118,12 @@ function parseCmd(source: string): Parsed {
       i += 2;
       continue;
     }
-    if (token === '-d' || token === '--data' || token === '--data-raw' || token === '--data-binary') {
+    if (
+      token === '-d' ||
+      token === '--data' ||
+      token === '--data-raw' ||
+      token === '--data-binary'
+    ) {
       data = next ?? '';
       i += 2;
       continue;
@@ -172,20 +177,37 @@ function parseCmd(source: string): Parsed {
       i += 1;
       continue;
     }
-    if (token === '-L' || token === '--location') notes.push('Follows redirects (-L); the snippet does not loop on redirects.');
-    if (token === '-k' || token === '--insecure') notes.push('TLS verification is off (-k); re-enable it where possible.');
-    if (token === '--compressed') notes.push('--compressed asks the server for gzip; fetch/axios handle this automatically.');
+    if (token === '-L' || token === '--location')
+      notes.push('Follows redirects (-L); the snippet does not loop on redirects.');
+    if (token === '-k' || token === '--insecure')
+      notes.push('TLS verification is off (-k); re-enable it where possible.');
+    if (token === '--compressed')
+      notes.push('--compressed asks the server for gzip; fetch/axios handle this automatically.');
     if (token === '-o' || token === '-c' || token === '--cookie-jar') {
-      notes.push(`Ignored file flag "${token}" — responses are not written to disk in browser code.`);
+      notes.push(
+        `Ignored file flag "${token}" — responses are not written to disk in browser code.`,
+      );
       i += 2;
       continue;
     }
-    if (token === '--connect-timeout' || token === '--max-time' || token === '-x' || token === '--proxy' || token === '--interface') {
+    if (
+      token === '--connect-timeout' ||
+      token === '--max-time' ||
+      token === '-x' ||
+      token === '--proxy' ||
+      token === '--interface'
+    ) {
       notes.push(`Ignored transport flag "${token}" — not portable to client-side code.`);
       i += 2;
       continue;
     }
-    if (token === '-s' || token === '--silent' || token === '-v' || token === '--verbose' || token === '--no-buffer') {
+    if (
+      token === '-s' ||
+      token === '--silent' ||
+      token === '-v' ||
+      token === '--verbose' ||
+      token === '--no-buffer'
+    ) {
       i += 1;
       continue;
     }
@@ -198,7 +220,11 @@ function parseCmd(source: string): Parsed {
     i += 1;
   }
 
-  if (!url) throw new ToolError('No URL found in the command.', 'Add a URL like "https://example.com/api" or use --url.');
+  if (!url)
+    throw new ToolError(
+      'No URL found in the command.',
+      'Add a URL like "https://example.com/api" or use --url.',
+    );
   if (!method) {
     if (data !== null || form.length) method = 'POST';
     else if (headers.some(([k]) => k.toLowerCase() === 'content-type')) method = 'POST';
@@ -224,12 +250,16 @@ function hasHeader(headers: Array<[string, string]>, name: string): boolean {
 }
 
 function quotedJs(value: string): string {
-  return "'" + value
-    .replace(/\\/g, '\\\\')
-    .replace(/'/g, "\\'")
-    .replace(/\n/g, '\\n')
-    .replace(/\r/g, '\\r')
-    .replace(/\t/g, '\\t') + "'";
+  return (
+    "'" +
+    value
+      .replace(/\\/g, '\\\\')
+      .replace(/'/g, "\\'")
+      .replace(/\n/g, '\\n')
+      .replace(/\r/g, '\\r')
+      .replace(/\t/g, '\\t') +
+    "'"
+  );
 }
 
 async function run(input: TextRunInput): Promise<TextRunResult> {
@@ -239,7 +269,10 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   const checkStatus = o.checkStatus !== false;
   const source = input.text ?? '';
   if (!source.trim()) {
-    throw new ToolError('Paste a curl command to convert.', 'Example: curl https://example.com/api');
+    throw new ToolError(
+      'Paste a curl command to convert.',
+      'Example: curl https://example.com/api',
+    );
   }
   if (source.length > 100_000) {
     throw new ToolError('Command is too large.', 'Keep it under 100,000 characters.');
@@ -261,24 +294,27 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   }
 
   const headersObj = finalHeaders.length
-    ? '  headers: {\n' + finalHeaders.map(([k, v]) => `    ${quotedJs(k)}: ${quotedJs(v)}`).join(',\n') + ',\n  },\n'
+    ? '  headers: {\n' +
+      finalHeaders.map(([k, v]) => `    ${quotedJs(k)}: ${quotedJs(v)}`).join(',\n') +
+      ',\n  },\n'
     : '';
 
-  const bodyKind =
-    parsed.form.length
-      ? 'form'
-      : jsonBody
-        ? 'json'
-        : parsed.data !== null && parsed.data !== ''
-          ? 'raw'
-          : null;
+  const bodyKind = parsed.form.length
+    ? 'form'
+    : jsonBody
+      ? 'json'
+      : parsed.data !== null && parsed.data !== ''
+        ? 'raw'
+        : null;
 
-  const fmtFormJs = (): string => `new URLSearchParams(${JSON.stringify(Object.fromEntries(parsed.form))})`;
+  const fmtFormJs = (): string =>
+    `new URLSearchParams(${JSON.stringify(Object.fromEntries(parsed.form))})`;
   const fmtHeadersPy = (): string => JSON.stringify(Object.fromEntries(finalHeaders), null, 2);
 
   if (target === 'requests') {
     // Python requests — declare the payload first so the call can reference it.
-    if (bodyKind === 'json') lines.push('JSON_BODY = ' + formatJsonForBody(parsed.data as string, pretty));
+    if (bodyKind === 'json')
+      lines.push('JSON_BODY = ' + formatJsonForBody(parsed.data as string, pretty));
     else if (bodyKind === 'raw') lines.push(`DATA_STR = ${JSON.stringify(parsed.data)}`);
     lines.push('', 'import requests', '', 'response = requests.request(');
     lines.push(`    '${parsed.method}',`);
@@ -292,7 +328,8 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     lines.push(`  method: '${parsed.method}',`);
     lines.push(`  url: ${quotedJs(parsed.url)},`);
     if (headersObj) lines.push(headersObj.trimEnd() + ',');
-    if (bodyKind === 'json') lines.push(`  data: ${formatJsonForBody(parsed.data as string, pretty)},`);
+    if (bodyKind === 'json')
+      lines.push(`  data: ${formatJsonForBody(parsed.data as string, pretty)},`);
     else if (bodyKind === 'raw') lines.push(`  data: ${quotedJs(parsed.data as string)},`);
     else if (bodyKind === 'form') lines.push('  data: ' + fmtFormJs() + ',');
     lines.push('});');
@@ -302,11 +339,15 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     lines.push(`const response = await fetch(${quotedJs(parsed.url)}, {`);
     lines.push(`  method: '${parsed.method}',`);
     if (headersObj) lines.push(headersObj.trimEnd() + ',');
-    if (bodyKind === 'json') lines.push(`  body: JSON.stringify(${formatJsonForBody(parsed.data as string, pretty)}),`);
+    if (bodyKind === 'json')
+      lines.push(`  body: JSON.stringify(${formatJsonForBody(parsed.data as string, pretty)}),`);
     else if (bodyKind === 'raw') lines.push(`  body: ${quotedJs(parsed.data as string)},`);
     else if (bodyKind === 'form') lines.push('  body: ' + fmtFormJs() + ',');
     lines.push('});');
-    if (checkStatus) lines.push('if (!response.ok) throw new Error(`HTTP ${response.status} ${response.statusText}`);');
+    if (checkStatus)
+      lines.push(
+        'if (!response.ok) throw new Error(`HTTP ${response.status} ${response.statusText}`);',
+      );
     lines.push('const data = await response.json();');
   }
 

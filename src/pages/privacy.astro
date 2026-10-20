@@ -19,8 +19,8 @@ const total = VISIBLE_TOOLS.length;
     </h1>
     <p>
       {site.name} is a static website. When you open a tool, your browser downloads a small amount of
-      JavaScript and runs it locally. The data you paste or the files you choose are handled by that
-      code <strong>in your browser tab</strong>. They are never sent to us or anyone else.
+      JavaScript and runs it locally. The data you paste or the files you choose are handled by that code
+      <strong>in your browser tab</strong>. They are never sent to us or anyone else.
     </p>
 
     <h2>What we do not do</h2>
@@ -37,8 +37,8 @@ const total = VISIBLE_TOOLS.length;
     <h2>How you can verify it</h2>
     <ul>
       <li>
-        Open your browser's developer tools, use a tool, and watch the Network tab: no request carries
-        your content.
+        Open your browser's developer tools, use a tool, and watch the Network tab: no request
+        carries your content.
       </li>
       <li>
         Turn off your connection after the page loads. Tools you've already opened keep working.
@@ -74,9 +74,7 @@ const total = VISIBLE_TOOLS.length;
                   <td>
                     <a href={`/tools/${t.meta.id}`}>{t.meta.name}</a>
                   </td>
-                  <td>
-                    {(t.meta.privacy.network as string[]).join(', ')}
-                  </td>
+                  <td>{(t.meta.privacy.network as string[]).join(', ')}</td>
                 </tr>
               ))}
             </tbody>

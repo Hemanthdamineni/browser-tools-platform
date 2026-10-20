@@ -10,19 +10,43 @@ afterEach(() => {
 
 describe('cropRect', () => {
   it('calculates center and anchored aspect crops', () => {
-    expect(cropRect(400, 200, { mode: 'aspect', aspect: '1:1', anchor: 'center' })).toEqual({ x: 100, y: 0, w: 200, h: 200 });
-    expect(cropRect(400, 200, { mode: 'aspect', aspect: '1:1', anchor: 'right' })).toEqual({ x: 200, y: 0, w: 200, h: 200 });
+    expect(cropRect(400, 200, { mode: 'aspect', aspect: '1:1', anchor: 'center' })).toEqual({
+      x: 100,
+      y: 0,
+      w: 200,
+      h: 200,
+    });
+    expect(cropRect(400, 200, { mode: 'aspect', aspect: '1:1', anchor: 'right' })).toEqual({
+      x: 200,
+      y: 0,
+      w: 200,
+      h: 200,
+    });
   });
   it('supports every anchor corner', () => {
-    expect(cropRect(400, 200, { mode: 'aspect', aspect: '1:1', anchor: 'top-left' })).toEqual({ x: 0, y: 0, w: 200, h: 200 });
-    expect(cropRect(400, 200, { mode: 'aspect', aspect: '1:1', anchor: 'bottom-right' })).toEqual({ x: 200, y: 0, w: 200, h: 200 });
+    expect(cropRect(400, 200, { mode: 'aspect', aspect: '1:1', anchor: 'top-left' })).toEqual({
+      x: 0,
+      y: 0,
+      w: 200,
+      h: 200,
+    });
+    expect(cropRect(400, 200, { mode: 'aspect', aspect: '1:1', anchor: 'bottom-right' })).toEqual({
+      x: 200,
+      y: 0,
+      w: 200,
+      h: 200,
+    });
   });
   it('floors and clips explicit crop rectangles to image bounds', () => {
-    expect(cropRect(100, 80, { mode: 'pixels', x: 10.8, y: 5.3, cropWidth: 200, cropHeight: 30.9 })).toEqual({ x: 10, y: 5, w: 90, h: 30 });
+    expect(
+      cropRect(100, 80, { mode: 'pixels', x: 10.8, y: 5.3, cropWidth: 200, cropHeight: 30.9 }),
+    ).toEqual({ x: 10, y: 5, w: 90, h: 30 });
   });
   it('rejects invalid ratios and zero/outside pixel crops', () => {
     expect(() => cropRect(10, 10, { aspect: '0:1' })).toThrow(/valid aspect ratio/i);
-    expect(() => cropRect(10, 10, { mode: 'pixels', x: 10, y: 0, cropWidth: 1, cropHeight: 2 })).toThrow(/outside the image/i);
+    expect(() =>
+      cropRect(10, 10, { mode: 'pixels', x: 10, y: 0, cropWidth: 1, cropHeight: 2 }),
+    ).toThrow(/outside the image/i);
   });
 });
 
@@ -37,12 +61,16 @@ describe('image-crop run', () => {
   });
 
   it('reports a friendly error when createImageBitmap is unavailable', async () => {
-    await expect(tool.run({ files: [makeFile('a.png')], options: {} })).rejects.toThrow(/createImageBitmap/i);
+    await expect(tool.run({ files: [makeFile('a.png')], options: {} })).rejects.toThrow(
+      /createImageBitmap/i,
+    );
   });
 
   it('reports a friendly error for undecodable bytes', async () => {
     mock = installImageMock({ failDecode: true });
-    await expect(tool.run({ files: [makeFile('bad.png')], options: {} })).rejects.toThrow(/could not be decoded/i);
+    await expect(tool.run({ files: [makeFile('bad.png')], options: {} })).rejects.toThrow(
+      /could not be decoded/i,
+    );
   });
 
   it('makes a square center crop by default', async () => {
@@ -57,7 +85,10 @@ describe('image-crop run', () => {
 
   it('crops an explicit pixel rectangle', async () => {
     mock = installImageMock({ width: 100, height: 80 });
-    await tool.run({ files: [makeFile('a.png')], options: { mode: 'pixels', x: 10, y: 5, cropWidth: 50, cropHeight: 30 } });
+    await tool.run({
+      files: [makeFile('a.png')],
+      options: { mode: 'pixels', x: 10, y: 5, cropWidth: 50, cropHeight: 30 },
+    });
     const draw = mock.canvases[0]!.draws[0]!.args;
     expect(draw.slice(1, 5)).toEqual([10, 5, 50, 30]);
   });
@@ -79,13 +110,18 @@ describe('image-crop run', () => {
 
   it('rejects an invalid aspect ratio', async () => {
     mock = installImageMock();
-    await expect(tool.run({ files: [makeFile('a.png')], options: { aspect: 'banana' } })).rejects.toThrow(/valid aspect ratio/i);
+    await expect(
+      tool.run({ files: [makeFile('a.png')], options: { aspect: 'banana' } }),
+    ).rejects.toThrow(/valid aspect ratio/i);
   });
 
   it('rejects a zero-size pixel crop', async () => {
     mock = installImageMock();
     await expect(
-      tool.run({ files: [makeFile('a.png')], options: { mode: 'pixels', x: 0, y: 0, cropWidth: 0, cropHeight: 10 } }),
+      tool.run({
+        files: [makeFile('a.png')],
+        options: { mode: 'pixels', x: 0, y: 0, cropWidth: 0, cropHeight: 10 },
+      }),
     ).rejects.toThrow(/zero size|outside the image/i);
   });
 
@@ -117,13 +153,15 @@ describe('image-crop run', () => {
 
   it('cancels when the signal is already aborted', async () => {
     mock = installImageMock();
-    await expect(tool.run({ files: [makeFile('a.png')], options: {}, signal: AbortSignal.abort() })).rejects.toThrow(
-      /cancelled/i,
-    );
+    await expect(
+      tool.run({ files: [makeFile('a.png')], options: {}, signal: AbortSignal.abort() }),
+    ).rejects.toThrow(/cancelled/i);
   });
 
   it('rejects an oversized source image', async () => {
     mock = installImageMock({ width: 20_000, height: 20_000 });
-    await expect(tool.run({ files: [makeFile('huge.png')], options: {} })).rejects.toThrow(/too large/i);
+    await expect(tool.run({ files: [makeFile('huge.png')], options: {} })).rejects.toThrow(
+      /too large/i,
+    );
   });
 });

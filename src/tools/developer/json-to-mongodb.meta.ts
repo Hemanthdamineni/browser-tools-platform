@@ -4,7 +4,8 @@ export const meta: ToolMeta = {
   id: 'json-to-mongodb',
   name: 'JSON to MongoDB',
   category: 'developer',
-  summary: 'Wrap JSON documents in a mongosh insertMany script for a collection, exactly as BSON-ready documents.',
+  summary:
+    'Wrap JSON documents in a mongosh insertMany script for a collection, exactly as BSON-ready documents.',
   description:
     'Turn a JSON array (or single object) into a ready-to-run mongosh command: db.<collection>.insertMany([...]);. JSON is embedded verbatim as JavaScript object literals so exact types survive — no quoting surprises. Choose compact or pretty formatting, toggle the wrapper, and pick your collection name.',
   keywords: [
@@ -54,7 +55,8 @@ export const meta: ToolMeta = {
   examples: [
     {
       title: 'A users collection',
-      input: '[{"name":"Ada","role":"admin","active":true},{"name":"Lin","role":"dev","active":false}]',
+      input:
+        '[{"name":"Ada","role":"admin","active":true},{"name":"Lin","role":"dev","active":false}]',
       options: { collection: 'users' },
     },
   ],

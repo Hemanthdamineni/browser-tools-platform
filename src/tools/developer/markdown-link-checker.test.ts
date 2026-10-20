@@ -64,7 +64,9 @@ describe('markdown-link-checker', () => {
   });
 
   it('skips fenced code blocks and indented code', async () => {
-    const r = await run('```js\nsee [fake](#nope) here\n```\n\n    indented [also](#nope)\n\n# Real\n');
+    const r = await run(
+      '```js\nsee [fake](#nope) here\n```\n\n    indented [also](#nope)\n\n# Real\n',
+    );
     const rows = table(r).rows;
     expect(kinds(rows)).not.toContain('broken-fragment');
   });

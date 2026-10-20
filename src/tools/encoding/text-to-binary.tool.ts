@@ -30,7 +30,10 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
 
   const source = input.text ?? '';
   if (!source.trim()) {
-    throw new ToolError(mode === 'encode' ? 'Paste some text to encode.' : 'Paste binary to decode.', 'Try "Hi".');
+    throw new ToolError(
+      mode === 'encode' ? 'Paste some text to encode.' : 'Paste binary to decode.',
+      'Try "Hi".',
+    );
   }
   if (source.length > MAX_LEN) {
     throw new ToolError('Input is too large.', 'Keep it under 1,000,000 characters.');
@@ -42,7 +45,9 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     if (groupBy === 8) {
       output = groups.join(separator);
     } else {
-      output = groups.map((byte) => byte.match(/.{4}/g)!.join(separator === '' ? '' : ' ')).join(separator === '' ? '' : ' ');
+      output = groups
+        .map((byte) => byte.match(/.{4}/g)!.join(separator === '' ? '' : ' '))
+        .join(separator === '' ? '' : ' ');
     }
     return {
       output: output + '\n',
@@ -55,11 +60,17 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
 
   const normalized = normalizeBinary(source);
   if (normalized.length === 0) {
-    throw new ToolError('No binary digits found.', 'Expected only 0s and 1s (spaces and newlines are ignored).');
+    throw new ToolError(
+      'No binary digits found.',
+      'Expected only 0s and 1s (spaces and newlines are ignored).',
+    );
   }
   if (normalized.length % 8 !== 0) {
     const valid = Math.ceil(normalized.length / 8) * 8;
-    throw new ToolError('Binary length is not a multiple of 8.', `Found ${normalized.length} bits; the closest valid whole-byte length is ${valid} bits.`);
+    throw new ToolError(
+      'Binary length is not a multiple of 8.',
+      `Found ${normalized.length} bits; the closest valid whole-byte length is ${valid} bits.`,
+    );
   }
   const bytes: number[] = [];
   for (let i = 0; i < normalized.length; i += 8) {

@@ -36,7 +36,12 @@ const tools = [...VISIBLE_TOOLS].sort((a, b) => a.meta.name.localeCompare(b.meta
         autocomplete="off"
       />
     </label>
-    <div class="flex flex-wrap gap-1.5" id="cat-filters" role="group" aria-label="Filter by category">
+    <div
+      class="flex flex-wrap gap-1.5"
+      id="cat-filters"
+      role="group"
+      aria-label="Filter by category"
+    >
       <button class="chip is-active" data-cat="all" aria-pressed="true" type="button">All</button>
       {
         categories.map((c) => (
@@ -75,7 +80,9 @@ const tools = [...VISIBLE_TOOLS].sort((a, b) => a.meta.name.localeCompare(b.meta
     background-color: rgb(var(--accent));
     color: rgb(var(--accent-fg));
   }
-  .chip + .chip { margin: 0; }
+  .chip + .chip {
+    margin: 0;
+  }
 </style>
 
 <script>

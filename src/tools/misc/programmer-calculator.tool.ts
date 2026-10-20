@@ -10,7 +10,10 @@ function tokenize(src: string): T[] {
   let i = 0;
   while (i < src.length) {
     const c = src[i]!;
-    if (/\s/.test(c)) { i++; continue; }
+    if (/\s/.test(c)) {
+      i++;
+      continue;
+    }
     if (/[0-9]/.test(c)) {
       let j = i + 1;
       if (c === '0' && /[xXbBoO]/.test(src[j] ?? '')) {
@@ -20,27 +23,59 @@ function tokenize(src: string): T[] {
         while (j < src.length && /[0-9]/.test(src[j]!)) j++;
       }
       const raw = src.slice(i, j);
-      try { out.push({ k: 'num', v: BigInt(raw) }); } catch { throw new ToolError(`Invalid integer literal "${raw}".`); }
+      try {
+        out.push({ k: 'num', v: BigInt(raw) });
+      } catch {
+        throw new ToolError(`Invalid integer literal "${raw}".`);
+      }
       i = j;
       continue;
     }
-    if ('+-*/%&|^~'.includes(c)) { out.push({ k: 'op', v: c }); i++; continue; }
+    if ('+-*/%&|^~'.includes(c)) {
+      out.push({ k: 'op', v: c });
+      i++;
+      continue;
+    }
     if (c === '<' || c === '>') {
       const op = src.slice(i, i + 3);
       const two = src.slice(i, i + 2);
-      if (op === '>>>') { out.push({ k: 'op', v: op }); i += 3; }
-      else if (two === '<<' || two === '>>') { out.push({ k: 'op', v: two }); i += 2; }
-      else throw new ToolError(`Unexpected character "${c}".`);
+      if (op === '>>>') {
+        out.push({ k: 'op', v: op });
+        i += 3;
+      } else if (two === '<<' || two === '>>') {
+        out.push({ k: 'op', v: two });
+        i += 2;
+      } else throw new ToolError(`Unexpected character "${c}".`);
       continue;
     }
-    if (c === '(') { out.push({ k: 'lp' }); i++; continue; }
-    if (c === ')') { out.push({ k: 'rp' }); i++; continue; }
+    if (c === '(') {
+      out.push({ k: 'lp' });
+      i++;
+      continue;
+    }
+    if (c === ')') {
+      out.push({ k: 'rp' });
+      i++;
+      continue;
+    }
     throw new ToolError(`Unexpected character "${c}".`);
   }
   return out;
 }
 
-const PREC: Record<string, number> = { '|': 1, '^': 2, '&': 3, '<<': 4, '>>': 4, '>>>': 4, '+': 5, '-': 5, '*': 6, '/': 6, '%': 6 };
+const PREC: Record<string, number> = {
+  '|': 1,
+  '^': 2,
+  '&': 3,
+  '<<': 4,
+  '>>': 4,
+  '>>>': 4,
+  '+': 5,
+  '-': 5,
+  '*': 6,
+  '/': 6,
+  '%': 6,
+};
 
 class Parser {
   private pos = 0;
@@ -50,7 +85,9 @@ class Parser {
     if (this.pos !== this.ts.length) throw new ToolError('Unexpected token after the expression.');
     return x;
   }
-  private peek(): T | undefined { return this.ts[this.pos]; }
+  private peek(): T | undefined {
+    return this.ts[this.pos];
+  }
   private take(): T {
     const t = this.ts[this.pos++];
     if (!t) throw new ToolError('Unexpected end of expression.');
@@ -76,24 +113,45 @@ class Parser {
       this.take();
       const right = this.expr(prec + 1);
       switch (op) {
-        case '+': left += right; break;
-        case '-': left -= right; break;
-        case '*': left *= right; break;
-        case '/': if (right === 0n) throw new ToolError('Cannot divide by zero.'); left /= right; break;
-        case '%': if (right === 0n) throw new ToolError('Cannot take modulo by zero.'); left %= right; break;
-        case '&': left &= right; break;
-        case '|': left |= right; break;
-        case '^': left ^= right; break;
+        case '+':
+          left += right;
+          break;
+        case '-':
+          left -= right;
+          break;
+        case '*':
+          left *= right;
+          break;
+        case '/':
+          if (right === 0n) throw new ToolError('Cannot divide by zero.');
+          left /= right;
+          break;
+        case '%':
+          if (right === 0n) throw new ToolError('Cannot take modulo by zero.');
+          left %= right;
+          break;
+        case '&':
+          left &= right;
+          break;
+        case '|':
+          left |= right;
+          break;
+        case '^':
+          left ^= right;
+          break;
         case '<<':
-          if (right < 0n || right > 1024n) throw new ToolError('Shift count must be between 0 and 1024.');
+          if (right < 0n || right > 1024n)
+            throw new ToolError('Shift count must be between 0 and 1024.');
           left <<= right;
           break;
         case '>>':
-          if (right < 0n || right > 1024n) throw new ToolError('Shift count must be between 0 and 1024.');
+          if (right < 0n || right > 1024n)
+            throw new ToolError('Shift count must be between 0 and 1024.');
           left >>= right;
           break;
         case '>>>':
-          if (right < 0n || right > 1024n) throw new ToolError('Shift count must be between 0 and 1024.');
+          if (right < 0n || right > 1024n)
+            throw new ToolError('Shift count must be between 0 and 1024.');
           left = BigInt.asUintN(64, left) >> right;
           break;
       }
@@ -111,8 +169,14 @@ function run(input: TextRunInput): TextRunResult {
   const raw = new Parser(tokenize(text)).parse();
   const unsigned = BigInt.asUintN(bits, raw);
   const interpreted = signed ? BigInt.asIntN(bits, raw) : unsigned;
-  const bin = unsigned.toString(2).padStart(bits, '0').replace(/(.{4})(?=.)/g, '$1 ');
-  const twos = `0x${unsigned.toString(16).toUpperCase().padStart(Math.ceil(bits / 4), '0')}`;
+  const bin = unsigned
+    .toString(2)
+    .padStart(bits, '0')
+    .replace(/(.{4})(?=.)/g, '$1 ');
+  const twos = `0x${unsigned
+    .toString(16)
+    .toUpperCase()
+    .padStart(Math.ceil(bits / 4), '0')}`;
   const ones = unsigned.toString(2).replace(/0/g, '').length;
   const rows = [
     ['DEC', String(interpreted)],
@@ -122,7 +186,11 @@ function run(input: TextRunInput): TextRunResult {
     [`Two's complement (${bits}-bit)`, twos],
     ['Set bits', String(ones)],
   ];
-  return { output: JSON.stringify({ headers: ['Representation', 'Value'], rows }), render: 'table', stats: { bits, signed: String(signed) } };
+  return {
+    output: JSON.stringify({ headers: ['Representation', 'Value'], rows }),
+    render: 'table',
+    stats: { bits, signed: String(signed) },
+  };
 }
 
 const tool: TextToolModule = { meta, run };

@@ -23,7 +23,11 @@ function parseIpv4(input: string): bigint {
 
 function parseIpv6(input: string): bigint {
   let address = input.toLowerCase();
-  if (address.includes('%')) throw new ToolError('IPv6 zone identifiers are not accepted.', 'Remove the %zone suffix before calculating the address.');
+  if (address.includes('%'))
+    throw new ToolError(
+      'IPv6 zone identifiers are not accepted.',
+      'Remove the %zone suffix before calculating the address.',
+    );
 
   if (address.includes('.')) {
     const separator = address.lastIndexOf(':');
@@ -33,7 +37,10 @@ function parseIpv6(input: string): bigint {
   }
 
   if (!/^[0-9a-f:]+$/.test(address) || !address.includes(':')) {
-    throw new ToolError('Enter a valid IPv6 address.', 'Use hexadecimal groups separated by colons.');
+    throw new ToolError(
+      'Enter a valid IPv6 address.',
+      'Use hexadecimal groups separated by colons.',
+    );
   }
   const doubleColon = address.indexOf('::');
   if (doubleColon !== -1 && address.indexOf('::', doubleColon + 2) !== -1) {
@@ -43,7 +50,8 @@ function parseIpv6(input: string): bigint {
   let groups: string[];
   if (doubleColon === -1) {
     groups = address.split(':');
-    if (groups.length !== 8) throw new ToolError('An uncompressed IPv6 address must contain eight groups.');
+    if (groups.length !== 8)
+      throw new ToolError('An uncompressed IPv6 address must contain eight groups.');
   } else {
     const left = address.slice(0, doubleColon) ? address.slice(0, doubleColon).split(':') : [];
     const right = address.slice(doubleColon + 2) ? address.slice(doubleColon + 2).split(':') : [];
@@ -53,7 +61,10 @@ function parseIpv6(input: string): bigint {
   }
 
   if (groups.length !== 8 || groups.some((group) => !/^[0-9a-f]{1,4}$/.test(group))) {
-    throw new ToolError('Invalid IPv6 group.', 'Each group must contain one to four hexadecimal digits.');
+    throw new ToolError(
+      'Invalid IPv6 group.',
+      'Each group must contain one to four hexadecimal digits.',
+    );
   }
   return groups.reduce((value, group) => (value << 16n) | BigInt(`0x${group}`), 0n);
 }
@@ -63,11 +74,16 @@ function formatIpv4(value: bigint): string {
 }
 
 function formatIpv6(value: bigint): string {
-  const groups = Array.from({ length: 8 }, (_, index) => Number((value >> BigInt((7 - index) * 16)) & 0xffffn));
+  const groups = Array.from({ length: 8 }, (_, index) =>
+    Number((value >> BigInt((7 - index) * 16)) & 0xffffn),
+  );
   let bestStart = -1;
   let bestLength = 1;
   for (let i = 0; i < groups.length;) {
-    if (groups[i] !== 0) { i++; continue; }
+    if (groups[i] !== 0) {
+      i++;
+      continue;
+    }
     let end = i;
     while (end < groups.length && groups[end] === 0) end++;
     if (end - i > bestLength) {
@@ -77,15 +93,29 @@ function formatIpv6(value: bigint): string {
     i = end;
   }
   if (bestStart < 0) return groups.map((group) => group.toString(16)).join(':');
-  const left = groups.slice(0, bestStart).map((group) => group.toString(16)).join(':');
-  const right = groups.slice(bestStart + bestLength).map((group) => group.toString(16)).join(':');
+  const left = groups
+    .slice(0, bestStart)
+    .map((group) => group.toString(16))
+    .join(':');
+  const right = groups
+    .slice(bestStart + bestLength)
+    .map((group) => group.toString(16))
+    .join(':');
   return `${left}::${right}`;
 }
 
-function calculate(input: string): { rows: string[][]; version: 'IPv4' | 'IPv6'; prefix: number; count: bigint } {
+function calculate(input: string): {
+  rows: string[][];
+  version: 'IPv4' | 'IPv6';
+  prefix: number;
+  count: bigint;
+} {
   const slash = input.lastIndexOf('/');
   if (slash < 1 || slash === input.length - 1) {
-    throw new ToolError('Include a CIDR prefix after /.', 'Example: 192.168.1.5/24 or 2001:db8::1/64.');
+    throw new ToolError(
+      'Include a CIDR prefix after /.',
+      'Example: 192.168.1.5/24 or 2001:db8::1/64.',
+    );
   }
   const address = input.slice(0, slash).trim();
   const prefixText = input.slice(slash + 1).trim();
@@ -136,7 +166,11 @@ function run(input: TextRunInput): TextRunResult {
   return {
     output: JSON.stringify({ headers: ['Property', 'Value'], rows: result.rows }),
     render: 'table',
-    stats: { version: result.version, prefix: `/${result.prefix}`, addresses: result.count.toString() },
+    stats: {
+      version: result.version,
+      prefix: `/${result.prefix}`,
+      addresses: result.count.toString(),
+    },
   };
 }
 

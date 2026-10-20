@@ -62,9 +62,12 @@ describe('json-schema-to-typescript', () => {
   });
 
   it('emits a type alias when the style option is type', async () => {
-    const r = await run(JSON.stringify({ type: 'object', properties: { id: { type: 'integer' } } }), {
-      style: 'type',
-    });
+    const r = await run(
+      JSON.stringify({ type: 'object', properties: { id: { type: 'integer' } } }),
+      {
+        style: 'type',
+      },
+    );
     expect(r.output).toBe(['export type Root = {', '  id?: number;', '};'].join('\n'));
   });
 
@@ -109,7 +112,9 @@ describe('json-schema-to-typescript', () => {
     });
     const r = await run(schema);
     expect(r.output).toBe(
-      ['export interface Root {', '  id?: string;', '  [key: string]: string | number;', '}'].join('\n'),
+      ['export interface Root {', '  id?: string;', '  [key: string]: string | number;', '}'].join(
+        '\n',
+      ),
     );
     const loose = await run(JSON.stringify({ type: 'object', additionalProperties: true }));
     expect(loose.output).toContain('[key: string]: unknown;');
@@ -143,7 +148,11 @@ describe('json-schema-to-typescript', () => {
   });
 
   it('honors exportTypes, readonlyProps and indent options', async () => {
-    const schema = JSON.stringify({ type: 'object', required: ['id'], properties: { id: { type: 'integer' } } });
+    const schema = JSON.stringify({
+      type: 'object',
+      required: ['id'],
+      properties: { id: { type: 'integer' } },
+    });
     const plain = await run(schema, { exportTypes: false });
     expect(plain.output.startsWith('interface Root {')).toBe(true);
     const readonly = await run(schema, { readonlyProps: true });

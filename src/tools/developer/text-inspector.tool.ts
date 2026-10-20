@@ -4,16 +4,31 @@ import { resolveOptions } from '@/lib/options';
 import { meta } from './text-inspector.meta';
 
 const CODE_POINT_NAMES: Record<number, string> = {
-  0x00ad: 'soft hyphen', 0x034f: 'combining grapheme joiner', 0x061c: 'Arabic letter mark',
-  0x115f: 'hangul choseong filler', 0x1160: 'hangul jungseong filler',
-  0x17b4: 'khmer vowel inherent aq', 0x17b5: 'khmer vowel inherent aa',
-  0x180e: 'Mongolian vowel separator', 0x200b: 'zero-width space', 0x200c: 'zero-width non-joiner',
-  0x200d: 'zero-width joiner', 0x200e: 'left-to-right mark', 0x200f: 'right-to-left mark',
-  0x202a: 'left-to-right embedding', 0x202b: 'right-to-left embedding',
-  0x202c: 'pop directional formatting', 0x202d: 'left-to-right override',
-  0x202e: 'right-to-left override', 0x2060: 'word joiner', 0x2066: 'left-to-right isolate',
-  0x2067: 'right-to-left isolate', 0x2068: 'first strong isolate', 0x2069: 'pop directional isolate',
-  0x3000: 'ideographic space', 0xfeff: 'byte-order mark / zero-width no-break space',
+  0x00ad: 'soft hyphen',
+  0x034f: 'combining grapheme joiner',
+  0x061c: 'Arabic letter mark',
+  0x115f: 'hangul choseong filler',
+  0x1160: 'hangul jungseong filler',
+  0x17b4: 'khmer vowel inherent aq',
+  0x17b5: 'khmer vowel inherent aa',
+  0x180e: 'Mongolian vowel separator',
+  0x200b: 'zero-width space',
+  0x200c: 'zero-width non-joiner',
+  0x200d: 'zero-width joiner',
+  0x200e: 'left-to-right mark',
+  0x200f: 'right-to-left mark',
+  0x202a: 'left-to-right embedding',
+  0x202b: 'right-to-left embedding',
+  0x202c: 'pop directional formatting',
+  0x202d: 'left-to-right override',
+  0x202e: 'right-to-left override',
+  0x2060: 'word joiner',
+  0x2066: 'left-to-right isolate',
+  0x2067: 'right-to-left isolate',
+  0x2068: 'first strong isolate',
+  0x2069: 'pop directional isolate',
+  0x3000: 'ideographic space',
+  0xfeff: 'byte-order mark / zero-width no-break space',
 };
 
 const hex = (value: number, width = 4) => value.toString(16).toUpperCase().padStart(width, '0');
@@ -99,8 +114,12 @@ function run(input: TextRunInput): TextRunResult {
     column++;
   }
 
-  const bomName = text.startsWith('\ufeff') ? 'UTF-8 / Unicode BOM character present' : 'No leading BOM character';
-  const newlineKinds = Object.entries(endings).filter(([, count]) => count > 0).map(([kind]) => kind.toUpperCase());
+  const bomName = text.startsWith('\ufeff')
+    ? 'UTF-8 / Unicode BOM character present'
+    : 'No leading BOM character';
+  const newlineKinds = Object.entries(endings)
+    .filter(([, count]) => count > 0)
+    .map(([kind]) => kind.toUpperCase());
   const summaryRows = [
     ['Code points', String([...text].length)],
     ['Non-ASCII code points', String(nonAsciiCount)],
@@ -108,7 +127,10 @@ function run(input: TextRunInput): TextRunResult {
     ['CRLF line endings', String(endings.crlf)],
     ['LF line endings', String(endings.lf)],
     ['CR line endings', String(endings.cr)],
-    ['Line-ending style', newlineKinds.length > 1 ? `Mixed (${newlineKinds.join(', ')})` : newlineKinds[0] ?? 'None'],
+    [
+      'Line-ending style',
+      newlineKinds.length > 1 ? `Mixed (${newlineKinds.join(', ')})` : (newlineKinds[0] ?? 'None'),
+    ],
     ['Reported character findings', String(findingCount)],
     ['Finding limit reached', truncated ? 'yes' : 'no'],
   ];
@@ -125,8 +147,16 @@ function run(input: TextRunInput): TextRunResult {
       text.startsWith('\ufeff')
         ? 'The BOM is reported in the summary and intentionally omitted from the character findings table.'
         : 'Original encoding cannot be inferred from an already-decoded pasted string.',
-      ...(truncated ? [`Showing the first ${maxFindings} findings; ${findingCount - maxFindings} more were omitted.`] : []),
-      ...(controlCounts.size ? [`Character counts: ${[...controlCounts].map(([name, count]) => `${name}: ${count}`).join(', ')}`] : []),
+      ...(truncated
+        ? [
+            `Showing the first ${maxFindings} findings; ${findingCount - maxFindings} more were omitted.`,
+          ]
+        : []),
+      ...(controlCounts.size
+        ? [
+            `Character counts: ${[...controlCounts].map(([name, count]) => `${name}: ${count}`).join(', ')}`,
+          ]
+        : []),
     ],
   };
 }

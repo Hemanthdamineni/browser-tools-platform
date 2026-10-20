@@ -9,11 +9,16 @@ export function transformChannels(channels: Float32Array[], operation: string): 
   const left = stereo[0]!;
   const right = stereo[1]!;
   switch (operation) {
-    case 'to-mono': return [remixChannels(channels, 1)[0]!];
-    case 'to-stereo': return stereo;
-    case 'swap': return [right, left];
-    case 'left-only': return [left, left.slice(0)];
-    case 'right-only': return [right, right.slice(0)];
+    case 'to-mono':
+      return [remixChannels(channels, 1)[0]!];
+    case 'to-stereo':
+      return stereo;
+    case 'swap':
+      return [right, left];
+    case 'left-only':
+      return [left, left.slice(0)];
+    case 'right-only':
+      return [right, right.slice(0)];
     case 'mid-side': {
       const mid = new Float32Array(left.length);
       const side = new Float32Array(left.length);
@@ -23,7 +28,8 @@ export function transformChannels(channels: Float32Array[], operation: string): 
       }
       return [mid, side];
     }
-    default: return stereo;
+    default:
+      return stereo;
   }
 }
 
@@ -37,7 +43,12 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   const channels = transformChannels(audio.channels, operation);
   input.onProgress?.(1, 'Done');
   return {
-    outputs: [{ filename: `${input.files[0]!.name.replace(/\.[^.]*$/, '') || 'audio'}-${operation}.wav`, blob: toWavBlob(channels, audio.sampleRate) }],
+    outputs: [
+      {
+        filename: `${input.files[0]!.name.replace(/\.[^.]*$/, '') || 'audio'}-${operation}.wav`,
+        blob: toWavBlob(channels, audio.sampleRate),
+      },
+    ],
     stats: { operation, channels: channels.length },
   };
 }

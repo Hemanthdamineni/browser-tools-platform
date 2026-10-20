@@ -6,8 +6,20 @@ import { meta } from './html-to-pug.meta';
 const MAX_LEN = 500_000;
 
 const VOID_ELEMENTS = new Set([
-  'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param',
-  'source', 'track', 'wbr',
+  'area',
+  'base',
+  'br',
+  'col',
+  'embed',
+  'hr',
+  'img',
+  'input',
+  'link',
+  'meta',
+  'param',
+  'source',
+  'track',
+  'wbr',
 ]);
 
 const RAW_TEXT_ELEMENTS = new Set(['script', 'style']);
@@ -49,13 +61,17 @@ function decodeEntities(text: string): string {
     .replace(/&amp;/g, '&');
 }
 
-function parseAttributes(state: ParserState, raw: string): { name: string; value: string | null }[] {
+function parseAttributes(
+  state: ParserState,
+  raw: string,
+): { name: string; value: string | null }[] {
   const attrs: { name: string; value: string | null }[] = [];
   const re = /([^\s=/>]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+)))?/g;
   let m: RegExpExecArray | null;
   while ((m = re.exec(raw)) !== null) {
     const name = m[1]!;
-    const value = m[2] !== undefined ? m[2] : m[3] !== undefined ? m[3] : m[4] !== undefined ? m[4] : null;
+    const value =
+      m[2] !== undefined ? m[2] : m[3] !== undefined ? m[3] : m[4] !== undefined ? m[4] : null;
     if (name === '/' || name === '') continue;
     attrs.push({ name, value: value === null ? null : decodeEntities(value) });
   }
@@ -107,7 +123,10 @@ function parseNodes(state: ParserState, stopTag: string | null): Node[] {
         state.pos = src.length;
         break;
       }
-      const tag = src.slice(state.pos + 2, end).trim().toLowerCase();
+      const tag = src
+        .slice(state.pos + 2, end)
+        .trim()
+        .toLowerCase();
       state.pos = end + 1;
       if (stopTag !== null && tag === stopTag) return nodes;
       // Stray closing tag — ignore, but note it once.
@@ -173,7 +192,9 @@ function parseNodes(state: ParserState, stopTag: string | null): Node[] {
       const rest = src.slice(state.pos);
       const closeMatch = closeRe.exec(rest);
       if (!closeMatch) {
-        state.warnings.push('<' + tag + '> has no closing tag; its contents were taken to the end.');
+        state.warnings.push(
+          '<' + tag + '> has no closing tag; its contents were taken to the end.',
+        );
         element.children.push({ kind: 'text', text: rest });
         state.pos = src.length;
       } else {
@@ -233,10 +254,16 @@ function normalizeText(text: string): string {
   return decodeEntities(text).replace(/\s+/g, ' ');
 }
 
-function emit(nodes: Node[], depth: number, indentUnit: string, quote: string, opts: {
-  keepComments: boolean;
-  inlineText: boolean;
-}): string[] {
+function emit(
+  nodes: Node[],
+  depth: number,
+  indentUnit: string,
+  quote: string,
+  opts: {
+    keepComments: boolean;
+    inlineText: boolean;
+  },
+): string[] {
   const lines: string[] = [];
   const pad = indentUnit.repeat(depth);
 
@@ -274,11 +301,16 @@ function emit(nodes: Node[], depth: number, indentUnit: string, quote: string, o
       continue;
     }
 
-    const meaningful = node.children.filter((c) => c.kind !== 'text' || normalizeText(c.text).trim() !== '');
+    const meaningful = node.children.filter(
+      (c) => c.kind !== 'text' || normalizeText(c.text).trim() !== '',
+    );
     const onlyText = meaningful.length > 0 && meaningful.every((c) => c.kind === 'text');
 
     if (onlyText) {
-      const text = meaningful.map((c) => (c.kind === 'text' ? normalizeText(c.text).trim() : '')).join(' ').trim();
+      const text = meaningful
+        .map((c) => (c.kind === 'text' ? normalizeText(c.text).trim() : ''))
+        .join(' ')
+        .trim();
       if (opts.inlineText && text !== '' && !text.includes('\n')) {
         lines.push(pad + selector + attrText + ' ' + text);
       } else {
@@ -306,12 +338,16 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   const quote = quoteStyle === 'single' ? "'" : '"';
   const raw = String(input.text ?? '').trim();
   if (raw === '') throw new ToolError('Paste some HTML to convert.');
-  if (raw.length > MAX_LEN) throw new ToolError('Input is too large.', 'Keep it under ' + MAX_LEN + ' characters.');
+  if (raw.length > MAX_LEN)
+    throw new ToolError('Input is too large.', 'Keep it under ' + MAX_LEN + ' characters.');
 
   const state: ParserState = { src: raw, pos: 0, warnings: [] };
   const nodes = parseNodes(state, null);
   if (nodes.length === 0 || countElements(nodes) === 0)
-    throw new ToolError('No HTML elements found.', 'Paste markup such as <div class="card">…</div>.');
+    throw new ToolError(
+      'No HTML elements found.',
+      'Paste markup such as <div class="card">…</div>.',
+    );
 
   const indentUnit = ' '.repeat(indentWidth);
   const lines = emit(nodes, 0, indentUnit, quote, { keepComments, inlineText });
@@ -319,7 +355,8 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
 
   const elements = countElements(nodes);
   const notes: string[] = [elements + ' element(s) converted to Pug.'];
-  for (const warning of Array.from(new Set(state.warnings)).slice(0, 5)) notes.push('Warning: ' + warning);
+  for (const warning of Array.from(new Set(state.warnings)).slice(0, 5))
+    notes.push('Warning: ' + warning);
 
   return {
     output: lines.join('\n') + '\n',

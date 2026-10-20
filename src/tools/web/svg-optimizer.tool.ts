@@ -54,7 +54,8 @@ function parseSvg(source: string): ParseResult {
   let textBuf = '';
 
   const flushText = (): void => {
-    if (textBuf.trim() !== '' && stack.length) stack[stack.length - 1]!.children.push({ text: textBuf });
+    if (textBuf.trim() !== '' && stack.length)
+      stack[stack.length - 1]!.children.push({ text: textBuf });
     textBuf = '';
   };
 
@@ -149,7 +150,8 @@ function parseSvg(source: string): ParseResult {
   flushText();
 
   if (!root) errors.push('No <svg> element found.');
-  if (stack.length) errors.push('Unbalanced tags — <' + stack[stack.length - 1]!.name + '> is never closed.');
+  if (stack.length)
+    errors.push('Unbalanced tags — <' + stack[stack.length - 1]!.name + '> is never closed.');
   return { root, prolog, errors };
 }
 
@@ -163,8 +165,22 @@ function roundNumber(value: string, precision: number): string {
 }
 
 const MEANINGFUL = new Set([
-  'transform', 'fill', 'stroke', 'stroke-width', 'opacity', 'fill-opacity', 'stroke-opacity', 'style',
-  'filter', 'mask', 'clip-path', 'id', 'href', 'xlink:href', 'd', 'class',
+  'transform',
+  'fill',
+  'stroke',
+  'stroke-width',
+  'opacity',
+  'fill-opacity',
+  'stroke-opacity',
+  'style',
+  'filter',
+  'mask',
+  'clip-path',
+  'id',
+  'href',
+  'xlink:href',
+  'd',
+  'class',
 ]);
 
 function shouldDropEmptyGroup(el: Elt): boolean {
@@ -190,7 +206,6 @@ function walkDrop(el: Elt, dropEmpty: boolean): Elt {
   return el;
 }
 
-
 const NUMERIC_TOKEN = /(-?\d+(?:\.\d+)?|-?\.\d+)/g;
 
 /** Round standalone numbers in an attribute value; leave colours, ids and units alone. */
@@ -205,7 +220,14 @@ function renderSvg(root: Elt, mode: 'minify' | 'pretty', precision: number): str
 
   const attrText = (el: Elt): string =>
     el.attrs
-      .map(([k, v]) => ' ' + k + '="' + roundAttrValue(v, precision).replace(/&/g, '&amp;').replace(/"/g, '&quot;') + '"')
+      .map(
+        ([k, v]) =>
+          ' ' +
+          k +
+          '="' +
+          roundAttrValue(v, precision).replace(/&/g, '&amp;').replace(/"/g, '&quot;') +
+          '"',
+      )
       .join('');
 
   const renderEl = (el: Elt, depth: number): void => {
@@ -248,7 +270,10 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
 
   const source = input.text ?? '';
   if (!source.trim()) {
-    throw new ToolError('Paste an SVG to optimize.', 'For example an export from Figma, Inkscape or Sketch.');
+    throw new ToolError(
+      'Paste an SVG to optimize.',
+      'For example an export from Figma, Inkscape or Sketch.',
+    );
   }
   if (source.length > MAX_LENGTH) {
     throw new ToolError('SVG is too large.', 'Keep it under 2,000,000 characters.');
@@ -273,7 +298,9 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
 
   const notes = [];
   const saved = before - bytes;
-  notes.push(`Input ${before} chars → output ${bytes} chars (${saved >= 0 ? 'saved ' + saved : 'grew by ' + -saved}).`);
+  notes.push(
+    `Input ${before} chars → output ${bytes} chars (${saved >= 0 ? 'saved ' + saved : 'grew by ' + -saved}).`,
+  );
   if (stripComments) notes.push('Comments removed.');
   else notes.push('Comments were preserved.');
 

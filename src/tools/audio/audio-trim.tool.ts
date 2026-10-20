@@ -23,25 +23,40 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   input.signal?.throwIfAborted?.();
 
   const startSec = parseTime(String(o.start ?? '0'));
-  const endSec = String(o.end ?? '').trim() === ''
-    ? (audio.channels[0]?.length ?? 0) / audio.sampleRate
-    : parseTime(String(o.end));
+  const endSec =
+    String(o.end ?? '').trim() === ''
+      ? (audio.channels[0]?.length ?? 0) / audio.sampleRate
+      : parseTime(String(o.end));
   const duration = (audio.channels[0]?.length ?? 0) / audio.sampleRate;
   if (startSec < 0 || startSec >= duration || endSec <= startSec || endSec > duration) {
-    throw new ToolError('The selected trim range is outside the audio file.', `Choose a range between 0 and ${duration.toFixed(3)} seconds.`);
+    throw new ToolError(
+      'The selected trim range is outside the audio file.',
+      `Choose a range between 0 and ${duration.toFixed(3)} seconds.`,
+    );
   }
 
   const startFrame = Math.floor(startSec * audio.sampleRate);
   const endFrame = Math.min(audio.channels[0]!.length, Math.floor(endSec * audio.sampleRate));
   const channels = audio.channels.map((ch) => ch.slice(startFrame, endFrame));
   const frameCount = channels[0]?.length ?? 0;
-  const fadeInFrames = Math.min(frameCount, Math.max(0, Math.round(Number(o.fadeIn ?? 0) * audio.sampleRate / 1000)));
-  const fadeOutFrames = Math.min(frameCount, Math.max(0, Math.round(Number(o.fadeOut ?? 0) * audio.sampleRate / 1000)));
+  const fadeInFrames = Math.min(
+    frameCount,
+    Math.max(0, Math.round((Number(o.fadeIn ?? 0) * audio.sampleRate) / 1000)),
+  );
+  const fadeOutFrames = Math.min(
+    frameCount,
+    Math.max(0, Math.round((Number(o.fadeOut ?? 0) * audio.sampleRate) / 1000)),
+  );
   applyEdgeFade(channels, fadeInFrames, fadeOutFrames);
 
   input.onProgress?.(1, 'Done');
   return {
-    outputs: [{ filename: `${file.name.replace(/\.[^.]*$/, '') || 'audio'}-trimmed.wav`, blob: toWavBlob(channels, audio.sampleRate) }],
+    outputs: [
+      {
+        filename: `${file.name.replace(/\.[^.]*$/, '') || 'audio'}-trimmed.wav`,
+        blob: toWavBlob(channels, audio.sampleRate),
+      },
+    ],
     stats: { duration: (frameCount / audio.sampleRate).toFixed(3), sampleRate: audio.sampleRate },
   };
 }

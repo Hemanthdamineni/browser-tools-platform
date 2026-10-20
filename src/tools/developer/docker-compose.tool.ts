@@ -42,7 +42,10 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
 
   if (!image) throw new ToolError('Need an image name.', 'e.g. node:20-alpine or nginx:stable');
   if (!/^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/.test(service)) {
-    throw new ToolError('Service name must be lowercase alphanumeric with dashes.', 'e.g. web, api, db');
+    throw new ToolError(
+      'Service name must be lowercase alphanumeric with dashes.',
+      'e.g. web, api, db',
+    );
   }
 
   const lines: string[] = [];

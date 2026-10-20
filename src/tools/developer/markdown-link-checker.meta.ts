@@ -4,8 +4,7 @@ export const meta: ToolMeta = {
   id: 'markdown-link-checker',
   name: 'Markdown Link Checker',
   category: 'developer',
-  summary:
-    'Check Markdown links and anchors: broken fragments, missing references, empty URLs.',
+  summary: 'Check Markdown links and anchors: broken fragments, missing references, empty URLs.',
   description:
     'Scan a Markdown document for link and anchor problems before you publish. Detects broken local fragments (links to headings that do not exist), duplicate heading anchors, reference-style links whose definition is missing or unused, empty link labels or targets, and auto-links that are malformed. External web links are counted and reported as unchecked rather than fetched, keeping everything on-device.',
   keywords: [
@@ -38,7 +37,7 @@ export const meta: ToolMeta = {
     },
     {
       title: 'Missing reference definition',
-      input: 'Read the [guide][guide-ref].\n\n## Guide\n\nMore.', 
+      input: 'Read the [guide][guide-ref].\n\n## Guide\n\nMore.',
       options: {},
     },
   ],
@@ -60,6 +59,12 @@ export const meta: ToolMeta = {
       a: 'Yes. Links inside fenced code blocks (``` and ~~~) and indented code are ignored so example URLs in snippets do not trigger false alarms.',
     },
   ],
-  related: ['markdown-toc', 'markdown-to-html', 'html-to-markdown', 'json-diff', 'subtitle-converter'],
+  related: [
+    'markdown-toc',
+    'markdown-to-html',
+    'html-to-markdown',
+    'json-diff',
+    'subtitle-converter',
+  ],
   status: 'stable',
 };

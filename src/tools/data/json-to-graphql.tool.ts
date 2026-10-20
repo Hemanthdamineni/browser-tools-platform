@@ -11,7 +11,9 @@ interface SDLType {
 }
 
 function pascal(value: string): string {
-  const clean = value.replace(/[^a-zA-Z0-9_$]/g, ' ').replace(/(?:^|[\s_]+)([a-zA-Z0-9])/g, (_, c: string) => c.toUpperCase());
+  const clean = value
+    .replace(/[^a-zA-Z0-9_$]/g, ' ')
+    .replace(/(?:^|[\s_]+)([a-zA-Z0-9])/g, (_, c: string) => c.toUpperCase());
   const out = clean.replace(/\s+/g, '') || 'Value';
   return out[0]!.toUpperCase() + out.slice(1);
 }
@@ -90,7 +92,8 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
 
   const source = input.text ?? '';
   if (!source.trim()) throw new ToolError('Paste a JSON object to convert to GraphQL types.');
-  if (source.length > MAX_LEN) throw new ToolError('Input is too large.', 'Keep it under 1,000,000 characters.');
+  if (source.length > MAX_LEN)
+    throw new ToolError('Input is too large.', 'Keep it under 1,000,000 characters.');
 
   let parsed: unknown;
   try {
@@ -104,7 +107,11 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   const notes = new Set<string>();
   const pad = ' '.repeat(indent);
 
-  const isObjectRoot = parsed !== null && typeof parsed === 'object' && !Array.isArray(parsed) && Object.keys(parsed as Record<string, unknown>).length > 0;
+  const isObjectRoot =
+    parsed !== null &&
+    typeof parsed === 'object' &&
+    !Array.isArray(parsed) &&
+    Object.keys(parsed as Record<string, unknown>).length > 0;
   const rootNameTaken = uniqueName(rootName, taken);
   if (isObjectRoot) {
     const root = parsed as Record<string, unknown>;
@@ -115,7 +122,10 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     }
     types.unshift({ name: rootNameTaken, fields });
   } else {
-    types.unshift({ name: rootNameTaken, fields: [{ key: 'value', type: infer(parsed, null, types, taken, notes), sample: parsed }] });
+    types.unshift({
+      name: rootNameTaken,
+      fields: [{ key: 'value', type: infer(parsed, null, types, taken, notes), sample: parsed }],
+    });
   }
 
   const body = types
@@ -136,7 +146,9 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     render: 'code',
     language: 'graphql',
     stats: { types: types.length, fields: fieldCount },
-    notes: noteLines.length ? noteLines : ['Scalars are inferred from the sample — confirm them for your API.'],
+    notes: noteLines.length
+      ? noteLines
+      : ['Scalars are inferred from the sample — confirm them for your API.'],
   };
 }
 

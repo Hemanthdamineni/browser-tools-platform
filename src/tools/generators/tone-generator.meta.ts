@@ -7,7 +7,19 @@ export const meta: ToolMeta = {
   summary: 'Generate a tone, waveform or noise signal as a downloadable WAV file.',
   description:
     'Synthesize sine, square, sawtooth, triangle, white-noise or pink-noise audio with a chosen duration, sample rate, amplitude, fade edges and mono/stereo output — entirely on your device.',
-  keywords: ['tone', 'audio', 'signal', 'generator', 'sine', 'square', 'sawtooth', 'triangle', 'noise', 'wav', 'frequency'],
+  keywords: [
+    'tone',
+    'audio',
+    'signal',
+    'generator',
+    'sine',
+    'square',
+    'sawtooth',
+    'triangle',
+    'noise',
+    'wav',
+    'frequency',
+  ],
   privacy: { processing: 'on-device', network: 'none', offline: true },
   input: 'text',
   options: [
@@ -25,8 +37,22 @@ export const meta: ToolMeta = {
         { value: 'pink-noise', label: 'Pink noise' },
       ],
     },
-    { key: 'frequency', label: 'Frequency (Hz)', type: 'number', default: 440, min: 20, max: 20000 },
-    { key: 'durationMs', label: 'Duration (ms)', type: 'number', default: 2000, min: 50, max: 30000 },
+    {
+      key: 'frequency',
+      label: 'Frequency (Hz)',
+      type: 'number',
+      default: 440,
+      min: 20,
+      max: 20000,
+    },
+    {
+      key: 'durationMs',
+      label: 'Duration (ms)',
+      type: 'number',
+      default: 2000,
+      min: 50,
+      max: 30000,
+    },
     { key: 'amplitude', label: 'Amplitude (%)', type: 'range', default: 50, min: 0, max: 100 },
     {
       key: 'sampleRate',
@@ -52,7 +78,10 @@ export const meta: ToolMeta = {
     },
   ],
   examples: [
-    { title: '440 Hz tuning tone', options: { waveform: 'sine', frequency: 440, durationMs: 3000 } },
+    {
+      title: '440 Hz tuning tone',
+      options: { waveform: 'sine', frequency: 440, durationMs: 3000 },
+    },
     { title: 'Pink noise', options: { waveform: 'pink-noise', durationMs: 5000 } },
   ],
   related: ['metronome-click', 'audio-info'],

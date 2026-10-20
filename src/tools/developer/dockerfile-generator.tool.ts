@@ -35,16 +35,24 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   const cmd = String(o.cmd ?? '').trim();
   const entrypoint = String(o.entrypoint ?? '').trim();
 
-  if (!base) throw new ToolError('Provide a base image.', 'e.g. node:20-alpine or python:3.12-slim');
+  if (!base)
+    throw new ToolError('Provide a base image.', 'e.g. node:20-alpine or python:3.12-slim');
   if (!workdir || !workdir.startsWith('/')) {
     throw new ToolError('WORKDIR must be an absolute path.', 'e.g. /app or /srv');
   }
   for (const c of copy) {
     if (c.split(/\s+/).length !== 2) {
-      throw new ToolError('Each COPY line needs a source and a destination.', c + ' -> e.g. "package*.json ./"');
+      throw new ToolError(
+        'Each COPY line needs a source and a destination.',
+        c + ' -> e.g. "package*.json ./"',
+      );
     }
   }
-  if (!cmd) throw new ToolError('Provide a default command (CMD).', 'e.g. npm start or ["uvicorn", "main:app"]');
+  if (!cmd)
+    throw new ToolError(
+      'Provide a default command (CMD).',
+      'e.g. npm start or ["uvicorn", "main:app"]',
+    );
   const ports = csv(o.ports ?? '');
   for (const p of ports) {
     if (!/^[0-9]+$/.test(p)) {
@@ -72,7 +80,9 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     stats: { env: env.length, copy: copy.length, run: runSteps.length, ports: ports.length },
     notes: [
       'CMD emitted in JSON array form so quoting stays safe.',
-      entrypoint ? 'ENTRYPOINT set; CMD becomes its default arguments.' : 'No ENTRYPOINT — the image runs CMD directly.',
+      entrypoint
+        ? 'ENTRYPOINT set; CMD becomes its default arguments.'
+        : 'No ENTRYPOINT — the image runs CMD directly.',
     ],
   };
 }

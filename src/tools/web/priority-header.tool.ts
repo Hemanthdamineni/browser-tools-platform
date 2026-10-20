@@ -4,7 +4,80 @@ import { resolveOptions } from '@/lib/options';
 import { meta } from './priority-header.meta';
 
 type Priority = { urgency?: string; incremental: boolean; issues: string[] };
-function inspect(text: string): Priority { const params = text.split(',').map((item) => item.trim()).filter(Boolean); const result: Priority = { incremental: false, issues: [] }; const seen = new Set<string>(); for (const param of params) { const [rawKey, rawValue] = param.split('=').map((item) => item.trim().toLowerCase()); const key = rawKey ?? ''; if (seen.has(key)) result.issues.push(`Duplicate parameter: ${key}`); seen.add(key); if (key === 'u') { if (rawValue === undefined || !/^\d$/.test(rawValue) || Number(rawValue) > 7) result.issues.push('urgency must be an integer from 0 to 7'); else result.urgency = rawValue; } else if (key === 'i' && rawValue === undefined) result.incremental = true; else result.issues.push(`Unknown or malformed parameter: ${param}`); } return result; }
-function run(input: TextRunInput): TextRunResult { const options = resolveOptions(meta, input.options); const mode = String(options.mode); if (mode !== 'build' && mode !== 'analyze') throw new ToolError('Choose a supported Priority mode.'); if (mode === 'build') { const urgency = Number(options.urgency); const incremental = Boolean(options.incremental); if (!Number.isInteger(urgency) || urgency < 0 || urgency > 7) throw new ToolError('Urgency must be an integer from 0 to 7.'); return { output: `u=${urgency}${incremental ? ', i' : ''}`, render: 'code', language: 'http', filename: 'priority.txt', stats: { urgency, incremental: incremental ? 'yes' : 'no' } }; } if (!input.text.trim()) return { output: JSON.stringify({ headers: ['Parameter', 'Value', 'Status'], rows: [] }), render: 'table', notes: ['Paste a Priority structured-field value such as u=3, i.'] }; const result = inspect(input.text); const rows = [['urgency', result.urgency ?? '', result.issues.some((issue) => issue.includes('urgency')) ? 'Review' : result.urgency ? 'Valid' : 'Not set'], ['incremental', result.incremental ? 'true' : 'false', result.issues.some((issue) => issue.includes('i')) ? 'Review' : 'Valid']]; return { output: JSON.stringify({ headers: ['Parameter', 'Value', 'Status'], rows }), render: 'table', stats: { issues: result.issues.length, urgency: result.urgency ? Number(result.urgency) : 'unset', incremental: result.incremental ? 'yes' : 'no' }, notes: result.issues.length ? result.issues : ['Priority is a scheduling hint; it does not guarantee delivery order or bandwidth.'] }; }
+function inspect(text: string): Priority {
+  const params = text
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean);
+  const result: Priority = { incremental: false, issues: [] };
+  const seen = new Set<string>();
+  for (const param of params) {
+    const [rawKey, rawValue] = param.split('=').map((item) => item.trim().toLowerCase());
+    const key = rawKey ?? '';
+    if (seen.has(key)) result.issues.push(`Duplicate parameter: ${key}`);
+    seen.add(key);
+    if (key === 'u') {
+      if (rawValue === undefined || !/^\d$/.test(rawValue) || Number(rawValue) > 7)
+        result.issues.push('urgency must be an integer from 0 to 7');
+      else result.urgency = rawValue;
+    } else if (key === 'i' && rawValue === undefined) result.incremental = true;
+    else result.issues.push(`Unknown or malformed parameter: ${param}`);
+  }
+  return result;
+}
+function run(input: TextRunInput): TextRunResult {
+  const options = resolveOptions(meta, input.options);
+  const mode = String(options.mode);
+  if (mode !== 'build' && mode !== 'analyze')
+    throw new ToolError('Choose a supported Priority mode.');
+  if (mode === 'build') {
+    const urgency = Number(options.urgency);
+    const incremental = Boolean(options.incremental);
+    if (!Number.isInteger(urgency) || urgency < 0 || urgency > 7)
+      throw new ToolError('Urgency must be an integer from 0 to 7.');
+    return {
+      output: `u=${urgency}${incremental ? ', i' : ''}`,
+      render: 'code',
+      language: 'http',
+      filename: 'priority.txt',
+      stats: { urgency, incremental: incremental ? 'yes' : 'no' },
+    };
+  }
+  if (!input.text.trim())
+    return {
+      output: JSON.stringify({ headers: ['Parameter', 'Value', 'Status'], rows: [] }),
+      render: 'table',
+      notes: ['Paste a Priority structured-field value such as u=3, i.'],
+    };
+  const result = inspect(input.text);
+  const rows = [
+    [
+      'urgency',
+      result.urgency ?? '',
+      result.issues.some((issue) => issue.includes('urgency'))
+        ? 'Review'
+        : result.urgency
+          ? 'Valid'
+          : 'Not set',
+    ],
+    [
+      'incremental',
+      result.incremental ? 'true' : 'false',
+      result.issues.some((issue) => issue.includes('i')) ? 'Review' : 'Valid',
+    ],
+  ];
+  return {
+    output: JSON.stringify({ headers: ['Parameter', 'Value', 'Status'], rows }),
+    render: 'table',
+    stats: {
+      issues: result.issues.length,
+      urgency: result.urgency ? Number(result.urgency) : 'unset',
+      incremental: result.incremental ? 'yes' : 'no',
+    },
+    notes: result.issues.length
+      ? result.issues
+      : ['Priority is a scheduling hint; it does not guarantee delivery order or bandwidth.'],
+  };
+}
 const tool: TextToolModule = { meta, run };
 export default tool;

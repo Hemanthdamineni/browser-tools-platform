@@ -62,14 +62,21 @@ class TomlParser {
   private skipWsComments(): void {
     for (;;) {
       this.skipWs();
-      if (this.peek() === '#') { this.skipComment(); continue; }
-      if (this.peek() === '\n' || this.peek() === '\r') { this.skipNewlines(); continue; }
+      if (this.peek() === '#') {
+        this.skipComment();
+        continue;
+      }
+      if (this.peek() === '\n' || this.peek() === '\r') {
+        this.skipNewlines();
+        continue;
+      }
       break;
     }
   }
 
   private expect(ch: string): void {
-    if (this.peek() !== ch) this.err(`Expected "${ch}" but found "${this.peek() || 'end of input'}"`);
+    if (this.peek() !== ch)
+      this.err(`Expected "${ch}" but found "${this.peek() || 'end of input'}"`);
     this.i++;
   }
 
@@ -78,14 +85,28 @@ class TomlParser {
     const multiline = this.peek(1) === quote && this.peek(2) === quote;
     if (multiline) {
       this.i += 3;
-      if (this.peek() === '\r') { this.i++; if (this.peek() === '\n') { this.i++; this.line++; } }
-      else if (this.peek() === '\n') { this.i++; this.line++; }
+      if (this.peek() === '\r') {
+        this.i++;
+        if (this.peek() === '\n') {
+          this.i++;
+          this.line++;
+        }
+      } else if (this.peek() === '\n') {
+        this.i++;
+        this.line++;
+      }
       let out = '';
       for (;;) {
         if (this.eof()) this.err('Unterminated multi-line string');
-        if (this.peek() === quote && this.peek(1) === quote && this.peek(2) === quote) { this.i += 3; return out; }
+        if (this.peek() === quote && this.peek(1) === quote && this.peek(2) === quote) {
+          this.i += 3;
+          return out;
+        }
         const ch = this.peek();
-        if (ch === '\\' && quote === '"') { out += this.readEscape(true); continue; }
+        if (ch === '\\' && quote === '"') {
+          out += this.readEscape(true);
+          continue;
+        }
         if (ch === '\n') this.line++;
         out += ch;
         this.i++;
@@ -96,9 +117,15 @@ class TomlParser {
     for (;;) {
       if (this.eof()) this.err('Unterminated string');
       const ch = this.peek();
-      if (ch === quote) { this.i++; return out; }
+      if (ch === quote) {
+        this.i++;
+        return out;
+      }
       if (ch === '\n') this.err('Newline in a single-line string');
-      if (ch === '\\' && quote === '"') { out += this.readEscape(false); continue; }
+      if (ch === '\\' && quote === '"') {
+        out += this.readEscape(false);
+        continue;
+      }
       out += ch;
       this.i++;
     }
@@ -107,10 +134,27 @@ class TomlParser {
   private readEscape(multiline: boolean): string {
     this.i++;
     const ch = this.peek();
-    const simple: Record<string, string> = { b: '\b', t: '\t', n: '\n', f: '\f', r: '\r', '"': '"', '\\': '\\' };
-    if (ch in simple) { this.i++; return simple[ch]!; }
+    const simple: Record<string, string> = {
+      b: '\b',
+      t: '\t',
+      n: '\n',
+      f: '\f',
+      r: '\r',
+      '"': '"',
+      '\\': '\\',
+    };
+    if (ch in simple) {
+      this.i++;
+      return simple[ch]!;
+    }
     if (multiline && (ch === '\n' || ch === '\r' || ch === ' ' || ch === '\t')) {
-      while (!this.eof() && (this.peek() === ' ' || this.peek() === '\t' || this.peek() === '\n' || this.peek() === '\r')) {
+      while (
+        !this.eof() &&
+        (this.peek() === ' ' ||
+          this.peek() === '\t' ||
+          this.peek() === '\n' ||
+          this.peek() === '\r')
+      ) {
         if (this.peek() === '\n') this.line++;
         this.i++;
       }
@@ -131,7 +175,10 @@ class TomlParser {
     const ch = this.peek();
     if (ch === '"' || ch === "'") return this.parseBasicString();
     let out = '';
-    while (!this.eof() && /[A-Za-z0-9_-]/.test(this.peek())) { out += this.peek(); this.i++; }
+    while (!this.eof() && /[A-Za-z0-9_-]/.test(this.peek())) {
+      out += this.peek();
+      this.i++;
+    }
     if (!out) this.err('Expected a key');
     return out;
   }
@@ -141,7 +188,10 @@ class TomlParser {
     for (;;) {
       path.push(this.parseKeySegment());
       this.skipWs();
-      if (this.peek() === '.') { this.i++; continue; }
+      if (this.peek() === '.') {
+        this.i++;
+        continue;
+      }
       return path;
     }
   }
@@ -155,9 +205,12 @@ class TomlParser {
     if (raw === 'false') return false;
     const bare = raw.replace(/_/g, '');
     if (DATE_RE.test(bare) || TIME_RE.test(bare)) return raw;
-    if (HEX_RE.test(bare)) return parseInt(bare.replace(/^[+-]?0x/, ''), 16) * (bare.startsWith('-') ? -1 : 1);
-    if (OCT_RE.test(bare)) return parseInt(bare.replace(/^[+-]?0o/, ''), 8) * (bare.startsWith('-') ? -1 : 1);
-    if (BIN_RE.test(bare)) return parseInt(bare.replace(/^[+-]?0b/, ''), 2) * (bare.startsWith('-') ? -1 : 1);
+    if (HEX_RE.test(bare))
+      return parseInt(bare.replace(/^[+-]?0x/, ''), 16) * (bare.startsWith('-') ? -1 : 1);
+    if (OCT_RE.test(bare))
+      return parseInt(bare.replace(/^[+-]?0o/, ''), 8) * (bare.startsWith('-') ? -1 : 1);
+    if (BIN_RE.test(bare))
+      return parseInt(bare.replace(/^[+-]?0b/, ''), 2) * (bare.startsWith('-') ? -1 : 1);
     if (INT_RE.test(bare)) return parseInt(bare, 10);
     if (FLOAT_RE.test(bare) && /[.eE]/.test(bare)) return parseFloat(bare);
     if (/^[+-]?inf$/.test(bare)) return bare.startsWith('-') ? -Infinity : Infinity;
@@ -170,11 +223,20 @@ class TomlParser {
     const out: Json[] = [];
     for (;;) {
       this.skipWsComments();
-      if (this.peek() === ']') { this.i++; return out; }
+      if (this.peek() === ']') {
+        this.i++;
+        return out;
+      }
       out.push(this.parseValue());
       this.skipWsComments();
-      if (this.peek() === ',') { this.i++; continue; }
-      if (this.peek() === ']') { this.i++; return out; }
+      if (this.peek() === ',') {
+        this.i++;
+        continue;
+      }
+      if (this.peek() === ']') {
+        this.i++;
+        return out;
+      }
       this.err('Expected "," or "]" in array');
     }
   }
@@ -183,7 +245,10 @@ class TomlParser {
     this.expect('{');
     const out: Obj = {};
     this.skipWs();
-    if (this.peek() === '}') { this.i++; return out; }
+    if (this.peek() === '}') {
+      this.i++;
+      return out;
+    }
     for (;;) {
       const path = this.parseKeyPath();
       this.skipWs();
@@ -191,8 +256,19 @@ class TomlParser {
       const value = this.parseValue();
       TomlParser.assign(out, path, value, (m) => this.err(m));
       this.skipWs();
-      if (this.peek() === ',') { this.i++; this.skipWs(); if (this.peek() === '}') { this.i++; return out; } continue; }
-      if (this.peek() === '}') { this.i++; return out; }
+      if (this.peek() === ',') {
+        this.i++;
+        this.skipWs();
+        if (this.peek() === '}') {
+          this.i++;
+          return out;
+        }
+        continue;
+      }
+      if (this.peek() === '}') {
+        this.i++;
+        return out;
+      }
       this.err('Expected "," or "}" in inline table');
     }
   }
@@ -206,12 +282,20 @@ class TomlParser {
     return this.parseScalar();
   }
 
-  private static assign(target: Obj, path: string[], value: Json, fail: (m: string) => never): void {
+  private static assign(
+    target: Obj,
+    path: string[],
+    value: Json,
+    fail: (m: string) => never,
+  ): void {
     let node = target;
     for (let idx = 0; idx < path.length - 1; idx++) {
       const key = path[idx]!;
       let next = node[key];
-      if (next === undefined) { next = {}; node[key] = next; }
+      if (next === undefined) {
+        next = {};
+        node[key] = next;
+      }
       if (!isPlainObject(next)) fail(`Key "${key}" is already a value and cannot hold a table`);
       node = next;
     }
@@ -227,14 +311,20 @@ class TomlParser {
       const last = idx === path.length - 1;
       if (last && arrayOfTables) {
         let arr = node[key];
-        if (arr === undefined) { arr = []; node[key] = arr; }
+        if (arr === undefined) {
+          arr = [];
+          node[key] = arr;
+        }
         if (!Array.isArray(arr)) this.err(`"${key}" is not an array of tables`);
         const fresh: Obj = {};
         arr.push(fresh);
         return fresh;
       }
       let next = node[key];
-      if (next === undefined) { next = {}; node[key] = next; }
+      if (next === undefined) {
+        next = {};
+        node[key] = next;
+      }
       if (Array.isArray(next)) {
         const tail = next[next.length - 1];
         if (tail === undefined || !isPlainObject(tail)) this.err(`"${key}" is not a table`);
@@ -270,7 +360,8 @@ class TomlParser {
       TomlParser.assign(this.current, path, value, (m) => this.err(m));
       this.skipWs();
       this.skipComment();
-      if (!this.eof() && this.peek() !== '\n' && this.peek() !== '\r') this.err(`Unexpected "${this.peek()}" after value`);
+      if (!this.eof() && this.peek() !== '\n' && this.peek() !== '\r')
+        this.err(`Unexpected "${this.peek()}" after value`);
       this.skipNewlines();
     }
   }
@@ -281,7 +372,10 @@ function tomlKey(key: string): string {
 }
 
 function tomlValue(value: Json, skipped: { count: number }): string {
-  if (value === null) { skipped.count++; return '""'; }
+  if (value === null) {
+    skipped.count++;
+    return '""';
+  }
   if (typeof value === 'string') return JSON.stringify(value);
   if (typeof value === 'boolean') return value ? 'true' : 'false';
   if (typeof value === 'number') {
@@ -301,7 +395,10 @@ function serialize(obj: Obj, prefix: string[], out: string[], skipped: { count: 
   const tables: [string, Obj][] = [];
   const arrayTables: [string, Obj[]][] = [];
   for (const [key, value] of Object.entries(obj)) {
-    if (value === null) { skipped.count++; continue; }
+    if (value === null) {
+      skipped.count++;
+      continue;
+    }
     if (Array.isArray(value)) {
       if (value.length > 0 && value.every((item) => isPlainObject(item))) {
         arrayTables.push([key, value as Obj[]]);
@@ -338,7 +435,9 @@ function run(input: TextRunInput): TextRunResult {
     return {
       output: JSON.stringify({ headers: ['Mode', 'Input', 'Result'], rows: [] as string[][] }),
       render: 'table',
-      notes: ['Paste TOML to convert it to JSON, or switch to JSON → TOML mode and paste an object.'],
+      notes: [
+        'Paste TOML to convert it to JSON, or switch to JSON → TOML mode and paste an object.',
+      ],
     };
   }
   if (mode === 'to-toml') {
@@ -348,18 +447,27 @@ function run(input: TextRunInput): TextRunResult {
     } catch {
       throw new ToolError('Invalid JSON — check for trailing commas, comments, or unquoted keys.');
     }
-    if (!isPlainObject(parsed)) throw new ToolError('TOML cannot represent a bare JSON scalar or array at the top level; wrap it in an object.');
+    if (!isPlainObject(parsed))
+      throw new ToolError(
+        'TOML cannot represent a bare JSON scalar or array at the top level; wrap it in an object.',
+      );
     const skipped = { count: 0 };
     const lines: string[] = [];
     serialize(parsed, [], lines, skipped);
-    const text = lines.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';
+    const text =
+      lines
+        .join('\n')
+        .replace(/\n{3,}/g, '\n\n')
+        .trim() + '\n';
     return {
       output: text,
       render: 'code',
       language: 'text',
       filename: 'converted.toml',
       stats: { topLevelKeys: Object.keys(parsed).length, omittedNulls: skipped.count },
-      notes: skipped.count ? [`${skipped.count} null value(s) omitted — TOML has no null type.`] : ['Serialized JSON to TOML with tables and arrays of tables where possible.'],
+      notes: skipped.count
+        ? [`${skipped.count} null value(s) omitted — TOML has no null type.`]
+        : ['Serialized JSON to TOML with tables and arrays of tables where possible.'],
     };
   }
   const data = new TomlParser(source).parse();
@@ -369,7 +477,9 @@ function run(input: TextRunInput): TextRunResult {
     language: 'json',
     filename: 'converted.json',
     stats: { topLevelKeys: Object.keys(data).length, lines: source.split('\n').length },
-    notes: ['Parsed TOML to JSON. Date-time values stay as strings; numbers are emitted as JSON numbers.'],
+    notes: [
+      'Parsed TOML to JSON. Date-time values stay as strings; numbers are emitted as JSON numbers.',
+    ],
   };
 }
 

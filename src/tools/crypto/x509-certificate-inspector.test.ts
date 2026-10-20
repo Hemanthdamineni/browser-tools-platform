@@ -1,14 +1,22 @@
 import { describe, expect, it } from 'vitest';
 import tool from './x509-certificate-inspector.tool';
 
-type Result = { output: string; render?: string; stats?: Record<string, string | number>; notes?: string[] };
+type Result = {
+  output: string;
+  render?: string;
+  stats?: Record<string, string | number>;
+  notes?: string[];
+};
 type Table = { headers: string[]; rows: [string, string][] };
 
 const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
   (await tool.run({ text, options })) as Result;
 const table = (r: Result) => JSON.parse(r.output) as Table;
-const get = async (text: string, key: string, options: Record<string, string | number | boolean> = {}) =>
-  table(await run(text, options)).rows.find((row) => row[0] === key)?.[1];
+const get = async (
+  text: string,
+  key: string,
+  options: Record<string, string | number | boolean> = {},
+) => table(await run(text, options)).rows.find((row) => row[0] === key)?.[1];
 
 const CERT_PEM = `-----BEGIN CERTIFICATE-----
 MIID/DCCAuSgAwIBAgIUTnVaXxVzi9vZDzYpqiLQgcpK/vEwDQYJKoZIhvcNAQEL
@@ -47,7 +55,7 @@ describe('x509-certificate-inspector', () => {
     expect(await get(CERT_PEM, 'Subject')).toContain('organizationName=Example Org');
     expect(await get(CERT_PEM, 'Issuer')).toContain('countryName=US');
     expect(await get(CERT_PEM, 'Serial number')).toBe(
-      '4e:75:5a:5f:15:73:8b:db:d9:0f:36:29:aa:22:d0:81:ca:4a:fe:f1'
+      '4e:75:5a:5f:15:73:8b:db:d9:0f:36:29:aa:22:d0:81:ca:4a:fe:f1',
     );
     expect(await get(CERT_PEM, 'Signature algorithm')).toBe('sha256WithRSAEncryption');
   });
@@ -79,7 +87,9 @@ describe('x509-certificate-inspector', () => {
   });
 
   it('tolerates a cert without PEM armor', async () => {
-    const raw = CERT_PEM.replace(/-----BEGIN CERTIFICATE-----\n/, '').replace(/\n-----END CERTIFICATE-----/, '').replace(/\n/g, '');
+    const raw = CERT_PEM.replace(/-----BEGIN CERTIFICATE-----\n/, '')
+      .replace(/\n-----END CERTIFICATE-----/, '')
+      .replace(/\n/g, '');
     expect(await get(raw, 'Public key type')).toBe('RSA');
   });
 

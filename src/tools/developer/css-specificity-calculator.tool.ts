@@ -11,8 +11,19 @@ const ARG_PSEUDOS = new Set(['not', 'is', 'has', 'matches', '-webkit-any', 'any'
 const ZERO_PSEUDOS = new Set(['where']);
 /** Functional pseudo-elements / legacy single-colon pseudo-elements. */
 const PSEUDO_ELEMENTS = new Set([
-  'before', 'after', 'first-line', 'first-letter', 'selection', 'placeholder', 'marker',
-  'backdrop', 'file-selector-button', 'cue', 'part', 'slotted', 'highlight',
+  'before',
+  'after',
+  'first-line',
+  'first-letter',
+  'selection',
+  'placeholder',
+  'marker',
+  'backdrop',
+  'file-selector-button',
+  'cue',
+  'part',
+  'slotted',
+  'highlight',
 ]);
 
 interface Specificity {
@@ -237,7 +248,8 @@ function explain(selector: string, spec: Specificity): string {
   const classes: string[] = [];
   const types: string[] = [];
   // A light second pass purely for human-readable notes.
-  const tokens = selector.match(/#[\w-]+|\.[\w-]+|\[[^\]]*\]|::?[\w-]+(?:\([^)]*\))?|[A-Za-z][\w-]*/g) ?? [];
+  const tokens =
+    selector.match(/#[\w-]+|\.[\w-]+|\[[^\]]*\]|::?[\w-]+(?:\([^)]*\))?|[A-Za-z][\w-]*/g) ?? [];
   for (const token of tokens) {
     if (token.startsWith('#')) ids.push(token);
     else if (token.startsWith('.') || token.startsWith('[')) classes.push(token);
@@ -261,7 +273,8 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
 
   const raw = String(input.text ?? '').trim();
   if (!raw) throw new ToolError('Paste one or more CSS selectors to score.');
-  if (raw.length > MAX_LEN) throw new ToolError('Input is too large.', 'Keep it under ' + MAX_LEN + ' characters.');
+  if (raw.length > MAX_LEN)
+    throw new ToolError('Input is too large.', 'Keep it under ' + MAX_LEN + ' characters.');
 
   const selectors = raw
     .split(/\r?\n/)
@@ -292,16 +305,32 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     const cmp = compare(top.spec, runnerUp.spec);
     if (cmp > 0) {
       notes.push('Highest specificity: ' + top.selector + ' (' + format(top.spec) + ').');
-      notes.push('It beats "' + runnerUp.selector + '" (' + format(runnerUp.spec) + ') when both match the same element.');
+      notes.push(
+        'It beats "' +
+          runnerUp.selector +
+          '" (' +
+          format(runnerUp.spec) +
+          ') when both match the same element.',
+      );
     } else {
       const tied = ranked.filter((r) => compare(r.spec, top.spec) === 0);
-      notes.push(tied.length + ' selectors tie at the highest specificity (' + format(top.spec) + ').');
-      notes.push('For a tie, the later rule in source order wins — order matters, specificity does not.');
+      notes.push(
+        tied.length + ' selectors tie at the highest specificity (' + format(top.spec) + ').',
+      );
+      notes.push(
+        'For a tie, the later rule in source order wins — order matters, specificity does not.',
+      );
     }
   } else {
-    notes.push('Specificity ' + format(scored[0]!.spec) + ' — compare with other rules targeting the same element.');
+    notes.push(
+      'Specificity ' +
+        format(scored[0]!.spec) +
+        ' — compare with other rules targeting the same element.',
+    );
   }
-  notes.push('Inline styles beat any selector; !important beats normal declarations regardless of specificity.');
+  notes.push(
+    'Inline styles beat any selector; !important beats normal declarations regardless of specificity.',
+  );
 
   return {
     output: JSON.stringify({

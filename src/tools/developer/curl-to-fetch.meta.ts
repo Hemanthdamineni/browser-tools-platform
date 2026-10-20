@@ -4,8 +4,7 @@ export const meta: ToolMeta = {
   id: 'curl-to-fetch',
   name: 'curl to fetch',
   category: 'developer',
-  summary:
-    'Turn a curl command into ready-to-run JavaScript fetch, axios or Python requests code.',
+  summary: 'Turn a curl command into ready-to-run JavaScript fetch, axios or Python requests code.',
   description:
     'Paste a curl command (including line continuations, single and double quotes) and get equivalent client code: browser/Node fetch with an options object, axios, or Python requests. Methods, headers, JSON or form bodies, Basic auth, cookies, user-agent and referer are all carried across, and the body is pretty-printed as a JavaScript object when it is JSON. Anything the converter cannot represent (output files, proxies, certificates) is listed as a note instead of being silently dropped, and everything runs on your device.',
   keywords: [
@@ -49,7 +48,7 @@ export const meta: ToolMeta = {
     {
       title: 'JSON POST',
       input:
-        "curl -X POST https://api.example.com/users \\\n  -H 'Content-Type: application/json' \\\n  -H 'Authorization: Bearer token123' \\\n  -d '{\"name\":\"Ada\",\"admin\":true}'",
+        'curl -X POST https://api.example.com/users \\\n  -H \'Content-Type: application/json\' \\\n  -H \'Authorization: Bearer token123\' \\\n  -d \'{"name":"Ada","admin":true}\'',
     },
     {
       title: 'Basic auth GET',

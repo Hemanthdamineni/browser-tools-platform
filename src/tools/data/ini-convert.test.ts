@@ -8,7 +8,9 @@ const run = async (text: string, options: Record<string, string | number | boole
 
 describe('ini-convert', () => {
   it('parses INI into a typed JSON object', async () => {
-    const r = await run('port = 8080\nlog_level = debug\n\n[database]\nhost = localhost\nssl = true');
+    const r = await run(
+      'port = 8080\nlog_level = debug\n\n[database]\nhost = localhost\nssl = true',
+    );
     const parsed = JSON.parse(r.output) as Record<string, unknown>;
     expect(parsed.port).toBe(8080);
     expect(parsed.log_level).toBe('debug');
@@ -40,7 +42,9 @@ describe('ini-convert', () => {
   });
 
   it('serializes JSON to INI with sections', async () => {
-    const r = await run('{"database":{"host":"localhost","ssl":true},"port":8080}', { mode: 'json-to-ini' });
+    const r = await run('{"database":{"host":"localhost","ssl":true},"port":8080}', {
+      mode: 'json-to-ini',
+    });
     const lines = r.output.trim().split('\n');
     expect(lines).toContain('[database]');
     expect(lines).toContain('host = localhost');
@@ -68,7 +72,12 @@ describe('ini-convert', () => {
     const toJson = await run(ini);
     const json = JSON.parse(toJson.output) as Record<string, unknown>;
     const back = await run(JSON.stringify(json), { mode: 'json-to-ini' });
-    expect(back.output.trim().split('\n')).toEqual(['name = demo', 'count = 2', '[db]', 'host = h']);
+    expect(back.output.trim().split('\n')).toEqual([
+      'name = demo',
+      'count = 2',
+      '[db]',
+      'host = h',
+    ]);
   });
 
   it('errors on blank input, invalid JSON, and non-object roots', async () => {

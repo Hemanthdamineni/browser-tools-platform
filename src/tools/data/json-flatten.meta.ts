@@ -52,11 +52,13 @@ export const meta: ToolMeta = {
   examples: [
     {
       title: 'Flatten a nested config',
-      input: '{\n  "server": { "host": "localhost", "ports": { "http": 8080, "tls": 8443 } },\n  "users": [{ "name": "ada" }]\n}',
+      input:
+        '{\n  "server": { "host": "localhost", "ports": { "http": 8080, "tls": 8443 } },\n  "users": [{ "name": "ada" }]\n}',
     },
     {
       title: 'Rebuild from dotted keys',
-      input: '{\n  "server.host": "localhost",\n  "server.ports.http": 8080,\n  "users.0.name": "ada"\n}',
+      input:
+        '{\n  "server.host": "localhost",\n  "server.ports.http": 8080,\n  "users.0.name": "ada"\n}',
       options: { mode: 'unflatten' },
     },
   ],

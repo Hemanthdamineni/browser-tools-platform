@@ -2,8 +2,14 @@ import { describe, expect, it } from 'vitest';
 import { ToolError } from '@/lib/types';
 import tool from './date-header.tool';
 
-type Result = { output: string; filename?: string; stats?: Record<string, string | number>; notes?: string[] };
-const run = (text: string, options: Record<string, string | number | boolean> = {}) => tool.run({ text, options }) as Result;
+type Result = {
+  output: string;
+  filename?: string;
+  stats?: Record<string, string | number>;
+  notes?: string[];
+};
+const run = (text: string, options: Record<string, string | number | boolean> = {}) =>
+  tool.run({ text, options }) as Result;
 const rows = (result: Result) => JSON.parse(result.output).rows as string[][];
 const DATE = 'Wed, 21 Oct 2015 07:28:00 GMT';
 

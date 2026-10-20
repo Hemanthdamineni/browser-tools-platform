@@ -30,7 +30,9 @@ describe('license-generator', () => {
   it('emits headerless licenses without a copyright line', async () => {
     const u = await run('', { license: 'Unlicense' });
     expect(u.output).not.toMatch(/copyright \(c\)/i);
-    expect(u.output).toContain('This is free and unencumbered software released into the public domain');
+    expect(u.output).toContain(
+      'This is free and unencumbered software released into the public domain',
+    );
     const c = await run('', { license: 'CC0-1.0', year: '2025', fullname: 'Ada' });
     expect(c.output).toContain('CC0 1.0 Universal');
     expect(c.output).toContain('Statement of Purpose');

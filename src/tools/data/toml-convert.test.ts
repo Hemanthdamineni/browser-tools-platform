@@ -97,14 +97,25 @@ line = "tab\\there"
   });
 
   it('serializes JSON to TOML with tables and arrays of tables', () => {
-    const result = run(JSON.stringify({ title: 'x', server: { host: 'localhost', port: 8080 }, items: [{ name: 'a' }, { name: 'b' }] }), { mode: 'to-toml' });
+    const result = run(
+      JSON.stringify({
+        title: 'x',
+        server: { host: 'localhost', port: 8080 },
+        items: [{ name: 'a' }, { name: 'b' }],
+      }),
+      { mode: 'to-toml' },
+    );
     expect(result.output).toContain('title = "x"');
     expect(result.output).toContain('[server]');
     expect(result.output).toContain('host = "localhost"');
     expect(result.output).toContain('[[items]]');
     expect(result.output).toContain('name = "a"');
     // Round-trip: the emitted TOML parses back to the same JSON data.
-    expect(parse(result.output)).toEqual({ title: 'x', server: { host: 'localhost', port: 8080 }, items: [{ name: 'a' }, { name: 'b' }] });
+    expect(parse(result.output)).toEqual({
+      title: 'x',
+      server: { host: 'localhost', port: 8080 },
+      items: [{ name: 'a' }, { name: 'b' }],
+    });
   });
 
   it('round-trips TOML through JSON and back', () => {

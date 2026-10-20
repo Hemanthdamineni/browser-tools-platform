@@ -33,14 +33,31 @@ export const meta: ToolMeta = {
     { key: 'name', label: 'App name', type: 'text', default: 'My Web App' },
     { key: 'shortName', label: 'Short name', type: 'text', default: 'My App' },
     { key: 'startUrl', label: 'Start URL', type: 'text', default: '/' },
-    { key: 'display', label: 'Display mode', type: 'select', default: 'standalone', choices: ['standalone', 'fullscreen', 'minimal-ui', 'browser'].map((value) => ({ value, label: value })) },
+    {
+      key: 'display',
+      label: 'Display mode',
+      type: 'select',
+      default: 'standalone',
+      choices: ['standalone', 'fullscreen', 'minimal-ui', 'browser'].map((value) => ({
+        value,
+        label: value,
+      })),
+    },
     { key: 'themeColor', label: 'Theme colour', type: 'text', default: '#ffffff' },
     { key: 'backgroundColor', label: 'Background colour', type: 'text', default: '#ffffff' },
     { key: 'scope', label: 'Scope (optional)', type: 'text', default: '' },
   ],
   examples: [
-    { title: 'Validate manifest', input: '{"name":"Notes","short_name":"Notes","start_url":"/","display":"standalone","icons":[{"src":"/icons/192.png","sizes":"192x192","type":"image/png"}]}' },
-    { title: 'Generate manifest', input: '', options: { mode: 'generate', name: 'Field Notes', shortName: 'Notes', startUrl: '/app/' } },
+    {
+      title: 'Validate manifest',
+      input:
+        '{"name":"Notes","short_name":"Notes","start_url":"/","display":"standalone","icons":[{"src":"/icons/192.png","sizes":"192x192","type":"image/png"}]}',
+    },
+    {
+      title: 'Generate manifest',
+      input: '',
+      options: { mode: 'generate', name: 'Field Notes', shortName: 'Notes', startUrl: '/app/' },
+    },
   ],
   faq: [
     {

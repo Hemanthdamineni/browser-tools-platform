@@ -6,7 +6,12 @@ import { meta } from './xml-to-csv.meta';
 const MAX_LENGTH = 2_000_000;
 const MAX_RECORDS = 50_000;
 
-type XmlEl = { name: string; attrs: Array<{ name: string; value: string }>; children: XmlEl[]; text: string[] };
+type XmlEl = {
+  name: string;
+  attrs: Array<{ name: string; value: string }>;
+  children: XmlEl[];
+  text: string[];
+};
 type Json = string | number | boolean | null | Json[] | { [key: string]: Json };
 
 const DELIMITERS: Record<string, string> = {
@@ -164,7 +169,10 @@ function elToJson(el: XmlEl, includeAttributes: boolean): Json {
     else grouped.set(child.name, [child]);
   }
   for (const [name, list] of grouped) {
-    obj[name] = list.length === 1 ? elToJson(list[0]!, includeAttributes) : list.map((child) => elToJson(child, includeAttributes));
+    obj[name] =
+      list.length === 1
+        ? elToJson(list[0]!, includeAttributes)
+        : list.map((child) => elToJson(child, includeAttributes));
   }
 
   const text = el.text.join('').replace(/\s+/g, ' ').trim();
@@ -206,7 +214,8 @@ function selectRecords(root: XmlEl, path: string): XmlEl[] {
     for (let index = from; index < segments.length; index += 1) {
       const segment = segments[index]!;
       const next: XmlEl[] = [];
-      for (const el of current) for (const child of el.children) if (child.name === segment) next.push(child);
+      for (const el of current)
+        for (const child of el.children) if (child.name === segment) next.push(child);
       if (!next.length) return [];
       current = next;
     }
@@ -253,23 +262,38 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
 
   const xml = input.text ?? '';
   if (!xml.trim()) {
-    throw new ToolError('Paste some XML to convert.', 'Example: <books><book><title>Dune</title></book><book><title>It</title></book></books>');
+    throw new ToolError(
+      'Paste some XML to convert.',
+      'Example: <books><book><title>Dune</title></book><book><title>It</title></book></books>',
+    );
   }
   if (xml.length > MAX_LENGTH) {
-    throw new ToolError('XML is too large.', `Keep it under ${MAX_LENGTH.toLocaleString('en-US')} characters.`);
+    throw new ToolError(
+      'XML is too large.',
+      `Keep it under ${MAX_LENGTH.toLocaleString('en-US')} characters.`,
+    );
   }
 
   const doc = parseXml(xml);
   if (!doc.children.length) {
-    throw new ToolError('No XML element found.', 'Check that the input contains at least one well-formed opening tag.');
+    throw new ToolError(
+      'No XML element found.',
+      'Check that the input contains at least one well-formed opening tag.',
+    );
   }
 
   const records = selectRecords(doc, recordPath);
   if (!records.length) {
-    throw new ToolError(`No elements matched "${recordPath.trim()}".`, 'Use a path of child element names such as catalog.book.');
+    throw new ToolError(
+      `No elements matched "${recordPath.trim()}".`,
+      'Use a path of child element names such as catalog.book.',
+    );
   }
   if (records.length > MAX_RECORDS) {
-    throw new ToolError('Too many records to convert.', `Convert up to ${MAX_RECORDS.toLocaleString('en-US')} records at a time.`);
+    throw new ToolError(
+      'Too many records to convert.',
+      `Convert up to ${MAX_RECORDS.toLocaleString('en-US')} records at a time.`,
+    );
   }
 
   const columns: string[] = [];

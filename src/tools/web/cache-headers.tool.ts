@@ -72,7 +72,8 @@ function parseCacheControl(text: string): { directives: Directive[]; issues: str
 
 function runCacheControl(input: TextRunInput, options: OptionValues): TextRunResult {
   const mode = String(options.mode);
-  if (mode !== 'build' && mode !== 'analyze') throw new ToolError('Choose a supported Cache-Control mode.');
+  if (mode !== 'build' && mode !== 'analyze')
+    throw new ToolError('Choose a supported Cache-Control mode.');
   if (mode === 'build') {
     const maxAge = Number(options.maxAge);
     const sMaxAge = Number(options.sMaxAge);
@@ -80,7 +81,8 @@ function runCacheControl(input: TextRunInput, options: OptionValues): TextRunRes
     if (![maxAge, sMaxAge, stale].every((value) => Number.isInteger(value) && value >= 0))
       throw new ToolError('Cache lifetimes must be non-negative whole numbers.');
     const visibility = String(options.visibility);
-    if (!['public', 'private'].includes(visibility)) throw new ToolError('Choose public or private visibility.');
+    if (!['public', 'private'].includes(visibility))
+      throw new ToolError('Choose public or private visibility.');
     const directives: string[] = [visibility];
     if (options.noStore) directives.push('no-store');
     if (options.noCache) directives.push('no-cache');
@@ -128,7 +130,9 @@ function runCacheControl(input: TextRunInput, options: OptionValues): TextRunRes
       headers: lines.length,
       issues: results.reduce((count, result) => count + result.issues.length, 0),
     },
-    notes: ['This is a local heuristic review; it cannot determine whether your response content is safe to cache.'],
+    notes: [
+      'This is a local heuristic review; it cannot determine whether your response content is safe to cache.',
+    ],
   };
 }
 
@@ -184,7 +188,10 @@ function inspectCdn(text: string): { directives: [string, string | null][]; issu
   return { directives, issues };
 }
 
-function inspectSurrogate(text: string): { directives: [string, string | null][]; issues: string[] } {
+function inspectSurrogate(text: string): {
+  directives: [string, string | null][];
+  issues: string[];
+} {
   const directives: [string, string | null][] = [];
   const issues: string[] = [];
   const seen = new Set<string>();
@@ -204,7 +211,9 @@ function inspectSurrogate(text: string): { directives: [string, string | null][]
     directives.push([name, value]);
   }
   if (seen.has('no-store') && seen.has('max-age'))
-    issues.push('no-store conflicts with max-age because one forbids storage while the other sets freshness');
+    issues.push(
+      'no-store conflicts with max-age because one forbids storage while the other sets freshness',
+    );
   return { directives, issues };
 }
 
@@ -215,7 +224,8 @@ function runDirectives(
 ): TextRunResult {
   const mode = String(options.mode);
   const label = family === 'cdn-cache-control' ? 'CDN-Cache-Control' : 'Surrogate-Control';
-  if (mode !== 'build' && mode !== 'analyze') throw new ToolError(`Choose a supported ${label} mode.`);
+  if (mode !== 'build' && mode !== 'analyze')
+    throw new ToolError(`Choose a supported ${label} mode.`);
   const optionKey = family === 'cdn-cache-control' ? 'cdnDirectives' : 'surrogateDirectives';
   const raw = options[optionKey] ?? options.directives ?? '';
   const value = mode === 'build' ? String(raw) : input.text;
@@ -226,7 +236,9 @@ function runDirectives(
       throw new ToolError(result.issues[0] ?? 'Enter at least one cache directive.');
     return {
       output: result.directives
-        .map(([name, directiveValue]) => (directiveValue === null ? name : `${name}=${directiveValue}`))
+        .map(([name, directiveValue]) =>
+          directiveValue === null ? name : `${name}=${directiveValue}`,
+        )
         .join(', '),
       render: 'code',
       language: 'http',
@@ -280,7 +292,8 @@ function inspectExpires(value: string): { date: string; issues: string[] } {
   } else {
     const parsed = Date.parse(date);
     if (Number.isNaN(parsed)) issues.push('Invalid calendar date');
-    else if (parsed < Date.now()) issues.push('Expiration date is in the past; response is already stale');
+    else if (parsed < Date.now())
+      issues.push('Expiration date is in the past; response is already stale');
     else if (parsed > Date.now() + 315360000000)
       issues.push('Expiration is more than ten years away; verify cache policy');
   }
@@ -289,7 +302,8 @@ function inspectExpires(value: string): { date: string; issues: string[] } {
 
 function runExpires(input: TextRunInput, options: OptionValues): TextRunResult {
   const mode = String(options.mode);
-  if (mode !== 'build' && mode !== 'analyze') throw new ToolError('Choose a supported Expires mode.');
+  if (mode !== 'build' && mode !== 'analyze')
+    throw new ToolError('Choose a supported Expires mode.');
   const result = inspectExpires(mode === 'build' ? String(options.date) : input.text);
   if (mode === 'build') {
     if (result.issues.length) throw new ToolError(result.issues[0]!);
@@ -357,9 +371,23 @@ function runAge(input: TextRunInput, options: OptionValues): TextRunResult {
     );
   const delta = Number(source);
   if (mode === 'build')
-    return { output: `Age: ${delta}`, render: 'code', language: 'http', filename: 'age-header.txt', stats: { age: delta } };
+    return {
+      output: `Age: ${delta}`,
+      render: 'code',
+      language: 'http',
+      filename: 'age-header.txt',
+      stats: { age: delta },
+    };
   const status =
-    delta === 0 ? 'fresh' : delta < 3600 ? 'recent' : delta < 86400 ? 'moderate' : delta <= 604800 ? 'old' : 'stale';
+    delta === 0
+      ? 'fresh'
+      : delta < 3600
+        ? 'recent'
+        : delta < 86400
+          ? 'moderate'
+          : delta <= 604800
+            ? 'old'
+            : 'stale';
   const comment =
     delta > 604800
       ? 'Exceeds a week — verify against max-age'
@@ -367,10 +395,15 @@ function runAge(input: TextRunInput, options: OptionValues): TextRunResult {
         ? 'Compare to Cache-Control max-age to gauge freshness'
         : 'Just generated';
   return {
-    output: JSON.stringify({ headers: ['Age', 'Status', 'Comment'], rows: [[delta.toString(), status, comment]] }),
+    output: JSON.stringify({
+      headers: ['Age', 'Status', 'Comment'],
+      rows: [[delta.toString(), status, comment]],
+    }),
     render: 'table',
     stats: { valid: 'yes', age: delta, status },
-    notes: ['Age tells how long a cached object was held; use it with Cache-Control to judge freshness.'],
+    notes: [
+      'Age tells how long a cached object was held; use it with Cache-Control to judge freshness.',
+    ],
   };
 }
 
@@ -477,15 +510,36 @@ function inspectCacheStatusMember(member: string): {
     };
   if (lowerName === 'ttl') {
     const v = eqValue.trim();
-    if (!v) return { name: eqName, value: '', status: 'Warn', note: 'ttl declares a lifetime in seconds; provide like ttl=60' };
+    if (!v)
+      return {
+        name: eqName,
+        value: '',
+        status: 'Warn',
+        note: 'ttl declares a lifetime in seconds; provide like ttl=60',
+      };
     if (v.startsWith('dt=')) {
       const days = v.slice(3);
       if (!/^\d+$/.test(days))
-        return { name: eqName, value: v, status: 'Warn', note: 'ttl dt= value should be an integer of days' };
-      return { name: eqName, value: v, status: 'Valid', note: `ttl dt=${days} days ≈ ${Number(days) * 86400}s` };
+        return {
+          name: eqName,
+          value: v,
+          status: 'Warn',
+          note: 'ttl dt= value should be an integer of days',
+        };
+      return {
+        name: eqName,
+        value: v,
+        status: 'Valid',
+        note: `ttl dt=${days} days ≈ ${Number(days) * 86400}s`,
+      };
     }
     if (!/^\d+$/.test(v))
-      return { name: eqName, value: v, status: 'Warn', note: 'ttl expects a non-negative integer (e.g. ttl=60)' };
+      return {
+        name: eqName,
+        value: v,
+        status: 'Warn',
+        note: 'ttl expects a non-negative integer (e.g. ttl=60)',
+      };
     return {
       name: eqName,
       value: v,
@@ -503,7 +557,12 @@ function inspectCacheStatusMember(member: string): {
       };
     const reason = stripQuotes(eqValue);
     if (['urlll', 'stale', 'req', 'immutable', 'req-title', 'cli'].includes(reason))
-      return { name: eqName, value: reason, status: 'Valid', note: `Forwarded with reason "${reason}"` };
+      return {
+        name: eqName,
+        value: reason,
+        status: 'Valid',
+        note: `Forwarded with reason "${reason}"`,
+      };
     const params = splitParams(eqValue).slice(1);
     return {
       name: eqName,
@@ -575,7 +634,10 @@ function runCacheStatus(input: TextRunInput, options: OptionValues): TextRunResu
     };
   const inspected = analyzeCacheStatus(input.text);
   return {
-    output: JSON.stringify({ headers: ['Parameter', 'Value', 'Status', 'Assessment'], rows: inspected.rows }),
+    output: JSON.stringify({
+      headers: ['Parameter', 'Value', 'Status', 'Assessment'],
+      rows: inspected.rows,
+    }),
     render: 'table',
     stats: { parameters: inspected.rows.length, issues: inspected.issues },
     notes: inspected.issues
@@ -597,11 +659,13 @@ function analyzeVary(value: string): { fields: string[]; issues: string[] } {
     .filter(Boolean);
   const issues: string[] = [];
   if (!fields.length) issues.push('No fields were provided');
-  if (fields.includes('*') && fields.length > 1) issues.push('Wildcard must not be combined with field names');
+  if (fields.includes('*') && fields.length > 1)
+    issues.push('Wildcard must not be combined with field names');
   if (fields.some((field) => !VARY_FIELD.test(field) && field !== '*'))
     issues.push('One or more fields are invalid header-name tokens');
   if (new Set(fields).size !== fields.length) issues.push('Duplicate fields are present');
-  if (fields.includes('authorization')) issues.push('Vary does not replace private/no-store authorization cache controls');
+  if (fields.includes('authorization'))
+    issues.push('Vary does not replace private/no-store authorization cache controls');
   return { fields, issues };
 }
 
@@ -643,7 +707,9 @@ function runVary(input: TextRunInput, options: OptionValues): TextRunResult {
       issues: result.issues.length,
       wildcard: result.fields.includes('*') ? 'yes' : 'no',
     },
-    notes: result.issues.length ? result.issues : ['Vary only describes cache variation; it does not authorize cache reuse.'],
+    notes: result.issues.length
+      ? result.issues
+      : ['Vary only describes cache variation; it does not authorize cache reuse.'],
   };
 }
 
@@ -656,7 +722,11 @@ function runVary(input: TextRunInput, options: OptionValues): TextRunResult {
  * Legacy single-header tools call this directly with their own meta-resolved
  * options so their defaults and behaviour are preserved exactly.
  */
-export function renderFamily(family: string, input: TextRunInput, options: OptionValues): TextRunResult {
+export function renderFamily(
+  family: string,
+  input: TextRunInput,
+  options: OptionValues,
+): TextRunResult {
   if (!isFamily(family)) throw new ToolError('Choose a supported cache header family.');
   switch (family) {
     case 'cache-control':

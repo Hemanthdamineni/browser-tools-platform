@@ -2,10 +2,99 @@ import type { TextToolModule, TextRunInput, TextRunResult } from '@/lib/types';
 import { resolveOptions } from '@/lib/options';
 import { meta } from './content-length-app.meta';
 
-function utf8Bytes(text: string): number { try { return new TextEncoder().encode(text).length; } catch { let count = 0; for (const char of text) count += char.charCodeAt(0) < 0x80 ? 1 : 0x800 <= char.charCodeAt(0) ? 3 : 2; return count; } }
-function analyze(input: TextRunInput): TextRunResult { const body = input.text.replace(/\r\n/g, '\n'); const bytes = utf8Bytes(body); const chars = [...body].length; const lines = body.split('\n').length; const hasUtf8 = chars !== bytes; return { output: JSON.stringify({ headers: ['Metric', 'Value'], rows: [['UTF-8 bytes', String(bytes)], ['Characters', String(chars)], ['Lines', String(lines)], ['Bytes per char', (chars ? bytes / chars : 0).toFixed(1)], ['Declared match', '']] }), render: 'table', stats: { bytes, chars, mismatch: chars !== bytes ? chars - bytes : 0 }, notes: [hasUtf8 ? `${bytes - chars} extra bytes come from multi-byte UTF-8 characters; Content-Length must equal ${bytes}.` : `${bytes} bytes exactly (ASCII only).`], }; }
-function verify(input: TextRunInput, declaredText: string): TextRunResult { const body = input.text.replace(/\r\n/g, '\n'); const bytes = utf8Bytes(body); const declared = declaredText.trim(); if (!/^\d+$/.test(declared)) return { output: JSON.stringify({ headers: ['Metric', 'Value'], rows: [['UTF-8 bytes', String(bytes)], ['Declared Content-Length', declared || '(missing)']] }), render: 'table', stats: { bytes, declared: 'invalid' }, notes: [`Actual ${bytes} bytes; declared "${declared}" is not a non-negative integer.`], }; return guardValid(Number(declared), bytes); }
-function guardValid(declared: number, bytes: number): TextRunResult { if (declared === bytes) return { output: JSON.stringify({ headers: ['Metric', 'Value'], rows: [['UTF-8 bytes', String(bytes)], ['Declared Content-Length', String(declared)], ['Match', 'Yes']] }), render: 'table', stats: { bytes, declared, match: 'yes', diff: 0 }, notes: [`Content-Length ${declared} matches the UTF-8 body byte count (${bytes}).`] }; const diff = bytes - declared; return { output: JSON.stringify({ headers: ['Metric', 'Value'], rows: [['UTF-8 bytes', String(bytes)], ['Declared Content-Length', String(declared)], ['Difference (bytes - declared)', String(diff)], ['Match', diff === 0 ? 'Yes' : 'No']] }), render: 'table', stats: { bytes, declared, match: diff === 0 ? 'yes' : 'no', diff }, notes: [`Mismatch: body is ${bytes} bytes but Content-Length is ${declared}. ${diff > 0 ? `The declared value underestimates the body by ${diff} bytes.` : `The declared value overestimates the body by ${-diff} bytes.`}`], }; }
-function run(input: TextRunInput): TextRunResult { const options = resolveOptions(meta, input.options); const mode = String(options.mode); if (mode === 'verify') return verify(input, String(options.declared)); return analyze(input); }
+function utf8Bytes(text: string): number {
+  try {
+    return new TextEncoder().encode(text).length;
+  } catch {
+    let count = 0;
+    for (const char of text)
+      count += char.charCodeAt(0) < 0x80 ? 1 : 0x800 <= char.charCodeAt(0) ? 3 : 2;
+    return count;
+  }
+}
+function analyze(input: TextRunInput): TextRunResult {
+  const body = input.text.replace(/\r\n/g, '\n');
+  const bytes = utf8Bytes(body);
+  const chars = [...body].length;
+  const lines = body.split('\n').length;
+  const hasUtf8 = chars !== bytes;
+  return {
+    output: JSON.stringify({
+      headers: ['Metric', 'Value'],
+      rows: [
+        ['UTF-8 bytes', String(bytes)],
+        ['Characters', String(chars)],
+        ['Lines', String(lines)],
+        ['Bytes per char', (chars ? bytes / chars : 0).toFixed(1)],
+        ['Declared match', ''],
+      ],
+    }),
+    render: 'table',
+    stats: { bytes, chars, mismatch: chars !== bytes ? chars - bytes : 0 },
+    notes: [
+      hasUtf8
+        ? `${bytes - chars} extra bytes come from multi-byte UTF-8 characters; Content-Length must equal ${bytes}.`
+        : `${bytes} bytes exactly (ASCII only).`,
+    ],
+  };
+}
+function verify(input: TextRunInput, declaredText: string): TextRunResult {
+  const body = input.text.replace(/\r\n/g, '\n');
+  const bytes = utf8Bytes(body);
+  const declared = declaredText.trim();
+  if (!/^\d+$/.test(declared))
+    return {
+      output: JSON.stringify({
+        headers: ['Metric', 'Value'],
+        rows: [
+          ['UTF-8 bytes', String(bytes)],
+          ['Declared Content-Length', declared || '(missing)'],
+        ],
+      }),
+      render: 'table',
+      stats: { bytes, declared: 'invalid' },
+      notes: [`Actual ${bytes} bytes; declared "${declared}" is not a non-negative integer.`],
+    };
+  return guardValid(Number(declared), bytes);
+}
+function guardValid(declared: number, bytes: number): TextRunResult {
+  if (declared === bytes)
+    return {
+      output: JSON.stringify({
+        headers: ['Metric', 'Value'],
+        rows: [
+          ['UTF-8 bytes', String(bytes)],
+          ['Declared Content-Length', String(declared)],
+          ['Match', 'Yes'],
+        ],
+      }),
+      render: 'table',
+      stats: { bytes, declared, match: 'yes', diff: 0 },
+      notes: [`Content-Length ${declared} matches the UTF-8 body byte count (${bytes}).`],
+    };
+  const diff = bytes - declared;
+  return {
+    output: JSON.stringify({
+      headers: ['Metric', 'Value'],
+      rows: [
+        ['UTF-8 bytes', String(bytes)],
+        ['Declared Content-Length', String(declared)],
+        ['Difference (bytes - declared)', String(diff)],
+        ['Match', diff === 0 ? 'Yes' : 'No'],
+      ],
+    }),
+    render: 'table',
+    stats: { bytes, declared, match: diff === 0 ? 'yes' : 'no', diff },
+    notes: [
+      `Mismatch: body is ${bytes} bytes but Content-Length is ${declared}. ${diff > 0 ? `The declared value underestimates the body by ${diff} bytes.` : `The declared value overestimates the body by ${-diff} bytes.`}`,
+    ],
+  };
+}
+function run(input: TextRunInput): TextRunResult {
+  const options = resolveOptions(meta, input.options);
+  const mode = String(options.mode);
+  if (mode === 'verify') return verify(input, String(options.declared));
+  return analyze(input);
+}
 const tool: TextToolModule = { meta, run };
 export default tool;

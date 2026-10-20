@@ -5,8 +5,18 @@ import { meta } from './crontab-generator.meta';
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const MON_INDEX: Record<string, number> = {
-  JAN: 1, FEB: 2, MAR: 3, APR: 4, MAY: 5, JUN: 6,
-  JUL: 7, AUG: 8, SEP: 9, OCT: 10, NOV: 11, DEC: 12,
+  JAN: 1,
+  FEB: 2,
+  MAR: 3,
+  APR: 4,
+  MAY: 5,
+  JUN: 6,
+  JUL: 7,
+  AUG: 8,
+  SEP: 9,
+  OCT: 10,
+  NOV: 11,
+  DEC: 12,
 };
 
 /** Validate a single cron field; returns '' when valid, else an error message. */
@@ -35,7 +45,15 @@ function validateField(field: string, label: string, min: number, max: number): 
       if (Number.isFinite(n)) return n;
       const mono = MON_INDEX[v.toUpperCase()];
       if (mono !== undefined) return mono;
-      const dow: Record<string, number> = { SUN: 0, MON: 1, TUE: 2, WED: 3, THU: 4, FRI: 5, SAT: 6 };
+      const dow: Record<string, number> = {
+        SUN: 0,
+        MON: 1,
+        TUE: 2,
+        WED: 3,
+        THU: 4,
+        FRI: 5,
+        SAT: 6,
+      };
       return dow[v.toUpperCase()] ?? NaN;
     };
     const a = toNum(range[1]!);
@@ -148,7 +166,12 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     render: 'text',
     language: 'text',
     stats: { fields: 5, hasCommand: command ? 1 : 0 },
-    notes: [summarize(f), command ? 'Command appended to the crontab line.' : 'Expression only — add a command if needed.'],
+    notes: [
+      summarize(f),
+      command
+        ? 'Command appended to the crontab line.'
+        : 'Expression only — add a command if needed.',
+    ],
   };
 }
 

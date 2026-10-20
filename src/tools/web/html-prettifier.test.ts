@@ -1,7 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import tool from './html-prettifier.tool';
 
-type Result = { output: string; render?: string; language?: string; stats?: Record<string, number> };
+type Result = {
+  output: string;
+  render?: string;
+  language?: string;
+  stats?: Record<string, number>;
+};
 const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
   (await tool.run({ text, options })) as Result;
 
@@ -37,10 +42,9 @@ describe('html-prettifier', () => {
   });
 
   it('wraps long opening tags into one attribute per line', async () => {
-    const r = await run(
-      '<div class="a-very-long-class-name" data-x="1" id="some-id">text</div>',
-      { inlineMax: 40 },
-    );
+    const r = await run('<div class="a-very-long-class-name" data-x="1" id="some-id">text</div>', {
+      inlineMax: 40,
+    });
     const lines = r.output.split('\n');
     expect(lines[0]).toBe('<div');
     expect(lines).toContain('  class="a-very-long-class-name"');

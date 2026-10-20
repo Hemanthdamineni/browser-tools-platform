@@ -4,7 +4,61 @@ import { resolveOptions } from '@/lib/options';
 import { meta } from './cross-origin-embedder-policy.meta';
 
 const POLICIES = new Set(['unsafe-none', 'require-corp', 'credentialless', 'credentialless=*']);
-function inspect(value: string): string[] { const normalized = value.trim().toLowerCase(); if (!POLICIES.has(normalized)) return ['COEP must be unsafe-none, require-corp, credentialless, or credentialless=*']; return []; }
-function run(input: TextRunInput): TextRunResult { const options = resolveOptions(meta, input.options); const mode = String(options.mode); if (mode !== 'build' && mode !== 'analyze') throw new ToolError('Choose a supported COEP mode.'); const value = mode === 'build' ? String(options.value) : input.text; const normalized = value.trim().toLowerCase(); const issues = inspect(value); if (mode === 'build') { if (issues.length) throw new ToolError(issues[0]!); return { output: normalized, render: 'code', language: 'http', filename: 'cross-origin-embedder-policy.txt', stats: { policy: normalized, isolation: normalized === 'unsafe-none' ? 'not requested' : 'stricter embedding' } }; } if (!value.trim()) return { output: JSON.stringify({ headers: ['Policy', 'Status', 'Assessment'], rows: [] }), render: 'table', notes: ['Paste a COEP policy token.'] }; const assessment = normalized === 'require-corp' ? 'Requires CORP or CORS opt-in for cross-origin resources' : normalized.startsWith('credentialless') ? 'Allows selected credentialless cross-origin embedding' : 'No cross-origin embedding restriction requested'; return { output: JSON.stringify({ headers: ['Policy', 'Status', 'Assessment'], rows: [[normalized, issues.length ? 'Invalid' : 'Valid', issues.join('; ') || assessment]] }), render: 'table', stats: { valid: issues.length ? 'no' : 'yes', policy: normalized, strict: normalized !== 'unsafe-none' ? 'yes' : 'no' }, notes: issues.length ? issues : ['COEP must be coordinated with COOP, CORP, and CORS; it is not a standalone process-isolation guarantee.'] }; }
+function inspect(value: string): string[] {
+  const normalized = value.trim().toLowerCase();
+  if (!POLICIES.has(normalized))
+    return ['COEP must be unsafe-none, require-corp, credentialless, or credentialless=*'];
+  return [];
+}
+function run(input: TextRunInput): TextRunResult {
+  const options = resolveOptions(meta, input.options);
+  const mode = String(options.mode);
+  if (mode !== 'build' && mode !== 'analyze') throw new ToolError('Choose a supported COEP mode.');
+  const value = mode === 'build' ? String(options.value) : input.text;
+  const normalized = value.trim().toLowerCase();
+  const issues = inspect(value);
+  if (mode === 'build') {
+    if (issues.length) throw new ToolError(issues[0]!);
+    return {
+      output: normalized,
+      render: 'code',
+      language: 'http',
+      filename: 'cross-origin-embedder-policy.txt',
+      stats: {
+        policy: normalized,
+        isolation: normalized === 'unsafe-none' ? 'not requested' : 'stricter embedding',
+      },
+    };
+  }
+  if (!value.trim())
+    return {
+      output: JSON.stringify({ headers: ['Policy', 'Status', 'Assessment'], rows: [] }),
+      render: 'table',
+      notes: ['Paste a COEP policy token.'],
+    };
+  const assessment =
+    normalized === 'require-corp'
+      ? 'Requires CORP or CORS opt-in for cross-origin resources'
+      : normalized.startsWith('credentialless')
+        ? 'Allows selected credentialless cross-origin embedding'
+        : 'No cross-origin embedding restriction requested';
+  return {
+    output: JSON.stringify({
+      headers: ['Policy', 'Status', 'Assessment'],
+      rows: [[normalized, issues.length ? 'Invalid' : 'Valid', issues.join('; ') || assessment]],
+    }),
+    render: 'table',
+    stats: {
+      valid: issues.length ? 'no' : 'yes',
+      policy: normalized,
+      strict: normalized !== 'unsafe-none' ? 'yes' : 'no',
+    },
+    notes: issues.length
+      ? issues
+      : [
+          'COEP must be coordinated with COOP, CORP, and CORS; it is not a standalone process-isolation guarantee.',
+        ],
+  };
+}
 const tool: TextToolModule = { meta, run };
 export default tool;

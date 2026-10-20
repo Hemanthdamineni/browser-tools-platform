@@ -14,7 +14,7 @@ Line order is priority: top first. This file is written by a human (via review) 
 
 ## Foundations
 
-- [ ] **video-foundation** · core — Registers the `video` category. Shared lazy-loaded video engine: prefer WebCodecs + Mediabunny (MPL-2.0). ffmpeg.wasm core is GPL-2.0 (x264), so if it seems needed, report BLOCKED-DECISION instead of using it. Provide progress events, cancel, and worker execution. ⚠️ run died ⏳ run-20261017-1202-8af9 @ 2026-10-17T12:06:46Z
+- [x] **video-foundation** · core — Registers the `video` category. Shared lazy-loaded video engine: prefer WebCodecs + Mediabunny (MPL-2.0). ffmpeg.wasm core is GPL-2.0 (x264), so if it seems needed, report BLOCKED-DECISION instead of using it. Provide progress events, cancel, and worker execution. ⚠️ run died ✅ 14f0fc6
 - [x] **ml-runtime-foundation** · core — Shared loader for transformers.js / onnxruntime-web. Use WebGPU when available, falling back to WASM. Cache models in Cache Storage and show download-size and progress UI. Default model source is the HF Hub; only models with permissive licenses are allowed. ⚠️ run died ✅ af99d71
 
 ## Tools
@@ -22,24 +22,24 @@ Line order is priority: top first. This file is written by a human (via review) 
 - [x] **pdf-compress** · pdf — Re-encode or downsample embedded images and clean up streams. Quality presets; show before/after size. ⚠️ run died ✅ d7aa8b6
 - [x] **barcode-generator** · generators — bwip-js or JsBarcode. Code128, EAN-13, UPC-A, Code39, ITF, DataMatrix. SVG and PNG export. ✅ already exists as barcode
 - [x] **qr-scanner** · generators — Camera (getUserMedia) plus image upload. Native BarcodeDetector with jsQR or zxing-wasm fallback. Actions for detected URL, Wi-Fi, or vCard content. ⚠️ run died ✅ efe0e63
-- [ ] **heic-to-jpg** · image — libheif-js / heic2any. Batch mode; JPEG, PNG, and WebP output. ⚠️ run died ⏳ run-20261017-1217-432a @ 2026-10-17T12:21:04Z
-- [ ] **image-strip-metadata** · image — Strip EXIF, GPS, and XMP. Prefer lossless JPEG segment removal; show what was removed. Batch mode. ⚠️ run died ⏳ run-20261017-1217-432a @ 2026-10-17T12:21:04Z
+- [ ] **heic-to-jpg** · image — libheif-js / heic2any. Batch mode; JPEG, PNG, and WebP output. ⚠️ run died
+- [x] **image-strip-metadata** · image — Strip EXIF, GPS, and XMP. Prefer lossless JPEG segment removal; show what was removed. Batch mode. ⚠️ run died ✅ 4c3fe6b
 - [ ] **video-to-gif** · video · after: video-foundation — Time range, fps, width, palette quality. Preview before export.
-- [ ] **pdf-sign** · pdf — Draw, type, or upload a signature. Place and resize on the page, then flatten with pdf-lib. ⚠️ run died ⏳ run-20261017-1217-432a @ 2026-10-17T12:21:04Z
-- [ ] **code-beautify** · developer — Prettier standalone for JS/TS/CSS/SCSS/HTML/JSON/Markdown/YAML. Lazy-load parsers per language. ⚠️ run died ⏳ run-20261017-1231-4139 @ 2026-10-17T12:36:35Z
-- [ ] **code-minify** · developer — terser, lightningcss-wasm or csso, html-minifier-terser. Show bytes saved. ⚠️ run died ⏳ run-20261017-1231-4139 @ 2026-10-17T12:36:35Z
+- [ ] **pdf-sign** · pdf — Draw, type, or upload a signature. Place and resize on the page, then flatten with pdf-lib. ⚠️ run died
+- [ ] **code-beautify** · developer — Prettier standalone for JS/TS/CSS/SCSS/HTML/JSON/Markdown/YAML. Lazy-load parsers per language. ⚠️ run died
+- [ ] **code-minify** · developer — terser, lightningcss-wasm or csso, html-minifier-terser. Show bytes saved. ⚠️ run died
 - [ ] **video-compress** · video · after: video-foundation — Presets by target size or quality. Warn on memory limits for long files.
-- [ ] **image-ocr** · image — tesseract.js with a language picker and self-hosted traineddata. Copy or download the text. ⚠️ run died ⏳ run-20261017-1231-4139 @ 2026-10-17T12:36:35Z
+- [ ] **image-ocr** · image — tesseract.js with a language picker and self-hosted traineddata. Copy or download the text. ⚠️ run died
 - [ ] **background-remover** · image · after: ml-runtime-foundation — Use a permissively licensed model (e.g. MODNet); RMBG-1.4 is non-commercial, so don't use it. Output transparent PNG or a solid-colour background.
-- [ ] **screen-recorder** · video — getDisplayMedia + MediaRecorder with a mic toggle. WebM output, plus MP4 where the browser supports it. ⏳ run-20261017-1331-f6cf @ 2026-10-17T13:39:30Z
+- [ ] **screen-recorder** · video — getDisplayMedia + MediaRecorder with a mic toggle. WebM output, plus MP4 where the browser supports it. ⚠️ run died
 - [ ] **webcam-recorder** · video — getUserMedia + MediaRecorder. Share the recording code with screen-recorder.
-- [ ] **pdf-organize** · pdf — Thumbnail grid with drag-to-reorder, rotate, delete, and insert blank page. ⏳ run-20261017-1331-f6cf @ 2026-10-17T13:39:30Z
-- [ ] **password-strength** · security — zxcvbn-ts. Show estimated crack time and feedback. The password is never stored or logged. ⚠️ run died ⏳ run-20261017-1331-f6cf @ 2026-10-17T13:39:30Z
-- [ ] **markdown-preview** · developer — Split-pane live editor: GFM, code highlighting, export to HTML, print to PDF. ⏳ run-20261017-1335-65b4 @ 2026-10-17T13:35:38Z
-- [ ] **percentage-calculator** · misc — X% of Y; X is what % of Y; % change; increase/decrease by %. ⚠️ run died ⏳ run-20261017-1335-65b4 @ 2026-10-17T13:35:38Z
-- [ ] **gst-calculator** · misc — Add or remove GST; CGST/SGST/IGST split. Verify current slab rates against an official source before shipping. ⏳ run-20261017-1335-65b4 @ 2026-10-17T13:35:38Z
-- [ ] **sip-calculator** · misc — SIP, step-up SIP, and lumpsum, with a growth chart. Add a "not financial advice" note. ⏳ run-20261017-1335-65b4 @ 2026-10-17T13:35:38Z
-- [ ] **compound-interest** · misc — Compounding frequency, periodic contributions, and a yearly schedule table.
+- [ ] **pdf-organize** · pdf — Thumbnail grid with drag-to-reorder, rotate, delete, and insert blank page. ⚠️ run died
+- [x] **password-strength** · security — zxcvbn-ts. Show estimated crack time and feedback. The password is never stored or logged. ⚠️ run died ✅ already exists as password-strength
+- [ ] **markdown-preview** · developer — Split-pane live editor: GFM, code highlighting, export to HTML, print to PDF. ⚠️ run died
+- [x] **percentage-calculator** · misc — X% of Y; X is what % of Y; % change; increase/decrease by %. ⚠️ run died ✅ already exists as percentage-calculator
+- [ ] **gst-calculator** · misc — Add or remove GST; CGST/SGST/IGST split. Verify current slab rates against an official source before shipping. ⚠️ run died
+- [ ] **sip-calculator** · misc — SIP, step-up SIP, and lumpsum, with a growth chart. Add a "not financial advice" note. ⚠️ run died
+- [x] **compound-interest** · misc — Compounding frequency, periodic contributions, and a yearly schedule table. ✅ already exists as compound-interest-calculator
 - [ ] **webcam-test** · device — Registers the `device` category. Device picker, resolution and fps readout, snapshot. Nothing leaves the device.
 - [ ] **mic-test** · device — Level meter, waveform, record and play back.
 - [ ] **keyboard-tester** · device — On-screen layout that lights up per key; key/code readout; ghosting test.
@@ -57,12 +57,12 @@ Line order is priority: top first. This file is written by a human (via review) 
 - [ ] **voice-recorder** · audio — MediaRecorder with WAV or WebM output. Link to audio-trim.
 - [ ] **audio-convert** · audio — Generalise audio-to-wav into `audio-convert`: WAV, MP3 (separate-file LGPL encoder is ok), and Opus/OGG. `audio-to-wav` becomes an alias.
 - [ ] **file-encrypt** · security — AES-256-GCM, reusing the text-encrypt KDF. Streaming or chunked for large files; versioned file header.
-- [ ] **totp-generator** · security — Live 6/8-digit codes from a secret or otpauth URI, with a countdown. Pairs with otp-uri.
+- [x] **totp-generator** · security — Live 6/8-digit codes from a secret or otpauth URI, with a countdown. Pairs with otp-uri. ✅ already exists as totp-authenticator
 - [ ] **sqlite-viewer** · developer — sql.js. Browse tables, run queries, export CSV or JSON.
 - [ ] **spreadsheet-viewer** · data — SheetJS installed from the cdn.sheetjs.com tarball (the npm version is stale). Open xlsx/xls/ods/csv; switch sheets; convert to CSV, JSON, or XLSX.
-- [ ] **xml-json** · data — XML ↔ JSON in both directions, with attribute and array handling options.
-- [ ] **toml-json** · data — TOML ↔ JSON, plus an INI ↔ JSON mode.
-- [ ] **jsonpath-tester** · data — JSONPath and JMESPath; highlight matches in the source.
+- [x] **xml-json** · data — XML ↔ JSON in both directions, with attribute and array handling options. ✅ already exists as xml-json-convert
+- [x] **toml-json** · data — TOML ↔ JSON, plus an INI ↔ JSON mode. ✅ already exists as toml-convert
+- [x] **jsonpath-tester** · data — JSONPath and JMESPath; highlight matches in the source. ✅ already exists as jsonpath
 - [ ] **mermaid-renderer** · developer — Live Mermaid editor; export SVG or PNG.
 - [ ] **code-to-image** · developer — Shiki highlighting; themes, padding, background, window chrome. PNG or SVG export.
 - [ ] **stopwatch** · datetime — Laps and keyboard shortcuts. Compute from timestamps rather than counting intervals, so it stays accurate when the tab sleeps.
@@ -75,8 +75,8 @@ Line order is priority: top first. This file is written by a human (via review) 
 - [ ] **gif-maker** · image — Images to animated GIF with gifenc; frame delay and loop settings.
 - [ ] **image-collage** · image — Grid layouts, spacing, background; export.
 - [ ] **svg-optimizer** · image — SVGO browser build; preset toggles; before/after size and preview.
-- [ ] **x509-decoder** · security — Decode PEM/DER certificates and CSRs with @peculiar/x509: validity, SANs, issuer fields, fingerprints.
-- [ ] **keypair-generator** · security — RSA, ECDSA, and Ed25519 via WebCrypto. PEM and OpenSSH formats.
+- [x] **x509-decoder** · security — Decode PEM/DER certificates and CSRs with @peculiar/x509: validity, SANs, issuer fields, fingerprints. ✅ already exists as x509-certificate-inspector
+- [x] **keypair-generator** · security — RSA, ECDSA, and Ed25519 via WebCrypto. PEM and OpenSSH formats. ✅ already exists as keypair-generator
 - [ ] **bcrypt** · security — Hash and verify with a cost factor; bcryptjs in a worker.
 - [ ] **pgp-tool** · security — openpgp.js (LGPL, separate chunk): keygen, encrypt/decrypt, sign/verify.
 - [ ] **tuner** · audio — Mic pitch detection (YIN or autocorrelation); show note and cents.
@@ -94,5 +94,5 @@ Line order is priority: top first. This file is written by a human (via review) 
 - [ ] **pdf-ocr** · pdf · after: image-ocr — Produce a searchable PDF by adding a tesseract.js text layer.
 - [ ] **image-upscale** · image · after: ml-runtime-foundation — 2x/4x with a permissively licensed ESRGAN-type model. WebGPU preferred; enforce size limits.
 - [ ] **noise-reduction** · audio — RNNoise WASM.
-- [ ] **world-clock** · datetime — Pinned cities and a meeting-overlap view. Reuse timezone-convert logic.
+- [x] **world-clock** · datetime — Pinned cities and a meeting-overlap view. Reuse timezone-convert logic. ✅ already exists as world-clock
 - [ ] **online-notepad** · text — Autosave to IndexedDB, multiple notes, export .txt or .md.

@@ -15,8 +15,16 @@ function splitDeclarations(body: string): string[] {
       if (ch === quote) quote = null;
       continue;
     }
-    if (ch === '"' || ch === "'") { quote = ch; cur += ch; continue; }
-    if (ch === ';') { parts.push(cur); cur = ''; continue; }
+    if (ch === '"' || ch === "'") {
+      quote = ch;
+      cur += ch;
+      continue;
+    }
+    if (ch === ';') {
+      parts.push(cur);
+      cur = '';
+      continue;
+    }
     cur += ch;
   }
   parts.push(cur);
@@ -35,7 +43,11 @@ function findRuleBlocks(text: string): Array<{ selector: string | null; body: st
       if (ch === quote) quote = null;
       continue;
     }
-    if (ch === '"' || ch === "'") { quote = ch; buf += ch; continue; }
+    if (ch === '"' || ch === "'") {
+      quote = ch;
+      buf += ch;
+      continue;
+    }
     if (ch === '{') {
       if (!open) {
         const selector = buf.trim();
@@ -56,7 +68,8 @@ function findRuleBlocks(text: string): Array<{ selector: string | null; body: st
     }
     buf += ch;
   }
-  if (open) throw new ToolError('Unbalanced braces in the CSS.', 'One { was not closed with a matching }.');
+  if (open)
+    throw new ToolError('Unbalanced braces in the CSS.', 'One { was not closed with a matching }.');
   // Trailing text after the last rule (e.g. bare declarations) becomes a no-selector block.
   const trailing = buf.trim();
   if (trailing) blocks.push({ selector: null, body: trailing });
@@ -87,7 +100,8 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   const camel = o.camelCase !== false;
   const source = (input.text ?? '').replace(/\/\*[\s\S]*?\*\//g, ''); // strip comments
   if (!source.trim()) throw new ToolError('Paste some CSS to convert to a JS object.');
-  if (source.length > MAX_LEN) throw new ToolError('Input is too large.', 'Keep it under 200,000 characters.');
+  if (source.length > MAX_LEN)
+    throw new ToolError('Input is too large.', 'Keep it under 200,000 characters.');
 
   let blocks: Array<{ selector: string | null; body: string }>;
   try {
@@ -132,7 +146,9 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     language: 'js',
     stats,
     notes: [
-      camel ? 'Property names converted to camelCase (font-size → fontSize).' : 'Property names kept verbatim.',
+      camel
+        ? 'Property names converted to camelCase (font-size → fontSize).'
+        : 'Property names kept verbatim.',
       'Object is plain JS — paste it into your inline-style or CSS-in-JS component and drop the outer braces where React expects a style object.',
     ],
   };

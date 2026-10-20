@@ -120,8 +120,7 @@ function render(rows: string[][], align: 'left' | 'center' | 'right', withHeader
     return cell.padEnd(w, ' ');
   };
   const border = '+' + widths.map((w) => '-'.repeat(w + 2)).join('+') + '+';
-  const line = (r: string[]) =>
-    '| ' + r.map((c, idx) => pad(c, widths[idx]!)).join(' | ') + ' |';
+  const line = (r: string[]) => '| ' + r.map((c, idx) => pad(c, widths[idx]!)).join(' | ') + ' |';
 
   const out: string[] = [border];
   padded.forEach((r, idx) => {
@@ -136,11 +135,12 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   const o = resolveOptions(meta, input.options);
   const source = input.text ?? '';
   if (!source.trim()) throw new ToolError('Paste CSV rows to turn into an ASCII table.');
-  if (source.length > MAX_LEN) throw new ToolError('Input is too large.', 'Keep it under 500,000 characters.');
+  if (source.length > MAX_LEN)
+    throw new ToolError('Input is too large.', 'Keep it under 500,000 characters.');
 
   const delim = String(o.delimiter ?? 'auto');
   const delimiter = delim === 'auto' ? detectDelimiter(source) : delim;
-  const align = (String(o.align ?? 'left') as 'left' | 'center' | 'right');
+  const align = String(o.align ?? 'left') as 'left' | 'center' | 'right';
   const withHeader = o.header !== false;
 
   let rows = parseRecords(source, delimiter);

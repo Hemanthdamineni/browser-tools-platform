@@ -70,7 +70,11 @@ export function clampNumber(value: unknown, min: number, max: number, fallback: 
 }
 
 /** Resolve the preset, clamping custom numbers and falling back to `balanced`. */
-export function resolvePreset(id: unknown, maxEdge?: unknown, quality?: unknown): CompressionPreset {
+export function resolvePreset(
+  id: unknown,
+  maxEdge?: unknown,
+  quality?: unknown,
+): CompressionPreset {
   const key = String(id ?? '');
   if (key === 'light') return PRESETS.light;
   if (key === 'strong') return PRESETS.strong;
@@ -91,7 +95,11 @@ export function resolvePreset(id: unknown, maxEdge?: unknown, quality?: unknown)
  * already fits is returned unchanged (never upscaled); aspect ratio is kept and
  * a dimension is never rounded below 1 px.
  */
-export function fitWithin(width: number, height: number, maxEdge: number): { width: number; height: number } {
+export function fitWithin(
+  width: number,
+  height: number,
+  maxEdge: number,
+): { width: number; height: number } {
   const w = Math.max(1, Math.round(width) || 1);
   const h = Math.max(1, Math.round(height) || 1);
   if (!(maxEdge > 0)) return { width: w, height: h };
@@ -166,7 +174,8 @@ function componentCount(name: string): number {
 
 function hasPredictor(dict: PDFDict): boolean {
   const parms = dict.lookup(PDFName.of('DecodeParms'));
-  const dicts = parms instanceof PDFDict ? [parms] : parms instanceof PDFArray ? parms.asArray() : [];
+  const dicts =
+    parms instanceof PDFDict ? [parms] : parms instanceof PDFArray ? parms.asArray() : [];
   for (const entry of dicts) {
     if (!(entry instanceof PDFDict)) continue;
     const predictor = entry.lookup(PDFName.of('Predictor'));
@@ -225,8 +234,10 @@ export function planImage(image: EmbeddedImage, preset: CompressionPreset): Imag
   });
   if (!preset.reencode) return skip('the selected preset keeps images untouched');
   if (image.imageMask) return skip('image mask (used for clipping, not a picture)');
-  if (image.hasSoftMask || image.hasMask) return skip('image has transparency, which JPEG cannot keep');
-  if (image.width * image.height > MAX_DECODE_PIXELS) return skip('too many pixels to decode safely');
+  if (image.hasSoftMask || image.hasMask)
+    return skip('image has transparency, which JPEG cannot keep');
+  if (image.width * image.height > MAX_DECODE_PIXELS)
+    return skip('too many pixels to decode safely');
   if (image.filter === '/DCTDecode' && image.colorSpace === '/DeviceCMYK') {
     return skip('CMYK JPEGs decode inconsistently across browsers');
   }
@@ -312,7 +323,16 @@ export function stripDocumentMetadata(doc: { context: PDFContext }): boolean {
   const info = doc.context.lookup(doc.context.trailerInfo.Info);
   if (!(info instanceof PDFDict)) return false;
   let changed = false;
-  for (const key of ['Title', 'Author', 'Subject', 'Keywords', 'Creator', 'Producer', 'CreationDate', 'ModDate']) {
+  for (const key of [
+    'Title',
+    'Author',
+    'Subject',
+    'Keywords',
+    'Creator',
+    'Producer',
+    'CreationDate',
+    'ModDate',
+  ]) {
     if (info.delete(PDFName.of(key))) changed = true;
   }
   return changed;

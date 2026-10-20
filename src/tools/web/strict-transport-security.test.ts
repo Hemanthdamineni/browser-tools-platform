@@ -2,8 +2,14 @@ import { describe, expect, it } from 'vitest';
 import { ToolError } from '@/lib/types';
 import tool from './strict-transport-security.tool';
 
-type Result = { output: string; filename?: string; stats?: Record<string, string | number>; notes?: string[] };
-const run = (text: string, options: Record<string, string | number | boolean> = {}) => tool.run({ text, options }) as Result;
+type Result = {
+  output: string;
+  filename?: string;
+  stats?: Record<string, string | number>;
+  notes?: string[];
+};
+const run = (text: string, options: Record<string, string | number | boolean> = {}) =>
+  tool.run({ text, options }) as Result;
 const rows = (result: Result) => JSON.parse(result.output).rows as string[][];
 
 describe('strict-transport-security', () => {
@@ -14,7 +20,11 @@ describe('strict-transport-security', () => {
   });
 
   it('builds a preload-ready policy with subdomains', () => {
-    const result = run('', { mode: 'build', maxAge: '31536000', flags: 'includeSubDomains+preload' });
+    const result = run('', {
+      mode: 'build',
+      maxAge: '31536000',
+      flags: 'includeSubDomains+preload',
+    });
     expect(result.output).toBe('max-age=31536000; includeSubDomains; preload');
     expect(result.stats).toMatchObject({ includeSubDomains: 'yes', preload: 'yes' });
   });
@@ -27,7 +37,12 @@ describe('strict-transport-security', () => {
 
   it('analyzes a full valid policy', () => {
     const result = run('max-age=31536000; includeSubDomains; preload');
-    expect(result.stats).toMatchObject({ maxAge: 31536000, includeSubDomains: 'yes', preload: 'yes', issues: 0 });
+    expect(result.stats).toMatchObject({
+      maxAge: 31536000,
+      includeSubDomains: 'yes',
+      preload: 'yes',
+      issues: 0,
+    });
     expect(rows(result)[0]?.[2]).toContain('preload minimum');
   });
 

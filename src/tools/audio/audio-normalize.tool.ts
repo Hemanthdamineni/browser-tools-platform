@@ -19,7 +19,8 @@ function rmsOf(channels: Float32Array[]): number {
 
 function peakOf(channels: Float32Array[]): number {
   let peak = 0;
-  for (const ch of channels) for (let i = 0; i < ch.length; i++) peak = Math.max(peak, Math.abs(ch[i]!));
+  for (const ch of channels)
+    for (let i = 0; i < ch.length; i++) peak = Math.max(peak, Math.abs(ch[i]!));
   return peak;
 }
 
@@ -45,11 +46,16 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
 
   input.onProgress?.(1, 'Done');
   return {
-    outputs: [{ filename: `${input.files[0]!.name.replace(/\.[^.]*$/, '') || 'audio'}-normalized.wav`, blob: toWavBlob(channels, audio.sampleRate) }],
+    outputs: [
+      {
+        filename: `${input.files[0]!.name.replace(/\.[^.]*$/, '') || 'audio'}-normalized.wav`,
+        blob: toWavBlob(channels, audio.sampleRate),
+      },
+    ],
     stats: {
       mode,
-      'gainDb': Number((20 * Math.log10(gain)).toFixed(2)),
-      'newPeakDb': Number(amplitudeToDb(peakOf(channels)).toFixed(2)),
+      gainDb: Number((20 * Math.log10(gain)).toFixed(2)),
+      newPeakDb: Number(amplitudeToDb(peakOf(channels)).toFixed(2)),
     },
   };
 }

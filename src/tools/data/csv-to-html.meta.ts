@@ -4,8 +4,7 @@ export const meta: ToolMeta = {
   id: 'csv-to-html',
   name: 'CSV to HTML Table',
   category: 'data',
-  summary:
-    'Turn CSV data into a clean HTML table, with optional inline styling, on device.',
+  summary: 'Turn CSV data into a clean HTML table, with optional inline styling, on device.',
   description:
     'Convert CSV (or other delimited) data into a self-contained HTML <table>. The first row becomes table headers and every following row becomes a table row. Optionally add minimal inline CSS for a tidy, readable table. Great for publishing data in web pages, emails, and Static-site templates.',
   keywords: [

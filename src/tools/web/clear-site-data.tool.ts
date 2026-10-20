@@ -4,8 +4,86 @@ import { resolveOptions } from '@/lib/options';
 import { meta } from './clear-site-data.meta';
 
 const TARGETS = new Set(['"cache"', '"cookies"', '"storage"', '"executioncontexts"', '"*"']);
-function splitTargets(text: string): string[] { const result: string[] = []; let current = ''; let quoted = false; for (const char of text) { if (char === '"') quoted = !quoted; if (char === ',' && !quoted) { if (current.trim()) result.push(current.trim()); current = ''; } else current += char; } if (current.trim()) result.push(current.trim()); return result; }
-function inspect(text: string): { targets: string[]; issues: string[] } { const issues: string[] = []; const tokens = splitTargets(text).map((token) => token.toLowerCase()); if (!tokens.length) issues.push('No Clear-Site-Data targets were provided'); for (const token of tokens) if (!TARGETS.has(token)) issues.push(`Invalid target: ${token}`); if (tokens.includes('"*"') && tokens.length > 1) issues.push('The * wildcard makes additional targets redundant'); if (new Set(tokens).size !== tokens.length) issues.push('Duplicate targets are present'); return { targets: tokens, issues }; }
-function run(input: TextRunInput): TextRunResult { const options = resolveOptions(meta, input.options); const mode = String(options.mode); if (mode !== 'build' && mode !== 'analyze') throw new ToolError('Choose a supported Clear-Site-Data mode.'); const value = mode === 'build' ? String(options.targets) : input.text; const result = inspect(value); if (mode === 'build') { if (!result.targets.length || result.issues.length) throw new ToolError(result.issues[0] ?? 'Enter at least one quoted target.'); return { output: result.targets.join(', '), render: 'code', language: 'http', filename: 'clear-site-data.txt', stats: { targets: result.targets.length, wildcard: result.targets.includes('"*"') ? 'yes' : 'no' } }; } if (!result.targets.length) return { output: JSON.stringify({ headers: ['Target', 'Status', 'Scope'], rows: [] }), render: 'table', notes: ['Paste quoted Clear-Site-Data targets separated by commas.'] }; const rows = result.targets.map((target) => [target, TARGETS.has(target) ? 'Valid' : 'Invalid', target === '"cookies"' ? 'Clears cookies on the secure origin' : target === '"storage"' ? 'Clears local/session storage and similar storage' : target === '"cache"' ? 'Clears the HTTP cache' : target === '"executioncontexts"' ? 'Reloads the page to drop execution contexts' : target === '"*"' ? 'Wildcard requests all supported data types' : 'Unsupported target']); return { output: JSON.stringify({ headers: ['Target', 'Status', 'Scope'], rows }), render: 'table', stats: { targets: result.targets.length, issues: result.issues.length, wildcard: result.targets.includes('"*"') ? 'yes' : 'no' }, notes: result.issues.length ? result.issues : ['Clear-Site-Data is only honored on secure (HTTPS) responses and cannot clear data written by other origins.'] }; }
+function splitTargets(text: string): string[] {
+  const result: string[] = [];
+  let current = '';
+  let quoted = false;
+  for (const char of text) {
+    if (char === '"') quoted = !quoted;
+    if (char === ',' && !quoted) {
+      if (current.trim()) result.push(current.trim());
+      current = '';
+    } else current += char;
+  }
+  if (current.trim()) result.push(current.trim());
+  return result;
+}
+function inspect(text: string): { targets: string[]; issues: string[] } {
+  const issues: string[] = [];
+  const tokens = splitTargets(text).map((token) => token.toLowerCase());
+  if (!tokens.length) issues.push('No Clear-Site-Data targets were provided');
+  for (const token of tokens) if (!TARGETS.has(token)) issues.push(`Invalid target: ${token}`);
+  if (tokens.includes('"*"') && tokens.length > 1)
+    issues.push('The * wildcard makes additional targets redundant');
+  if (new Set(tokens).size !== tokens.length) issues.push('Duplicate targets are present');
+  return { targets: tokens, issues };
+}
+function run(input: TextRunInput): TextRunResult {
+  const options = resolveOptions(meta, input.options);
+  const mode = String(options.mode);
+  if (mode !== 'build' && mode !== 'analyze')
+    throw new ToolError('Choose a supported Clear-Site-Data mode.');
+  const value = mode === 'build' ? String(options.targets) : input.text;
+  const result = inspect(value);
+  if (mode === 'build') {
+    if (!result.targets.length || result.issues.length)
+      throw new ToolError(result.issues[0] ?? 'Enter at least one quoted target.');
+    return {
+      output: result.targets.join(', '),
+      render: 'code',
+      language: 'http',
+      filename: 'clear-site-data.txt',
+      stats: {
+        targets: result.targets.length,
+        wildcard: result.targets.includes('"*"') ? 'yes' : 'no',
+      },
+    };
+  }
+  if (!result.targets.length)
+    return {
+      output: JSON.stringify({ headers: ['Target', 'Status', 'Scope'], rows: [] }),
+      render: 'table',
+      notes: ['Paste quoted Clear-Site-Data targets separated by commas.'],
+    };
+  const rows = result.targets.map((target) => [
+    target,
+    TARGETS.has(target) ? 'Valid' : 'Invalid',
+    target === '"cookies"'
+      ? 'Clears cookies on the secure origin'
+      : target === '"storage"'
+        ? 'Clears local/session storage and similar storage'
+        : target === '"cache"'
+          ? 'Clears the HTTP cache'
+          : target === '"executioncontexts"'
+            ? 'Reloads the page to drop execution contexts'
+            : target === '"*"'
+              ? 'Wildcard requests all supported data types'
+              : 'Unsupported target',
+  ]);
+  return {
+    output: JSON.stringify({ headers: ['Target', 'Status', 'Scope'], rows }),
+    render: 'table',
+    stats: {
+      targets: result.targets.length,
+      issues: result.issues.length,
+      wildcard: result.targets.includes('"*"') ? 'yes' : 'no',
+    },
+    notes: result.issues.length
+      ? result.issues
+      : [
+          'Clear-Site-Data is only honored on secure (HTTPS) responses and cannot clear data written by other origins.',
+        ],
+  };
+}
 const tool: TextToolModule = { meta, run };
 export default tool;

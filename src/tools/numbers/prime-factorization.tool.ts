@@ -7,7 +7,9 @@ type Row = [string, string];
 
 // ── BigInt helpers ────────────────────────────────────────────────────────────
 
-function abs(x: bigint): bigint { return x < 0n ? -x : x; }
+function abs(x: bigint): bigint {
+  return x < 0n ? -x : x;
+}
 function modpow(base: bigint, exp: bigint, mod: bigint): bigint {
   let r = 1n;
   let b = base % mod;
@@ -38,7 +40,10 @@ function isPrime(n: bigint): boolean {
   }
   let d = n - 1n;
   let s = 0;
-  while (d % 2n === 0n) { d /= 2n; s++; }
+  while (d % 2n === 0n) {
+    d /= 2n;
+    s++;
+  }
   const bases = Number(n) > Number.MAX_SAFE_INTEGER ? MR_BASES[1]! : MR_BASES[0]!;
   for (const a of bases) {
     if (a % n === 0n) continue;
@@ -47,7 +52,10 @@ function isPrime(n: bigint): boolean {
     let composite = true;
     for (let r = 1; r < s; r++) {
       x = (x * x) % n;
-      if (x === n - 1n) { composite = false; break; }
+      if (x === n - 1n) {
+        composite = false;
+        break;
+      }
     }
     if (composite) return false;
   }
@@ -57,7 +65,11 @@ function isPrime(n: bigint): boolean {
 // ── Pollard's rho ─────────────────────────────────────────────────────────────
 
 function gcd(a: bigint, b: bigint): bigint {
-  while (b !== 0n) { const t = a % b; a = b; b = t; }
+  while (b !== 0n) {
+    const t = a % b;
+    a = b;
+    b = t;
+  }
   return a < 0n ? -a : a;
 }
 
@@ -65,7 +77,9 @@ function rho(n: bigint): bigint {
   if (n % 2n === 0n) return 2n;
   if (n % 3n === 0n) return 3n;
   const c = BigInt(Math.floor(Math.random() * Number(n % 20n)) + 1);
-  let x = 2n, y = 2n, d = 1n;
+  let x = 2n,
+    y = 2n,
+    d = 1n;
   const f = (x: bigint) => (x * x + c) % n;
   while (d === 1n) {
     x = f(x);
@@ -107,7 +121,10 @@ function sigma(factors: Map<bigint, number>): bigint {
   for (const [p, e] of factors) {
     let term = 0n;
     let pow = 1n;
-    for (let i = 0; i <= e; i++) { term += pow; pow *= p; }
+    for (let i = 0; i <= e; i++) {
+      term += pow;
+      pow *= p;
+    }
     s *= term;
   }
   return s;
@@ -126,9 +143,15 @@ function listDivisors(factors: Map<bigint, number>): bigint[] {
   const exps = primes.map((p) => factors.get(p)!);
   const divs: bigint[] = [];
   function dfs(i: number, cur: bigint) {
-    if (i === primes.length) { divs.push(cur); return; }
+    if (i === primes.length) {
+      divs.push(cur);
+      return;
+    }
     let v = 1n;
-    for (let e = 0; e <= exps[i]!; e++) { dfs(i + 1, cur * v); v *= primes[i]!; }
+    for (let e = 0; e <= exps[i]!; e++) {
+      dfs(i + 1, cur * v);
+      v *= primes[i]!;
+    }
   }
   dfs(0, 1n);
   return divs.sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
@@ -175,7 +198,11 @@ function run(input: TextRunInput): TextRunResult {
   const showDiv = Boolean(o.showDivisors);
   const raw = input.text.trim();
   if (!raw) {
-    return { output: JSON.stringify({ headers: ['Property', 'Value'], rows: [] as Row[] }), render: 'table', notes: ['Enter a whole number to factorize, test for primality, or list primes below N.'] };
+    return {
+      output: JSON.stringify({ headers: ['Property', 'Value'], rows: [] as Row[] }),
+      render: 'table',
+      notes: ['Enter a whole number to factorize, test for primality, or list primes below N.'],
+    };
   }
 
   const lines = raw.split(/\r\n|\r|\n/).filter((l) => l.trim());
@@ -190,7 +217,8 @@ function run(input: TextRunInput): TextRunResult {
   const absn = abs(n);
 
   if (mode === 'primes-below') {
-    if (absn > 10000000n) throw new ToolError('The primes-below mode is limited to N ≤ 10,000,000 for performance.');
+    if (absn > 10000000n)
+      throw new ToolError('The primes-below mode is limited to N ≤ 10,000,000 for performance.');
     const ps = primesBelow(absn);
     const countRow: Row = ['Prime count', String(ps.length)];
     const listRows: Row[] = ps.slice(0, 200).map((p, i) => [String(i + 1), fmt(p)]);
@@ -198,18 +226,30 @@ function run(input: TextRunInput): TextRunResult {
       output: JSON.stringify({ headers: ['#', 'Prime'], rows: [countRow, ...listRows] }),
       render: 'table',
       stats: { primeCount: ps.length, limit: Number(absn) },
-      notes: [ps.length > 200 ? `Showing first 200 of ${ps.length} primes.` : `All ${ps.length} prime numbers below ${fmt(absn)}.`],
+      notes: [
+        ps.length > 200
+          ? `Showing first 200 of ${ps.length} primes.`
+          : `All ${ps.length} prime numbers below ${fmt(absn)}.`,
+      ],
     };
   }
 
   if (mode === 'is-prime') {
     const prime = absn >= 2n && isPrime(absn);
-    const rows: Row[] = [['Number', clean], ['Primality', prime ? 'PRIME' : 'COMPOSITE'], ['Absolute value', fmt(absn)]];
+    const rows: Row[] = [
+      ['Number', clean],
+      ['Primality', prime ? 'PRIME' : 'COMPOSITE'],
+      ['Absolute value', fmt(absn)],
+    ];
     return {
       output: JSON.stringify({ headers: ['Property', 'Value'], rows }),
       render: 'table',
       stats: { isPrime: prime ? 1 : 0 },
-      notes: [prime ? `${fmt(absn)} is a prime number (only divisible by 1 and itself).` : `${fmt(absn)} is composite — it has non-trivial divisors.`],
+      notes: [
+        prime
+          ? `${fmt(absn)} is a prime number (only divisible by 1 and itself).`
+          : `${fmt(absn)} is composite — it has non-trivial divisors.`,
+      ],
     };
   }
 
@@ -232,15 +272,28 @@ function run(input: TextRunInput): TextRunResult {
     if (showDiv) {
       const divs = listDivisors(factors);
       const maxDivs = 500;
-      rows.push(['Divisors', divs.slice(0, maxDivs).map(fmt).join(', ') + (divs.length > maxDivs ? ' …' : '')]);
+      rows.push([
+        'Divisors',
+        divs.slice(0, maxDivs).map(fmt).join(', ') + (divs.length > maxDivs ? ' …' : ''),
+      ]);
       rows.push(['Total divisors', fmt(τ)]);
     }
   }
   return {
     output: JSON.stringify({ headers: ['Property', 'Value'], rows }),
     render: 'table',
-    stats: { divisors: factors.size ? Number(countDivisors(factors)) : 0, phi: factors.size ? Number(phi(factors, absn)) : 0, ...(factors.size ? { primes: factors.size } : {}) },
-    notes: [absn >= 2n && factors.size === 1 ? `${fmt(absn)} is prime.` : factors.size ? `${fmt(absn)} = ${factorizationString(factors)} — ${countDivisors(factors)} total divisors.` : `${fmt(absn)} has no prime factors (value < 2).`],
+    stats: {
+      divisors: factors.size ? Number(countDivisors(factors)) : 0,
+      phi: factors.size ? Number(phi(factors, absn)) : 0,
+      ...(factors.size ? { primes: factors.size } : {}),
+    },
+    notes: [
+      absn >= 2n && factors.size === 1
+        ? `${fmt(absn)} is prime.`
+        : factors.size
+          ? `${fmt(absn)} = ${factorizationString(factors)} — ${countDivisors(factors)} total divisors.`
+          : `${fmt(absn)} has no prime factors (value < 2).`,
+    ],
   };
 }
 

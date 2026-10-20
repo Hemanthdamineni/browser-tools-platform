@@ -35,7 +35,11 @@ export const meta: ToolMeta = {
     },
   ],
   examples: [
-    { title: 'Luhn checksum (test number)', input: '4111 1111 1111 1111', options: { format: 'luhn' } },
+    {
+      title: 'Luhn checksum (test number)',
+      input: '4111 1111 1111 1111',
+      options: { format: 'luhn' },
+    },
     { title: 'IBAN checksum', input: 'GB82 WEST 1234 5698 7654 32', options: { format: 'iban' } },
     { title: 'ISBN-10 with X check digit', input: '0-306-40615-2', options: { format: 'isbn' } },
   ],

@@ -4,7 +4,8 @@ import tool from './properties-convert.tool';
 type Result = { output: string; render?: string; stats?: Record<string, number>; notes?: string[] };
 const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
   (await tool.run({ text, options })) as Result;
-const parsed = (r: Result): Record<string, unknown> => JSON.parse(r.output) as Record<string, unknown>;
+const parsed = (r: Result): Record<string, unknown> =>
+  JSON.parse(r.output) as Record<string, unknown>;
 
 const sample = [
   'server.port = 8080',
@@ -59,7 +60,9 @@ describe('properties-convert (props → json)', () => {
 
 describe('properties-convert (json → props)', () => {
   it('flattens nested objects into dotted keys', async () => {
-    const r = await run('{"app":{"name":"demo","port":8080,"ssl":false}}', { mode: 'json-to-props' });
+    const r = await run('{"app":{"name":"demo","port":8080,"ssl":false}}', {
+      mode: 'json-to-props',
+    });
     const lines = r.output.split('\n').filter(Boolean);
     expect(lines).toContain('app.name=demo');
     expect(lines).toContain('app.port=8080');

@@ -13,10 +13,18 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   const breaking = o.breaking === true;
   const breakingDetail = String(o.breakingDetail ?? '').trim();
   const body = String(o.body ?? '').trim();
-  const lines = (input.text ?? '').split(/\r?\n/).map((l) => l.trim()).filter((l) => l !== '');
+  const lines = (input.text ?? '')
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter((l) => l !== '');
   const subject = lines[0] ?? '';
-  if (!subject) throw new ToolError('Describe the change in the input box.', 'e.g. "Add pagination to the list endpoint"');
-  if (subject.length > MAX_LEN) throw new ToolError('Subject is too large.', 'Keep it under ' + MAX_LEN + ' characters.');
+  if (!subject)
+    throw new ToolError(
+      'Describe the change in the input box.',
+      'e.g. "Add pagination to the list endpoint"',
+    );
+  if (subject.length > MAX_LEN)
+    throw new ToolError('Subject is too large.', 'Keep it under ' + MAX_LEN + ' characters.');
 
   const bang = breaking ? '!' : '';
   const scopePart = scope ? '(' + scope + ')' : '';
@@ -37,9 +45,20 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     notes: [
       subjectLen <= SUGGESTED_MAX
         ? 'Subject is within the suggested ' + SUGGESTED_MAX + '-char limit.'
-        : 'Subject is ' + (subjectLen - SUGGESTED_MAX) + ' chars over the suggested ' + SUGGESTED_MAX + ' — consider shortening.',
-      breaking ? 'Marked as a breaking change' + (breakingDetail ? ' with a BREAKING CHANGE footer.' : ' with the subject as the footer.') : 'No breaking-change marker.',
-      ignoredLines.length > 0 ? 'Ignored ' + ignoredLines.length + ' extra line(s) after the subject — use the body option instead.' : '',
+        : 'Subject is ' +
+          (subjectLen - SUGGESTED_MAX) +
+          ' chars over the suggested ' +
+          SUGGESTED_MAX +
+          ' — consider shortening.',
+      breaking
+        ? 'Marked as a breaking change' +
+          (breakingDetail ? ' with a BREAKING CHANGE footer.' : ' with the subject as the footer.')
+        : 'No breaking-change marker.',
+      ignoredLines.length > 0
+        ? 'Ignored ' +
+          ignoredLines.length +
+          ' extra line(s) after the subject — use the body option instead.'
+        : '',
     ].filter(Boolean),
   };
 }

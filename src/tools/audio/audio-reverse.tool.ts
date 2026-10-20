@@ -17,7 +17,12 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   const channels = audio.channels.map(reverseChannel);
   input.onProgress?.(1, 'Done');
   return {
-    outputs: [{ filename: `${input.files[0]!.name.replace(/\.[^.]*$/, '') || 'audio'}-reversed.wav`, blob: toWavBlob(channels, audio.sampleRate) }],
+    outputs: [
+      {
+        filename: `${input.files[0]!.name.replace(/\.[^.]*$/, '') || 'audio'}-reversed.wav`,
+        blob: toWavBlob(channels, audio.sampleRate),
+      },
+    ],
   };
 }
 

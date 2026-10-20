@@ -4,8 +4,7 @@ export const meta: ToolMeta = {
   id: 'csv-to-yaml',
   name: 'CSV to YAML',
   category: 'data',
-  summary:
-    'Convert a CSV table into block-style YAML with automatic type detection and quoting.',
+  summary: 'Convert a CSV table into block-style YAML with automatic type detection and quoting.',
   description:
     'Turn a CSV file into clean YAML in one step. The first row becomes the document keys (or you can disable the header), each subsequent row becomes a list item, and cell values are typed: integers stay numbers, decimals stay floats, true/false become booleans, empty cells become null, and everything else is emitted as a safely quoted string. Values and keys that would be ambiguous in YAML are quoted automatically, so the output parses exactly back to the table you started from. All conversion happens on your device.',
   keywords: [

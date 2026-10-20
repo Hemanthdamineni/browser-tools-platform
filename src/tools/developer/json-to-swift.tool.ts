@@ -5,13 +5,76 @@ import { meta } from './json-to-swift.meta';
 
 type Json = null | boolean | number | string | Json[] | { [key: string]: Json };
 
-const ACRONYMS = new Set(['id', 'url', 'uri', 'api', 'ip', 'json', 'xml', 'html', 'css', 'sql', 'http', 'https', 'ftp']);
+const ACRONYMS = new Set([
+  'id',
+  'url',
+  'uri',
+  'api',
+  'ip',
+  'json',
+  'xml',
+  'html',
+  'css',
+  'sql',
+  'http',
+  'https',
+  'ftp',
+]);
 const KEYWORDS = new Set([
-  'class', 'struct', 'enum', 'protocol', 'extension', 'func', 'let', 'var', 'true', 'false', 'nil', 'self',
-  'Type', 'String', 'Int', 'Double', 'Float', 'Bool', 'Any', 'Array', 'Dictionary', 'Set', 'case', 'default',
-  'if', 'else', 'for', 'while', 'repeat', 'do', 'switch', 'guard', 'return', 'throw', 'throws', 'init', 'deinit',
-  'static', 'final', 'override', 'import', 'public', 'private', 'internal', 'fileprivate', 'open', 'associatedtype',
-  'where', 'as', 'is', 'in', 'await', 'async', 'subscript',
+  'class',
+  'struct',
+  'enum',
+  'protocol',
+  'extension',
+  'func',
+  'let',
+  'var',
+  'true',
+  'false',
+  'nil',
+  'self',
+  'Type',
+  'String',
+  'Int',
+  'Double',
+  'Float',
+  'Bool',
+  'Any',
+  'Array',
+  'Dictionary',
+  'Set',
+  'case',
+  'default',
+  'if',
+  'else',
+  'for',
+  'while',
+  'repeat',
+  'do',
+  'switch',
+  'guard',
+  'return',
+  'throw',
+  'throws',
+  'init',
+  'deinit',
+  'static',
+  'final',
+  'override',
+  'import',
+  'public',
+  'private',
+  'internal',
+  'fileprivate',
+  'open',
+  'associatedtype',
+  'where',
+  'as',
+  'is',
+  'in',
+  'await',
+  'async',
+  'subscript',
 ]);
 
 function wordsOf(key: string): string[] {
@@ -137,7 +200,10 @@ class Generator {
       .map((d) => {
         const head = `struct ${d.name}: Codable {`;
         const body = d.lines.length > 0 ? d.lines.join('\n') : '    // empty object';
-        const keyPart = d.keyMappings.length > 0 ? `\n\n    enum CodingKeys: String, CodingKey {\n${d.keyMappings.join('\n')}\n    }` : '';
+        const keyPart =
+          d.keyMappings.length > 0
+            ? `\n\n    enum CodingKeys: String, CodingKey {\n${d.keyMappings.join('\n')}\n    }`
+            : '';
         return `${head}\n${body}${keyPart}\n}`;
       })
       .join('\n\n');
@@ -152,23 +218,41 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
 
   const text = (input.text ?? '').trim();
   if (!text) {
-    throw new ToolError('Paste a JSON object or array.', 'A single JSON value; its shape becomes the Swift structs.');
+    throw new ToolError(
+      'Paste a JSON object or array.',
+      'A single JSON value; its shape becomes the Swift structs.',
+    );
   }
   let parsed: Json;
   try {
     parsed = JSON.parse(text) as Json;
   } catch (e) {
-    throw new ToolError(`Invalid JSON: ${(e as Error).message}`, 'Check quotes, commas and brackets.');
+    throw new ToolError(
+      `Invalid JSON: ${(e as Error).message}`,
+      'Check quotes, commas and brackets.',
+    );
   }
 
-  if (parsed === null || typeof parsed !== 'object' || (Array.isArray(parsed) && parsed.length === 0)) {
-    throw new ToolError('The root must be a non-empty JSON object or array.', 'An empty array cannot be typed.');
+  if (
+    parsed === null ||
+    typeof parsed !== 'object' ||
+    (Array.isArray(parsed) && parsed.length === 0)
+  ) {
+    throw new ToolError(
+      'The root must be a non-empty JSON object or array.',
+      'An empty array cannot be typed.',
+    );
   }
 
   const arrayRoot = Array.isArray(parsed);
-  const rootObj = arrayRoot ? (parsed as Json[]).find((v) => v !== null && typeof v === 'object' && !Array.isArray(v)) : parsed;
+  const rootObj = arrayRoot
+    ? (parsed as Json[]).find((v) => v !== null && typeof v === 'object' && !Array.isArray(v))
+    : parsed;
   if (!rootObj) {
-    throw new ToolError('The JSON array holds no object element.', 'Null and primitive elements cannot be typed.');
+    throw new ToolError(
+      'The JSON array holds no object element.',
+      'Null and primitive elements cannot be typed.',
+    );
   }
 
   const gen = new Generator(emitCodingKeys, mutable);

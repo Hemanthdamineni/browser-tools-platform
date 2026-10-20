@@ -4,7 +4,8 @@ export const meta: ToolMeta = {
   id: 'json-to-sql',
   name: 'JSON to SQL',
   category: 'developer',
-  summary: 'Turn a JSON array of objects into SQL INSERT statements with correct types and escaping.',
+  summary:
+    'Turn a JSON array of objects into SQL INSERT statements with correct types and escaping.',
   description:
     'Convert a JSON array of flat objects into portable SQL INSERT statements. Keys become columns (union of all objects, first-seen order), and values are typed and escaped correctly: strings are single-quoted with doubled apostrophes, NULLs stay NULL, numbers and booleans are emitted bare (booleans as 1/0 for portability), and nested objects or arrays are serialised as JSON strings. Choose the table name and optionally emit CREATE TABLE or wrap the inserts in a transaction.',
   keywords: [

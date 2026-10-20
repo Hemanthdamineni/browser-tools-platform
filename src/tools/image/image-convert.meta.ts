@@ -18,7 +18,10 @@ export const meta: ToolMeta = {
       label: 'Target format',
       type: 'select',
       default: 'webp',
-      choices: ['png', 'jpeg', 'webp', 'avif'].map((value) => ({ value, label: value.toUpperCase() })),
+      choices: ['png', 'jpeg', 'webp', 'avif'].map((value) => ({
+        value,
+        label: value.toUpperCase(),
+      })),
     },
     {
       key: 'quality',

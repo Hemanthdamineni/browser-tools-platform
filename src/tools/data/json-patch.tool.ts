@@ -30,18 +30,25 @@ function equal(a: Json, b: Json): boolean {
   }
   if (isObject(a) && isObject(b)) {
     const aKeys = Object.keys(a);
-    return aKeys.length === Object.keys(b).length && aKeys.every((key) => key in b && equal(a[key]!, b[key]!));
+    return (
+      aKeys.length === Object.keys(b).length &&
+      aKeys.every((key) => key in b && equal(a[key]!, b[key]!))
+    );
   }
   return false;
 }
 
 function pointer(path: string): string[] {
   if (path === '') return [];
-  if (!path.startsWith('/')) throw new Error(`Invalid JSON Pointer "${path}": paths must start with /.`);
-  return path.slice(1).split('/').map((part) => {
-    if (/~(?![01])/.test(part)) throw new Error(`Invalid escape in JSON Pointer "${path}".`);
-    return part.replace(/~1/g, '/').replace(/~0/g, '~');
-  });
+  if (!path.startsWith('/'))
+    throw new Error(`Invalid JSON Pointer "${path}": paths must start with /.`);
+  return path
+    .slice(1)
+    .split('/')
+    .map((part) => {
+      if (/~(?![01])/.test(part)) throw new Error(`Invalid escape in JSON Pointer "${path}".`);
+      return part.replace(/~1/g, '/').replace(/~0/g, '~');
+    });
 }
 
 function arrayIndex(segment: string, length: number, allowEnd: boolean): number {
@@ -57,7 +64,8 @@ function get(root: Json, parts: string[]): Json {
   let value = root;
   for (const part of parts) {
     if (Array.isArray(value)) value = value[arrayIndex(part, value.length, false)]!;
-    else if (isObject(value) && Object.prototype.hasOwnProperty.call(value, part)) value = value[part]!;
+    else if (isObject(value) && Object.prototype.hasOwnProperty.call(value, part))
+      value = value[part]!;
     else throw new Error(`Path segment "${part}" does not exist.`);
   }
   return value;
@@ -83,7 +91,8 @@ function replace(root: Json, parts: string[], value: Json): Json {
   if (!parts.length) return clone(value);
   const { parent, key } = parentAt(root, parts);
   if (Array.isArray(parent)) parent[arrayIndex(key, parent.length, false)] = clone(value);
-  else if (isObject(parent) && Object.prototype.hasOwnProperty.call(parent, key)) parent[key] = clone(value);
+  else if (isObject(parent) && Object.prototype.hasOwnProperty.call(parent, key))
+    parent[key] = clone(value);
   else throw new Error(`Path "${key}" does not exist.`);
   return root;
 }
@@ -107,7 +116,10 @@ function parseJson(text: string, label: string): Json {
   try {
     return JSON.parse(text) as Json;
   } catch (error) {
-    throw new ToolError(`Invalid JSON in ${label}.`, error instanceof Error ? error.message : String(error));
+    throw new ToolError(
+      `Invalid JSON in ${label}.`,
+      error instanceof Error ? error.message : String(error),
+    );
   }
 }
 
@@ -122,12 +134,14 @@ function parseOperations(value: Json): PatchOperation[] {
     }
     const op = item.op;
     if (op === 'add' || op === 'replace' || op === 'test') {
-      if (!Object.prototype.hasOwnProperty.call(item, 'value')) return fail(`Operation "${op}" requires a value field.`);
+      if (!Object.prototype.hasOwnProperty.call(item, 'value'))
+        return fail(`Operation "${op}" requires a value field.`);
       return { op, path: item.path, value: item.value! };
     }
     if (op === 'remove') return { op, path: item.path };
     if (op === 'move' || op === 'copy') {
-      if (typeof item.from !== 'string') return fail(`Operation "${op}" requires a string from field.`);
+      if (typeof item.from !== 'string')
+        return fail(`Operation "${op}" requires a string from field.`);
       return { op, path: item.path, from: item.from };
     }
     return fail(`Unsupported operation "${op}".`);
@@ -165,12 +179,16 @@ function applyPatch(document: Json, operations: PatchOperation[]): Json {
           break;
         }
         case 'test':
-          if (!equal(get(result, path), operation.value)) throw new Error('The test value does not match.');
+          if (!equal(get(result, path), operation.value))
+            throw new Error('The test value does not match.');
           break;
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      throw new ToolError(`Patch operation ${index + 1} (${operation.op} ${operation.path}) failed.`, message);
+      throw new ToolError(
+        `Patch operation ${index + 1} (${operation.op} ${operation.path}) failed.`,
+        message,
+      );
     }
   });
   return result;
@@ -185,7 +203,8 @@ function run(input: TextRunInput): TextRunResult {
   const operations = parseOperations(parseJson(patchText, 'the patch'));
 
   const indentation = String(options.indent);
-  const space: number | string = indentation === 'tab' ? '\t' : indentation === '0' ? 0 : Number(indentation);
+  const space: number | string =
+    indentation === 'tab' ? '\t' : indentation === '0' ? 0 : Number(indentation);
   if (space !== 0 && space !== '\t' && space !== 2 && space !== 4) {
     throw new ToolError('Choose a valid output indentation.');
   }

@@ -4,8 +4,7 @@ export const meta: ToolMeta = {
   id: 'yaml-lint',
   name: 'YAML Lint & Normalize',
   category: 'data',
-  summary:
-    'Validate YAML and reformat it with consistent 2-space indentation and correct quoting.',
+  summary: 'Validate YAML and reformat it with consistent 2-space indentation and correct quoting.',
   description:
     'Lint a YAML document on your device and get a checklist-style table of issues — tab indentation, unclosed quotes or flow brackets, duplicate mapping keys, and unsupported constructs — each with a line and column. When the document is well-formed it is re-emitted as normalized YAML: consistent indentation, decoded quoted scalars, stripped trailing comments, and safe quoting so the output parses back to the same values. Supports block mappings and sequences, flow collections, single/double-quoted scalars, block scalars, comments and document markers.',
   keywords: [

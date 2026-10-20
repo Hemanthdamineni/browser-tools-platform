@@ -20,7 +20,9 @@ function parse(ua: string): Result {
   // Bots first: crawlers rarely carry a browser token.
   if (/(?:bot|crawler|spider|slurp|scan|preview|feedfetcher|monitor|crawling|archiver)/i.test(s)) {
     let name = 'Unknown bot';
-    const botMatch = s.match(/(?:(?:google|bing|duckduck|baidu|yandex|twitter|facebook|linkedin|slack|discord)[\w]*[\s/-]*)?(?:bot|robot|crawler|spider|slurp)[\w/-]*/i);
+    const botMatch = s.match(
+      /(?:(?:google|bing|duckduck|baidu|yandex|twitter|facebook|linkedin|slack|discord)[\w]*[\s/-]*)?(?:bot|robot|crawler|spider|slurp)[\w/-]*/i,
+    );
     if (botMatch) name = botMatch[0].replace(/\s*\(.*?\)\s*/g, ' ').trim();
     const v = firstVersion(s, '(/|\\s)' + NUM);
     return {
@@ -49,7 +51,10 @@ function parse(ua: string): Result {
     engine = 'Blink';
   } else if (/OPR\//i.test(s) || /Opera Min/i.test(s)) {
     browser = /Opera Min/i.test(s) ? 'Opera Mini' : 'Opera';
-    version = firstVersion(s, '(?:OPR|Opera Mini)/' + NUM) || firstVersion(s, 'Opera/' + NUM) || firstVersion(s, 'Version/' + NUM);
+    version =
+      firstVersion(s, '(?:OPR|Opera Mini)/' + NUM) ||
+      firstVersion(s, 'Opera/' + NUM) ||
+      firstVersion(s, 'Version/' + NUM);
     engine = 'Blink';
   } else if (/FxiOS\//i.test(s)) {
     browser = 'Firefox (iOS)';
@@ -147,14 +152,18 @@ function parse(ua: string): Result {
 async function run(input: TextRunInput): Promise<TextRunResult> {
   const ua = String(input.text ?? '').trim();
   if (!ua) throw new ToolError('Paste a User-Agent string to decode.');
-  if (ua.length > MAX_LEN) throw new ToolError('Input is too large.', 'Keep it under ' + MAX_LEN + ' characters.');
+  if (ua.length > MAX_LEN)
+    throw new ToolError('Input is too large.', 'Keep it under ' + MAX_LEN + ' characters.');
 
   const { rows } = parse(ua);
   return {
     output: JSON.stringify({ headers: ['Property', 'Value'], rows }),
     render: 'table',
     stats: { properties: rows.length },
-    notes: ['User-Agent string is 100% decoded on your device.', 'Detection is heuristic — verify unusual strings manually.'],
+    notes: [
+      'User-Agent string is 100% decoded on your device.',
+      'Detection is heuristic — verify unusual strings manually.',
+    ],
   };
 }
 

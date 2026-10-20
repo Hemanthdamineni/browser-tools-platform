@@ -1,8 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import tool from './repr-digest.tool';
 
-type Result = { output: string; filename?: string; stats?: Record<string, string | number>; notes?: string[] };
-const run = async (text: string, options: Record<string, string | number | boolean> = {}) => await tool.run({ text, options }) as Result;
+type Result = {
+  output: string;
+  filename?: string;
+  stats?: Record<string, string | number>;
+  notes?: string[];
+};
+const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
+  (await tool.run({ text, options })) as Result;
 const rows = (result: Result) => JSON.parse(result.output).rows as string[][];
 
 describe('repr-digest', () => {
@@ -21,8 +27,12 @@ describe('repr-digest', () => {
 
   it('detects mismatched and malformed digests', async () => {
     const built = await run('Hello');
-    expect(rows(await run('Other', { mode: 'analyze', digest: built.output }))[0]?.[2]).toBe('Mismatch');
-    expect(rows(await run('Hello', { mode: 'analyze', digest: 'sha-256=:bad=:' }))[0]?.[2]).toBe('Invalid');
+    expect(rows(await run('Other', { mode: 'analyze', digest: built.output }))[0]?.[2]).toBe(
+      'Mismatch',
+    );
+    expect(rows(await run('Hello', { mode: 'analyze', digest: 'sha-256=:bad=:' }))[0]?.[2]).toBe(
+      'Invalid',
+    );
   });
 
   it('handles empty text and missing expected digest', async () => {

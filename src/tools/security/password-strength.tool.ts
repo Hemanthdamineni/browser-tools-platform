@@ -1,9 +1,43 @@
 import type { TextToolModule, TextRunInput, TextRunResult } from '@/lib/types';
 import { meta } from './password-strength.meta';
 
-const COMMON = new Set(['password', 'password1', 'password123', '123456', '12345678', '123456789', '1234567890', 'qwerty', 'qwerty123', 'abc123', 'letmein', 'iloveyou', 'admin', 'welcome', 'monkey', 'dragon', 'passw0rd', 'sunshine', 'princess', 'football', 'baseball', 'trustno1', '111111', '000000', '1q2w3e4r', '1234', 'freedom', 'whatever']);
+const COMMON = new Set([
+  'password',
+  'password1',
+  'password123',
+  '123456',
+  '12345678',
+  '123456789',
+  '1234567890',
+  'qwerty',
+  'qwerty123',
+  'abc123',
+  'letmein',
+  'iloveyou',
+  'admin',
+  'welcome',
+  'monkey',
+  'dragon',
+  'passw0rd',
+  'sunshine',
+  'princess',
+  'football',
+  'baseball',
+  'trustno1',
+  '111111',
+  '000000',
+  '1q2w3e4r',
+  '1234',
+  'freedom',
+  'whatever',
+]);
 
-function classesOf(pw: string): { lower: boolean; upper: boolean; digits: boolean; symbols: boolean } {
+function classesOf(pw: string): {
+  lower: boolean;
+  upper: boolean;
+  digits: boolean;
+  symbols: boolean;
+} {
   return {
     lower: /[a-z]/.test(pw),
     upper: /[A-Z]/.test(pw),
@@ -44,7 +78,18 @@ function hasSequence(pw: string): boolean {
 
 function run(input: TextRunInput): TextRunResult {
   const pw = input.text.trim();
-  if (!pw) return { output: JSON.stringify({ headers: ['Length', 'Classes', 'Score', 'Bit strength', 'Verdict'], rows: [] as string[][] }), render: 'table', stats: { score: 0 }, notes: ['Type a password to analyze its strength. Nothing is uploaded — analysis runs on-device.'] };
+  if (!pw)
+    return {
+      output: JSON.stringify({
+        headers: ['Length', 'Classes', 'Score', 'Bit strength', 'Verdict'],
+        rows: [] as string[][],
+      }),
+      render: 'table',
+      stats: { score: 0 },
+      notes: [
+        'Type a password to analyze its strength. Nothing is uploaded — analysis runs on-device.',
+      ],
+    };
   const c = classesOf(pw);
   const pool = poolSize(c);
   const length = pw.length;
@@ -60,20 +105,58 @@ function run(input: TextRunInput): TextRunResult {
   score += (anyClass - 1) * 8;
   if (anyClass >= 3) score += 4;
   let verdict = 'Weak';
-  if (common) { score -= 45; notes.push('This is a very commonly used password and is easily guessed by pattern lists.'); }
-  if (lowerWord) { score -= 20; notes.push('An all-lowercase word is extremely guessable — add numbers, symbols and uppercase.'); }
-  if (repeated) { score -= 15; notes.push('Repeated characters (three or more in a row) make the password much weaker.'); }
-  if (sequenced) { score -= 12; notes.push('Contiguous keyboard or alphabet sequences (123, abc, qwe) are quickly cracked.'); }
-  if (length < 8) { score -= 20; notes.push('Short passwords are trivially brute-forced; aim for at least 12 characters.'); }
-  if (length >= 12) { score += 8; notes.push('Good length — 12+ characters is a solid baseline.'); }
-  if (c.upper && c.digits && c.symbols) { score += 6; notes.push('Mixing upper, lower, digits and symbols widens the search space.'); }
+  if (common) {
+    score -= 45;
+    notes.push('This is a very commonly used password and is easily guessed by pattern lists.');
+  }
+  if (lowerWord) {
+    score -= 20;
+    notes.push(
+      'An all-lowercase word is extremely guessable — add numbers, symbols and uppercase.',
+    );
+  }
+  if (repeated) {
+    score -= 15;
+    notes.push('Repeated characters (three or more in a row) make the password much weaker.');
+  }
+  if (sequenced) {
+    score -= 12;
+    notes.push('Contiguous keyboard or alphabet sequences (123, abc, qwe) are quickly cracked.');
+  }
+  if (length < 8) {
+    score -= 20;
+    notes.push('Short passwords are trivially brute-forced; aim for at least 12 characters.');
+  }
+  if (length >= 12) {
+    score += 8;
+    notes.push('Good length — 12+ characters is a solid baseline.');
+  }
+  if (c.upper && c.digits && c.symbols) {
+    score += 6;
+    notes.push('Mixing upper, lower, digits and symbols widens the search space.');
+  }
   score = Math.max(0, Math.min(100, Math.round(score)));
   if (score >= 80) verdict = 'Strong';
   else if (score >= 50) verdict = 'Fair';
-  if (!notes.length) notes.push(score >= 80 ? 'Looks strong. Keep it unique and never reuse it across services.' : 'Decent, but see the suggestions to push it higher.');
-  const classLabel = `${c.lower ? 'LC' : ''}${c.upper ? 'UC' : ''}${c.digits ? '09' : ''}${c.symbols ? 'S!' : ''}` || 'none';
+  if (!notes.length)
+    notes.push(
+      score >= 80
+        ? 'Looks strong. Keep it unique and never reuse it across services.'
+        : 'Decent, but see the suggestions to push it higher.',
+    );
+  const classLabel =
+    `${c.lower ? 'LC' : ''}${c.upper ? 'UC' : ''}${c.digits ? '09' : ''}${c.symbols ? 'S!' : ''}` ||
+    'none';
   const rows = [[String(length), classLabel, String(score), String(bits) + ' bits', verdict]];
-  return { output: JSON.stringify({ headers: ['Length', 'Classes', 'Score', 'Bit strength', 'Verdict'], rows }), render: 'table', stats: { length, score, bits, classes: anyClass }, notes };
+  return {
+    output: JSON.stringify({
+      headers: ['Length', 'Classes', 'Score', 'Bit strength', 'Verdict'],
+      rows,
+    }),
+    render: 'table',
+    stats: { length, score, bits, classes: anyClass },
+    notes,
+  };
 }
 
 const tool: TextToolModule = { meta, run };

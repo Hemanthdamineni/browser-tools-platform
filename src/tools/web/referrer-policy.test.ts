@@ -2,8 +2,14 @@ import { describe, expect, it } from 'vitest';
 import { ToolError } from '@/lib/types';
 import tool from './referrer-policy.tool';
 
-type Result = { output: string; filename?: string; stats?: Record<string, string | number>; notes?: string[] };
-const run = (text: string, options: Record<string, string | number | boolean> = {}) => tool.run({ text, options }) as Result;
+type Result = {
+  output: string;
+  filename?: string;
+  stats?: Record<string, string | number>;
+  notes?: string[];
+};
+const run = (text: string, options: Record<string, string | number | boolean> = {}) =>
+  tool.run({ text, options }) as Result;
 const rows = (result: Result) => JSON.parse(result.output).rows as string[][];
 
 describe('referrer-policy', () => {
@@ -15,7 +21,11 @@ describe('referrer-policy', () => {
 
   it('analyzes a valid policy', () => {
     const result = run('strict-origin-when-cross-origin');
-    expect(result.stats).toMatchObject({ policies: 1, issues: 0, effective: 'strict-origin-when-cross-origin' });
+    expect(result.stats).toMatchObject({
+      policies: 1,
+      issues: 0,
+      effective: 'strict-origin-when-cross-origin',
+    });
     expect(rows(result)[0]?.[1]).toBe('Valid');
   });
 

@@ -19,24 +19,46 @@ function validate(value: unknown): Issue[] {
     }
   }
   if (typeof manifest.name !== 'string' || !manifest.name.trim()) {
-    issues.push({ level: 'Recommendation', field: 'name', message: 'Add a non-empty application name.' });
+    issues.push({
+      level: 'Recommendation',
+      field: 'name',
+      message: 'Add a non-empty application name.',
+    });
   }
   if (typeof manifest.short_name !== 'string' || !manifest.short_name.trim()) {
-    issues.push({ level: 'Recommendation', field: 'short_name', message: 'Add a short_name for constrained display contexts.' });
+    issues.push({
+      level: 'Recommendation',
+      field: 'short_name',
+      message: 'Add a short_name for constrained display contexts.',
+    });
   }
   if (manifest.start_url !== undefined && typeof manifest.start_url !== 'string') {
     issues.push({ level: 'Error', field: 'start_url', message: 'Must be a string.' });
   } else if (typeof manifest.start_url !== 'string' || !manifest.start_url.trim()) {
-    issues.push({ level: 'Recommendation', field: 'start_url', message: 'Set a start_url for app launch.' });
+    issues.push({
+      level: 'Recommendation',
+      field: 'start_url',
+      message: 'Set a start_url for app launch.',
+    });
   }
   if (manifest.scope !== undefined && typeof manifest.scope !== 'string') {
     issues.push({ level: 'Error', field: 'scope', message: 'Must be a string.' });
   }
-  if (manifest.display !== undefined && (typeof manifest.display !== 'string' || !DISPLAY_VALUES.has(manifest.display))) {
-    issues.push({ level: 'Error', field: 'display', message: 'Use fullscreen, standalone, minimal-ui, or browser.' });
+  if (
+    manifest.display !== undefined &&
+    (typeof manifest.display !== 'string' || !DISPLAY_VALUES.has(manifest.display))
+  ) {
+    issues.push({
+      level: 'Error',
+      field: 'display',
+      message: 'Use fullscreen, standalone, minimal-ui, or browser.',
+    });
   }
   for (const field of ['theme_color', 'background_color'] as const) {
-    if (manifest[field] !== undefined && (typeof manifest[field] !== 'string' || !manifest[field].trim())) {
+    if (
+      manifest[field] !== undefined &&
+      (typeof manifest[field] !== 'string' || !manifest[field].trim())
+    ) {
       issues.push({ level: 'Error', field, message: 'Must be a non-empty string when provided.' });
     }
   }
@@ -55,24 +77,56 @@ function validate(value: unknown): Issue[] {
         const item = icon as Manifest;
         for (const required of ['src', 'sizes', 'type']) {
           if (typeof item[required] !== 'string' || !String(item[required]).trim()) {
-            issues.push({ level: 'Error', field: `${field}.${required}`, message: 'Must be a non-empty string.' });
+            issues.push({
+              level: 'Error',
+              field: `${field}.${required}`,
+              message: 'Must be a non-empty string.',
+            });
           }
         }
         const sizes = typeof item.sizes === 'string' ? item.sizes.split(/\s+/) : [];
         if (sizes.some((size) => /^192x192$/i.test(size))) has192 = true;
         if (sizes.some((size) => /^512x512$/i.test(size))) has512 = true;
-        if (typeof item.purpose === 'string' && !item.purpose.split(/\s+/).every((purpose) => ['any', 'maskable', 'monochrome'].includes(purpose))) {
-          issues.push({ level: 'Error', field: `${field}.purpose`, message: 'Use any, maskable, and/or monochrome.' });
+        if (
+          typeof item.purpose === 'string' &&
+          !item.purpose
+            .split(/\s+/)
+            .every((purpose) => ['any', 'maskable', 'monochrome'].includes(purpose))
+        ) {
+          issues.push({
+            level: 'Error',
+            field: `${field}.purpose`,
+            message: 'Use any, maskable, and/or monochrome.',
+          });
         }
       });
-      if (!manifest.icons.length) issues.push({ level: 'Recommendation', field: 'icons', message: 'Add icons for application installation and launcher display.' });
+      if (!manifest.icons.length)
+        issues.push({
+          level: 'Recommendation',
+          field: 'icons',
+          message: 'Add icons for application installation and launcher display.',
+        });
       else {
-        if (!has192) issues.push({ level: 'Recommendation', field: 'icons', message: 'Include a 192x192 icon.' });
-        if (!has512) issues.push({ level: 'Recommendation', field: 'icons', message: 'Include a 512x512 icon.' });
+        if (!has192)
+          issues.push({
+            level: 'Recommendation',
+            field: 'icons',
+            message: 'Include a 192x192 icon.',
+          });
+        if (!has512)
+          issues.push({
+            level: 'Recommendation',
+            field: 'icons',
+            message: 'Include a 512x512 icon.',
+          });
       }
     }
   } else {
-    issues.push({ level: 'Recommendation', field: 'icons', message: 'Add icons appropriate to target browsers and installation surfaces.' });
+    issues.push({
+      level: 'Recommendation',
+      field: 'icons',
+      message: 'Add icons appropriate to target browsers and installation surfaces.',
+    });
   }
   return issues;
 }
@@ -80,7 +134,8 @@ function validate(value: unknown): Issue[] {
 function run(input: TextRunInput): TextRunResult {
   const options = resolveOptions(meta, input.options);
   const mode = String(options.mode);
-  if (mode !== 'generate' && mode !== 'validate') throw new ToolError('Choose a valid manifest mode.');
+  if (mode !== 'generate' && mode !== 'validate')
+    throw new ToolError('Choose a valid manifest mode.');
 
   let manifest: Manifest;
   if (mode === 'generate') {
@@ -93,7 +148,8 @@ function run(input: TextRunInput): TextRunResult {
     const backgroundColor = String(options.backgroundColor).trim();
     const scope = String(options.scope).trim();
     if (!name || !shortName) throw new ToolError('App name and short name are required.');
-    if (!startUrl || /[\r\n]/.test(startUrl)) throw new ToolError('Start URL is required and must be on one line.');
+    if (!startUrl || /[\r\n]/.test(startUrl))
+      throw new ToolError('Start URL is required and must be on one line.');
     manifest = {
       name,
       short_name: shortName,
@@ -104,7 +160,8 @@ function run(input: TextRunInput): TextRunResult {
       ...(scope ? { scope } : {}),
     };
   } else {
-    if (input.text.length > 200_000) throw new ToolError('Manifest JSON is too large.', 'Paste JSON under 200 KB.');
+    if (input.text.length > 200_000)
+      throw new ToolError('Manifest JSON is too large.', 'Paste JSON under 200 KB.');
     try {
       manifest = JSON.parse(input.text) as Manifest;
     } catch {
@@ -123,7 +180,9 @@ function run(input: TextRunInput): TextRunResult {
     filename: 'site.webmanifest',
     stats: { errors, recommendations },
     notes: [
-      issues.length ? JSON.stringify({ headers: ['Level', 'Field', 'Message'], rows }) : 'No structural issues or recommendations found.',
+      issues.length
+        ? JSON.stringify({ headers: ['Level', 'Field', 'Message'], rows })
+        : 'No structural issues or recommendations found.',
       'Validation is advisory; browser installability also depends on page configuration, delivery, icons, security context, and browser-specific requirements.',
     ],
   };

@@ -4,8 +4,7 @@ export const meta: ToolMeta = {
   id: 'json-to-html-table',
   name: 'JSON to HTML Table',
   category: 'data',
-  summary:
-    'Render a JSON array into an HTML table of rows and columns, with multi-level headers.',
+  summary: 'Render a JSON array into an HTML table of rows and columns, with multi-level headers.',
   description:
     'Paste a JSON array of objects or an array of arrays and get a clean HTML <table>: one header row from the object keys (or the array values), one row per record, escaped cell text so the markup stays valid. Nested objects and arrays inside a cell are rendered as readable JSON, and null, booleans and numbers keep their JSON type so nothing is lossy. Works entirely on your device.',
   keywords: [
@@ -47,7 +46,8 @@ export const meta: ToolMeta = {
   examples: [
     {
       title: 'Rows from objects',
-      input: '[ { "name": "Ada", "role": "Admin", "active": true }, { "name": "Lin", "role": "Editor", "active": false } ]',
+      input:
+        '[ { "name": "Ada", "role": "Admin", "active": true }, { "name": "Lin", "role": "Editor", "active": false } ]',
     },
     {
       title: 'Rows from arrays of arrays',

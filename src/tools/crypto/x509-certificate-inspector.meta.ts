@@ -4,7 +4,8 @@ export const meta: ToolMeta = {
   id: 'x509-certificate-inspector',
   name: 'X.509 Certificate Inspector',
   category: 'crypto',
-  summary: 'Parse an X.509 certificate: subject, issuer, validity, key details, SANs and fingerprints.',
+  summary:
+    'Parse an X.509 certificate: subject, issuer, validity, key details, SANs and fingerprints.',
   description:
     'Paste a PEM-encoded X.509 certificate (the text between -----BEGIN CERTIFICATE----- and -----END CERTIFICATE-----) and get a complete on-device breakdown: subject and issuer distinguished names, serial number, signature algorithm, validity dates plus days remaining, the public key (type, bit size and RSA modulus/exponent or EC curve), subject alternative names (DNS/IP), CA/basic-constraints flags, key identifiers, and SHA-256/SHA-1 fingerprints. No network request is made and the certificate never leaves your browser. Useful for checking why a TLS connection is untrusted, verifying certificate details after renewal, or auditing a chain.',
   keywords: [

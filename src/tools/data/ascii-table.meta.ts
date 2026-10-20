@@ -4,7 +4,8 @@ export const meta: ToolMeta = {
   id: 'ascii-table',
   name: 'ASCII Table Generator',
   category: 'data',
-  summary: 'Turn CSV (or tab-separated) rows into a bordered ASCII table for docs, emails and code comments.',
+  summary:
+    'Turn CSV (or tab-separated) rows into a bordered ASCII table for docs, emails and code comments.',
   description:
     'Convert delimiter-separated rows into a tidy ASCII grid table with +--+ borders, aligned cells and a separated header row. Auto-detect the delimiter or pick comma, tab, semicolon or a custom one. Three alignments (left, right, center) and one cell style. Great for pasting into plain text files, emails, or source-code comments.',
   keywords: [

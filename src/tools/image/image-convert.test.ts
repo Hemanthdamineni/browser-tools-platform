@@ -49,12 +49,16 @@ describe('image-convert run', () => {
   });
 
   it('reports a friendly error when createImageBitmap is unavailable', async () => {
-    await expect(tool.run({ files: [makeFile('image.png')], options: {} })).rejects.toThrow(/createImageBitmap/i);
+    await expect(tool.run({ files: [makeFile('image.png')], options: {} })).rejects.toThrow(
+      /createImageBitmap/i,
+    );
   });
 
   it('reports a friendly error for undecodable bytes', async () => {
     mock = installImageMock({ failDecode: true });
-    await expect(tool.run({ files: [makeFile('bad.png')], options: {} })).rejects.toThrow(/could not be decoded/i);
+    await expect(tool.run({ files: [makeFile('bad.png')], options: {} })).rejects.toThrow(
+      /could not be decoded/i,
+    );
   });
 
   it('converts to WebP by default, keeping transparency', async () => {
@@ -67,7 +71,10 @@ describe('image-convert run', () => {
 
   it('converts to PNG with alpha intact', async () => {
     mock = installImageMock();
-    const result = await tool.run({ files: [makeFile('photo.jpg', 'image/jpeg')], options: { to: 'png' } });
+    const result = await tool.run({
+      files: [makeFile('photo.jpg', 'image/jpeg')],
+      options: { to: 'png' },
+    });
     expect(result.outputs[0]!.blob.type).toBe('image/png');
     expect(mock.canvases[0]!.fills).toHaveLength(0);
   });
@@ -77,25 +84,32 @@ describe('image-convert run', () => {
     const result = await tool.run({ files: [makeFile('logo.png')], options: { to: 'jpeg' } });
     expect(result.outputs[0]!.filename).toBe('logo.jpg');
     expect(result.outputs[0]!.blob.type).toBe('image/jpeg');
-    expect(mock.canvases[0]!.fills).toEqual([{ x: 0, y: 0, w: 30, h: 10, style: 'rgb(255, 255, 255)' }]);
+    expect(mock.canvases[0]!.fills).toEqual([
+      { x: 0, y: 0, w: 30, h: 10, style: 'rgb(255, 255, 255)' },
+    ]);
   });
 
   it('flattens JPEG onto the requested background colour', async () => {
     mock = installImageMock();
-    await tool.run({ files: [makeFile('logo.png')], options: { to: 'jpeg', background: '#123456' } });
+    await tool.run({
+      files: [makeFile('logo.png')],
+      options: { to: 'jpeg', background: '#123456' },
+    });
     expect(mock.canvases[0]!.fills[0]!.style).toBe('rgb(18, 52, 86)');
   });
 
   it('rejects an invalid JPEG background colour', async () => {
     mock = installImageMock();
-    await expect(tool.run({ files: [makeFile('logo.png')], options: { to: 'jpeg', background: 'nope' } })).rejects.toThrow(
-      /hex colour/i,
-    );
+    await expect(
+      tool.run({ files: [makeFile('logo.png')], options: { to: 'jpeg', background: 'nope' } }),
+    ).rejects.toThrow(/hex colour/i);
   });
 
   it('rejects an unsupported target format', async () => {
     mock = installImageMock();
-    await expect(tool.run({ files: [makeFile('a.png')], options: { to: 'gif' } })).rejects.toThrow(/supported output format/i);
+    await expect(tool.run({ files: [makeFile('a.png')], options: { to: 'gif' } })).rejects.toThrow(
+      /supported output format/i,
+    );
   });
 
   it('converts to AVIF when the browser supports it', async () => {
@@ -107,7 +121,9 @@ describe('image-convert run', () => {
 
   it('reports a friendly error when the browser cannot encode the format', async () => {
     mock = installImageMock({ supports: ['image/png', 'image/jpeg', 'image/webp'] });
-    await expect(tool.run({ files: [makeFile('photo.png')], options: { to: 'avif' } })).rejects.toThrow(/cannot encode AVIF/i);
+    await expect(
+      tool.run({ files: [makeFile('photo.png')], options: { to: 'avif' } }),
+    ).rejects.toThrow(/cannot encode AVIF/i);
   });
 
   it('passes the chosen quality to the encoder', async () => {
@@ -144,13 +160,15 @@ describe('image-convert run', () => {
 
   it('cancels when the signal is already aborted', async () => {
     mock = installImageMock();
-    await expect(tool.run({ files: [makeFile('a.png')], options: {}, signal: AbortSignal.abort() })).rejects.toThrow(
-      /cancelled/i,
-    );
+    await expect(
+      tool.run({ files: [makeFile('a.png')], options: {}, signal: AbortSignal.abort() }),
+    ).rejects.toThrow(/cancelled/i);
   });
 
   it('rejects an oversized image with a friendly error', async () => {
     mock = installImageMock({ width: 20_000, height: 20_000 });
-    await expect(tool.run({ files: [makeFile('huge.png')], options: {} })).rejects.toThrow(/too large/i);
+    await expect(tool.run({ files: [makeFile('huge.png')], options: {} })).rejects.toThrow(
+      /too large/i,
+    );
   });
 });

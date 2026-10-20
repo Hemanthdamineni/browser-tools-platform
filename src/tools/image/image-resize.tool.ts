@@ -26,14 +26,40 @@ export function computeTargetSize(srcW: number, srcH: number, opts: Record<strin
   const height = Math.max(1, Math.round(finite(opts.height, 600)));
   const percent = Math.max(1, Math.min(400, finite(opts.percent, 50))) / 100;
   const upscale = Boolean(opts.upscale);
-  let w = srcW, h = srcH;
-  if (mode === 'percent') { w = Math.round(srcW * percent); h = Math.round(srcH * percent); }
-  else if (mode === 'exact') { w = width; h = height; }
-  else if (mode === 'fill') { const s = Math.max(width / srcW, height / srcH); w = Math.round(srcW * s); h = Math.round(srcH * s); }
-  else if (mode === 'max-width') { const s = width / srcW; if (s < 1 || upscale) { w = Math.round(srcW * s); h = Math.round(srcH * s); } }
-  else if (mode === 'max-height') { const s = height / srcH; if (s < 1 || upscale) { w = Math.round(srcW * s); h = Math.round(srcH * s); } }
-  else { const s = Math.min(width / srcW, height / srcH, upscale ? Infinity : 1); w = Math.round(srcW * s); h = Math.round(srcH * s); }
-  if (!upscale && mode !== 'exact' && mode !== 'percent') { const s = Math.min(1, srcW / w, srcH / h); w = Math.round(w * s); h = Math.round(h * s); }
+  let w = srcW,
+    h = srcH;
+  if (mode === 'percent') {
+    w = Math.round(srcW * percent);
+    h = Math.round(srcH * percent);
+  } else if (mode === 'exact') {
+    w = width;
+    h = height;
+  } else if (mode === 'fill') {
+    const s = Math.max(width / srcW, height / srcH);
+    w = Math.round(srcW * s);
+    h = Math.round(srcH * s);
+  } else if (mode === 'max-width') {
+    const s = width / srcW;
+    if (s < 1 || upscale) {
+      w = Math.round(srcW * s);
+      h = Math.round(srcH * s);
+    }
+  } else if (mode === 'max-height') {
+    const s = height / srcH;
+    if (s < 1 || upscale) {
+      w = Math.round(srcW * s);
+      h = Math.round(srcH * s);
+    }
+  } else {
+    const s = Math.min(width / srcW, height / srcH, upscale ? Infinity : 1);
+    w = Math.round(srcW * s);
+    h = Math.round(srcH * s);
+  }
+  if (!upscale && mode !== 'exact' && mode !== 'percent') {
+    const s = Math.min(1, srcW / w, srcH / h);
+    w = Math.round(w * s);
+    h = Math.round(h * s);
+  }
   return { w: Math.max(1, Math.round(w) || 1), h: Math.max(1, Math.round(h) || 1) };
 }
 
@@ -59,7 +85,17 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
         const s = Math.max(size.w / bitmap.width, size.h / bitmap.height);
         const sw = size.w / s;
         const sh = size.h / s;
-        ctx.drawImage(bitmap, (bitmap.width - sw) / 2, (bitmap.height - sh) / 2, sw, sh, 0, 0, size.w, size.h);
+        ctx.drawImage(
+          bitmap,
+          (bitmap.width - sw) / 2,
+          (bitmap.height - sh) / 2,
+          sw,
+          sh,
+          0,
+          0,
+          size.w,
+          size.h,
+        );
       } else {
         ctx.drawImage(bitmap, 0, 0, size.w, size.h);
       }

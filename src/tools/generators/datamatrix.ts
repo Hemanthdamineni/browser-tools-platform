@@ -29,32 +29,248 @@ interface SymbolSpec {
 
 /** ECC200 square symbol table (ISO/IEC 16022), smallest first. */
 const SPECS: SymbolSpec[] = [
-  { size: 10, regionRows: 8, regionCols: 8, vRegions: 1, hRegions: 1, dataCW: 3, eccCW: 5, blocks: [[1, 3]] },
-  { size: 12, regionRows: 10, regionCols: 10, vRegions: 1, hRegions: 1, dataCW: 5, eccCW: 7, blocks: [[1, 5]] },
-  { size: 14, regionRows: 12, regionCols: 12, vRegions: 1, hRegions: 1, dataCW: 8, eccCW: 10, blocks: [[1, 8]] },
-  { size: 16, regionRows: 14, regionCols: 14, vRegions: 1, hRegions: 1, dataCW: 12, eccCW: 12, blocks: [[1, 12]] },
-  { size: 18, regionRows: 16, regionCols: 16, vRegions: 1, hRegions: 1, dataCW: 18, eccCW: 14, blocks: [[1, 18]] },
-  { size: 20, regionRows: 18, regionCols: 18, vRegions: 1, hRegions: 1, dataCW: 22, eccCW: 18, blocks: [[1, 22]] },
-  { size: 22, regionRows: 20, regionCols: 20, vRegions: 1, hRegions: 1, dataCW: 30, eccCW: 20, blocks: [[1, 30]] },
-  { size: 24, regionRows: 22, regionCols: 22, vRegions: 1, hRegions: 1, dataCW: 36, eccCW: 24, blocks: [[1, 36]] },
-  { size: 26, regionRows: 24, regionCols: 24, vRegions: 1, hRegions: 1, dataCW: 44, eccCW: 28, blocks: [[1, 44]] },
-  { size: 32, regionRows: 14, regionCols: 14, vRegions: 2, hRegions: 2, dataCW: 62, eccCW: 36, blocks: [[1, 62]] },
-  { size: 36, regionRows: 16, regionCols: 16, vRegions: 2, hRegions: 2, dataCW: 86, eccCW: 42, blocks: [[1, 86]] },
-  { size: 40, regionRows: 18, regionCols: 18, vRegions: 2, hRegions: 2, dataCW: 114, eccCW: 48, blocks: [[1, 114]] },
-  { size: 44, regionRows: 20, regionCols: 20, vRegions: 2, hRegions: 2, dataCW: 144, eccCW: 56, blocks: [[1, 144]] },
-  { size: 48, regionRows: 22, regionCols: 22, vRegions: 2, hRegions: 2, dataCW: 174, eccCW: 68, blocks: [[1, 174]] },
-  { size: 52, regionRows: 24, regionCols: 24, vRegions: 2, hRegions: 2, dataCW: 204, eccCW: 84, blocks: [[2, 102]] },
-  { size: 64, regionRows: 14, regionCols: 14, vRegions: 4, hRegions: 4, dataCW: 280, eccCW: 112, blocks: [[2, 140]] },
-  { size: 72, regionRows: 16, regionCols: 16, vRegions: 4, hRegions: 4, dataCW: 368, eccCW: 144, blocks: [[4, 92]] },
-  { size: 80, regionRows: 18, regionCols: 18, vRegions: 4, hRegions: 4, dataCW: 456, eccCW: 192, blocks: [[4, 114]] },
-  { size: 88, regionRows: 20, regionCols: 20, vRegions: 4, hRegions: 4, dataCW: 576, eccCW: 224, blocks: [[4, 144]] },
-  { size: 96, regionRows: 22, regionCols: 22, vRegions: 4, hRegions: 4, dataCW: 696, eccCW: 272, blocks: [[4, 174]] },
-  { size: 104, regionRows: 24, regionCols: 24, vRegions: 4, hRegions: 4, dataCW: 816, eccCW: 336, blocks: [[6, 136]] },
-  { size: 120, regionRows: 18, regionCols: 18, vRegions: 6, hRegions: 6, dataCW: 1050, eccCW: 408, blocks: [[6, 175]] },
-  { size: 132, regionRows: 20, regionCols: 20, vRegions: 6, hRegions: 6, dataCW: 1304, eccCW: 496, blocks: [[8, 163]] },
   {
-    size: 144, regionRows: 22, regionCols: 22, vRegions: 6, hRegions: 6, dataCW: 1558, eccCW: 620,
-    blocks: [[8, 156], [2, 155]],
+    size: 10,
+    regionRows: 8,
+    regionCols: 8,
+    vRegions: 1,
+    hRegions: 1,
+    dataCW: 3,
+    eccCW: 5,
+    blocks: [[1, 3]],
+  },
+  {
+    size: 12,
+    regionRows: 10,
+    regionCols: 10,
+    vRegions: 1,
+    hRegions: 1,
+    dataCW: 5,
+    eccCW: 7,
+    blocks: [[1, 5]],
+  },
+  {
+    size: 14,
+    regionRows: 12,
+    regionCols: 12,
+    vRegions: 1,
+    hRegions: 1,
+    dataCW: 8,
+    eccCW: 10,
+    blocks: [[1, 8]],
+  },
+  {
+    size: 16,
+    regionRows: 14,
+    regionCols: 14,
+    vRegions: 1,
+    hRegions: 1,
+    dataCW: 12,
+    eccCW: 12,
+    blocks: [[1, 12]],
+  },
+  {
+    size: 18,
+    regionRows: 16,
+    regionCols: 16,
+    vRegions: 1,
+    hRegions: 1,
+    dataCW: 18,
+    eccCW: 14,
+    blocks: [[1, 18]],
+  },
+  {
+    size: 20,
+    regionRows: 18,
+    regionCols: 18,
+    vRegions: 1,
+    hRegions: 1,
+    dataCW: 22,
+    eccCW: 18,
+    blocks: [[1, 22]],
+  },
+  {
+    size: 22,
+    regionRows: 20,
+    regionCols: 20,
+    vRegions: 1,
+    hRegions: 1,
+    dataCW: 30,
+    eccCW: 20,
+    blocks: [[1, 30]],
+  },
+  {
+    size: 24,
+    regionRows: 22,
+    regionCols: 22,
+    vRegions: 1,
+    hRegions: 1,
+    dataCW: 36,
+    eccCW: 24,
+    blocks: [[1, 36]],
+  },
+  {
+    size: 26,
+    regionRows: 24,
+    regionCols: 24,
+    vRegions: 1,
+    hRegions: 1,
+    dataCW: 44,
+    eccCW: 28,
+    blocks: [[1, 44]],
+  },
+  {
+    size: 32,
+    regionRows: 14,
+    regionCols: 14,
+    vRegions: 2,
+    hRegions: 2,
+    dataCW: 62,
+    eccCW: 36,
+    blocks: [[1, 62]],
+  },
+  {
+    size: 36,
+    regionRows: 16,
+    regionCols: 16,
+    vRegions: 2,
+    hRegions: 2,
+    dataCW: 86,
+    eccCW: 42,
+    blocks: [[1, 86]],
+  },
+  {
+    size: 40,
+    regionRows: 18,
+    regionCols: 18,
+    vRegions: 2,
+    hRegions: 2,
+    dataCW: 114,
+    eccCW: 48,
+    blocks: [[1, 114]],
+  },
+  {
+    size: 44,
+    regionRows: 20,
+    regionCols: 20,
+    vRegions: 2,
+    hRegions: 2,
+    dataCW: 144,
+    eccCW: 56,
+    blocks: [[1, 144]],
+  },
+  {
+    size: 48,
+    regionRows: 22,
+    regionCols: 22,
+    vRegions: 2,
+    hRegions: 2,
+    dataCW: 174,
+    eccCW: 68,
+    blocks: [[1, 174]],
+  },
+  {
+    size: 52,
+    regionRows: 24,
+    regionCols: 24,
+    vRegions: 2,
+    hRegions: 2,
+    dataCW: 204,
+    eccCW: 84,
+    blocks: [[2, 102]],
+  },
+  {
+    size: 64,
+    regionRows: 14,
+    regionCols: 14,
+    vRegions: 4,
+    hRegions: 4,
+    dataCW: 280,
+    eccCW: 112,
+    blocks: [[2, 140]],
+  },
+  {
+    size: 72,
+    regionRows: 16,
+    regionCols: 16,
+    vRegions: 4,
+    hRegions: 4,
+    dataCW: 368,
+    eccCW: 144,
+    blocks: [[4, 92]],
+  },
+  {
+    size: 80,
+    regionRows: 18,
+    regionCols: 18,
+    vRegions: 4,
+    hRegions: 4,
+    dataCW: 456,
+    eccCW: 192,
+    blocks: [[4, 114]],
+  },
+  {
+    size: 88,
+    regionRows: 20,
+    regionCols: 20,
+    vRegions: 4,
+    hRegions: 4,
+    dataCW: 576,
+    eccCW: 224,
+    blocks: [[4, 144]],
+  },
+  {
+    size: 96,
+    regionRows: 22,
+    regionCols: 22,
+    vRegions: 4,
+    hRegions: 4,
+    dataCW: 696,
+    eccCW: 272,
+    blocks: [[4, 174]],
+  },
+  {
+    size: 104,
+    regionRows: 24,
+    regionCols: 24,
+    vRegions: 4,
+    hRegions: 4,
+    dataCW: 816,
+    eccCW: 336,
+    blocks: [[6, 136]],
+  },
+  {
+    size: 120,
+    regionRows: 18,
+    regionCols: 18,
+    vRegions: 6,
+    hRegions: 6,
+    dataCW: 1050,
+    eccCW: 408,
+    blocks: [[6, 175]],
+  },
+  {
+    size: 132,
+    regionRows: 20,
+    regionCols: 20,
+    vRegions: 6,
+    hRegions: 6,
+    dataCW: 1304,
+    eccCW: 496,
+    blocks: [[8, 163]],
+  },
+  {
+    size: 144,
+    regionRows: 22,
+    regionCols: 22,
+    vRegions: 6,
+    hRegions: 6,
+    dataCW: 1558,
+    eccCW: 620,
+    blocks: [
+      [8, 156],
+      [2, 155],
+    ],
   },
 ];
 
@@ -78,8 +294,7 @@ const LOG = new Uint8Array(256);
   for (let i = 255; i < 512; i++) EXP[i] = EXP[i - 255]!;
 })();
 
-const gmul = (a: number, b: number): number =>
-  a === 0 || b === 0 ? 0 : EXP[LOG[a]! + LOG[b]!]!;
+const gmul = (a: number, b: number): number => (a === 0 || b === 0 ? 0 : EXP[LOG[a]! + LOG[b]!]!);
 
 const generatorCache = new Map<number, Uint8Array>();
 function rsGenerator(n: number): Uint8Array {
@@ -130,8 +345,7 @@ export function utf8Bytes(str: string): number[] {
     }
     if (c < 0x80) out.push(c);
     else if (c < 0x800) out.push(0xc0 | (c >> 6), 0x80 | (c & 0x3f));
-    else if (c < 0x10000)
-      out.push(0xe0 | (c >> 12), 0x80 | ((c >> 6) & 0x3f), 0x80 | (c & 0x3f));
+    else if (c < 0x10000) out.push(0xe0 | (c >> 12), 0x80 | ((c >> 6) & 0x3f), 0x80 | (c & 0x3f));
     else
       out.push(
         0xf0 | (c >> 18),
@@ -239,24 +453,44 @@ function placeCodewords(codewords: Uint8Array, nr: number, nc: number): Int8Arra
   };
 
   const corner1 = (chr: number) => {
-    place(nr - 1, 0, chr, 1); place(nr - 1, 1, chr, 2); place(nr - 1, 2, chr, 3);
-    place(0, nc - 2, chr, 4); place(0, nc - 1, chr, 5); place(1, nc - 1, chr, 6);
-    place(2, nc - 1, chr, 7); place(3, nc - 1, chr, 8);
+    place(nr - 1, 0, chr, 1);
+    place(nr - 1, 1, chr, 2);
+    place(nr - 1, 2, chr, 3);
+    place(0, nc - 2, chr, 4);
+    place(0, nc - 1, chr, 5);
+    place(1, nc - 1, chr, 6);
+    place(2, nc - 1, chr, 7);
+    place(3, nc - 1, chr, 8);
   };
   const corner2 = (chr: number) => {
-    place(nr - 3, 0, chr, 1); place(nr - 2, 0, chr, 2); place(nr - 1, 0, chr, 3);
-    place(0, nc - 4, chr, 4); place(0, nc - 3, chr, 5); place(0, nc - 2, chr, 6);
-    place(0, nc - 1, chr, 7); place(1, nc - 1, chr, 8);
+    place(nr - 3, 0, chr, 1);
+    place(nr - 2, 0, chr, 2);
+    place(nr - 1, 0, chr, 3);
+    place(0, nc - 4, chr, 4);
+    place(0, nc - 3, chr, 5);
+    place(0, nc - 2, chr, 6);
+    place(0, nc - 1, chr, 7);
+    place(1, nc - 1, chr, 8);
   };
   const corner3 = (chr: number) => {
-    place(nr - 3, 0, chr, 1); place(nr - 2, 0, chr, 2); place(nr - 1, 0, chr, 3);
-    place(0, nc - 2, chr, 4); place(0, nc - 1, chr, 5); place(1, nc - 1, chr, 6);
-    place(2, nc - 1, chr, 7); place(3, nc - 1, chr, 8);
+    place(nr - 3, 0, chr, 1);
+    place(nr - 2, 0, chr, 2);
+    place(nr - 1, 0, chr, 3);
+    place(0, nc - 2, chr, 4);
+    place(0, nc - 1, chr, 5);
+    place(1, nc - 1, chr, 6);
+    place(2, nc - 1, chr, 7);
+    place(3, nc - 1, chr, 8);
   };
   const corner4 = (chr: number) => {
-    place(nr - 1, 0, chr, 1); place(nr - 1, nc - 1, chr, 2); place(0, nc - 3, chr, 3);
-    place(0, nc - 2, chr, 4); place(0, nc - 1, chr, 5); place(1, nc - 3, chr, 6);
-    place(1, nc - 2, chr, 7); place(1, nc - 1, chr, 8);
+    place(nr - 1, 0, chr, 1);
+    place(nr - 1, nc - 1, chr, 2);
+    place(0, nc - 3, chr, 3);
+    place(0, nc - 2, chr, 4);
+    place(0, nc - 1, chr, 5);
+    place(1, nc - 3, chr, 6);
+    place(1, nc - 2, chr, 7);
+    place(1, nc - 1, chr, 8);
   };
 
   let row = 4;
@@ -336,9 +570,12 @@ export function encodeDataMatrix(text: string): DataMatrix {
     for (let r = 0; r < size; r++) {
       for (let c = 0; c < size; c++) {
         let v: number;
-        if (r % (rh + 2) === rh + 1 || c % (rw + 2) === 0) v = 1; // solid
-        else if (r % (rh + 2) === 0) v = c % 2 === 0 ? 1 : 0; // alt row
-        else if (c % (rw + 2) === rw + 1) v = r % 2 === 1 ? 1 : 0; // alt col
+        if (r % (rh + 2) === rh + 1 || c % (rw + 2) === 0)
+          v = 1; // solid
+        else if (r % (rh + 2) === 0)
+          v = c % 2 === 0 ? 1 : 0; // alt row
+        else if (c % (rw + 2) === rw + 1)
+          v = r % 2 === 1 ? 1 : 0; // alt col
         else continue;
         matrix[r * size + c] = v;
       }

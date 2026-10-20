@@ -63,7 +63,10 @@ describe('pdf-compress core: presets', () => {
   it('clamps custom limits into safe ranges', () => {
     expect(resolvePreset('custom', 5000, 150)).toMatchObject({ maxEdge: 5000, quality: 100 });
     expect(resolvePreset('custom', 10, -5)).toMatchObject({ maxEdge: 200, quality: 1 });
-    expect(resolvePreset('custom', 'oops', Number.NaN)).toMatchObject({ maxEdge: 1600, quality: 75 });
+    expect(resolvePreset('custom', 'oops', Number.NaN)).toMatchObject({
+      maxEdge: 1600,
+      quality: 75,
+    });
     expect(clampNumber('42', 0, 100, 7)).toBe(42);
     expect(clampNumber(undefined, 0, 100, 7)).toBe(7);
   });
@@ -151,22 +154,33 @@ describe('pdf-compress core: planImage', () => {
   const light = resolvePreset('light');
 
   it('skips everything for the lossless preset', () => {
-    expect(planImage(image(), light)).toMatchObject({ process: false, reason: expect.stringMatching(/untouched/) });
+    expect(planImage(image(), light)).toMatchObject({
+      process: false,
+      reason: expect.stringMatching(/untouched/),
+    });
   });
 
   it('downsamples a large JPEG to the preset long edge', () => {
-    expect(planImage(image(), balanced)).toMatchObject({ process: true, width: 1600, height: 1200 });
+    expect(planImage(image(), balanced)).toMatchObject({
+      process: true,
+      width: 1600,
+      height: 1200,
+    });
     expect(planImage(image(), strong)).toMatchObject({ process: true, width: 1100, height: 825 });
   });
 
   it('re-encodes an already-small-dimension image only when it is chunky', () => {
-    expect(planImage(image({ width: 800, height: 600, encodedBytes: 200_000 }), balanced)).toMatchObject({
+    expect(
+      planImage(image({ width: 800, height: 600, encodedBytes: 200_000 }), balanced),
+    ).toMatchObject({
       process: true,
       width: 800,
       height: 600,
       reason: 're-encode',
     });
-    expect(planImage(image({ width: 800, height: 600, encodedBytes: 1000 }), balanced)).toMatchObject({
+    expect(
+      planImage(image({ width: 800, height: 600, encodedBytes: 1000 }), balanced),
+    ).toMatchObject({
       process: false,
       reason: expect.stringMatching(/already small/),
     });
@@ -176,22 +190,37 @@ describe('pdf-compress core: planImage', () => {
     expect(planImage(image({ hasSoftMask: true }), balanced).reason).toMatch(/transparency/);
     expect(planImage(image({ imageMask: true }), balanced).reason).toMatch(/mask/);
     expect(planImage(image({ filter: '/JPXDecode' }), balanced).reason).toMatch(/JPXDecode/);
-    expect(planImage(image({ filter: '/FlateDecode', bitsPerComponent: 1 }), balanced).reason).toMatch(/bit depth/);
-    expect(planImage(image({ filter: '/FlateDecode', colorComponents: 0 }), balanced).reason).toMatch(/colour space/);
+    expect(
+      planImage(image({ filter: '/FlateDecode', bitsPerComponent: 1 }), balanced).reason,
+    ).toMatch(/bit depth/);
+    expect(
+      planImage(image({ filter: '/FlateDecode', colorComponents: 0 }), balanced).reason,
+    ).toMatch(/colour space/);
     expect(planImage(image({ hasPredictor: true }), balanced).reason).toMatch(/predictor/);
     expect(planImage(image({ colorSpace: '/DeviceCMYK' }), balanced).reason).toMatch(/CMYK/);
     expect(planImage(image({ width: 20_000, height: 20_000 }), balanced).reason).toMatch(/pixels/);
   });
 
   it('accepts 8-bit grey Flate images', () => {
-    const grey = image({ filter: '/FlateDecode', colorSpace: '/DeviceGray', colorComponents: 1, width: 3000, height: 2000 });
+    const grey = image({
+      filter: '/FlateDecode',
+      colorSpace: '/DeviceGray',
+      colorComponents: 1,
+      width: 3000,
+      height: 2000,
+    });
     expect(planImage(grey, balanced)).toMatchObject({ process: true, width: 1600, height: 1067 });
   });
 });
 
 describe('pdf-compress core: compressionOutcome', () => {
   it('flags a real saving', () => {
-    expect(compressionOutcome(1000, 800)).toMatchObject({ improved: true, savedBytes: 200, ratio: 0.8, percent: 0.2 });
+    expect(compressionOutcome(1000, 800)).toMatchObject({
+      improved: true,
+      savedBytes: 200,
+      ratio: 0.8,
+      percent: 0.2,
+    });
   });
   it('refuses to claim a win when the file grows or is unchanged', () => {
     expect(compressionOutcome(1000, 1000).improved).toBe(false);
@@ -242,7 +271,12 @@ describe('pdf-compress core: stream helpers sanity', () => {
   it('reads a number through an indirect reference', async () => {
     const doc = await PDFDocument.create();
     const ref = doc.context.register(PDFNumber.of(320));
-    const dict = doc.context.obj({ Subtype: 'Image', Width: ref, Height: 100, Filter: 'DCTDecode' });
+    const dict = doc.context.obj({
+      Subtype: 'Image',
+      Width: ref,
+      Height: 100,
+      Filter: 'DCTDecode',
+    });
     const stream = PDFRawStream.of(dict, new Uint8Array(10));
     expect(readEmbeddedImage(stream)?.width).toBe(320);
   });

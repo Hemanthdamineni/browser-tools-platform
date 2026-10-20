@@ -6,7 +6,12 @@ import { meta } from './json-to-env.meta';
 const MAX_LEN = 1_000_000;
 
 function escapeEnvValue(text: string): string {
-  return String(text).replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/\t/g, '\\t');
+  return String(text)
+    .replace(/\\/g, '\\\\')
+    .replace(/"/g, '\\"')
+    .replace(/\n/g, '\\n')
+    .replace(/\r/g, '\\r')
+    .replace(/\t/g, '\\t');
 }
 
 function envKey(parts: string[], uppercase: boolean, separator: string): string {
@@ -44,7 +49,8 @@ function flatten(
     lines.push([envKey(path, uppercase, separator), '']);
     return;
   }
-  for (const [k, v] of entries) flatten(v, [...path, k], lines, uppercase, separator, quoteStrings, depth + 1);
+  for (const [k, v] of entries)
+    flatten(v, [...path, k], lines, uppercase, separator, quoteStrings, depth + 1);
 }
 
 async function run(input: TextRunInput): Promise<TextRunResult> {
@@ -55,7 +61,8 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
 
   const source = input.text ?? '';
   if (!source.trim()) throw new ToolError('Paste a JSON configuration to convert to env lines.');
-  if (source.length > MAX_LEN) throw new ToolError('Input is too large.', 'Keep it under 1,000,000 characters.');
+  if (source.length > MAX_LEN)
+    throw new ToolError('Input is too large.', 'Keep it under 1,000,000 characters.');
 
   let parsed: unknown;
   try {

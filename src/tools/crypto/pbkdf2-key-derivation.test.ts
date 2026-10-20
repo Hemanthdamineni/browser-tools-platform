@@ -12,8 +12,11 @@ type Table = { headers: string[]; rows: [string, string][] };
 const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
   (await tool.run({ text, options })) as Result;
 const table = (r: Result) => JSON.parse(r.output) as Table;
-const get = async (text: string, key: string, options: Record<string, string | number | boolean> = {}) =>
-  table(await run(text, options)).rows.find((row) => row[0] === key)?.[1];
+const get = async (
+  text: string,
+  key: string,
+  options: Record<string, string | number | boolean> = {},
+) => table(await run(text, options)).rows.find((row) => row[0] === key)?.[1];
 
 const sha1 = { hash: 'sha-1', salt: 'salt', length: 20 };
 
@@ -58,7 +61,7 @@ describe('pbkdf2-key-derivation', () => {
       length: 64,
     });
     expect(key).toBe(
-      '55ac046e56e3089fec1691c22544b605f94185216dde0465e68b9d57c20dacbc49ca9cccf179b645991664b39d77ef317c71b845b1e30bd509112041d3a19783'
+      '55ac046e56e3089fec1691c22544b605f94185216dde0465e68b9d57c20dacbc49ca9cccf179b645991664b39d77ef317c71b845b1e30bd509112041d3a19783',
     );
   });
 
@@ -142,7 +145,9 @@ describe('pbkdf2-key-derivation', () => {
   });
 
   it('rejects iterations above the safety cap', async () => {
-    await expect(run('password', { iterations: 5000001, salt: 'salt' })).rejects.toThrow(/responsive/i);
+    await expect(run('password', { iterations: 5000001, salt: 'salt' })).rejects.toThrow(
+      /responsive/i,
+    );
   });
 
   it('rejects a non-integer iteration count', async () => {
@@ -150,18 +155,20 @@ describe('pbkdf2-key-derivation', () => {
   });
 
   it('rejects an oversized key length', async () => {
-    await expect(run('password', { length: 2048, salt: 'salt', iterations: 1 })).rejects.toThrow(/capped/i);
+    await expect(run('password', { length: 2048, salt: 'salt', iterations: 1 })).rejects.toThrow(
+      /capped/i,
+    );
   });
 
   it('rejects an odd-length hex salt', async () => {
     await expect(
-      run('password', { salt: 'abc', saltEncoding: 'hex', iterations: 1 })
+      run('password', { salt: 'abc', saltEncoding: 'hex', iterations: 1 }),
     ).rejects.toThrow(/odd number of hex digits/i);
   });
 
   it('rejects a salt with characters outside the base64 alphabet', async () => {
     await expect(
-      run('password', { salt: 'not*base64', saltEncoding: 'base64', iterations: 1 })
+      run('password', { salt: 'not*base64', saltEncoding: 'base64', iterations: 1 }),
     ).rejects.toThrow(/not valid base64/i);
   });
 });

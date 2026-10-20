@@ -4,7 +4,8 @@ import tool from './world-clock.tool';
 type Result = { output: string; render?: string; stats?: Record<string, number>; notes?: string[] };
 const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
   (await tool.run({ text, options })) as Result;
-const table = (r: Result): { headers: string[]; rows: string[][] } => JSON.parse(r.output) as { headers: string[]; rows: string[][] };
+const table = (r: Result): { headers: string[]; rows: string[][] } =>
+  JSON.parse(r.output) as { headers: string[]; rows: string[][] };
 
 function minutesOfDay(t: string): number {
   const [h, m] = t.split(':').map(Number) as [number, number];

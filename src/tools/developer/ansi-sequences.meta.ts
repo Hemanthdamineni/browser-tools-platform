@@ -36,8 +36,16 @@ export const meta: ToolMeta = {
   ],
   examples: [
     { title: 'Strip colored output', input: '\u001b[31mERROR\u001b[0m: disk full' },
-    { title: 'Visualize cursor and style codes', input: '\u001b[1;32mOK\u001b[0m\u001b[2K' , options: { operation: 'visualize' } },
-    { title: 'Inspect terminal hyperlinks', input: '\u001b]8;;https://example.com\u0007Example\u001b]8;;\u0007', options: { operation: 'analyze' } },
+    {
+      title: 'Visualize cursor and style codes',
+      input: '\u001b[1;32mOK\u001b[0m\u001b[2K',
+      options: { operation: 'visualize' },
+    },
+    {
+      title: 'Inspect terminal hyperlinks',
+      input: '\u001b]8;;https://example.com\u0007Example\u001b]8;;\u0007',
+      options: { operation: 'analyze' },
+    },
   ],
   faq: [
     {

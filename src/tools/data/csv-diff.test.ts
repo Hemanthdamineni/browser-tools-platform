@@ -17,7 +17,11 @@ describe('csv-diff', () => {
     const r = await run(a3, { second: b3, keyColumn: 'id' });
     const t = table(r);
     expect(t.headers).toEqual(['Status', 'Key', 'Column', 'A', 'B']);
-    expect(t.rows.find((x) => x[0] === 'changed' && x[2] === 'city' && x[3] === 'Paris' && x[4] === 'Lyon')).toBeDefined();
+    expect(
+      t.rows.find(
+        (x) => x[0] === 'changed' && x[2] === 'city' && x[3] === 'Paris' && x[4] === 'Lyon',
+      ),
+    ).toBeDefined();
     expect(t.rows.find((x) => x[0] === 'removed')).toBeDefined();
     expect(r.stats).toEqual({ added: 0, removed: 2, changed: 1, unchanged: 1, rowsA: 4, rowsB: 2 });
   });
@@ -56,7 +60,9 @@ describe('csv-diff', () => {
   });
 
   it('handles quoted CSV with embedded comma and newline', async () => {
-    const r = await run('id,note\n1,"hello, world"' as string, { second: 'id,note\n1,"hello, world!"' as string });
+    const r = await run('id,note\n1,"hello, world"' as string, {
+      second: 'id,note\n1,"hello, world!"' as string,
+    });
     const row = table(r).rows.find((x) => x[0] === 'changed')!;
     expect(row[3]).toBe('hello, world');
     expect(row[4]).toBe('hello, world!');
@@ -73,7 +79,9 @@ describe('csv-diff', () => {
   });
 
   it('errors on missing key column', async () => {
-    await expect(run('a,b\n1,2', { second: 'a,c\n1,2', keyColumn: 'b' })).rejects.toThrow(/missing from CSV B/);
+    await expect(run('a,b\n1,2', { second: 'a,c\n1,2', keyColumn: 'b' })).rejects.toThrow(
+      /missing from CSV B/,
+    );
   });
 
   it('errors when inputs are blank', async () => {

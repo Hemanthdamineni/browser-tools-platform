@@ -1,7 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import tool from './svg-to-jsx.tool';
 
-type Result = { output: string; language?: string; render?: string; stats?: Record<string, number> };
+type Result = {
+  output: string;
+  language?: string;
+  render?: string;
+  stats?: Record<string, number>;
+};
 const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
   (await tool.run({ text, options })) as Result;
 
@@ -27,7 +32,9 @@ describe('svg-to-jsx', () => {
     expect(lines[0]).toBe("import type { SVGProps } from 'react';");
     expect(lines[2]).toBe('export function ArrowIcon(props: SVGProps<SVGSVGElement>) {');
     expect(lines[3]).toBe('  return (');
-    expect(lines[4]).toBe('    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" {...props}>');
+    expect(lines[4]).toBe(
+      '    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" {...props}>',
+    );
     expect(lines[5]).toBe('      <path d="M4 4h16v16H4z" strokeWidth="2" className="icon" />');
     expect(lines[7]).toBe('  );');
     expect(r.language).toBe('tsx');
@@ -44,7 +51,7 @@ describe('svg-to-jsx', () => {
       component: false,
     });
     expect(r.output).toBe(
-      "<circle cx=\"5\" cy=\"5\" r=\"4\" style={{fill: 'red', strokeWidth: '2'}} />",
+      '<circle cx="5" cy="5" r="4" style={{fill: \'red\', strokeWidth: \'2\'}} />',
     );
   });
 
@@ -74,9 +81,12 @@ describe('svg-to-jsx', () => {
   });
 
   it('maps namespace attributes', async () => {
-    const r = await run('<svg xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="#a"/></svg>', {
-      component: false,
-    });
+    const r = await run(
+      '<svg xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="#a"/></svg>',
+      {
+        component: false,
+      },
+    );
     expect(r.output).toContain('xmlnsXlink="http://www.w3.org/1999/xlink"');
     expect(r.output).toContain('<use xlinkHref="#a" />');
   });

@@ -2,15 +2,27 @@ import { describe, expect, it } from 'vitest';
 import { ToolError } from '@/lib/types';
 import tool from './http-range.tool';
 
-type Result = { output: string; filename?: string; stats?: Record<string, string | number>; notes?: string[] };
-const run = (text: string, options: Record<string, string | number | boolean> = {}) => tool.run({ text, options }) as Result;
+type Result = {
+  output: string;
+  filename?: string;
+  stats?: Record<string, string | number>;
+  notes?: string[];
+};
+const run = (text: string, options: Record<string, string | number | boolean> = {}) =>
+  tool.run({ text, options }) as Result;
 const rows = (result: Result) => JSON.parse(result.output).rows as string[][];
 
 describe('http-range', () => {
   it('builds Range, open Range, Content-Range, and Accept-Ranges headers', () => {
-    expect(run('', { mode: 'build', header: 'range', start: 0, end: 99 }).output).toBe('bytes=0-99');
-    expect(run('', { mode: 'build', header: 'range', start: 100, end: -1 }).output).toBe('bytes=100-');
-    expect(run('', { mode: 'build', header: 'content-range', start: 100, end: 199, size: 1000 }).output).toBe('bytes 100-199/1000');
+    expect(run('', { mode: 'build', header: 'range', start: 0, end: 99 }).output).toBe(
+      'bytes=0-99',
+    );
+    expect(run('', { mode: 'build', header: 'range', start: 100, end: -1 }).output).toBe(
+      'bytes=100-',
+    );
+    expect(
+      run('', { mode: 'build', header: 'content-range', start: 100, end: 199, size: 1000 }).output,
+    ).toBe('bytes 100-199/1000');
     expect(run('', { mode: 'build', header: 'accept-ranges' }).output).toBe('bytes');
   });
 
@@ -37,9 +49,15 @@ describe('http-range', () => {
   });
 
   it('rejects invalid generated ranges', () => {
-    expect(() => run('', { mode: 'build', header: 'range', start: 20, end: 10 })).toThrow(ToolError);
-    expect(() => run('', { mode: 'build', header: 'content-range', start: 0, end: 10, size: 0 })).toThrow(ToolError);
-    expect(() => run('', { mode: 'build', header: 'content-range', start: 0, end: 100, size: 100 })).toThrow(ToolError);
+    expect(() => run('', { mode: 'build', header: 'range', start: 20, end: 10 })).toThrow(
+      ToolError,
+    );
+    expect(() =>
+      run('', { mode: 'build', header: 'content-range', start: 0, end: 10, size: 0 }),
+    ).toThrow(ToolError);
+    expect(() =>
+      run('', { mode: 'build', header: 'content-range', start: 0, end: 100, size: 100 }),
+    ).toThrow(ToolError);
   });
 
   it('returns guidance for blank parsing input', () => {

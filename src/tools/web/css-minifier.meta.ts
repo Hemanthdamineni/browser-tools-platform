@@ -4,7 +4,8 @@ export const meta: ToolMeta = {
   id: 'css-minifier',
   name: 'CSS Minifier',
   category: 'web',
-  summary: 'Minify CSS: strip comments, collapse whitespace, drop empty rules and extra semicolons.',
+  summary:
+    'Minify CSS: strip comments, collapse whitespace, drop empty rules and extra semicolons.',
   description:
     'Compress a stylesheet by removing comments, collapsing runs of whitespace, trimming space around selectors and declaration separators, dropping the final semicolon in each block and deleting empty rules. Strings, url() contents, calc() arithmetic spacing and @media conditions are preserved correctly, so the output stays valid. Runs fully on-device and reports the byte savings.',
   keywords: [
@@ -43,7 +44,8 @@ export const meta: ToolMeta = {
     },
     {
       title: 'Keep calc arithmetic readable',
-      input: '.grid {\n  width: calc(100% - 32px);\n  grid-template-columns: minmax(0, 1fr) auto;\n}',
+      input:
+        '.grid {\n  width: calc(100% - 32px);\n  grid-template-columns: minmax(0, 1fr) auto;\n}',
     },
   ],
   faq: [

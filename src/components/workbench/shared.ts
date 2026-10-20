@@ -67,10 +67,7 @@ async function imageToPngBlob(url: string, scale = 2): Promise<Blob> {
   ctx.imageSmoothingEnabled = false;
   ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
   return await new Promise<Blob>((resolve, reject) =>
-    canvas.toBlob(
-      (b) => (b ? resolve(b) : reject(new Error('PNG encoding failed.'))),
-      'image/png',
-    ),
+    canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('PNG encoding failed.'))), 'image/png'),
   );
 }
 
@@ -211,7 +208,8 @@ export function renderTextResult(host: HTMLElement, result: TextRunResult): void
           return `<span style="color: rgb(var(--accent))">${safe}</span>`;
         if (line.startsWith('-') && !line.startsWith('---'))
           return `<span style="color: rgb(var(--danger))">${safe}</span>`;
-        if (line.startsWith('@@')) return `<span class="text-[rgb(var(--text-faint))]">${safe}</span>`;
+        if (line.startsWith('@@'))
+          return `<span class="text-[rgb(var(--text-faint))]">${safe}</span>`;
         return safe;
       })
       .join('\n');

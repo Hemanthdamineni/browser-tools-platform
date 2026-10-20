@@ -4,7 +4,14 @@ import { resolveOptions } from '@/lib/options';
 import { meta } from './ip-address-inspector.meta';
 
 type V4 = { version: 4; host: string; octets: number[]; port?: number };
-type V6 = { version: 6; host: string; groups: number[]; port?: number; zone?: string; mapped?: number[] };
+type V6 = {
+  version: 6;
+  host: string;
+  groups: number[];
+  port?: number;
+  zone?: string;
+  mapped?: number[];
+};
 type Parsed = V4 | V6;
 type Row = [string, string];
 
@@ -60,7 +67,12 @@ function toV6(host: string, port?: number, zone?: string): V6 {
   if (port !== undefined) node.port = port;
   if (zone) node.zone = zone;
   if (groups.slice(0, 5).every((g) => g === 0) && groups[5] === 0xffff) {
-    node.mapped = [(groups[6]! >> 8) & 0xff, groups[6]! & 0xff, (groups[7]! >> 8) & 0xff, groups[7]! & 0xff];
+    node.mapped = [
+      (groups[6]! >> 8) & 0xff,
+      groups[6]! & 0xff,
+      (groups[7]! >> 8) & 0xff,
+      groups[7]! & 0xff,
+    ];
   }
   return node;
 }
@@ -107,14 +119,23 @@ function compress(groups: number[]): string {
   let rl = 0;
   for (let i = 0; i < hex.length; i++) {
     if (hex[i] === '0') {
-      if (rs === -1) { rs = i; rl = 1; } else rl++;
+      if (rs === -1) {
+        rs = i;
+        rl = 1;
+      } else rl++;
     } else {
-      if (rl > len) { start = rs; len = rl; }
+      if (rl > len) {
+        start = rs;
+        len = rl;
+      }
       rs = -1;
       rl = 0;
     }
   }
-  if (rl > len) { start = rs; len = rl; }
+  if (rl > len) {
+    start = rs;
+    len = rl;
+  }
   if (start === -1 || len < 2) return hex.join(':');
   const head = hex.slice(0, start).join(':');
   const tail = hex.slice(start + len).join(':');
@@ -157,7 +178,8 @@ function classifyV6(g: number[]): string[] {
   else if (g.slice(0, 5).every((x) => x === 0) && g[5] === 0xffff) out.push('IPv4-mapped');
   else if (first >= 0x2000 && first <= 0x3fff) out.push('global unicast (2000::/3)');
   else out.push('reserved / special purpose');
-  if (g.slice(0, 5).every((x) => x === 0) && g[5] === 0xffff && !out.includes('IPv4-mapped')) out.push('IPv4-mapped');
+  if (g.slice(0, 5).every((x) => x === 0) && g[5] === 0xffff && !out.includes('IPv4-mapped'))
+    out.push('IPv4-mapped');
   return out;
 }
 
@@ -166,7 +188,11 @@ function run(input: TextRunInput): TextRunResult {
   const showBinary = Boolean(o.showBinary);
   const raw = input.text.trim();
   if (!raw) {
-    return { output: JSON.stringify({ headers: ['Property', 'Value'], rows: [] as Row[] }), render: 'table', notes: ['Paste an IPv4 or IPv6 address (a port or IPv6 zone is optional).'] };
+    return {
+      output: JSON.stringify({ headers: ['Property', 'Value'], rows: [] as Row[] }),
+      render: 'table',
+      notes: ['Paste an IPv4 or IPv6 address (a port or IPv6 zone is optional).'],
+    };
   }
   const ip = parse(raw);
   const rows: Row[] = [];
@@ -175,7 +201,8 @@ function run(input: TextRunInput): TextRunResult {
     rows.push(['Version', 'IPv4']);
     rows.push(['Classification', classifyV4(ip.octets).join(', ')]);
     rows.push(['Decimal octets', ip.octets.join('.')]);
-    if (showBinary) rows.push(['Binary octets', ip.octets.map((n) => n.toString(2).padStart(8, '0')).join('.')]);
+    if (showBinary)
+      rows.push(['Binary octets', ip.octets.map((n) => n.toString(2).padStart(8, '0')).join('.')]);
     rows.push(['Hex octets', ip.octets.map((n) => n.toString(16).padStart(2, '0')).join('.')]);
     rows.push(['IPv6-mapped form', `::ffff:${ip.octets.join('.')}`]);
     if (ip.port !== undefined) rows.push(['Port', String(ip.port)]);
@@ -185,17 +212,42 @@ function run(input: TextRunInput): TextRunResult {
     rows.push(['Expanded', expand(ip.groups)]);
     rows.push(['Compressed', compress(ip.groups)]);
     rows.push(['16-bit groups', ip.groups.map((g) => g.toString(16)).join(' ')]);
-    if (showBinary) rows.push(['Binary (first 32 bits)', ip.groups.slice(0, 2).map((g) => g.toString(2).padStart(16, '0')).join(' ')]);
+    if (showBinary)
+      rows.push([
+        'Binary (first 32 bits)',
+        ip.groups
+          .slice(0, 2)
+          .map((g) => g.toString(2).padStart(16, '0'))
+          .join(' '),
+      ]);
     if (ip.mapped) rows.push(['Embedded IPv4', ip.mapped.join('.')]);
     if (ip.zone !== undefined) rows.push(['Zone', ip.zone]);
     if (ip.port !== undefined) rows.push(['Port', String(ip.port)]);
   }
-  const privateV4 = ip.version === 4 && classifyV4(ip.octets).some((c) => c.includes('private') || c.includes('loopback') || c.includes('link-local'));
+  const privateV4 =
+    ip.version === 4 &&
+    classifyV4(ip.octets).some(
+      (c) => c.includes('private') || c.includes('loopback') || c.includes('link-local'),
+    );
   return {
     output: JSON.stringify({ headers: ['Property', 'Value'], rows }),
     render: 'table',
-    stats: { version: ip.version, ...(ip.port !== undefined ? { port: ip.port } : {}), scope: privateV4 || (ip.version === 6 && classifyV6(ip.groups).some((c) => c.includes('private') || c.includes('link-local'))) ? 'non-public' : 'public' },
-    notes: ip.version === 6 && ip.mapped ? ['This IPv6 address embeds an IPv4 address (::ffff:0:0/96).'] : ['Classification follows the IANA special-purpose registries; no network lookups are performed.'],
+    stats: {
+      version: ip.version,
+      ...(ip.port !== undefined ? { port: ip.port } : {}),
+      scope:
+        privateV4 ||
+        (ip.version === 6 &&
+          classifyV6(ip.groups).some((c) => c.includes('private') || c.includes('link-local')))
+          ? 'non-public'
+          : 'public',
+    },
+    notes:
+      ip.version === 6 && ip.mapped
+        ? ['This IPv6 address embeds an IPv4 address (::ffff:0:0/96).']
+        : [
+            'Classification follows the IANA special-purpose registries; no network lookups are performed.',
+          ],
   };
 }
 

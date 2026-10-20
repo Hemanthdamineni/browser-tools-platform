@@ -5,7 +5,78 @@ import { meta } from './tracestate.meta';
 
 const KEY = /^[a-z][a-z0-9_*/-]{0,255}$/;
 const VALUE = /^[\x21-\x2b\x2d-\x3c\x3e-\x7e]+$/;
-function inspect(value: string): { entries: [string, string][]; issues: string[] } { const entries: [string, string][] = []; const issues: string[] = []; const seen = new Set<string>(); for (const part of value.split(',').map((item) => item.trim()).filter(Boolean)) { const index = part.indexOf('='); if (index <= 0) { issues.push(`Malformed list-member: ${part}`); continue; } const key = part.slice(0, index).trim(); const val = part.slice(index + 1).trim(); if (!KEY.test(key)) issues.push(`Invalid vendor key: ${key}`); if (!VALUE.test(val)) issues.push(`Invalid vendor value for ${key}`); if (seen.has(key)) issues.push(`Duplicate vendor key: ${key}`); seen.add(key); entries.push([key, val]); } if (entries.length > 32) issues.push('Tracestate must contain at most 32 list-members'); if (new TextEncoder().encode(value).length > 512) issues.push('Tracestate must be at most 512 bytes'); return { entries, issues }; }
-function run(input: TextRunInput): TextRunResult { const options = resolveOptions(meta, input.options); const mode = String(options.mode); if (mode !== 'build' && mode !== 'analyze') throw new ToolError('Choose a supported tracestate mode.'); if (mode === 'build') { const key = String(options.key).trim().toLowerCase(); const value = String(options.value).trim(); const output = `${key}=${value}`; const result = inspect(output); if (result.issues.length || !key || !value) throw new ToolError(result.issues[0] ?? 'Enter a valid vendor key and value.'); return { output, render: 'code', language: 'http', filename: 'tracestate.txt', stats: { entries: 1, bytes: new TextEncoder().encode(output).length } }; } if (!input.text.trim()) return { output: JSON.stringify({ headers: ['Vendor key', 'Value', 'Status'], rows: [] }), render: 'table', notes: ['Paste a comma-separated tracestate value.'] }; const result = inspect(input.text); const rows = result.entries.map(([key, value]) => [key, value, result.issues.length ? 'Review' : 'Valid']); return { output: JSON.stringify({ headers: ['Vendor key', 'Value', 'Status'], rows }), render: 'table', stats: { entries: result.entries.length, issues: result.issues.length, bytes: new TextEncoder().encode(input.text).length }, notes: result.issues.length ? result.issues : ['Tracestate is vendor metadata; propagate it carefully and never place secrets in values.'] }; }
+function inspect(value: string): { entries: [string, string][]; issues: string[] } {
+  const entries: [string, string][] = [];
+  const issues: string[] = [];
+  const seen = new Set<string>();
+  for (const part of value
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean)) {
+    const index = part.indexOf('=');
+    if (index <= 0) {
+      issues.push(`Malformed list-member: ${part}`);
+      continue;
+    }
+    const key = part.slice(0, index).trim();
+    const val = part.slice(index + 1).trim();
+    if (!KEY.test(key)) issues.push(`Invalid vendor key: ${key}`);
+    if (!VALUE.test(val)) issues.push(`Invalid vendor value for ${key}`);
+    if (seen.has(key)) issues.push(`Duplicate vendor key: ${key}`);
+    seen.add(key);
+    entries.push([key, val]);
+  }
+  if (entries.length > 32) issues.push('Tracestate must contain at most 32 list-members');
+  if (new TextEncoder().encode(value).length > 512)
+    issues.push('Tracestate must be at most 512 bytes');
+  return { entries, issues };
+}
+function run(input: TextRunInput): TextRunResult {
+  const options = resolveOptions(meta, input.options);
+  const mode = String(options.mode);
+  if (mode !== 'build' && mode !== 'analyze')
+    throw new ToolError('Choose a supported tracestate mode.');
+  if (mode === 'build') {
+    const key = String(options.key).trim().toLowerCase();
+    const value = String(options.value).trim();
+    const output = `${key}=${value}`;
+    const result = inspect(output);
+    if (result.issues.length || !key || !value)
+      throw new ToolError(result.issues[0] ?? 'Enter a valid vendor key and value.');
+    return {
+      output,
+      render: 'code',
+      language: 'http',
+      filename: 'tracestate.txt',
+      stats: { entries: 1, bytes: new TextEncoder().encode(output).length },
+    };
+  }
+  if (!input.text.trim())
+    return {
+      output: JSON.stringify({ headers: ['Vendor key', 'Value', 'Status'], rows: [] }),
+      render: 'table',
+      notes: ['Paste a comma-separated tracestate value.'],
+    };
+  const result = inspect(input.text);
+  const rows = result.entries.map(([key, value]) => [
+    key,
+    value,
+    result.issues.length ? 'Review' : 'Valid',
+  ]);
+  return {
+    output: JSON.stringify({ headers: ['Vendor key', 'Value', 'Status'], rows }),
+    render: 'table',
+    stats: {
+      entries: result.entries.length,
+      issues: result.issues.length,
+      bytes: new TextEncoder().encode(input.text).length,
+    },
+    notes: result.issues.length
+      ? result.issues
+      : [
+          'Tracestate is vendor metadata; propagate it carefully and never place secrets in values.',
+        ],
+  };
+}
 const tool: TextToolModule = { meta, run };
 export default tool;

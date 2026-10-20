@@ -84,14 +84,17 @@ const p = meta.id;
 
   <div class="flex flex-wrap items-center gap-2.5">
     <button type="button" class="btn btn-primary" data-run>
-      <Icon name="zap" size={16} /> <span data-run-label>Run</span>
+      <Icon name="zap" size={16} />
+      <span data-run-label>Run</span>
     </button>
     <label class="flex cursor-pointer items-center gap-2 text-sm text-[rgb(var(--text-muted))]">
       <input type="checkbox" class="h-4 w-4 rounded" data-live checked />
       Run as I type
     </label>
-    <span class="ml-auto text-xs tabular-nums text-[rgb(var(--text-muted))]" data-timing aria-live="polite"
-    ></span>
+    <span
+      class="ml-auto text-xs tabular-nums text-[rgb(var(--text-muted))]"
+      data-timing
+      aria-live="polite"></span>
   </div>
 
   <div

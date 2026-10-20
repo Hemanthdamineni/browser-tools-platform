@@ -11,7 +11,11 @@ function splitParams(text: string): string[] {
   let cur = '';
   let depth = 0;
   for (const ch of text) {
-    if (ch === ',' && depth === 0) { out.push(cur); cur = ''; continue; }
+    if (ch === ',' && depth === 0) {
+      out.push(cur);
+      cur = '';
+      continue;
+    }
     if (ch === '(' || ch === '[' || ch === '{') depth += 1;
     else if (ch === ')' || ch === ']' || ch === '}') depth -= 1;
     cur += ch;
@@ -27,7 +31,7 @@ function paramName(param: string): string {
   if (m) return m[1]!;
   const clean = p.replace(/[{}[\]]/g, '');
   const m2 = /^([A-Za-z_$][\w$]*)/.exec(clean.trim());
-  return m2 ? m2[1]! : (clean.trim().slice(0, 16) || 'arg');
+  return m2 ? m2[1]! : clean.trim().slice(0, 16) || 'arg';
 }
 
 function parseSignature(source: string): { name: string | null; params: string[] } {
@@ -43,7 +47,10 @@ function parseSignature(source: string): { name: string | null; params: string[]
   let paramsText: string | null = null;
 
   // Arrow: const f = (a, b) => …   |   const f = a => …
-  const arrow = /^(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*(?:async\s+)?(?:\(([\s\S]*?)\)|([A-Za-z_$][\w$]*))(?:\s*=>)?/.exec(arrowless);
+  const arrow =
+    /^(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*(?:async\s+)?(?:\(([\s\S]*?)\)|([A-Za-z_$][\w$]*))(?:\s*=>)?/.exec(
+      arrowless,
+    );
   if (arrow) {
     name = arrow[1]!;
     paramsText = arrow[2] ?? arrow[3] ?? '';
@@ -54,7 +61,10 @@ function parseSignature(source: string): { name: string | null; params: string[]
       name = fn[1] || null;
       paramsText = fn[2] ?? '';
     } else {
-      throw new ToolError('Could not find a function signature.', 'Examples: function fetchUser(id) { … }, const f = (x) => …');
+      throw new ToolError(
+        'Could not find a function signature.',
+        'Examples: function fetchUser(id) { … }, const f = (x) => …',
+      );
     }
   }
 
@@ -70,7 +80,10 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
 
   const { name, params } = parseSignature(source);
   const lines: string[] = ['/**'];
-  if (withDescription) lines.push(' * ' + (name ? 'Describe what `' + name + '` does.' : 'Describe what this function does.'));
+  if (withDescription)
+    lines.push(
+      ' * ' + (name ? 'Describe what `' + name + '` does.' : 'Describe what this function does.'),
+    );
   for (const p of params) lines.push(' * @param ' + paramName(p) + ' - ');
   lines.push(' * @returns ');
   lines.push(' */');
@@ -82,7 +95,9 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     stats: { parameters: params.length },
     notes: [
       'Fill in each description after " - ".',
-      params.some((p) => /\{|\[/.test(p)) ? 'Destructured parameter detected — expand @property lines as needed.' : '',
+      params.some((p) => /\{|\[/.test(p))
+        ? 'Destructured parameter detected — expand @property lines as needed.'
+        : '',
     ].filter(Boolean),
   };
 }

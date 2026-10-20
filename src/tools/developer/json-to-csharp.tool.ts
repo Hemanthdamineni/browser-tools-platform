@@ -6,16 +6,101 @@ import { meta } from './json-to-csharp.meta';
 type Json = null | boolean | number | string | Json[] | { [key: string]: Json };
 
 const ACRONYMS = new Set([
-  'id', 'url', 'uri', 'api', 'ip', 'ui', 'json', 'xml', 'html', 'css', 'sql', 'http', 'https', 'ftp', 'ssh', 'tls',
+  'id',
+  'url',
+  'uri',
+  'api',
+  'ip',
+  'ui',
+  'json',
+  'xml',
+  'html',
+  'css',
+  'sql',
+  'http',
+  'https',
+  'ftp',
+  'ssh',
+  'tls',
 ]);
 const KEYWORDS = new Set([
-  'abstract', 'as', 'base', 'bool', 'break', 'byte', 'case', 'catch', 'char', 'checked', 'class', 'const',
-  'continue', 'decimal', 'default', 'delegate', 'do', 'double', 'else', 'enum', 'event', 'explicit', 'extern',
-  'false', 'finally', 'fixed', 'float', 'for', 'foreach', 'goto', 'if', 'implicit', 'in', 'int', 'interface',
-  'internal', 'is', 'lock', 'long', 'namespace', 'new', 'null', 'object', 'operator', 'out', 'override',
-  'params', 'private', 'protected', 'public', 'readonly', 'ref', 'return', 'sbyte', 'sealed', 'short',
-  'sizeof', 'stackalloc', 'static', 'string', 'struct', 'switch', 'this', 'throw', 'true', 'try', 'typeof',
-  'uint', 'ulong', 'unchecked', 'unsafe', 'ushort', 'using', 'virtual', 'void', 'volatile', 'while',
+  'abstract',
+  'as',
+  'base',
+  'bool',
+  'break',
+  'byte',
+  'case',
+  'catch',
+  'char',
+  'checked',
+  'class',
+  'const',
+  'continue',
+  'decimal',
+  'default',
+  'delegate',
+  'do',
+  'double',
+  'else',
+  'enum',
+  'event',
+  'explicit',
+  'extern',
+  'false',
+  'finally',
+  'fixed',
+  'float',
+  'for',
+  'foreach',
+  'goto',
+  'if',
+  'implicit',
+  'in',
+  'int',
+  'interface',
+  'internal',
+  'is',
+  'lock',
+  'long',
+  'namespace',
+  'new',
+  'null',
+  'object',
+  'operator',
+  'out',
+  'override',
+  'params',
+  'private',
+  'protected',
+  'public',
+  'readonly',
+  'ref',
+  'return',
+  'sbyte',
+  'sealed',
+  'short',
+  'sizeof',
+  'stackalloc',
+  'static',
+  'string',
+  'struct',
+  'switch',
+  'this',
+  'throw',
+  'true',
+  'try',
+  'typeof',
+  'uint',
+  'ulong',
+  'unchecked',
+  'unsafe',
+  'ushort',
+  'using',
+  'virtual',
+  'void',
+  'volatile',
+  'while',
 ]);
 
 function pascalName(key: string, used: Set<string>): string {
@@ -120,28 +205,44 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
 
   const text = (input.text ?? '').trim();
   if (!text) {
-    throw new ToolError('Paste a JSON object or array.', 'A single JSON value; its shape becomes the C# types.');
+    throw new ToolError(
+      'Paste a JSON object or array.',
+      'A single JSON value; its shape becomes the C# types.',
+    );
   }
 
   let parsed: Json;
   try {
     parsed = JSON.parse(text) as Json;
   } catch (e) {
-    throw new ToolError(`Invalid JSON: ${(e as Error).message}`, 'Check quotes, commas and brackets.');
+    throw new ToolError(
+      `Invalid JSON: ${(e as Error).message}`,
+      'Check quotes, commas and brackets.',
+    );
   }
 
   const gen = new Generator(includeAttributes);
   const arrayRoot = Array.isArray(parsed);
-  const rootObj = arrayRoot ? ((parsed as Json[]).find((v) => v !== null && typeof v === 'object' && !Array.isArray(v)) as { [key: string]: Json }) : (parsed as { [key: string]: Json });
+  const rootObj = arrayRoot
+    ? ((parsed as Json[]).find((v) => v !== null && typeof v === 'object' && !Array.isArray(v)) as {
+        [key: string]: Json;
+      })
+    : (parsed as { [key: string]: Json });
 
   if (arrayRoot && (parsed as Json[]).length === 0) {
     throw new ToolError('The JSON array is empty.', 'An empty array has no element type to infer.');
   }
   if (!arrayRoot && (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed))) {
-    throw new ToolError('The root must be an object or array of objects.', 'Paste a JSON object like {"name":"Ada"} or an array of objects.');
+    throw new ToolError(
+      'The root must be an object or array of objects.',
+      'Paste a JSON object like {"name":"Ada"} or an array of objects.',
+    );
   }
   if (!rootObj) {
-    throw new ToolError('The JSON array has no object element.', 'Null and primitive elements cannot be typed.');
+    throw new ToolError(
+      'The JSON array has no object element.',
+      'Null and primitive elements cannot be typed.',
+    );
   }
 
   gen.usedNames.add(rootName);
@@ -158,7 +259,9 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   let types = 1;
   let properties = 0;
   for (const d of gen.defs) {
-    properties += d.fields.filter((f) => f.startsWith('    public ') && !f.startsWith('    public class ')).length;
+    properties += d.fields.filter(
+      (f) => f.startsWith('    public ') && !f.startsWith('    public class '),
+    ).length;
   }
   types = gen.defs.length;
 
@@ -168,7 +271,9 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     stats: { types, properties },
     notes: [
       'Generated C# classes with System.Text.Json. Deserialization works without attributes; they only enforce exact key naming.',
-      arrayRoot ? 'Root is an array: deserialize into a List.' : 'Usage comment shows JsonSerializer.Deserialize.',
+      arrayRoot
+        ? 'Root is an array: deserialize into a List.'
+        : 'Usage comment shows JsonSerializer.Deserialize.',
     ],
   };
 }

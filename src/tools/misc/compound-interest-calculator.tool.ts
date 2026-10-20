@@ -13,8 +13,18 @@ const FREQ: Record<string, { periods: number; label: string }> = {
   continuous: { periods: 0, label: 'Continuously' },
 };
 
-const money = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 });
-const money0 = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0, maximumSignificantDigits: 20 });
+const money = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+  maximumFractionDigits: 2,
+});
+const money0 = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 0,
+  maximumSignificantDigits: 20,
+});
 
 const fmt = (n: number) => money.format(n);
 
@@ -84,7 +94,10 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   ];
 
   return {
-    output: JSON.stringify({ headers: ['Period', 'Start Balance', 'Contribution', 'Interest Earned', 'End Balance'], rows }),
+    output: JSON.stringify({
+      headers: ['Period', 'Start Balance', 'Contribution', 'Interest Earned', 'End Balance'],
+      rows,
+    }),
     render: 'table',
     stats: {
       years,

@@ -2,8 +2,14 @@ import { describe, expect, it } from 'vitest';
 import { ToolError } from '@/lib/types';
 import tool from './cache-status.tool';
 
-type Result = { output: string; filename?: string; stats?: Record<string, string | number>; notes?: string[] };
-const run = (text: string, options: Record<string, string | number | boolean> = {}) => tool.run({ text, options }) as Result;
+type Result = {
+  output: string;
+  filename?: string;
+  stats?: Record<string, string | number>;
+  notes?: string[];
+};
+const run = (text: string, options: Record<string, string | number | boolean> = {}) =>
+  tool.run({ text, options }) as Result;
 const rows = (result: Result) => JSON.parse(result.output).rows as string[][];
 
 describe('cache-status', () => {
@@ -33,7 +39,9 @@ describe('cache-status', () => {
   });
 
   it('rejects empty cache name in build', () => {
-    expect(() => run('', { mode: 'build', cc: '  ', hit: 'hit', ttl: '', fwd: '' })).toThrow(ToolError);
+    expect(() => run('', { mode: 'build', cc: '  ', hit: 'hit', ttl: '', fwd: '' })).toThrow(
+      ToolError,
+    );
   });
 
   it('analyzes blank input with guidance', () => {

@@ -6,14 +6,51 @@ import { meta } from './text-to-slug.meta';
 const MAX_LEN = 20_000;
 
 const STOPWORDS = new Set([
-  'a', 'an', 'the', 'and', 'but', 'or', 'for', 'nor', 'with', 'at', 'by', 'of', 'to', 'from',
-  'in', 'on', 'into', 'via', 'against', 'between', 'through', 'during', 'before', 'after',
-  'above', 'below', 'until', 'while', 'about', 'as', 'your',
+  'a',
+  'an',
+  'the',
+  'and',
+  'but',
+  'or',
+  'for',
+  'nor',
+  'with',
+  'at',
+  'by',
+  'of',
+  'to',
+  'from',
+  'in',
+  'on',
+  'into',
+  'via',
+  'against',
+  'between',
+  'through',
+  'during',
+  'before',
+  'after',
+  'above',
+  'below',
+  'until',
+  'while',
+  'about',
+  'as',
+  'your',
 ]);
 
 const ACCENT_OVERRIDES: Record<string, string> = {
-  æ: 'ae', Æ: 'AE', œ: 'oe', Œ: 'OE', ß: 'ss',
-  ø: 'o', Ø: 'O', đ: 'd', Đ: 'D', ł: 'l', Ł: 'L',
+  æ: 'ae',
+  Æ: 'AE',
+  œ: 'oe',
+  Œ: 'OE',
+  ß: 'ss',
+  ø: 'o',
+  Ø: 'O',
+  đ: 'd',
+  Đ: 'D',
+  ł: 'l',
+  Ł: 'L',
 };
 
 function transliterate(text: string): string {
@@ -79,13 +116,17 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
 
   const raw = String(input.text ?? '');
   if (raw.trim() === '') throw new ToolError('Paste some text to turn into a slug.');
-  if (raw.length > MAX_LEN) throw new ToolError('Input is too large.', 'Keep it under ' + MAX_LEN + ' characters.');
+  if (raw.length > MAX_LEN)
+    throw new ToolError('Input is too large.', 'Keep it under ' + MAX_LEN + ' characters.');
 
   const collapsed = raw.replace(/\s+/g, ' ').trim();
   const slug = slugify(collapsed, opts);
 
   if (slug === '') {
-    throw new ToolError('Nothing left after slugifying.', 'Try toggling stopword removal or transliteration.');
+    throw new ToolError(
+      'Nothing left after slugifying.',
+      'Try toggling stopword removal or transliteration.',
+    );
   }
 
   const notes = [

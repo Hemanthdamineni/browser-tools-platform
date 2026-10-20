@@ -25,11 +25,15 @@ function decodeEntities(input: string): string {
   return input.replace(/&(#x[0-9A-Fa-f]+|#\d+|[A-Za-z][A-Za-z0-9]*);/g, (whole, body: string) => {
     if (body.startsWith('#x') || body.startsWith('#X')) {
       const code = parseInt(body.slice(2), 16);
-      return Number.isFinite(code) && code >= 0 && code <= 0x10ffff ? String.fromCodePoint(code) : whole;
+      return Number.isFinite(code) && code >= 0 && code <= 0x10ffff
+        ? String.fromCodePoint(code)
+        : whole;
     }
     if (body.startsWith('#')) {
       const code = parseInt(body.slice(1), 10);
-      return Number.isFinite(code) && code >= 0 && code <= 0x10ffff ? String.fromCodePoint(code) : whole;
+      return Number.isFinite(code) && code >= 0 && code <= 0x10ffff
+        ? String.fromCodePoint(code)
+        : whole;
     }
     return NAMED_ENTITIES[body] ?? whole;
   });
@@ -87,15 +91,24 @@ class XmlReader {
   private skipMisc(): void {
     for (;;) {
       while (!this.eof() && /\s/.test(this.src[this.i]!)) this.i++;
-      if (this.startsWith('<!--')) { this.readUntil('-->', 'comment'); continue; }
-      if (this.startsWith('<?')) { this.readUntil('?>', 'processing instruction'); continue; }
+      if (this.startsWith('<!--')) {
+        this.readUntil('-->', 'comment');
+        continue;
+      }
+      if (this.startsWith('<?')) {
+        this.readUntil('?>', 'processing instruction');
+        continue;
+      }
       if (this.startsWith('<!DOCTYPE') || this.startsWith('<!doctype')) {
         let depth = 0;
         while (!this.eof()) {
           const ch = this.src[this.i]!;
           if (ch === '[') depth++;
           else if (ch === ']') depth--;
-          else if (ch === '>' && depth <= 0) { this.i++; break; }
+          else if (ch === '>' && depth <= 0) {
+            this.i++;
+            break;
+          }
           this.i++;
         }
         continue;
@@ -137,7 +150,10 @@ class XmlReader {
     const name = this.readName();
     const attrs = this.readAttrs();
     const node: XmlNode = { name, attrs, children: [], text: '' };
-    if (this.startsWith('/>')) { this.i += 2; return node; }
+    if (this.startsWith('/>')) {
+      this.i += 2;
+      return node;
+    }
     this.expect('>');
     for (;;) {
       if (this.eof()) this.err(`Element <${name}> is never closed`);
@@ -149,15 +165,24 @@ class XmlReader {
         if (closing !== name) this.err(`Closing tag </${closing}> does not match <${name}>`);
         return node;
       }
-      if (this.startsWith('<!--')) { this.readUntil('-->', 'comment'); continue; }
+      if (this.startsWith('<!--')) {
+        this.readUntil('-->', 'comment');
+        continue;
+      }
       if (this.startsWith('<![CDATA[')) {
         this.i += '<![CDATA['.length;
         node.text += this.readUntil(']]>', 'CDATA section');
         continue;
       }
-      if (this.startsWith('<?')) { this.readUntil('?>', 'processing instruction'); continue; }
+      if (this.startsWith('<?')) {
+        this.readUntil('?>', 'processing instruction');
+        continue;
+      }
       if (this.startsWith('<!')) this.err('Unexpected declaration inside an element');
-      if (this.startsWith('<')) { node.children.push(this.parseElement()); continue; }
+      if (this.startsWith('<')) {
+        node.children.push(this.parseElement());
+        continue;
+      }
       const next = this.src.indexOf('<', this.i);
       const end = next === -1 ? this.src.length : next;
       node.text += decodeEntities(this.src.slice(this.i, end));
@@ -184,7 +209,11 @@ interface BuildOptions {
   textKey: string;
 }
 
-function buildValue(node: XmlNode, options: BuildOptions, stats: { elements: number; attributes: number }): Json {
+function buildValue(
+  node: XmlNode,
+  options: BuildOptions,
+  stats: { elements: number; attributes: number },
+): Json {
   stats.elements++;
   stats.attributes += node.attrs.length;
   const childrenByName = new Map<string, XmlNode[]>();
@@ -194,7 +223,9 @@ function buildValue(node: XmlNode, options: BuildOptions, stats: { elements: num
     else childrenByName.set(child.name, [child]);
   }
   const keepAttrs = options.attributes !== 'ignore';
-  const hasStructure = keepAttrs ? node.attrs.length > 0 || node.children.length > 0 : node.children.length > 0;
+  const hasStructure = keepAttrs
+    ? node.attrs.length > 0 || node.children.length > 0
+    : node.children.length > 0;
   const trimmedText = node.text.trim();
   if (!hasStructure) return trimmedText;
   const out: { [k: string]: Json } = {};
@@ -215,7 +246,13 @@ function buildValue(node: XmlNode, options: BuildOptions, stats: { elements: num
   return out;
 }
 
-function jsonToXml(value: Json, name: string, indent: string, depth: number, stats: { elements: number }): string {
+function jsonToXml(
+  value: Json,
+  name: string,
+  indent: string,
+  depth: number,
+  stats: { elements: number },
+): string {
   const pad = indent.repeat(depth);
   stats.elements++;
   if (Array.isArray(value)) {
@@ -230,14 +267,16 @@ function jsonToXml(value: Json, name: string, indent: string, depth: number, sta
   for (const [key, item] of Object.entries(value)) {
     if (key === '@attributes' && item && typeof item === 'object' && !Array.isArray(item)) {
       for (const [attrKey, attrValue] of Object.entries(item)) {
-        if (!NAME_RE.test(attrKey)) throw new ToolError(`"${attrKey}" is not a valid XML attribute name.`);
+        if (!NAME_RE.test(attrKey))
+          throw new ToolError(`"${attrKey}" is not a valid XML attribute name.`);
         attrs.push(`${attrKey}="${escapeAttr(String(attrValue ?? ''))}"`);
       }
       continue;
     }
     if (key.startsWith('@')) {
       const attrKey = key.slice(1);
-      if (!NAME_RE.test(attrKey)) throw new ToolError(`"${attrKey}" is not a valid XML attribute name.`);
+      if (!NAME_RE.test(attrKey))
+        throw new ToolError(`"${attrKey}" is not a valid XML attribute name.`);
       attrs.push(`${attrKey}="${escapeAttr(String(item ?? ''))}"`);
       continue;
     }
@@ -267,7 +306,11 @@ function run(input: TextRunInput): TextRunResult {
 
   if (mode === 'json-to-xml') {
     if (!source) {
-      return { output: JSON.stringify({ headers: ['Mode', 'Input', 'Result'], rows: [] as string[][] }), render: 'table', notes: ['Paste a JSON object with a single root key, e.g. {"book":{"title":"Dune"}}.'] };
+      return {
+        output: JSON.stringify({ headers: ['Mode', 'Input', 'Result'], rows: [] as string[][] }),
+        render: 'table',
+        notes: ['Paste a JSON object with a single root key, e.g. {"book":{"title":"Dune"}}.'],
+      };
     }
     let parsed: Json;
     try {
@@ -276,14 +319,19 @@ function run(input: TextRunInput): TextRunResult {
       throw new ToolError('Invalid JSON — check for trailing commas, comments, or unquoted keys.');
     }
     if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
-      throw new ToolError('The JSON root must be an object whose single key names the XML root element.');
+      throw new ToolError(
+        'The JSON root must be an object whose single key names the XML root element.',
+      );
     }
     const entries = Object.entries(parsed);
     if (entries.length !== 1) {
-      throw new ToolError(`Expected exactly one root key but found ${entries.length}. Wrap the document in a single element name.`);
+      throw new ToolError(
+        `Expected exactly one root key but found ${entries.length}. Wrap the document in a single element name.`,
+      );
     }
     const [rootName, rootValue] = entries[0]!;
-    if (!NAME_RE.test(rootName)) throw new ToolError(`"${rootName}" is not a valid XML element name.`);
+    if (!NAME_RE.test(rootName))
+      throw new ToolError(`"${rootName}" is not a valid XML element name.`);
     const stats = { elements: 0 };
     const body = `<?xml version="1.0" encoding="UTF-8"?>\n${jsonToXml(rootValue, rootName, indent, 0, stats)}`;
     return {
@@ -292,23 +340,33 @@ function run(input: TextRunInput): TextRunResult {
       language: 'html',
       filename: `${rootName}.xml`,
       stats: { elements: stats.elements },
-      notes: ['Keys starting with @ become attributes; #text becomes text content; arrays repeat the element.'],
+      notes: [
+        'Keys starting with @ become attributes; #text becomes text content; arrays repeat the element.',
+      ],
     };
   }
 
   if (!source) {
-    return { output: JSON.stringify({ headers: ['Mode', 'Input', 'Result'], rows: [] as string[][] }), render: 'table', notes: ['Paste an XML document, e.g. <book id="1"><title>Dune</title></book>.'] };
+    return {
+      output: JSON.stringify({ headers: ['Mode', 'Input', 'Result'], rows: [] as string[][] }),
+      render: 'table',
+      notes: ['Paste an XML document, e.g. <book id="1"><title>Dune</title></book>.'],
+    };
   }
   const root = new XmlReader(source).parse();
   const stats = { elements: 0, attributes: 0 };
-  const data: { [k: string]: Json } = { [root.name]: buildValue(root, { attributes, textKey }, stats) };
+  const data: { [k: string]: Json } = {
+    [root.name]: buildValue(root, { attributes, textKey }, stats),
+  };
   return {
     output: JSON.stringify(data, null, 2),
     render: 'code',
     language: 'json',
     filename: `${root.name}.json`,
     stats: { elements: stats.elements, attributes: stats.attributes, root: root.name },
-    notes: ['Values stay strings so the conversion is lossless; repeated sibling elements become arrays.'],
+    notes: [
+      'Values stay strings so the conversion is lossless; repeated sibling elements become arrays.',
+    ],
   };
 }
 

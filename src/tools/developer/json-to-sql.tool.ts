@@ -18,7 +18,8 @@ function literal(value: unknown): string {
   if (value === null) return 'NULL';
   if (typeof value === 'string') return quoteString(value);
   if (typeof value === 'number') {
-    if (!Number.isFinite(value)) throw new ToolError('Non-finite number in input.', 'Use null instead of NaN/Infinity.');
+    if (!Number.isFinite(value))
+      throw new ToolError('Non-finite number in input.', 'Use null instead of NaN/Infinity.');
     return String(value);
   }
   if (typeof value === 'boolean') return value ? '1' : '0';
@@ -50,12 +51,16 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
 
   if (!table) throw new ToolError('Provide a table name.');
   if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(table)) {
-    throw new ToolError('Table name must be a valid identifier.', 'Letters, digits and underscores; no spaces.');
+    throw new ToolError(
+      'Table name must be a valid identifier.',
+      'Letters, digits and underscores; no spaces.',
+    );
   }
 
   const raw = String(input.text ?? '').trim();
   if (!raw) throw new ToolError('Paste a JSON array of objects.');
-  if (raw.length > MAX_LEN) throw new ToolError('Input is too large.', 'Keep it under ' + MAX_LEN + ' characters.');
+  if (raw.length > MAX_LEN)
+    throw new ToolError('Input is too large.', 'Keep it under ' + MAX_LEN + ' characters.');
 
   let parsed: unknown;
   try {
@@ -70,7 +75,10 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   for (let i = 0; i < rows.length; i++) {
     const r = rows[i];
     if (r === null || typeof r !== 'object' || Array.isArray(r)) {
-      throw new ToolError('Every item must be a JSON object.', 'Item ' + (i + 1) + ' is not an object.');
+      throw new ToolError(
+        'Every item must be a JSON object.',
+        'Item ' + (i + 1) + ' is not an object.',
+      );
     }
     objects.push(r as Record<string, unknown>);
   }
@@ -93,7 +101,9 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
       const vals = objects.map((ob) => (c in ob ? ob[c] : null));
       return '  ' + quoteIdent(c, mysql) + ' ' + columnType(vals);
     });
-    statements.push('CREATE TABLE ' + quoteIdent(table, mysql) + ' (\n' + defs.join(',\n') + '\n);');
+    statements.push(
+      'CREATE TABLE ' + quoteIdent(table, mysql) + ' (\n' + defs.join(',\n') + '\n);',
+    );
   }
 
   const colList = columns.map((c) => quoteIdent(c, mysql)).join(', ');
@@ -102,11 +112,27 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
       const vals = columns.map((c) => literal(c in ob ? ob[c] : null));
       return '  (' + vals.join(', ') + ')';
     });
-    statements.push('INSERT INTO ' + quoteIdent(table, mysql) + ' (' + colList + ') VALUES\n' + valueRows.join(',\n') + ';');
+    statements.push(
+      'INSERT INTO ' +
+        quoteIdent(table, mysql) +
+        ' (' +
+        colList +
+        ') VALUES\n' +
+        valueRows.join(',\n') +
+        ';',
+    );
   } else {
     for (const ob of objects) {
       const vals = columns.map((c) => literal(c in ob ? ob[c] : null));
-      statements.push('INSERT INTO ' + quoteIdent(table, mysql) + ' (' + colList + ') VALUES (' + vals.join(', ') + ');');
+      statements.push(
+        'INSERT INTO ' +
+          quoteIdent(table, mysql) +
+          ' (' +
+          colList +
+          ') VALUES (' +
+          vals.join(', ') +
+          ');',
+      );
     }
   }
 

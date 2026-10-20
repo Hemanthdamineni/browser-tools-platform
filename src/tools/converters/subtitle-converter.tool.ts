@@ -9,7 +9,8 @@ interface Cue {
   text: string;
 }
 
-const ARROW_RE = /^\s*(\d{1,3}):(\d{2}):(\d{2})[,.](\d{1,3})\s*-->\s*(\d{1,3}):(\d{2}):(\d{2})[,.](\d{1,3})/;
+const ARROW_RE =
+  /^\s*(\d{1,3}):(\d{2}):(\d{2})[,.](\d{1,3})\s*-->\s*(\d{1,3}):(\d{2}):(\d{2})[,.](\d{1,3})/;
 
 function toMs(h: number, m: number, s: number, milli: number): number {
   return h * 3600000 + m * 60000 + s * 1000 + milli;
@@ -45,9 +46,11 @@ function fmtTime(ms: number, sep: ',' | '.'): string {
 }
 
 function renderSrt(cues: Cue[]): string {
-  return cues
-    .map((c, i) => `${i + 1}\n${fmtTime(c.start, ',')} --> ${fmtTime(c.end, ',')}\n${c.text}`)
-    .join('\n\n') + '\n';
+  return (
+    cues
+      .map((c, i) => `${i + 1}\n${fmtTime(c.start, ',')} --> ${fmtTime(c.end, ',')}\n${c.text}`)
+      .join('\n\n') + '\n'
+  );
 }
 
 function renderVtt(cues: Cue[]): string {
@@ -66,7 +69,10 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
 
   const text = input.text ?? '';
   if (!text.trim()) {
-    throw new ToolError('Paste an SRT or WebVTT subtitle file to convert.', 'Cue timestamps look like 00:00:01,500 --> 00:00:04,000.');
+    throw new ToolError(
+      'Paste an SRT or WebVTT subtitle file to convert.',
+      'Cue timestamps look like 00:00:01,500 --> 00:00:04,000.',
+    );
   }
 
   const trimmed = text.trimStart();
@@ -75,7 +81,10 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
 
   let cues = parseInput(text);
   if (cues.length === 0) {
-    throw new ToolError('No subtitle cues were found.', 'A cue needs a timestamp line like 00:00:01,500 --> 00:00:04,000.');
+    throw new ToolError(
+      'No subtitle cues were found.',
+      'A cue needs a timestamp line like 00:00:01,500 --> 00:00:04,000.',
+    );
   }
 
   if (shiftMs !== 0) {
@@ -89,9 +98,12 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   const notes: string[] = [
     `Detected ${detected.toUpperCase()}, converted to ${targetFormat.toUpperCase()}: ${cues.length} cue${cues.length === 1 ? '' : 's'}.`,
   ];
-  if (shiftMs !== 0) notes.push(`All cues shifted by ${shiftMs / 1000}s${shiftMs < 0 ? ' (earlier)' : ' (later)'}.`);
-  if (detected === 'vtt' && targetFormat === 'vtt') notes.push('Input is already VTT; a copy was re-rendered.');
-  if (detected === 'srt' && targetFormat === 'srt') notes.push('Input is already SRT; a copy was re-rendered.');
+  if (shiftMs !== 0)
+    notes.push(`All cues shifted by ${shiftMs / 1000}s${shiftMs < 0 ? ' (earlier)' : ' (later)'}.`);
+  if (detected === 'vtt' && targetFormat === 'vtt')
+    notes.push('Input is already VTT; a copy was re-rendered.');
+  if (detected === 'srt' && targetFormat === 'srt')
+    notes.push('Input is already SRT; a copy was re-rendered.');
 
   return {
     output,

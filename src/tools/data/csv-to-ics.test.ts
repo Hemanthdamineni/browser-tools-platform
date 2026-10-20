@@ -8,7 +8,9 @@ const linesOf = (r: Result): string[] => r.output.replace(/\r/g, '').split('\n')
 
 describe('csv-to-ics', () => {
   it('produces a VCALENDAR with one VEVENT per row', async () => {
-    const r = await run('title,start,end\nStandup,2024-01-05T09:00:00,2024-01-05T09:30:00\nReview,2024-01-06T14:00:00,2024-01-06T15:00:00');
+    const r = await run(
+      'title,start,end\nStandup,2024-01-05T09:00:00,2024-01-05T09:30:00\nReview,2024-01-06T14:00:00,2024-01-06T15:00:00',
+    );
     const lines = linesOf(r);
     expect(lines[0]).toBe('BEGIN:VCALENDAR');
     expect(lines).toContain('VERSION:2.0');
@@ -45,7 +47,9 @@ describe('csv-to-ics', () => {
   });
 
   it('supports US dates with AM/PM', async () => {
-    const r = await run('title,start,end\nCall,01/05/2024 2:30 PM,01/05/2024 3:00 PM', { dateFormat: 'us' });
+    const r = await run('title,start,end\nCall,01/05/2024 2:30 PM,01/05/2024 3:00 PM', {
+      dateFormat: 'us',
+    });
     const lines = linesOf(r);
     expect(lines).toContain('DTSTART:20240105T143000');
     expect(lines).toContain('DTEND:20240105T150000');

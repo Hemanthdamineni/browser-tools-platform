@@ -31,9 +31,17 @@ const fieldId = (key: string) => `${idPrefix}-opt-${key}`;
           )}
 
           {opt.type === 'select' && (
-            <select id={id} class="field" data-opt-key={opt.key} data-opt-type="select" aria-describedby={describedBy}>
+            <select
+              id={id}
+              class="field"
+              data-opt-key={opt.key}
+              data-opt-type="select"
+              aria-describedby={describedBy}
+            >
               {opt.choices.map((c) => (
-                <option value={c.value} selected={c.value === opt.default}>{c.label}</option>
+                <option value={c.value} selected={c.value === opt.default}>
+                  {c.label}
+                </option>
               ))}
             </select>
           )}
@@ -82,7 +90,10 @@ const fieldId = (key: string) => `${idPrefix}-opt-${key}`;
                 step={opt.step ?? 1}
                 aria-describedby={describedBy}
               />
-              <output class="w-14 shrink-0 text-right font-mono text-sm tabular-nums text-[rgb(var(--text-muted))]" data-range-out={opt.key}>
+              <output
+                class="w-14 shrink-0 text-right font-mono text-sm tabular-nums text-[rgb(var(--text-muted))]"
+                data-range-out={opt.key}
+              >
                 {opt.default}
               </output>
             </div>
@@ -114,7 +125,9 @@ const fieldId = (key: string) => `${idPrefix}-opt-${key}`;
           )}
 
           {opt.help && opt.type !== 'boolean' && (
-            <p id={helpId} class="text-xs leading-relaxed text-[rgb(var(--text-muted))]">{opt.help}</p>
+            <p id={helpId} class="text-xs leading-relaxed text-[rgb(var(--text-muted))]">
+              {opt.help}
+            </p>
           )}
         </div>
       );

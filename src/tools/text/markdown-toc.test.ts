@@ -9,9 +9,7 @@ const run = async (text: string, options: Record<string, string | number | boole
 describe('markdown-toc', () => {
   it('builds a nested GitHub-style list', async () => {
     const r = await run('# A\n## A1\n### A1a\n# B');
-    expect(r.output).toBe(
-      '- [A](#a)\n  - [A1](#a1)\n    - [A1a](#a1a)\n- [B](#b)\n'
-    );
+    expect(r.output).toBe('- [A](#a)\n  - [A1](#a1)\n    - [A1a](#a1a)\n- [B](#b)\n');
     expect(r.render).toBe('code');
     expect(r.stats?.headings).toBe(4);
     expect(r.stats?.maxLevel).toBe(3);

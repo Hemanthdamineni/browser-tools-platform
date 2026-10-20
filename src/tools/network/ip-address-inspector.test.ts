@@ -1,11 +1,18 @@
 import { describe, expect, it } from 'vitest';
 import tool from './ip-address-inspector.tool';
 
-type Result = { output: string; render?: string; stats?: Record<string, string | number>; notes?: string[] };
+type Result = {
+  output: string;
+  render?: string;
+  stats?: Record<string, string | number>;
+  notes?: string[];
+};
 type Table = { headers: string[]; rows: [string, string][] };
 
-const run = (text: string, options: Record<string, string | number | boolean> = {}) => tool.run({ text, options }) as Result;
-const table = (text: string, options: Record<string, string | number | boolean> = {}) => JSON.parse(run(text, options).output) as Table;
+const run = (text: string, options: Record<string, string | number | boolean> = {}) =>
+  tool.run({ text, options }) as Result;
+const table = (text: string, options: Record<string, string | number | boolean> = {}) =>
+  JSON.parse(run(text, options).output) as Table;
 const get = (text: string, key: string, options: Record<string, string | number | boolean> = {}) =>
   table(text, options).rows.find((r) => r[0] === key)?.[1];
 

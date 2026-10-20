@@ -166,14 +166,18 @@ function step(c: Ctx, seg: string, total: { n: number }): Ctx[] {
       const n = cur.length;
       const stepRaw = parts[2] !== undefined ? Number(parts[2]) : 1;
       if (stepRaw === 0) return out;
-      const sRaw = parts[0] !== undefined && parts[0] !== '' ? Number(parts[0]) : stepRaw > 0 ? 0 : n - 1;
-      const eRaw = parts[1] !== undefined && parts[1] !== '' ? Number(parts[1]) : stepRaw > 0 ? n : -1;
+      const sRaw =
+        parts[0] !== undefined && parts[0] !== '' ? Number(parts[0]) : stepRaw > 0 ? 0 : n - 1;
+      const eRaw =
+        parts[1] !== undefined && parts[1] !== '' ? Number(parts[1]) : stepRaw > 0 ? n : -1;
       const s = sRaw < 0 ? Math.max(n + sRaw, 0) : Math.min(sRaw, n);
       const e = eRaw < 0 ? (stepRaw > 0 ? Math.max(n + eRaw, 0) : eRaw) : Math.min(eRaw, n);
       if (stepRaw > 0) {
-        for (let i = s; i < e && i < n; i += stepRaw) out.push({ cur: cur[i]!, path: c.path + '[' + i + ']' });
+        for (let i = s; i < e && i < n; i += stepRaw)
+          out.push({ cur: cur[i]!, path: c.path + '[' + i + ']' });
       } else {
-        for (let i = s; i > e && i >= 0; i += stepRaw) out.push({ cur: cur[i]!, path: c.path + '[' + i + ']' });
+        for (let i = s; i > e && i >= 0; i += stepRaw)
+          out.push({ cur: cur[i]!, path: c.path + '[' + i + ']' });
       }
       return out;
     }
@@ -280,7 +284,10 @@ function firstNonEmpty(input: string): { expr: string; rest: string } {
     if (lines[idx]!.trim()) break;
   }
   const expr = lines[idx]?.trim() ?? '';
-  const rest = lines.slice(idx + 1).join('\n').trim();
+  const rest = lines
+    .slice(idx + 1)
+    .join('\n')
+    .trim();
   return { expr, rest };
 }
 
@@ -291,12 +298,19 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   const text = input.text ?? '';
   const { expr, rest } = firstNonEmpty(text);
   if (!expr) throw new ToolError('Enter a JSONPath expression.', 'Example: $.users[*].name');
-  if (!rest) throw new ToolError('Enter the JSON document after the expression.', 'Paste JSON on the lines below the expression.');
+  if (!rest)
+    throw new ToolError(
+      'Enter the JSON document after the expression.',
+      'Paste JSON on the lines below the expression.',
+    );
   let data: D;
   try {
     data = JSON.parse(rest) as D;
   } catch {
-    throw new ToolError('Invalid JSON document.', 'The text after the expression must be valid JSON.');
+    throw new ToolError(
+      'Invalid JSON document.',
+      'The text after the expression must be valid JSON.',
+    );
   }
   const matches = evaluate(expr, data);
   const values = matches.map((m) => m.cur);

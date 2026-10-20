@@ -4,7 +4,8 @@ import tool from './duplicate-line-finder.tool';
 type Result = { output: string; render?: string; stats?: Record<string, number>; notes?: string[] };
 const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
   (await tool.run({ text, options })) as Result;
-const rows = (r: Result): string[][] => (JSON.parse(r.output) as { headers: string[]; rows: string[][] }).rows;
+const rows = (r: Result): string[][] =>
+  (JSON.parse(r.output) as { headers: string[]; rows: string[][] }).rows;
 
 describe('duplicate-line-finder', () => {
   it('reports duplicates with counts and first line numbers', async () => {

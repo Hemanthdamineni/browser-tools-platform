@@ -4,7 +4,8 @@ export const meta: ToolMeta = {
   id: 'docker-compose',
   name: 'docker-compose.yml Generator',
   category: 'developer',
-  summary: 'Build a docker-compose.yml for one service — image, ports, environment, volumes and restart policy.',
+  summary:
+    'Build a docker-compose.yml for one service — image, ports, environment, volumes and restart policy.',
   description:
     'Compose a Docker service declaration from simple options: service name, image, container name, published ports, environment variables, volumes and a restart policy. The tool emits a clean, valid docker-compose.yml you can paste into your project, with proper YAML quoting of port mappings and environment lines.',
   keywords: [

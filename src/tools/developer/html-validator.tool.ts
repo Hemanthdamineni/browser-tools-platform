@@ -5,7 +5,22 @@ import { meta } from './html-validator.meta';
 
 const MAX_LEN = 500_000;
 
-const VOID = new Set(['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr']);
+const VOID = new Set([
+  'area',
+  'base',
+  'br',
+  'col',
+  'embed',
+  'hr',
+  'img',
+  'input',
+  'link',
+  'meta',
+  'param',
+  'source',
+  'track',
+  'wbr',
+]);
 const RAW = new Set(['script', 'style', 'textarea', 'title']);
 
 interface Entry {
@@ -74,7 +89,10 @@ function validate(html: string, ignoreComments: boolean): { rows: string[][]; ta
       }
       for (let k = stack.length - 1; k > idx; k--) {
         const unclosed = stack[k]!;
-        rows.push([String(unclosed.line), 'Unclosed <' + unclosed.tag + '> before </' + name + '>']);
+        rows.push([
+          String(unclosed.line),
+          'Unclosed <' + unclosed.tag + '> before </' + name + '>',
+        ]);
       }
       stack.splice(idx);
       continue;
@@ -117,7 +135,8 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   const ignoreComments = o.ignoreComments === true;
   const source = input.text ?? '';
   if (!source.trim()) throw new ToolError('Paste some HTML to validate.');
-  if (source.length > MAX_LEN) throw new ToolError('Input is too large.', 'Keep it under 500,000 characters.');
+  if (source.length > MAX_LEN)
+    throw new ToolError('Input is too large.', 'Keep it under 500,000 characters.');
 
   const { rows, tags } = validate(source, ignoreComments);
   const unique = [...new Map(rows.map((r) => [r[0] + ':' + r[1], r])).values()];
@@ -125,7 +144,10 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   const errors = sorted.length;
 
   return {
-    output: JSON.stringify({ headers: ['Line', 'Issue'], rows: errors ? sorted : [['—', 'All tags are balanced.']] }),
+    output: JSON.stringify({
+      headers: ['Line', 'Issue'],
+      rows: errors ? sorted : [['—', 'All tags are balanced.']],
+    }),
     render: 'table',
     stats: { tags, errors },
     notes: errors

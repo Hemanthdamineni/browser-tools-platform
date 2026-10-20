@@ -90,7 +90,9 @@ function quantileExclusive(sorted: number[], p: number): number | null {
 async function run(input: TextRunInput): Promise<TextRunResult> {
   const o = resolveOptions(meta, input.options);
   const rawDecimals = Number(o.decimals);
-  const decimals = Number.isFinite(rawDecimals) ? Math.max(0, Math.min(12, Math.trunc(rawDecimals))) : 4;
+  const decimals = Number.isFinite(rawDecimals)
+    ? Math.max(0, Math.min(12, Math.trunc(rawDecimals)))
+    : 4;
 
   const text = (input.text ?? '').trim();
   if (!text) {
@@ -102,11 +104,15 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
 
   const { values, skipped } = parseNumbers(text);
   if (values.length === 0) {
-    throw new ToolError('No numbers found in the input.', 'Type numbers separated by commas, spaces or new lines.');
+    throw new ToolError(
+      'No numbers found in the input.',
+      'Type numbers separated by commas, spaces or new lines.',
+    );
   }
 
   const spread = String(o.spread) === 'population' ? ('population' as const) : ('sample' as const);
-  const method = String(o.quartiles) === 'exclusive' ? ('exclusive' as const) : ('inclusive' as const);
+  const method =
+    String(o.quartiles) === 'exclusive' ? ('exclusive' as const) : ('inclusive' as const);
 
   const sorted = [...values].sort((a, b) => a - b);
   const n = values.length;
@@ -121,15 +127,19 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   const min = sorted[0]!;
   const max = sorted[n - 1]!;
 
-  const q1 = method === 'exclusive' ? quantileExclusive(sorted, 0.25) : quantileInclusive(sorted, 0.25);
-  const q3 = method === 'exclusive' ? quantileExclusive(sorted, 0.75) : quantileInclusive(sorted, 0.75);
+  const q1 =
+    method === 'exclusive' ? quantileExclusive(sorted, 0.25) : quantileInclusive(sorted, 0.25);
+  const q3 =
+    method === 'exclusive' ? quantileExclusive(sorted, 0.75) : quantileInclusive(sorted, 0.75);
   const iqr = q1 !== null && q3 !== null ? q3 - q1 : null;
   const lowerFence = iqr === null ? null : q1! - 1.5 * iqr;
   const upperFence = iqr === null ? null : q3! + 1.5 * iqr;
   const outliersList = iqr === null ? [] : sorted.filter((v) => v < lowerFence! || v > upperFence!);
 
   const allPositive = values.every((v) => v > 0);
-  const geo = allPositive ? Math.exp((1 / n) * values.reduce((acc, v) => acc + Math.log(v), 0)) : null;
+  const geo = allPositive
+    ? Math.exp((1 / n) * values.reduce((acc, v) => acc + Math.log(v), 0))
+    : null;
   const harm = allPositive ? n / values.reduce((acc, v) => acc + 1 / v, 0) : null;
 
   const rows: Row[] = [
@@ -159,9 +169,14 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   notes.push(
     `Statistics use the ${spread} formula for variance and standard deviation${spread === 'sample' ? ' (Bessel correction, n - 1)' : ''}.`,
   );
-  if (skipped > 0) notes.push(`${skipped} non-numeric token${skipped === 1 ? '' : 's'} were ignored.`);
-  if (!allPositive) notes.push('Geometric and harmonic means are reported when every value is positive.');
-  if (outliersList.length) notes.push(`${outliersList.length} outlier${outliersList.length === 1 ? '' : 's'} fall outside the Tukey fences.`);
+  if (skipped > 0)
+    notes.push(`${skipped} non-numeric token${skipped === 1 ? '' : 's'} were ignored.`);
+  if (!allPositive)
+    notes.push('Geometric and harmonic means are reported when every value is positive.');
+  if (outliersList.length)
+    notes.push(
+      `${outliersList.length} outlier${outliersList.length === 1 ? '' : 's'} fall outside the Tukey fences.`,
+    );
 
   return {
     output: JSON.stringify({ headers: ['Statistic', 'Value'], rows }),

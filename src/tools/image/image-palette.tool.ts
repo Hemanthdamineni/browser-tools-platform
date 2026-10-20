@@ -138,8 +138,7 @@ function kMeans(colors: ColorCount[], limit: number): ColorCount[] {
   if (k <= 0) return [];
   if (k === 1) return [averageColors(colors)];
 
-  const dist2 = (a: RGB, b: RGB): number =>
-    (a.r - b.r) ** 2 + (a.g - b.g) ** 2 + (a.b - b.b) ** 2;
+  const dist2 = (a: RGB, b: RGB): number => (a.r - b.r) ** 2 + (a.g - b.g) ** 2 + (a.b - b.b) ** 2;
   const random = mulberry32(0x9e3779b9);
 
   const first = [...colors].sort((a, b) => b.n - a.n)[0]!;

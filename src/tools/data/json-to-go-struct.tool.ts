@@ -5,8 +5,41 @@ import { meta } from './json-to-go-struct.meta';
 
 type Json = null | boolean | number | string | Json[] | { [key: string]: Json };
 
-const ACRONYMS = new Set(['id', 'url', 'api', 'json', 'http', 'html', 'ip', 'uuid', 'sql', 'xml', 'db', 'ui', 'css', 'js', 'aws', 'os', 'tls', 'ssl', 'sha', 'hex']);
-const KEYWORDS = new Set(['type', 'func', 'map', 'range', 'go', 'defer', 'select', 'var', 'const', 'package', 'return']);
+const ACRONYMS = new Set([
+  'id',
+  'url',
+  'api',
+  'json',
+  'http',
+  'html',
+  'ip',
+  'uuid',
+  'sql',
+  'xml',
+  'db',
+  'ui',
+  'css',
+  'js',
+  'aws',
+  'os',
+  'tls',
+  'ssl',
+  'sha',
+  'hex',
+]);
+const KEYWORDS = new Set([
+  'type',
+  'func',
+  'map',
+  'range',
+  'go',
+  'defer',
+  'select',
+  'var',
+  'const',
+  'package',
+  'return',
+]);
 
 function wordCap(word: string): string {
   const lower = word.toLowerCase();
@@ -111,14 +144,20 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
 
   const text = (input.text ?? '').trim();
   if (!text) {
-    throw new ToolError('Paste a JSON object or array.', 'A single JSON value with strings, numbers, booleans, arrays and objects.');
+    throw new ToolError(
+      'Paste a JSON object or array.',
+      'A single JSON value with strings, numbers, booleans, arrays and objects.',
+    );
   }
 
   let parsed: Json;
   try {
     parsed = JSON.parse(text) as Json;
   } catch (e) {
-    throw new ToolError(`Invalid JSON: ${(e as Error).message}`, 'Check for missing quotes, commas or brackets.');
+    throw new ToolError(
+      `Invalid JSON: ${(e as Error).message}`,
+      'Check for missing quotes, commas or brackets.',
+    );
   }
 
   const gen = new Generator(omitempty, includeTags);
@@ -127,7 +166,10 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   let top = base;
   if (Array.isArray(parsed)) {
     if (parsed.length === 0) {
-      throw new ToolError('The JSON array is empty.', 'Provide at least one element so a slice element type can be inferred.');
+      throw new ToolError(
+        'The JSON array is empty.',
+        'Provide at least one element so a slice element type can be inferred.',
+      );
     }
     top = gen.typeOf(parsed, base);
   } else {

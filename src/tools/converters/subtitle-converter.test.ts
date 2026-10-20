@@ -8,19 +8,24 @@ const run = async (text: string, options: Record<string, string | number | boole
 
 describe('subtitle-converter', () => {
   it('converts SRT to VTT with header and dot timestamps', async () => {
-    const r = await run('1\n00:00:01,500 --> 00:00:04,000\nWelcome back!\n\n2\n00:00:05,000 --> 00:00:06,500\nLet us begin.');
+    const r = await run(
+      '1\n00:00:01,500 --> 00:00:04,000\nWelcome back!\n\n2\n00:00:05,000 --> 00:00:06,500\nLet us begin.',
+    );
     expect(r.output).toBe(
-      'WEBVTT\n\n00:00:01.500 --> 00:00:04.000\nWelcome back!\n\n00:00:05.000 --> 00:00:06.500\nLet us begin.\n'
+      'WEBVTT\n\n00:00:01.500 --> 00:00:04.000\nWelcome back!\n\n00:00:05.000 --> 00:00:06.500\nLet us begin.\n',
     );
     expect(r.stats?.cues).toBe(2);
   });
 
   it('converts VTT to SRT with numbering and comma timestamps', async () => {
-    const r = await run('WEBVTT\n\n00:00:01.500 --> 00:00:04.000\nHi there.\n\n00:00:05.000 --> 00:00:06.500 align:start\nBye!', {
-      target: 'srt',
-    });
+    const r = await run(
+      'WEBVTT\n\n00:00:01.500 --> 00:00:04.000\nHi there.\n\n00:00:05.000 --> 00:00:06.500 align:start\nBye!',
+      {
+        target: 'srt',
+      },
+    );
     expect(r.output).toBe(
-      '1\n00:00:01,500 --> 00:00:04,000\nHi there.\n\n2\n00:00:05,000 --> 00:00:06,500\nBye!\n'
+      '1\n00:00:01,500 --> 00:00:04,000\nHi there.\n\n2\n00:00:05,000 --> 00:00:06,500\nBye!\n',
     );
   });
 
@@ -34,12 +39,18 @@ describe('subtitle-converter', () => {
   it('shifts cues by seconds', async () => {
     const r = await run('1\n00:00:01,000 --> 00:00:02,000\nHello', { shift: 2.5, target: 'srt' });
     expect(r.output).toContain('00:00:03,500 --> 00:00:04,500');
-    const back = await run('1\n00:00:05,000 --> 00:00:06,000\nHello', { shift: -1.5, target: 'srt' });
+    const back = await run('1\n00:00:05,000 --> 00:00:06,000\nHello', {
+      shift: -1.5,
+      target: 'srt',
+    });
     expect(back.output).toContain('00:00:03,500 --> 00:00:04,500');
   });
 
   it('clamps negative starts and drops cues pushed entirely past zero', async () => {
-    const r = await run('1\n00:00:01,000 --> 00:00:02,000\nA\n\n2\n00:00:03,000 --> 00:00:07,000\nB', { shift: -3, target: 'srt' });
+    const r = await run(
+      '1\n00:00:01,000 --> 00:00:02,000\nA\n\n2\n00:00:03,000 --> 00:00:07,000\nB',
+      { shift: -3, target: 'srt' },
+    );
     expect(r.output).toContain('00:00:00,000 --> 00:00:04,000');
     expect(r.output).not.toContain('\nA\n');
     expect(r.output).toContain('\nB\n');
@@ -52,7 +63,8 @@ describe('subtitle-converter', () => {
   });
 
   it('round-trips SRT through VTT and back', async () => {
-    const srt = '1\n00:00:01,500 --> 00:00:04,000\nWelcome back!\n\n2\n00:00:05,000 --> 00:00:06,500\nLet us begin.';
+    const srt =
+      '1\n00:00:01,500 --> 00:00:04,000\nWelcome back!\n\n2\n00:00:05,000 --> 00:00:06,500\nLet us begin.';
     const vtt = (await run(srt)).output;
     const back = (await run(vtt, { target: 'srt' })).output;
     expect(back).toBe(srt + '\n');

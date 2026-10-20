@@ -1,14 +1,22 @@
 import { describe, expect, it } from 'vitest';
 import tool from './statistics-calculator.tool';
 
-type Result = { output: string; render?: string; stats?: Record<string, string | number | null>; notes?: string[] };
+type Result = {
+  output: string;
+  render?: string;
+  stats?: Record<string, string | number | null>;
+  notes?: string[];
+};
 type Table = { headers: string[]; rows: [string, string][] };
 
 const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
   (await tool.run({ text, options })) as Result;
 const table = (r: Result) => JSON.parse(r.output) as Table;
-const get = async (text: string, key: string, options: Record<string, string | number | boolean> = {}) =>
-  table(await run(text, options)).rows.find((row) => row[0] === key)?.[1];
+const get = async (
+  text: string,
+  key: string,
+  options: Record<string, string | number | boolean> = {},
+) => table(await run(text, options)).rows.find((row) => row[0] === key)?.[1];
 
 describe('statistics-calculator', () => {
   it('computes the classic textbook dataset', async () => {

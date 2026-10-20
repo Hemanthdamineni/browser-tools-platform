@@ -5,12 +5,31 @@ import { meta } from './strftime.meta';
 
 const WD = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const WDA = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-const MO = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const MO = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+];
 const MOA = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const p2 = (n: number) => String(n).padStart(2, '0');
 const p3 = (n: number) => String(n).padStart(3, '0');
 
-function weeks(y: number, m: number, d: number, utc: boolean, dowOfJan1: number): { U: number; W: number } {
+function weeks(
+  y: number,
+  m: number,
+  d: number,
+  utc: boolean,
+  dowOfJan1: number,
+): { U: number; W: number } {
   const start = utc ? Date.UTC(y, 0, 1) : new Date(y, 0, 1).getTime();
   const thisDay = utc ? Date.UTC(y, m - 1, d) : new Date(y, m - 1, d).getTime();
   const doy = Math.floor((thisDay - start) / 86400000) + 1;
@@ -32,7 +51,10 @@ function format(formatStr: string, date: Date, utc: boolean): { value: string; u
   const mi = utc ? date.getUTCMinutes() : date.getMinutes();
   const s = utc ? date.getUTCSeconds() : date.getSeconds();
   const ep = Math.floor(date.getTime() / 1000);
-  const doy = Math.floor((date.getTime() - (utc ? Date.UTC(y, 0, 1) : new Date(y, 0, 1).getTime())) / 86400000) + 1;
+  const doy =
+    Math.floor(
+      (date.getTime() - (utc ? Date.UTC(y, 0, 1) : new Date(y, 0, 1).getTime())) / 86400000,
+    ) + 1;
   const wn = weeks(y, mo + 1, da, utc, dow(y, 1, 1, utc));
   const zi = utc ? 0 : -date.getTimezoneOffset();
   const zs = (zi < 0 ? '-' : '+') + p2(Math.floor(Math.abs(zi) / 60)) + p2(Math.abs(zi) % 60);
@@ -118,9 +140,7 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     render: 'text',
     language: 'text',
     stats: { length: value.length },
-    notes: unknown.length
-      ? ['Unknown token(s) kept as-is: ' + unknown.join(', ') + '.']
-      : [],
+    notes: unknown.length ? ['Unknown token(s) kept as-is: ' + unknown.join(', ') + '.'] : [],
   };
 }
 

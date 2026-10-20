@@ -1,11 +1,18 @@
 import { describe, expect, it } from 'vitest';
 import tool from './workday-calculator.tool';
 
-type Result = { output: string; render?: string; stats?: Record<string, string | number>; notes?: string[] };
+type Result = {
+  output: string;
+  render?: string;
+  stats?: Record<string, string | number>;
+  notes?: string[];
+};
 type Table = { headers: string[]; rows: [string, string][] };
 
-const run = (text: string, options: Record<string, string | number | boolean> = {}) => tool.run({ text, options }) as Result;
-const table = (text: string, options: Record<string, string | number | boolean> = {}) => JSON.parse(run(text, options).output) as Table;
+const run = (text: string, options: Record<string, string | number | boolean> = {}) =>
+  tool.run({ text, options }) as Result;
+const table = (text: string, options: Record<string, string | number | boolean> = {}) =>
+  JSON.parse(run(text, options).output) as Table;
 const get = (text: string, key: string, options: Record<string, string | number | boolean> = {}) =>
   table(text, options).rows.find((r) => r[0] === key)?.[1];
 
@@ -73,12 +80,21 @@ describe('workday-calculator', () => {
     });
 
     it('skips holidays when counting', () => {
-      expect(get('2026-01-05 to 2026-01-09', 'Business days', { mode: 'between', holidays: '2026-01-07' })).toBe('4');
+      expect(
+        get('2026-01-05 to 2026-01-09', 'Business days', {
+          mode: 'between',
+          holidays: '2026-01-07',
+        }),
+      ).toBe('4');
     });
 
     it('rejects invalid between input', () => {
-      expect(() => run('2026-01-01 to not-a-date', { mode: 'between' })).toThrow(/expect.*START to END/i);
-      expect(() => run('2026-01-01 between 2026-01-31', { mode: 'between' })).toThrow(/expect.*START to END/i);
+      expect(() => run('2026-01-01 to not-a-date', { mode: 'between' })).toThrow(
+        /expect.*START to END/i,
+      );
+      expect(() => run('2026-01-01 between 2026-01-31', { mode: 'between' })).toThrow(
+        /expect.*START to END/i,
+      );
     });
 
     it('reports the note with the correct count', () => {

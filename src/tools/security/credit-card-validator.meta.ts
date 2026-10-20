@@ -4,8 +4,7 @@ export const meta: ToolMeta = {
   id: 'credit-card-validator',
   name: 'Credit Card Validator',
   category: 'security',
-  summary:
-    'Check a card number with the Luhn algorithm and detect the card brand from its prefix.',
+  summary: 'Check a card number with the Luhn algorithm and detect the card brand from its prefix.',
   description:
     'Validate a credit or debit card number on your device. The Luhn checksum is checked, the brand is detected from the IIN prefix (Visa, Mastercard, American Express, Discover, Diners Club, JCB, UnionPay), and the length is compared with what the brand allows. Spaces and dashes are ignored, letters are rejected, and you get a clear report of each check instead of a bare yes/no.',
   keywords: [

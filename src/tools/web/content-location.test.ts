@@ -2,8 +2,14 @@ import { describe, expect, it } from 'vitest';
 import { ToolError } from '@/lib/types';
 import tool from './content-location.tool';
 
-type Result = { output: string; filename?: string; stats?: Record<string, string | number>; notes?: string[] };
-const run = (text: string, options: Record<string, string | number | boolean> = {}) => tool.run({ text, options }) as Result;
+type Result = {
+  output: string;
+  filename?: string;
+  stats?: Record<string, string | number>;
+  notes?: string[];
+};
+const run = (text: string, options: Record<string, string | number | boolean> = {}) =>
+  tool.run({ text, options }) as Result;
 const rows = (result: Result) => JSON.parse(result.output).rows as string[][];
 
 describe('content-location', () => {
@@ -14,7 +20,9 @@ describe('content-location', () => {
   });
 
   it('classifies absolute, relative, and network-path references', () => {
-    const result = run('https://example.com/report\n/representations/report.json\n//cdn.example.com/report');
+    const result = run(
+      'https://example.com/report\n/representations/report.json\n//cdn.example.com/report',
+    );
     expect(rows(result)[0]?.[1]).toBe('absolute URI');
     expect(rows(result)[1]?.[1]).toBe('relative URI reference');
     expect(rows(result)[2]?.[1]).toBe('network-path reference');

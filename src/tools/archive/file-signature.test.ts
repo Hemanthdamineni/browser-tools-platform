@@ -2,7 +2,12 @@ import { describe, expect, it, vi } from 'vitest';
 import { ToolError } from '@/lib/types';
 import tool from './file-signature.tool';
 
-type Result = { outputs: unknown[]; report?: { output: string }; stats?: Record<string, string | number>; notes?: string[] };
+type Result = {
+  outputs: unknown[];
+  report?: { output: string };
+  stats?: Record<string, string | number>;
+  notes?: string[];
+};
 const file = (name: string, bytes: number[], type = '') =>
   new File([new Uint8Array(bytes)], name, { type });
 const run = async (files: File[], options: Record<string, string | number | boolean> = {}) =>
@@ -57,6 +62,8 @@ describe('file-signature', () => {
   it('honors an already-aborted signal', async () => {
     const controller = new AbortController();
     controller.abort();
-    await expect(tool.run({ files: [file('x', [1])], options: {}, signal: controller.signal })).rejects.toMatchObject({ name: 'AbortError' });
+    await expect(
+      tool.run({ files: [file('x', [1])], options: {}, signal: controller.signal }),
+    ).rejects.toMatchObject({ name: 'AbortError' });
   });
 });

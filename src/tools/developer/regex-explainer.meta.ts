@@ -4,8 +4,7 @@ export const meta: ToolMeta = {
   id: 'regex-explainer',
   name: 'Regex Explainer',
   category: 'developer',
-  summary:
-    'Break a regular expression into tokens with a plain-English explanation of each piece.',
+  summary: 'Break a regular expression into tokens with a plain-English explanation of each piece.',
   description:
     'Paste a regular expression and get a token-by-token breakdown: each literal, character class, escape, group, quantifier and anchor is explained in plain English in a table. Capturing vs non-capturing vs lookaround groups are told apart, quantifiers say exactly how many repetitions they require (and whether they are lazy), and every flag is decoded. Works on your device, so nothing is sent anywhere.',
   keywords: [

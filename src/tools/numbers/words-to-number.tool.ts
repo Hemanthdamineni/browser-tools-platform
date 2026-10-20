@@ -6,17 +6,56 @@ import { meta } from './words-to-number.meta';
 const MAX_LEN = 10_000;
 
 const ONES: Record<string, number> = {
-  zero: 0, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9,
-  ten: 10, eleven: 11, twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15, sixteen: 16,
-  seventeen: 17, eighteen: 18, nineteen: 19,
+  zero: 0,
+  one: 1,
+  two: 2,
+  three: 3,
+  four: 4,
+  five: 5,
+  six: 6,
+  seven: 7,
+  eight: 8,
+  nine: 9,
+  ten: 10,
+  eleven: 11,
+  twelve: 12,
+  thirteen: 13,
+  fourteen: 14,
+  fifteen: 15,
+  sixteen: 16,
+  seventeen: 17,
+  eighteen: 18,
+  nineteen: 19,
 };
 const TENS: Record<string, number> = {
-  twenty: 20, thirty: 30, forty: 40, fifty: 50, sixty: 60, seventy: 70, eighty: 80, ninety: 90,
+  twenty: 20,
+  thirty: 30,
+  forty: 40,
+  fifty: 50,
+  sixty: 60,
+  seventy: 70,
+  eighty: 80,
+  ninety: 90,
 };
 const SCALES: Record<string, number> = {
-  hundred: 100, thousand: 1e3, million: 1e6, billion: 1e9, trillion: 1e12,
+  hundred: 100,
+  thousand: 1e3,
+  million: 1e6,
+  billion: 1e9,
+  trillion: 1e12,
 };
-const DIGITS: Record<string, number> = { zero: 0, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9 };
+const DIGITS: Record<string, number> = {
+  zero: 0,
+  one: 1,
+  two: 2,
+  three: 3,
+  four: 4,
+  five: 5,
+  six: 6,
+  seven: 7,
+  eight: 8,
+  nine: 9,
+};
 
 function parseWords(raw: string): number {
   const words = raw.toLowerCase().match(/[a-z]+|\d+/g) ?? [];
@@ -30,7 +69,10 @@ function parseWords(raw: string): number {
 
   for (; i < words.length; i++) {
     const w = words[i]!;
-    if (!sawNumber && (w === 'negative' || w === 'minus')) { negative = true; continue; }
+    if (!sawNumber && (w === 'negative' || w === 'minus')) {
+      negative = true;
+      continue;
+    }
     if (w === 'and' || w === 'a') continue;
     if (w === 'point' && sawNumber) {
       let frac = 0;
@@ -104,9 +146,7 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     throw new ToolError('That number is too large to parse.', 'Supports up to trillions.');
   }
 
-  const grouped = Math.abs(value) >= 1000
-    ? value.toLocaleString('en-US')
-    : String(value);
+  const grouped = Math.abs(value) >= 1000 ? value.toLocaleString('en-US') : String(value);
 
   return {
     output: (grouping ? grouped : String(value)) + '\n',

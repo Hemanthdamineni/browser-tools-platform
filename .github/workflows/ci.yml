@@ -28,6 +28,8 @@ jobs:
         run: npm run lint
       - name: Format check
         run: npm run format:check
+      - name: Tool docs are current
+        run: npm run docs:check
       - name: Unit tests
         run: npm run test:coverage
       - name: Build

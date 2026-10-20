@@ -17,6 +17,8 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write \"src/**/*.{ts,astro,css,md}\" \"*.{mjs,json,md}\"",
     "format:check": "prettier --check \"src/**/*.{ts,astro,css,md}\" \"*.{mjs,json,md}\"",
+    "docs:tools": "node scripts/gen-tools-doc.mjs",
+    "docs:check": "node scripts/gen-tools-doc.mjs && git diff --exit-code -- docs/TOOLS.md docs/TOOLS.md.csv",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",

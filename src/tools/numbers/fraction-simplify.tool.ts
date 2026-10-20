@@ -44,7 +44,7 @@ function parseFraction(input: string): [number, number] | null {
 }
 
 function reduce(n: number, d: number): [number, number] {
-  const sign = (n < 0) !== (d < 0) ? -1 : 1;
+  const sign = n < 0 !== d < 0 ? -1 : 1;
   const an = Math.abs(n);
   const ad = Math.abs(d) || 1;
   const g = gcd(an, ad);
@@ -56,7 +56,7 @@ function mixed(n: number, d: number): string {
   const an = Math.abs(n);
   const whole = Math.floor(an / d);
   const rem = an % d;
-  if (rem === 0) return (sign === '-' && whole === 0 ? '0' : sign + String(whole));
+  if (rem === 0) return sign === '-' && whole === 0 ? '0' : sign + String(whole);
   if (whole === 0) return sign + rem + '/' + d;
   return sign + whole + ' ' + rem + '/' + d;
 }
@@ -74,7 +74,8 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     if (e instanceof ToolError) throw e;
     parsed = null;
   }
-  if (parsed === null) throw new ToolError('Not a parseable fraction or decimal.', 'Examples: 12/18, 0.75, -1.5, 4.');
+  if (parsed === null)
+    throw new ToolError('Not a parseable fraction or decimal.', 'Examples: 12/18, 0.75, -1.5, 4.');
 
   const [num, den] = parsed;
   if (den === 0) throw new ToolError('The denominator cannot be zero.');

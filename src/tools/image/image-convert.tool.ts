@@ -24,7 +24,10 @@ export function imageOutputType(mime: string): string {
 export function convertMime(to: unknown): string {
   const value = String(to ?? 'webp');
   if (!(FORMATS as readonly string[]).includes(value)) {
-    throw new ToolError(`“${value}” is not a supported output format.`, 'Choose PNG, JPEG, WebP or AVIF.');
+    throw new ToolError(
+      `“${value}” is not a supported output format.`,
+      'Choose PNG, JPEG, WebP or AVIF.',
+    );
   }
   return `image/${value}`;
 }
@@ -33,7 +36,10 @@ export function convertMime(to: unknown): string {
 export function backgroundColor(value: unknown): string {
   const rgb = parseHexColor(String(value ?? '#ffffff'));
   if (!rgb) {
-    throw new ToolError('Enter the JPEG background as a hex colour, such as #ffffff.', 'Use a 3- or 6-digit hex value.');
+    throw new ToolError(
+      'Enter the JPEG background as a hex colour, such as #ffffff.',
+      'Use a 3- or 6-digit hex value.',
+    );
   }
   return `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
 }

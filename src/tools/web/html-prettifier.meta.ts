@@ -54,8 +54,7 @@ export const meta: ToolMeta = {
   examples: [
     {
       title: 'Indent a snippet',
-      input:
-        '<div class="hero"><h1>Hello</h1><p>World</p></div>',
+      input: '<div class="hero"><h1>Hello</h1><p>World</p></div>',
     },
     {
       title: 'Keep pre and comments',

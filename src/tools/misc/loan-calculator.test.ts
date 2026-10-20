@@ -20,7 +20,12 @@ describe('loan-calculator', () => {
     expect(cell(rows, 'Total interest')).toBe('0.00');
   });
   it('shows savings for an extra monthly payment', async () => {
-    const { rows } = await table({ principal: 100000, annualRatePercent: 6, years: 30, extraMonthly: 100 });
+    const { rows } = await table({
+      principal: 100000,
+      annualRatePercent: 6,
+      years: 30,
+      extraMonthly: 100,
+    });
     expect(Number(cell(rows, 'Number of payments'))).toBeLessThan(360);
     expect(Number(cell(rows, 'Interest saved'))).toBeGreaterThan(0);
   });

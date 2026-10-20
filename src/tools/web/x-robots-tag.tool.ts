@@ -19,15 +19,29 @@ const KNOWN: Record<string, string> = {
   indexifembedded: 'Allow indexing when embedded in another page (requires noindex).',
   notranslate: 'Prevent translation offer in search results.',
 };
-const CONFLICT_PAIRS: [string, string][] = [['index', 'noindex'], ['follow', 'nofollow']];
+const CONFLICT_PAIRS: [string, string][] = [
+  ['index', 'noindex'],
+  ['follow', 'nofollow'],
+];
 
-function parseRobots(raw: string): { groups: { agent: string; directives: string[] }[]; issues: string[] } {
+function parseRobots(raw: string): {
+  groups: { agent: string; directives: string[] }[];
+  issues: string[];
+} {
   const issues: string[] = [];
   const groups: { agent: string; directives: string[] }[] = [];
   let currentAgent = '';
   let current: string[] = [];
-  const flush = () => { if (current.length) { groups.push({ agent: currentAgent, directives: current }); current = []; } };
-  for (const segment of raw.split(',').map((p) => p.trim()).filter(Boolean)) {
+  const flush = () => {
+    if (current.length) {
+      groups.push({ agent: currentAgent, directives: current });
+      current = [];
+    }
+  };
+  for (const segment of raw
+    .split(',')
+    .map((p) => p.trim())
+    .filter(Boolean)) {
     const colonIdx = segment.indexOf(':');
     if (colonIdx > 0 && segment.slice(0, colonIdx).trim() !== '') {
       flush();
@@ -42,10 +56,12 @@ function parseRobots(raw: string): { groups: { agent: string; directives: string
     const base = directives.filter((d) => !d.includes(':'));
     const vals = directives.filter((d) => d.includes(':'));
     for (const d of base) {
-      if (d !== '' && !KNOWN[d]) issues.push(`Unknown directive${agent ? ` for ${agent}` : ''}: ${d}`);
+      if (d !== '' && !KNOWN[d])
+        issues.push(`Unknown directive${agent ? ` for ${agent}` : ''}: ${d}`);
     }
     for (const [a, b] of CONFLICT_PAIRS) {
-      if (base.includes(a) && base.includes(b)) issues.push(`Conflicting directives: ${a} and ${b}${agent ? ` in ${agent}` : ''}`);
+      if (base.includes(a) && base.includes(b))
+        issues.push(`Conflicting directives: ${a} and ${b}${agent ? ` in ${agent}` : ''}`);
     }
     for (const v of vals) {
       const key = v.split(':')[0] ?? '';
@@ -71,17 +87,40 @@ function run(input: TextRunInput): TextRunResult {
   if (mode === 'build') {
     const { groups, issues } = parseRobots(src);
     if (issues.length) throw new ToolError(issues[0]!);
-    return { output: `X-Robots-Tag: ${src}`, render: 'code', language: 'http', filename: 'x-robots-tag.txt', stats: { groups: groups.length } };
+    return {
+      output: `X-Robots-Tag: ${src}`,
+      render: 'code',
+      language: 'http',
+      filename: 'x-robots-tag.txt',
+      stats: { groups: groups.length },
+    };
   }
-  if (!src) return { output: JSON.stringify({ headers: ['Agent', 'Directives', 'Status', 'Meaning'], rows: [] }), render: 'table', notes: ['Paste an X-Robots-Tag value (e.g. noindex, nofollow or googlebot: noindex).'] };
+  if (!src)
+    return {
+      output: JSON.stringify({ headers: ['Agent', 'Directives', 'Status', 'Meaning'], rows: [] }),
+      render: 'table',
+      notes: ['Paste an X-Robots-Tag value (e.g. noindex, nofollow or googlebot: noindex).'],
+    };
   const { groups, issues } = parseRobots(src);
   const rows = groups.map((g) => [
     g.agent || '(all)',
     g.directives.join(', ') || '(none)',
     issues.filter((i) => i.includes(g.agent || '(all)')).length ? 'Review' : 'Valid',
-    g.directives.map((d) => { const key = d.split(':')[0] ?? ''; return KNOWN[key] ?? (d.includes(':') ? d : 'Custom directive'); }).join(' | '),
+    g.directives
+      .map((d) => {
+        const key = d.split(':')[0] ?? '';
+        return KNOWN[key] ?? (d.includes(':') ? d : 'Custom directive');
+      })
+      .join(' | '),
   ]);
-  return { output: JSON.stringify({ headers: ['Agent', 'Directives', 'Status', 'Meaning'], rows }), render: 'table', stats: { groups: rows.length }, notes: issues.length ? issues : ['X-Robots-Tag applies robots directives per-URL, complementing the site-wide robots.txt.'] };
+  return {
+    output: JSON.stringify({ headers: ['Agent', 'Directives', 'Status', 'Meaning'], rows }),
+    render: 'table',
+    stats: { groups: rows.length },
+    notes: issues.length
+      ? issues
+      : ['X-Robots-Tag applies robots directives per-URL, complementing the site-wide robots.txt.'],
+  };
 }
 
 const tool: TextToolModule = { meta, run };

@@ -4,8 +4,7 @@ export const meta: ToolMeta = {
   id: 'ipv4-to-int',
   name: 'IPv4 ↔ Integer',
   category: 'network',
-  summary:
-    'Convert between a dotted IPv4 address and its 32-bit integer form, either direction.',
+  summary: 'Convert between a dotted IPv4 address and its 32-bit integer form, either direction.',
   description:
     'Translate a dotted-quad IPv4 address (192.168.1.1) into its unsigned 32-bit integer (3232235777) and back again. Handy for config, logging and range math without a CIDR block. Paste either form — the tool detects which one you gave and converts to the other, showing both for reference. Works entirely on your device.',
   keywords: [

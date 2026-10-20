@@ -7,7 +7,10 @@ type Finding = { start: number; end: number; type: string; value: string };
 type Pattern = { type: string; regex: RegExp; group?: number };
 
 const PATTERNS: Pattern[] = [
-  { type: 'GitHub token', regex: /\b(?:gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,})\b/g },
+  {
+    type: 'GitHub token',
+    regex: /\b(?:gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,})\b/g,
+  },
   { type: 'Slack token', regex: /\bxox[baprs]-[A-Za-z0-9-]{10,}\b/g },
   { type: 'AWS access key ID', regex: /\b(?:AKIA|ASIA)[A-Z0-9]{16}\b/g },
   { type: 'Google API key', regex: /\bAIza[0-9A-Za-z_-]{30,}\b/g },
@@ -16,7 +19,8 @@ const PATTERNS: Pattern[] = [
   { type: 'Private key header', regex: /-----BEGIN (?:RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----/g },
 ];
 
-const ASSIGNMENT_PATTERN = /\b([A-Za-z_][A-Za-z0-9_.-]*)\s*[:=]\s*(?:"([^"\r\n]*)"|'([^'\r\n]*)'|([^,;\s}]+))/gim;
+const ASSIGNMENT_PATTERN =
+  /\b([A-Za-z_][A-Za-z0-9_.-]*)\s*[:=]\s*(?:"([^"\r\n]*)"|'([^'\r\n]*)'|([^,;\s}]+))/gim;
 const SECRET_KEY = /(?:password|passwd|secret|token|api[_-]?key|client[_-]?secret|access[_-]?key)/i;
 
 function collect(text: string, minLength: number): Finding[] {
@@ -25,7 +29,12 @@ function collect(text: string, minLength: number): Finding[] {
     pattern.regex.lastIndex = 0;
     for (const match of text.matchAll(pattern.regex)) {
       const value = match[0];
-      candidates.push({ start: match.index!, end: match.index! + value.length, type: pattern.type, value });
+      candidates.push({
+        start: match.index!,
+        end: match.index! + value.length,
+        type: pattern.type,
+        value,
+      });
     }
   }
   ASSIGNMENT_PATTERN.lastIndex = 0;
@@ -36,7 +45,7 @@ function collect(text: string, minLength: number): Finding[] {
     const start = match.index! + match[0].lastIndexOf(value);
     candidates.push({ start, end: start + value.length, type: 'Secret-like assignment', value });
   }
-  candidates.sort((a, b) => a.start - b.start || (b.end - b.start) - (a.end - a.start));
+  candidates.sort((a, b) => a.start - b.start || b.end - b.start - (a.end - a.start));
   const findings: Finding[] = [];
   for (const candidate of candidates) {
     const previous = findings.at(-1);
@@ -76,8 +85,10 @@ function run(input: TextRunInput): TextRunResult {
   const options = resolveOptions(meta, input.options);
   const operation = String(options.operation);
   const minLength = Number(options.minLength);
-  if (operation !== 'report' && operation !== 'redact') throw new ToolError('Choose a valid scanner operation.');
-  if (!Number.isInteger(minLength) || minLength < 8 || minLength > 64) throw new ToolError('Minimum length must be a whole number from 8 to 64.');
+  if (operation !== 'report' && operation !== 'redact')
+    throw new ToolError('Choose a valid scanner operation.');
+  if (!Number.isInteger(minLength) || minLength < 8 || minLength > 64)
+    throw new ToolError('Minimum length must be a whole number from 8 to 64.');
 
   const findings = collect(input.text, minLength);
   if (operation === 'redact') {
@@ -85,8 +96,13 @@ function run(input: TextRunInput): TextRunResult {
       output: redact(input.text, findings),
       render: 'code',
       language: 'text',
-      stats: { findings: findings.length, 'characters redacted': findings.reduce((sum, item) => sum + item.value.length, 0) },
-      notes: ['Heuristic scan only: review the output carefully; this is not proof that all credentials were found.'],
+      stats: {
+        findings: findings.length,
+        'characters redacted': findings.reduce((sum, item) => sum + item.value.length, 0),
+      },
+      notes: [
+        'Heuristic scan only: review the output carefully; this is not proof that all credentials were found.',
+      ],
     };
   }
 
@@ -99,8 +115,12 @@ function run(input: TextRunInput): TextRunResult {
     render: 'table',
     stats: { findings: findings.length },
     notes: findings.length
-      ? ['Secret values are masked in this report. Scan results are heuristic and may include false positives or misses.']
-      : ['No recognized credential patterns found; this does not guarantee the text is secret-free.'],
+      ? [
+          'Secret values are masked in this report. Scan results are heuristic and may include false positives or misses.',
+        ]
+      : [
+          'No recognized credential patterns found; this does not guarantee the text is secret-free.',
+        ],
   };
 }
 

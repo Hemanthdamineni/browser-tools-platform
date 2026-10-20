@@ -49,7 +49,8 @@ export const meta: ToolMeta = {
   examples: [
     {
       title: 'Nested document',
-      input: '# Getting Started\n## Install\n### Windows\n## Run\n# API Reference\n## Configuration',
+      input:
+        '# Getting Started\n## Install\n### Windows\n## Run\n# API Reference\n## Configuration',
       options: {},
     },
     {

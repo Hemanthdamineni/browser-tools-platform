@@ -4,7 +4,8 @@ import tool from './html-validator.tool';
 type Result = { output: string; render?: string; stats?: Record<string, number>; notes?: string[] };
 const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
   (await tool.run({ text, options })) as Result;
-const issues = (r: Result): string[][] => (JSON.parse(r.output) as { headers: string[]; rows: string[][] }).rows;
+const issues = (r: Result): string[][] =>
+  (JSON.parse(r.output) as { headers: string[]; rows: string[][] }).rows;
 
 describe('html-validator', () => {
   it('reports balanced tags', async () => {
@@ -42,10 +43,10 @@ describe('html-validator', () => {
   });
 
   it('catches stray <, unexpected close and unclosed comments', async () => {
-    expect((issues(await run('a < b')))[0]![1]).toMatch(/[Ss]tray/);
-    expect((issues(await run('</p>')))[0]![1]).toMatch(/Unexpected closing/);
+    expect(issues(await run('a < b'))[0]![1]).toMatch(/[Ss]tray/);
+    expect(issues(await run('</p>'))[0]![1]).toMatch(/Unexpected closing/);
     const c = await run('<!-- oops');
-    expect((issues(c))[0]![1]).toMatch(/[Uu]nclosed comment/);
+    expect(issues(c)[0]![1]).toMatch(/[Uu]nclosed comment/);
     const ok = await run('<!-- oops', { ignoreComments: true });
     expect(ok.stats?.errors).toBe(0);
   });

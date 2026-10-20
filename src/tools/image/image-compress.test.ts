@@ -49,7 +49,9 @@ describe('image-compress run', () => {
 
   it('reports a friendly error when the bytes cannot be decoded', async () => {
     mock = installImageMock({ failDecode: true });
-    await expect(tool.run({ files: [makeFile('bad.png')], options: {} })).rejects.toThrow(/could not be decoded/i);
+    await expect(tool.run({ files: [makeFile('bad.png')], options: {} })).rejects.toThrow(
+      /could not be decoded/i,
+    );
   });
 
   it('compresses a PNG to WebP by default, preserving transparency', async () => {
@@ -101,7 +103,10 @@ describe('image-compress run', () => {
 
   it('warns that metadata cannot be preserved when stripping is disabled', async () => {
     mock = installImageMock();
-    const result = await tool.run({ files: [makeFile('photo.png')], options: { stripMetadata: false } });
+    const result = await tool.run({
+      files: [makeFile('photo.png')],
+      options: { stripMetadata: false },
+    });
     expect(result.warnings?.join(' ')).toMatch(/metadata/i);
   });
 
@@ -126,7 +131,11 @@ describe('image-compress run', () => {
       options: {},
       onProgress,
     });
-    expect(result.outputs.map((o) => o.filename)).toEqual(['a-min.webp', 'b-min.webp', 'c-min.webp']);
+    expect(result.outputs.map((o) => o.filename)).toEqual([
+      'a-min.webp',
+      'b-min.webp',
+      'c-min.webp',
+    ]);
     expect(result.stats?.files).toBe(3);
     expect(onProgress).toHaveBeenCalledWith(1, 'Done');
   });
@@ -140,7 +149,11 @@ describe('image-compress run', () => {
 
   it('rejects an oversized image with a friendly error instead of crashing', async () => {
     mock = installImageMock({ width: 20_000, height: 20_000 });
-    await expect(tool.run({ files: [makeFile('huge.png')], options: {} })).rejects.toThrow(ToolError);
-    await expect(tool.run({ files: [makeFile('huge.png')], options: {} })).rejects.toThrow(/too large/i);
+    await expect(tool.run({ files: [makeFile('huge.png')], options: {} })).rejects.toThrow(
+      ToolError,
+    );
+    await expect(tool.run({ files: [makeFile('huge.png')], options: {} })).rejects.toThrow(
+      /too large/i,
+    );
   });
 });

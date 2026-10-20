@@ -1,7 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import tool from './http-request-builder.tool';
 
-type Result = { output: string; render?: string; language?: string; stats?: Record<string, number>; notes?: string[] };
+type Result = {
+  output: string;
+  render?: string;
+  language?: string;
+  stats?: Record<string, number>;
+  notes?: string[];
+};
 const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
   (await tool.run({ text, options })) as Result;
 
@@ -27,7 +33,11 @@ describe('http-request-builder', () => {
   });
 
   it('keeps the user Host when provided and skips auto Content-Length for GET', async () => {
-    const r = await run('', { method: 'GET', url: 'https://a.example/x', headers: 'Host: custom.example' });
+    const r = await run('', {
+      method: 'GET',
+      url: 'https://a.example/x',
+      headers: 'Host: custom.example',
+    });
     expect(r.output).toContain('Host: custom.example');
     expect(r.output).not.toContain('Host: a.example');
     expect(r.output).not.toContain('Content-Length');
@@ -45,6 +55,8 @@ describe('http-request-builder', () => {
 
   it('rejects empty URL and unknown method', async () => {
     await expect(run('', { url: '  ' })).rejects.toThrow(/provide a url/i);
-    await expect(run('', { url: 'https://x.example', method: 'TRACE' })).rejects.toThrow(/unsupported method/i);
+    await expect(run('', { url: 'https://x.example', method: 'TRACE' })).rejects.toThrow(
+      /unsupported method/i,
+    );
   });
 });

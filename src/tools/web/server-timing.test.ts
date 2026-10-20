@@ -2,13 +2,24 @@ import { describe, expect, it } from 'vitest';
 import { ToolError } from '@/lib/types';
 import tool from './server-timing.tool';
 
-type Result = { output: string; filename?: string; stats?: Record<string, string | number>; notes?: string[] };
-const run = (text: string, options: Record<string, string | number | boolean> = {}) => tool.run({ text, options }) as Result;
+type Result = {
+  output: string;
+  filename?: string;
+  stats?: Record<string, string | number>;
+  notes?: string[];
+};
+const run = (text: string, options: Record<string, string | number | boolean> = {}) =>
+  tool.run({ text, options }) as Result;
 const rows = (result: Result) => JSON.parse(result.output).rows as string[][];
 
 describe('server-timing', () => {
   it('builds a metric with description and duration', () => {
-    const result = run('', { mode: 'build', name: 'db', duration: 18.7, description: 'PostgreSQL query' });
+    const result = run('', {
+      mode: 'build',
+      name: 'db',
+      duration: 18.7,
+      description: 'PostgreSQL query',
+    });
     expect(result.output).toBe('db;desc="PostgreSQL query";dur=18.7');
     expect(result.filename).toBe('server-timing.txt');
   });

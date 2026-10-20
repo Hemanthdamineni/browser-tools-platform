@@ -46,7 +46,8 @@ export const meta: ToolMeta = {
   examples: [
     {
       title: 'From an API response',
-      input: '{\n  "id": 1,\n  "name": "Ada",\n  "tags": ["admin", "staff"],\n  "profile": { "bio": null, "age": 36 }\n}',
+      input:
+        '{\n  "id": 1,\n  "name": "Ada",\n  "tags": ["admin", "staff"],\n  "profile": { "bio": null, "age": 36 }\n}',
     },
   ],
   faq: [

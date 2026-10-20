@@ -2,8 +2,14 @@ import { describe, expect, it } from 'vitest';
 import { ToolError } from '@/lib/types';
 import tool from './timing-allow-origin.tool';
 
-type Result = { output: string; filename?: string; stats?: Record<string, string | number>; notes?: string[] };
-const run = (text: string, options: Record<string, string | number | boolean> = {}) => tool.run({ text, options }) as Result;
+type Result = {
+  output: string;
+  filename?: string;
+  stats?: Record<string, string | number>;
+  notes?: string[];
+};
+const run = (text: string, options: Record<string, string | number | boolean> = {}) =>
+  tool.run({ text, options }) as Result;
 const rows = (result: Result) => JSON.parse(result.output).rows as string[][];
 
 describe('timing-allow-origin', () => {
@@ -26,7 +32,9 @@ describe('timing-allow-origin', () => {
   });
 
   it('rejects malformed tokens and duplicates', () => {
-    const result = run('https://metrics.example.com, ftp://bad.example.com, https://metrics.example.com');
+    const result = run(
+      'https://metrics.example.com, ftp://bad.example.com, https://metrics.example.com',
+    );
     expect(result.stats?.issues).toBeGreaterThan(0);
     expect(rows(result).some((row) => row[1] === 'Invalid')).toBe(true);
   });

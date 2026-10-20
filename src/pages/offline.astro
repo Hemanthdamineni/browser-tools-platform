@@ -12,8 +12,8 @@ import Layout from '@/components/Layout.astro';
   <div class="py-16 text-center">
     <h1 class="text-xl font-bold text-[rgb(var(--text))]">You're offline</h1>
     <p class="mx-auto mt-2 max-w-md text-[rgb(var(--text-muted))]">
-      This page hasn't been cached yet. Tools you've already opened still work. Try one of those,
-      or reconnect and try again.
+      This page hasn't been cached yet. Tools you've already opened still work. Try one of those, or
+      reconnect and try again.
     </p>
     <div class="mt-6 flex justify-center gap-3">
       <a href="/" class="btn btn-primary">Go home</a>
@@ -23,7 +23,5 @@ import Layout from '@/components/Layout.astro';
 </Layout>
 
 <script>
-  document
-    .querySelector('[data-retry]')
-    ?.addEventListener('click', () => window.location.reload());
+  document.querySelector('[data-retry]')?.addEventListener('click', () => window.location.reload());
 </script>

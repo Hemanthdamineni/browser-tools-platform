@@ -74,7 +74,11 @@ function bytesToHex(bytes: Uint8Array): string {
 
 function hexToBytes(hex: string): Uint8Array {
   const clean = hex.replace(/\s+/g, '');
-  if (!/^(?:[0-9a-fA-F]{2})*$/.test(clean)) throw new ToolError('Invalid hex ciphertext.', 'Use pairs of hex digits, optionally with spaces.');
+  if (!/^(?:[0-9a-fA-F]{2})*$/.test(clean))
+    throw new ToolError(
+      'Invalid hex ciphertext.',
+      'Use pairs of hex digits, optionally with spaces.',
+    );
   const out = new Uint8Array(clean.length / 2);
   for (let i = 0; i < out.length; i++) out[i] = parseInt(clean.slice(i * 2, i * 2 + 2), 16);
   return out;
@@ -102,20 +106,26 @@ async function importByFormat(
   }
 }
 
-async function prepareKey(input: string, operation: 'encrypt' | 'decrypt', hash: string): Promise<CryptoKey> {
+async function prepareKey(
+  input: string,
+  operation: 'encrypt' | 'decrypt',
+  hash: string,
+): Promise<CryptoKey> {
   const pem = readKeyPem(input);
   if (pem) {
     const body = fromBase64(pem.body);
     if (operation === 'encrypt') {
       if (pem.header === 'PUBLIC KEY') return importByFormat(body, 'spki', hash);
-      if (pem.header === 'RSA PUBLIC KEY') return importByFormat(wrapPkcs1PublicToSpki(body), 'spki', hash);
+      if (pem.header === 'RSA PUBLIC KEY')
+        return importByFormat(wrapPkcs1PublicToSpki(body), 'spki', hash);
       throw new ToolError(
         'Encryption needs a public key, but a private key was provided.',
         'Use the matching PUBLIC KEY (or RSA PUBLIC KEY) for encrypting; private keys are only for decrypting.',
       );
     }
     if (pem.header === 'PRIVATE KEY') return importByFormat(body, 'pkcs8', hash);
-    if (pem.header === 'RSA PRIVATE KEY') return importByFormat(wrapPkcs1PrivateToPkcs8(body), 'pkcs8', hash);
+    if (pem.header === 'RSA PRIVATE KEY')
+      return importByFormat(wrapPkcs1PrivateToPkcs8(body), 'pkcs8', hash);
     throw new ToolError(
       'Decryption needs a private key, but a public key was provided.',
       'Use the matching PRIVATE KEY (or RSA PRIVATE KEY) for decrypting.',
@@ -126,13 +136,22 @@ async function prepareKey(input: string, operation: 'encrypt' | 'decrypt', hash:
   try {
     raw = fromBase64(input);
   } catch {
-    throw new ToolError('No PEM block or base64 key found in the input.', 'Paste a full PEM block such as -----BEGIN PUBLIC KEY----- ... -----END PUBLIC KEY-----.');
+    throw new ToolError(
+      'No PEM block or base64 key found in the input.',
+      'Paste a full PEM block such as -----BEGIN PUBLIC KEY----- ... -----END PUBLIC KEY-----.',
+    );
   }
   if (operation === 'encrypt') {
     const node = subtle();
     for (const k of [raw, wrapPkcs1PublicToSpki(raw)] as Uint8Array[]) {
       try {
-        return await node.importKey('spki', k as unknown as BufferSource, { name: 'RSA-OAEP', hash }, false, ['encrypt']);
+        return await node.importKey(
+          'spki',
+          k as unknown as BufferSource,
+          { name: 'RSA-OAEP', hash },
+          false,
+          ['encrypt'],
+        );
       } catch {
         /* try next */
       }
@@ -141,7 +160,13 @@ async function prepareKey(input: string, operation: 'encrypt' | 'decrypt', hash:
     const node = subtle();
     for (const k of [raw, wrapPkcs1PrivateToPkcs8(raw)] as Uint8Array[]) {
       try {
-        return await node.importKey('pkcs8', k as unknown as BufferSource, { name: 'RSA-OAEP', hash }, false, ['decrypt']);
+        return await node.importKey(
+          'pkcs8',
+          k as unknown as BufferSource,
+          { name: 'RSA-OAEP', hash },
+          false,
+          ['decrypt'],
+        );
       } catch {
         /* try next */
       }
@@ -155,17 +180,26 @@ async function prepareKey(input: string, operation: 'encrypt' | 'decrypt', hash:
 
 async function run(input: TextRunInput): Promise<TextRunResult> {
   const o = resolveOptions(meta, input.options);
-  const operation: 'encrypt' | 'decrypt' = String(o.operation) === 'decrypt' ? 'decrypt' : 'encrypt';
+  const operation: 'encrypt' | 'decrypt' =
+    String(o.operation) === 'decrypt' ? 'decrypt' : 'encrypt';
   const hash = HASHES[String(o.hash)] ?? 'SHA-256';
   const format: 'base64' | 'hex' = String(o.format) === 'hex' ? 'hex' : 'base64';
 
   const keyText = (input.text ?? '').trim();
   if (!keyText) {
-    throw new ToolError('Paste the RSA key to use.', `A ${operation === 'encrypt' ? 'public' : 'private'} key in PEM form is required.`);
+    throw new ToolError(
+      'Paste the RSA key to use.',
+      `A ${operation === 'encrypt' ? 'public' : 'private'} key in PEM form is required.`,
+    );
   }
   const payload = String(o.payload ?? '').trim();
   if (!payload) {
-    throw new ToolError(`Enter the payload to ${operation}.`, operation === 'encrypt' ? 'The plain-text message to seal with the public key.' : 'The base64 or hex ciphertext produced by the sender.');
+    throw new ToolError(
+      `Enter the payload to ${operation}.`,
+      operation === 'encrypt'
+        ? 'The plain-text message to seal with the public key.'
+        : 'The base64 or hex ciphertext produced by the sender.',
+    );
   }
 
   const key = await prepareKey(keyText, operation, hash);
@@ -181,7 +215,9 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
       const cipher = await node.encrypt({ name: 'RSA-OAEP' }, key, data as unknown as BufferSource);
       const bytes = new Uint8Array(cipher);
       output = format === 'hex' ? bytesToHex(bytes) : toBase64(bytes);
-      notes.push(`Encrypted ${data.length} bytes with RSA-OAEP/${hash} into ${bytes.length} bytes of ${format} ciphertext.`);
+      notes.push(
+        `Encrypted ${data.length} bytes with RSA-OAEP/${hash} into ${bytes.length} bytes of ${format} ciphertext.`,
+      );
     } catch {
       throw new ToolError(
         'Encryption failed: the message is too large for this key.',
@@ -203,7 +239,9 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     notes.push(`Decrypted ${data.length} bytes of ${format} ciphertext successfully.`);
   }
 
-  notes.push(`${operation === 'encrypt' ? 'Public' : 'Private'} RSA key processed locally with ${hash} OAEP padding.`);
+  notes.push(
+    `${operation === 'encrypt' ? 'Public' : 'Private'} RSA key processed locally with ${hash} OAEP padding.`,
+  );
   notes.push('Nothing was sent over the network; the key is handled only in your browser.');
 
   return {

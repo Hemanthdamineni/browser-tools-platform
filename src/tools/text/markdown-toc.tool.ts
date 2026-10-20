@@ -32,9 +32,12 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   const maxDepth = Math.max(1, Math.min(6, Math.trunc(Number(o.depth) || 6)));
   const format = String(o.format) as 'github' | 'plain' | 'html';
 
-  const text = (input.text ?? '');
+  const text = input.text ?? '';
   if (!text.trim()) {
-    throw new ToolError('Paste a Markdown document with headings.', 'ATX headings use 1-6 # characters before the title.');
+    throw new ToolError(
+      'Paste a Markdown document with headings.',
+      'ATX headings use 1-6 # characters before the title.',
+    );
   }
 
   const headings: Heading[] = [];
@@ -55,7 +58,10 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     headings.push({ level, text: headingText(title), anchor: gitHubSlug(title) });
   }
   if (headings.length === 0) {
-    throw new ToolError('No headings found in the document.', 'Headings are lines starting with # (h1) through ###### (h6) followed by the title.');
+    throw new ToolError(
+      'No headings found in the document.',
+      'Headings are lines starting with # (h1) through ###### (h6) followed by the title.',
+    );
   }
 
   let output = '';
@@ -68,13 +74,17 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
       const delta = h.level - lastLevel;
       if (delta > 0) for (let i = 0; i < delta; i++) lines.push('<ul>');
       if (delta < 0) for (let i = 0; i < -delta; i++) lines.push('</ul>');
-      lines.push(`  <li><a href="#${h.anchor}">${h.text.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</a></li>`);
+      lines.push(
+        `  <li><a href="#${h.anchor}">${h.text.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</a></li>`,
+      );
       lastLevel = h.level;
     }
     for (let i = 0; i < lastLevel; i++) lines.push('</ul>');
     output = lines.join('\n') + '\n';
   } else {
-    output = headings.map((h) => '  '.repeat(h.level - 1) + `- [${h.text}](#${h.anchor})`).join('\n') + '\n';
+    output =
+      headings.map((h) => '  '.repeat(h.level - 1) + `- [${h.text}](#${h.anchor})`).join('\n') +
+      '\n';
   }
 
   const maxLevel = Math.max(...headings.map((h) => h.level));

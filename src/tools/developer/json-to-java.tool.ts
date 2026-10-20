@@ -5,11 +5,61 @@ import { meta } from './json-to-java.meta';
 
 const MAX_LEN = 2_000_000;
 const RESERVED = new Set([
-  'abstract', 'assert', 'boolean', 'break', 'byte', 'case', 'catch', 'char', 'class', 'const', 'continue',
-  'default', 'do', 'double', 'else', 'enum', 'extends', 'final', 'finally', 'float', 'for', 'goto', 'if',
-  'implements', 'import', 'instanceof', 'int', 'interface', 'long', 'native', 'new', 'package', 'private',
-  'protected', 'public', 'return', 'short', 'static', 'strictfp', 'super', 'switch', 'synchronized', 'this',
-  'throw', 'throws', 'transient', 'try', 'void', 'volatile', 'while', 'true', 'false', 'null', 'var', 'record',
+  'abstract',
+  'assert',
+  'boolean',
+  'break',
+  'byte',
+  'case',
+  'catch',
+  'char',
+  'class',
+  'const',
+  'continue',
+  'default',
+  'do',
+  'double',
+  'else',
+  'enum',
+  'extends',
+  'final',
+  'finally',
+  'float',
+  'for',
+  'goto',
+  'if',
+  'implements',
+  'import',
+  'instanceof',
+  'int',
+  'interface',
+  'long',
+  'native',
+  'new',
+  'package',
+  'private',
+  'protected',
+  'public',
+  'return',
+  'short',
+  'static',
+  'strictfp',
+  'super',
+  'switch',
+  'synchronized',
+  'this',
+  'throw',
+  'throws',
+  'transient',
+  'try',
+  'void',
+  'volatile',
+  'while',
+  'true',
+  'false',
+  'null',
+  'var',
+  'record',
 ]);
 
 function capitalize(s: string): string {
@@ -17,8 +67,14 @@ function capitalize(s: string): string {
 }
 
 function fieldName(key: string): string {
-  const parts = key.replace(/[^A-Za-z0-9]+/g, ' ').trim().split(/\s+/).filter(Boolean);
-  let name = parts.map((p, i) => (i === 0 ? p.toLowerCase() : capitalize(p.toLowerCase()))).join('');
+  const parts = key
+    .replace(/[^A-Za-z0-9]+/g, ' ')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+  let name = parts
+    .map((p, i) => (i === 0 ? p.toLowerCase() : capitalize(p.toLowerCase())))
+    .join('');
   if (name === '') name = 'field';
   if (/^[0-9]/.test(name)) name = '_' + name;
   if (RESERVED.has(name)) name = name + '_';
@@ -26,7 +82,11 @@ function fieldName(key: string): string {
 }
 
 function className(raw: string): string {
-  const parts = raw.replace(/[^A-Za-z0-9]+/g, ' ').trim().split(/\s+/).filter(Boolean);
+  const parts = raw
+    .replace(/[^A-Za-z0-9]+/g, ' ')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
   const name = parts.map((p) => capitalize(p)).join('');
   if (name === '') return 'Model';
   return /^[A-Za-z_$]/.test(name) ? name : 'Model' + name;
@@ -54,7 +114,8 @@ interface ClassDef {
 
 function mergeType(a: JType, b: JType): JType {
   if (a.kind === b.kind) {
-    if (a.kind === 'List' && b.kind === 'List') return { kind: 'List', item: mergeType(a.item, b.item) };
+    if (a.kind === 'List' && b.kind === 'List')
+      return { kind: 'List', item: mergeType(a.item, b.item) };
     return a;
   }
   const nums = new Set(['Integer', 'Long', 'Double']);
@@ -133,7 +194,8 @@ function renderType(t: JType, boxed: boolean): string {
 function renderBody(def: ClassDef, style: string, boxed: boolean, indent: string): string[] {
   const out: string[] = [];
   const pad = indent + '    ';
-  for (const f of def.fields) out.push(pad + 'private ' + renderType(f.type, boxed) + ' ' + f.name + ';');
+  for (const f of def.fields)
+    out.push(pad + 'private ' + renderType(f.type, boxed) + ' ' + f.name + ';');
   if (style === 'pojo') {
     for (const f of def.fields) {
       const type = renderType(f.type, boxed);
@@ -178,7 +240,8 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
 
   const raw = String(input.text ?? '').trim();
   if (!raw) throw new ToolError('Paste JSON to convert to Java classes.');
-  if (raw.length > MAX_LEN) throw new ToolError('Input is too large.', 'Keep it under ' + MAX_LEN + ' characters.');
+  if (raw.length > MAX_LEN)
+    throw new ToolError('Input is too large.', 'Keep it under ' + MAX_LEN + ' characters.');
 
   let parsed: unknown;
   try {
@@ -205,7 +268,10 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     const fname = fieldName(key);
     if (seen.has(fname)) continue;
     seen.add(fname);
-    rootDef.fields.push({ name: fname, type: infer((sample as Record<string, unknown>)[key], capitalize(key), classes) });
+    rootDef.fields.push({
+      name: fname,
+      type: infer((sample as Record<string, unknown>)[key], capitalize(key), classes),
+    });
   }
   if (rootDef.fields.length === 0) throw new ToolError('The object has no fields to convert.');
 
@@ -250,7 +316,9 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     stats: { classes: classes.length, fields: classes.reduce((n, c) => n + c.fields.length, 0) },
     notes: [
       classes.length + ' class(es), style: ' + style + '.',
-      boxed ? 'Wrapper types used — null values map cleanly.' : 'Primitives used — beware of null JSON values.',
+      boxed
+        ? 'Wrapper types used — null values map cleanly.'
+        : 'Primitives used — beware of null JSON values.',
     ],
   };
 }

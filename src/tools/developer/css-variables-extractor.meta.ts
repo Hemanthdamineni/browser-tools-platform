@@ -4,7 +4,8 @@ export const meta: ToolMeta = {
   id: 'css-variables-extractor',
   name: 'CSS Variables Extractor',
   category: 'developer',
-  summary: 'Extract every CSS custom property from a stylesheet into a table of names, values and scope.',
+  summary:
+    'Extract every CSS custom property from a stylesheet into a table of names, values and scope.',
   description:
     'Paste a stylesheet and get every CSS custom property (--name: value) as a table: name, resolved value, and the selector scope it was declared in (:root, .theme-dark, a media query, …). Duplicate declarations are grouped so you can see overrides at a glance, and optional output formats turn the tokens into a JSON object or JavaScript/TypeScript map for use in code.',
   keywords: [
@@ -47,7 +48,8 @@ export const meta: ToolMeta = {
   examples: [
     {
       title: 'A small theme',
-      input: ':root {\n  --brand: #2563eb;\n  --radius: 8px;\n}\n.theme-dark {\n  --brand: #60a5fa;\n}',
+      input:
+        ':root {\n  --brand: #2563eb;\n  --radius: 8px;\n}\n.theme-dark {\n  --brand: #60a5fa;\n}',
     },
   ],
   faq: [

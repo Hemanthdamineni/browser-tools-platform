@@ -68,12 +68,14 @@ export const meta: ToolMeta = {
   examples: [
     {
       title: 'Encrypt a secret for a recipient',
-      input: '-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA...\n-----END PUBLIC KEY-----',
+      input:
+        '-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA...\n-----END PUBLIC KEY-----',
       options: { operation: 'encrypt', payload: 'attack at dawn' },
     },
     {
       title: 'Decrypt with a PKCS#8 private key',
-      input: '-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC4...\n-----END PRIVATE KEY-----',
+      input:
+        '-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC4...\n-----END PRIVATE KEY-----',
       options: { operation: 'decrypt', payload: 'm2zNw5q1...' },
     },
   ],
@@ -95,6 +97,12 @@ export const meta: ToolMeta = {
       a: 'No. The key is parsed and used only in the browser\u2019s Web Crypto implementation. The page makes no network requests (this is enforced by the platform\u2019s privacy tests), so the private key stays on your machine.',
     },
   ],
-  related: ['keypair-generator', 'text-encrypt', 'ssh-key-fingerprint', 'base64', 'x509-certificate-inspector'],
+  related: [
+    'keypair-generator',
+    'text-encrypt',
+    'ssh-key-fingerprint',
+    'base64',
+    'x509-certificate-inspector',
+  ],
   status: 'stable',
 };

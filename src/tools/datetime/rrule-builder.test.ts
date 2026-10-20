@@ -46,7 +46,9 @@ describe('rrule-builder', () => {
   });
 
   it('warns for monthly dates absent from some months', () => {
-    expect(run({ frequency: 'MONTHLY', monthDay: 31 }).notes?.join(' ')).toContain('Months without');
+    expect(run({ frequency: 'MONTHLY', monthDay: 31 }).notes?.join(' ')).toContain(
+      'Months without',
+    );
     expect(() => run({ frequency: 'MONTHLY', monthDay: 32 })).toThrow(/day of month/i);
   });
 });

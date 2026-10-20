@@ -4,7 +4,8 @@ export const meta: ToolMeta = {
   id: 'barcode',
   name: 'Barcode Generator',
   category: 'generators',
-  summary: 'Create Code 128, Code 39, EAN-13/8, UPC-A, ITF-14 and DataMatrix barcodes as crisp, scannable SVG.',
+  summary:
+    'Create Code 128, Code 39, EAN-13/8, UPC-A, ITF-14 and DataMatrix barcodes as crisp, scannable SVG.',
   description:
     'Turn text or a product number into a real barcode. Nine 1D symbologies plus 2D DataMatrix, automatic GTIN check digits, a proper quiet zone and human-readable text — all encoded locally as vector SVG you can print or embed.',
   keywords: [

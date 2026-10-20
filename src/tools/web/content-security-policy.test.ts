@@ -2,13 +2,25 @@ import { describe, expect, it } from 'vitest';
 import { ToolError } from '@/lib/types';
 import tool from './content-security-policy.tool';
 
-type Result = { output: string; filename?: string; stats?: Record<string, string | number>; notes?: string[] };
-const run = (text: string, options: Record<string, string | number | boolean> = {}) => tool.run({ text, options }) as Result;
+type Result = {
+  output: string;
+  filename?: string;
+  stats?: Record<string, string | number>;
+  notes?: string[];
+};
+const run = (text: string, options: Record<string, string | number | boolean> = {}) =>
+  tool.run({ text, options }) as Result;
 const rows = (result: Result) => JSON.parse(result.output).rows as string[][];
 
 describe('content-security-policy', () => {
   it('builds a strict policy', () => {
-    const result = run('', { mode: 'build', defaultSrc: "'self'", scriptSrc: "'self'", imgSrc: "'self' data:", frameAncestors: "'none'" });
+    const result = run('', {
+      mode: 'build',
+      defaultSrc: "'self'",
+      scriptSrc: "'self'",
+      imgSrc: "'self' data:",
+      frameAncestors: "'none'",
+    });
     expect(result.output).toContain("default-src 'self'");
     expect(result.output).toContain("frame-ancestors 'none'");
     expect(result.filename).toBe('content-security-policy.txt');
@@ -27,7 +39,9 @@ describe('content-security-policy', () => {
   });
 
   it('flags unsafe keywords, unknown and duplicate directives', () => {
-    const result = run("default-src 'self'; script-src 'unsafe-inline'; script-src 'unsafe-eval'; bogus-src 'none'");
+    const result = run(
+      "default-src 'self'; script-src 'unsafe-inline'; script-src 'unsafe-eval'; bogus-src 'none'",
+    );
     expect(result.stats?.issues).toBeGreaterThan(0);
     expect(result.notes?.join(' ')).toContain('Unsafe');
     expect(result.notes?.join(' ')).toContain('Duplicate');

@@ -2,8 +2,14 @@ import { describe, expect, it } from 'vitest';
 import { ToolError } from '@/lib/types';
 import tool from './authentication-info.tool';
 
-type Result = { output: string; filename?: string; stats?: Record<string, string | number>; notes?: string[] };
-const run = (text: string, options: Record<string, string | number | boolean> = {}) => tool.run({ text, options }) as Result;
+type Result = {
+  output: string;
+  filename?: string;
+  stats?: Record<string, string | number>;
+  notes?: string[];
+};
+const run = (text: string, options: Record<string, string | number | boolean> = {}) =>
+  tool.run({ text, options }) as Result;
 const rows = (result: Result) => JSON.parse(result.output).rows as string[][];
 
 describe('authentication-info', () => {
@@ -36,6 +42,8 @@ describe('authentication-info', () => {
   });
 
   it('escapes generated quoted values', () => {
-    expect(run('', { mode: 'build', parameter: 'rspauth', value: 'a"b' }).output).toBe('rspauth="a\\"b"');
+    expect(run('', { mode: 'build', parameter: 'rspauth', value: 'a"b' }).output).toBe(
+      'rspauth="a\\"b"',
+    );
   });
 });

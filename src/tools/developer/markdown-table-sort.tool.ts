@@ -67,14 +67,18 @@ function parseNumber(raw: string): number | null {
 /** Locate the column index from a header text or 1-based number. */
 function resolveColumn(header: string[], column: string): number {
   const text = column.trim();
-  if (!text) throw new ToolError('Choose a column.', 'Enter a header name or a 1-based column number.');
+  if (!text)
+    throw new ToolError('Choose a column.', 'Enter a header name or a 1-based column number.');
   const byHeader = header.findIndex((cell) => cell.toLowerCase() === text.toLowerCase());
   if (byHeader >= 0) return byHeader;
   if (/^\d+$/.test(text)) {
     const index = Number(text);
     if (index >= 1 && index <= header.length) return index - 1;
   }
-  throw new ToolError(`Unknown column "${text}".`, `Use a header from the first row or a number from 1 to ${header.length}.`);
+  throw new ToolError(
+    `Unknown column "${text}".`,
+    `Use a header from the first row or a number from 1 to ${header.length}.`,
+  );
 }
 
 async function run(input: TextRunInput): Promise<TextRunResult> {
@@ -87,7 +91,10 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   const lines = input.text.split(/\r\n|\n|\r/).filter((line) => line.trim().length > 0);
   if (lines.length === 0) return { output: '', render: 'code', language: 'markdown' };
   if (lines.length > MAX_ROWS) {
-    throw new ToolError('The table is too large.', `Sort up to ${MAX_ROWS} non-empty rows at a time.`);
+    throw new ToolError(
+      'The table is too large.',
+      `Sort up to ${MAX_ROWS} non-empty rows at a time.`,
+    );
   }
 
   const rows = lines.map(splitRow);
@@ -101,7 +108,8 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   const hasSeparator = rows.length > 1 && isSeparatorRow(rows[1]!);
   const header = hasSeparator ? rows[0]! : [];
   const dataRows = hasSeparator ? rows.slice(2) : rows.slice(1);
-  if (dataRows.length === 0) return { output: input.text.trim(), render: 'code', language: 'markdown' };
+  if (dataRows.length === 0)
+    return { output: input.text.trim(), render: 'code', language: 'markdown' };
 
   // When there's no separator we can't resolve by header, but numbers still work.
   const colIndex = hasSeparator ? resolveColumn(header, columnRef) : Number(columnRef) - 1;

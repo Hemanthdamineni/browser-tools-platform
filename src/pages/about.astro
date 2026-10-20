@@ -15,16 +15,16 @@ import { TOOL_COUNT } from '@/lib/registry';
       About {site.name}
     </h1>
     <p>
-      {site.name} is a growing collection of {TOOL_COUNT} small utilities, encoders, hashers,
-      formatters, converters, generators, image and PDF helpers, that all run on your device. It
-      exists because the common "online tool" pattern of uploading a file to a stranger's server is
-      unnecessary for most of these tasks: the browser can do them itself.
+      {site.name} is a growing collection of {TOOL_COUNT} small utilities, encoders, hashers, formatters,
+      converters, generators, image and PDF helpers, that all run on your device. It exists because the
+      common "online tool" pattern of uploading a file to a stranger's server is unnecessary for most
+      of these tasks: the browser can do them itself.
     </p>
 
     <h2 id="how">How it works</h2>
     <p>
-      The site is fully static. Each tool is a self-contained module that is only downloaded when you
-      open it, so the app stays small. Heavier jobs run in a Web Worker so the interface never
+      The site is fully static. Each tool is a self-contained module that is only downloaded when
+      you open it, so the app stays small. Heavier jobs run in a Web Worker so the interface never
       freezes. There is no backend.
     </p>
 
@@ -49,7 +49,9 @@ import { TOOL_COUNT } from '@/lib/registry';
     <p>
       The code is MIT-licensed and available <a href={site.repository} rel="noopener">on GitHub</a>.
       Issues and tool suggestions are welcome. Adding a tool is intentionally small. See the
-      <a href={`${site.repository}/blob/main/docs/ADDING-A-TOOL.md`} rel="noopener">adding-a-tool guide</a>.
+      <a href={`${site.repository}/blob/main/docs/ADDING-A-TOOL.md`} rel="noopener"
+        >adding-a-tool guide</a
+      >.
     </p>
 
     <h2>No warranty</h2>

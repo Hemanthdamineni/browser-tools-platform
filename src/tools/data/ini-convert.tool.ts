@@ -104,7 +104,10 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   const text = (input.text ?? '').trim();
 
   if (!text) {
-    throw new ToolError('Paste an INI config file or a JSON object.', 'Choose the direction with the mode option.');
+    throw new ToolError(
+      'Paste an INI config file or a JSON object.',
+      'Choose the direction with the mode option.',
+    );
   }
 
   if (mode === 'json-to-ini') {
@@ -112,7 +115,10 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     try {
       parsed = JSON.parse(text) as Json;
     } catch (e) {
-      throw new ToolError(`Invalid JSON: ${(e as Error).message}`, 'Check quotes, commas and brackets.');
+      throw new ToolError(
+        `Invalid JSON: ${(e as Error).message}`,
+        'Check quotes, commas and brackets.',
+      );
     }
     if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
       throw new ToolError('The JSON root must be an object.', 'Sections come from object members.');
@@ -128,7 +134,10 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
 
   const parsed = parseIni(text);
   if (Object.keys(parsed).length === 0) {
-    throw new ToolError('No INI content was found.', 'Use key = value lines and [section] headers; ; and # start comments.');
+    throw new ToolError(
+      'No INI content was found.',
+      'Use key = value lines and [section] headers; ; and # start comments.',
+    );
   }
   const stats = { keys: flatKeyCount(parsed), sections: countSections(parsed) };
   return {

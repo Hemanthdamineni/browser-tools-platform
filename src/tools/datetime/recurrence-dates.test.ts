@@ -1,9 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import tool from './recurrence-dates.tool';
 
-type Result = { output: string; render?: string; filename?: string; stats?: Record<string, string | number>; notes?: string[] };
+type Result = {
+  output: string;
+  render?: string;
+  filename?: string;
+  stats?: Record<string, string | number>;
+  notes?: string[];
+};
 
-const run = (text: string, options: Record<string, string | number | boolean> = {}) => tool.run({ text, options }) as Result;
+const run = (text: string, options: Record<string, string | number | boolean> = {}) =>
+  tool.run({ text, options }) as Result;
 const dates = (text: string, options: Record<string, string | number | boolean> = {}) => {
   const parsed = JSON.parse(run(text, options).output) as { headers: string[]; rows: string[][] };
   return parsed.rows.map((r) => r[1]);
@@ -35,7 +42,12 @@ describe('recurrence-dates', () => {
 
   it('computes the LAST weekday of the month', () => {
     // Last Friday of Jan 2026 = 2026-01-30
-    const rows = dates('2026-01-01', { mode: 'monthly-nth', nth: 'last', weekday: 'fri', count: 2 });
+    const rows = dates('2026-01-01', {
+      mode: 'monthly-nth',
+      nth: 'last',
+      weekday: 'fri',
+      count: 2,
+    });
     expect(rows).toEqual(['2026-01-30', '2026-02-27']);
   });
 
@@ -60,11 +72,16 @@ describe('recurrence-dates', () => {
 
   it('includes the start date when it matches and excludes it otherwise', () => {
     // fixed monthly day on the same day as start includes start
-    expect(dates('2026-04-15', { mode: 'monthly-day', count: 2 })).toEqual(['2026-04-15', '2026-05-15']);
+    expect(dates('2026-04-15', { mode: 'monthly-day', count: 2 })).toEqual([
+      '2026-04-15',
+      '2026-05-15',
+    ]);
   });
 
   it('accepts alternative date formats', () => {
-    expect(dates('05/01/2026', { mode: 'weekly', weekday: 'mon', count: 1 })).toEqual(['2026-01-05']);
+    expect(dates('05/01/2026', { mode: 'weekly', weekday: 'mon', count: 1 })).toEqual([
+      '2026-01-05',
+    ]);
     expect(dates('18/10/2026', { mode: 'monthly-day', count: 1 })).toEqual(['2026-10-18']);
   });
 
@@ -90,7 +107,11 @@ describe('recurrence-dates', () => {
   it('rejects invalid dates and options', () => {
     expect(() => run('not-a-date')).toThrow(/parse|date/i);
     expect(() => run('2026-02-30')).toThrow(/only 28 day/i);
-    expect(() => run('2026-01-02', { mode: 'weekly', weekday: 'blah' })).toThrow(/choose a valid weekday/i);
-    expect(() => run('2026-01-02', { mode: 'monthly-nth', nth: '9', weekday: 'mon' })).toThrow(/nth/i);
+    expect(() => run('2026-01-02', { mode: 'weekly', weekday: 'blah' })).toThrow(
+      /choose a valid weekday/i,
+    );
+    expect(() => run('2026-01-02', { mode: 'monthly-nth', nth: '9', weekday: 'mon' })).toThrow(
+      /nth/i,
+    );
   });
 });

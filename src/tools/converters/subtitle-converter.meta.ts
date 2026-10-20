@@ -49,7 +49,8 @@ export const meta: ToolMeta = {
   examples: [
     {
       title: 'SRT to VTT',
-      input: '1\n00:00:01,500 --> 00:00:04,000\nWelcome back!\n\n2\n00:00:05,000 --> 00:00:06,500\nLet us begin.',
+      input:
+        '1\n00:00:01,500 --> 00:00:04,000\nWelcome back!\n\n2\n00:00:05,000 --> 00:00:06,500\nLet us begin.',
       options: {},
     },
     {

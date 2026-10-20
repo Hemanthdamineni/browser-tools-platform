@@ -22,7 +22,8 @@ function checkEmail(raw: string, requireTld: boolean): { rows: string[][]; valid
   const [local = '', domain = ''] = raw.split('@');
   rows.push(['Local part length', String(local.length), local.length > 64 ? 'too long' : 'ok']);
   if (local.length === 0 || local.length > 64) failures.push('Local part must be 1–64 characters.');
-  else if (!/^[A-Za-z0-9._%+-]+$/.test(local)) failures.push('Local part has disallowed characters.');
+  else if (!/^[A-Za-z0-9._%+-]+$/.test(local))
+    failures.push('Local part has disallowed characters.');
   else {
     let prevDot = false;
     for (let i = 0; i < local.length; i++) {
@@ -37,7 +38,9 @@ function checkEmail(raw: string, requireTld: boolean): { rows: string[][]; valid
     }
     // allowed specials are a subset we accept conservatively
     const spec = [...local].filter((c) => !/[A-Za-z0-9.]/.test(c));
-    for (const c of spec) if (!LOCAL_EXTRA.includes(c)) failures.push('Disallowed character "' + c + '" in local part.');
+    for (const c of spec)
+      if (!LOCAL_EXTRA.includes(c))
+        failures.push('Disallowed character "' + c + '" in local part.');
   }
 
   rows.push(['Domain length', String(domain.length), domain.length > 253 ? 'too long' : 'ok']);
@@ -66,8 +69,12 @@ function checkEmail(raw: string, requireTld: boolean): { rows: string[][]; valid
     }
     const tld = labels[labels.length - 1]!;
     const tldReal = tld.length >= 2 && /^[A-Za-z]+$/.test(tld);
-    if (requireTld && !tldReal) failures.push('The top-level domain must be letters of length 2 or more (got "' + tld + '").');
-    if (labels.length === 1) failures.push('A domain needs at least two labels (e.g. example.com).');
+    if (requireTld && !tldReal)
+      failures.push(
+        'The top-level domain must be letters of length 2 or more (got "' + tld + '").',
+      );
+    if (labels.length === 1)
+      failures.push('A domain needs at least two labels (e.g. example.com).');
   }
 
   const totalLen = raw.length;

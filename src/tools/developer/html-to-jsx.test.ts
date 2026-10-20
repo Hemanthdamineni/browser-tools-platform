@@ -12,7 +12,9 @@ describe('html-to-jsx', () => {
   });
 
   it('renames for, tabindex, readonly, colspan', async () => {
-    const r = await run('<label for="x">X</label><input tabindex="1" readonly><td colspan="2">c</td>');
+    const r = await run(
+      '<label for="x">X</label><input tabindex="1" readonly><td colspan="2">c</td>',
+    );
     expect(r.output).toContain('htmlFor="x"');
     expect(r.output).toContain('tabIndex="1"');
     expect(r.output).toContain('readOnly');
@@ -20,7 +22,9 @@ describe('html-to-jsx', () => {
   });
 
   it('self-closes void elements', async () => {
-    const r = await run('<img src="logo.png"><input type="text"><br><hr><meta charset="utf-8"><link rel="stylesheet" href="s.css">');
+    const r = await run(
+      '<img src="logo.png"><input type="text"><br><hr><meta charset="utf-8"><link rel="stylesheet" href="s.css">',
+    );
     expect(r.output).toContain('<img src="logo.png" />');
     expect(r.output).toContain('<input type="text" />');
     expect(r.output).toContain('<br />');

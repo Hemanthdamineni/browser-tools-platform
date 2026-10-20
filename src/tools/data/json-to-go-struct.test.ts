@@ -8,7 +8,9 @@ const run = async (text: string, options: Record<string, string | number | boole
 
 describe('json-to-go-struct', () => {
   it('maps scalar types and acronym field names', async () => {
-    const r = await run('{"id":1,"name":"Ada","active":true,"score":9.5,"url":"x"}', { rootName: 'User' });
+    const r = await run('{"id":1,"name":"Ada","active":true,"score":9.5,"url":"x"}', {
+      rootName: 'User',
+    });
     expect(r.render).toBe('code');
     expect(r.output).toContain('type User struct {');
     expect(r.output).toContain('\tID int `json:"id,omitempty"`');
@@ -21,9 +23,12 @@ describe('json-to-go-struct', () => {
   });
 
   it('hoists nested objects and arrays into named types', async () => {
-    const r = await run('{"name":"Ada","address":{"city":"London","zip":"SW1"},"skills":["go","ts"],"tags":[]}', {
-      rootName: 'User',
-    });
+    const r = await run(
+      '{"name":"Ada","address":{"city":"London","zip":"SW1"},"skills":["go","ts"],"tags":[]}',
+      {
+        rootName: 'User',
+      },
+    );
     expect(r.output).toContain('Address UserAddress `json:"address,omitempty"`');
     expect(r.output).toContain('Skills []string `json:"skills,omitempty"`');
     expect(r.output).toContain('Tags []interface{} `json:"tags,omitempty"`');
@@ -49,7 +54,9 @@ describe('json-to-go-struct', () => {
   });
 
   it('complex numbers, primitive arrays and keyword-safe names', async () => {
-    const r = await run('{"type":"T","numbers":[1,2.5],"yes":[true],"mixed":[1,"x"]}', { rootName: 'Thing' });
+    const r = await run('{"type":"T","numbers":[1,2.5],"yes":[true],"mixed":[1,"x"]}', {
+      rootName: 'Thing',
+    });
     expect(r.output).toContain('Type_ string');
     expect(r.output).toContain('Numbers []float64');
     expect(r.output).toContain('Yes []bool');

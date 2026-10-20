@@ -4,8 +4,7 @@ export const meta: ToolMeta = {
   id: 'csv-diff',
   name: 'CSV Diff',
   category: 'data',
-  summary:
-    'Compare two CSV files keyed by a column: added, removed and changed cells.',
+  summary: 'Compare two CSV files keyed by a column: added, removed and changed cells.',
   description:
     'Diff two CSV documents row by row using a key column, and see exactly what changed: rows added, rows removed, column changes, and per-cell value changes with old and new text. Header changes and duplicate keys are reported as issues. Quote-aware parsing follows RFC 4180, and everything runs on-device with no upload.',
   keywords: [

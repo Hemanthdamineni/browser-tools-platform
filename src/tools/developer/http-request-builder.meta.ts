@@ -24,7 +24,10 @@ export const meta: ToolMeta = {
       key: 'method',
       label: 'Method',
       type: 'select',
-      choices: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'].map((v) => ({ value: v, label: v })),
+      choices: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'].map((v) => ({
+        value: v,
+        label: v,
+      })),
       default: 'GET',
     },
     {

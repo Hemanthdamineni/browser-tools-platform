@@ -2,19 +2,36 @@ import { describe, expect, it } from 'vitest';
 import { ToolError } from '@/lib/types';
 import tool from './link-header.tool';
 
-type Result = { output: string; filename?: string; stats?: Record<string, string | number>; notes?: string[] };
-const run = (text: string, options: Record<string, string | number | boolean> = {}) => tool.run({ text, options }) as Result;
+type Result = {
+  output: string;
+  filename?: string;
+  stats?: Record<string, string | number>;
+  notes?: string[];
+};
+const run = (text: string, options: Record<string, string | number | boolean> = {}) =>
+  tool.run({ text, options }) as Result;
 const rows = (result: Result) => JSON.parse(result.output).rows as string[][];
 
 describe('link-header', () => {
   it('builds a preload Link header with parameters', () => {
-    const result = run('', { mode: 'build', uri: '/fonts/app.woff2', relation: 'preload', as: 'font', type: 'font/woff2', crossorigin: 'anonymous' });
-    expect(result.output).toBe('</fonts/app.woff2>; rel="preload"; as="font"; type="font/woff2"; crossorigin="anonymous"');
+    const result = run('', {
+      mode: 'build',
+      uri: '/fonts/app.woff2',
+      relation: 'preload',
+      as: 'font',
+      type: 'font/woff2',
+      crossorigin: 'anonymous',
+    });
+    expect(result.output).toBe(
+      '</fonts/app.woff2>; rel="preload"; as="font"; type="font/woff2"; crossorigin="anonymous"',
+    );
     expect(result.filename).toBe('link-header.txt');
   });
 
   it('parses comma-separated links without splitting quoted values', () => {
-    const result = run('<https://example.com>; rel="canonical", </next>; rel="next"; title="Next, page"');
+    const result = run(
+      '<https://example.com>; rel="canonical", </next>; rel="next"; title="Next, page"',
+    );
     expect(result.stats).toMatchObject({ links: 2, invalid: 0, review: 0 });
     expect(rows(result)).toContainEqual(['https://example.com', 'rel', 'canonical', '']);
     expect(rows(result)).toContainEqual(['/next', 'title', 'Next, page', '']);

@@ -21,12 +21,12 @@ const RENAMES: Record<string, string> = {
   'xmlns:xlink': 'xmlnsXlink',
   'http-equiv': 'httpEquiv',
   'accept-charset': 'acceptCharset',
-  'tabindex': 'tabIndex',
-  'readonly': 'readOnly',
-  'maxlength': 'maxLength',
-  'colspan': 'colSpan',
-  'rowspan': 'rowSpan',
-  'contenteditable': 'contentEditable',
+  tabindex: 'tabIndex',
+  readonly: 'readOnly',
+  maxlength: 'maxLength',
+  colspan: 'colSpan',
+  rowspan: 'rowSpan',
+  contenteditable: 'contentEditable',
 };
 
 /** Content of these elements is emitted as a template-literal child in JSX. */
@@ -124,7 +124,10 @@ function tokenize(src: string): Node[] {
 
     if (src[i + 1] === '/') {
       const end = findTagEnd(src, i + 2);
-      const name = src.slice(i + 2, end === -1 ? n : end).trim().toLowerCase();
+      const name = src
+        .slice(i + 2, end === -1 ? n : end)
+        .trim()
+        .toLowerCase();
       i = end === -1 ? n : end + 1;
       for (let s = openNames.length - 1; s >= 0; s -= 1) {
         if (openNames[s] === name) {
@@ -172,7 +175,10 @@ function tokenize(src: string): Node[] {
 }
 
 function styleExpression(value: string, ctx: Ctx): string {
-  const decls = value.split(';').map((part) => part.trim()).filter(Boolean);
+  const decls = value
+    .split(';')
+    .map((part) => part.trim())
+    .filter(Boolean);
   ctx.stats.styles += 1;
   if (!decls.length) return '{{}}';
   const entries = decls.map((decl) => {
@@ -254,7 +260,9 @@ function renderNode(node: Node, depth: number, ctx: Ctx): string[] {
 
   const onlyText = node.children.every((child) => child.type === 'text');
   if (onlyText) {
-    const text = node.children.map((child) => (child.type === 'text' ? jsxText(child.raw.replace(/\s+/g, ' ')) : '')).join('');
+    const text = node.children
+      .map((child) => (child.type === 'text' ? jsxText(child.raw.replace(/\s+/g, ' ')) : ''))
+      .join('');
     return [`${pad}${open}>${text.trim()}</${node.name}>`];
   }
 
@@ -268,7 +276,10 @@ function toJsx(src: string, ctx: Ctx, startDepth: number): string {
 }
 
 function sanitizeComponentName(raw: string): string {
-  const parts = raw.trim().split(/[^A-Za-z0-9]+/).filter(Boolean);
+  const parts = raw
+    .trim()
+    .split(/[^A-Za-z0-9]+/)
+    .filter(Boolean);
   if (!parts.length) return 'Icon';
   const name = parts.map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join('');
   return /^[A-Za-z_]/.test(name) ? name : 'Icon' + name;
@@ -288,10 +299,16 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
 
   const svg = input.text ?? '';
   if (!svg.trim()) {
-    throw new ToolError('Paste some SVG or markup to convert.', 'Example: <svg viewBox="0 0 24 24"><path d="M0 0h24v24H0z"/></svg>');
+    throw new ToolError(
+      'Paste some SVG or markup to convert.',
+      'Example: <svg viewBox="0 0 24 24"><path d="M0 0h24v24H0z"/></svg>',
+    );
   }
   if (svg.length > MAX_LENGTH) {
-    throw new ToolError('Input is too large.', `Keep it under ${MAX_LENGTH.toLocaleString('en-US')} characters.`);
+    throw new ToolError(
+      'Input is too large.',
+      `Keep it under ${MAX_LENGTH.toLocaleString('en-US')} characters.`,
+    );
   }
 
   const stats = { elements: 0, attributes: 0, styles: 0 };
@@ -310,7 +327,13 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     const props = typescript ? 'props: SVGProps<SVGSVGElement>' : 'props';
     const lines: string[] = [];
     if (typescript) lines.push("import type { SVGProps } from 'react';", '');
-    lines.push(`export function ${componentName}(${props}) {`, `${pad1}return (`, body, `${pad1});`, '}');
+    lines.push(
+      `export function ${componentName}(${props}) {`,
+      `${pad1}return (`,
+      body,
+      `${pad1});`,
+      '}',
+    );
     output = lines.join('\n');
   }
 

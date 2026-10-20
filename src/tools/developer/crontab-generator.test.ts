@@ -4,7 +4,8 @@ import tool from './crontab-generator.tool';
 type Result = { output: string; render?: string; notes?: string[]; stats?: Record<string, number> };
 const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
   (await tool.run({ text, options })) as Result;
-const out = (o: Record<string, string | number | boolean>) => run('', o).then((r) => r.output.trim());
+const out = (o: Record<string, string | number | boolean>) =>
+  run('', o).then((r) => r.output.trim());
 
 describe('crontab-generator', () => {
   it('builds every-minute and step presets', async () => {
@@ -22,7 +23,12 @@ describe('crontab-generator', () => {
 
   it('uses raw fields for the custom preset', async () => {
     expect(
-      await out({ preset: 'custom', minuteField: '*/10', hourField: '9-17', dayOfWeekField: 'MON-FRI' }),
+      await out({
+        preset: 'custom',
+        minuteField: '*/10',
+        hourField: '9-17',
+        dayOfWeekField: 'MON-FRI',
+      }),
     ).toBe('*/10 9-17 * * MON-FRI');
   });
 
@@ -34,6 +40,8 @@ describe('crontab-generator', () => {
   it('rejects invalid fields', async () => {
     await expect(run('', { preset: 'custom', minuteField: '*/0' })).rejects.toThrow(/step/);
     await expect(run('', { preset: 'custom', hourField: '25' })).rejects.toThrow(/outside 0–23/);
-    await expect(run('', { preset: 'custom', dayOfWeekField: 'NOPE' })).rejects.toThrow(/unknown name/);
+    await expect(run('', { preset: 'custom', dayOfWeekField: 'NOPE' })).rejects.toThrow(
+      /unknown name/,
+    );
   });
 });

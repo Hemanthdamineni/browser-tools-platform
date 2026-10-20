@@ -6,7 +6,12 @@ const run = async (text: string, options: Record<string, string | number | boole
   (await tool.run({ text, options })) as Result;
 
 const T = '| Name | Count |\n|---|---:|\n| pears | 120 |\n| apples | 3 |\n| figs | 48 |';
-const rowsOf = (output: string): string[] => output.trim().split('\n').slice(2).map((l) => l.trim());
+const rowsOf = (output: string): string[] =>
+  output
+    .trim()
+    .split('\n')
+    .slice(2)
+    .map((l) => l.trim());
 
 describe('markdown-table-sort', () => {
   it('sorts ascending by a numeric column given its header', async () => {
@@ -24,7 +29,11 @@ describe('markdown-table-sort', () => {
     const table =
       '| City | Population |\n|------|-----------:|\n| Osaka | 2.7M |\n| Berlin | 3.7M |\n| Lisbon | 0.5M |';
     const r = await run(table, { column: '2', order: 'asc' });
-    expect(rowsOf(r.output)).toEqual(['| Lisbon | 0.5M |', '| Osaka | 2.7M |', '| Berlin | 3.7M |']);
+    expect(rowsOf(r.output)).toEqual([
+      '| Lisbon | 0.5M |',
+      '| Osaka | 2.7M |',
+      '| Berlin | 3.7M |',
+    ]);
   });
 
   it('falls back to text order when a column is not numeric', async () => {
@@ -62,7 +71,11 @@ describe('markdown-table-sort', () => {
     const table = '| K | V |\n| b | 1 |\n| a | 2 |\n| c | 0 |';
     const r = await run(table, { column: '2' });
     // Only one header line here (no separator), so data starts at line index 1.
-    const data = r.output.trim().split('\n').slice(1).map((l) => l.trim());
+    const data = r.output
+      .trim()
+      .split('\n')
+      .slice(1)
+      .map((l) => l.trim());
     expect(data).toEqual(['| c | 0 |', '| b | 1 |', '| a | 2 |']);
     expect(r.output.trim().split('\n')[0]).toBe('| K | V |');
   });

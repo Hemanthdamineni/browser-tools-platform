@@ -5,7 +5,9 @@ type Result = { output: string; render?: string; stats?: Record<string, number>;
 const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
   (await tool.run({ text, options })) as Result;
 const props = (r: Result): Record<string, string> =>
-  Object.fromEntries((JSON.parse(r.output) as { headers: string[]; rows: string[][] }).rows.map(([k, v]) => [k, v!]));
+  Object.fromEntries(
+    (JSON.parse(r.output) as { headers: string[]; rows: string[][] }).rows.map(([k, v]) => [k, v!]),
+  );
 
 describe('ua-parser', () => {
   it('parses Chrome on Windows 10', async () => {

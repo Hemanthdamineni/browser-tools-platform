@@ -4,8 +4,7 @@ export const meta: ToolMeta = {
   id: 'glob-tester',
   name: 'Glob Tester',
   category: 'developer',
-  summary:
-    'Match a glob pattern against file paths: *, **, ?, [...] classes and {a,b} sets.',
+  summary: 'Match a glob pattern against file paths: *, **, ?, [...] classes and {a,b} sets.',
   description:
     'Write a glob pattern such as src/**/*.ts or **/*.{js,ts} and paste a list of file paths to see which ones match. Supports the * single-segment wildcard, ** recursive wildcard, ? single character, [...] character classes and {a,b} alternates, with optional case-insensitive matching. Results are shown per path in a table with a match total. Everything runs on-device, so your file paths never leave the browser.',
   keywords: [

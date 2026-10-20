@@ -91,7 +91,7 @@ export const meta: ToolMeta = {
   ],
   faq: [
     {
-      q: 'How is each period\'s interest computed?',
+      q: "How is each period's interest computed?",
       a: 'The annual rate is divided by the compound frequency to give the marginal rate, and interest is credited on the running balance each period. With monthly compounding at 12%, each month adds 1% to the current balance — growth compounds because the base grows every month.',
     },
     {
@@ -100,13 +100,19 @@ export const meta: ToolMeta = {
     },
     {
       q: 'When are contributions added?',
-      a: 'At the end of each compounding period, after that period\'s interest. Monthly compounding with monthly deposits therefore matches the future-value-of-an-ordinary-annuity formula. Continuous compounding has no periods, so contributions are not supported there.',
+      a: "At the end of each compounding period, after that period's interest. Monthly compounding with monthly deposits therefore matches the future-value-of-an-ordinary-annuity formula. Continuous compounding has no periods, so contributions are not supported there.",
     },
     {
       q: 'Why might my numbers differ slightly from a bank?',
       a: 'Banks often quote APR and accrue through a year-end of 360 days. This tool uses the nominal annual rate divided by the compounding frequency and a 365-day year. Tiny differences in rounding convention can also appear; figures are shown to 2 decimal places.',
     },
   ],
-  related: ['loan-calculator', 'percentage-calculator', 'tip-calculator', 'statistics-calculator', 'calculator'],
+  related: [
+    'loan-calculator',
+    'percentage-calculator',
+    'tip-calculator',
+    'statistics-calculator',
+    'calculator',
+  ],
   status: 'stable',
 };

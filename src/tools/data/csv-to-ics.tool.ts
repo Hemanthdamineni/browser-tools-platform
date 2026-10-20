@@ -6,7 +6,14 @@ import { meta } from './csv-to-ics.meta';
 const MAX_LEN = 1_000_000;
 const PRODID = '-//Toolbench//csv-to-ics//EN';
 
-type Parsed = { year: number; month: number; day: number; hour?: number; minute?: number; second?: number };
+type Parsed = {
+  year: number;
+  month: number;
+  day: number;
+  hour?: number;
+  minute?: number;
+  second?: number;
+};
 
 function parseRecords(text: string, delimiter: string): string[][] {
   const rows: string[][] = [];
@@ -101,25 +108,39 @@ function parseDatetime(raw: string, fmt: 'iso' | 'us' | 'eu'): Parsed | null {
       year: Number(y),
       month: Number(mo),
       day: Number(d),
-      ...(hasTime
-        ? { hour: Number(h), minute: Number(mi ?? 0), second: Number(se ?? 0) }
-        : {}),
+      ...(hasTime ? { hour: Number(h), minute: Number(mi ?? 0), second: Number(se ?? 0) } : {}),
     };
   }
   if (fmt === 'us') {
-    m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:[ ,]+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*([AaPp])[Mm])?$/);
+    m = s.match(
+      /^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:[ ,]+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*([AaPp])[Mm])?$/,
+    );
     if (!m) return null;
     const [, mo, d, y, h, mi, se, ap] = m;
     if (h === undefined) return { year: Number(y), month: Number(mo), day: Number(d) };
     let hour = Number(h) % 12;
     if (ap && ap.toLowerCase() === 'p') hour += 12;
-    return { year: Number(y), month: Number(mo), day: Number(d), hour, minute: Number(mi ?? 0), second: Number(se ?? 0) };
+    return {
+      year: Number(y),
+      month: Number(mo),
+      day: Number(d),
+      hour,
+      minute: Number(mi ?? 0),
+      second: Number(se ?? 0),
+    };
   }
   m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:[ ,]+(\d{1,2}):(\d{2})(?::(\d{2}))?)?$/);
   if (!m) return null;
   const [, d, mo, y, h, mi, se] = m;
   if (h === undefined) return { year: Number(y), month: Number(mo), day: Number(d) };
-  return { year: Number(y), month: Number(mo), day: Number(d), hour: Number(h), minute: Number(mi ?? 0), second: Number(se ?? 0) };
+  return {
+    year: Number(y),
+    month: Number(mo),
+    day: Number(d),
+    hour: Number(h),
+    minute: Number(mi ?? 0),
+    second: Number(se ?? 0),
+  };
 }
 
 function dateToken(p: Parsed, withTime: boolean, utc: boolean): string {
@@ -140,7 +161,9 @@ function nextDay(p: Parsed): Parsed {
 }
 
 function addHour(p: Parsed): Parsed {
-  const d = new Date(Date.UTC(p.year, p.month - 1, p.day, p.hour ?? 0, p.minute ?? 0, p.second ?? 0));
+  const d = new Date(
+    Date.UTC(p.year, p.month - 1, p.day, p.hour ?? 0, p.minute ?? 0, p.second ?? 0),
+  );
   d.setUTCHours(d.getUTCHours() + 1);
   return {
     year: d.getUTCFullYear(),
@@ -153,7 +176,11 @@ function addHour(p: Parsed): Parsed {
 }
 
 function escapeText(s: string): string {
-  return s.replace(/\\/g, '\\\\').replace(/,/g, '\\,').replace(/;/g, '\\;').replace(/\r?\n/g, '\\n');
+  return s
+    .replace(/\\/g, '\\\\')
+    .replace(/,/g, '\\,')
+    .replace(/;/g, '\\;')
+    .replace(/\r?\n/g, '\\n');
 }
 
 /** Fold to 75 octets (RFC 5545) using UTF-8 byte length. */
@@ -180,7 +207,8 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   const o = resolveOptions(meta, input.options);
   const source = input.text ?? '';
   if (!source.trim()) throw new ToolError('Paste CSV rows describing events.');
-  if (source.length > MAX_LEN) throw new ToolError('Input is too large.', 'Keep it under 1,000,000 characters.');
+  if (source.length > MAX_LEN)
+    throw new ToolError('Input is too large.', 'Keep it under 1,000,000 characters.');
 
   const delimOpt = String(o.delimiter ?? 'auto');
   const delimiter = delimOpt === 'auto' ? detectDelimiter(source) : delimOpt;
@@ -202,13 +230,24 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   const iDesc = pick('description', 'desc', 'notes', 'note');
   const iLoc = pick('location', 'place', 'where');
   if (iTitle === -1 || iStart === -1) {
-    throw new ToolError('Could not find title and start columns.', 'Use headers like "title,start,end,description".');
+    throw new ToolError(
+      'Could not find title and start columns.',
+      'Use headers like "title,start,end,description".',
+    );
   }
 
-  const lines: string[] = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:' + PRODID, 'CALSCALE:GREGORIAN'];
+  const lines: string[] = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:' + PRODID,
+    'CALSCALE:GREGORIAN',
+  ];
   let events = 0;
   let skipped = 0;
-  const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z');
+  const stamp = new Date()
+    .toISOString()
+    .replace(/[-:]/g, '')
+    .replace(/\.\d{3}Z$/, 'Z');
 
   rows.slice(1).forEach((row, idx) => {
     const title = (row[iTitle] ?? '').trim();
@@ -234,7 +273,9 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     if (allDay) {
       lines.push('DTSTART;VALUE=DATE:' + dateToken(start, false, false));
       const end = endRaw ? parseDatetime(endRaw, fmt) : null;
-      lines.push('DTEND;VALUE=DATE:' + dateToken(end ? nextDay(end) : nextDay(start), false, false));
+      lines.push(
+        'DTEND;VALUE=DATE:' + dateToken(end ? nextDay(end) : nextDay(start), false, false),
+      );
     } else {
       lines.push('DTSTART:' + dateToken(start, true, utc));
       const end = endRaw ? parseDatetime(endRaw, fmt) : null;
@@ -248,7 +289,8 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     events += 1;
   });
 
-  if (events === 0) throw new ToolError('No parseable events found.', 'Check column names and the date format.');
+  if (events === 0)
+    throw new ToolError('No parseable events found.', 'Check column names and the date format.');
 
   lines.push('END:VCALENDAR');
 
@@ -265,8 +307,14 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     language: 'text',
     stats: { events, skipped },
     notes: [
-      events + ' event(s) → ' + (allDayMode === 'auto' ? 'all-day where the row has no time' : 'with times'),
-      'Separator: ' + (delimiter === '\t' ? 'tab' : delimiter) + ' · format: ' + fmt + (utc ? ' · UTC (Z)' : ''),
+      events +
+        ' event(s) → ' +
+        (allDayMode === 'auto' ? 'all-day where the row has no time' : 'with times'),
+      'Separator: ' +
+        (delimiter === '\t' ? 'tab' : delimiter) +
+        ' · format: ' +
+        fmt +
+        (utc ? ' · UTC (Z)' : ''),
     ],
   };
 }

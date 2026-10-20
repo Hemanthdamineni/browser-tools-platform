@@ -2,13 +2,20 @@ import { describe, it, expect } from 'vitest';
 import splitTool from './file-split.tool';
 import tool from './file-join.tool';
 
-const file = (content: string | Uint8Array, name: string) => new File([content as unknown as BlobPart], name);
+const file = (content: string | Uint8Array, name: string) =>
+  new File([content as unknown as BlobPart], name);
 const part = (content: string, name: string) => new File([content], name);
 
 describe('file-join', () => {
   it('round-trips with file-split in natural name order', async () => {
-    const split = await splitTool.run({ files: [file('0123456789', 'ten.txt')], options: { mode: 'by-count', count: 3 } });
-    const r = await tool.run({ files: split.outputs.map((o) => new File([o.blob], o.filename)), options: {} });
+    const split = await splitTool.run({
+      files: [file('0123456789', 'ten.txt')],
+      options: { mode: 'by-count', count: 3 },
+    });
+    const r = await tool.run({
+      files: split.outputs.map((o) => new File([o.blob], o.filename)),
+      options: {},
+    });
     expect(await r.outputs[0]!.blob.text()).toBe('0123456789');
     expect(r.warnings).toBeUndefined();
   });
@@ -37,11 +44,17 @@ describe('file-join', () => {
       sha256: '88d4266fd4e6338d13b845fcf289579d209c897823b9217da3e161936f031589',
       parts: [{ name: 'x.part1', size: 4 }],
     });
-    const ok = await tool.run({ files: [part('abcd', 'x.part1'), file(good, 'x.manifest.json')], options: {} });
+    const ok = await tool.run({
+      files: [part('abcd', 'x.part1'), file(good, 'x.manifest.json')],
+      options: {},
+    });
     expect(ok.warnings).toBeUndefined();
 
     const bad = await tool.run({
-      files: [part('abcd', 'x.part1'), file(good.replace(/88d4266f/, '00000000'), 'x.manifest.json')],
+      files: [
+        part('abcd', 'x.part1'),
+        file(good.replace(/88d4266f/, '00000000'), 'x.manifest.json'),
+      ],
       options: {},
     });
     expect(bad.warnings?.some((w) => /checksum does not match/i.test(w))).toBe(true);

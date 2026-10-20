@@ -66,7 +66,7 @@ export const meta: ToolMeta = {
     },
     {
       q: 'Is this different from the markdown-table formatter?',
-      a: 'Yes. That tool takes an existing pipe table and normalises spacing/alignment. This one takes CSV — no Markdown yet — and produces a pipe table from scratch. Feed this tool\'s output into markdown-table if you want to rejoin or re-align afterwards.',
+      a: "Yes. That tool takes an existing pipe table and normalises spacing/alignment. This one takes CSV — no Markdown yet — and produces a pipe table from scratch. Feed this tool's output into markdown-table if you want to rejoin or re-align afterwards.",
     },
   ],
   related: ['markdown-table', 'csv-to-json', 'csv-to-sql', 'json-to-csv', 'csv-sanitize'],

@@ -15,12 +15,12 @@ describe('json-to-python', () => {
     expect(r.output).toContain('from dataclasses import dataclass, field');
     expect(r.output).toMatch(/@dataclass\s+class Root:/);
     expect(r.output).toContain('    user_id: Optional[int] = 42');
-    expect(r.output).toContain('    name: Optional[str] = \'Ada\'');
+    expect(r.output).toContain("    name: Optional[str] = 'Ada'");
     expect(r.output).toContain('    active: Optional[bool] = True');
     expect(r.output).toContain('    tags: list[str] = field(default_factory=list)');
     expect(r.output).toContain('    profile: Optional[Profile] = None');
     expect(r.output).toMatch(/@dataclass\s+class Profile:/);
-    expect(r.output).toContain('    bio: Optional[str] = \'hi\'');
+    expect(r.output).toContain("    bio: Optional[str] = 'hi'");
     expect(r.language).toBe('python');
     expect(r.stats?.classes).toBe(2);
   });
@@ -31,11 +31,14 @@ describe('json-to-python', () => {
     });
     expect(r.output).toMatch(/@dataclass\s+class Item:/);
     expect(r.output).toContain('    id: Optional[int] = 1');
-    expect(r.output).toContain('    label: Optional[str] = \'one\'');
+    expect(r.output).toContain("    label: Optional[str] = 'one'");
   });
 
   it('emits TypedDict and controls snake_case', async () => {
-    const r = await run('{"userId": 42, "profile": {"age": 37}}', { style: 'typeddict', useOptional: false });
+    const r = await run('{"userId": 42, "profile": {"age": 37}}', {
+      style: 'typeddict',
+      useOptional: false,
+    });
     expect(r.output).toContain('from typing import Any, TypedDict');
     expect(r.output).toContain('class Root(TypedDict):');
     expect(r.output).toContain('    user_id: int');

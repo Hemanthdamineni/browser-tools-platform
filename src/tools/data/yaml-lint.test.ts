@@ -41,7 +41,7 @@ describe('yaml-lint', () => {
   });
 
   it('decodes quoted scalars and strips trailing comments', async () => {
-    const r = await run("a: \"hello\"\nb: it's fine  # note\nc: 42");
+    const r = await run('a: "hello"\nb: it\'s fine  # note\nc: 42');
     expect(r.render).toBe('code');
     expect(r.output).toContain('a: hello');
     expect(r.output).toContain("b: it's fine");

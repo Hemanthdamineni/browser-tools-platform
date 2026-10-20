@@ -19,7 +19,10 @@ function run(input: TextRunInput): TextRunResult {
 
   const form = String(o.form);
   if (!FORMS.has(form)) {
-    throw new ToolError('Choose a valid Unicode normalization form.', 'Select NFC, NFD, NFKC or NFKD.');
+    throw new ToolError(
+      'Choose a valid Unicode normalization form.',
+      'Select NFC, NFD, NFKC or NFKD.',
+    );
   }
   const lineEndings = String(o.lineEndings);
   if (!['preserve', 'lf', 'crlf', 'cr'].includes(lineEndings)) {
@@ -40,7 +43,7 @@ function run(input: TextRunInput): TextRunResult {
       form,
       'input characters': [...input.text].length,
       'output characters': [...output].length,
-      'changed': output === input.text ? 'no' : 'yes',
+      changed: output === input.text ? 'no' : 'yes',
     },
   };
 }

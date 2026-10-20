@@ -25,7 +25,8 @@ export const meta: ToolMeta = {
   examples: [
     {
       title: 'Review response headers',
-      input: 'HTTP/1.1 200 OK\nContent-Security-Policy: default-src \'self\'; object-src \'none\'; frame-ancestors \'none\'\nStrict-Transport-Security: max-age=31536000; includeSubDomains\nX-Content-Type-Options: nosniff\nReferrer-Policy: strict-origin-when-cross-origin',
+      input:
+        "HTTP/1.1 200 OK\nContent-Security-Policy: default-src 'self'; object-src 'none'; frame-ancestors 'none'\nStrict-Transport-Security: max-age=31536000; includeSubDomains\nX-Content-Type-Options: nosniff\nReferrer-Policy: strict-origin-when-cross-origin",
     },
     {
       title: 'Review a minimal block',

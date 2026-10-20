@@ -12,7 +12,12 @@ import ageTool from './age-header.tool';
 import cacheStatusTool from './cache-status.tool';
 import varyTool from './vary-header.tool';
 
-type Result = { output: string; filename?: string; stats?: Record<string, string | number>; notes?: string[] };
+type Result = {
+  output: string;
+  filename?: string;
+  stats?: Record<string, string | number>;
+  notes?: string[];
+};
 type Options = Record<string, string | number | boolean>;
 const run = (text: string, options: Options = {}) => tool.run({ text, options }) as Result;
 const runTool = (mod: TextToolModule, text: string, options: Options = {}) =>
@@ -67,7 +72,14 @@ describe('cache-headers — build happy path for every family', () => {
   });
 
   it('builds a Cache-Status value', () => {
-    const result = run('', { header: 'cache-status', mode: 'build', cc: 'CDN', hit: 'hit', ttl: '60', fwd: '' });
+    const result = run('', {
+      header: 'cache-status',
+      mode: 'build',
+      cc: 'CDN',
+      hit: 'hit',
+      ttl: '60',
+      fwd: '',
+    });
     expect(result.output).toBe('CDN; hit; ttl=60');
     expect(result.filename).toBe('cache-status.txt');
   });
@@ -91,7 +103,9 @@ describe('cache-headers — analyze happy path for every family', () => {
   });
 
   it('analyzes CDN-Cache-Control directives', () => {
-    const result = run('max-age=3600, public, stale-if-error=86400', { header: 'cdn-cache-control' });
+    const result = run('max-age=3600, public, stale-if-error=86400', {
+      header: 'cdn-cache-control',
+    });
     expect(result.stats).toMatchObject({ directives: 3, issues: 0 });
     expect(rows(result)[1]?.[0]).toBe('public');
   });
@@ -131,7 +145,15 @@ describe('cache-headers — analyze happy path for every family', () => {
 
 describe('cache-headers — edge cases', () => {
   it('returns guidance for blank analysis input in every family', () => {
-    const families = ['cache-control', 'cdn-cache-control', 'surrogate-control', 'expires', 'age', 'cache-status', 'vary'];
+    const families = [
+      'cache-control',
+      'cdn-cache-control',
+      'surrogate-control',
+      'expires',
+      'age',
+      'cache-status',
+      'vary',
+    ];
     for (const header of families) {
       const result = run('', { header });
       expect(result.notes?.[0], header).toContain('Paste');
@@ -153,12 +175,16 @@ describe('cache-headers — edge cases', () => {
     const result = run('*, Origin, Origin', { header: 'vary' });
     expect(result.stats?.issues).toBeGreaterThan(0);
     expect(result.notes?.join(' ')).toContain('Wildcard');
-    expect(run('Authorization, Bad Field', { header: 'vary' }).notes?.join(' ')).toContain('authorization');
+    expect(run('Authorization, Bad Field', { header: 'vary' }).notes?.join(' ')).toContain(
+      'authorization',
+    );
   });
 
   it('flags a past Expires date and obsolete date forms', () => {
     expect(run('Wed, 21 Oct 2015 07:28:00 GMT', { header: 'expires' }).stats?.review).toBe(1);
-    expect(rows(run('Sunday, 06-Nov-94 08:49:37 GMT', { header: 'expires' }))[0]?.[2]).toContain('IMF-fixdate');
+    expect(rows(run('Sunday, 06-Nov-94 08:49:37 GMT', { header: 'expires' }))[0]?.[2]).toContain(
+      'IMF-fixdate',
+    );
   });
 });
 
@@ -168,26 +194,46 @@ describe('cache-headers — malformed input raises ToolError', () => {
   });
 
   it('rejects malformed Cache-Control build options', () => {
-    expect(() => run('', { header: 'cache-control', mode: 'build', maxAge: -1 })).toThrow(ToolError);
-    expect(() => run('', { header: 'cache-control', mode: 'build', visibility: 'shared' })).toThrow(ToolError);
-    expect(() => run('', { header: 'cache-control', mode: 'build', staleWhileRevalidate: 1.5 })).toThrow(ToolError);
+    expect(() => run('', { header: 'cache-control', mode: 'build', maxAge: -1 })).toThrow(
+      ToolError,
+    );
+    expect(() => run('', { header: 'cache-control', mode: 'build', visibility: 'shared' })).toThrow(
+      ToolError,
+    );
+    expect(() =>
+      run('', { header: 'cache-control', mode: 'build', staleWhileRevalidate: 1.5 }),
+    ).toThrow(ToolError);
   });
 
   it('rejects malformed CDN-Cache-Control and Surrogate-Control directives', () => {
-    expect(() => run('', { header: 'cdn-cache-control', mode: 'build', cdnDirectives: '' })).toThrow(ToolError);
-    expect(() => run('', { header: 'cdn-cache-control', mode: 'build', cdnDirectives: 'max-age=soon' })).toThrow(ToolError);
-    expect(() => run('', { header: 'cdn-cache-control', mode: 'build', cdnDirectives: 'public=true' })).toThrow(ToolError);
-    expect(() => run('', { header: 'surrogate-control', mode: 'build', surrogateDirectives: 'content=ESI' })).toThrow(ToolError);
+    expect(() =>
+      run('', { header: 'cdn-cache-control', mode: 'build', cdnDirectives: '' }),
+    ).toThrow(ToolError);
+    expect(() =>
+      run('', { header: 'cdn-cache-control', mode: 'build', cdnDirectives: 'max-age=soon' }),
+    ).toThrow(ToolError);
+    expect(() =>
+      run('', { header: 'cdn-cache-control', mode: 'build', cdnDirectives: 'public=true' }),
+    ).toThrow(ToolError);
+    expect(() =>
+      run('', { header: 'surrogate-control', mode: 'build', surrogateDirectives: 'content=ESI' }),
+    ).toThrow(ToolError);
   });
 
   it('rejects malformed Expires, Age, Cache-Status and Vary build values', () => {
-    expect(() => run('', { header: 'expires', mode: 'build', date: 'not a date' })).toThrow(ToolError);
+    expect(() => run('', { header: 'expires', mode: 'build', date: 'not a date' })).toThrow(
+      ToolError,
+    );
     expect(() => run('-5', { header: 'age' })).toThrow(ToolError);
     expect(() => run('1.5', { header: 'age' })).toThrow(ToolError);
     expect(() => run('', { header: 'cache-status', mode: 'build', cc: '  ' })).toThrow(ToolError);
     expect(() => run('', { header: 'vary', mode: 'build', fields: '' })).toThrow(ToolError);
-    expect(() => run('', { header: 'vary', mode: 'build', fields: '*, Origin' })).toThrow(ToolError);
-    expect(() => run('', { header: 'vary', mode: 'build', fields: 'Bad Field' })).toThrow(ToolError);
+    expect(() => run('', { header: 'vary', mode: 'build', fields: '*, Origin' })).toThrow(
+      ToolError,
+    );
+    expect(() => run('', { header: 'vary', mode: 'build', fields: 'Bad Field' })).toThrow(
+      ToolError,
+    );
   });
 });
 
@@ -215,7 +261,10 @@ describe('cache-headers — legacy ids delegate with unchanged behaviour', () =>
   });
 
   it('surrogate-control delegation', () => {
-    const result = runTool(surrogateControlTool, '', { mode: 'build', directives: 'max-age=3600, content="ESI/1.0"' });
+    const result = runTool(surrogateControlTool, '', {
+      mode: 'build',
+      directives: 'max-age=3600, content="ESI/1.0"',
+    });
     expect(result.output).toBe('max-age=3600, content="ESI/1.0"');
     expect(result.filename).toBe('surrogate-control.txt');
   });
@@ -233,7 +282,13 @@ describe('cache-headers — legacy ids delegate with unchanged behaviour', () =>
   });
 
   it('cache-status delegation', () => {
-    const result = runTool(cacheStatusTool, '', { mode: 'build', cc: 'CDN', hit: 'hit', ttl: '60', fwd: '' });
+    const result = runTool(cacheStatusTool, '', {
+      mode: 'build',
+      cc: 'CDN',
+      hit: 'hit',
+      ttl: '60',
+      fwd: '',
+    });
     expect(result.output).toBe('CDN; hit; ttl=60');
     expect(result.filename).toBe('cache-status.txt');
   });
@@ -259,7 +314,9 @@ describe('cache-headers — Unicode and token edges', () => {
   it('flags non-ASCII Vary fields and Cache-Status tokens, and rejects them when building', () => {
     expect(run('X-Ünicode', { header: 'vary' }).stats?.issues).toBe(1);
     expect(run('CDN; hït', { header: 'cache-status' }).stats?.issues).toBeGreaterThan(0);
-    expect(() => run('', { header: 'vary', mode: 'build', fields: 'X-Ünicode' })).toThrow(ToolError);
+    expect(() => run('', { header: 'vary', mode: 'build', fields: 'X-Ünicode' })).toThrow(
+      ToolError,
+    );
     expect(() =>
       run('', { header: 'cache-status', mode: 'build', cc: 'CDN-É', hit: 'hit', ttl: '', fwd: '' }),
     ).toThrow(ToolError);
@@ -290,7 +347,10 @@ describe('cache-headers — published examples', () => {
   it('routes each example through the family named in its title', () => {
     const cdn = examples.find((ex) => ex.title.includes('CDN-Cache-Control'));
     expect(cdn, 'a CDN-Cache-Control example should exist').toBeTruthy();
-    expect(run(cdn!.input ?? '', cdn!.options ?? {}).stats).toMatchObject({ directives: 2, issues: 0 });
+    expect(run(cdn!.input ?? '', cdn!.options ?? {}).stats).toMatchObject({
+      directives: 2,
+      issues: 0,
+    });
 
     const status = examples.find((ex) => ex.title.includes('Cache-Status'));
     expect(status, 'a Cache-Status example should exist').toBeTruthy();
@@ -298,7 +358,9 @@ describe('cache-headers — published examples', () => {
 
     const surrogate = examples.find((ex) => ex.title.includes('Surrogate-Control'));
     expect(surrogate, 'a Surrogate-Control example should exist').toBeTruthy();
-    expect(run(surrogate!.input ?? '', surrogate!.options ?? {}).filename).toBe('surrogate-control.txt');
+    expect(run(surrogate!.input ?? '', surrogate!.options ?? {}).filename).toBe(
+      'surrogate-control.txt',
+    );
 
     const vary = examples.find((ex) => ex.title.includes('Vary'));
     expect(vary, 'a Vary example should exist').toBeTruthy();

@@ -72,11 +72,13 @@ function run(input: TextRunInput): TextRunResult {
 
   const sourceLines = input.text.split(/\r\n|\n|\r/).filter((line) => line.trim().length > 0);
   if (!sourceLines.length) return { output: '', render: 'code', language: 'markdown' };
-  if (sourceLines.length > 5000) throw new ToolError('The table is too large.', 'Format up to 5,000 non-empty rows at a time.');
+  if (sourceLines.length > 5000)
+    throw new ToolError('The table is too large.', 'Format up to 5,000 non-empty rows at a time.');
 
   const rows = sourceLines.map(splitRow);
   const columnCount = Math.max(...rows.map((row) => row.length));
-  if (columnCount === 0 || columnCount > 200) throw new ToolError('The table has too many columns.', 'Format up to 200 columns.');
+  if (columnCount === 0 || columnCount > 200)
+    throw new ToolError('The table has too many columns.', 'Format up to 200 columns.');
   for (const row of rows) while (row.length < columnCount) row.push('');
 
   let alignments: Alignment[] = Array(columnCount).fill('left');
@@ -91,10 +93,13 @@ function run(input: TextRunInput): TextRunResult {
 
   if (!options.align) {
     return {
-      output: rows.map((row, index) => {
-        if (index === separatorIndex) return `| ${alignments.map((alignment) => separator(3, alignment)).join(' | ')} |`;
-        return `| ${row.join(' | ')} |`;
-      }).join('\n'),
+      output: rows
+        .map((row, index) => {
+          if (index === separatorIndex)
+            return `| ${alignments.map((alignment) => separator(3, alignment)).join(' | ')} |`;
+          return `| ${row.join(' | ')} |`;
+        })
+        .join('\n'),
       render: 'code',
       language: 'markdown',
       stats: { rows: rows.length - (separatorIndex >= 0 ? 1 : 0), columns: columnCount },
@@ -102,15 +107,20 @@ function run(input: TextRunInput): TextRunResult {
   }
 
   const widths = Array.from({ length: columnCount }, (_, column) =>
-    Math.max(3, ...rows.filter((_, index) => index !== separatorIndex).map((row) => [...row[column]!].length)),
+    Math.max(
+      3,
+      ...rows.filter((_, index) => index !== separatorIndex).map((row) => [...row[column]!].length),
+    ),
   );
   const pad = ' '.repeat(padding);
-  const output = rows.map((row, index) => {
-    if (index === separatorIndex) {
-      return `|${widths.map((width, column) => `${pad}${separator(width, alignments[column]!)}${pad}`).join('|')}|`;
-    }
-    return `|${row.map((cell, column) => `${pad}${cell.padEnd(widths[column]!, ' ')}${pad}`).join('|')}|`;
-  }).join('\n');
+  const output = rows
+    .map((row, index) => {
+      if (index === separatorIndex) {
+        return `|${widths.map((width, column) => `${pad}${separator(width, alignments[column]!)}${pad}`).join('|')}|`;
+      }
+      return `|${row.map((cell, column) => `${pad}${cell.padEnd(widths[column]!, ' ')}${pad}`).join('|')}|`;
+    })
+    .join('\n');
 
   return {
     output,

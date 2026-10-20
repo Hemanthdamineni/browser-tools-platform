@@ -1,7 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import tool from './css-variables-extractor.tool';
 
-type Result = { output: string; render?: string; language?: string; stats?: Record<string, number>; notes?: string[] };
+type Result = {
+  output: string;
+  render?: string;
+  language?: string;
+  stats?: Record<string, number>;
+  notes?: string[];
+};
 interface Table {
   headers: string[];
   rows: string[][];
@@ -33,7 +39,11 @@ describe('css-variables-extractor', () => {
 
   it('tracks nested at-rule scopes', async () => {
     const r = await run('@media (prefers-color-scheme: dark) {\n  :root { --bg: #000; }\n}');
-    expect(table(r).rows[0]).toEqual(['--bg', '#000', '@media (prefers-color-scheme: dark) > :root']);
+    expect(table(r).rows[0]).toEqual([
+      '--bg',
+      '#000',
+      '@media (prefers-color-scheme: dark) > :root',
+    ]);
   });
 
   it('ignores comments, strings and non-variable declarations', async () => {
@@ -68,7 +78,9 @@ describe('css-variables-extractor', () => {
   });
 
   it('collapses overrides to the last value in SCSS output', async () => {
-    const scss = await run(':root { --brand: #111; }\n.dark { --brand: #222; }', { output: 'scss' });
+    const scss = await run(':root { --brand: #111; }\n.dark { --brand: #222; }', {
+      output: 'scss',
+    });
     expect(scss.output).toContain('$brand: #222;');
   });
 

@@ -36,7 +36,9 @@ describe('readability-score', () => {
   });
 
   it('keeps scores inside their valid ranges', async () => {
-    const r = await run('Supercalifragilisticexpialidocious antidisestablishmentarianism pneumonoultramicroscopicsilicovolcanoconiosis.');
+    const r = await run(
+      'Supercalifragilisticexpialidocious antidisestablishmentarianism pneumonoultramicroscopicsilicovolcanoconiosis.',
+    );
     expect(r.stats!.ease!).toBeGreaterThanOrEqual(0);
     expect(r.stats!.ease!).toBeLessThanOrEqual(100);
     expect(r.stats!.grade!).toBeGreaterThanOrEqual(0);

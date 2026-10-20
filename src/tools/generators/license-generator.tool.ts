@@ -175,7 +175,8 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   const o = resolveOptions(meta, input.options);
   const key = String(o.license ?? 'MIT');
   const yearRaw = String(o.year ?? '').trim();
-  const year = !yearRaw || /^<current year>$/.test(yearRaw) ? String(new Date().getFullYear()) : yearRaw;
+  const year =
+    !yearRaw || /^<current year>$/.test(yearRaw) ? String(new Date().getFullYear()) : yearRaw;
   const fullname = String(o.fullname ?? '').trim();
   const holder = fullname === '' || /^<your name>$/.test(fullname) ? '<your name>' : fullname;
 
@@ -197,7 +198,9 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     notes: [
       'License: ' + key + '.',
       year + ', ' + (fullname || '<your name>'),
-      headerless ? 'This license has no copyright line.' : 'Replace the header if you hold the copyright differently.',
+      headerless
+        ? 'This license has no copyright line.'
+        : 'Replace the header if you hold the copyright differently.',
     ],
   };
 }

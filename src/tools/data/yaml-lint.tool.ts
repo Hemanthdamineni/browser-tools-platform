@@ -59,7 +59,17 @@ function isQuoteStart(text: string, i: number): boolean {
   if (ch !== "'" && ch !== '"') return false;
   if (i === 0) return true;
   const prev = text[i - 1]!;
-  return prev === ' ' || prev === '\t' || prev === ':' || prev === ',' || prev === '[' || prev === '{' || prev === '-' || prev === '|' || prev === '>';
+  return (
+    prev === ' ' ||
+    prev === '\t' ||
+    prev === ':' ||
+    prev === ',' ||
+    prev === '[' ||
+    prev === '{' ||
+    prev === '-' ||
+    prev === '|' ||
+    prev === '>'
+  );
 }
 
 /** Build logical lines, merging multi-line quoted scalars and flow collections. */
@@ -93,7 +103,10 @@ function buildLines(text: string): { lines: LineX[]; diagnostics: Diag[] } {
         else if (ch === '"') q = 'none';
         continue;
       }
-      if (ch === '#' && (i === 0 || pendingContent[i - 1] === ' ' || pendingContent[i - 1] === '\t')) {
+      if (
+        ch === '#' &&
+        (i === 0 || pendingContent[i - 1] === ' ' || pendingContent[i - 1] === '\t')
+      ) {
         inComment = true;
         continue;
       }
@@ -112,7 +125,12 @@ function buildLines(text: string): { lines: LineX[]; diagnostics: Diag[] } {
       pendingContent = '';
       return;
     }
-    lines.push({ indent: pendingIndent, content: pendingContent, line: pendingLine, col: pendingCol });
+    lines.push({
+      indent: pendingIndent,
+      content: pendingContent,
+      line: pendingLine,
+      col: pendingCol,
+    });
     pendingContent = '';
     quoteState = 'none';
     flowOpen = false;
@@ -124,7 +142,11 @@ function buildLines(text: string): { lines: LineX[]; diagnostics: Diag[] } {
     const indent = leading.length;
     const content = raw.slice(leading.length);
     if (leading.includes('\t')) {
-      diagnostics.push({ line: p + 1, col: 1, message: 'Tabs are not allowed for indentation; use spaces.' });
+      diagnostics.push({
+        line: p + 1,
+        col: 1,
+        message: 'Tabs are not allowed for indentation; use spaces.',
+      });
     }
     if (quoteState === 'none' && !flowOpen) {
       flush();
@@ -149,22 +171,35 @@ function buildLines(text: string): { lines: LineX[]; diagnostics: Diag[] } {
       message: `Unclosed ${endQuote === 'single' ? "single '" : 'double "'} quote at end of document.`,
     });
   } else if (endFlow) {
-    diagnostics.push({ line: pendingLine, col: pendingCol, message: 'Unclosed flow collection ([ or {) at end of document.' });
+    diagnostics.push({
+      line: pendingLine,
+      col: pendingCol,
+      message: 'Unclosed flow collection ([ or {) at end of document.',
+    });
   }
   return { lines, diagnostics };
 }
 
 function decodeEscape(e: string): string {
   switch (e) {
-    case 'n': return '\n';
-    case 't': return '\t';
-    case 'r': return '\r';
-    case 'b': return '\b';
-    case 'f': return '\f';
-    case '0': return '\0';
-    case '\\': return '\\';
-    case '"': return '"';
-    default: return e;
+    case 'n':
+      return '\n';
+    case 't':
+      return '\t';
+    case 'r':
+      return '\r';
+    case 'b':
+      return '\b';
+    case 'f':
+      return '\f';
+    case '0':
+      return '\0';
+    case '\\':
+      return '\\';
+    case '"':
+      return '"';
+    default:
+      return e;
   }
 }
 
@@ -174,7 +209,10 @@ function unquote(raw: string): { value: string; quoted: boolean } {
     return { value: t.slice(1, -1).replace(/''/g, "'"), quoted: true };
   }
   if (t.length >= 2 && t[0] === '"' && t[t.length - 1] === '"') {
-    return { value: t.slice(1, -1).replace(/\\(["\\nrtubf0])/g, (_m, e: string) => decodeEscape(e)), quoted: true };
+    return {
+      value: t.slice(1, -1).replace(/\\(["\\nrtubf0])/g, (_m, e: string) => decodeEscape(e)),
+      quoted: true,
+    };
   }
   return { value: t, quoted: false };
 }
@@ -199,7 +237,8 @@ function stripComment(raw: string): string {
     if (isQuoteStart(raw, i)) {
       if (ch === "'") q = 'single';
       else q = 'double';
-    } else if (ch === '#' && i > 0 && (raw[i - 1] === ' ' || raw[i - 1] === '\t')) return raw.slice(0, i).trimEnd();
+    } else if (ch === '#' && i > 0 && (raw[i - 1] === ' ' || raw[i - 1] === '\t'))
+      return raw.slice(0, i).trimEnd();
   }
   return raw.trimEnd();
 }
@@ -227,7 +266,11 @@ function splitKV(line: string): { keyRaw: string; rest: string } | null {
       else q = 'double';
     } else if (ch === '[' || ch === '{') depth += 1;
     else if (ch === ']' || ch === '}') depth -= 1;
-    else if (ch === ':' && depth <= 0 && (line[i + 1] === ' ' || line[i + 1] === '\t' || i === line.length - 1)) {
+    else if (
+      ch === ':' &&
+      depth <= 0 &&
+      (line[i + 1] === ' ' || line[i + 1] === '\t' || i === line.length - 1)
+    ) {
       return { keyRaw: line.slice(0, i).trim(), rest: line.slice(i + 1).trim() };
     }
   }
@@ -241,11 +284,16 @@ function parseScalar(raw: string): Node {
     return mk({ kind: 'scalar', value: unquote(t).value, quoted: true });
   }
   if (/^[|>](?:[-+])?(?:\d+)?[+-]?$/.test(t)) return mk({ kind: 'block', header: t, body: '' });
-  const typed = /^(?:true|false|null|~)$/i.test(t) || /^[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?$/.test(t);
+  const typed =
+    /^(?:true|false|null|~)$/i.test(t) || /^[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?$/.test(t);
   return mk({ kind: 'scalar', value: t, typed, quoted: false });
 }
 
-function collectBlockBody(lines: LineX[], i: number, parentIndent: number): { body: string; next: number } {
+function collectBlockBody(
+  lines: LineX[],
+  i: number,
+  parentIndent: number,
+): { body: string; next: number } {
   const parts: string[] = [];
   let j = i;
   while (j < lines.length && lines[j]!.indent > parentIndent) {
@@ -255,7 +303,13 @@ function collectBlockBody(lines: LineX[], i: number, parentIndent: number): { bo
   return { body: parts.join('\n'), next: j };
 }
 
-function parseValue(p: Parser, lines: LineX[], i: number, parentIndent: number, rawRest: string): { node: Node; next: number } {
+function parseValue(
+  p: Parser,
+  lines: LineX[],
+  i: number,
+  parentIndent: number,
+  rawRest: string,
+): { node: Node; next: number } {
   const trimmed = rawRest.trim();
   if (trimmed !== '') {
     const node = parseScalar(trimmed);
@@ -265,7 +319,12 @@ function parseValue(p: Parser, lines: LineX[], i: number, parentIndent: number, 
       return { node: blk, next: col.next };
     }
     if (node.kind === 'flow' && !isBalancedFlow(node.value as string)) {
-      pushDiag(p, pendingLineOf(lines, i), 1, 'Unclosed flow collection in the middle of the document.');
+      pushDiag(
+        p,
+        pendingLineOf(lines, i),
+        1,
+        'Unclosed flow collection in the middle of the document.',
+      );
     }
     return { node, next: i };
   }
@@ -304,7 +363,12 @@ function isBalancedFlow(value: string): boolean {
   return depth === 0 && q === 'none';
 }
 
-function parseSeq(p: Parser, lines: LineX[], i: number, parentIndent: number): { node: Node; next: number } {
+function parseSeq(
+  p: Parser,
+  lines: LineX[],
+  i: number,
+  parentIndent: number,
+): { node: Node; next: number } {
   const items: Node[] = [];
   let j = i;
   while (j < lines.length) {
@@ -335,7 +399,12 @@ function parseSeq(p: Parser, lines: LineX[], i: number, parentIndent: number): {
     if (kv) {
       const parsed = parseValue(p, lines, j + 1, line.indent, kv.rest);
       const entries: MapEntryNode[] = [
-        { key: unquote(kv.keyRaw).value, value: parsed.node, line: line.line, col: 1 + line.indent },
+        {
+          key: unquote(kv.keyRaw).value,
+          value: parsed.node,
+          line: line.line,
+          col: 1 + line.indent,
+        },
       ];
       let k = parsed.next;
       // Consume continuation "key: value" lines that belong to this same compact map.
@@ -346,7 +415,12 @@ function parseSeq(p: Parser, lines: LineX[], i: number, parentIndent: number): {
         const ckv = splitKV(cont.content);
         if (!ckv) break;
         const cparsed = parseValue(p, lines, k + 1, cont.indent, ckv.rest);
-        entries.push({ key: unquote(ckv.keyRaw).value, value: cparsed.node, line: cont.line, col: 1 + cont.indent });
+        entries.push({
+          key: unquote(ckv.keyRaw).value,
+          value: cparsed.node,
+          line: cont.line,
+          col: 1 + cont.indent,
+        });
         k = cparsed.next;
       }
       items.push(mk({ kind: 'map', entries }));
@@ -360,7 +434,12 @@ function parseSeq(p: Parser, lines: LineX[], i: number, parentIndent: number): {
   return { node: mk({ kind: 'seq', items }), next: j };
 }
 
-function parseBlock(p: Parser, lines: LineX[], i: number, parentIndent: number): { node: Node | null; next: number } {
+function parseBlock(
+  p: Parser,
+  lines: LineX[],
+  i: number,
+  parentIndent: number,
+): { node: Node | null; next: number } {
   if (i >= lines.length) return { node: null, next: i };
   const first = lines[i]!;
   if (first.indent <= parentIndent) return { node: null, next: i };
@@ -384,7 +463,12 @@ function parseBlock(p: Parser, lines: LineX[], i: number, parentIndent: number):
     const parsed = parseValue(p, lines, j + 1, blockIndent, kv.rest);
     entries.push({ key: keyInfo.value, value: parsed.node, line: line.line, col: 1 + line.indent });
     if (seen.has(keyInfo.value)) {
-      pushDiag(p, line.line, 1 + line.indent, `Duplicate key "${keyInfo.value}" (already defined on line ${seen.get(keyInfo.value)}).`);
+      pushDiag(
+        p,
+        line.line,
+        1 + line.indent,
+        `Duplicate key "${keyInfo.value}" (already defined on line ${seen.get(keyInfo.value)}).`,
+      );
     } else {
       seen.set(keyInfo.value, line.line);
     }
@@ -414,7 +498,12 @@ function needsQuotes(raw: string): boolean {
 }
 
 function quoteValue(raw: string): string {
-  const escaped = raw.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/\t/g, '\\t');
+  const escaped = raw
+    .replace(/\\/g, '\\\\')
+    .replace(/"/g, '\\"')
+    .replace(/\n/g, '\\n')
+    .replace(/\r/g, '\\r')
+    .replace(/\t/g, '\\t');
   return '"' + escaped + '"';
 }
 
@@ -434,7 +523,10 @@ function render(node: Node, indentStr: string, depth: number): string[] {
   if (node.kind === 'flow') return [node.value as string];
   if (node.kind === 'block') {
     const header = (node.header as string) || '|';
-    const body = (node.body as string) === '' ? [] : (node.body as string).split('\n').map((l) => pad(depth + 1) + l);
+    const body =
+      (node.body as string) === ''
+        ? []
+        : (node.body as string).split('\n').map((l) => pad(depth + 1) + l);
     return [header, ...body];
   }
   if (node.kind === 'map') {
@@ -445,7 +537,10 @@ function render(node: Node, indentStr: string, depth: number): string[] {
         out.push(...render(e.value, indentStr, depth + 1));
       } else if (e.value.kind === 'block') {
         const header = (e.value.header as string) || '|';
-        const body = (e.value.body as string) === '' ? [] : (e.value.body as string).split('\n').map((l) => pad(depth + 1) + l);
+        const body =
+          (e.value.body as string) === ''
+            ? []
+            : (e.value.body as string).split('\n').map((l) => pad(depth + 1) + l);
         out.push(pad(depth) + key + ': ' + header);
         out.push(...body);
       } else {
@@ -460,7 +555,11 @@ function render(node: Node, indentStr: string, depth: number): string[] {
       const entries = item.entries as MapEntryNode[];
       const first = entries[0]!;
       const key = needsQuotes(first.key) ? quoteValue(first.key) : first.key;
-      const sim = !(first.value.kind === 'map' || first.value.kind === 'seq' || first.value.kind === 'block');
+      const sim = !(
+        first.value.kind === 'map' ||
+        first.value.kind === 'seq' ||
+        first.value.kind === 'block'
+      );
       const valText = render(first.value, indentStr, depth + 1);
       if (sim) {
         out.push(pad(depth) + '- ' + key + ': ' + valText[0]!);
@@ -475,7 +574,10 @@ function render(node: Node, indentStr: string, depth: number): string[] {
           out.push(pad(depth + 1) + eKey + ':');
           out.push(...render(e.value, indentStr, depth + 2));
         } else if (e.value.kind === 'block') {
-          const body = (e.value.body as string) === '' ? [] : (e.value.body as string).split('\n').map((l) => pad(depth + 2) + l);
+          const body =
+            (e.value.body as string) === ''
+              ? []
+              : (e.value.body as string).split('\n').map((l) => pad(depth + 2) + l);
           out.push(pad(depth + 1) + eKey + ': ' + ((e.value.header as string) || '|'));
           out.push(...body);
         } else {
@@ -486,7 +588,10 @@ function render(node: Node, indentStr: string, depth: number): string[] {
       out.push(pad(depth) + '- {}');
     } else if (item.kind === 'scalar' || item.kind === 'flow' || item.kind === 'block') {
       if (item.kind === 'block') {
-        const body = (item.body as string) === '' ? [] : (item.body as string).split('\n').map((l) => pad(depth + 1) + l);
+        const body =
+          (item.body as string) === ''
+            ? []
+            : (item.body as string).split('\n').map((l) => pad(depth + 1) + l);
         out.push(pad(depth) + '- ' + ((item.header as string) || '|'));
         out.push(...body);
       } else {
@@ -509,7 +614,10 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   }
   const source = input.text ?? '';
   if (!source.trim()) {
-    throw new ToolError('Paste a YAML document to lint.', 'Example:\nserver:\n  host: localhost\n  port: 8080');
+    throw new ToolError(
+      'Paste a YAML document to lint.',
+      'Example:\nserver:\n  host: localhost\n  port: 8080',
+    );
   }
   if (source.length > MAX_LENGTH) {
     throw new ToolError('The document is too large.', 'Keep it under 1,000,000 characters.');
@@ -522,11 +630,26 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   for (const line of built.lines) {
     const text = line.content;
     if (/^(?:---|\.\.\.)$/.test(text.trim())) {
-      pushDiag(p, line.line, 1, 'Multi-document stream marker: only the first document is analyzed.');
+      pushDiag(
+        p,
+        line.line,
+        1,
+        'Multi-document stream marker: only the first document is analyzed.',
+      );
     } else if (/(?:^|\s)[&*][A-Za-z0-9_-]+/.test(text)) {
-      pushDiag(p, line.line, 1 + line.indent, 'Anchors and aliases are not supported; this reference is left as written.');
+      pushDiag(
+        p,
+        line.line,
+        1 + line.indent,
+        'Anchors and aliases are not supported; this reference is left as written.',
+      );
     } else if (/(?:^|\s)![A-Za-z!<]/.test(text)) {
-      pushDiag(p, line.line, 1 + line.indent, 'Explicit tags (!) are not supported and are left as written.');
+      pushDiag(
+        p,
+        line.line,
+        1 + line.indent,
+        'Explicit tags (!) are not supported and are left as written.',
+      );
     }
   }
 
@@ -542,7 +665,12 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
       } else if (built.lines.length === 1) {
         root = parseScalar(first.content);
       } else {
-        pushDiag(p, first.line, 1, 'Expected "key: value" or a "- " sequence at the start of the document.');
+        pushDiag(
+          p,
+          first.line,
+          1,
+          'Expected "key: value" or a "- " sequence at the start of the document.',
+        );
       }
     }
   }
@@ -560,7 +688,12 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     output = 'No issues found.';
     renderMode = 'code';
   } else {
-    const rows = all.map((d) => [String(d.line), String(d.col), errors.includes(d) ? 'error' : 'warning', d.message]);
+    const rows = all.map((d) => [
+      String(d.line),
+      String(d.col),
+      errors.includes(d) ? 'error' : 'warning',
+      d.message,
+    ]);
     output = JSON.stringify({ headers: ['Line', 'Col', 'Severity', 'Message'], rows });
     renderMode = 'table';
   }
@@ -573,7 +706,9 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     notes:
       all.length === 0
         ? ['Document is well-formed and was normalized.']
-        : [`Found ${errors.length} error(s) and ${warnings.length} warning(s); fix them to see normalized output.`],
+        : [
+            `Found ${errors.length} error(s) and ${warnings.length} warning(s); fix them to see normalized output.`,
+          ],
   };
 }
 

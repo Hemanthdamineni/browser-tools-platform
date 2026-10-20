@@ -47,7 +47,8 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   const addHost = o.addHost !== false;
 
   if (!rawUrl) throw new ToolError('Provide a URL or path for the request.');
-  if (rawUrl.length > MAX_LEN) throw new ToolError('Input is too large.', 'Keep it under ' + MAX_LEN + ' characters.');
+  if (rawUrl.length > MAX_LEN)
+    throw new ToolError('Input is too large.', 'Keep it under ' + MAX_LEN + ' characters.');
   if (!/^(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(method)) {
     throw new ToolError('Unsupported method.', 'GET, POST, PUT, PATCH, DELETE, HEAD or OPTIONS.');
   }
@@ -68,7 +69,13 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
 
   const body = String(o.body ?? '');
   const normalizedBody = body.replace(/\r?\n/g, '\r\n');
-  if (autoLength && normalizedBody && method !== 'GET' && method !== 'HEAD' && !keys.has('content-length')) {
+  if (
+    autoLength &&
+    normalizedBody &&
+    method !== 'GET' &&
+    method !== 'HEAD' &&
+    !keys.has('content-length')
+  ) {
     lines.push('Content-Length: ' + byteLength(normalizedBody));
   }
 

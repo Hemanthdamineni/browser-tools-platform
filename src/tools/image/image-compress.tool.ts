@@ -60,7 +60,9 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
       let blob = await encodeCanvas(canvas, mime, quality);
       let filename = `${stem(file.name)}-min.${extension(mime)}`;
       if (blob.size >= file.size) {
-        warnings.push(`${file.name}: the re-encoded file was not smaller, so the original is kept.`);
+        warnings.push(
+          `${file.name}: the re-encoded file was not smaller, so the original is kept.`,
+        );
         blob = file;
         filename = file.name;
       }

@@ -4,8 +4,7 @@ export const meta: ToolMeta = {
   id: 'markdown-table-sort',
   name: 'Markdown Table Sorter',
   category: 'developer',
-  summary:
-    'Sort Markdown pipe-table rows by a column: numeric or text, ascending or descending.',
+  summary: 'Sort Markdown pipe-table rows by a column: numeric or text, ascending or descending.',
   description:
     'Reorder the data rows of a single Markdown pipe table by the value in one column. Pick the column by its header text or by 1-based index, choose numeric or text comparison (auto-detected), and sort ascending or descending. The header and alignment row stay fixed; cells keep their original text. Runs entirely in the browser, so your tables never leave the tab.',
   keywords: [
@@ -60,8 +59,7 @@ export const meta: ToolMeta = {
   examples: [
     {
       title: 'Sort by a numeric column',
-      input:
-        '| Name | Count |\n|---|---:|\n| pears | 120 |\n| apples | 3 |\n| figs | 48 |',
+      input: '| Name | Count |\n|---|---:|\n| pears | 120 |\n| apples | 3 |\n| figs | 48 |',
       options: { column: 'Count', order: 'desc' },
     },
     {

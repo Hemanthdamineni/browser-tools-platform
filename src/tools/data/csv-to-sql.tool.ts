@@ -95,10 +95,7 @@ function sqlLiteral(cell: string, isQuoted: boolean, o: LiteralOpts): string {
   }
   let body = cell;
   if (o.mysqlEscapes) {
-    body = body
-      .replace(/\\/g, '\\\\')
-      .replace(/\r/g, '\\r')
-      .replace(/\n/g, '\\n');
+    body = body.replace(/\\/g, '\\\\').replace(/\r/g, '\\r').replace(/\n/g, '\\n');
   }
   body = o.quote === "'" ? body.replace(/'/g, "''") : body.replace(/"/g, '""');
   return `${o.quote}${body}${o.quote}`;
@@ -131,7 +128,11 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   }
 
   const rows = parseCsv(text);
-  if (rows.length === 0) throw new ToolError('No CSV rows were found in the input.', 'Check that the data is non-empty.');
+  if (rows.length === 0)
+    throw new ToolError(
+      'No CSV rows were found in the input.',
+      'Check that the data is non-empty.',
+    );
 
   const hasHeader = o.header !== false;
   let columns: string[];
@@ -141,14 +142,18 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     columns = rows[0]!.cells;
     dataRows = rows.slice(1);
     if (dataRows.length === 0) {
-      throw new ToolError('The CSV has a header but no data rows.', 'Add at least one row of data after the header.');
+      throw new ToolError(
+        'The CSV has a header but no data rows.',
+        'Add at least one row of data after the header.',
+      );
     }
   } else {
     columns = rows[0]!.cells.map((_, i) => `col${i + 1}`);
     dataRows = rows;
   }
 
-  if (columns.length === 0) throw new ToolError('The CSV has no columns.', 'Add at least one column.');
+  if (columns.length === 0)
+    throw new ToolError('The CSV has no columns.', 'Add at least one column.');
 
   const badNames = columns.filter((c) => !IDENT.test(c.trim()));
   if (badNames.length > 0) {
@@ -190,10 +195,13 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   const output = statements.join('\n') + '\n';
 
   const notes: string[] = [];
-  notes.push(`Generated ${dataRows.length} INSERT row${dataRows.length === 1 ? '' : 's'} across ${statements.length} statement${statements.length === 1 ? '' : 's'} for table "${table}".`);
+  notes.push(
+    `Generated ${dataRows.length} INSERT row${dataRows.length === 1 ? '' : 's'} across ${statements.length} statement${statements.length === 1 ? '' : 's'} for table "${table}".`,
+  );
   notes.push(`String literals use ${quote === "'" ? 'single' : 'double'} quotes.`);
   if (mysqlEscapes) notes.push('MySQL backslash escaping is ON (\\ and new lines are escaped).');
-  if (nullText !== '') notes.push(`Cells equal to "${nullText}" (and empty cells, if enabled) become NULL.`);
+  if (nullText !== '')
+    notes.push(`Cells equal to "${nullText}" (and empty cells, if enabled) become NULL.`);
 
   return {
     output,

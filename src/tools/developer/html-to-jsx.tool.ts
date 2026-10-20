@@ -4,7 +4,20 @@ import { resolveOptions } from '@/lib/options';
 import { meta } from './html-to-jsx.meta';
 
 const VOID_ELEMENTS = new Set([
-  'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr',
+  'area',
+  'base',
+  'br',
+  'col',
+  'embed',
+  'hr',
+  'img',
+  'input',
+  'link',
+  'meta',
+  'param',
+  'source',
+  'track',
+  'wbr',
 ]);
 
 const ATTR_MAP: Record<string, string> = {
@@ -79,7 +92,10 @@ function parseHtml(source: string): Fragment {
         errors.push('Unclosed closing tag.');
         break;
       }
-      const name = source.slice(i + 2, end).trim().toLowerCase();
+      const name = source
+        .slice(i + 2, end)
+        .trim()
+        .toLowerCase();
       const top = stack[stack.length - 1];
       if (top && top.tag === name) stack.pop();
       else errors.push('Unexpected closing tag </' + name + '>.');
@@ -148,7 +164,8 @@ function parseHtml(source: string): Fragment {
     i = tagEnd + 1;
   }
   flush();
-  if (stack.length) errors.push('Unbalanced — <' + stack[stack.length - 1]!.tag + '> is never closed.');
+  if (stack.length)
+    errors.push('Unbalanced — <' + stack[stack.length - 1]!.tag + '> is never closed.');
   return { roots, errors };
 }
 
@@ -200,7 +217,19 @@ function renderNode(node: ENode, depth: number, inline: boolean): string {
   }
   const full = body.filter((s) => s.trim() !== '');
   if (!full.length) return pad + '<' + node.tag + attrText(node) + ' />';
-  return pad + '<' + node.tag + attrText(node) + '>\n' + full.join('\n') + '\n' + pad + '</' + node.tag + '>';
+  return (
+    pad +
+    '<' +
+    node.tag +
+    attrText(node) +
+    '>\n' +
+    full.join('\n') +
+    '\n' +
+    pad +
+    '</' +
+    node.tag +
+    '>'
+  );
 }
 
 function countElements(nodes: ENode[]): number {

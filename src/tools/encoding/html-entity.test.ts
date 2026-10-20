@@ -36,7 +36,7 @@ describe('html-entity', () => {
   });
 
   it('escapes the apostrophe and rejects empty input', async () => {
-    const r = await run('it\'s', { mode: 'encode' });
+    const r = await run("it's", { mode: 'encode' });
     expect(r.output).toContain('it&#39;s');
     await expect(run('   ')).rejects.toThrow(/paste text/i);
   });

@@ -11,7 +11,7 @@ describe('csv-to-markdown', () => {
     const r = await run('Name,Score\nAda,3\nTuring,120');
     expect(r.render).toBe('code');
     expect(r.output).toBe(
-      '| Name | Score |\n' + '| --- | ---: |\n' + '| Ada | 3 |\n' + '| Turing | 120 |\n'
+      '| Name | Score |\n' + '| --- | ---: |\n' + '| Ada | 3 |\n' + '| Turing | 120 |\n',
     );
     expect(r.stats?.rows).toBe(2);
     expect(r.stats?.columns).toBe(2);

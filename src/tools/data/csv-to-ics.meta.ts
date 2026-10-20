@@ -64,7 +64,8 @@ export const meta: ToolMeta = {
   examples: [
     {
       title: 'Three events',
-      input: 'title,start,end,description\nStandup,2024-01-05T09:00:00,2024-01-05T09:30:00,Team sync\nReview,2024-01-06T14:00:00,2024-01-06T15:00:00,Code review',
+      input:
+        'title,start,end,description\nStandup,2024-01-05T09:00:00,2024-01-05T09:30:00,Team sync\nReview,2024-01-06T14:00:00,2024-01-06T15:00:00,Code review',
     },
   ],
   faq: [

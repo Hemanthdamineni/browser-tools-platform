@@ -4,7 +4,8 @@ export const meta: ToolMeta = {
   id: 'conventional-commit',
   name: 'Conventional Commit Builder',
   category: 'developer',
-  summary: 'Compose a Conventional Commits message — type, scope, breaking change and body — and copy the ready commit text.',
+  summary:
+    'Compose a Conventional Commits message — type, scope, breaking change and body — and copy the ready commit text.',
   description:
     'Build a conventional commit message the spec way: pick a type (feat, fix, docs, refactor, perf, test, build, ci, chore, revert), an optional scope, mark breaking changes with a !, and paste a short description. The tool assembles the final subject, appends the body and a BREAKING CHANGE footer when needed, warns when the subject is too long, and formats whitespace. 100% on-device.',
   keywords: [

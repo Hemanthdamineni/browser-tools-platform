@@ -40,7 +40,8 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   const o = resolveOptions(meta, input.options);
   const strictLength = o.strictLength !== false;
   const source = (input.text ?? '').replace(/[\s-]/g, '');
-  if (!source) throw new ToolError('Enter a card number to validate.', 'Example: 4111 1111 1111 1111');
+  if (!source)
+    throw new ToolError('Enter a card number to validate.', 'Example: 4111 1111 1111 1111');
   if (source.length > MAX_LEN) throw new ToolError('That is too long for a card number.');
   if (!/^\d+$/.test(source)) throw new ToolError('Only digits, spaces and dashes are allowed.');
 
@@ -69,7 +70,7 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   const notes: string[] = [
     sumValid ? 'The number passes the Luhn checksum.' : 'The number fails the Luhn checksum.',
     brand ? 'Brand detected from the IIN prefix.' : 'No known brand matches the prefix.',
-    "This is a format check only — it does not confirm a real card exists.",
+    'This is a format check only — it does not confirm a real card exists.',
   ];
 
   return {

@@ -4,8 +4,10 @@ export const meta: ToolMeta = {
   id: 'cache-headers',
   name: 'Cache Headers Builder & Analyzer',
   category: 'web',
-  summary: 'Build or analyze Cache-Control, CDN-Cache-Control, Surrogate-Control, Expires, Age, Cache-Status, and Vary.',
-  description: 'One tool for every cache-related HTTP header. Pick a family, then build a validated header value from its directives or paste an existing value to inspect it for invalid, duplicate, and conflicting directives. Everything runs locally.',
+  summary:
+    'Build or analyze Cache-Control, CDN-Cache-Control, Surrogate-Control, Expires, Age, Cache-Status, and Vary.',
+  description:
+    'One tool for every cache-related HTTP header. Pick a family, then build a validated header value from its directives or paste an existing value to inspect it for invalid, duplicate, and conflicting directives. Everything runs locally.',
   keywords: [
     'cache headers',
     'Cache-Control builder',
@@ -197,7 +199,14 @@ export const meta: ToolMeta = {
     { title: 'Analyze a Cache-Control policy', input: 'public, max-age=31536000, immutable' },
     {
       title: 'Build a private no-store policy',
-      options: { header: 'cache-control', mode: 'build', visibility: 'private', noStore: true, noCache: true, mustRevalidate: true },
+      options: {
+        header: 'cache-control',
+        mode: 'build',
+        visibility: 'private',
+        noStore: true,
+        noCache: true,
+        mustRevalidate: true,
+      },
     },
     {
       title: 'Analyze a CDN-Cache-Control policy',
@@ -206,7 +215,11 @@ export const meta: ToolMeta = {
     },
     {
       title: 'Build a Surrogate-Control policy',
-      options: { header: 'surrogate-control', mode: 'build', surrogateDirectives: 'max-age=3600, content="ESI/1.0"' },
+      options: {
+        header: 'surrogate-control',
+        mode: 'build',
+        surrogateDirectives: 'max-age=3600, content="ESI/1.0"',
+      },
     },
     {
       title: 'Analyze an RFC 9211 Cache-Status field',
@@ -219,10 +232,22 @@ export const meta: ToolMeta = {
     },
   ],
   faq: [
-    { q: 'Why is this one tool instead of seven?', a: 'Cache-Control, CDN-Cache-Control, Surrogate-Control, Expires, Age, Cache-Status, and Vary are all cache-related response fields. The older single-header tools now redirect to this one; their URLs still work.' },
-    { q: 'Does no-cache mean do not store?', a: 'No. no-cache allows storage but requires validation before reuse. Use no-store when a response must not be stored.' },
-    { q: 'Can this know whether a response is safe to cache?', a: 'No. It can flag suspicious combinations such as public caching with contradictory directives, but cache safety depends on content, authorization, and deployment context.' },
-    { q: 'Does a CDN have to honor these fields?', a: 'Only if the CDN supports the field and its documented precedence rules. Treat provider-specific fields as advisory unless the provider documents otherwise.' },
+    {
+      q: 'Why is this one tool instead of seven?',
+      a: 'Cache-Control, CDN-Cache-Control, Surrogate-Control, Expires, Age, Cache-Status, and Vary are all cache-related response fields. The older single-header tools now redirect to this one; their URLs still work.',
+    },
+    {
+      q: 'Does no-cache mean do not store?',
+      a: 'No. no-cache allows storage but requires validation before reuse. Use no-store when a response must not be stored.',
+    },
+    {
+      q: 'Can this know whether a response is safe to cache?',
+      a: 'No. It can flag suspicious combinations such as public caching with contradictory directives, but cache safety depends on content, authorization, and deployment context.',
+    },
+    {
+      q: 'Does a CDN have to honor these fields?',
+      a: 'Only if the CDN supports the field and its documented precedence rules. Treat provider-specific fields as advisory unless the provider documents otherwise.',
+    },
   ],
   related: ['conditional-request-headers', 'date-header'],
   status: 'beta',

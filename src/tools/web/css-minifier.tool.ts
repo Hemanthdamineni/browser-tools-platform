@@ -41,10 +41,24 @@ function byteLength(text: string): number {
  */
 function keepSpace(prev: string, next: string, inMath: boolean): boolean {
   if (!prev || !next) return false;
-  if (next === '{' || next === '}' || next === ';' || next === ',' || next === ')' || next === '!') {
+  if (
+    next === '{' ||
+    next === '}' ||
+    next === ';' ||
+    next === ',' ||
+    next === ')' ||
+    next === '!'
+  ) {
     return false;
   }
-  if (prev === '{' || prev === '}' || prev === ';' || prev === ',' || prev === '(' || prev === '!') {
+  if (
+    prev === '{' ||
+    prev === '}' ||
+    prev === ';' ||
+    prev === ',' ||
+    prev === '(' ||
+    prev === '!'
+  ) {
     return false;
   }
   // Space after a colon is never needed; space before one can be a descendant combinator.
@@ -268,10 +282,16 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   const css = input.text ?? '';
 
   if (!css.trim()) {
-    throw new ToolError('Paste some CSS to minify.', 'Example: .btn { color: red; padding: 8px 12px; }');
+    throw new ToolError(
+      'Paste some CSS to minify.',
+      'Example: .btn { color: red; padding: 8px 12px; }',
+    );
   }
   if (css.length > MAX_LENGTH) {
-    throw new ToolError('CSS is too large.', `Keep it under ${MAX_LENGTH.toLocaleString('en-US')} characters.`);
+    throw new ToolError(
+      'CSS is too large.',
+      `Keep it under ${MAX_LENGTH.toLocaleString('en-US')} characters.`,
+    );
   }
 
   const minified = minifyCss(css, keepImportantComments);
@@ -286,7 +306,8 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   const originalBytes = byteLength(css);
   const minifiedBytes = byteLength(result);
   const savedBytes = Math.max(0, originalBytes - minifiedBytes);
-  const savedPercent = originalBytes === 0 ? 0 : Math.round((savedBytes / originalBytes) * 1000) / 10;
+  const savedPercent =
+    originalBytes === 0 ? 0 : Math.round((savedBytes / originalBytes) * 1000) / 10;
 
   return {
     output: result,

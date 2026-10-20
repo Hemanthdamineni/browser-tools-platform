@@ -19,7 +19,12 @@ describe('vcard', () => {
   });
 
   it('escapes commas and semicolons in values', () => {
-    const out = run('', { mode: 'build', firstName: 'A', lastName: 'B', note: 'met, at conf' }).output;
+    const out = run('', {
+      mode: 'build',
+      firstName: 'A',
+      lastName: 'B',
+      note: 'met, at conf',
+    }).output;
     expect(out).toContain('NOTE:met\\, at conf');
   });
 

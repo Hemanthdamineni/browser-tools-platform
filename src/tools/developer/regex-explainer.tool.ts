@@ -39,14 +39,19 @@ const FLAG_MEANINGS: Record<string, string> = {
 type Tok = { text: string; meaning: string };
 
 /** Explain one escape sequence starting at pattern[i] (after the backslash). */
-function explainEscape(pattern: string, i: number): { text: string; meaning: string; used: number } {
+function explainEscape(
+  pattern: string,
+  i: number,
+): { text: string; meaning: string; used: number } {
   const c = pattern[i] ?? '';
   if (c === 'x') {
     const hex = pattern.slice(i + 1, i + 3);
     const code = Number.parseInt(hex, 16);
     return {
       text: '\\x' + hex,
-      meaning: Number.isNaN(code) ? "hex escape — a character by its codepoint (unknown hex)" : `hex escape — the character U+${hex.toUpperCase()} ('${String.fromCodePoint(code)}')`,
+      meaning: Number.isNaN(code)
+        ? 'hex escape — a character by its codepoint (unknown hex)'
+        : `hex escape — the character U+${hex.toUpperCase()} ('${String.fromCodePoint(code)}')`,
       used: 3,
     };
   }
@@ -88,15 +93,27 @@ function explainEscape(pattern: string, i: number): { text: string; meaning: str
     };
   }
   if (/^[1-9]$/.test(c)) {
-    return { text: '\\' + c, meaning: `backreference — matches the text captured by group ${c}`, used: 2 };
+    return {
+      text: '\\' + c,
+      meaning: `backreference — matches the text captured by group ${c}`,
+      used: 2,
+    };
   }
   const known = ESCAPE_MEANINGS[c];
   if (known) return { text: '\\' + c, meaning: known, used: 2 };
-  return { text: '\\' + c, meaning: `escaped literal ${c} — matches the ${c} character itself`, used: 2 };
+  return {
+    text: '\\' + c,
+    meaning: `escaped literal ${c} — matches the ${c} character itself`,
+    used: 2,
+  };
 }
 
 /** Read a character class starting at pattern[i] ('['). */
-function readClass(pattern: string, i: number, unicode: boolean): { text: string; meaning: string; used: number } {
+function readClass(
+  pattern: string,
+  i: number,
+  unicode: boolean,
+): { text: string; meaning: string; used: number } {
   let j = i + 1;
   let negated = false;
   if (pattern[j] === '^') {
@@ -137,7 +154,10 @@ function readClass(pattern: string, i: number, unicode: boolean): { text: string
   };
 }
 
-function readQuantifier(pattern: string, i: number): { text: string; meaning: string; used: number } | null {
+function readQuantifier(
+  pattern: string,
+  i: number,
+): { text: string; meaning: string; used: number } | null {
   const c = pattern[i] ?? '';
   if (c === '*') {
     let suffix = pattern[i + 1] === '?' ? '?' : pattern[i + 1] === '+' ? '+' : '';
@@ -166,7 +186,10 @@ function readQuantifier(pattern: string, i: number): { text: string; meaning: st
   return null;
 }
 
-function explainGroupsAndFlags(pattern: string, flags: string): { tokens: Tok[]; captures: number } {
+function explainGroupsAndFlags(
+  pattern: string,
+  flags: string,
+): { tokens: Tok[]; captures: number } {
   const tokens: Tok[] = [];
   let captures = 0;
 
@@ -247,15 +270,26 @@ function explainGroupsAndFlags(pattern: string, flags: string): { tokens: Tok[];
     }
 
     if (c === '^') {
-      add('^', flags.includes('m') ? 'start of the input or of a line (multiline)' : 'start of the input');
+      add(
+        '^',
+        flags.includes('m') ? 'start of the input or of a line (multiline)' : 'start of the input',
+      );
       continue;
     }
     if (c === '$') {
-      add('$', flags.includes('m') ? 'end of the input or of a line (multiline)' : 'end of the input');
+      add(
+        '$',
+        flags.includes('m') ? 'end of the input or of a line (multiline)' : 'end of the input',
+      );
       continue;
     }
     if (c === '.') {
-      add('.', flags.includes('s') ? 'any character, including line terminators (dotAll)' : 'any character except line terminators');
+      add(
+        '.',
+        flags.includes('s')
+          ? 'any character, including line terminators (dotAll)'
+          : 'any character except line terminators',
+      );
       continue;
     }
     if (c === '|') {
@@ -286,10 +320,16 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   const pattern = input.text ?? '';
 
   if (!pattern.trim()) {
-    throw new ToolError('Paste a regular expression to explain.', 'Example: ^[a-z0-9]+@[a-z]+\\.[a-z]{2,}$');
+    throw new ToolError(
+      'Paste a regular expression to explain.',
+      'Example: ^[a-z0-9]+@[a-z]+\\.[a-z]{2,}$',
+    );
   }
   if (pattern.length > MAX_LENGTH) {
-    throw new ToolError('The expression is too large.', `Keep it under ${MAX_LENGTH.toLocaleString('en-US')} characters.`);
+    throw new ToolError(
+      'The expression is too large.',
+      `Keep it under ${MAX_LENGTH.toLocaleString('en-US')} characters.`,
+    );
   }
 
   const { tokens, captures } = explainGroupsAndFlags(pattern, flags);

@@ -3,7 +3,13 @@ import { ToolError } from '@/lib/types';
 import { resolveOptions } from '@/lib/options';
 import { meta } from './markdown-link-checker.meta';
 
-interface Issue { severity: string; kind: string; label: string; target: string; line: number; }
+interface Issue {
+  severity: string;
+  kind: string;
+  label: string;
+  target: string;
+  line: number;
+}
 
 const CUSTOM_ANCHOR = /\s+\{#([^}]*)\}\s*$/;
 const EMPTY_ANCHOR = /^\s*$/;
@@ -32,7 +38,10 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   const checkExternal = o.checkExternal !== false;
   const text = (input.text ?? '').trim();
   if (!text) {
-    throw new ToolError('Paste a Markdown document to check.', 'Links and headings are scanned on-device.');
+    throw new ToolError(
+      'Paste a Markdown document to check.',
+      'Links and headings are scanned on-device.',
+    );
   }
   if (text.length > 250_000) {
     throw new ToolError('Document is too large.', 'Keep it under 250,000 characters.');
@@ -85,7 +94,13 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
 
   let inFence: string | null = null;
 
-  const classify = (label: string, target: string, line: number, isImage: boolean, raw: string): void => {
+  const classify = (
+    label: string,
+    target: string,
+    line: number,
+    isImage: boolean,
+    raw: string,
+  ): void => {
     stats.links += 1;
     const t = target.trim();
     const lbl = label.trim() || (isImage ? '(image)' : '(empty)');

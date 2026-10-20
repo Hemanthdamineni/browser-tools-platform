@@ -15,18 +15,113 @@ import { meta } from './barcode.meta';
  * value; index 103 = START A, 104 = START B, 105 = START C, 106 = STOP.
  */
 export const CODE128_PATTERNS = [
-  '212222', '222122', '222221', '121223', '121322', '131222', '122213', '122312', '132212',
-  '221213', '221312', '231212', '112232', '122132', '122231', '113222', '123122', '123221',
-  '223211', '221132', '221231', '213212', '223112', '312131', '311222', '321122', '321221',
-  '312212', '322112', '322211', '212123', '212321', '232121', '111323', '131123', '131321',
-  '112313', '132113', '132311', '211313', '231113', '231311', '112133', '112331', '132131',
-  '113123', '113321', '133121', '313121', '211331', '231131', '213113', '213311', '213131',
-  '311123', '311321', '331121', '312113', '312311', '332111', '314111', '221411', '431111',
-  '111224', '111422', '121124', '121421', '141122', '141221', '112214', '112412', '122114',
-  '122411', '142112', '142211', '241211', '221114', '413111', '241112', '134111', '111242',
-  '121142', '121241', '114212', '124112', '124211', '411212', '421112', '421211', '212141',
-  '214121', '412121', '111143', '111341', '131141', '114113', '114311', '411113', '411311',
-  '113141', '114131', '311141', '411131', '211412', '211214', '211232', '2331112',
+  '212222',
+  '222122',
+  '222221',
+  '121223',
+  '121322',
+  '131222',
+  '122213',
+  '122312',
+  '132212',
+  '221213',
+  '221312',
+  '231212',
+  '112232',
+  '122132',
+  '122231',
+  '113222',
+  '123122',
+  '123221',
+  '223211',
+  '221132',
+  '221231',
+  '213212',
+  '223112',
+  '312131',
+  '311222',
+  '321122',
+  '321221',
+  '312212',
+  '322112',
+  '322211',
+  '212123',
+  '212321',
+  '232121',
+  '111323',
+  '131123',
+  '131321',
+  '112313',
+  '132113',
+  '132311',
+  '211313',
+  '231113',
+  '231311',
+  '112133',
+  '112331',
+  '132131',
+  '113123',
+  '113321',
+  '133121',
+  '313121',
+  '211331',
+  '231131',
+  '213113',
+  '213311',
+  '213131',
+  '311123',
+  '311321',
+  '331121',
+  '312113',
+  '312311',
+  '332111',
+  '314111',
+  '221411',
+  '431111',
+  '111224',
+  '111422',
+  '121124',
+  '121421',
+  '141122',
+  '141221',
+  '112214',
+  '112412',
+  '122114',
+  '122411',
+  '142112',
+  '142211',
+  '241211',
+  '221114',
+  '413111',
+  '241112',
+  '134111',
+  '111242',
+  '121142',
+  '121241',
+  '114212',
+  '124112',
+  '124211',
+  '411212',
+  '421112',
+  '421211',
+  '212141',
+  '214121',
+  '412121',
+  '111143',
+  '111341',
+  '131141',
+  '114113',
+  '114311',
+  '411113',
+  '411311',
+  '113141',
+  '114131',
+  '311141',
+  '411131',
+  '211412',
+  '211214',
+  '211232',
+  '2331112',
 ] as const;
 
 const CODE128_START_B = 104;
@@ -100,21 +195,53 @@ export const ITF_PATTERNS: Record<string, string> = {
 
 /** EAN/UPC digit encodings: left odd (L), left even (G) and right (R) parity. */
 const EAN_L = [
-  '0001101', '0011001', '0010011', '0111101', '0100011',
-  '0110001', '0101111', '0111011', '0110111', '0001011',
+  '0001101',
+  '0011001',
+  '0010011',
+  '0111101',
+  '0100011',
+  '0110001',
+  '0101111',
+  '0111011',
+  '0110111',
+  '0001011',
 ];
 const EAN_G = [
-  '0100111', '0110011', '0011011', '0100001', '0011101',
-  '0111001', '0000101', '0010001', '0001001', '0010111',
+  '0100111',
+  '0110011',
+  '0011011',
+  '0100001',
+  '0011101',
+  '0111001',
+  '0000101',
+  '0010001',
+  '0001001',
+  '0010111',
 ];
 const EAN_R = [
-  '1110010', '1100110', '1101100', '1000010', '1011100',
-  '1001110', '1010000', '1000100', '1001000', '1110100',
+  '1110010',
+  '1100110',
+  '1101100',
+  '1000010',
+  '1011100',
+  '1001110',
+  '1010000',
+  '1000100',
+  '1001000',
+  '1110100',
 ];
 /** Parity of the six left-hand digits, selected by the EAN-13 leading digit. */
 const EAN13_PARITY = [
-  'LLLLLL', 'LLGLGG', 'LLGGLG', 'LLGGGL', 'LGLLGG',
-  'LGGLLG', 'LGGGLL', 'LGLGLG', 'LGLGGL', 'LGGLGL',
+  'LLLLLL',
+  'LLGLGG',
+  'LLGGLG',
+  'LLGGGL',
+  'LGLLGG',
+  'LGGLLG',
+  'LGGGLL',
+  'LGLGLG',
+  'LGLGGL',
+  'LGGLGL',
 ];
 
 /* -------------------------------------------------------------------------- */
@@ -159,7 +286,8 @@ export function encodeCode128(
   text: string,
   subset: 'auto' | 'B' | 'C',
 ): { modules: string; start: number; codes: number[]; check: number } {
-  if (!text) throw new ToolError('Enter text to encode.', 'A Code 128 symbol needs at least one character.');
+  if (!text)
+    throw new ToolError('Enter text to encode.', 'A Code 128 symbol needs at least one character.');
   if (text.length > 200)
     throw new ToolError(
       `That is ${text.length} characters — too many for a practical Code 128 symbol.`,
@@ -211,7 +339,8 @@ export function encodeCode128(
 
 /** Encode Code 39 (start `*`, data, stop `*`, narrow inter-character gaps). */
 export function encodeCode39(text: string): string {
-  if (!text) throw new ToolError('Enter text to encode.', 'A Code 39 symbol needs at least one character.');
+  if (!text)
+    throw new ToolError('Enter text to encode.', 'A Code 39 symbol needs at least one character.');
   if (text.length > 100)
     throw new ToolError(
       `That is ${text.length} characters — too many for a practical Code 39 symbol.`,
@@ -438,7 +567,14 @@ export function buildBarcode(symbology: string, raw: string): EncodedBarcode {
     default: {
       const text = raw.trim();
       const { modules } = encodeCode128(text, 'auto');
-      return { symbology: 'code128', modules, humanText: text, guard: new Set(), cells: null, minMargin: 0 };
+      return {
+        symbology: 'code128',
+        modules,
+        humanText: text,
+        guard: new Set(),
+        cells: null,
+        minMargin: 0,
+      };
     }
   }
 }
@@ -463,7 +599,10 @@ export interface MatrixBarcode {
 export function buildMatrixBarcode(raw: string): MatrixBarcode {
   const text = raw.trim();
   if (!text)
-    throw new ToolError('Enter text to encode.', 'A DataMatrix symbol needs at least one character.');
+    throw new ToolError(
+      'Enter text to encode.',
+      'A DataMatrix symbol needs at least one character.',
+    );
   let dm;
   try {
     dm = encodeDataMatrix(text);
@@ -519,7 +658,10 @@ export function renderSvg(encoded: EncodedBarcode, opts: RenderOptions): string 
   const { modules, guard, cells, humanText } = encoded;
   const n = modules.length;
 
-  const quiet = Math.max(clamp(Math.round(opts.quietZone), 0, 24), showText ? encoded.minMargin : 0);
+  const quiet = Math.max(
+    clamp(Math.round(opts.quietZone), 0, 24),
+    showText ? encoded.minMargin : 0,
+  );
   const width = (n + 2 * quiet) * mw;
 
   // Font size: legible but never wider than its cell / the whole symbol.
@@ -537,7 +679,7 @@ export function renderSvg(encoded: EncodedBarcode, opts: RenderOptions): string 
   const barHeightFor = (tall: boolean) => (tall && showText ? barH + guardExt : barH);
 
   const rects: string[] = [];
-  for (let i = 0; i < n; ) {
+  for (let i = 0; i < n;) {
     if (modules[i] !== '1') {
       i++;
       continue;
@@ -696,9 +838,7 @@ function run(input: TextRunInput): TextRunResult {
       Modules: encoded.modules.length,
       Text: encoded.humanText,
     },
-    notes: [
-      'Print at 100% scale — shrinking the barcode blurs the bars and can stop it scanning.',
-    ],
+    notes: ['Print at 100% scale — shrinking the barcode blurs the bars and can stop it scanning.'],
   };
 }
 

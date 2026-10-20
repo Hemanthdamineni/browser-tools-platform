@@ -4,12 +4,34 @@ import { resolveOptions } from '@/lib/options';
 import { meta } from './html-to-markdown.meta';
 
 const NAMED_ENTITIES: Record<string, string> = {
-  amp: '&', lt: '<', gt: '>', quot: '"', apos: "'",
-  nbsp: ' ', ndash: '–', mdash: '—', hellip: '…', reg: '®',
-  copy: '©', trade: '™', bull: '•', middot: '·', para: '¶',
-  sect: '§', euro: '€', pound: '£', cent: '¢', yen: '¥',
-  frac12: '½', frac14: '¼', frac34: '¾',
-  larr: '←', rarr: '→', uarr: '↑', darr: '↓', harr: '↔',
+  amp: '&',
+  lt: '<',
+  gt: '>',
+  quot: '"',
+  apos: "'",
+  nbsp: ' ',
+  ndash: '–',
+  mdash: '—',
+  hellip: '…',
+  reg: '®',
+  copy: '©',
+  trade: '™',
+  bull: '•',
+  middot: '·',
+  para: '¶',
+  sect: '§',
+  euro: '€',
+  pound: '£',
+  cent: '¢',
+  yen: '¥',
+  frac12: '½',
+  frac14: '¼',
+  frac34: '¾',
+  larr: '←',
+  rarr: '→',
+  uarr: '↑',
+  darr: '↓',
+  harr: '↔',
 };
 
 function decodeEntities(s: string): string {
@@ -46,7 +68,10 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   if (!input.text) return { output: '' };
   const src = input.text;
   if (src.length > MAX_INPUT) {
-    throw new ToolError('Input is too large.', `Keep it under ${MAX_INPUT.toLocaleString('en-US')} characters.`);
+    throw new ToolError(
+      'Input is too large.',
+      `Keep it under ${MAX_INPUT.toLocaleString('en-US')} characters.`,
+    );
   }
 
   const refs: string[] = [];
@@ -76,7 +101,7 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     out = out.replace(/<img\b[^>]*>/gi, (tag) => {
       const u = attr(tag, 'src');
       const alt = attr(tag, 'alt');
-      if (linkStyle === 'text') return alt ? alt : (u ? `image: ${u}` : '');
+      if (linkStyle === 'text') return alt ? alt : u ? `image: ${u}` : '';
       if (linkStyle === 'reference') return `![${alt}][${addRef(u || '')}]`;
       return `![${alt}](${u})`;
     });
@@ -98,7 +123,10 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
       .replace(/^[\s\uFEFF]+|[\s\uFEFF]+$/g, '');
     return `\n\n\`\`\`\n${code}\n\`\`\`\n\n`;
   });
-  html = html.replace(/<code\b[^>]*>([\s\S]*?)<\/code\s*>/gi, (_w, inner: string) => `\`${inner.replace(/<[^>]+>/g, '')}\``);
+  html = html.replace(
+    /<code\b[^>]*>([\s\S]*?)<\/code\s*>/gi,
+    (_w, inner: string) => `\`${inner.replace(/<[^>]+>/g, '')}\``,
+  );
 
   // Global inline pass: emphasis, links, images, <br>.
   html = convertInline(html);
@@ -108,7 +136,10 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     const body = convertInline(inner)
       .replace(/<[^>]+>/g, '')
       .replace(/\n{2,}/g, '\n');
-    return body.split('\n').map((l) => `> ${l}`.replace(/^> $/, '>')).join('\n');
+    return body
+      .split('\n')
+      .map((l) => `> ${l}`.replace(/^> $/, '>'))
+      .join('\n');
   });
 
   // Lists (block regexes so ordered numbering resets per <ol>).
@@ -121,20 +152,29 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     return `\n${cooked}\n`;
   });
   html = html.replace(/<ul\b[^>]*>([\s\S]*?)<\/ul\s*>/gi, (_w, inner: string) => {
-    const cooked = inner.replace(/<li\b[^>]*>([\s\S]*?)<\/li\s*>/gi, (_x, item: string) => `\n- ${item.trim()}`);
+    const cooked = inner.replace(
+      /<li\b[^>]*>([\s\S]*?)<\/li\s*>/gi,
+      (_x, item: string) => `\n- ${item.trim()}`,
+    );
     return `\n${cooked}\n`;
   });
 
   // Headings.
-  html = html.replace(/<h([1-6])\b[^>]*>([\s\S]*?)<\/h\1\s*>/gi, (whole, level: string, inner: string) => {
-    const t = convertInline(inner).replace(/<[^>]+>/g, '').trim() || whole;
-    const n = Number(level);
-    if (headingStyle === 'setext' && n <= 2) {
-      const underline = n === 1 ? '=' : '-';
-      return `\n\n${t}\n${underline.repeat(Math.max(t.length, 3))}\n\n`;
-    }
-    return `\n\n${'#'.repeat(n)} ${t}\n\n`;
-  });
+  html = html.replace(
+    /<h([1-6])\b[^>]*>([\s\S]*?)<\/h\1\s*>/gi,
+    (whole, level: string, inner: string) => {
+      const t =
+        convertInline(inner)
+          .replace(/<[^>]+>/g, '')
+          .trim() || whole;
+      const n = Number(level);
+      if (headingStyle === 'setext' && n <= 2) {
+        const underline = n === 1 ? '=' : '-';
+        return `\n\n${t}\n${underline.repeat(Math.max(t.length, 3))}\n\n`;
+      }
+      return `\n\n${'#'.repeat(n)} ${t}\n\n`;
+    },
+  );
 
   // Tables -> pipe rows.
   html = html.replace(/<hr\s*\/?>/gi, '\n\n---\n\n');
@@ -165,7 +205,9 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     output: text,
     render: 'code',
     stats: { headings: headingCount, lists: listCount, links: linkCount },
-    notes: [linkStyle === 'reference' ? 'Links emitted as numbered references.' : 'Links emitted inline.'],
+    notes: [
+      linkStyle === 'reference' ? 'Links emitted as numbered references.' : 'Links emitted inline.',
+    ],
   };
 }
 

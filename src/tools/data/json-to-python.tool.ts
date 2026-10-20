@@ -22,7 +22,10 @@ const isObj = (value: unknown): value is Record<string, Json> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
 
 function toPascal(key: string): string {
-  const parts = key.trim().split(/[^A-Za-z0-9]+/).filter(Boolean);
+  const parts = key
+    .trim()
+    .split(/[^A-Za-z0-9]+/)
+    .filter(Boolean);
   if (!parts.length) return 'Value';
   const name = parts.map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join('');
   return /^[A-Za-z_]/.test(name) ? name : 'Value' + name;
@@ -30,7 +33,10 @@ function toPascal(key: string): string {
 
 function toSnake(key: string): string {
   const cleaned = key
-    .replace(/([a-z0-9])([A-Z])/g, (_all, lower: string, upper: string) => `${lower}_${upper.toLowerCase()}`)
+    .replace(
+      /([a-z0-9])([A-Z])/g,
+      (_all, lower: string, upper: string) => `${lower}_${upper.toLowerCase()}`,
+    )
     .replace(/[^A-Za-z0-9_]+/g, '_')
     .replace(/^_+|_+$/g, '');
   if (!cleaned) return 'field';
@@ -123,7 +129,10 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     throw new ToolError('Paste a JSON sample to convert.', 'Example: {"name": "Ada", "age": 37}');
   }
   if (source.length > MAX_LENGTH) {
-    throw new ToolError('JSON is too large.', `Keep it under ${MAX_LENGTH.toLocaleString('en-US')} characters.`);
+    throw new ToolError(
+      'JSON is too large.',
+      `Keep it under ${MAX_LENGTH.toLocaleString('en-US')} characters.`,
+    );
   }
 
   let parsed: Json | null;
@@ -149,11 +158,17 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   };
 
   const body: string[] = [];
-  const rootPayload = isObj(parsed) ? parsed : Array.isArray(parsed) && isObj(parsed[0]) ? parsed[0] : null;
+  const rootPayload = isObj(parsed)
+    ? parsed
+    : Array.isArray(parsed) && isObj(parsed[0])
+      ? parsed[0]
+      : null;
   if (rootPayload) {
     typeFor(rootPayload, rootName, ctx); // register the root model under the chosen name
   } else {
-    body.push(`${rootName} = ${Array.isArray(parsed) ? 'list[Any]' : typeFor(parsed, rootName, ctx)}`);
+    body.push(
+      `${rootName} = ${Array.isArray(parsed) ? 'list[Any]' : typeFor(parsed, rootName, ctx)}`,
+    );
   }
 
   for (const entry of ctx.classes) body.push(...entry.emit(ctx));

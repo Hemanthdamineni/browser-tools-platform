@@ -131,7 +131,9 @@ function decode(text: string): TextRunResult {
   }
 
   const output = parts.join('');
-  const notes: string[] = [`Decoded ${rawTokens.length} phonetic tokens into ${output.length} characters.`];
+  const notes: string[] = [
+    `Decoded ${rawTokens.length} phonetic tokens into ${output.length} characters.`,
+  ];
   if (unknown.length > 0) {
     notes.push(
       `Unknown word${unknown.length === 1 ? '' : 's'} kept in brackets: ${unknown.join(', ')}.`,

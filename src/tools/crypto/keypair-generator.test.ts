@@ -1,7 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import tool from './keypair-generator.tool';
 
-type Result = { output: string; render?: string; stats?: Record<string, string | number>; notes?: string[] };
+type Result = {
+  output: string;
+  render?: string;
+  stats?: Record<string, string | number>;
+  notes?: string[];
+};
 type Table = { headers: string[]; rows: [string, string][] };
 
 const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
@@ -10,7 +15,10 @@ const table = (r: Result) => JSON.parse(r.output) as Table;
 const row = (r: Result, key: string) => table(r).rows.find((x) => x[0] === key)?.[1];
 const bodyOf = (pemText: string) =>
   Buffer.from(
-    pemText.replace(/-----BEGIN [^-]+-----/, '').replace(/-----END [^-]+-----/, '').replace(/\s+/g, ''),
+    pemText
+      .replace(/-----BEGIN [^-]+-----/, '')
+      .replace(/-----END [^-]+-----/, '')
+      .replace(/\s+/g, ''),
     'base64',
   );
 
@@ -33,7 +41,9 @@ describe('keypair-generator', () => {
     const result = await run('', { algorithm: 'ecdsa-p256' });
     const pub = row(result, 'Public key (SPKI)') ?? '';
     const fp = (row(result, 'Public key fingerprint (SHA-256)') ?? '').replace(/:/g, '');
-    const digest = Buffer.from(new Uint8Array(await crypto.subtle.digest('SHA-256', bodyOf(pub)))).toString('hex');
+    const digest = Buffer.from(
+      new Uint8Array(await crypto.subtle.digest('SHA-256', bodyOf(pub))),
+    ).toString('hex');
     expect(fp).toBe(digest);
     expect(fp).toMatch(/^[0-9a-f]{64}$/);
   });
@@ -51,8 +61,22 @@ describe('keypair-generator', () => {
       ['verify'],
     );
     const data = new TextEncoder().encode('hello world');
-    expect(await crypto.subtle.verify({ name: 'ECDSA', hash: 'SHA-256' }, pubKey, Buffer.from(sig, 'base64'), data)).toBe(true);
-    expect(await crypto.subtle.verify({ name: 'ECDSA', hash: 'SHA-256' }, pubKey, Buffer.from(sig, 'base64'), new TextEncoder().encode('tampered'))).toBe(false);
+    expect(
+      await crypto.subtle.verify(
+        { name: 'ECDSA', hash: 'SHA-256' },
+        pubKey,
+        Buffer.from(sig, 'base64'),
+        data,
+      ),
+    ).toBe(true);
+    expect(
+      await crypto.subtle.verify(
+        { name: 'ECDSA', hash: 'SHA-256' },
+        pubKey,
+        Buffer.from(sig, 'base64'),
+        new TextEncoder().encode('tampered'),
+      ),
+    ).toBe(false);
   });
 
   it('generates an Ed25519 pair and verifies its signature', async () => {
@@ -76,7 +100,12 @@ describe('keypair-generator', () => {
       ['verify'],
     );
     const data = new TextEncoder().encode('sign me');
-    const ok = await crypto.subtle.verify('RSASSA-PKCS1-v1_5', pubKey, Buffer.from(sig, 'base64'), data);
+    const ok = await crypto.subtle.verify(
+      'RSASSA-PKCS1-v1_5',
+      pubKey,
+      Buffer.from(sig, 'base64'),
+      data,
+    );
     expect(ok).toBe(true);
   });
 

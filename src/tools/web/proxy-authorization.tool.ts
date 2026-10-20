@@ -4,7 +4,74 @@ import { resolveOptions } from '@/lib/options';
 import { meta } from './proxy-authorization.meta';
 
 const TOKEN = /^[A-Za-z0-9._~+/=-]+$/;
-function inspect(value: string): { scheme: string; credential: string; issues: string[] } | null { const match = /^([A-Za-z][A-Za-z0-9_-]*)\s+(.+)$/.exec(value.trim()); if (!match) return null; const scheme = match[1]!.toLowerCase(); const credential = match[2]!.trim(); const issues: string[] = []; if (!['basic', 'bearer'].includes(scheme)) issues.push('Unsupported proxy authorization scheme'); if (!TOKEN.test(credential) || /[\r\n\s]/.test(credential)) issues.push('Credential contains invalid whitespace or characters'); if (scheme === 'basic' && (!/^[A-Za-z0-9+/]*={0,2}$/.test(credential) || credential.length % 4 !== 0)) issues.push('Basic credential must be padded Base64'); if (!credential) issues.push('Credential must not be empty'); return { scheme, credential, issues }; }
-function run(input: TextRunInput): TextRunResult { const options = resolveOptions(meta, input.options); const mode = String(options.mode); if (mode !== 'build' && mode !== 'analyze') throw new ToolError('Choose a supported Proxy-Authorization mode.'); if (mode === 'build') { const scheme = String(options.scheme); const raw = scheme === 'Basic' ? `${String(options.username)}:${String(options.password)}` : String(options.token); if (!raw || raw === ':' || /[\r\n]/.test(raw)) throw new ToolError('Credential values must not be empty or contain line breaks.'); const credential = scheme === 'Basic' ? btoa(unescape(encodeURIComponent(raw))) : raw; const value = `${scheme} ${credential}`; const parsed = inspect(value); if (!parsed || parsed.issues.length) throw new ToolError(parsed?.issues[0] ?? 'Enter valid proxy credentials.'); return { output: value, render: 'code', language: 'http', filename: 'proxy-authorization.txt', stats: { scheme } }; } if (!input.text.trim()) return { output: JSON.stringify({ headers: ['Scheme', 'Credential', 'Status', 'Issues'], rows: [] }), render: 'table', notes: ['Paste a Proxy-Authorization value.'] }; const parsed = inspect(input.text); const rows = parsed ? [[parsed.scheme, parsed.credential, parsed.issues.length ? 'Review' : 'Valid', parsed.issues.join('; ')]] : [['', '', 'Invalid', 'Expected scheme and credential']]; return { output: JSON.stringify({ headers: ['Scheme', 'Credential', 'Status', 'Issues'], rows }), render: 'table', stats: { credentials: 1, invalid: parsed ? 0 : 1, review: parsed?.issues.length ?? 0 }, notes: ['Proxy credentials are secrets; use TLS and prevent values from reaching logs or shared history.'] }; }
+function inspect(value: string): { scheme: string; credential: string; issues: string[] } | null {
+  const match = /^([A-Za-z][A-Za-z0-9_-]*)\s+(.+)$/.exec(value.trim());
+  if (!match) return null;
+  const scheme = match[1]!.toLowerCase();
+  const credential = match[2]!.trim();
+  const issues: string[] = [];
+  if (!['basic', 'bearer'].includes(scheme)) issues.push('Unsupported proxy authorization scheme');
+  if (!TOKEN.test(credential) || /[\r\n\s]/.test(credential))
+    issues.push('Credential contains invalid whitespace or characters');
+  if (
+    scheme === 'basic' &&
+    (!/^[A-Za-z0-9+/]*={0,2}$/.test(credential) || credential.length % 4 !== 0)
+  )
+    issues.push('Basic credential must be padded Base64');
+  if (!credential) issues.push('Credential must not be empty');
+  return { scheme, credential, issues };
+}
+function run(input: TextRunInput): TextRunResult {
+  const options = resolveOptions(meta, input.options);
+  const mode = String(options.mode);
+  if (mode !== 'build' && mode !== 'analyze')
+    throw new ToolError('Choose a supported Proxy-Authorization mode.');
+  if (mode === 'build') {
+    const scheme = String(options.scheme);
+    const raw =
+      scheme === 'Basic'
+        ? `${String(options.username)}:${String(options.password)}`
+        : String(options.token);
+    if (!raw || raw === ':' || /[\r\n]/.test(raw))
+      throw new ToolError('Credential values must not be empty or contain line breaks.');
+    const credential = scheme === 'Basic' ? btoa(unescape(encodeURIComponent(raw))) : raw;
+    const value = `${scheme} ${credential}`;
+    const parsed = inspect(value);
+    if (!parsed || parsed.issues.length)
+      throw new ToolError(parsed?.issues[0] ?? 'Enter valid proxy credentials.');
+    return {
+      output: value,
+      render: 'code',
+      language: 'http',
+      filename: 'proxy-authorization.txt',
+      stats: { scheme },
+    };
+  }
+  if (!input.text.trim())
+    return {
+      output: JSON.stringify({ headers: ['Scheme', 'Credential', 'Status', 'Issues'], rows: [] }),
+      render: 'table',
+      notes: ['Paste a Proxy-Authorization value.'],
+    };
+  const parsed = inspect(input.text);
+  const rows = parsed
+    ? [
+        [
+          parsed.scheme,
+          parsed.credential,
+          parsed.issues.length ? 'Review' : 'Valid',
+          parsed.issues.join('; '),
+        ],
+      ]
+    : [['', '', 'Invalid', 'Expected scheme and credential']];
+  return {
+    output: JSON.stringify({ headers: ['Scheme', 'Credential', 'Status', 'Issues'], rows }),
+    render: 'table',
+    stats: { credentials: 1, invalid: parsed ? 0 : 1, review: parsed?.issues.length ?? 0 },
+    notes: [
+      'Proxy credentials are secrets; use TLS and prevent values from reaching logs or shared history.',
+    ],
+  };
+}
 const tool: TextToolModule = { meta, run };
 export default tool;

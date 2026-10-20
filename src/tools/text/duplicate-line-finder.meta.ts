@@ -4,8 +4,7 @@ export const meta: ToolMeta = {
   id: 'duplicate-line-finder',
   name: 'Duplicate Line Finder',
   category: 'text',
-  summary:
-    'Find repeated lines in a list, with occurrence counts and first line numbers.',
+  summary: 'Find repeated lines in a list, with occurrence counts and first line numbers.',
   description:
     'Scan a list of lines for duplicates. Each repeated line is reported with how many times it appears, the line number of the first occurrence, and its repeat count. Toggle to see the whole frequency table including singletons, sort by frequency or position, and ignore case or surrounding spaces. The perfect companion for cleaning up logs, CSVs or mailing lists — and it runs entirely on your device.',
   keywords: [

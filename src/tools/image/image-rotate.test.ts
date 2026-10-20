@@ -142,7 +142,10 @@ describe('image-rotate run', () => {
       ['webp', 'webp', 'image/webp'],
     ] as const) {
       mock = installImageMock();
-      const result = await tool.run({ files: [png('photo.png')], options: { rotate: '90', format } });
+      const result = await tool.run({
+        files: [png('photo.png')],
+        options: { rotate: '90', format },
+      });
       expect(result.outputs[0]!.filename).toBe(`photo-rotated.${ext}`);
       expect(result.outputs[0]!.blob.type).toBe(mime);
       mock.restore();
@@ -162,11 +165,14 @@ describe('image-rotate run', () => {
     expect(mock.canvases[0]!.fills).toEqual([{ x: 0, y: 0, w: 2, h: 4, style: '#ffffff' }]);
   });
 
-  it.each(['png', 'webp'] as const)('keeps alpha and does not flatten for %s output', async (format) => {
-    mock = installImageMock({ width: 4, height: 2 });
-    await tool.run({ files: [png('a.png')], options: { format } });
-    expect(mock.canvases[0]!.fills).toHaveLength(0);
-  });
+  it.each(['png', 'webp'] as const)(
+    'keeps alpha and does not flatten for %s output',
+    async (format) => {
+      mock = installImageMock({ width: 4, height: 2 });
+      await tool.run({ files: [png('a.png')], options: { format } });
+      expect(mock.canvases[0]!.fills).toHaveLength(0);
+    },
+  );
 
   it('requests EXIF orientation while decoding', async () => {
     mock = installImageMock();

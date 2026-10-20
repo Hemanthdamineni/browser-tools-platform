@@ -2,18 +2,36 @@ import { describe, expect, it } from 'vitest';
 import { ToolError } from '@/lib/types';
 import tool from './sunset-deprecation.tool';
 
-type Result = { output: string; filename?: string; stats?: Record<string, string | number>; notes?: string[] };
-const run = (text: string, options: Record<string, string | number | boolean> = {}) => tool.run({ text, options }) as Result;
+type Result = {
+  output: string;
+  filename?: string;
+  stats?: Record<string, string | number>;
+  notes?: string[];
+};
+const run = (text: string, options: Record<string, string | number | boolean> = {}) =>
+  tool.run({ text, options }) as Result;
 
 describe('sunset-deprecation', () => {
   it('builds a Sunset header with link', () => {
-    const result = run('', { mode: 'build', header: 'sunset', date: 'Wed, 15 Mar 2028 00:00:00 GMT', link: 'https://api.example.com/docs/deprecation' });
-    expect(result.output).toBe('Sunset: Wed, 15 Mar 2028 00:00:00 GMT; Link=<https://api.example.com/docs/deprecation>');
+    const result = run('', {
+      mode: 'build',
+      header: 'sunset',
+      date: 'Wed, 15 Mar 2028 00:00:00 GMT',
+      link: 'https://api.example.com/docs/deprecation',
+    });
+    expect(result.output).toBe(
+      'Sunset: Wed, 15 Mar 2028 00:00:00 GMT; Link=<https://api.example.com/docs/deprecation>',
+    );
     expect(result.filename).toBe('sunset.txt');
   });
 
   it('builds a Deprecation header without link', () => {
-    const result = run('', { mode: 'build', header: 'deprecation', date: 'Wed, 15 Mar 2028 00:00:00 GMT', link: '' });
+    const result = run('', {
+      mode: 'build',
+      header: 'deprecation',
+      date: 'Wed, 15 Mar 2028 00:00:00 GMT',
+      link: '',
+    });
     expect(result.output).toBe('Deprecation: Wed, 15 Mar 2028 00:00:00 GMT');
     expect(result.filename).toBe('deprecation.txt');
   });
@@ -33,7 +51,9 @@ describe('sunset-deprecation', () => {
   });
 
   it('rejects invalid generated values', () => {
-    expect(() => run('', { mode: 'build', header: 'sunset', date: 'not a date', link: '' })).toThrow(ToolError);
+    expect(() =>
+      run('', { mode: 'build', header: 'sunset', date: 'not a date', link: '' }),
+    ).toThrow(ToolError);
   });
 
   it('handles blank analysis with guidance', () => {

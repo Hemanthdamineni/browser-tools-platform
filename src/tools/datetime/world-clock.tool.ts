@@ -5,7 +5,14 @@ import { meta } from './world-clock.meta';
 
 const MAX_ZONES = 60;
 
-const DEFAULT_ZONES = ['UTC', 'America/New_York', 'Europe/London', 'Asia/Kolkata', 'Asia/Tokyo', 'Australia/Sydney'];
+const DEFAULT_ZONES = [
+  'UTC',
+  'America/New_York',
+  'Europe/London',
+  'Asia/Kolkata',
+  'Asia/Tokyo',
+  'Australia/Sydney',
+];
 
 function zonedParts(zone: string, hour12: boolean): Intl.DateTimeFormatPart[] | null {
   try {
@@ -76,19 +83,32 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     const time = hour12
       ? hh + ':' + mm + ':' + ss + ' ' + (part(partsZ, 'dayPeriod').toUpperCase() || '')
       : hh + ':' + mm + ':' + ss;
-    const date = part(partsZ, 'year') + '-' + part(partsZ, 'month').padStart(2, '0') + '-' + part(partsZ, 'day').padStart(2, '0');
+    const date =
+      part(partsZ, 'year') +
+      '-' +
+      part(partsZ, 'month').padStart(2, '0') +
+      '-' +
+      part(partsZ, 'day').padStart(2, '0');
     const offset = normalizeOffset(part(partsZ, 'timeZoneName'));
     rows.push(showDate ? [zone, time, offset, date] : [zone, time, offset]);
   }
 
-  if (!rows.length) throw new ToolError('No valid time zones in the input.', 'Use IANA names such as UTC, America/Los_Angeles.');
-  if (invalid.length) notes.push('Ignored ' + invalid.length + ' unknown time zone(s): ' + invalid.join(', ') + '.');
+  if (!rows.length)
+    throw new ToolError(
+      'No valid time zones in the input.',
+      'Use IANA names such as UTC, America/Los_Angeles.',
+    );
+  if (invalid.length)
+    notes.push('Ignored ' + invalid.length + ' unknown time zone(s): ' + invalid.join(', ') + '.');
 
   const noteText = notes.length
     ? notes
     : [raw ? 'Times computed from your device clock + zone data.' : 'Using the default zone set.'];
   return {
-    output: JSON.stringify({ headers: showDate ? ['Zone', 'Time', 'Offset', 'Date'] : ['Zone', 'Time', 'Offset'], rows }),
+    output: JSON.stringify({
+      headers: showDate ? ['Zone', 'Time', 'Offset', 'Date'] : ['Zone', 'Time', 'Offset'],
+      rows,
+    }),
     render: 'table',
     stats: { zones: rows.length },
     notes: noteText,

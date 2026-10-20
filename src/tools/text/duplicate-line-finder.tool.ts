@@ -36,7 +36,8 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   const sortBy = String(o.sortBy ?? 'position');
   const source = input.text ?? '';
   if (!source.trim()) throw new ToolError('Paste a list of lines to scan for duplicates.');
-  if (source.length > MAX_LEN) throw new ToolError('Input is too large.', 'Keep it under 1,000,000 characters.');
+  if (source.length > MAX_LEN)
+    throw new ToolError('Input is too large.', 'Keep it under 1,000,000 characters.');
 
   const lines = source.split(/\r?\n/);
   const map = collect(lines, ignoreCase, trim);
@@ -66,8 +67,20 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     render: 'table',
     stats: { lines: lines.length, duplicates: duplicateLines, extra: extraCount },
     notes: [
-      extraCount ? 'Found ' + extraCount + ' duplicated line(s) across ' + dupGroups.length + ' distinct line(s).' : 'No duplicates — every line is unique.',
-      ignoreCase && trim ? 'Matched on lowercase, trimmed text.' : ignoreCase ? 'Matched on lowercase text (case-insensitive).' : trim ? 'Matched on trimmed text.' : 'Matched byte-for-byte.',
+      extraCount
+        ? 'Found ' +
+          extraCount +
+          ' duplicated line(s) across ' +
+          dupGroups.length +
+          ' distinct line(s).'
+        : 'No duplicates — every line is unique.',
+      ignoreCase && trim
+        ? 'Matched on lowercase, trimmed text.'
+        : ignoreCase
+          ? 'Matched on lowercase text (case-insensitive).'
+          : trim
+            ? 'Matched on trimmed text.'
+            : 'Matched byte-for-byte.',
     ],
   };
 }

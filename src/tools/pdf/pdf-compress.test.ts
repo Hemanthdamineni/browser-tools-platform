@@ -131,7 +131,10 @@ describe('pdf-compress run: metadata', () => {
 
   it('removes document metadata when asked', async () => {
     const file = await titledPdf();
-    const result = await tool.run({ files: [file], options: { preset: 'light', stripMetadata: true } });
+    const result = await tool.run({
+      files: [file],
+      options: { preset: 'light', stripMetadata: true },
+    });
     const reloaded = await loadPdfBlob(result.outputs[0]!.blob);
     expect(reloaded.getTitle()).toBeUndefined();
     expect(reloaded.getAuthor()).toBeUndefined();
@@ -152,7 +155,9 @@ describe('pdf-compress run: errors and cancellation', () => {
   });
 
   it('rejects malformed bytes with a user-facing error', async () => {
-    await expect(tool.run({ files: [makeInvalidPdf()], options: {} })).rejects.toThrow(/valid, readable PDF/i);
+    await expect(tool.run({ files: [makeInvalidPdf()], options: {} })).rejects.toThrow(
+      /valid, readable PDF/i,
+    );
   });
 
   it('rejects an empty file', async () => {

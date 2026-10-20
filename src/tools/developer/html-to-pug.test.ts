@@ -1,7 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import tool from './html-to-pug.tool';
 
-type Result = { output: string; render?: string; language?: string; stats?: Record<string, number>; notes?: string[] };
+type Result = {
+  output: string;
+  render?: string;
+  language?: string;
+  stats?: Record<string, number>;
+  notes?: string[];
+};
 const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
   (await tool.run({ text, options })) as Result;
 
@@ -30,7 +36,9 @@ describe('html-to-pug', () => {
   });
 
   it('emits raw text blocks for script and style', async () => {
-    const r = await run('<div><script>var x = 1;\nif (x) { y(); }</script><style>.a { color: red; }</style></div>');
+    const r = await run(
+      '<div><script>var x = 1;\nif (x) { y(); }</script><style>.a { color: red; }</style></div>',
+    );
     expect(r.output).toContain('script.');
     expect(r.output).toContain('var x = 1;');
     expect(r.output).toContain('style.');

@@ -2,18 +2,28 @@ import { describe, expect, it } from 'vitest';
 import { ToolError } from '@/lib/types';
 import tool from './access-control-request-headers.tool';
 
-type Result = { output: string; filename?: string; stats?: Record<string, string | number>; notes?: string[] };
-const run = (text: string, options: Record<string, string | number | boolean> = {}) => tool.run({ text, options }) as Result;
+type Result = {
+  output: string;
+  filename?: string;
+  stats?: Record<string, string | number>;
+  notes?: string[];
+};
+const run = (text: string, options: Record<string, string | number | boolean> = {}) =>
+  tool.run({ text, options }) as Result;
 
 describe('access-control-request-headers', () => {
   it('builds a preflight header block', () => {
     const result = run('', { mode: 'build', method: 'PATCH', headers: 'Content-Type, X-Token' });
-    expect(result.output).toBe('Access-Control-Request-Method: PATCH\nAccess-Control-Request-Headers: Content-Type, X-Token');
+    expect(result.output).toBe(
+      'Access-Control-Request-Method: PATCH\nAccess-Control-Request-Headers: Content-Type, X-Token',
+    );
     expect(result.filename).toBe('access-control-request-headers.txt');
   });
 
   it('analyzes a valid preflight', () => {
-    const result = run('Access-Control-Request-Method: PATCH\nAccess-Control-Request-Headers: Content-Type, X-Token');
+    const result = run(
+      'Access-Control-Request-Method: PATCH\nAccess-Control-Request-Headers: Content-Type, X-Token',
+    );
     expect(result.stats?.method).toBe('PATCH');
     expect(result.stats?.headers).toBe(2);
     expect(result.stats?.issues).toBe(0);

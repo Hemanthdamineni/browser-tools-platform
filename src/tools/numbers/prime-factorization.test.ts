@@ -1,11 +1,18 @@
 import { describe, expect, it } from 'vitest';
 import tool from './prime-factorization.tool';
 
-type Result = { output: string; render?: string; stats?: Record<string, string | number>; notes?: string[] };
+type Result = {
+  output: string;
+  render?: string;
+  stats?: Record<string, string | number>;
+  notes?: string[];
+};
 type Table = { headers: string[]; rows: [string, string][] };
 
-const run = (text: string, options: Record<string, string | number | boolean> = {}) => tool.run({ text, options }) as Result;
-const table = (text: string, options: Record<string, string | number | boolean> = {}) => JSON.parse(run(text, options).output) as Table;
+const run = (text: string, options: Record<string, string | number | boolean> = {}) =>
+  tool.run({ text, options }) as Result;
+const table = (text: string, options: Record<string, string | number | boolean> = {}) =>
+  JSON.parse(run(text, options).output) as Table;
 const get = (text: string, key: string, options: Record<string, string | number | boolean> = {}) =>
   table(text, options).rows.find((r) => r[0] === key)?.[1];
 
@@ -38,8 +45,9 @@ describe('prime-factorization', () => {
     const negative = table('-360');
     const positive = table('360');
     expect(negative.rows.find((r) => r[0] === 'Sign')?.[1]).toBe('negative');
-    expect(negative.rows.find((r) => r[0] === 'Prime factorization')?.[1])
-      .toBe(positive.rows.find((r) => r[0] === 'Prime factorization')?.[1]);
+    expect(negative.rows.find((r) => r[0] === 'Prime factorization')?.[1]).toBe(
+      positive.rows.find((r) => r[0] === 'Prime factorization')?.[1],
+    );
   });
 
   it('detects and handles large numbers via BigInt', () => {

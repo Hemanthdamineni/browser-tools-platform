@@ -155,7 +155,13 @@ function parseStartTag(src: string, start: number): StartTag | null {
 /** Parse an XML document into a tree rooted at an artificial `#root` element. */
 export function parseXml(input: string): XmlElement {
   const src = input.charCodeAt(0) === 0xfeff ? input.slice(1) : input;
-  const root: XmlElement = { type: 'element', name: '#root', local: '#root', attrs: {}, children: [] };
+  const root: XmlElement = {
+    type: 'element',
+    name: '#root',
+    local: '#root',
+    attrs: {},
+    children: [],
+  };
   const stack: XmlElement[] = [root];
   const n = src.length;
   let i = 0;
@@ -368,7 +374,9 @@ export function unzipPackage(
   filter?: (name: string) => boolean,
 ): Record<string, Uint8Array> {
   try {
-    const opts = filter ? { filter: (file: { name: string }) => filter(file.name.replace(/\\/g, '/')) } : undefined;
+    const opts = filter
+      ? { filter: (file: { name: string }) => filter(file.name.replace(/\\/g, '/')) }
+      : undefined;
     return unzipSync(bytes, opts);
   } catch {
     throw new ToolError(

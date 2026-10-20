@@ -22,11 +22,13 @@ export const meta: ToolMeta = {
   examples: [
     {
       title: 'Validate a document',
-      input: '{"schema":{"type":"object","required":["name"],"properties":{"name":{"type":"string","minLength":2},"age":{"type":"integer","minimum":0}}},"document":{"name":"Ada","age":36}}',
+      input:
+        '{"schema":{"type":"object","required":["name"],"properties":{"name":{"type":"string","minLength":2},"age":{"type":"integer","minimum":0}}},"document":{"name":"Ada","age":36}}',
     },
     {
       title: 'Show validation errors',
-      input: '{"schema":{"type":"object","required":["id"],"properties":{"id":{"type":"integer"}}},"document":{"id":"abc"}}',
+      input:
+        '{"schema":{"type":"object","required":["id"],"properties":{"id":{"type":"integer"}}},"document":{"id":"abc"}}',
     },
   ],
   faq: [

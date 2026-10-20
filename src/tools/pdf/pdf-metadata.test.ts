@@ -11,7 +11,10 @@ describe('pdf-metadata', () => {
     expect(result.report?.output).toContain('Page Count');
   });
   it('edits metadata and emits an updated PDF', async () => {
-    const result = await tool.run({ files: [await makePdf()], options: { title: 'My Document', author: 'Test Author' } });
+    const result = await tool.run({
+      files: [await makePdf()],
+      options: { title: 'My Document', author: 'Test Author' },
+    });
     expect(result.outputs[0]?.filename).toBe('metadata-updated.pdf');
     const doc = await loadPdfBlob(result.outputs[0]!.blob);
     expect(doc.getTitle()).toBe('My Document');

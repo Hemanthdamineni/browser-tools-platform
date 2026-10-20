@@ -22,7 +22,10 @@ function isObj(value: unknown): value is Record<string, unknown> {
 const pad = (level: number, ctx: Ctx): string => ctx.unit.repeat(Math.max(0, level));
 
 function sanitizeTypeName(raw: string): string {
-  const parts = raw.trim().split(/[^A-Za-z0-9]+/).filter(Boolean);
+  const parts = raw
+    .trim()
+    .split(/[^A-Za-z0-9]+/)
+    .filter(Boolean);
   if (!parts.length) return 'Unnamed';
   const name = parts.map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join('');
   return /^[A-Za-z_]/.test(name) ? name : 'Type' + name;
@@ -60,11 +63,13 @@ function refName(ref: string, ctx: Ctx): string {
 function isObjectLike(schema: Record<string, unknown>): boolean {
   if (schema.$ref !== undefined) return false;
   if (schema.enum !== undefined || schema.const !== undefined) return false;
-  if (schema.anyOf !== undefined || schema.oneOf !== undefined || schema.allOf !== undefined) return false;
+  if (schema.anyOf !== undefined || schema.oneOf !== undefined || schema.allOf !== undefined)
+    return false;
   const type = schema.type;
   if (type === 'object') return true;
   if (Array.isArray(type) && type.includes('object')) return true;
-  if (type === undefined) return isObj(schema.properties) || schema.additionalProperties !== undefined;
+  if (type === undefined)
+    return isObj(schema.properties) || schema.additionalProperties !== undefined;
   return false;
 }
 
@@ -77,7 +82,9 @@ function objectEntries(
   const propTypes: string[] = [];
   const props = isObj(schema.properties) ? schema.properties : {};
   const required = new Set(
-    Array.isArray(schema.required) ? schema.required.filter((key): key is string => typeof key === 'string') : [],
+    Array.isArray(schema.required)
+      ? schema.required.filter((key): key is string => typeof key === 'string')
+      : [],
   );
 
   for (const key of Object.keys(props)) {
@@ -85,7 +92,12 @@ function objectEntries(
     const type = renderType(propSchema, level + 1, ctx);
     propTypes.push(type);
     ctx.stats.properties += 1;
-    if (ctx.comments && isObj(propSchema) && typeof propSchema.description === 'string' && propSchema.description.trim()) {
+    if (
+      ctx.comments &&
+      isObj(propSchema) &&
+      typeof propSchema.description === 'string' &&
+      propSchema.description.trim()
+    ) {
       const doc = propSchema.description.trim().replace(/\*\//g, '*\\/').replace(/\s+/g, ' ');
       lines.push(`${pad(level + 1, ctx)}/** ${doc} */`);
     }
@@ -102,7 +114,8 @@ function objectEntries(
     let indexType = additionalType;
     if (propTypes.length) {
       const inline = propTypes.filter((type) => !type.includes('\n'));
-      indexType = inline.length === propTypes.length ? unionOf([...inline, additionalType]) : 'unknown';
+      indexType =
+        inline.length === propTypes.length ? unionOf([...inline, additionalType]) : 'unknown';
     }
     lines.push(`${pad(level + 1, ctx)}[key: string]: ${indexType};`);
   }
@@ -156,8 +169,10 @@ function renderType(schema: unknown, level: number, ctx: Ctx): string {
   if (typeof schema.$ref === 'string') return refName(schema.$ref, ctx);
 
   const variants: string[] = [];
-  if (Array.isArray(schema.anyOf)) variants.push(...schema.anyOf.map((item) => renderType(item, level, ctx)));
-  if (Array.isArray(schema.oneOf)) variants.push(...schema.oneOf.map((item) => renderType(item, level, ctx)));
+  if (Array.isArray(schema.anyOf))
+    variants.push(...schema.anyOf.map((item) => renderType(item, level, ctx)));
+  if (Array.isArray(schema.oneOf))
+    variants.push(...schema.oneOf.map((item) => renderType(item, level, ctx)));
   if (Array.isArray(schema.allOf)) {
     const parts = schema.allOf.map((item) => renderType(item, level, ctx));
     variants.push(parts.length ? parts.join(' & ') : 'unknown');
@@ -169,7 +184,8 @@ function renderType(schema: unknown, level: number, ctx: Ctx): string {
   const types = Array.isArray(declared) ? declared : typeof declared === 'string' ? [declared] : [];
   for (const type of types) variants.push(baseType(type, schema, level, ctx));
 
-  if (!types.length && !variants.length && isObjectLike(schema)) variants.push(objectType(schema, level, ctx));
+  if (!types.length && !variants.length && isObjectLike(schema))
+    variants.push(objectType(schema, level, ctx));
   if (schema.nullable === true) variants.push('null');
 
   return unionOf(variants);
@@ -179,7 +195,8 @@ function declaration(name: string, schema: unknown, ctx: Ctx): string {
   ctx.stats.declarations += 1;
   const lines: string[] = [];
   const record = isObj(schema) ? schema : {};
-  const doc = typeof record.description === 'string' ? record.description.trim().replace(/\s+/g, ' ') : '';
+  const doc =
+    typeof record.description === 'string' ? record.description.trim().replace(/\s+/g, ' ') : '';
   if (ctx.comments && doc) lines.push(`/** ${doc.replace(/\*\//g, '*\\/')} */`);
 
   if (ctx.style === 'interface' && isObjectLike(record)) {
@@ -209,10 +226,16 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
 
   const source = input.text ?? '';
   if (!source.trim()) {
-    throw new ToolError('Paste a JSON Schema to convert.', 'Example: { "type": "object", "properties": { "id": { "type": "integer" } } }');
+    throw new ToolError(
+      'Paste a JSON Schema to convert.',
+      'Example: { "type": "object", "properties": { "id": { "type": "integer" } } }',
+    );
   }
   if (source.length > MAX_LENGTH) {
-    throw new ToolError('Schema is too large.', `Keep it under ${MAX_LENGTH.toLocaleString('en-US')} characters.`);
+    throw new ToolError(
+      'Schema is too large.',
+      `Keep it under ${MAX_LENGTH.toLocaleString('en-US')} characters.`,
+    );
   }
 
   let parsed: unknown;
@@ -224,7 +247,10 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   }
 
   if (!isObj(parsed)) {
-    throw new ToolError('A JSON Schema must be a JSON object.', 'Top-level arrays, strings and numbers are not schemas.');
+    throw new ToolError(
+      'A JSON Schema must be a JSON object.',
+      'Top-level arrays, strings and numbers are not schemas.',
+    );
   }
 
   const ctx: Ctx = {
@@ -237,7 +263,11 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     stats: { declarations: 0, properties: 0, refs: 0 },
   };
 
-  const defs = isObj(parsed.$defs) ? parsed.$defs : isObj(parsed.definitions) ? parsed.definitions : {};
+  const defs = isObj(parsed.$defs)
+    ? parsed.$defs
+    : isObj(parsed.definitions)
+      ? parsed.definitions
+      : {};
   for (const key of Object.keys(defs)) ctx.defNames.set(key, sanitizeTypeName(key));
 
   const blocks: string[] = [declaration(rootName, parsed, ctx)];

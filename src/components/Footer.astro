@@ -11,13 +11,29 @@ const groups = Object.entries(site.footer);
   <div class="mx-auto max-w-content px-4 py-12 sm:px-6">
     <div class="grid gap-10 sm:grid-cols-[1.4fr_1fr_1fr] sm:gap-8">
       <div>
-        <a href="/" class="inline-flex items-center gap-2.5 font-semibold tracking-tight" aria-label={`${site.shortName} home`}>
+        <a
+          href="/"
+          class="inline-flex items-center gap-2.5 font-semibold tracking-tight"
+          aria-label={`${site.shortName} home`}
+        >
           <span
             class="grid h-7 w-7 place-items-center rounded-md"
             style="background-color: rgb(var(--text)); color: rgb(var(--bg))"
             aria-hidden="true"
           >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a5 5 0 0 0-6.4 6.4L4 17v3h3l4.3-4.3a5 5 0 0 0 6.4-6.4L14 8.6l-1.6 1.6-1.6-1.6 3.9-3.9z"/></svg>
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.4"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              ><path
+                d="M14.7 6.3a5 5 0 0 0-6.4 6.4L4 17v3h3l4.3-4.3a5 5 0 0 0 6.4-6.4L14 8.6l-1.6 1.6-1.6-1.6 3.9-3.9z"
+              ></path></svg
+            >
           </span>
           {site.shortName}
         </a>
@@ -36,7 +52,10 @@ const groups = Object.entries(site.footer);
             <ul class="mt-4 space-y-2.5 text-sm">
               {links.map((l) => (
                 <li>
-                  <a class="text-[rgb(var(--text-muted))] transition-colors hover:text-[rgb(var(--accent))]" href={l.href}>
+                  <a
+                    class="text-[rgb(var(--text-muted))] transition-colors hover:text-[rgb(var(--accent))]"
+                    href={l.href}
+                  >
                     {l.label}
                   </a>
                 </li>
@@ -47,14 +66,22 @@ const groups = Object.entries(site.footer);
       }
     </div>
 
-    <div class="mt-12 flex flex-col gap-3 border-t pt-6 text-xs text-[rgb(var(--text-faint))] sm:flex-row sm:items-center sm:justify-between">
+    <div
+      class="mt-12 flex flex-col gap-3 border-t pt-6 text-xs text-[rgb(var(--text-faint))] sm:flex-row sm:items-center sm:justify-between"
+    >
       <p>© {year} {site.name}. MIT licensed.</p>
       <div class="flex items-center gap-4">
-        {site.social.github && (
-          <a class="inline-flex items-center gap-1.5 transition-colors hover:text-[rgb(var(--accent))]" href={site.social.github} rel="noopener">
-            <Icon name="github" size={15} /> Source code
-          </a>
-        )}
+        {
+          site.social.github && (
+            <a
+              class="inline-flex items-center gap-1.5 transition-colors hover:text-[rgb(var(--accent))]"
+              href={site.social.github}
+              rel="noopener"
+            >
+              <Icon name="github" size={15} /> Source code
+            </a>
+          )
+        }
       </div>
     </div>
   </div>

@@ -16,7 +16,10 @@ describe('text-to-binary', () => {
   it('round-trips UTF-8 (emoji and accented text)', async () => {
     const src = 'é中🚀';
     const encoded = await run(src);
-    const decoded = await run(encoded.output.trim().replace(/ /g, ' '), { mode: 'decode', separator: 'none' });
+    const decoded = await run(encoded.output.trim().replace(/ /g, ' '), {
+      mode: 'decode',
+      separator: 'none',
+    });
     expect(decoded.output.trim()).toBe(src);
   });
 

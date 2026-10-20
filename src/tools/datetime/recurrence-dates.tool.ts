@@ -48,9 +48,16 @@ function parseDate(text: string): Day {
     const a = Number(dmy[1]);
     const b = Number(dmy[2]);
     y = Number(dmy[3]);
-    if (a <= 12 && b > 12) { m = a; d = b; }
-    else if (a > 12 && b <= 12) { m = b; d = a; }
-    else { m = b; d = a; } // prefer day/month when both could be months
+    if (a <= 12 && b > 12) {
+      m = a;
+      d = b;
+    } else if (a > 12 && b <= 12) {
+      m = b;
+      d = a;
+    } else {
+      m = b;
+      d = a;
+    } // prefer day/month when both could be months
   } else {
     throw new ToolError('Enter the start date as YYYY-MM-DD (for example 2026-10-18).');
   }
@@ -58,7 +65,10 @@ function parseDate(text: string): Day {
     throw new ToolError(`"${s}" is not a valid calendar date.`);
   }
   const dim = daysInMonth(y, m);
-  if (d > dim) throw new ToolError(`"${s}" is not a valid date — ${MONTHS[m - 1]} ${y} has only ${dim} day(s).`);
+  if (d > dim)
+    throw new ToolError(
+      `"${s}" is not a valid date — ${MONTHS[m - 1]} ${y} has only ${dim} day(s).`,
+    );
   return [y, m, d];
 }
 
@@ -74,7 +84,7 @@ function nthDateOfMonth(y: number, m: number, wd: number, nth: string): Day | nu
   const dim = daysInMonth(y, m);
   const first = ((wd - weekdayIndex([y, m, 1]) + 7) % 7) + 1; // first day in month with weekday wd
   if (nth === 'last') {
-    const last = first + (Math.floor((dim - first) / 7)) * 7;
+    const last = first + Math.floor((dim - first) / 7) * 7;
     return [y, m, last];
   }
   const idx = Number(nth);
@@ -105,7 +115,8 @@ function occurrences(start: Day, o: Record<string, string | number | boolean>): 
   if (mode === 'monthly-nth') {
     const wd = resolveWeekday(o, start);
     const nth = String(o.nth);
-    if (!/^(1|2|3|4|last)$/.test(nth)) throw new ToolError('Choose a valid nth occurrence (1st–4th or last).');
+    if (!/^(1|2|3|4|last)$/.test(nth))
+      throw new ToolError('Choose a valid nth occurrence (1st–4th or last).');
     let y = start[0];
     let m = start[1];
     for (let guard = 0; out.length < count && guard < 60000; guard++) {
@@ -114,7 +125,10 @@ function occurrences(start: Day, o: Record<string, string | number | boolean>): 
         out.push(cand);
       }
       m += interval;
-      while (m > 12) { m -= 12; y++; }
+      while (m > 12) {
+        m -= 12;
+        y++;
+      }
     }
     return out;
   }
@@ -133,7 +147,10 @@ function occurrences(start: Day, o: Record<string, string | number | boolean>): 
         }
       }
       m += interval;
-      while (m > 12) { m -= 12; y++; }
+      while (m > 12) {
+        m -= 12;
+        y++;
+      }
     }
     return out;
   }
@@ -163,16 +180,31 @@ function run(input: TextRunInput): TextRunResult {
   const text = input.text.trim();
   if (!text) {
     return {
-      output: JSON.stringify({ headers: ['#', 'Date', 'Weekday', 'Occurrence'], rows: [] as string[][] }),
+      output: JSON.stringify({
+        headers: ['#', 'Date', 'Weekday', 'Occurrence'],
+        rows: [] as string[][],
+      }),
       render: 'table',
-      notes: ['Paste a start date (YYYY-MM-DD) and pick a repeating pattern to list its upcoming dates.'],
+      notes: [
+        'Paste a start date (YYYY-MM-DD) and pick a repeating pattern to list its upcoming dates.',
+      ],
     };
   }
   const start = parseDate(text);
   const dates = occurrences(start, o);
-  const labels: Record<string, string> = { 'monthly-day': 'same day monthly', 'monthly-nth': 'nth weekday monthly', weekly: 'weekly', yearly: 'yearly' };
+  const labels: Record<string, string> = {
+    'monthly-day': 'same day monthly',
+    'monthly-nth': 'nth weekday monthly',
+    weekly: 'weekly',
+    yearly: 'yearly',
+  };
   const modeLabel = labels[mode] ?? mode;
-  const rows = dates.map((d, idx) => [String(idx + 1), fmt(d), WEEKDAY_LABELS[weekdayIndex(d)]!, modeLabel]);
+  const rows = dates.map((d, idx) => [
+    String(idx + 1),
+    fmt(d),
+    WEEKDAY_LABELS[weekdayIndex(d)]!,
+    modeLabel,
+  ]);
   const first = dates[0];
   const last = dates[dates.length - 1];
   return {
@@ -182,9 +214,18 @@ function run(input: TextRunInput): TextRunResult {
       occurrences: dates.length,
       first: first ? fmt(first) : '',
       last: last ? fmt(last) : '',
-      spanDays: first && last ? Math.round((Date.UTC(last[0], last[1] - 1, last[2]) - Date.UTC(first[0], first[1] - 1, first[2])) / 86400000) + 1 : 0,
+      spanDays:
+        first && last
+          ? Math.round(
+              (Date.UTC(last[0], last[1] - 1, last[2]) -
+                Date.UTC(first[0], first[1] - 1, first[2])) /
+                86400000,
+            ) + 1
+          : 0,
     },
-    notes: [`Pattern: ${modeLabel}. Dates are computed in local calendar terms; short months ${o.clamp ? 'clamp to the last day (so the 31st lands on the 30th)' : 'are skipped when the day is missing'}.`],
+    notes: [
+      `Pattern: ${modeLabel}. Dates are computed in local calendar terms; short months ${o.clamp ? 'clamp to the last day (so the 31st lands on the 30th)' : 'are skipped when the day is missing'}.`,
+    ],
   };
 }
 

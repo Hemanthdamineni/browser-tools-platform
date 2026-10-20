@@ -5,7 +5,8 @@ type Result = { output: string; stats?: Record<string, number>; notes?: string[]
 const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
   (await tool.run({ text, options })) as Result;
 
-const nested = '{ "server": { "host": "localhost", "ports": { "http": 8080, "tls": 8443 } }, "users": [ { "name": "ada" } ] }';
+const nested =
+  '{ "server": { "host": "localhost", "ports": { "http": 8080, "tls": 8443 } }, "users": [ { "name": "ada" } ] }';
 
 describe('json-flatten', () => {
   it('flattens nested objects and arrays to dotted keys', async () => {

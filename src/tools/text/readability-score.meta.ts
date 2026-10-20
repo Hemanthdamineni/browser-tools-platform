@@ -37,7 +37,7 @@ export const meta: ToolMeta = {
   faq: [
     {
       q: 'What do the two scores mean?',
-      a: 'Flesch Reading Ease runs 0–100: roughly 90–100 is very easy (children\'s books), 60–70 is plain English, under 30 is very difficult. Flesch-Kincaid Grade Level reports the US education grade needed, so 8 means an average 13–14 year old can read it.',
+      a: "Flesch Reading Ease runs 0–100: roughly 90–100 is very easy (children's books), 60–70 is plain English, under 30 is very difficult. Flesch-Kincaid Grade Level reports the US education grade needed, so 8 means an average 13–14 year old can read it.",
     },
     {
       q: 'How are syllables counted?',

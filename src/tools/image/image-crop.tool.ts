@@ -24,7 +24,9 @@ export function cropRect(srcW: number, srcH: number, opts: Record<string, unknow
     }
     return { x, y, w, h };
   }
-  const parts = String(opts.aspect ?? '1:1').split(':').map(Number);
+  const parts = String(opts.aspect ?? '1:1')
+    .split(':')
+    .map(Number);
   if (parts.length !== 2 || parts.some((v) => !Number.isFinite(v) || v <= 0)) {
     throw new ToolError('Enter a valid aspect ratio, such as 16:9.');
   }

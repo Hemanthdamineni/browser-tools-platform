@@ -35,7 +35,10 @@ function flattenToPairs(
   depth: number,
 ): void {
   if (depth > MAX_DEPTH) {
-    throw new ToolError('Object is nested too deeply.', 'Flattening stops beyond ' + MAX_DEPTH + ' levels.');
+    throw new ToolError(
+      'Object is nested too deeply.',
+      'Flattening stops beyond ' + MAX_DEPTH + ' levels.',
+    );
   }
   if (node === null || typeof node !== 'object') {
     out.push([buildKey(path, style), node]);
@@ -67,7 +70,8 @@ function parsePath(path: string): Segment[] {
     if (name !== '') segs.push({ name, idx: null });
     while (i < path.length && path[i] === '[') {
       const close = path.indexOf(']', i);
-      if (close === -1) throw new ToolError('Invalid array index in "' + path + '".', 'Expected [0], [1], …');
+      if (close === -1)
+        throw new ToolError('Invalid array index in "' + path + '".', 'Expected [0], [1], …');
       const digits = path.slice(i + 1, close);
       if (!/^\d+$/.test(digits)) throw new ToolError('Invalid array index in "' + path + '".');
       segs.push({ name: '', idx: Number(digits) });
@@ -126,7 +130,6 @@ function unflattenBuild(records: Array<[string, JsonValue]>): unknown {
     }
   }
 
-
   const toJson = (cell: Cell): JsonValue => {
     if (cell.hasValue) return cell.value;
     if (cell.children.size === 0) return {};
@@ -171,7 +174,8 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
 
   const source = input.text ?? '';
   if (!source.trim()) throw new ToolError('Paste a JSON object to flatten or rebuild.');
-  if (source.length > 1_000_000) throw new ToolError('JSON is too large.', 'Keep it under 1,000,000 characters.');
+  if (source.length > 1_000_000)
+    throw new ToolError('JSON is too large.', 'Keep it under 1,000,000 characters.');
 
   let parsed: unknown;
   try {
@@ -180,7 +184,10 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     throw new ToolError('That is not valid JSON.', 'Fix the document and try again.');
   }
   if (parsed === null || typeof parsed !== 'object') {
-    throw new ToolError('Flatten needs a JSON object or array.', 'Primitive values have nothing to unfold.');
+    throw new ToolError(
+      'Flatten needs a JSON object or array.',
+      'Primitive values have nothing to unfold.',
+    );
   }
 
   if (mode === 'flatten') {
@@ -196,13 +203,19 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
       render: 'text',
       language: 'json',
       stats: { leaves: pairs.length, maxDepth },
-      notes: [`Nested JSON flattened to ${pairs.length} dotted key${pairs.length === 1 ? '' : 's'}.`, 'Switch direction to rebuild the nested object.'],
+      notes: [
+        `Nested JSON flattened to ${pairs.length} dotted key${pairs.length === 1 ? '' : 's'}.`,
+        'Switch direction to rebuild the nested object.',
+      ],
     };
   }
 
   if (mode === 'unflatten') {
     if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
-      throw new ToolError('Unflatten expects an object of dotted keys.', 'Example: { "server.host": "localhost" }');
+      throw new ToolError(
+        'Unflatten expects an object of dotted keys.',
+        'Example: { "server.host": "localhost" }',
+      );
     }
     const records = Object.entries(parsed as Record<string, JsonValue>);
     const rebuilt = unflattenBuild(records);
@@ -212,7 +225,9 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
       render: 'text',
       language: 'json',
       stats: { leaves: records.length },
-      notes: [`Rebuilt nested JSON from ${records.length} dotted key${records.length === 1 ? '' : 's'}.`],
+      notes: [
+        `Rebuilt nested JSON from ${records.length} dotted key${records.length === 1 ? '' : 's'}.`,
+      ],
     };
   }
 

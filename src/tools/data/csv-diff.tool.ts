@@ -102,15 +102,26 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   const rowsA = parseCsv(a, delimA);
   const rowsB = parseCsv(b, delimB);
   if (rowsA.length === 0 || rowsB.length === 0) {
-    throw new ToolError('Both CSVs need at least a header row.', 'Provide at least one header and one data row.');
+    throw new ToolError(
+      'Both CSVs need at least a header row.',
+      'Provide at least one header and one data row.',
+    );
   }
 
   const headerA = rowsA[0]!.cells;
   const headerB = rowsB[0]!.cells;
   const idxA = headerA.indexOf(keyName);
   const idxB = headerB.indexOf(keyName);
-  if (idxA === -1) throw new ToolError(`Key column "${keyName}" is missing from CSV A.`, `Columns: ${headerA.join(', ')}`);
-  if (idxB === -1) throw new ToolError(`Key column "${keyName}" is missing from CSV B.`, `Columns: ${headerB.join(', ')}`);
+  if (idxA === -1)
+    throw new ToolError(
+      `Key column "${keyName}" is missing from CSV A.`,
+      `Columns: ${headerA.join(', ')}`,
+    );
+  if (idxB === -1)
+    throw new ToolError(
+      `Key column "${keyName}" is missing from CSV B.`,
+      `Columns: ${headerB.join(', ')}`,
+    );
 
   const issues: string[] = [];
   const onlyA = headerA.filter((h) => !headerB.includes(h));

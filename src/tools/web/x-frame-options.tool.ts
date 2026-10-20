@@ -3,7 +3,60 @@ import { ToolError } from '@/lib/types';
 import { resolveOptions } from '@/lib/options';
 import { meta } from './x-frame-options.meta';
 
-function inspect(value: string): { normal: string; issues: string[] } { const trimmed = value.trim(); const issues: string[] = []; if (!trimmed) issues.push('No X-Frame-Options value was provided'); else if (/^allow-from\b/i.test(trimmed)) issues.push('ALLOW-FROM is deprecated and not honored by modern browsers; use the CSP frame-ancestors directive instead'); else if (!/^(deny|sameorigin)$/i.test(trimmed)) issues.push('X-Frame-Options must be DENY or SAMEORIGIN'); return { normal: trimmed.toUpperCase(), issues }; }
-function run(input: TextRunInput): TextRunResult { const options = resolveOptions(meta, input.options); const mode = String(options.mode); if (mode !== 'build' && mode !== 'analyze') throw new ToolError('Choose a supported X-Frame-Options mode.'); const value = mode === 'build' ? String(options.value) : input.text; const result = inspect(value); if (mode === 'build') { if (result.issues.length) throw new ToolError(result.issues[0]!); return { output: result.normal, render: 'code', language: 'http', filename: 'x-frame-options.txt', stats: { value: result.normal } }; } if (!value.trim()) return { output: JSON.stringify({ headers: ['Value', 'Status', 'Behavior'], rows: [] }), render: 'table', notes: ['Paste DENY or SAMEORIGIN.'] }; const behavior = result.normal === 'DENY' ? 'No origin may frame the page' : result.normal === 'SAMEORIGIN' ? 'Only the same origin may frame the page' : result.issues[0] ?? 'Unsupported value'; return { output: JSON.stringify({ headers: ['Value', 'Status', 'Behavior'], rows: [[result.normal || value.trim(), result.issues.length ? 'Invalid' : 'Valid', behavior]] }), render: 'table', stats: { valid: result.issues.length ? 'no' : 'yes', value: result.normal }, notes: result.issues.length ? result.issues : ['When CSP frame-ancestors is present, browsers that support CSP ignore X-Frame-Options; keep both for broad coverage.'] }; }
+function inspect(value: string): { normal: string; issues: string[] } {
+  const trimmed = value.trim();
+  const issues: string[] = [];
+  if (!trimmed) issues.push('No X-Frame-Options value was provided');
+  else if (/^allow-from\b/i.test(trimmed))
+    issues.push(
+      'ALLOW-FROM is deprecated and not honored by modern browsers; use the CSP frame-ancestors directive instead',
+    );
+  else if (!/^(deny|sameorigin)$/i.test(trimmed))
+    issues.push('X-Frame-Options must be DENY or SAMEORIGIN');
+  return { normal: trimmed.toUpperCase(), issues };
+}
+function run(input: TextRunInput): TextRunResult {
+  const options = resolveOptions(meta, input.options);
+  const mode = String(options.mode);
+  if (mode !== 'build' && mode !== 'analyze')
+    throw new ToolError('Choose a supported X-Frame-Options mode.');
+  const value = mode === 'build' ? String(options.value) : input.text;
+  const result = inspect(value);
+  if (mode === 'build') {
+    if (result.issues.length) throw new ToolError(result.issues[0]!);
+    return {
+      output: result.normal,
+      render: 'code',
+      language: 'http',
+      filename: 'x-frame-options.txt',
+      stats: { value: result.normal },
+    };
+  }
+  if (!value.trim())
+    return {
+      output: JSON.stringify({ headers: ['Value', 'Status', 'Behavior'], rows: [] }),
+      render: 'table',
+      notes: ['Paste DENY or SAMEORIGIN.'],
+    };
+  const behavior =
+    result.normal === 'DENY'
+      ? 'No origin may frame the page'
+      : result.normal === 'SAMEORIGIN'
+        ? 'Only the same origin may frame the page'
+        : (result.issues[0] ?? 'Unsupported value');
+  return {
+    output: JSON.stringify({
+      headers: ['Value', 'Status', 'Behavior'],
+      rows: [[result.normal || value.trim(), result.issues.length ? 'Invalid' : 'Valid', behavior]],
+    }),
+    render: 'table',
+    stats: { valid: result.issues.length ? 'no' : 'yes', value: result.normal },
+    notes: result.issues.length
+      ? result.issues
+      : [
+          'When CSP frame-ancestors is present, browsers that support CSP ignore X-Frame-Options; keep both for broad coverage.',
+        ],
+  };
+}
 const tool: TextToolModule = { meta, run };
 export default tool;

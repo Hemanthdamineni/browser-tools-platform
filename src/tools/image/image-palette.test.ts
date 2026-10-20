@@ -39,9 +39,30 @@ describe('quantizePixels', () => {
 
   it('most-frequent keeps the most common buckets, ordered by count', () => {
     const pixels = [
-      255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, // red ×3
-      0, 255, 0, 255, 0, 255, 0, 255, // green ×2
-      0, 0, 255, 255, // blue ×1
+      255,
+      0,
+      0,
+      255,
+      255,
+      0,
+      0,
+      255,
+      255,
+      0,
+      0,
+      255, // red ×3
+      0,
+      255,
+      0,
+      255,
+      0,
+      255,
+      0,
+      255, // green ×2
+      0,
+      0,
+      255,
+      255, // blue ×1
     ];
     const palette = quantizePixels(pixels, 2, 'most-frequent');
     expect(palette).toEqual(['#ff0000', '#00ff00']);
@@ -57,9 +78,42 @@ describe('quantizePixels', () => {
 
   it('k-means separates two colour clusters and is deterministic', () => {
     const pixels = [
-      255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, // red ×4
-      0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, // blue ×4
-      40, 0, 255, 255, // outlier close to blue
+      255,
+      0,
+      0,
+      255,
+      255,
+      0,
+      0,
+      255,
+      255,
+      0,
+      0,
+      255,
+      255,
+      0,
+      0,
+      255, // red ×4
+      0,
+      0,
+      255,
+      255,
+      0,
+      0,
+      255,
+      255,
+      0,
+      0,
+      255,
+      255,
+      0,
+      0,
+      255,
+      255, // blue ×4
+      40,
+      0,
+      255,
+      255, // outlier close to blue
     ];
     const a = quantizePixels(pixels, 2, 'k-means');
     const b = quantizePixels(pixels, 2, 'k-means');
@@ -117,7 +171,9 @@ describe('image-palette run', () => {
 
   it('reports a friendly error for undecodable bytes', async () => {
     mock = installImageMock({ failDecode: true });
-    await expect(tool.run({ files: [img()], options: {} })).rejects.toThrow(/could not be decoded/i);
+    await expect(tool.run({ files: [img()], options: {} })).rejects.toThrow(
+      /could not be decoded/i,
+    );
   });
 
   it('returns a palette report and appearance stats, ignoring transparency', async () => {
@@ -125,9 +181,22 @@ describe('image-palette run', () => {
       width: 2,
       height: 2,
       pixels: [
-        255, 0, 0, 255, 255, 0, 0, 255, // red ×2 (dark)
-        255, 255, 255, 255, // white (light)
-        0, 0, 0, 0, // transparent
+        255,
+        0,
+        0,
+        255,
+        255,
+        0,
+        0,
+        255, // red ×2 (dark)
+        255,
+        255,
+        255,
+        255, // white (light)
+        0,
+        0,
+        0,
+        0, // transparent
       ],
     });
     const result = await tool.run({ files: [img()], options: { colors: 4 } });
@@ -145,9 +214,7 @@ describe('image-palette run', () => {
     mock = installImageMock({
       width: 2,
       height: 2,
-      pixels: [
-        255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-      ],
+      pixels: [255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255],
     });
     const result = await tool.run({ files: [img()], options: {} });
     expect(result.stats).toMatchObject({ dominant: '#ffffff', appearance: 'mostly light' });

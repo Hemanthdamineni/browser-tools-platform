@@ -4,8 +4,7 @@ export const meta: ToolMeta = {
   id: 'css-to-js',
   name: 'CSS to JS Object',
   category: 'web',
-  summary:
-    'Convert CSS declarations or rule blocks into a JS object with camelCase style keys.',
+  summary: 'Convert CSS declarations or rule blocks into a JS object with camelCase style keys.',
   description:
     'Paste a CSS declaration list (color: red; font-size: 12px) or a rule block (a:hover { color: red }) and get the equivalent JS object with camelCase keys for CSS-in-JS, React inline styles or style objects. Handles comments, multiple rules, vendor prefixes (-webkit- → Webkit-), custom properties (~), and existing camelCase names unchanged.',
   keywords: [

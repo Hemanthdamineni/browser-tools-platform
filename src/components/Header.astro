@@ -12,13 +12,29 @@ const isActive = (href: string) => path === href || path.startsWith(href + '/');
   style="background-color: rgb(var(--bg) / 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px)"
 >
   <div class="mx-auto flex h-14 max-w-content items-center gap-3 px-4 sm:px-6">
-    <a href="/" class="flex shrink-0 items-center gap-2.5 font-semibold tracking-tight" aria-label={`${site.shortName} home`}>
+    <a
+      href="/"
+      class="flex shrink-0 items-center gap-2.5 font-semibold tracking-tight"
+      aria-label={`${site.shortName} home`}
+    >
       <span
         class="grid h-7 w-7 place-items-center rounded-md"
         style="background: rgb(var(--text)); color: rgb(var(--bg))"
         aria-hidden="true"
       >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a5 5 0 0 0-6.4 6.4L4 17v3h3l4.3-4.3a5 5 0 0 0 6.4-6.4L14 8.6l-1.6 1.6-1.6-1.6 3.9-3.9z"/></svg>
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.4"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          ><path
+            d="M14.7 6.3a5 5 0 0 0-6.4 6.4L4 17v3h3l4.3-4.3a5 5 0 0 0 6.4-6.4L14 8.6l-1.6 1.6-1.6-1.6 3.9-3.9z"
+          ></path></svg
+        >
       </span>
       <span class="tracking-tight">{site.shortName}</span>
     </a>

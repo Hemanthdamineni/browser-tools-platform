@@ -103,7 +103,9 @@ describe('ooxml signature sniffing', () => {
     expect(looksLikeZip(new Uint8Array([0x50, 0x4b, 0x03, 0x04]))).toBe(true);
     expect(looksLikeZip(new Uint8Array([0x50, 0x4b, 0x05, 0x06]))).toBe(true);
     expect(looksLikeZip(new Uint8Array([1, 2, 3, 4]))).toBe(false);
-    expect(looksLikeOle(new Uint8Array([0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1]))).toBe(true);
+    expect(looksLikeOle(new Uint8Array([0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1]))).toBe(
+      true,
+    );
     expect(looksLikeRtf(new Uint8Array([0x7b, 0x5c, 0x72, 0x74, 0x66]))).toBe(true);
     expect(looksLikeRtf(new Uint8Array([0x7b, 0x5c, 0x78]))).toBe(false);
   });

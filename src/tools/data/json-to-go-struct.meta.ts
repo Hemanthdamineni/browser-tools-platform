@@ -51,7 +51,8 @@ export const meta: ToolMeta = {
   examples: [
     {
       title: 'Nested object with arrays',
-      input: '{"name":"Ada","age":36,"active":true,"score":9.5,"address":{"city":"London","zip":"SW1"},"skills":["go","ts"],"tags":[]}',
+      input:
+        '{"name":"Ada","age":36,"active":true,"score":9.5,"address":{"city":"London","zip":"SW1"},"skills":["go","ts"],"tags":[]}',
       options: { rootName: 'User' },
     },
     {
@@ -84,7 +85,7 @@ export const meta: ToolMeta = {
     },
     {
       q: 'Does it handle nested or repeated shapes?',
-      a: 'Nested objects are hoisted into named types (one per shape) so the definition stays readable and reusable. A slice of objects gets its own element type. Duplicate keys in the JSON resolve to the last value, matching Go\'s encoding/json behaviour.',
+      a: "Nested objects are hoisted into named types (one per shape) so the definition stays readable and reusable. A slice of objects gets its own element type. Duplicate keys in the JSON resolve to the last value, matching Go's encoding/json behaviour.",
     },
   ],
   related: ['json-to-typescript', 'json-to-yaml', 'json-minify', 'yaml-to-json', 'csv-to-json'],

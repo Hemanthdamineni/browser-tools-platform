@@ -4,8 +4,7 @@ export const meta: ToolMeta = {
   id: 'svg-optimizer',
   name: 'SVG Optimizer',
   category: 'web',
-  summary:
-    'Minify or pretty-print SVG, rounding coordinates, stripping comments and empty groups.',
+  summary: 'Minify or pretty-print SVG, rounding coordinates, stripping comments and empty groups.',
   description:
     'Paste an SVG (for example straight out of a vector editor) and get a leaner version. Runs entirely on your device. Minify mode produces a single-line document with collapsed whitespace; pretty mode re-indents it to 2 spaces. Numeric attributes are rounded to a configurable precision, XML comments and truly empty <g> groups can be stripped, and no colour values, paths or other meaning are changed — only the document is re-serialized. The size before and after is reported so you can see what changed.',
   keywords: [
@@ -61,7 +60,8 @@ export const meta: ToolMeta = {
     },
     {
       title: 'Pretty format',
-      input: '<svg viewBox="0 0 10 10"><rect x="0.1500000" y="0" width="10" height="10" fill="none"/></svg>',
+      input:
+        '<svg viewBox="0 0 10 10"><rect x="0.1500000" y="0" width="10" height="10" fill="none"/></svg>',
       options: { mode: 'pretty' },
     },
   ],

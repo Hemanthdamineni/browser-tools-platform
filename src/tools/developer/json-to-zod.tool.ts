@@ -18,7 +18,9 @@ function zodType(value: Json, ind: number): string {
   }
   const keys = Object.keys(value);
   if (keys.length === 0) return 'z.object({})';
-  const body = keys.map((k) => `${pad}  ${JSON.stringify(k)}: ${zodType(value[k]!, ind + 1)},`).join('\n');
+  const body = keys
+    .map((k) => `${pad}  ${JSON.stringify(k)}: ${zodType(value[k]!, ind + 1)},`)
+    .join('\n');
   return `z.object({\n${body}\n${pad}})`;
 }
 
@@ -42,14 +44,20 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
 
   const text = (input.text ?? '').trim();
   if (!text) {
-    throw new ToolError('Paste a JSON object or array.', 'A single JSON value; its shape becomes the schema.');
+    throw new ToolError(
+      'Paste a JSON object or array.',
+      'A single JSON value; its shape becomes the schema.',
+    );
   }
 
   let parsed: Json;
   try {
     parsed = JSON.parse(text) as Json;
   } catch (e) {
-    throw new ToolError(`Invalid JSON: ${(e as Error).message}`, 'Check quotes, commas and brackets.');
+    throw new ToolError(
+      `Invalid JSON: ${(e as Error).message}`,
+      'Check quotes, commas and brackets.',
+    );
   }
 
   const schema = zodType(parsed, 0);

@@ -12,7 +12,9 @@ describe('ansi-sequences', () => {
   });
 
   it('visualizes SGR and common cursor/control CSI sequences', () => {
-    expect(run('\u001b[1;32mOK\u001b[0m\u001b[2K', 'visualize').output).toBe('[SGR 1;32]OK[SGR 0][CSI 2K: erase line]');
+    expect(run('\u001b[1;32mOK\u001b[0m\u001b[2K', 'visualize').output).toBe(
+      '[SGR 1;32]OK[SGR 0][CSI 2K: erase line]',
+    );
   });
 
   it('recognizes OSC sequences terminated with BEL or ST', () => {

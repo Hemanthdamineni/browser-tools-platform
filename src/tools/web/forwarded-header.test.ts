@@ -2,13 +2,25 @@ import { describe, expect, it } from 'vitest';
 import { ToolError } from '@/lib/types';
 import tool from './forwarded-header.tool';
 
-type Result = { output: string; filename?: string; stats?: Record<string, string | number>; notes?: string[] };
-const run = (text: string, options: Record<string, string | number | boolean> = {}) => tool.run({ text, options }) as Result;
+type Result = {
+  output: string;
+  filename?: string;
+  stats?: Record<string, string | number>;
+  notes?: string[];
+};
+const run = (text: string, options: Record<string, string | number | boolean> = {}) =>
+  tool.run({ text, options }) as Result;
 const rows = (result: Result) => JSON.parse(result.output).rows as string[][];
 
 describe('forwarded-header', () => {
   it('builds a Forwarded element with optional parameters', () => {
-    const result = run('', { mode: 'build', forValue: '192.0.2.43', byValue: '203.0.113.10', host: 'example.com', proto: 'https' });
+    const result = run('', {
+      mode: 'build',
+      forValue: '192.0.2.43',
+      byValue: '203.0.113.10',
+      host: 'example.com',
+      proto: 'https',
+    });
     expect(result.output).toBe('for=192.0.2.43;by=203.0.113.10;host=example.com;proto=https');
     expect(result.filename).toBe('forwarded.txt');
   });

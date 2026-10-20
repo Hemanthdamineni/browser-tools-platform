@@ -3,7 +3,11 @@ import { ToolError } from '@/lib/types';
 import { resolveOptions } from '@/lib/options';
 import { meta } from './csv-to-html.meta';
 
-interface CsvRow { cells: string[]; quoted: boolean[]; line: number; }
+interface CsvRow {
+  cells: string[];
+  quoted: boolean[];
+  line: number;
+}
 
 const DELIM_MAP: Record<string, string> = { comma: ',', tab: '\t', semicolon: ';', pipe: '|' };
 
@@ -36,19 +40,30 @@ function parseCsv(input: string, delim: string): CsvRow[] {
     const ch = input[i]!;
     if (inQuotes) {
       if (ch === '"') {
-        if (input[i + 1] === '"') { cur += '"'; i++; }
-        else inQuotes = false;
+        if (input[i + 1] === '"') {
+          cur += '"';
+          i++;
+        } else inQuotes = false;
       } else {
         if (ch === '\n') line++;
         cur += ch;
       }
       continue;
     }
-    if (ch === '"' && cur === '') { inQuotes = true; wasQuoted = true; }
-    else if (ch === delim) { endCell(); }
-    else if (ch === '\r') { /* skip carriage returns */ }
-    else if (ch === '\n') { endRow(); line++; rowLine = line; }
-    else { cur += ch; }
+    if (ch === '"' && cur === '') {
+      inQuotes = true;
+      wasQuoted = true;
+    } else if (ch === delim) {
+      endCell();
+    } else if (ch === '\r') {
+      /* skip carriage returns */
+    } else if (ch === '\n') {
+      endRow();
+      line++;
+      rowLine = line;
+    } else {
+      cur += ch;
+    }
   }
   endRow();
   return rows;
@@ -86,9 +101,16 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
 
   const headerCells = parsed[0]!.cells;
   const colCount = Math.max(headerCells.length, ...parsed.slice(1).map((r) => r.cells.length));
-  const headers = headerCells.length === colCount
-    ? headerCells
-    : [...headerCells, ...Array.from({ length: colCount - headerCells.length }, (_, i) => `Column ${headerCells.length + i + 1}`)];
+  const headers =
+    headerCells.length === colCount
+      ? headerCells
+      : [
+          ...headerCells,
+          ...Array.from(
+            { length: colCount - headerCells.length },
+            (_, i) => `Column ${headerCells.length + i + 1}`,
+          ),
+        ];
   const dataRows = parsed.slice(1);
 
   let html = '';

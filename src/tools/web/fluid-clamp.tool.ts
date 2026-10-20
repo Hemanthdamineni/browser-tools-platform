@@ -27,7 +27,8 @@ function run(input: TextRunInput): TextRunResult {
   if (!Number.isInteger(precision) || precision < 0 || precision > 6) {
     throw new ToolError('Precision must be a whole number from 0 to 6.');
   }
-  if (!['px', 'rem', 'em', 'vw'].includes(unit)) throw new ToolError('Choose px, rem, em, or vw units.');
+  if (!['px', 'rem', 'em', 'vw'].includes(unit))
+    throw new ToolError('Choose px, rem, em, or vw units.');
   if (property && !/^--[\w-]+$|^[a-z][a-z0-9-]*$/i.test(property)) {
     throw new ToolError('Enter a valid CSS property name or leave it blank.');
   }
@@ -54,7 +55,11 @@ function run(input: TextRunInput): TextRunResult {
     output,
     render: 'code',
     language: 'css',
-    stats: { 'minimum value': `${format(minCss, precision)}${unit}`, 'maximum value': `${format(maxCss, precision)}${unit}`, 'viewport range': `${format(minViewport, 0)}–${format(maxViewport, 0)}px` },
+    stats: {
+      'minimum value': `${format(minCss, precision)}${unit}`,
+      'maximum value': `${format(maxCss, precision)}${unit}`,
+      'viewport range': `${format(minViewport, 0)}–${format(maxViewport, 0)}px`,
+    },
     notes,
   };
 }

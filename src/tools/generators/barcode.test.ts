@@ -79,9 +79,7 @@ describe('Code 128', () => {
     expect(start).toBe(104);
     expect(check).toBe(34);
     // START B + value(33)="A" + checksum(34) + STOP, verified independently.
-    expect(modules).toBe(
-      '11010010000' + '10100011000' + '10001011000' + '1100011101011',
-    );
+    expect(modules).toBe('11010010000' + '10100011000' + '10001011000' + '1100011101011');
   });
 
   it('round-trips subset B text through a decoder', () => {
@@ -124,9 +122,7 @@ describe('Code 128', () => {
 describe('Code 39', () => {
   it('encodes "A" to a known module string with * guards', () => {
     // * = 100101101101, A = 110101001011, one narrow gap between characters.
-    expect(encodeCode39('A')).toBe(
-      '100101101101' + '0' + '110101001011' + '0' + '100101101101',
-    );
+    expect(encodeCode39('A')).toBe('100101101101' + '0' + '110101001011' + '0' + '100101101101');
   });
 
   it('rejects characters outside the Code 39 alphabet', () => {
@@ -148,14 +144,22 @@ describe('EAN-13', () => {
     expect(enc.modules.length).toBe(95);
     const expected =
       '101' +
-      '0001101' + '0100111' + '0101111' + '0111101' + '0001001' + '0110011' +
+      '0001101' +
+      '0100111' +
+      '0101111' +
+      '0111101' +
+      '0001001' +
+      '0110011' +
       '01010' +
-      '1000010' + '1000010' + '1000010' + '1110100' + '1000010' + '1100110' +
+      '1000010' +
+      '1000010' +
+      '1000010' +
+      '1110100' +
+      '1000010' +
+      '1100110' +
       '101';
     expect(enc.modules).toBe(expected);
-    expect([...enc.guard].sort((a, b) => a - b)).toEqual([
-      0, 1, 2, 45, 46, 47, 48, 49, 92, 93, 94,
-    ]);
+    expect([...enc.guard].sort((a, b) => a - b)).toEqual([0, 1, 2, 45, 46, 47, 48, 49, 92, 93, 94]);
   });
 
   it('adds a missing check digit and validates a supplied one', () => {

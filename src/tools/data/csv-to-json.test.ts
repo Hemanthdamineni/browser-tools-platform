@@ -15,7 +15,7 @@ describe('csv-to-json', async () => {
   });
 
   it('keeps everything as strings when inferTypes is off', async () => {
-      expect(await parsed('a;b\n1;2\n', { delimiter: 'semicolon', inferTypes: false })).toEqual([
+    expect(await parsed('a;b\n1;2\n', { delimiter: 'semicolon', inferTypes: false })).toEqual([
       { a: '1', b: '2' },
     ]);
   });

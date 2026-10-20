@@ -6,10 +6,29 @@ import { meta } from './js-to-css.meta';
 const MAX_LEN = 200_000;
 
 const UNITLESS = new Set([
-  'animationIterationCount', 'aspectRatio', 'borderImageSlice', 'columnCount', 'flex', 'flexGrow',
-  'flexShrink', 'fontWeight', 'gridArea', 'gridColumn', 'gridColumnEnd', 'gridColumnStart', 'gridRow',
-  'gridRowEnd', 'gridRowStart', 'lineHeight', 'opacity', 'order', 'orphans', 'tabSize', 'widows',
-  'zIndex', 'zoom',
+  'animationIterationCount',
+  'aspectRatio',
+  'borderImageSlice',
+  'columnCount',
+  'flex',
+  'flexGrow',
+  'flexShrink',
+  'fontWeight',
+  'gridArea',
+  'gridColumn',
+  'gridColumnEnd',
+  'gridColumnStart',
+  'gridRow',
+  'gridRowEnd',
+  'gridRowStart',
+  'lineHeight',
+  'opacity',
+  'order',
+  'orphans',
+  'tabSize',
+  'widows',
+  'zIndex',
+  'zoom',
 ]);
 
 /** Split on a separator at depth 0, respecting quotes and (), [], {}. */
@@ -27,10 +46,26 @@ function splitTop(text: string, sep: string): string[] {
       else if (ch === quote) quote = null;
       continue;
     }
-    if (ch === '"' || ch === "'" || ch === '`') { quote = ch; cur += ch; continue; }
-    if (ch === '(' || ch === '[' || ch === '{') { depth += 1; cur += ch; continue; }
-    if (ch === ')' || ch === ']' || ch === '}') { depth -= 1; cur += ch; continue; }
-    if (ch === sep && depth === 0) { out.push(cur); cur = ''; continue; }
+    if (ch === '"' || ch === "'" || ch === '`') {
+      quote = ch;
+      cur += ch;
+      continue;
+    }
+    if (ch === '(' || ch === '[' || ch === '{') {
+      depth += 1;
+      cur += ch;
+      continue;
+    }
+    if (ch === ')' || ch === ']' || ch === '}') {
+      depth -= 1;
+      cur += ch;
+      continue;
+    }
+    if (ch === sep && depth === 0) {
+      out.push(cur);
+      cur = '';
+      continue;
+    }
     cur += ch;
   }
   out.push(cur);
@@ -48,7 +83,10 @@ function indexOfTopColon(text: string): number {
       else if (ch === quote) quote = null;
       continue;
     }
-    if (ch === '"' || ch === "'" || ch === '`') { quote = ch; continue; }
+    if (ch === '"' || ch === "'" || ch === '`') {
+      quote = ch;
+      continue;
+    }
     if (ch === '(' || ch === '[' || ch === '{') depth += 1;
     else if (ch === ')' || ch === ']' || ch === '}') depth -= 1;
     else if (ch === ':' && depth === 0) return i;
@@ -93,21 +131,31 @@ function cssValue(key: string, raw: string, pxForNumbers: boolean): string | nul
 
 function entriesOf(text: string): Array<[string, string]> {
   const t = text.trim().replace(/;$/, '');
-  if (!t.startsWith('{')) throw new ToolError('Expected a JS object.', 'Example: { color: "red", fontSize: 12 }');
-  if (!t.endsWith('}')) throw new ToolError('Unbalanced object literal.', 'Add the missing closing brace.');
+  if (!t.startsWith('{'))
+    throw new ToolError('Expected a JS object.', 'Example: { color: "red", fontSize: 12 }');
+  if (!t.endsWith('}'))
+    throw new ToolError('Unbalanced object literal.', 'Add the missing closing brace.');
   const inner = t.slice(1, -1).trim();
   if (!inner) return [];
   const out: Array<[string, string]> = [];
   for (const part of splitTop(inner, ',')) {
     if (!part.trim()) continue;
     const ci = indexOfTopColon(part);
-    if (ci === -1) throw new ToolError('Could not parse an entry in the object.', 'Entries look like key: value, …');
+    if (ci === -1)
+      throw new ToolError(
+        'Could not parse an entry in the object.',
+        'Entries look like key: value, …',
+      );
     out.push([unquoteKey(part.slice(0, ci)), part.slice(ci + 1).trim()]);
   }
   return out;
 }
 
-function renderDecls(entries: Array<[string, string]>, pxForNumbers: boolean, node: string[]): string[] {
+function renderDecls(
+  entries: Array<[string, string]>,
+  pxForNumbers: boolean,
+  node: string[],
+): string[] {
   const lines: string[] = [];
   for (const [key, raw] of entries) {
     const value = cssValue(key, raw, pxForNumbers);
@@ -125,7 +173,8 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   const pxForNumbers = o.pxForNumbers !== false;
   const source = (input.text ?? '').trim();
   if (!source) throw new ToolError('Paste a JS style object to convert to CSS.');
-  if (source.length > MAX_LEN) throw new ToolError('Input is too large.', 'Keep it under 200,000 characters.');
+  if (source.length > MAX_LEN)
+    throw new ToolError('Input is too large.', 'Keep it under 200,000 characters.');
 
   const entries = entriesOf(source);
   const skipped: string[] = [];
@@ -140,7 +189,10 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
       rules.push(key + ' {\n' + body.join('\n') + '\n}');
     } else {
       const value = cssValue(key, v, pxForNumbers);
-      if (value === null) { skipped.push(key); continue; }
+      if (value === null) {
+        skipped.push(key);
+        continue;
+      }
       rootLines.push('  ' + dashKey(key) + ': ' + value + ';');
     }
   }
@@ -148,10 +200,12 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   const parts: string[] = [];
   if (rootLines.length) parts.push(rootLines.join('\n'));
   parts.push(...rules);
-  if (!parts.length) throw new ToolError('Nothing to convert.', 'All entries were nested values, booleans or null.');
+  if (!parts.length)
+    throw new ToolError('Nothing to convert.', 'All entries were nested values, booleans or null.');
 
   const notes: string[] = ['camelCase keys converted to kebab-case.'];
-  if (pxForNumbers) notes.push('Bare length numbers became px; unitless properties were left alone.');
+  if (pxForNumbers)
+    notes.push('Bare length numbers became px; unitless properties were left alone.');
   if (skipped.length) notes.push('Dropped (boolean, null or empty): ' + skipped.join(', '));
 
   return {

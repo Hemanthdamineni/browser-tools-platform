@@ -4,8 +4,106 @@ import { resolveOptions } from '@/lib/options';
 import { meta } from './www-authenticate.meta';
 
 type Challenge = { scheme: string; params: [string, string][]; issues: string[] };
-function splitChallenges(text: string): string[] { return text.split(/,\s+(?=[A-Za-z][A-Za-z0-9_-]*\s+[A-Za-z][A-Za-z0-9_-]*=)/).map((value) => value.trim()).filter(Boolean); }
-function parse(raw: string): Challenge | null { const match = /^([A-Za-z][A-Za-z0-9_-]*)(?:\s+(.*))?$/.exec(raw.trim()); if (!match) return null; const scheme = match[1]!; const params: [string, string][] = []; const issues: string[] = []; const rest = match[2] ?? ''; for (const part of rest.split(',').map((value) => value.trim()).filter(Boolean)) { const index = part.indexOf('='); if (index <= 0) { issues.push(`Malformed auth-param: ${part}`); continue; } const key = part.slice(0, index).trim().toLowerCase(); let value = part.slice(index + 1).trim(); if (value.startsWith('"') && value.endsWith('"')) value = value.slice(1, -1).replace(/\\(["\\])/g, '$1'); if (!/^[a-z][a-z0-9_-]*$/i.test(key)) issues.push(`Invalid auth-param name: ${key}`); params.push([key, value]); } if (params.some(([key]) => key === 'realm' && !params.find(([candidate, value]) => candidate === key && value))) issues.push('Realm must not be empty'); if (new Set(params.map(([key]) => key)).size !== params.length) issues.push('Duplicate auth parameters are present'); return { scheme, params, issues }; }
-function run(input: TextRunInput): TextRunResult { const options = resolveOptions(meta, input.options); const mode = String(options.mode); if (mode !== 'build' && mode !== 'parse') throw new ToolError('Choose a supported authentication mode.'); if (mode === 'build') { const scheme = String(options.scheme); const realm = String(options.realm).trim(); const scope = String(options.scope).trim(); const error = String(options.error).trim(); if (!['Basic', 'Bearer'].includes(scheme)) throw new ToolError('Choose Basic or Bearer.'); if (!realm || /[\r\n]/.test(realm)) throw new ToolError('Realm must be non-empty and contain no line breaks.'); if ([scope, error].some((value) => /[\r\n]/.test(value))) throw new ToolError('Challenge parameters cannot contain line breaks.'); const quote = (value: string) => `"${value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`; const params = [`realm=${quote(realm)}`, ...(scheme === 'Bearer' && scope ? [`scope=${quote(scope)}`] : []), ...(scheme === 'Bearer' && error ? [`error=${quote(error)}`] : [])]; return { output: `${scheme} ${params.join(', ')}`, render: 'code', language: 'http', filename: 'www-authenticate.txt', stats: { scheme, parameters: params.length } }; } const values = input.text.split(/\r\n|\r|\n/).flatMap(splitChallenges); if (!values.length) return { output: JSON.stringify({ headers: ['Challenge', 'Parameter', 'Value', 'Issues'], rows: [] }), render: 'table', notes: ['Paste one or more WWW-Authenticate challenges.'] }; const parsed = values.map(parse); const rows = parsed.flatMap((challenge, index) => challenge ? [[challenge.scheme, '(scheme)', challenge.scheme, challenge.issues.join('; ') || ''], ...challenge.params.map(([key, value]) => [challenge.scheme, key, value, challenge.issues.join('; ') || ''])] : [[`challenge ${index + 1}`, '', '', 'Invalid challenge']]); return { output: JSON.stringify({ headers: ['Challenge', 'Parameter', 'Value', 'Issues'], rows }), render: 'table', stats: { challenges: values.length, invalid: parsed.filter((challenge) => !challenge).length, review: parsed.filter((challenge) => challenge?.issues.length).length }, notes: ['Challenge parsing is local and does not validate credentials or tokens.'] }; }
+function splitChallenges(text: string): string[] {
+  return text
+    .split(/,\s+(?=[A-Za-z][A-Za-z0-9_-]*\s+[A-Za-z][A-Za-z0-9_-]*=)/)
+    .map((value) => value.trim())
+    .filter(Boolean);
+}
+function parse(raw: string): Challenge | null {
+  const match = /^([A-Za-z][A-Za-z0-9_-]*)(?:\s+(.*))?$/.exec(raw.trim());
+  if (!match) return null;
+  const scheme = match[1]!;
+  const params: [string, string][] = [];
+  const issues: string[] = [];
+  const rest = match[2] ?? '';
+  for (const part of rest
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean)) {
+    const index = part.indexOf('=');
+    if (index <= 0) {
+      issues.push(`Malformed auth-param: ${part}`);
+      continue;
+    }
+    const key = part.slice(0, index).trim().toLowerCase();
+    let value = part.slice(index + 1).trim();
+    if (value.startsWith('"') && value.endsWith('"'))
+      value = value.slice(1, -1).replace(/\\(["\\])/g, '$1');
+    if (!/^[a-z][a-z0-9_-]*$/i.test(key)) issues.push(`Invalid auth-param name: ${key}`);
+    params.push([key, value]);
+  }
+  if (
+    params.some(
+      ([key]) =>
+        key === 'realm' && !params.find(([candidate, value]) => candidate === key && value),
+    )
+  )
+    issues.push('Realm must not be empty');
+  if (new Set(params.map(([key]) => key)).size !== params.length)
+    issues.push('Duplicate auth parameters are present');
+  return { scheme, params, issues };
+}
+function run(input: TextRunInput): TextRunResult {
+  const options = resolveOptions(meta, input.options);
+  const mode = String(options.mode);
+  if (mode !== 'build' && mode !== 'parse')
+    throw new ToolError('Choose a supported authentication mode.');
+  if (mode === 'build') {
+    const scheme = String(options.scheme);
+    const realm = String(options.realm).trim();
+    const scope = String(options.scope).trim();
+    const error = String(options.error).trim();
+    if (!['Basic', 'Bearer'].includes(scheme)) throw new ToolError('Choose Basic or Bearer.');
+    if (!realm || /[\r\n]/.test(realm))
+      throw new ToolError('Realm must be non-empty and contain no line breaks.');
+    if ([scope, error].some((value) => /[\r\n]/.test(value)))
+      throw new ToolError('Challenge parameters cannot contain line breaks.');
+    const quote = (value: string) => `"${value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
+    const params = [
+      `realm=${quote(realm)}`,
+      ...(scheme === 'Bearer' && scope ? [`scope=${quote(scope)}`] : []),
+      ...(scheme === 'Bearer' && error ? [`error=${quote(error)}`] : []),
+    ];
+    return {
+      output: `${scheme} ${params.join(', ')}`,
+      render: 'code',
+      language: 'http',
+      filename: 'www-authenticate.txt',
+      stats: { scheme, parameters: params.length },
+    };
+  }
+  const values = input.text.split(/\r\n|\r|\n/).flatMap(splitChallenges);
+  if (!values.length)
+    return {
+      output: JSON.stringify({ headers: ['Challenge', 'Parameter', 'Value', 'Issues'], rows: [] }),
+      render: 'table',
+      notes: ['Paste one or more WWW-Authenticate challenges.'],
+    };
+  const parsed = values.map(parse);
+  const rows = parsed.flatMap((challenge, index) =>
+    challenge
+      ? [
+          [challenge.scheme, '(scheme)', challenge.scheme, challenge.issues.join('; ') || ''],
+          ...challenge.params.map(([key, value]) => [
+            challenge.scheme,
+            key,
+            value,
+            challenge.issues.join('; ') || '',
+          ]),
+        ]
+      : [[`challenge ${index + 1}`, '', '', 'Invalid challenge']],
+  );
+  return {
+    output: JSON.stringify({ headers: ['Challenge', 'Parameter', 'Value', 'Issues'], rows }),
+    render: 'table',
+    stats: {
+      challenges: values.length,
+      invalid: parsed.filter((challenge) => !challenge).length,
+      review: parsed.filter((challenge) => challenge?.issues.length).length,
+    },
+    notes: ['Challenge parsing is local and does not validate credentials or tokens.'],
+  };
+}
 const tool: TextToolModule = { meta, run };
 export default tool;

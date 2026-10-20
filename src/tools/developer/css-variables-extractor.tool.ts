@@ -134,7 +134,10 @@ function extract(css: string): Decl[] {
     const colon = segment.indexOf(':');
     if (colon === -1) return;
     const name = segment.slice(0, colon).trim();
-    const value = segment.slice(colon + 1).trim().replace(/\s+/g, ' ');
+    const value = segment
+      .slice(colon + 1)
+      .trim()
+      .replace(/\s+/g, ' ');
     if (!/^--[\w-]+$/.test(name)) return;
     const scopeParts = stack.filter((s) => s !== '');
     const scope = scopeParts.length > 0 ? scopeParts.join(' > ') : '(top level)';
@@ -187,7 +190,9 @@ function toScss(groups: Group[], keepComments: boolean): string {
   const lines: string[] = [];
   for (const g of groups) {
     if (keepComments && g.declarations.length > 1) {
-      lines.push('// ' + g.name + ' — ' + g.declarations.length + ' declarations (last wins in CSS)');
+      lines.push(
+        '// ' + g.name + ' — ' + g.declarations.length + ' declarations (last wins in CSS)',
+      );
     }
     const last = g.declarations[g.declarations.length - 1]!;
     const scssName = g.name.replace(/^--/, '');
@@ -203,19 +208,29 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   const dedupe = o.dedupe !== false;
 
   const raw = String(input.text ?? '');
-  if (raw.trim() === '') throw new ToolError('Paste a stylesheet containing CSS custom properties.');
-  if (raw.length > MAX_LEN) throw new ToolError('Input is too large.', 'Keep it under ' + MAX_LEN + ' characters.');
+  if (raw.trim() === '')
+    throw new ToolError('Paste a stylesheet containing CSS custom properties.');
+  if (raw.length > MAX_LEN)
+    throw new ToolError('Input is too large.', 'Keep it under ' + MAX_LEN + ' characters.');
 
   const decls = extract(stripComments(raw));
   if (decls.length === 0) {
-    throw new ToolError('No CSS custom properties found.', 'Declarations look like --name: value; inside a rule block.');
+    throw new ToolError(
+      'No CSS custom properties found.',
+      'Declarations look like --name: value; inside a rule block.',
+    );
   }
 
   const groups = groupDecls(decls, dedupe);
   const uniqueNames = new Set(decls.map((d) => d.name));
   const scopes = new Set(decls.map((d) => d.scope));
   const notes = [
-    decls.length + ' declaration(s), ' + uniqueNames.size + ' unique variable(s), ' + scopes.size + ' scope(s).',
+    decls.length +
+      ' declaration(s), ' +
+      uniqueNames.size +
+      ' unique variable(s), ' +
+      scopes.size +
+      ' scope(s).',
   ];
 
   if (format === 'table') {

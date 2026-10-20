@@ -15,7 +15,8 @@ function base64Decode(s: string): Uint8Array {
   for (const ch of clean) {
     if (ch === '=') break;
     const v = B64.indexOf(ch);
-    if (v === -1) throw new ToolError('The certificate contains characters outside the base64 alphabet.');
+    if (v === -1)
+      throw new ToolError('The certificate contains characters outside the base64 alphabet.');
     buffer = (buffer << 6) | v;
     bits += 6;
     if (bits >= 8) {
@@ -46,15 +47,18 @@ function bigIntBits(bytes: Uint8Array): number {
   if (rem === 0) return 0;
   let lead = 0;
   let x = bytes[start]!;
-  while (x < 128) { x <<= 1; lead++; }
+  while (x < 128) {
+    x <<= 1;
+    lead++;
+  }
   return rem * 8 - lead;
 }
 
 // ── Minimal ASN.1 DER reader ───────────────────────────────────────────────
 
 interface DerNode {
-  tag: number;      // tag byte (universal/context etc.)
-  cls: number;      // class bits 0..3
+  tag: number; // tag byte (universal/context etc.)
+  cls: number; // class bits 0..3
   constructed: boolean;
   value: Uint8Array; // bare value or child bytes
   children: DerNode[];
@@ -145,18 +149,30 @@ const OID_LABELS: Record<string, string> = {
 
 function sigAlg(oid: string): string {
   switch (oid) {
-    case '1.2.840.113549.1.1.11': return 'sha256WithRSAEncryption';
-    case '1.2.840.113549.1.1.12': return 'sha384WithRSAEncryption';
-    case '1.2.840.113549.1.1.13': return 'sha512WithRSAEncryption';
-    case '1.2.840.113549.1.1.5': return 'sha1WithRSAEncryption';
-    case '1.2.840.113549.1.1.4': return 'md5WithRSAEncryption';
-    case '1.2.840.10045.4.3.2': return 'ecdsa-with-SHA256';
-    case '1.2.840.10045.4.3.3': return 'ecdsa-with-SHA384';
-    case '1.2.840.10045.4.3.4': return 'ecdsa-with-SHA512';
-    case '1.2.840.10045.4.3': return 'ecdsa-with-SHA1';
-    case '1.2.840.10040.4.3': return 'dsa-with-SHA1';
-    case '1.3.101.112 with sha256': return 'ed25519';
-    default: return oid;
+    case '1.2.840.113549.1.1.11':
+      return 'sha256WithRSAEncryption';
+    case '1.2.840.113549.1.1.12':
+      return 'sha384WithRSAEncryption';
+    case '1.2.840.113549.1.1.13':
+      return 'sha512WithRSAEncryption';
+    case '1.2.840.113549.1.1.5':
+      return 'sha1WithRSAEncryption';
+    case '1.2.840.113549.1.1.4':
+      return 'md5WithRSAEncryption';
+    case '1.2.840.10045.4.3.2':
+      return 'ecdsa-with-SHA256';
+    case '1.2.840.10045.4.3.3':
+      return 'ecdsa-with-SHA384';
+    case '1.2.840.10045.4.3.4':
+      return 'ecdsa-with-SHA512';
+    case '1.2.840.10045.4.3':
+      return 'ecdsa-with-SHA1';
+    case '1.2.840.10040.4.3':
+      return 'dsa-with-SHA1';
+    case '1.3.101.112 with sha256':
+      return 'ed25519';
+    default:
+      return oid;
   }
 }
 
@@ -199,27 +215,34 @@ function parseExtensions(el: DerNode): string[] {
         const ip: string[] = [];
         for (const gn of seq.children) {
           if (gn.tag === 0x82) dns.push(new TextDecoder().decode(gn.value));
-          else if (gn.tag === 0x87) ip.push(gn.value.length === 4 ? [...gn.value].join('.') : toHex(gn.value));
+          else if (gn.tag === 0x87)
+            ip.push(gn.value.length === 4 ? [...gn.value].join('.') : toHex(gn.value));
         }
         const san: string[] = [];
         if (dns.length) san.push(`DNS: ${dns.join(', ')}`);
         if (ip.length) san.push(`IP: ${ip.join(', ')}`);
         if (san.length) notes.push(`Subject Alternative Name: ${san.join(' — ')}`);
-      } catch { /* ignore malformed SAN */ }
+      } catch {
+        /* ignore malformed SAN */
+      }
     } else if (oid === '2.5.29.19') {
       try {
         const seq = readDer(raw, 0).el;
         let ca = false;
         for (const b of seq.children) if (b.tag === 0x01) ca = b.value[0] !== 0;
         notes.push(`Basic Constraints: ${ca ? 'CA:TRUE' : 'CA:FALSE'}${ca ? '' : ''}`);
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
     } else if (oid === '2.5.29.14' || oid === '2.5.29.35') {
       if (raw.length > 0 && raw[0] === 0x04) {
         // OCTET STRING wrapping a keyid; unwrap
         try {
           const inner = readDer(raw, 0).el;
           if (inner.tag === 0x04) notes.push(`Key Identifier: ${colons(toHex(inner.value))}`);
-        } catch { /* ignore */ }
+        } catch {
+          /* ignore */
+        }
       }
     } else if (oid === '2.5.29.15') {
       notes.push(`Key Usage: present`);
@@ -228,7 +251,13 @@ function parseExtensions(el: DerNode): string[] {
   return notes;
 }
 
-function parsePublicKey(spki: DerNode): { type: string; bits: number; modulusHex: string; exponent: string; curve: string } {
+function parsePublicKey(spki: DerNode): {
+  type: string;
+  bits: number;
+  modulusHex: string;
+  exponent: string;
+  curve: string;
+} {
   const algs = spki.children[0];
   const bitStr = spki.children[1];
   if (!algs || !bitStr) throw new ToolError('Missing SubjectPublicKeyInfo fields.');
@@ -250,13 +279,22 @@ function parsePublicKey(spki: DerNode): { type: string; bits: number; modulusHex
         modulusHex = toHex(nArr).slice(0, 64);
         exponent = toHex(eEl.value);
       }
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   } else if (type === '1.2.840.10045.2.1') {
     // ECDSA: params hold the curve OID
     if (algs.children.length > 1) {
       const curveOid = oidToString(algs.children[1]!.value);
       curve = OID_LABELS[curveOid] ?? curveOid;
-      bits = curveOid === '1.2.840.10045.3.1.7' ? 256 : curveOid === '1.3.132.0.34' ? 384 : curveOid === '1.3.132.0.35' ? 521 : 0;
+      bits =
+        curveOid === '1.2.840.10045.3.1.7'
+          ? 256
+          : curveOid === '1.3.132.0.34'
+            ? 384
+            : curveOid === '1.3.132.0.35'
+              ? 521
+              : 0;
     }
     bits = bits || bitStr.value.length * 8;
   } else if (type === '1.3.101.112') {
@@ -265,9 +303,20 @@ function parsePublicKey(spki: DerNode): { type: string; bits: number; modulusHex
     try {
       const inner = readDer(bitStr.value, 0).el;
       if (inner.children[0]) bits = bigIntBits(inner.children[0]!.value);
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }
-  const typeLabel = type === '1.2.840.113549.1.1.1' ? 'RSA' : type === '1.2.840.10045.2.1' ? 'ECDSA' : type === '1.3.101.112' ? 'Ed25519' : type === '1.2.840.10040.4.1' ? 'DSA' : type || 'unknown';
+  const typeLabel =
+    type === '1.2.840.113549.1.1.1'
+      ? 'RSA'
+      : type === '1.2.840.10045.2.1'
+        ? 'ECDSA'
+        : type === '1.3.101.112'
+          ? 'Ed25519'
+          : type === '1.2.840.10040.4.1'
+            ? 'DSA'
+            : type || 'unknown';
   return { type: typeLabel, bits, modulusHex, exponent, curve };
 }
 
@@ -282,7 +331,9 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     return {
       output: JSON.stringify({ headers: ['Property', 'Value'], rows: [] as Row[] }),
       render: 'table',
-      notes: ['Paste a PEM certificate (-----BEGIN CERTIFICATE----- … -----END CERTIFICATE-----) to inspect it.'],
+      notes: [
+        'Paste a PEM certificate (-----BEGIN CERTIFICATE----- … -----END CERTIFICATE-----) to inspect it.',
+      ],
     };
   }
   const body = stripPem(raw);
@@ -290,7 +341,9 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   let cert: DerNode;
   try {
     cert = readDer(der, 0).el;
-  } catch (e) { throw new ToolError(`Invalid certificate structure: ${(e as Error).message}`); }
+  } catch (e) {
+    throw new ToolError(`Invalid certificate structure: ${(e as Error).message}`);
+  }
   if (cert.tag !== 0x30) throw new ToolError('The certificate is not a DER SEQUENCE.');
   const tbs = cert.children[0];
   if (!tbs || tbs.tag !== 0x30) throw new ToolError('Missing TBSCertificate.');
@@ -315,18 +368,21 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   const notAfter = asnTimeToDate(validityEl.children[1]!.value);
 
   const now = Date.now();
-  const status = !notAfter || !notBefore
-    ? '(unparsed)'
-    : now < notBefore.getTime()
-      ? 'Not yet valid'
-      : now > notAfter.getTime()
-        ? 'EXPIRED'
-        : 'Valid';
+  const status =
+    !notAfter || !notBefore
+      ? '(unparsed)'
+      : now < notBefore.getTime()
+        ? 'Not yet valid'
+        : now > notAfter.getTime()
+          ? 'EXPIRED'
+          : 'Valid';
   const daysLeft = notAfter ? Math.floor((notAfter.getTime() - now) / 86400000) : null;
 
   const key = parsePublicKey(spkiEl);
   const extensionNotes: string[] = [];
-  const extWrapper = tbsChildren.find((c) => c.cls === 2 && c.tag === 0xa3 && c.constructed && c.children.length > 0);
+  const extWrapper = tbsChildren.find(
+    (c) => c.cls === 2 && c.tag === 0xa3 && c.constructed && c.children.length > 0,
+  );
   if (extWrapper) {
     for (const extSeq of extWrapper.children) {
       if (extSeq.tag === 0x30) extensionNotes.push(...parseExtensions(extSeq));
@@ -342,8 +398,14 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     ['Issuer', parseName(issuerEl)],
     ['Serial number', serial],
     ['Signature algorithm', sigLabel],
-    ['Not before', notBefore ? notBefore.toISOString().replace('T', ' ').replace('Z', ' UTC') : '(unparsed)'],
-    ['Not after', notAfter ? notAfter.toISOString().replace('T', ' ').replace('Z', ' UTC') : '(unparsed)'],
+    [
+      'Not before',
+      notBefore ? notBefore.toISOString().replace('T', ' ').replace('Z', ' UTC') : '(unparsed)',
+    ],
+    [
+      'Not after',
+      notAfter ? notAfter.toISOString().replace('T', ' ').replace('Z', ' UTC') : '(unparsed)',
+    ],
     ['Validity status', status],
     ['Days remaining', daysLeft === null ? '(unparsed)' : String(daysLeft)],
     ['Public key type', key.type],
@@ -353,8 +415,12 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     ['Curve', key.curve || '—'],
   ];
 
-  const sha256hex = Array.from(new Uint8Array(digestBuf)).map((b) => b.toString(16).padStart(2, '0')).join('');
-  const sha1hex = Array.from(new Uint8Array(digestBuf1)).map((b) => b.toString(16).padStart(2, '0')).join('');
+  const sha256hex = Array.from(new Uint8Array(digestBuf))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+  const sha1hex = Array.from(new Uint8Array(digestBuf1))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
 
   const notes: string[] = [];
   notes.push(`SHA-256 fingerprint: ${colons(sha256hex)}`);

@@ -91,7 +91,8 @@ function parseExpected(value: string): Uint8Array {
   const compact = value.replace(/\s+/g, '');
   if (!compact) return new Uint8Array(0);
   const hexish = value.replace(/[\s:-]/g, '');
-  if (hexish.length % 2 === 0 && /^[0-9a-fA-F]+$/.test(hexish)) return fromHex(hexish, 'expected key');
+  if (hexish.length % 2 === 0 && /^[0-9a-fA-F]+$/.test(hexish))
+    return fromHex(hexish, 'expected key');
   return fromBase64(compact, 'expected key');
 }
 
@@ -111,7 +112,9 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     return {
       output: JSON.stringify({ headers, rows: [['Status', 'Waiting for a passphrase']] as Row[] }),
       render: 'table',
-      notes: ['Type the passphrase to derive from in the input box, then choose the salt and iterations.'],
+      notes: [
+        'Type the passphrase to derive from in the input box, then choose the salt and iterations.',
+      ],
     };
   }
 
@@ -139,7 +142,10 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
 
   const rawLength = Number(o.length);
   if (!Number.isInteger(rawLength) || rawLength < 1) {
-    throw new ToolError('Key length must be a whole number of at least 1 byte.', 'Try 16, 24 or 32 bytes.');
+    throw new ToolError(
+      'Key length must be a whole number of at least 1 byte.',
+      'Try 16, 24 or 32 bytes.',
+    );
   }
   if (rawLength > MAX_LENGTH) {
     throw new ToolError(
@@ -159,9 +165,13 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   }
 
   const passphraseBytes = new TextEncoder().encode(passphrase);
-  const keyMaterial = await crypto.subtle.importKey('raw', passphraseBytes, { name: 'PBKDF2' }, false, [
-    'deriveBits',
-  ]);
+  const keyMaterial = await crypto.subtle.importKey(
+    'raw',
+    passphraseBytes,
+    { name: 'PBKDF2' },
+    false,
+    ['deriveBits'],
+  );
 
   const started = typeof performance !== 'undefined' ? performance.now() : Date.now();
   const bits = await crypto.subtle.deriveBits(
@@ -191,18 +201,26 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     if (expected.length === 0) {
       notes.push('The expected key is empty, so there is nothing to verify against.');
     } else if (expected.length !== derived.length) {
-      rows.push(['Verification', `Mismatch (expected ${expected.length} bytes, derived ${length})`]);
-      notes.push('The expected value has a different length than the derived key, so it cannot match.');
+      rows.push([
+        'Verification',
+        `Mismatch (expected ${expected.length} bytes, derived ${length})`,
+      ]);
+      notes.push(
+        'The expected value has a different length than the derived key, so it cannot match.',
+      );
     } else if (constantTimeEqual(expected, derived)) {
       rows.push(['Verification', 'Match']);
       notes.push('Verification: Match — the derived bytes equal the expected key.');
     } else {
       rows.push(['Verification', 'Mismatch']);
-      notes.push('Verification: Mismatch — same length, different bytes. Re-check the salt, iteration count and PRF hash.');
+      notes.push(
+        'Verification: Mismatch — same length, different bytes. Re-check the salt, iteration count and PRF hash.',
+      );
     }
   }
 
-  const minIterations = algorithm === 'sha-512' ? 210000 : algorithm === 'sha-256' ? 600000 : 1300000;
+  const minIterations =
+    algorithm === 'sha-512' ? 210000 : algorithm === 'sha-256' ? 600000 : 1300000;
   if (iterations < minIterations) {
     notes.push(
       `OWASP recommends at least ${minIterations.toLocaleString('en-US')} iterations for PBKDF2-HMAC-${hash}; ${iterations.toLocaleString('en-US')} is below that.`,
@@ -212,9 +230,13 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     notes.push('Salts shorter than 8 bytes are weak — use at least 8 random bytes (16 is better).');
   }
   if (passphraseBytes.length < 8) {
-    notes.push('A short passphrase is the weakest link: PBKDF2 stretches work but cannot add entropy that is not there.');
+    notes.push(
+      'A short passphrase is the weakest link: PBKDF2 stretches work but cannot add entropy that is not there.',
+    );
   }
-  notes.push('Store the salt, iteration count and PRF hash alongside the derived key so the derivation can be repeated.');
+  notes.push(
+    'Store the salt, iteration count and PRF hash alongside the derived key so the derivation can be repeated.',
+  );
 
   return {
     output: JSON.stringify({ headers, rows }),

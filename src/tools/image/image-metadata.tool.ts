@@ -275,7 +275,8 @@ export function decodePngChunks(buf: ArrayBuffer): Record<string, string | numbe
   if (d.length < 24 || d[0] !== 137 || d[1] !== 80 || d[2] !== 78 || d[3] !== 71) return out;
 
   const u32 = (o: number): number =>
-    (((d[o]! << 24) >>> 0) | ((d[o + 1]! << 16) >>> 0) | ((d[o + 2]! << 8) >>> 0) | d[o + 3]!) >>> 0;
+    (((d[o]! << 24) >>> 0) | ((d[o + 1]! << 16) >>> 0) | ((d[o + 2]! << 8) >>> 0) | d[o + 3]!) >>>
+    0;
 
   let o = 8;
   while (o + 8 <= d.length) {

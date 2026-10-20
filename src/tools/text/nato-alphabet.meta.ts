@@ -4,7 +4,8 @@ export const meta: ToolMeta = {
   id: 'nato-alphabet',
   name: 'NATO Phonetic Alphabet',
   category: 'text',
-  summary: 'Spell text aloud with the NATO phonetic alphabet, or decode spoken words back into text.',
+  summary:
+    'Spell text aloud with the NATO phonetic alphabet, or decode spoken words back into text.',
   description:
     'Convert text to the NATO phonetic alphabet (Alpha, Bravo, Charlie …) for dictating names, codes and IDs over the phone or radio, or decode a sequence like "Foxtrot Oscar X-ray" back into text. Digits, punctuation and non-Latin characters are handled predictably, with options for word separation style.',
   keywords: [

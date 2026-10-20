@@ -99,7 +99,11 @@ export function flattenForJpeg(
 }
 
 /** Encode a canvas, failing with a friendly message when the format is unsupported. */
-export async function encodeCanvas(canvas: OffscreenCanvas, mime: string, quality?: number): Promise<Blob> {
+export async function encodeCanvas(
+  canvas: OffscreenCanvas,
+  mime: string,
+  quality?: number,
+): Promise<Blob> {
   const blob = await canvas.convertToBlob({ type: mime, quality });
   if (blob.type !== mime) {
     const label = mime.replace('image/', '').toUpperCase();

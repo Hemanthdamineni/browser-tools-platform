@@ -4,8 +4,7 @@ export const meta: ToolMeta = {
   id: 'ini-convert',
   name: 'INI Converter',
   category: 'data',
-  summary:
-    'Convert INI config files to JSON or serialize JSON back to INI, on device.',
+  summary: 'Convert INI config files to JSON or serialize JSON back to INI, on device.',
   description:
     'Move configuration between INI syntax and JSON. Parse INI into a nested JSON object (sections become objects, values are typed as booleans, integers, floats, or strings), or generate standard INI from JSON with sections, dotted nested sections, and repeated dotted keys for arrays. Great for editing .ini, .cfg and similar config files in a structured editor.',
   keywords: [

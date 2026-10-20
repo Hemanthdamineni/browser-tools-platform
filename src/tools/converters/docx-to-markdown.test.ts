@@ -118,7 +118,9 @@ describe('docx-to-markdown basics', () => {
   });
 
   it('renders tabs and hard line breaks', async () => {
-    const body = p(`<w:r><w:t xml:space="preserve">a</w:t><w:tab/><w:t>b</w:t><w:br/><w:t>c</w:t></w:r>`);
+    const body = p(
+      `<w:r><w:t xml:space="preserve">a</w:t><w:tab/><w:t>b</w:t><w:br/><w:t>c</w:t></w:r>`,
+    );
     expect(await md(body)).toBe('a\tb  \nc');
   });
 
@@ -128,7 +130,8 @@ describe('docx-to-markdown basics', () => {
 
   it('writes plain text when requested', async () => {
     const body =
-      p(run('Title'), '<w:pStyle w:val="Heading1"/>') + p(run('Bold', '<w:b/>') + run(' text', '<w:i/>'));
+      p(run('Title'), '<w:pStyle w:val="Heading1"/>') +
+      p(run('Bold', '<w:b/>') + run(' text', '<w:i/>'));
     const out = await md(body, { output: 'text' });
     expect(out).toBe('Title\nBold text');
   });
@@ -220,7 +223,9 @@ describe('docx-to-markdown links, styles and revisions', () => {
         '<w:pPr><w:outlineLvl w:val="1"/></w:pPr></w:style>' +
         '<w:style w:type="paragraph" w:styleId="Quote"><w:name w:val="Quote"/></w:style>',
     );
-    const body = p(run('Deep'), '<w:pStyle w:val="MyHeading"/>') + p(run('Quoted'), '<w:pStyle w:val="Quote"/>');
+    const body =
+      p(run('Deep'), '<w:pStyle w:val="MyHeading"/>') +
+      p(run('Quoted'), '<w:pStyle w:val="Quote"/>');
     expect(await md(body, {}, { styles })).toBe('## Deep\n\n> Quoted');
   });
 
@@ -252,9 +257,7 @@ describe('docx-to-markdown images', () => {
   const drawing =
     '<w:drawing><wp:inline><wp:docPr id="1" name="Pic 1" descr="Logo"/>' +
     '<a:blip r:embed="rId5"/></wp:inline></w:drawing>';
-  const rels = relsXml(
-    '<Relationship Id="rId5" Type="http://x/image" Target="media/image1.png"/>',
-  );
+  const rels = relsXml('<Relationship Id="rId5" Type="http://x/image" Target="media/image1.png"/>');
   const parts = { rels, media: { 'media/image1.png': imageBytes } };
 
   it('skips images by default and notes it', async () => {
@@ -298,7 +301,10 @@ describe('docx-to-markdown errors', () => {
   });
 
   it('points out Excel and PowerPoint packages', async () => {
-    const xlsx = zipSync({ '[Content_Types].xml': strToU8(CONTENT_TYPES), 'xl/workbook.xml': strToU8('<x/>') });
+    const xlsx = zipSync({
+      '[Content_Types].xml': strToU8(CONTENT_TYPES),
+      'xl/workbook.xml': strToU8('<x/>'),
+    });
     await expect(tool.run({ files: [fileFrom(xlsx, 'book.xlsx')], options: {} })).rejects.toThrow(
       /Excel workbook/i,
     );
@@ -310,7 +316,10 @@ describe('docx-to-markdown errors', () => {
   });
 
   it('reports an OpenDocument file', async () => {
-    const odt = zipSync({ mimetype: strToU8('application/vnd.oasis.opendocument.text'), 'content.xml': strToU8('<x/>') });
+    const odt = zipSync({
+      mimetype: strToU8('application/vnd.oasis.opendocument.text'),
+      'content.xml': strToU8('<x/>'),
+    });
     await expect(tool.run({ files: [fileFrom(odt, 'doc.odt')], options: {} })).rejects.toThrow(
       /OpenDocument/i,
     );
@@ -376,9 +385,7 @@ describe('docx-to-markdown multiple files', () => {
 describe('docx-to-markdown real fixture', () => {
   // e2e/fixtures/sample.docx is written by scripts/gen-fixtures.mjs with a
   // dependency-free STORE-method ZIP writer, so this also guards that fixture.
-  const bytes = new Uint8Array(
-    readFileSync(resolve(process.cwd(), 'e2e/fixtures/sample.docx')),
-  );
+  const bytes = new Uint8Array(readFileSync(resolve(process.cwd(), 'e2e/fixtures/sample.docx')));
 
   it('converts the generated sample document end to end', async () => {
     const result = await tool.run({

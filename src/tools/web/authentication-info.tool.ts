@@ -4,8 +4,98 @@ import { resolveOptions } from '@/lib/options';
 import { meta } from './authentication-info.meta';
 
 const TOKEN = /^[!#$%&'*+.^_`|~0-9A-Za-z-]+$/;
-function splitParams(text: string): string[] { const result: string[] = []; let current = ''; let quoted = false; for (const char of text) { if (char === '"') quoted = !quoted; if (char === ',' && !quoted) { if (current.trim()) result.push(current.trim()); current = ''; } else current += char; } if (current.trim()) result.push(current.trim()); return result; }
-function inspect(text: string): { params: [string, string][]; issues: string[] } { const params: [string, string][] = []; const issues: string[] = []; const seen = new Set<string>(); for (const raw of splitParams(text)) { const index = raw.indexOf('='); if (index <= 0) { issues.push(`Malformed parameter: ${raw}`); continue; } const key = raw.slice(0, index).trim().toLowerCase(); let value = raw.slice(index + 1).trim(); if (value.startsWith('"') && value.endsWith('"')) value = value.slice(1, -1).replace(/\\(["\\])/g, '$1'); if (!TOKEN.test(key)) issues.push(`Invalid parameter token: ${key}`); if (seen.has(key)) issues.push(`Duplicate parameter: ${key}`); seen.add(key); if (!['nextnonce', 'rspauth', 'nc', 'qop'].includes(key)) issues.push(`Unknown parameter: ${key}`); if (key === 'nc' && !/^[0-9a-f]{8}$/i.test(value)) issues.push('nc must be exactly eight hexadecimal digits'); if ((key === 'nextnonce' || key === 'rspauth') && !value) issues.push(`${key} must not be empty`); params.push([key, value]); } return { params, issues }; }
-function run(input: TextRunInput): TextRunResult { const options = resolveOptions(meta, input.options); const mode = String(options.mode); if (mode !== 'build' && mode !== 'analyze') throw new ToolError('Choose a supported Authentication-Info mode.'); if (mode === 'build') { const key = String(options.parameter).trim().toLowerCase(); const value = String(options.value).trim(); const raw = key === 'nc' ? `${key}=${value}` : `${key}="${value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`; const result = inspect(raw); if (result.issues.length) throw new ToolError(result.issues[0]!); return { output: raw, render: 'code', language: 'http', filename: 'authentication-info.txt', stats: { parameters: 1, parameter: key } }; } if (!input.text.trim()) return { output: JSON.stringify({ headers: ['Parameter', 'Value', 'Status', 'Issues'], rows: [] }), render: 'table', notes: ['Paste comma-separated Authentication-Info parameters.'] }; const result = inspect(input.text); const rows = result.params.map(([key, value]) => [key, value, result.issues.length ? 'Review' : 'Valid', result.issues.join('; ')]); return { output: JSON.stringify({ headers: ['Parameter', 'Value', 'Status', 'Issues'], rows }), render: 'table', stats: { parameters: result.params.length, issues: result.issues.length, invalid: result.issues.filter((issue) => issue.startsWith('Invalid') || issue.includes('must')).length }, notes: result.issues.length ? result.issues : ['Authentication-Info syntax is checked locally; rspauth is not cryptographically verified.'] }; }
+function splitParams(text: string): string[] {
+  const result: string[] = [];
+  let current = '';
+  let quoted = false;
+  for (const char of text) {
+    if (char === '"') quoted = !quoted;
+    if (char === ',' && !quoted) {
+      if (current.trim()) result.push(current.trim());
+      current = '';
+    } else current += char;
+  }
+  if (current.trim()) result.push(current.trim());
+  return result;
+}
+function inspect(text: string): { params: [string, string][]; issues: string[] } {
+  const params: [string, string][] = [];
+  const issues: string[] = [];
+  const seen = new Set<string>();
+  for (const raw of splitParams(text)) {
+    const index = raw.indexOf('=');
+    if (index <= 0) {
+      issues.push(`Malformed parameter: ${raw}`);
+      continue;
+    }
+    const key = raw.slice(0, index).trim().toLowerCase();
+    let value = raw.slice(index + 1).trim();
+    if (value.startsWith('"') && value.endsWith('"'))
+      value = value.slice(1, -1).replace(/\\(["\\])/g, '$1');
+    if (!TOKEN.test(key)) issues.push(`Invalid parameter token: ${key}`);
+    if (seen.has(key)) issues.push(`Duplicate parameter: ${key}`);
+    seen.add(key);
+    if (!['nextnonce', 'rspauth', 'nc', 'qop'].includes(key))
+      issues.push(`Unknown parameter: ${key}`);
+    if (key === 'nc' && !/^[0-9a-f]{8}$/i.test(value))
+      issues.push('nc must be exactly eight hexadecimal digits');
+    if ((key === 'nextnonce' || key === 'rspauth') && !value)
+      issues.push(`${key} must not be empty`);
+    params.push([key, value]);
+  }
+  return { params, issues };
+}
+function run(input: TextRunInput): TextRunResult {
+  const options = resolveOptions(meta, input.options);
+  const mode = String(options.mode);
+  if (mode !== 'build' && mode !== 'analyze')
+    throw new ToolError('Choose a supported Authentication-Info mode.');
+  if (mode === 'build') {
+    const key = String(options.parameter).trim().toLowerCase();
+    const value = String(options.value).trim();
+    const raw =
+      key === 'nc'
+        ? `${key}=${value}`
+        : `${key}="${value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
+    const result = inspect(raw);
+    if (result.issues.length) throw new ToolError(result.issues[0]!);
+    return {
+      output: raw,
+      render: 'code',
+      language: 'http',
+      filename: 'authentication-info.txt',
+      stats: { parameters: 1, parameter: key },
+    };
+  }
+  if (!input.text.trim())
+    return {
+      output: JSON.stringify({ headers: ['Parameter', 'Value', 'Status', 'Issues'], rows: [] }),
+      render: 'table',
+      notes: ['Paste comma-separated Authentication-Info parameters.'],
+    };
+  const result = inspect(input.text);
+  const rows = result.params.map(([key, value]) => [
+    key,
+    value,
+    result.issues.length ? 'Review' : 'Valid',
+    result.issues.join('; '),
+  ]);
+  return {
+    output: JSON.stringify({ headers: ['Parameter', 'Value', 'Status', 'Issues'], rows }),
+    render: 'table',
+    stats: {
+      parameters: result.params.length,
+      issues: result.issues.length,
+      invalid: result.issues.filter(
+        (issue) => issue.startsWith('Invalid') || issue.includes('must'),
+      ).length,
+    },
+    notes: result.issues.length
+      ? result.issues
+      : [
+          'Authentication-Info syntax is checked locally; rspauth is not cryptographically verified.',
+        ],
+  };
+}
 const tool: TextToolModule = { meta, run };
 export default tool;

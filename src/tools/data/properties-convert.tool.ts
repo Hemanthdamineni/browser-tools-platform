@@ -128,7 +128,9 @@ function flattenToProperties(prefix: string, value: J, out: Record<string, strin
         out[prefix === '' ? '' : prefix] = '';
         return;
       }
-      value.forEach((v, i) => flattenToProperties(prefix === '' ? String(i) : prefix + '.' + i, v, out));
+      value.forEach((v, i) =>
+        flattenToProperties(prefix === '' ? String(i) : prefix + '.' + i, v, out),
+      );
     } else {
       const obj = value as { [k: string]: J };
       const keys = Object.keys(obj);
@@ -151,7 +153,9 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   const text = (input.text ?? '').trim();
   if (!text) {
     throw new ToolError(
-      mode === 'json-to-props' ? 'Enter JSON to serialize to a properties file.' : 'Enter a properties file to convert.',
+      mode === 'json-to-props'
+        ? 'Enter JSON to serialize to a properties file.'
+        : 'Enter a properties file to convert.',
       'Paste content into the text box.',
     );
   }
@@ -164,7 +168,10 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     try {
       data = JSON.parse(text) as J;
     } catch {
-      throw new ToolError('Invalid JSON.', 'The input must be a single JSON document in JSON → Properties mode.');
+      throw new ToolError(
+        'Invalid JSON.',
+        'The input must be a single JSON document in JSON → Properties mode.',
+      );
     }
     if (data === null || typeof data !== 'object' || Array.isArray(data)) {
       throw new ToolError('JSON must be an object.', 'Top-level JSON should be { "key": ... }.');
@@ -177,7 +184,9 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
       output,
       render: 'code',
       stats: { keys: lines.length },
-      notes: [`Generated ${lines.length} propert${lines.length === 1 ? 'y' : 'ies'} line${lines.length === 1 ? '' : 's'}.`],
+      notes: [
+        `Generated ${lines.length} propert${lines.length === 1 ? 'y' : 'ies'} line${lines.length === 1 ? '' : 's'}.`,
+      ],
     };
   }
 

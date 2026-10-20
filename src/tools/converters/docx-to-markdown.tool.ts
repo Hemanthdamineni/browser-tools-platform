@@ -77,13 +77,7 @@ interface Ctx {
 /*  Word styles                                                               */
 /* -------------------------------------------------------------------------- */
 
-const QUOTE_STYLES = new Set([
-  'quote',
-  'intensequote',
-  'blocktext',
-  'blockquote',
-  'quotation',
-]);
+const QUOTE_STYLES = new Set(['quote', 'intensequote', 'blocktext', 'blockquote', 'quotation']);
 
 const CODE_STYLES = new Set(['code', 'htmlcode', 'codechar', 'sourcecode', 'preformatted']);
 
@@ -252,7 +246,10 @@ function codeSpan(text: string): string {
 }
 
 function escapeAlt(alt: string): string {
-  return alt.replace(/([\\[\]<>])/g, '\\$1').replace(/\s+/g, ' ').trim();
+  return alt
+    .replace(/([\\[\]<>])/g, '\\$1')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 function escapeUrl(url: string): string {
@@ -384,9 +381,13 @@ function renderImage(container: XmlElement, ctx: Ctx): string {
   ctx.counters.images++;
   const blip = findDescendant(container, 'blip');
   const imagedata = findDescendant(container, 'imagedata');
-  const rId = (blip ? attr(blip, 'embed') ?? attr(blip, 'link') : undefined) ?? (imagedata ? attr(imagedata, 'id') : undefined);
+  const rId =
+    (blip ? (attr(blip, 'embed') ?? attr(blip, 'link')) : undefined) ??
+    (imagedata ? attr(imagedata, 'id') : undefined);
   const docPr = findDescendant(container, 'docPr');
-  const alt = (docPr ? attr(docPr, 'descr') ?? attr(docPr, 'title') ?? attr(docPr, 'name') : undefined) ?? '';
+  const alt =
+    (docPr ? (attr(docPr, 'descr') ?? attr(docPr, 'title') ?? attr(docPr, 'name')) : undefined) ??
+    '';
 
   if (ctx.images === 'skip') return '';
   if (ctx.mode === 'text') return alt ? `[Image: ${alt}]` : '[Image]';
@@ -476,7 +477,10 @@ function renderInline(container: XmlElement, ctx: Ctx): string {
 
 function normaliseParagraphText(text: string): string {
   // Collapse the hard-break padding + stray trailing whitespace, keep inner breaks.
-  return text.replace(/[ \t]+$/g, '').replace(/\n{3,}/g, '\n\n').trimEnd();
+  return text
+    .replace(/[ \t]+$/g, '')
+    .replace(/\n{3,}/g, '\n\n')
+    .trimEnd();
 }
 
 function guardBlockStart(text: string): string {
@@ -527,12 +531,17 @@ function cellText(cell: XmlElement, ctx: Ctx): string {
     else if (child.local === 'tbl') {
       // Flatten a nested table into tab-separated text.
       for (const row of childElements(child, 'tr')) {
-        const cells = childElements(row, 'tc').map((tc) => renderInline(tc, ctx).replace(/\s+/g, ' ').trim());
+        const cells = childElements(row, 'tc').map((tc) =>
+          renderInline(tc, ctx).replace(/\s+/g, ' ').trim(),
+        );
         parts.push(cells.join('\t'));
       }
     }
   }
-  return parts.filter((part) => part.trim()).join('\n').trim();
+  return parts
+    .filter((part) => part.trim())
+    .join('\n')
+    .trim();
 }
 
 function makeTable(tbl: XmlElement, ctx: Ctx): Block | undefined {
@@ -544,7 +553,7 @@ function makeTable(tbl: XmlElement, ctx: Ctx): Block | undefined {
       const tcPr = firstElement(tc, 'tcPr');
       const span = Math.max(1, Number(attr(firstElement(tcPr, 'gridSpan'), 'val') ?? '1') || 1);
       const vMergeEl = firstElement(tcPr, 'vMerge');
-      const vMerge = vMergeEl ? attr(vMergeEl, 'val') ?? 'continue' : undefined;
+      const vMerge = vMergeEl ? (attr(vMergeEl, 'val') ?? 'continue') : undefined;
       cells.push(vMerge === 'continue' ? '' : cellText(tc, ctx));
       for (let s = 1; s < span; s++) cells.push('');
     }
@@ -651,7 +660,9 @@ function renderText(blocks: Block[]): string {
     } else {
       counters.length = 0;
       if (block.type === 'table') {
-        rendered = block.rows.map((row) => row.map((c) => c.replace(/\r?\n/g, ' ')).join('\t')).join('\n');
+        rendered = block.rows
+          .map((row) => row.map((c) => c.replace(/\r?\n/g, ' ')).join('\t'))
+          .join('\n');
       } else {
         rendered = block.text.replace(/\n/g, ' ').trim();
       }
@@ -762,7 +773,10 @@ function convertDocument(
 ): ConvertedFile {
   validateBytes(bytes, file.name);
 
-  const pkg = unzipPackage(bytes, (name) => isSmallPart(name) || (images !== 'skip' && name.startsWith('word/media/')));
+  const pkg = unzipPackage(
+    bytes,
+    (name) => isSmallPart(name) || (images !== 'skip' && name.startsWith('word/media/')),
+  );
 
   const documentXml = pkg['word/document.xml'];
   if (!documentXml) {
@@ -817,7 +831,9 @@ function convertDocument(
   }
 
   const styles = StyleResolver.fromXml(
-    pkg['word/styles.xml'] ? rootElement(parseXml(decodeXmlPart(pkg['word/styles.xml']))) : undefined,
+    pkg['word/styles.xml']
+      ? rootElement(parseXml(decodeXmlPart(pkg['word/styles.xml'])))
+      : undefined,
   );
   const numbering = NumberingResolver.fromXml(
     pkg['word/numbering.xml']
@@ -870,7 +886,9 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
 
   const mode: OutputMode = String(options.output) === 'text' ? 'text' : 'markdown';
   const images: ImageMode =
-    options.images === 'embed' || options.images === 'link' ? (options.images as ImageMode) : 'skip';
+    options.images === 'embed' || options.images === 'link'
+      ? (options.images as ImageMode)
+      : 'skip';
   const headings = options.headings !== false;
   const tables = options.tables !== false;
   const escape = options.escape !== false;
@@ -915,11 +933,14 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
     );
 
     onProgress?.(slice + 0.7, files.length > 1 ? `Rendering ${file.name}` : 'Rendering output');
-    const rendered = mode === 'text' ? renderText(converted.blocks) : renderMarkdown(converted.blocks);
+    const rendered =
+      mode === 'text' ? renderText(converted.blocks) : renderMarkdown(converted.blocks);
     const text = rendered.endsWith('\n') ? rendered : `${rendered}\n`;
 
     if (!rendered.trim()) {
-      warnings.add(`"${file.name}" produced no text (it may be empty, or only contain unsupported objects).`);
+      warnings.add(
+        `"${file.name}" produced no text (it may be empty, or only contain unsupported objects).`,
+      );
     }
     for (const warning of converted.warnings) warnings.add(warning);
 
@@ -972,7 +993,9 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   onProgress?.(1, 'Done');
 
   if (images === 'skip' && totalStats.images > 0) {
-    notes.add(`${totalStats.images} image(s) were skipped — choose "Extract & link" or "Embed" to include them.`);
+    notes.add(
+      `${totalStats.images} image(s) were skipped — choose "Extract & link" or "Embed" to include them.`,
+    );
   }
   if (images === 'link' && totalStats.images > 0) {
     notes.add(
@@ -980,7 +1003,9 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
     );
   }
   if (mode === 'markdown' && !escape) {
-    notes.add('Markdown escaping is off, so special characters in the document are written literally.');
+    notes.add(
+      'Markdown escaping is off, so special characters in the document are written literally.',
+    );
   }
 
   const result: FileRunResult = {

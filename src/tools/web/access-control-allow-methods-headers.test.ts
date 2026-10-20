@@ -2,8 +2,14 @@ import { describe, expect, it } from 'vitest';
 import { ToolError } from '@/lib/types';
 import tool from './access-control-allow-methods-headers.tool';
 
-type Result = { output: string; filename?: string; stats?: Record<string, string | number>; notes?: string[] };
-const run = (text: string, options: Record<string, string | number | boolean> = {}) => tool.run({ text, options }) as Result;
+type Result = {
+  output: string;
+  filename?: string;
+  stats?: Record<string, string | number>;
+  notes?: string[];
+};
+const run = (text: string, options: Record<string, string | number | boolean> = {}) =>
+  tool.run({ text, options }) as Result;
 const rows = (result: Result) => JSON.parse(result.output).rows as string[][];
 
 describe('access-control-allow-methods-headers', () => {
@@ -15,13 +21,17 @@ describe('access-control-allow-methods-headers', () => {
   });
 
   it('analyzes valid preflight lines', () => {
-    const result = run('Access-Control-Allow-Methods: GET, HEAD\nAccess-Control-Allow-Headers: Content-Type');
+    const result = run(
+      'Access-Control-Allow-Methods: GET, HEAD\nAccess-Control-Allow-Headers: Content-Type',
+    );
     expect(result.stats).toMatchObject({ methods: 2, headers: 1, issues: 0 });
     expect(rows(result).every((row) => row[2] === 'Valid')).toBe(true);
   });
 
   it('flags duplicates and invalid tokens', () => {
-    const result = run('Access-Control-Allow-Methods: GET,, GET\nAccess-Control-Allow-Headers: 9z_ header-name@');
+    const result = run(
+      'Access-Control-Allow-Methods: GET,, GET\nAccess-Control-Allow-Headers: 9z_ header-name@',
+    );
     expect(result.stats?.issues).toBeGreaterThan(0);
     expect(result.notes?.join(' ')).toContain('Duplicate');
   });

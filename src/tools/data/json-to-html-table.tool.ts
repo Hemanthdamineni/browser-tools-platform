@@ -41,7 +41,8 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
 
   const source = input.text ?? '';
   if (!source.trim()) throw new ToolError('Paste a JSON array to render as a table.');
-  if (source.length > MAX_LEN) throw new ToolError('Input is too large.', 'Keep it under 1,000,000 characters.');
+  if (source.length > MAX_LEN)
+    throw new ToolError('Input is too large.', 'Keep it under 1,000,000 characters.');
 
   let parsed: unknown;
   try {
@@ -64,16 +65,22 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   if (isObjectRows) {
     const seen = new Set<string>();
     for (const row of parsed as Array<Record<string, unknown>>) {
-      for (const k of Object.keys(row)) if (!seen.has(k)) { seen.add(k); headers.push(k); }
+      for (const k of Object.keys(row))
+        if (!seen.has(k)) {
+          seen.add(k);
+          headers.push(k);
+        }
     }
     rows = (parsed as Array<Record<string, unknown>>).map((row) => headers.map((h) => row[h]));
   } else {
     const rawRows = (parsed as unknown[][]).map((r) => (Array.isArray(r) ? r : [r]));
-    if (rawRows.every((r) => r.length === 0)) throw new ToolError('The rows are empty — nothing to render.');
+    if (rawRows.every((r) => r.length === 0))
+      throw new ToolError('The rows are empty — nothing to render.');
     const width = Math.max(...rawRows.map((r) => r.length));
     const first = rawRows[0]!.map((v) => String(v));
     // Treat the first row as the header when it holds more than one cell or differs from others.
-    const treatAsHeader = rawRows.length > 1 && rawRows.every((r) => r.length === width) && first.length > 1;
+    const treatAsHeader =
+      rawRows.length > 1 && rawRows.every((r) => r.length === width) && first.length > 1;
     if (treatAsHeader) {
       headers = first;
       rows = rawRows.slice(1).map((r) => {
@@ -87,7 +94,8 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     }
   }
 
-  const thead = '  <thead><tr>' + headers.map((h) => '<th>' + header(h) + '</th>').join('') + '</tr></thead>\n';
+  const thead =
+    '  <thead><tr>' + headers.map((h) => '<th>' + header(h) + '</th>').join('') + '</tr></thead>\n';
   const tbody =
     '  <tbody>\n' +
     rows
@@ -101,7 +109,9 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     render: 'code',
     language: 'html',
     stats: { rows: rows.length, columns: headers.length },
-    notes: escape ? ['Cell text is HTML-escaped.', 'Drop the theme class if you style the table yourself.'] : ['Escaping is off — paste only trusted values.'],
+    notes: escape
+      ? ['Cell text is HTML-escaped.', 'Drop the theme class if you style the table yourself.']
+      : ['Escaping is off — paste only trusted values.'],
   };
 }
 

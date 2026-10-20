@@ -74,7 +74,9 @@ const pillars = [
               {p.title}
             </h2>
           </div>
-          <p class="mt-3 max-w-xs text-[13px] leading-relaxed text-[rgb(var(--text-muted))]">{p.text}</p>
+          <p class="mt-3 max-w-xs text-[13px] leading-relaxed text-[rgb(var(--text-muted))]">
+            {p.text}
+          </p>
         </div>
       ))
     }
@@ -84,13 +86,20 @@ const pillars = [
     featured.length > 0 && (
       <section class="mt-14">
         <div class="flex items-end justify-between gap-4">
-          <h2 class="text-lg font-semibold tracking-[-0.02em] text-[rgb(var(--text))]">Popular tools</h2>
-          <a class="shrink-0 text-sm text-[rgb(var(--text-muted))] underline-offset-4 hover:text-[rgb(var(--accent))] hover:underline" href="/tools">
+          <h2 class="text-lg font-semibold tracking-[-0.02em] text-[rgb(var(--text))]">
+            Popular tools
+          </h2>
+          <a
+            class="shrink-0 text-sm text-[rgb(var(--text-muted))] underline-offset-4 hover:text-[rgb(var(--accent))] hover:underline"
+            href="/tools"
+          >
             All {TOOL_COUNT} tools
           </a>
         </div>
         <div class="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {featured.map((t) => <ToolCard meta={t.meta} />)}
+          {featured.map((t) => (
+            <ToolCard meta={t.meta} />
+          ))}
         </div>
       </section>
     )
@@ -98,8 +107,13 @@ const pillars = [
 
   <section class="mt-14">
     <div class="flex items-end justify-between gap-4">
-      <h2 class="text-lg font-semibold tracking-[-0.02em] text-[rgb(var(--text))]">Browse by category</h2>
-      <a class="shrink-0 text-sm text-[rgb(var(--text-muted))] underline-offset-4 hover:text-[rgb(var(--accent))] hover:underline" href="/categories">
+      <h2 class="text-lg font-semibold tracking-[-0.02em] text-[rgb(var(--text))]">
+        Browse by category
+      </h2>
+      <a
+        class="shrink-0 text-sm text-[rgb(var(--text-muted))] underline-offset-4 hover:text-[rgb(var(--accent))] hover:underline"
+        href="/categories"
+      >
         All categories
       </a>
     </div>
@@ -108,7 +122,9 @@ const pillars = [
     </div>
   </section>
 
-  <section class="mt-16 flex flex-col gap-4 border-t pt-8 sm:flex-row sm:items-center sm:justify-between">
+  <section
+    class="mt-16 flex flex-col gap-4 border-t pt-8 sm:flex-row sm:items-center sm:justify-between"
+  >
     <div>
       <h2 class="font-semibold tracking-[-0.01em] text-[rgb(var(--text))]">Install it as an app</h2>
       <p class="mt-1.5 max-w-lg text-[13px] leading-relaxed text-[rgb(var(--text-muted))]">

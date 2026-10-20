@@ -1,7 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import tool from './docker-compose.tool';
 
-type Result = { output: string; render?: string; language?: string; stats?: Record<string, number>; notes?: string[] };
+type Result = {
+  output: string;
+  render?: string;
+  language?: string;
+  stats?: Record<string, number>;
+  notes?: string[];
+};
 const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
   (await tool.run({ text, options })) as Result;
 const out = async (options: Record<string, string | number | boolean> = {}) =>
@@ -50,6 +56,8 @@ describe('docker-compose', () => {
 
   it('rejects an empty image and invalid service names', async () => {
     await expect(run('', { image: '  ' })).rejects.toThrow(/image name/i);
-    await expect(run('', { image: 'nginx', serviceName: 'Bad Name!' })).rejects.toThrow(/service name/i);
+    await expect(run('', { image: 'nginx', serviceName: 'Bad Name!' })).rejects.toThrow(
+      /service name/i,
+    );
   });
 });

@@ -5,7 +5,8 @@ type Result = { output: string; stats?: Record<string, number>; notes?: string[]
 const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
   (await tool.run({ text, options })) as Result;
 
-const simple = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">\n' +
+const simple =
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">\n' +
   '  <!-- arrow -->\n' +
   '  <g>\n' +
   '    <path d="M4 4.000 L20 20.000" stroke="#000" stroke-width="1.500000"/>\n' +
@@ -79,12 +80,15 @@ describe('svg-optimizer', () => {
   });
 
   it('honours precision option', async () => {
-    const r = await run('<svg viewBox="0 0 24.567 100"><rect width="2.3456789"/></svg>', { precision: 4 });
+    const r = await run('<svg viewBox="0 0 24.567 100"><rect width="2.3456789"/></svg>', {
+      precision: 4,
+    });
     expect(r.output).toContain('width="2.3457"');
   });
 
   it('preserves the XML prolog when present', async () => {
-    const withProlog = '<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2 2"></svg>';
+    const withProlog =
+      '<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2 2"></svg>';
     const r = await run(withProlog);
     expect(r.output).toContain('<?xml version="1.0" encoding="UTF-8"?>');
     expect(r.output).toContain('<svg');

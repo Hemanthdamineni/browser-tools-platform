@@ -7,7 +7,16 @@ export const meta: ToolMeta = {
   summary: 'Inspect every character code point, plane, and UTF-8/UTF-16 encodings in a table.',
   description:
     'Paste any text and get a per-character breakdown: Unicode code point (U+XXXX), decimal value, Unicode plane, and the exact UTF-8 and UTF-16 byte sequences. Ideal for debugging mojibake, understanding astral characters such as emoji, or checking how a character is actually encoded.',
-  keywords: ['unicode', 'code point', 'UTF-8', 'UTF-16', 'emoji codepoint', 'byte sequence', 'mojibake', 'character encoding'],
+  keywords: [
+    'unicode',
+    'code point',
+    'UTF-8',
+    'UTF-16',
+    'emoji codepoint',
+    'byte sequence',
+    'mojibake',
+    'character encoding',
+  ],
   privacy: { processing: 'on-device', network: 'none', offline: true },
   input: 'text',
   options: [

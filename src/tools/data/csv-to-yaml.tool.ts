@@ -140,11 +140,19 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   }
 
   for (const key of keys) {
-    if (key.length > 1000) throw new ToolError('A header name is unreasonably long.', 'Check for a missing newline between rows.');
+    if (key.length > 1000)
+      throw new ToolError(
+        'A header name is unreasonably long.',
+        'Check for a missing newline between rows.',
+      );
   }
 
   const dataRows = header ? rows.slice(1) : rows;
-  if (!dataRows.length) throw new ToolError('The CSV has a header but no data rows.', 'Add at least one row below the header.');
+  if (!dataRows.length)
+    throw new ToolError(
+      'The CSV has a header but no data rows.',
+      'Add at least one row below the header.',
+    );
   if (dataRows.length > 50_000) {
     throw new ToolError('Too many rows.', 'The generator is capped at 50,000 rows.');
   }
@@ -152,11 +160,16 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   const lines: string[] = [];
   let cellCount = 0;
   for (const row of dataRows) {
-    lines.push('- ' + (keys[0] ? `${safeKey(keys[0])}: ${scalar(row.cells[0] ?? '', row.quoted[0] ?? false)}` : '{}'));
+    lines.push(
+      '- ' +
+        (keys[0]
+          ? `${safeKey(keys[0])}: ${scalar(row.cells[0] ?? '', row.quoted[0] ?? false)}`
+          : '{}'),
+    );
     for (let i = 1; i < keys.length; i++) {
       const cellValue = row.cells[i] ?? '';
       const cellQuoted = row.quoted[i] ?? false;
-      lines.push(`  ${safeKey(keys[i]!) }: ${scalar(cellValue, cellQuoted)}`);
+      lines.push(`  ${safeKey(keys[i]!)}: ${scalar(cellValue, cellQuoted)}`);
       cellCount += 1;
     }
     for (let i = keys.length; i < row.cells.length; i++) {

@@ -67,7 +67,10 @@ function parseCsv(input: string): CsvRow[] {
     }
   }
   if (inQuotes) {
-    throw new ToolError('Unterminated quoted field in the CSV.', 'Every opening double quote needs a closing quote.');
+    throw new ToolError(
+      'Unterminated quoted field in the CSV.',
+      'Every opening double quote needs a closing quote.',
+    );
   }
   if (cur !== '' || cells.length > 0) endRow();
   return rows;
@@ -84,22 +87,31 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   const justify = String(o.justify) as 'auto' | 'left' | 'center' | 'right' | 'none';
 
   const text = (input.text ?? '').trim();
-  if (!text) throw new ToolError('Paste a CSV table to convert.', 'The first row is treated as the header by default.');
+  if (!text)
+    throw new ToolError(
+      'Paste a CSV table to convert.',
+      'The first row is treated as the header by default.',
+    );
 
   const rows = parseCsv(text);
-  if (rows.length === 0) throw new ToolError('No CSV rows were found.', 'Check that the input is non-empty.');
+  if (rows.length === 0)
+    throw new ToolError('No CSV rows were found.', 'Check that the input is non-empty.');
 
   const hasHeader = o.header !== false;
   const width = rows[0]!.cells.length;
   if (width === 0) throw new ToolError('The CSV has no columns.', 'Add at least one column.');
 
   if (hasHeader) {
-    if (rows.length === 1) throw new ToolError('The CSV has a header but no data rows.', 'Add at least one data row.');
+    if (rows.length === 1)
+      throw new ToolError('The CSV has a header but no data rows.', 'Add at least one data row.');
   }
 
   for (const row of rows) {
     if (row.cells.length !== width) {
-      throw new ToolError(`Row ${row.line} has ${row.cells.length} fields but the table has ${width}.`, 'Every row must have the same number of fields as the header.');
+      throw new ToolError(
+        `Row ${row.line} has ${row.cells.length} fields but the table has ${width}.`,
+        'Every row must have the same number of fields as the header.',
+      );
     }
   }
 
@@ -114,8 +126,20 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   if (justify !== 'none') {
     const separators: string[] = [];
     for (let c = 0; c < width; c++) {
-      const numeric = justify === 'auto' && dataRows.every((r) => r.cells[c] === '' || NUMERIC.test(r.cells[c]!));
-      const token = justify === 'left' ? '---' : justify === 'center' ? ':---:' : justify === 'right' ? '---:' : justify === 'auto' ? (numeric ? '---:' : '---') : '---';
+      const numeric =
+        justify === 'auto' && dataRows.every((r) => r.cells[c] === '' || NUMERIC.test(r.cells[c]!));
+      const token =
+        justify === 'left'
+          ? '---'
+          : justify === 'center'
+            ? ':---:'
+            : justify === 'right'
+              ? '---:'
+              : justify === 'auto'
+                ? numeric
+                  ? '---:'
+                  : '---'
+                : '---';
       separators.push(token);
     }
     table.push(`| ${separators.join(' | ')} |`);
@@ -127,9 +151,14 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
 
   const output = table.join('\n') + '\n';
   const notes: string[] = [];
-  notes.push(`Converted ${dataRows.length} data row${dataRows.length === 1 ? '' : 's'} across ${width} column${width === 1 ? '' : 's'} to a Markdown table.`);
+  notes.push(
+    `Converted ${dataRows.length} data row${dataRows.length === 1 ? '' : 's'} across ${width} column${width === 1 ? '' : 's'} to a Markdown table.`,
+  );
   if (justify === 'none') notes.push('Alignment row omitted.');
-  else if (justify === 'auto') notes.push('Columns whose values are all numeric are right-aligned (:---:); others left-aligned.');
+  else if (justify === 'auto')
+    notes.push(
+      'Columns whose values are all numeric are right-aligned (:---:); others left-aligned.',
+    );
   else if (justify === 'right') notes.push('All columns right-aligned (---:).');
   else if (justify === 'center') notes.push('All columns center-aligned (:---:).');
   else notes.push('All columns left-aligned (---).');

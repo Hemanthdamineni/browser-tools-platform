@@ -2,11 +2,19 @@ import { describe, it, expect } from 'vitest';
 import tool, { generateClickTrack } from './metronome-click.tool';
 import { ToolError } from '@/lib/types';
 
-const options = (o: Record<string, string | number | boolean> = {}) => ({ bpm: 120, bars: 2, beatsPerBar: 4, sampleRate: 44100, ...o });
+const options = (o: Record<string, string | number | boolean> = {}) => ({
+  bpm: 120,
+  bars: 2,
+  beatsPerBar: 4,
+  sampleRate: 44100,
+  ...o,
+});
 
 describe('generateClickTrack', () => {
   it('has the expected duration at the requested tempo', () => {
-    const { channel, sampleRate } = generateClickTrack(options({ bpm: 120, bars: 2, beatsPerBar: 4 }));
+    const { channel, sampleRate } = generateClickTrack(
+      options({ bpm: 120, bars: 2, beatsPerBar: 4 }),
+    );
     expect(channel.length).toBe(Math.round(8 * 0.5 * sampleRate));
   });
 
@@ -20,7 +28,9 @@ describe('generateClickTrack', () => {
   });
 
   it('respects the no-accent option', () => {
-    const { channel } = generateClickTrack(options({ bpm: 120, bars: 1, beatsPerBar: 2, accentFirst: false }));
+    const { channel } = generateClickTrack(
+      options({ bpm: 120, bars: 1, beatsPerBar: 2, accentFirst: false }),
+    );
     const firstPeak = Math.max(...channel.slice(0, 1000).map(Math.abs));
     const secondPeak = Math.max(...channel.slice(22050, 23050).map(Math.abs));
     expect(firstPeak).toBeCloseTo(secondPeak, 4);

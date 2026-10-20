@@ -4,7 +4,8 @@ import tool from './credit-card-validator.tool';
 type Result = { output: string; render?: string; stats?: Record<string, number>; notes?: string[] };
 const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
   (await tool.run({ text, options })) as Result;
-const table = (r: Result): string[][] => (JSON.parse(r.output) as { headers: string[]; rows: string[][] }).rows;
+const table = (r: Result): string[][] =>
+  (JSON.parse(r.output) as { headers: string[]; rows: string[][] }).rows;
 
 describe('credit-card-validator', () => {
   it('accepts a valid Visa number and detects the brand', async () => {
