@@ -1,6 +1,6 @@
 # Complete Tool List
 
-Total: **370** tools across **19** categories.
+Total: **372** tools across **19** categories.
 
 Generated from `src/tools/**/*.meta.ts` (source of truth).
 
@@ -68,7 +68,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `hash` | Text Hash Generator | text | stable | Hash text with MD5, SHA-1, SHA-256, SHA-384 or SHA-512 and output hex, Base64 or base64url. |
 | `x509-certificate-inspector` | X.509 Certificate Inspector | text | stable | Parse an X.509 certificate: subject, issuer, validity, key details, SANs and fingerprints. |
 
-## data (38)
+## data (39)
 
 | id | name | input | status | summary |
 | --- | --- | --- | --- | --- |
@@ -108,6 +108,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `xml-json-convert` | XML ⇄ JSON Converter | text | stable | Convert XML documents into JSON and JSON back into XML. |
 | `xml-format` | XML Formatter | text | stable | Pretty-print or minify XML with a pure-JS tokenizer — comments, CDATA and PIs kept intact. |
 | `xml-to-csv` | XML to CSV | text | stable | Flatten repeated XML elements into a CSV table, with attributes and nested values as columns. |
+| `yaml-format` | YAML Formatter & Validator | text | stable | Format and validate YAML locally, preserving comments and document streams. |
 | `yaml-lint` | YAML Lint & Normalize | text | stable | Validate YAML and reformat it with consistent 2-space indentation and correct quoting. |
 | `yaml-to-json` | YAML to JSON | text | stable | Convert YAML to JSON locally, with indent choice and optional key sorting. |
 
@@ -128,7 +129,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `workday-calculator` | Workday Calculator | text | stable | Add business days to a date or count the working days between two dates, skipping weekends and holidays. |
 | `world-clock` | World Clock | text | stable | Current time, date and UTC offset for any IANA time zones, instantly and on your device. |
 
-## developer (47)
+## developer (48)
 
 | id | name | input | status | summary |
 | --- | --- | --- | --- | --- |
@@ -136,6 +137,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `ansi-sequences` | ANSI Escape Sequence Inspector | text | stable | Strip, visualize, or inspect ANSI terminal escape sequences in text and logs. |
 | `backslash-escape` | Backslash Escape / Unescape | text | stable | Turn control characters into readable \\n \\t \\xNN \\uNNNN sequences, or interpret those sequences back into characters. |
 | `chmod-calculator` | chmod Permission Calculator | text | stable | Convert Unix file permissions between octal (755) and symbolic (rwxr-xr-x), with a per-class breakdown. |
+| `code-beautify` | Code Beautifier | text | beta | Beautify JS, TS, CSS, SCSS, Less, HTML, Vue, JSON, Markdown and YAML with Prettier, in your browser. |
 | `conventional-commit` | Conventional Commit Builder | text | stable | Compose a Conventional Commits message — type, scope, breaking change and body — and copy the ready commit text. |
 | `cron-parser` | Cron Expression Parser | text | stable | Explain a cron expression in plain English and list its next run times in UTC. |
 | `crontab-generator` | Crontab Generator | text | stable | Build a cron expression from presets or fields and get the crontab line plus a plain-English summary. |
