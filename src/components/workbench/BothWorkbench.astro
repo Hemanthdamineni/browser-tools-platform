@@ -1,0 +1,430 @@
+---
+import type { ToolMeta } from '@/lib/types';
+import OptionsFields from './OptionsFields.astro';
+import Icon from '@/components/Icon.astro';
+
+interface Props {
+  meta: ToolMeta;
+}
+const { meta } = Astro.props;
+const options = meta.options ?? [];
+const examples = meta.examples ?? [];
+const p = meta.id;
+---
+
+<section
+  class="surface rounded-lg p-4 sm:p-6"
+  data-both-workbench
+  data-tool-id={meta.id}
+  data-accept={meta.accept ?? ''}
+  data-multiple={meta.multiple ? 'true' : 'false'}
+  aria-label={`${meta.name} workbench`}
+>
+  {
+    examples.length > 0 && (
+      <div class="mb-4 flex flex-wrap items-center gap-2">
+        <span class="text-xs font-medium text-[rgb(var(--text-muted))]">Try:</span>
+        {examples.map((ex, i) => (
+          <button
+            type="button"
+            class="chip hover:text-[rgb(var(--text))]"
+            data-example={i}
+            data-example-payload={JSON.stringify({
+              input: ex.input ?? '',
+              options: ex.options ?? {},
+            })}
+          >
+            {ex.title}
+          </button>
+        ))}
+      </div>
+    )
+  }
+
+  <div class="mb-4">
+    <div class="mb-1.5 flex items-center justify-between">
+      <label for={`${p}-input`} class="text-sm font-medium">Text input</label>
+      <div class="flex gap-1.5">
+        <button type="button" class="btn btn-subtle btn-sm" data-paste>Paste</button>
+        <button type="button" class="btn btn-subtle btn-sm" data-clear>Clear</button>
+      </div>
+    </div>
+    <textarea
+      id={`${p}-input`}
+      class="field"
+      rows="8"
+      spellcheck="false"
+      autocapitalize="off"
+      autocomplete="off"
+      data-input
+      placeholder="Type or paste text or Base64 here…"
+    ></textarea>
+    <p class="mt-1 text-xs text-[rgb(var(--text-muted))]" data-input-stats aria-live="off"></p>
+  </div>
+
+  <div
+    class="drop-zone mb-4 flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed px-4 py-8 text-center transition-colors"
+    data-drop
+    role="button"
+    tabindex="0"
+    aria-label="Choose a file or drop it here"
+  >
+    <Icon name="download" size={28} class="opacity-60" />
+    <p class="text-sm font-medium">
+      Drop {meta.multiple ? 'files' : 'a file'} here, or <span class="link">browse</span>
+    </p>
+    {meta.accept && <p class="text-xs text-[rgb(var(--text-muted))]">Accepts: {meta.accept}</p>}
+    <p class="text-xs text-[rgb(var(--text-muted))]">
+      A file is used instead of the text above. Files stay on your device.
+    </p>
+  </div>
+
+  <ul class="space-y-1.5 text-sm" data-file-list></ul>
+
+  {
+    options.length > 0 && (
+      <details class="mt-4 rounded-lg border" open>
+        <summary class="cursor-pointer select-none px-3 py-2 text-sm font-medium">Options</summary>
+        <div class="border-t p-3">
+          <OptionsFields options={options} idPrefix={p} />
+        </div>
+      </details>
+    )
+  }
+
+  <div class="mt-4 flex flex-wrap items-center gap-2.5">
+    <button type="button" class="btn btn-primary" data-run disabled>
+      <Icon name="zap" size={16} /> Run
+    </button>
+    <button type="button" class="btn btn-ghost" data-cancel hidden>Cancel</button>
+    <button type="button" class="btn btn-ghost" data-reset hidden>Reset</button>
+  </div>
+
+  <div class="mt-3" hidden data-progress-wrap>
+    <div class="h-2 overflow-hidden rounded-full" style="background-color: rgb(var(--bg-inset))">
+      <div
+        class="h-full transition-[width] duration-200 ease-out"
+        style="width:0%; background-color: rgb(var(--accent))"
+        data-progress-bar
+      >
+      </div>
+    </div>
+    <p class="mt-1 text-xs tabular-nums text-[rgb(var(--text-muted))]" data-progress-msg aria-live="polite"></p>
+  </div>
+
+  <div
+    class="mt-4 rounded-lg border px-3 py-2 text-sm"
+    style="background-color: rgb(var(--danger-soft)); border-color: rgb(var(--danger)); color: rgb(var(--danger))"
+    role="alert"
+    data-error
+    hidden
+  >
+  </div>
+
+  <div class="mt-4" hidden data-result-wrap>
+    <div class="mb-2 flex items-center justify-between">
+      <span class="text-sm font-semibold text-[rgb(var(--text))]">Result</span>
+      <div class="flex gap-1.5">
+        <button type="button" class="btn btn-subtle btn-sm" data-copy hidden>
+          <Icon name="copy" size={14} /> Copy
+        </button>
+        <button type="button" class="btn btn-subtle btn-sm" data-download-all hidden>
+          <Icon name="archive" size={14} /> Download all (.zip)
+        </button>
+      </div>
+    </div>
+    <div data-report hidden class="min-w-0"></div>
+    <ul class="mt-3 space-y-2" data-outputs></ul>
+    <div
+      class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-[rgb(var(--text-muted))]"
+      data-stats
+    >
+    </div>
+    <ul class="mt-2 space-y-1 text-xs" data-notes></ul>
+  </div>
+</section>
+
+<script>
+  import { runToolById } from '@/lib/worker/client';
+  import { createDropZone, downloadBlob, downloadZip } from '@/lib/files';
+  import { copyText, readClipboardText } from '@/lib/clipboard';
+  import { escapeHtml, formatBytes, formatNumber } from '@/lib/format';
+  import {
+    readOptions,
+    applyShowWhen,
+    bindRangeOutputs,
+    showError,
+    clearError,
+    renderTextResult,
+  } from './shared';
+  import type { BothRunResult } from '@/lib/types';
+
+  document.querySelectorAll<HTMLElement>('[data-both-workbench]').forEach((root) => {
+    const toolId = root.dataset.toolId!;
+    const accept = root.dataset.accept || undefined;
+    const multiple = root.dataset.multiple === 'true';
+    const input = root.querySelector<HTMLTextAreaElement>('[data-input]');
+    const inputStats = root.querySelector<HTMLElement>('[data-input-stats]');
+    const dropEl = root.querySelector<HTMLElement>('[data-drop]')!;
+    const listEl = root.querySelector<HTMLUListElement>('[data-file-list]')!;
+    const runBtn = root.querySelector<HTMLButtonElement>('[data-run]')!;
+    const cancelBtn = root.querySelector<HTMLButtonElement>('[data-cancel]')!;
+    const resetBtn = root.querySelector<HTMLButtonElement>('[data-reset]')!;
+    const errorBox = root.querySelector<HTMLElement>('[data-error]')!;
+    const progressWrap = root.querySelector<HTMLElement>('[data-progress-wrap]')!;
+    const progressBar = root.querySelector<HTMLElement>('[data-progress-bar]')!;
+    const progressMsg = root.querySelector<HTMLElement>('[data-progress-msg]')!;
+    const resultWrap = root.querySelector<HTMLElement>('[data-result-wrap]')!;
+    const reportEl = root.querySelector<HTMLElement>('[data-report]')!;
+    const outputsEl = root.querySelector<HTMLUListElement>('[data-outputs]')!;
+    const statsEl = root.querySelector<HTMLElement>('[data-stats]')!;
+    const notesEl = root.querySelector<HTMLUListElement>('[data-notes]')!;
+    const copyBtn = root.querySelector<HTMLButtonElement>('[data-copy]')!;
+    const downloadAllBtn = root.querySelector<HTMLButtonElement>('[data-download-all]')!;
+    const optionsRoot = root.querySelector<HTMLElement>('[data-options]') ?? root;
+
+    let files: File[] = [];
+    let controller: AbortController | null = null;
+    let outputs: { filename: string; blob: Blob }[] = [];
+    let reportText = '';
+
+    bindRangeOutputs(root);
+    applyShowWhen(optionsRoot);
+
+    function updateRunState() {
+      const hasText = (input?.value ?? '') !== '';
+      runBtn.disabled = !hasText && files.length === 0;
+      resetBtn.hidden = !hasText && files.length === 0;
+    }
+
+    function updateInputStats() {
+      if (!inputStats || !input) return;
+      const v = input.value;
+      inputStats.textContent = v
+        ? `${formatNumber(v.length)} chars · ${formatNumber(v.split(/\n/).length)} lines`
+        : '';
+    }
+
+    function renderList() {
+      // File names are user-controlled: escape before interpolating into HTML.
+      listEl.innerHTML = files
+        .map(
+          (f, i) => `
+        <li class="flex items-center justify-between gap-3 rounded-lg border px-3 py-1.5">
+          <span class="truncate">${escapeHtml(f.name)}</span>
+          <span class="flex items-center gap-2 shrink-0 text-xs text-[rgb(var(--text-muted))]">
+            ${formatBytes(f.size)}
+            <button type="button" data-remove="${i}" aria-label="Remove ${escapeHtml(f.name)}" class="hover:text-[rgb(var(--danger))]">✕</button>
+          </span>
+        </li>`,
+        )
+        .join('');
+      updateRunState();
+    }
+
+    function addFiles(incoming: File[]) {
+      files = multiple ? [...files, ...incoming] : incoming.slice(0, 1);
+      clearError(errorBox);
+      resultWrap.hidden = true;
+      renderList();
+    }
+
+    const dz = createDropZone(dropEl, { accept, multiple, onFiles: addFiles });
+
+    listEl.addEventListener('click', (e) => {
+      const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-remove]');
+      if (!btn) return;
+      files.splice(Number(btn.dataset.remove), 1);
+      renderList();
+    });
+
+    optionsRoot.addEventListener('input', () => applyShowWhen(optionsRoot));
+    optionsRoot.addEventListener('change', () => applyShowWhen(optionsRoot));
+    input?.addEventListener('input', () => {
+      updateInputStats();
+      updateRunState();
+    });
+
+    async function run() {
+      const text = input?.value ?? '';
+      if (!text && files.length === 0) return;
+      controller = new AbortController();
+      clearError(errorBox);
+      runBtn.disabled = true;
+      cancelBtn.hidden = false;
+      progressWrap.hidden = false;
+      progressBar.style.width = '0%';
+      progressMsg.textContent = 'Working…';
+      outputs = [];
+      reportText = '';
+
+      try {
+        const result = await runToolById<BothRunResult>(
+          toolId,
+          { text, files, options: readOptions(optionsRoot) },
+          {
+            signal: controller.signal,
+            onProgress: (fraction, message) => {
+              const pct = Math.round(Math.min(1, Math.max(0, fraction)) * 100);
+              progressBar.style.width = `${pct}%`;
+              // The progress message region is aria-live="polite"; always include
+              // the percentage so screen readers announce progress + completion.
+              progressMsg.textContent = message ? `${message} — ${pct}%` : `${pct}%`;
+            },
+          },
+        );
+        progressBar.style.width = '100%';
+        progressMsg.textContent = 'Done';
+        outputs = result.outputs;
+        renderResult(result);
+      } catch (err) {
+        const e = err as Error & { hint?: string };
+        if (e.name !== 'AbortError') showError(errorBox, e.message || 'Processing failed', e.hint);
+        else progressMsg.textContent = 'Cancelled';
+      } finally {
+        cancelBtn.hidden = true;
+        controller = null;
+        updateRunState();
+      }
+    }
+
+    function renderResult(result: BothRunResult) {
+      resultWrap.hidden = false;
+      // Inline report (text output, Base64 text, metadata …) above the downloads.
+      if (result.report) {
+        renderTextResult(reportEl, {
+          output: result.report.output,
+          render: result.report.render,
+          language: result.report.language,
+        });
+        reportEl.hidden = false;
+        reportText = result.report.output;
+      } else {
+        reportEl.hidden = true;
+        reportEl.innerHTML = '';
+        reportText = '';
+      }
+      copyBtn.hidden = reportText === '';
+
+      outputsEl.innerHTML = '';
+      result.outputs.forEach((o) => {
+        const li = document.createElement('li');
+        li.className = 'flex items-center justify-between gap-3 rounded-lg border px-3 py-2';
+        const left = document.createElement('div');
+        left.className = 'flex min-w-0 items-center gap-3';
+        if (o.previewUrl) {
+          const img = document.createElement('img');
+          img.src = o.previewUrl;
+          img.alt = '';
+          img.className = 'h-10 w-10 rounded object-cover';
+          left.appendChild(img);
+        }
+        const name = document.createElement('span');
+        name.className = 'truncate text-sm';
+        name.textContent = `${o.filename} · ${formatBytes(o.blob.size)}`;
+        left.appendChild(name);
+        const dl = document.createElement('button');
+        dl.type = 'button';
+        dl.className = 'btn btn-subtle btn-sm shrink-0';
+        dl.textContent = 'Save';
+        dl.addEventListener('click', () => downloadBlob(o.blob, o.filename));
+        li.append(left, dl);
+        outputsEl.appendChild(li);
+      });
+      downloadAllBtn.hidden = result.outputs.length < 2;
+
+      statsEl.innerHTML = '';
+      for (const [k, v] of Object.entries(result.stats ?? {})) {
+        const s = document.createElement('span');
+        s.innerHTML = `<span class="font-medium text-[rgb(var(--text))]">${escapeHtml(k)}:</span> ${escapeHtml(String(v))}`;
+        statsEl.appendChild(s);
+      }
+      notesEl.innerHTML = '';
+      for (const w of result.warnings ?? []) {
+        const li = document.createElement('li');
+        li.style.color = 'rgb(var(--warning))';
+        li.textContent = `⚠ ${w}`;
+        notesEl.appendChild(li);
+      }
+      for (const n of result.notes ?? []) {
+        const li = document.createElement('li');
+        li.className = 'text-[rgb(var(--text-muted))]';
+        li.textContent = n;
+        notesEl.appendChild(li);
+      }
+    }
+
+    runBtn.addEventListener('click', run);
+    cancelBtn.addEventListener('click', () => controller?.abort());
+    copyBtn.addEventListener('click', async () => {
+      const ok = await copyText(reportText);
+      (window as unknown as { toast?: (m: string) => void }).toast?.(ok ? 'Copied' : 'Copy failed');
+    });
+    resetBtn.addEventListener('click', () => {
+      files = [];
+      outputs = [];
+      reportText = '';
+      if (input) input.value = '';
+      updateInputStats();
+      renderList();
+      resultWrap.hidden = true;
+      progressWrap.hidden = true;
+      clearError(errorBox);
+    });
+    downloadAllBtn.addEventListener('click', () => downloadZip(outputs, `${toolId}-output.zip`));
+
+    root.querySelector('[data-clear]')?.addEventListener('click', () => {
+      if (input) {
+        input.value = '';
+        updateInputStats();
+      }
+      updateRunState();
+      resultWrap.hidden = true;
+      clearError(errorBox);
+    });
+    root.querySelector('[data-paste]')?.addEventListener('click', async () => {
+      const t = await readClipboardText();
+      if (t != null && input) {
+        input.value = t;
+        updateInputStats();
+        updateRunState();
+        run();
+      }
+    });
+
+    root.querySelectorAll<HTMLButtonElement>('[data-example]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        try {
+          const payload = JSON.parse(btn.dataset.examplePayload!) as {
+            input: string;
+            options: Record<string, unknown>;
+          };
+          if (input) input.value = payload.input;
+          // A file would take priority over the example's text, so drop it.
+          files = [];
+          renderList();
+          for (const [k, v] of Object.entries(payload.options)) {
+            const el = optionsRoot.querySelector<HTMLInputElement | HTMLSelectElement>(
+              `[data-opt-key="${k}"]`,
+            );
+            if (!el) continue;
+            if ((el as HTMLInputElement).type === 'checkbox')
+              (el as HTMLInputElement).checked = Boolean(v);
+            else el.value = String(v);
+          }
+          applyShowWhen(optionsRoot);
+          updateInputStats();
+          updateRunState();
+          run();
+        } catch {
+          /* malformed example */
+        }
+      });
+    });
+
+    renderList();
+    updateInputStats();
+
+    window.addEventListener('beforeunload', () => dz.destroy(), { once: true });
+  });
+</script>

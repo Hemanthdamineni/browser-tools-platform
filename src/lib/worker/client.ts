@@ -76,7 +76,7 @@ export async function runTool<T>(
   payload: Record<string, unknown>,
   opts: RunOptions = {},
 ): Promise<T> {
-  const useWorker = tool.meta.worker ?? tool.meta.input === 'file';
+  const useWorker = tool.meta.worker ?? tool.meta.input !== 'text';
 
   if (useWorker && capabilities.workers) {
     return runInWorker<T>(tool.meta.id, payload, opts);

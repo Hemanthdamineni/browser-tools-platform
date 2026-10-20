@@ -6,6 +6,7 @@ import Icon from './Icon.astro';
 import PrivacyBadge from './PrivacyBadge.astro';
 import TextWorkbench from './workbench/TextWorkbench.astro';
 import FileWorkbench from './workbench/FileWorkbench.astro';
+import BothWorkbench from './workbench/BothWorkbench.astro';
 import ToolCard from './ToolCard.astro';
 
 interface Props { meta: ToolMeta; }
@@ -36,7 +37,13 @@ const related = relatedTools(meta);
   </header>
 
   <div class="mt-7">
-    {meta.input === 'file' ? <FileWorkbench meta={meta} /> : <TextWorkbench meta={meta} />}
+    {meta.input === 'file' ? (
+      <FileWorkbench meta={meta} />
+    ) : meta.input === 'both' ? (
+      <BothWorkbench meta={meta} />
+    ) : (
+      <TextWorkbench meta={meta} />
+    )}
   </div>
 
   {meta.faq && meta.faq.length > 0 && (
@@ -60,7 +67,7 @@ const related = relatedTools(meta);
     <h2>How it works</h2>
     <p>
       {meta.name} runs entirely in your browser tab. Your input is processed by JavaScript
-      {meta.input === 'file' ? ' and, for large files, a background Web Worker' : ''} on this device.
+      {meta.input !== 'text' ? ' and, for large files, a background Web Worker' : ''} on this device.
       Nothing is uploaded, and the page works offline once it has loaded.
     </p>
     {meta.privacy.network !== 'none' && (

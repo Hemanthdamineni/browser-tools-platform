@@ -114,9 +114,13 @@ export interface ToolMeta {
   /** Search + SEO keywords. */
   keywords: string[];
   privacy: ToolPrivacy;
-  /** How the tool takes input. Drives which workbench renders. */
-  input: 'text' | 'file';
-  /** File `accept` attribute when `input: 'file'`. */
+  /**
+   * How the tool takes input. Drives which workbench renders:
+   * `'text'` → TextWorkbench, `'file'` → FileWorkbench, `'both'` → BothWorkbench
+   * (a text box plus a file picker; whichever is provided is used).
+   */
+  input: 'text' | 'file' | 'both';
+  /** File `accept` attribute when the tool accepts files. */
   accept?: string;
   /** Allow selecting multiple files. */
   multiple?: boolean;
@@ -190,6 +194,17 @@ export interface FileRunInput extends RunContext {
   options: OptionValues;
 }
 
+/**
+ * Input for a `input: 'both'` tool: a text box and a file picker feed the same
+ * `run()`. `text` and `files` are both optional so a caller may supply either
+ * one; a tool decides how to combine them.
+ */
+export interface BothRunInput extends RunContext {
+  text?: string;
+  files?: File[];
+  options: OptionValues;
+}
+
 export interface OutputFile {
   filename: string;
   blob: Blob;
@@ -220,7 +235,15 @@ export interface FileToolModule {
   run(input: FileRunInput): Promise<FileRunResult>;
 }
 
-export type ToolModule = TextToolModule | FileToolModule;
+/** A `input: 'both'` tool returns the file-style result (report + downloads). */
+export type BothRunResult = FileRunResult;
+
+export interface BothToolModule {
+  meta: ToolMeta;
+  run(input: BothRunInput): Promise<BothRunResult>;
+}
+
+export type ToolModule = TextToolModule | FileToolModule | BothToolModule;
 
 /** Thrown by `run()` for expected, user-facing failures (bad input, unsupported format). */
 export class ToolError extends Error {

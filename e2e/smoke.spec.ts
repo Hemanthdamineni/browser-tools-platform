@@ -8,7 +8,7 @@ interface ToolEntry {
   id: string;
   name: string;
   href: string;
-  input: 'text' | 'file';
+  input: 'text' | 'file' | 'both';
   hasExamples: boolean;
 }
 
@@ -55,12 +55,14 @@ test('every tool page renders a working workbench', async ({ page, baseURL }) =>
       failures.push(`${tool.id}: no <h1> "${tool.name}"`);
       continue;
     }
-    const workbench = page.locator('[data-text-workbench], [data-file-workbench]');
+    const workbench = page.locator(
+      '[data-text-workbench], [data-file-workbench], [data-both-workbench]',
+    );
     if (!(await workbench.count())) {
       failures.push(`${tool.id}: no workbench`);
       continue;
     }
-    if (tool.input === 'text' && tool.hasExamples) {
+    if (tool.input !== 'file' && tool.hasExamples) {
       await page.locator('[data-example]').first().click();
       await expect(page.locator('[data-result-wrap]')).toBeVisible({ timeout: 5000 });
       const err = page.locator('[data-error]');

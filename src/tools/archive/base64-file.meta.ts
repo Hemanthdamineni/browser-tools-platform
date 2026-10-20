@@ -9,5 +9,7 @@ export const meta: ToolMeta = {
     { key: 'mode', label: 'Mode', type: 'select', default: 'encode', choices: [{ value: 'encode', label: 'Encode file' }, { value: 'decode', label: 'Decode Base64 text file' }] },
     { key: 'outputName', label: 'Decoded filename', type: 'text', default: 'decoded.bin' },
   ],
-  examples: [{ title: 'Encode or decode a file' }], related: ['file-metadata', 'image-to-datauri'], status: 'stable',
+  examples: [{ title: 'Encode or decode a file' }], related: ['file-metadata', 'image-to-datauri'],
+  // Kept routable for old links; the page redirects to the merged `base64` tool.
+  hidden: true, redirectTo: 'base64', status: 'stable',
 };
