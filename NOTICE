@@ -10,8 +10,9 @@ visitor's browser.
 - marked             — MIT      — https://github.com/markedjs/marked
 - qrcode-generator   — MIT      — https://github.com/kazuhikoarase/qrcode-generator
 - cronstrue          — MIT      — https://github.com/bradymholt/cronstrue
+- prettier           — MIT      — https://github.com/prettier/prettier
 
 Build-time only (not shipped to visitors): astro, tailwindcss, typescript,
-vitest, playwright, eslint, prettier.
+vitest, playwright, eslint.
 
 Full licence texts are in the corresponding node_modules/<pkg>/LICENSE files.
