@@ -165,9 +165,17 @@ being lost. No orchestrator was running.
 - Tooling: `scripts/gen-tools-doc.mjs` is committed and wired to `npm run docs:tools`; CI gained a
   "Tool docs are current" step, so the inventory cannot drift again. The whole tree is now
   Prettier-clean (671 files were not) and `npm run format:check` passes.
+- Tests: the external golden-output checks from `phase2/verification` were ported — `unzip` for
+  zip-create, `ffprobe` for audio-to-wav, `qpdf` and `pdfinfo` for pdf-metadata. They check our
+  output with programs we do not control, which is the only way to catch a file we can read back
+  but no other program can. Each skips itself when its tool is absent; CI installs the four so the
+  checks actually run there.
+- Tests: the external golden-output checks from `phase2/verification` were ported — `unzip` for
+  `zip-create`, `ffprobe` for `audio-to-wav`, `qpdf` and `pdfinfo` for `pdf-metadata`. Each skips
+  itself when its reference tool is missing, and CI now installs all four so they really run.
 
 Checks: `astro check` → 0 errors; `eslint .` → clean; `prettier --check` → clean;
-`vitest run` → 389 files / 3347 tests; `astro build` → 396 pages.
+`vitest run` → 393 files / 3351 tests; `astro build` → 396 pages.
 
 Mistakes noticed:
 
@@ -192,68 +200,3 @@ Ideas:
 
 - `parquet-inspect`, `hex-diff` and `subtitle-convert` are still worth building (see the ideas
   list above) — `subtitle-convert` in particular is already half-built in the rescued tranche.
-
-## run-20261021-0200-recovery — 2026-10-21T02:00:00Z
-
-This run was a recovery round: the 2026-10-17 run died mid-flight and left ~285 uncommitted
-files (94 finished tools) sitting in the primary checkout, `master` 20 commits behind
-`origin/master`, and eight stale `⏳` claims on items that were never built.
-
-- Merged: `merge-escape-tools` (`85eb2e3`) — `string-escape` now absorbs backslash/json/unicode
-  escape as modes; the three old ids stay routable.
-- Merged: `upgrade-image-batch-2` (`4979654`) and `upgrade-image-batch-3` (`5903715`) — image-rotate,
-  image-metadata and image-palette, then favicon-generator, image-diff, image-spritesheet and
-  svg-to-png, all at `stable`.
-- Merged: `video-foundation` (`14f0fc6`) — the `video` category, a lazy Mediabunny engine and the
-  first `video-info` tool. Mediabunny is MPL-2.0 and is added to `NOTICE`.
-- Merged: `image-strip-metadata` (`4c3fe6b`) — lossless EXIF/GPS/XMP stripping.
-- Merged: the rescued tranche (`1904c74` + `71e3f12`) — 94 new tools (crypto, data, developer,
-  encoding, network, numbers, security, text, web, generators, misc) that had been written but never
-  committed. The rescue commit also fixed the three defects the tranche carried:
-  `unicode-lookup` had a `.meta.ts` with no `.tool.ts` (the registry threw and took
-  `src/lib/registry.test.ts` down with it), the tranche carried a stale copy of `registry.test.ts`
-  that reverted `origin/master`'s alias coverage and its 120 s timeout, and 32 `related` arrays still
-  pointed at hidden alias ids.
-- Merged: seven tools from `worktree-new-tool-worktree` — matrix calculator, binary file signature
-  inspector, CSV transpose, markdown table formatter, markdown table of contents, Unicode styles and
-  whitespace visualiser. Its `image-resize` was dropped in favour of the `stable` version, and its
-  `markdown-toc` was dropped as a duplicate id of the tranche's `text/markdown-toc`.
-- Failed: none. Blocked: none.
-
-Security and correctness fixes carried over from the unmerged `phase2/verification` branch:
-
-- `src/lib/files.ts` — file selection is now capped (20 files / 100 MB), the file readers are
-  abortable, and `downloadZip` sanitises entry names so `../x` cannot escape the archive and
-  duplicate names no longer overwrite each other.
-- `src/components/workbench/FileWorkbench.astro` — file names are HTML-escaped before they reach
-  `innerHTML`, a run is generation-stamped so a cancelled run cannot publish a stale result, blob
-  preview URLs are revoked, and reset really clears the workbench.
-- `src/tools/archive/tar-create.tool.ts` — ustar `size`/`mtime` are written as full 12-byte fields
-  with the POSIX base-256 fallback; the old 11-byte field corrupted the checksum for large files.
-- `src/tools/misc/calculator.tool.ts` — functions called with no argument, and expressions that
-  evaluate to a non-finite number, now raise a `ToolError` instead of returning `NaN`/`Infinity`.
-
-Infrastructure:
-
-- `scripts/gen-tools-doc.mjs` is committed and wired to `npm run docs:tools`; CI now runs
-  `npm run docs:check`, so `docs/TOOLS.md` cannot drift again. The inventory is regenerated for
-  370 tools across 19 categories.
-- `npm run format:check` was failing on 671 files before this run — the whole tree is now
-  Prettier-clean, so the CI format gate is meaningful.
-- `vitest.config.ts` caps the worker pool at 6. Every test file gets its own jsdom environment, so
-  on a 12-core box with 15 GB of RAM the suite was being OOM-killed ("Worker exited unexpectedly").
-  With the cap: 389 files / 3347 tests, exit 0.
-
-Mistakes noticed:
-
-- The rescued tranche had been committed to no branch at all — it existed only as an untracked
-  working tree. Anything that resets the checkout destroys it. Branch work is not optional here.
-- `src/lib/registry.test.ts` is the canary for catalogue-wide breakage: it builds the registry at
-  import time, so one tool with a missing implementation or a duplicate id takes the whole file
-  down and hides the real error. A test that asserts each tool individually would be easier to read.
-- `related` ids are not validated anywhere. Pointing them at a hidden alias is silently ignored by
-  `relatedTools()`, so a stale id looks fine and simply falls back to same-category tools. There
-  should be a registry test for dangling `related` ids.
-- The two `markdown-toc` implementations (one `developer`, one `text`) were written independently in
-  different runs. The registry's duplicate-id check caught it, but only because the id matched; two
-  tools with different ids and the same purpose would have shipped.
