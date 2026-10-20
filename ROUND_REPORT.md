@@ -165,6 +165,10 @@ being lost. No orchestrator was running.
 - Tooling: `scripts/gen-tools-doc.mjs` is committed and wired to `npm run docs:tools`; CI gained a
   "Tool docs are current" step, so the inventory cannot drift again. The whole tree is now
   Prettier-clean (671 files were not) and `npm run format:check` passes.
+- Tests: the external golden-output checks from `phase2/verification` were ported too — our ZIP,
+  WAV and PDF writers are now verified with `unzip`, `ffprobe`, `qpdf` and `pdfinfo` instead of
+  only against our own readers. Each skips itself when its reference tool is absent; CI installs
+  all four so they actually run there.
 - Tests: the external golden-output checks from `phase2/verification` were ported — `unzip` for
   zip-create, `ffprobe` for audio-to-wav, `qpdf` and `pdfinfo` for pdf-metadata. They check our
   output with programs we do not control, which is the only way to catch a file we can read back
@@ -195,6 +199,12 @@ Mistakes noticed:
 - **The `phase2/verification` branch is a work of its own**, not a merge candidate: it carries its
   own `docs/mission/` ledger and was written against a much older tree. Merging it wholesale would
   have reverted newer work; the security fixes were ported by hand instead.
+- **`related` ids are not validated anywhere.** Pointing one at a hidden alias is silently ignored
+  by `relatedTools()`, so a stale id looks fine and silently falls back to same-category tools.
+  There should be a registry test for dangling `related` ids.
+- **Two tools with the same purpose but different ids can both ship.** The tranche and
+  `worktree-new-tool-worktree` each had a `markdown-toc`; the registry's duplicate-id check caught
+  it only because the ids happened to match.
 
 Ideas:
 
