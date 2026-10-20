@@ -125,6 +125,11 @@ export interface ToolMeta {
    * that can capture from `getUserMedia` as well as accept files.
    */
   camera?: boolean;
+  /**
+   * Render the signature pad above the workbench. Used by tools that take a
+   * drawn, typed or uploaded signature image as one of their options.
+   */
+  signaturePad?: boolean;
   options?: ToolOption[];
   /** Runnable examples — one click fills the workbench. */
   examples?: { title: string; input?: string; options?: OptionValues }[];
