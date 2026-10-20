@@ -149,11 +149,7 @@ function looksLikeJavaScript(s: string): boolean {
 }
 
 function looksLikeStyles(s: string): boolean {
-  return (
-    /[{}]/.test(s) &&
-    /(^|[\s{};])([A-Za-z-]+)\s*:\s*[^;{}]+/.test(s) &&
-    !JS_HINT.test(s)
-  );
+  return /[{}]/.test(s) && /(^|[\s{};])([A-Za-z-]+)\s*:\s*[^;{}]+/.test(s) && !JS_HINT.test(s);
 }
 
 function stylesLanguage(s: string): ResolvedLanguage {
