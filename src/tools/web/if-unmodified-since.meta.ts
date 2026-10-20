@@ -22,7 +22,7 @@ export const meta: ToolMeta = {
     { q: 'Is this stronger than If-Match?', a: 'No. Dates have one-second granularity and can miss rapid changes; If-Match with a strong ETag is generally safer for concurrency control.' },
     { q: 'Can I use this with GET?', a: 'It can be sent with several methods, but it is most useful for state-changing requests that must not overwrite a newer representation.' },
   ],
-  related: ['if-match', 'if-modified-since', 'etag'],
+  related: ['conditional-request-headers'],
   hidden: true,
   redirectTo: 'conditional-request-headers',
   status: 'stable',

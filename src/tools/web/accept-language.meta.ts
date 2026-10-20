@@ -34,6 +34,6 @@ export const meta: ToolMeta = {
     { q: 'What is a valid language range?', a: 'Per BCP 47, tags like en (language), en-US (region) or zh-Hant (script) are valid. Wildcards (*) match any language.' },
     { q: 'What are common pitfalls?', a: 'q-values outside 0–1 are invalid; duplicate ranges should be combined; and a language with q=0 is explicitly unacceptable.' },
   ],
-  related: ['content-language', 'vary-header', 'accept-post'],
+  related: ['content-language', 'cache-headers', 'accept-post'],
   status: 'stable',
 };

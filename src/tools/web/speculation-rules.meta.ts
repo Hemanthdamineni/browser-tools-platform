@@ -24,6 +24,6 @@ export const meta: ToolMeta = {
     { q: 'What is eagerness?', a: 'How eagerly the browser starts prefetching/prerendering: from immediate/eager down to moderate/conservative.' },
     { q: 'Why prerender over prefetch?', a: 'Prerender renders the page up front for faster navigation but costs more resources; prefetch only warms the network response.' },
   ],
-  related: ['web-manifest', 'prioritize-lcp', 'early-hints'],
+  related: ['web-manifest', 'link-header', 'priority-header'],
   status: 'stable',
 };

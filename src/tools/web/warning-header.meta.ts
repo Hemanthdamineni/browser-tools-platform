@@ -24,6 +24,6 @@ export const meta: ToolMeta = {
     { q: 'Why is Warning obsolete?', a: 'The header was deprecated in later specs, but some caches still emit the 1xx/2xx codes, so tools often must recognize them.' },
     { q: 'How do I compare codes?', a: 'Codes from 100–199 relate to the current response only; 200–299 persist across caches. Lower is generally more informative.' },
   ],
-  related: ['cache-control', 'age-header', 'proxy-status'],
+  related: ['cache-headers', 'proxy-status'],
   status: 'stable',
 };

@@ -22,7 +22,7 @@ export const meta: ToolMeta = {
     { q: 'What does Vary: * mean?', a: 'It indicates the response is not suitable for normal cache reuse and is effectively uncacheable by shared caches.' },
     { q: 'Should Vary include Authorization?', a: 'Usually private or authenticated responses need stronger cache controls. Vary alone is not an authorization boundary and cannot make unsafe content safe to cache.' },
   ],
-  related: ['cache-control', 'security-headers', 'http-encoding'],
+  related: ['cache-headers', 'security-headers', 'http-encoding'],
   hidden: true,
   redirectTo: 'cache-headers',
   status: 'stable',

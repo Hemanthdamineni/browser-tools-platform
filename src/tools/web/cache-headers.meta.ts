@@ -224,6 +224,6 @@ export const meta: ToolMeta = {
     { q: 'Can this know whether a response is safe to cache?', a: 'No. It can flag suspicious combinations such as public caching with contradictory directives, but cache safety depends on content, authorization, and deployment context.' },
     { q: 'Does a CDN have to honor these fields?', a: 'Only if the CDN supports the field and its documented precedence rules. Treat provider-specific fields as advisory unless the provider documents otherwise.' },
   ],
-  related: ['etag', 'if-none-match', 'last-modified', 'date-header'],
+  related: ['conditional-request-headers', 'date-header'],
   status: 'beta',
 };

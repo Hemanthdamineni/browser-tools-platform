@@ -24,7 +24,7 @@ export const meta: ToolMeta = {
     { q: 'Are weak tags valid for If-Match?', a: 'If-Match uses strong comparison, so weak entity-tags do not satisfy the condition. This tool accepts them for analysis but flags them for review.' },
     { q: 'What does * mean?', a: 'The wildcard matches any current representation, and is useful for operations that should proceed only when a resource exists.' },
   ],
-  related: ['etag', 'http-range', 'http-status'],
+  related: ['conditional-request-headers', 'http-range', 'http-status'],
   hidden: true,
   redirectTo: 'conditional-request-headers',
   status: 'stable',

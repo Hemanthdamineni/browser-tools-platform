@@ -174,6 +174,6 @@ export const meta: ToolMeta = {
       a: 'No. It only generates and validates header text from what you type; nothing is hashed, uploaded or requested.',
     },
   ],
-  related: ['cache-control', 'http-range', 'http-status'],
+  related: ['cache-headers', 'http-range', 'http-status'],
   status: 'beta',
 };

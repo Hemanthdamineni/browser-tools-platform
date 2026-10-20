@@ -23,6 +23,6 @@ export const meta: ToolMeta = {
     { q: 'What do the two headers mean?', a: 'Access-Control-Request-Method states the method the real request will use; Access-Control-Request-Headers lists the custom headers it will send.' },
     { q: 'How do I read this vs Allow-* ?', a: 'The server must echo back Access-Control-Allow-Methods/Headers covering those requested values; otherwise the browser blocks the real request.' },
   ],
-  related: ['access-control-allow-origin', 'access-control-allow-methods-headers', 'origin-header'],
+  related: ['cors-headers', 'origin-header'],
   status: 'stable',
 };

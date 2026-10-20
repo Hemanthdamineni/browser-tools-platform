@@ -23,6 +23,6 @@ export const meta: ToolMeta = {
     { q: 'What does wait mean?', a: 'wait=n asks the server to wait up to n seconds before responding, when supported.' },
     { q: 'Are custom preferences allowed?', a: 'Yes. Applications can define extension preferences, but both sides must agree on their meaning.' },
   ],
-  related: ['http-status', 'cache-control', 'allow-header'],
+  related: ['http-status', 'cache-headers', 'allow-header'],
   status: 'stable',
 };

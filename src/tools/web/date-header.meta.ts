@@ -22,6 +22,6 @@ export const meta: ToolMeta = {
     { q: 'Should every response include Date?', a: 'Origin servers generally send it for responses except some status and protocol-specific cases; intermediaries may add or update it according to HTTP rules.' },
     { q: 'Does this measure my server clock?', a: 'No. It only validates a pasted value or formats a supplied date string; it makes no network request.' },
   ],
-  related: ['if-modified-since', 'if-unmodified-since', 'cache-control'],
+  related: ['conditional-request-headers', 'cache-headers'],
   status: 'stable',
 };

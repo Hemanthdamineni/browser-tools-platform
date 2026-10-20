@@ -25,6 +25,6 @@ export const meta: ToolMeta = {
     { q: 'What is delta-seconds?', a: 'It is a non-negative integer number of seconds to wait from response receipt. It is not a Unix timestamp.' },
     { q: 'Does this calculate a client-specific retry time?', a: 'No. Date-form values are parsed as UTC header dates. Network latency, clock skew, and server policy can affect actual retry timing.' },
   ],
-  related: ['http-status', 'cache-control', 'timestamp'],
+  related: ['http-status', 'cache-headers', 'timestamp'],
   status: 'stable',
 };

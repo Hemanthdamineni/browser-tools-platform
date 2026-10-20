@@ -22,6 +22,6 @@ export const meta: ToolMeta = {
     { q: 'What do the core directives do?', a: 'noindex stops indexing; nofollow stops following links; noarchive stops caching; nosnippet restricts snippets; max-snippet:N caps snippet length.' },
     { q: 'Can it target specific crawlers?', a: 'Yes — a group such as "googlebot: noindex" confines the rule to that user agent, and a value may contain multiple groups.' },
   ],
-  related: ['robots-txt', 'meta-tags', 'canonical-url'],
+  related: ['robots-txt', 'meta-tags', 'user-agent'],
   status: 'stable',
 };

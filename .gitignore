@@ -32,3 +32,7 @@ npm-debug.log*
 *.tsbuildinfo
 .cache/
 .commandcode/
+
+# local-only tooling (playwright browser deps, external skill bundles)
+/tools/
+/.dsh-open-design/

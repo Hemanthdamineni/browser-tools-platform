@@ -22,6 +22,6 @@ export const meta: ToolMeta = {
     { q: 'Does it redirect the client?', a: 'No. Content-Location is metadata, not a redirect. Use Location with a redirect status to move a client.' },
     { q: 'Does this fetch the URI?', a: 'No. The tool only validates syntax locally and never makes a network request.' },
   ],
-  related: ['url-parse', 'http-status', 'cache-control'],
+  related: ['url-parse', 'http-status', 'cache-headers'],
   status: 'stable',
 };

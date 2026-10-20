@@ -22,7 +22,7 @@ export const meta: ToolMeta = {
     { q: 'Is the value always honored?', a: 'Browsers cap it: Firefox caps around 25 hours but Chromium historically ~5 minutes (600s), and some ignore it entirely, so do not rely on it.' },
     { q: 'When should I omit it?', a: 'If you change CORS rules often, a short value or omission avoids stale preflight caches during rollout.' },
   ],
-  related: ['access-control-allow-methods-headers', 'access-control-allow-origin', 'access-control-allow-credentials'],
+  related: ['cors-headers'],
   hidden: true,
   redirectTo: 'cors-headers',
   status: 'stable',
