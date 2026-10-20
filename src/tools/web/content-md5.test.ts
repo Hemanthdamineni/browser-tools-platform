@@ -6,6 +6,7 @@ type Result = {
   filename?: string;
   stats?: Record<string, string | number>;
   notes?: string[];
+  warnings?: string[];
 };
 const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
   (await tool.run({ text, options })) as Result;
@@ -51,5 +52,15 @@ describe('content-md5', () => {
   it('documents legacy security limits', async () => {
     const result = await run('x', { mode: 'analyze', digest: 'ndTkYSaMgDT1yFZOFVxnpg==' });
     expect(result.notes?.[0]).toContain('legacy checksum');
+  });
+
+  it('flags the deprecated header in the UI', async () => {
+    const built = await run('Hello, world!');
+    expect(built.warnings?.[0]).toContain('deprecated');
+    const verified = await run('Hello, world!', {
+      mode: 'analyze',
+      digest: 'bNNVbesNpUvKBgtMOUeYOQ==',
+    });
+    expect(verified.warnings?.[0]).toContain('RFC 7231');
   });
 });

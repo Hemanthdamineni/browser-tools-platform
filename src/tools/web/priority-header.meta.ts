@@ -53,6 +53,8 @@ export const meta: ToolMeta = {
       a: 'No. This uses the modern RFC 9218 Priority field syntax rather than obsolete HTTP/2 priority trees.',
     },
   ],
-  related: ['http-status', 'content-type', 'server-timing'],
+  related: ['http-status', 'content-type', 'http-header-analyzer'],
+  hidden: true,
+  redirectTo: 'http-header-analyzer',
   status: 'stable',
 };

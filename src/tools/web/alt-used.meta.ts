@@ -52,6 +52,8 @@ export const meta: ToolMeta = {
       a: 'Alt-Svc is sent by the server advertising alternatives; Alt-Used is sent by the client confirming which alternative it actually used.',
     },
   ],
-  related: ['alt-svc', 'origin-header', 'via-header'],
+  related: ['http-header-analyzer'],
+  hidden: true,
+  redirectTo: 'http-header-analyzer',
   status: 'stable',
 };

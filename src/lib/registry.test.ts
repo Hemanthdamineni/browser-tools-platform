@@ -111,6 +111,59 @@ describe('registry aliases', () => {
     }
   });
 
+  const analyzerIds = [
+    'accept-ch',
+    'alt-svc',
+    'alt-used',
+    'allow-header',
+    'connection-header',
+    'content-digest',
+    'critical-ch',
+    'date-header',
+    'early-data',
+    'expect-header',
+    'forwarded-header',
+    'link-header',
+    'network-error-logging',
+    'origin-header',
+    'prefer-header',
+    'priority-header',
+    'reporting-endpoints',
+    'retry-after',
+    'server-timing',
+    'signature-input',
+    'speculation-rules',
+    'sunset-deprecation',
+    'timing-allow-origin',
+    'traceparent',
+    'tracestate',
+    'trailer-header',
+    'upgrade-header',
+    'via-header',
+    'warning-header',
+    'x-robots-tag',
+  ];
+
+  it('keeps every merged long-tail header id routable as a hidden redirect', () => {
+    expect(getTool('http-header-analyzer')?.meta.hidden).not.toBe(true);
+    for (const id of analyzerIds) {
+      const tool = getTool(id);
+      expect(tool, `${id} should still resolve`).toBeTruthy();
+      expect(tool?.meta.hidden).toBe(true);
+      expect(tool?.meta.redirectTo).toBe('http-header-analyzer');
+      expect(redirectTarget(tool!.meta)?.meta.id).toBe('http-header-analyzer');
+    }
+  });
+
+  it('never points a related list at one of the folded header aliases', () => {
+    for (const tool of VISIBLE_TOOLS) {
+      for (const rel of tool.meta.related ?? []) {
+        if (!analyzerIds.includes(rel)) continue;
+        expect(tool.meta.hidden, `${tool.meta.id} should not be a visible alias`).not.toBe(true);
+      }
+    }
+  });
+
   it('points every alias at a real, non-alias, visible tool', () => {
     expect(ALIAS_TOOLS.length).toBeGreaterThanOrEqual(legacyIds.length);
     for (const alias of ALIAS_TOOLS) {

@@ -76,6 +76,8 @@ export const meta: ToolMeta = {
       a: 'Created is recommended for freshness and expires can bound validity, but deployment requirements depend on the signature profile.',
     },
   ],
-  related: ['content-digest', 'authorization', 'date-header'],
+  related: ['http-header-analyzer', 'authorization'],
+  hidden: true,
+  redirectTo: 'http-header-analyzer',
   status: 'stable',
 };

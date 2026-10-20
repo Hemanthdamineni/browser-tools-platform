@@ -57,6 +57,8 @@ export const meta: ToolMeta = {
       a: 'Yes. Responses that vary by hints need matching Vary and cache-key policy to avoid incorrect variants.',
     },
   ],
-  related: ['accept-ch', 'cache-headers', 'permissions-policy'],
+  related: ['http-header-analyzer', 'cache-headers', 'permissions-policy'],
+  hidden: true,
+  redirectTo: 'http-header-analyzer',
   status: 'stable',
 };

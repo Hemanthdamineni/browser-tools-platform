@@ -70,5 +70,7 @@ export const meta: ToolMeta = {
     },
   ],
   related: ['checksum-validator', 'file-metadata', 'base64'],
+  hidden: true,
+  redirectTo: 'http-header-analyzer',
   status: 'stable',
 };

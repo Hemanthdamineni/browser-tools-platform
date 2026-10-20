@@ -54,5 +54,7 @@ export const meta: ToolMeta = {
     },
   ],
   related: ['robots-txt', 'meta-tags', 'user-agent'],
+  hidden: true,
+  redirectTo: 'http-header-analyzer',
   status: 'stable',
 };

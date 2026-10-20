@@ -87,6 +87,8 @@ export const meta: ToolMeta = {
       a: 'Prerender renders the page up front for faster navigation but costs more resources; prefetch only warms the network response.',
     },
   ],
-  related: ['web-manifest', 'link-header', 'priority-header'],
+  related: ['web-manifest', 'http-header-analyzer'],
+  hidden: true,
+  redirectTo: 'http-header-analyzer',
   status: 'stable',
 };

@@ -75,5 +75,7 @@ export const meta: ToolMeta = {
     },
   ],
   related: ['user-agent', 'security-headers', 'http-status'],
+  hidden: true,
+  redirectTo: 'http-header-analyzer',
   status: 'stable',
 };

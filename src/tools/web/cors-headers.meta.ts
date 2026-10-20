@@ -128,6 +128,6 @@ export const meta: ToolMeta = {
       a: 'GET, HEAD, and POST with simple headers are sent directly; most other methods and headers trigger an OPTIONS preflight answered with Allow-Methods and Allow-Headers.',
     },
   ],
-  related: ['security-headers', 'timing-allow-origin', 'cross-origin-resource-policy'],
+  related: ['security-headers', 'http-header-analyzer', 'cross-origin-resource-policy'],
   status: 'beta',
 };

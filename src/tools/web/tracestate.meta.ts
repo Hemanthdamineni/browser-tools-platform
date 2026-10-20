@@ -53,6 +53,8 @@ export const meta: ToolMeta = {
       a: 'The W3C format limits tracestate to 32 list-members and 512 bytes.',
     },
   ],
-  related: ['traceparent', 'server-timing', 'forwarded-header'],
+  related: ['http-header-analyzer'],
+  hidden: true,
+  redirectTo: 'http-header-analyzer',
   status: 'stable',
 };

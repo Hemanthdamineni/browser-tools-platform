@@ -73,6 +73,6 @@ export const meta: ToolMeta = {
       a: 'Yes — return the same ID in the response header and include it in your structured logs for end-to-end correlation.',
     },
   ],
-  related: ['uuid', 'traceparent', 'tracestate', 'distributed-tracing'],
+  related: ['uuid', 'http-header-analyzer', 'distributed-tracing'],
   status: 'stable',
 };

@@ -62,7 +62,7 @@ export const meta: ToolMeta = {
       a: 'When the allowed origin is chosen dynamically per request, Vary: Origin prevents caches from serving the wrong origin grant to other callers.',
     },
   ],
-  related: ['timing-allow-origin', 'cross-origin-resource-policy', 'security-headers'],
+  related: ['http-header-analyzer', 'cross-origin-resource-policy', 'security-headers'],
   hidden: true,
   redirectTo: 'cors-headers',
   status: 'stable',

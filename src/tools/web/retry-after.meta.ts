@@ -68,5 +68,7 @@ export const meta: ToolMeta = {
     },
   ],
   related: ['http-status', 'cache-headers', 'timestamp'],
+  hidden: true,
+  redirectTo: 'http-header-analyzer',
   status: 'stable',
 };

@@ -74,5 +74,7 @@ export const meta: ToolMeta = {
     },
   ],
   related: ['content-disposition', 'url-parse', 'http-status'],
+  hidden: true,
+  redirectTo: 'http-header-analyzer',
   status: 'stable',
 };

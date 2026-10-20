@@ -4,9 +4,9 @@ export const meta: ToolMeta = {
   id: 'content-md5',
   name: 'Content-MD5 Builder & Analyzer',
   category: 'web',
-  summary: 'Build or verify legacy Content-MD5 integrity values.',
+  summary: 'Build or verify legacy Content-MD5 integrity values — the header is deprecated.',
   description:
-    'Compute or analyze the legacy Content-MD5 HTTP header for text using standard Base64 MD5. Useful for interoperability audits, but not a modern security control because MD5 is collision-weak and the header is not a signature.',
+    'Compute or analyze the legacy Content-MD5 HTTP header for text using standard Base64 MD5. The header is deprecated (RFC 7231 §3.3.2), so this is only useful for interoperability audits: MD5 is collision-weak and the header is not a signature. Use Content-Digest or a cryptographic signature instead.',
   keywords: [
     'Content-MD5',
     'MD5 Base64',
@@ -53,6 +53,6 @@ export const meta: ToolMeta = {
       a: 'No. Digest computation and verification run entirely in your browser.',
     },
   ],
-  related: ['content-digest', 'checksum-validator', 'hash'],
+  related: ['http-header-analyzer', 'checksum-validator', 'hash'],
   status: 'stable',
 };
