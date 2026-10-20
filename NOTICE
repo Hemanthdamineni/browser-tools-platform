@@ -10,6 +10,9 @@ visitor's browser.
 - marked             — MIT      — https://github.com/markedjs/marked
 - qrcode-generator   — MIT      — https://github.com/kazuhikoarase/qrcode-generator
 - cronstrue          — MIT      — https://github.com/bradymholt/cronstrue
+- terser             — BSD-2-Clause — https://github.com/terser/terser
+- csso               — MIT      — https://github.com/css/csso
+- html-minifier-terser — MIT      — https://github.com/terser/html-minifier-terser
 
 Build-time only (not shipped to visitors): astro, tailwindcss, typescript,
 vitest, playwright, eslint, prettier.
