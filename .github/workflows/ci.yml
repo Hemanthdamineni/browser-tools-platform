@@ -22,6 +22,8 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
+      - name: Install reference tools for the golden tests
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends unzip qpdf poppler-utils ffmpeg
       - name: Typecheck
         run: npm run check
       - name: Lint
