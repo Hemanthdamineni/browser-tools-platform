@@ -11,6 +11,25 @@ function octal(value: number, field: number): string {
   return s.slice(0, field);
 }
 
+/**
+ * Encode a ustar numeric field. `size` and `mtime` are 12 bytes wide (11 octal
+ * digits + NUL); values too large for octal fall back to the base-256 encoding
+ * POSIX defines (leading 0x80 byte, remaining bytes big-endian).
+ */
+function numericField(value: number, field: number): Uint8Array {
+  const max = Math.pow(8, field - 1) - 1;
+  if (value <= max) return new TextEncoder().encode(octal(value, field));
+  const out = new Uint8Array(field);
+  out[0] = 0x80;
+  let v = Math.max(0, Math.floor(value));
+  for (let i = field - 1; i >= 1; i--) {
+    out[i] = v & 0xff;
+    v = Math.floor(v / 256);
+  }
+  if (v > 0) out.fill(0xff); // saturate values too large for the field
+  return out;
+}
+
 function header(name: string, size: number, mtime: number): Uint8Array {
   const block = new Uint8Array(BLOCK);
   const enc = new TextEncoder();
@@ -20,11 +39,11 @@ function header(name: string, size: number, mtime: number): Uint8Array {
     [100, '0000644\0', 8],
     [108, '0000000\0', 8],
     [116, '0000000\0', 8],
-    [124, octal(size, 11), 11],
-    [136, octal(Math.floor(mtime / 1000), 11), 11],
     [148, '        ', 8], // 8 spaces, per spec, replaced with the checksum below
   ];
   for (const [off, val, len] of fields) block.set(enc.encode(val.slice(0, len)), off);
+  block.set(numericField(size, 12), 124);
+  block.set(numericField(mtime, 12), 136);
   block[156] = 0x30; // typeflag '0' (regular file)
   block.set(enc.encode('ustar\0'), 257);
   block.set(enc.encode('00'), 263);
@@ -46,13 +65,21 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
     if (signal?.aborted) throw new DOMException('Aborted', 'AbortError');
     const f = files[i]!;
     const name = (f.webkitRelativePath || f.name).replace(/\\/g, '/');
-    if (!name || name.startsWith('/') || /^[A-Za-z]:/.test(name) || name.split('/').some((part) => !part || part === '.' || part === '..')) {
-      throw new ToolError('Invalid archive path.', 'Archive entry paths must be relative and cannot contain empty, dot or traversal segments.');
+    if (
+      !name ||
+      name.startsWith('/') ||
+      /^[A-Za-z]:/.test(name) ||
+      name.split('/').some((part) => !part || part === '.' || part === '..')
+    ) {
+      throw new ToolError(
+        'Invalid archive path.',
+        'Archive entry paths must be relative and cannot contain empty, dot or traversal segments.',
+      );
     }
     const data = new Uint8Array(await f.arrayBuffer());
     total += data.length;
     const mtime = Math.max(0, Math.floor(f.lastModified || Date.now()));
-    parts.push(header(name, data.length, mtime));
+    parts.push(header(name, data.length, Math.floor(mtime / 1000)));
     parts.push(data);
     const pad = BLOCK - (data.length % BLOCK);
     if (pad !== BLOCK) parts.push(new Uint8Array(pad));
@@ -62,19 +89,31 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   const len = parts.reduce((a, p) => a + p.length, 0);
   const tar = new Uint8Array(len);
   let off = 0;
-  for (const p of parts) { tar.set(p, off); off += p.length; }
+  for (const p of parts) {
+    tar.set(p, off);
+    off += p.length;
+  }
   let filename = String(o.tarName || 'archive.tar');
   let outBlob: Blob;
   let outBytes = tar;
   if (o.gzip) {
     outBytes = gzipSync(tar);
     if (/\.tar$/i.test(filename)) filename += '.gz';
-    else if (!/\.tar\.gz$/i.test(filename)) filename = filename.replace(/\.[^./\\]+$/, '') + '.tar.gz';
+    else if (!/\.tar\.gz$/i.test(filename))
+      filename = filename.replace(/\.[^./\\]+$/, '') + '.tar.gz';
     outBlob = new Blob([outBytes], { type: 'application/gzip' });
   } else {
     outBlob = new Blob([tar], { type: 'application/x-tar' });
   }
-  return { outputs: [{ filename, blob: outBlob }], stats: { files: files.length, inputBytes: total, outputBytes: outBytes.length, ratio: total ? outBytes.length / total : 0 } };
+  return {
+    outputs: [{ filename, blob: outBlob }],
+    stats: {
+      files: files.length,
+      inputBytes: total,
+      outputBytes: outBytes.length,
+      ratio: total ? outBytes.length / total : 0,
+    },
+  };
 }
 const tool: FileToolModule = { meta, run };
 export default tool;

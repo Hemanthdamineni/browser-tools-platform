@@ -12,6 +12,11 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./test/setup.ts'],
     include: ['src/**/*.{test,spec}.ts'],
+    // Every file gets its own jsdom environment, so the worker count drives peak
+    // memory. Capping it keeps the suite from being OOM-killed on machines with
+    // many cores but little free RAM ("Worker exited unexpectedly").
+    maxWorkers: 6,
+    minWorkers: 1,
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html', 'json-summary'],

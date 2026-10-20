@@ -1,30 +1,62 @@
 /** Browser-only file I/O helpers. Never import from a `.tool.ts` that must stay pure. */
 
-export function readAsText(file: Blob, encoding = 'utf-8'): Promise<string> {
+export const MAX_FILE_COUNT = 20;
+export const MAX_TOTAL_FILE_BYTES = 100 * 1024 * 1024;
+
+export function validateFileSelection(files: File[]): string | null {
+  if (files.length > MAX_FILE_COUNT) return `Choose at most ${MAX_FILE_COUNT} files.`;
+  const total = files.reduce((sum, file) => sum + file.size, 0);
+  if (total > MAX_TOTAL_FILE_BYTES) return 'Selected files exceed the 100 MB total limit.';
+  return null;
+}
+
+function readWith<T>(
+  start: (reader: FileReader) => void,
+  map: (result: FileReader['result']) => T,
+  signal?: AbortSignal,
+): Promise<T> {
   return new Promise((resolve, reject) => {
-    const r = new FileReader();
-    r.onload = () => resolve(String(r.result));
-    r.onerror = () => reject(r.error ?? new Error('Failed to read file'));
-    r.readAsText(file, encoding);
+    const reader = new FileReader();
+    const abort = () => {
+      reader.abort();
+      reject(new DOMException('The file read was cancelled.', 'AbortError'));
+    };
+    if (signal?.aborted) {
+      abort();
+      return;
+    }
+    const cleanup = () => signal?.removeEventListener('abort', abort);
+    reader.onload = () => {
+      cleanup();
+      resolve(map(reader.result));
+    };
+    reader.onerror = () => {
+      cleanup();
+      reject(reader.error ?? new Error('Failed to read file'));
+    };
+    reader.onabort = () => {
+      cleanup();
+      reject(new DOMException('The file read was cancelled.', 'AbortError'));
+    };
+    signal?.addEventListener('abort', abort, { once: true });
+    start(reader);
   });
 }
 
-export function readAsArrayBuffer(file: Blob): Promise<ArrayBuffer> {
-  return new Promise((resolve, reject) => {
-    const r = new FileReader();
-    r.onload = () => resolve(r.result as ArrayBuffer);
-    r.onerror = () => reject(r.error ?? new Error('Failed to read file'));
-    r.readAsArrayBuffer(file);
-  });
+export function readAsText(file: Blob, encoding = 'utf-8', signal?: AbortSignal): Promise<string> {
+  return readWith((reader) => reader.readAsText(file, encoding), String, signal);
 }
 
-export function readAsDataURL(file: Blob): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const r = new FileReader();
-    r.onload = () => resolve(String(r.result));
-    r.onerror = () => reject(r.error ?? new Error('Failed to read file'));
-    r.readAsDataURL(file);
-  });
+export function readAsArrayBuffer(file: Blob, signal?: AbortSignal): Promise<ArrayBuffer> {
+  return readWith(
+    (reader) => reader.readAsArrayBuffer(file),
+    (result) => result as ArrayBuffer,
+    signal,
+  );
+}
+
+export function readAsDataURL(file: Blob, signal?: AbortSignal): Promise<string> {
+  return readWith((reader) => reader.readAsDataURL(file), String, signal);
 }
 
 export function downloadBlob(blob: Blob, filename: string): void {
@@ -43,15 +75,39 @@ export function downloadText(text: string, filename: string, type = 'text/plain'
   downloadBlob(new Blob([text], { type: `${type};charset=utf-8` }), filename);
 }
 
+/**
+ * Make output filenames safe to use as ZIP entry keys: strip any directory
+ * components (so `../x`, `/x` and `a/../b` cannot escape or nest unexpectedly)
+ * and de-duplicate collisions instead of silently overwriting an earlier entry.
+ */
+export function sanitizeZipEntryNames(names: string[]): string[] {
+  const used = new Map<string, number>();
+  return names.map((raw) => {
+    const base =
+      String(raw)
+        .replace(/\\/g, '/')
+        .split('/')
+        .filter((part) => part && part !== '.' && part !== '..')
+        .pop() ?? '';
+    const name = base || 'file';
+    const seen = used.get(name) ?? 0;
+    used.set(name, seen + 1);
+    if (seen === 0) return name;
+    const dot = name.lastIndexOf('.');
+    return dot > 0 ? `${name.slice(0, dot)}-${seen + 1}${name.slice(dot)}` : `${name}-${seen + 1}`;
+  });
+}
+
 /** Bundle multiple outputs into a .zip (fflate is loaded lazily). */
 export async function downloadZip(
   files: { filename: string; blob: Blob }[],
   zipName: string,
 ): Promise<void> {
   const { zip } = await import('fflate');
+  const names = sanitizeZipEntryNames(files.map((f) => f.filename));
   const entries: Record<string, Uint8Array> = {};
-  for (const f of files) {
-    entries[f.filename] = new Uint8Array(await f.blob.arrayBuffer());
+  for (let i = 0; i < files.length; i++) {
+    entries[names[i]!] = new Uint8Array(await files[i]!.blob.arrayBuffer());
   }
   const packed: Uint8Array = await new Promise((resolve, reject) => {
     zip(entries, { level: 6 }, (err, data) => (err ? reject(err) : resolve(data)));

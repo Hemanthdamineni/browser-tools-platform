@@ -5,7 +5,11 @@ import { meta } from './calculator.meta';
 
 /* Safe recursive-descent expression evaluator — NO eval / new Function. */
 
-const FACT = [1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880, 3628800, 39916800, 479001600, 6227020800, 87178291200, 1307674368000, 20922789888000, 355687428096000, 6402373705728000, 121645100408832000, 2432902008176640000];
+const FACT = [
+  1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880, 3628800, 39916800, 479001600, 6227020800,
+  87178291200, 1307674368000, 20922789888000, 355687428096000, 6402373705728000, 121645100408832000,
+  2432902008176640000,
+];
 
 function gcd(a: number, b: number): number {
   a = Math.abs(a);
@@ -94,7 +98,8 @@ class Parser {
   }
 
   private require(what: string): void {
-    if (this.pos >= this.toks.length) throw new ToolError(`Expected ${what}.`, 'The expression is incomplete.');
+    if (this.pos >= this.toks.length)
+      throw new ToolError(`Expected ${what}.`, 'The expression is incomplete.');
   }
 
   private advance(): Tok {
@@ -182,7 +187,8 @@ class Parser {
     if (t && t.t === 'op' && t.v === '!') {
       this.advance();
       const n = Math.round(base);
-      if (Math.abs(base - n) > 1e-9 || n < 0) throw new ToolError('Factorial requires a non-negative integer.');
+      if (Math.abs(base - n) > 1e-9 || n < 0)
+        throw new ToolError('Factorial requires a non-negative integer.');
       if (n > 18) throw new ToolError(`Factorial of ${n} is too large to compute.`);
       return FACT[n]!;
     }
@@ -209,7 +215,10 @@ class Parser {
       this.advance();
       return this.applyFunction(tk.v);
     }
-    throw new ToolError(`Unexpected "${tokText(tk)}".`, 'Expected a number, name or an opening parenthesis.');
+    throw new ToolError(
+      `Unexpected "${tokText(tk)}".`,
+      'Expected a number, name or an opening parenthesis.',
+    );
   }
 
   private applyFunction(name: string): number {
@@ -234,6 +243,7 @@ class Parser {
       this.advance();
     }
 
+    if (args.length === 0) throw new ToolError(`${name} requires at least one argument.`);
     const one = args[0]!;
     switch (name) {
       case 'sqrt':
@@ -309,7 +319,8 @@ class Parser {
 
   private fact(v: number): number {
     const n = Math.round(v);
-    if (Math.abs(v - n) > 1e-9 || n < 0) throw new ToolError('Factorial requires a non-negative integer.');
+    if (Math.abs(v - n) > 1e-9 || n < 0)
+      throw new ToolError('Factorial requires a non-negative integer.');
     if (n > 18) throw new ToolError(`Factorial of ${n} is too large to compute.`);
     return FACT[n]!;
   }
@@ -341,6 +352,9 @@ function tokText(t: Tok): string {
 }
 
 function formatNumber(v: number, precision: number): string {
+  if (!Number.isFinite(v)) {
+    throw new ToolError('The expression does not evaluate to a finite number.');
+  }
   if (Number.isInteger(v) && Math.abs(v) < 1e21) return String(v);
   const s = v.toFixed(precision);
   return s.replace(/\.?0+$/, '');
@@ -357,6 +371,12 @@ function run(input: TextRunInput): TextRunResult {
   const toks = tokenize(text);
   if (toks.length === 0) return { output: '' };
   const value = new Parser(toks, deg).parse();
+  if (!Number.isFinite(value)) {
+    throw new ToolError(
+      'The expression does not evaluate to a finite number.',
+      'Check for empty function arguments, overflow, or invalid domains.',
+    );
+  }
   const formatted = formatNumber(value, precision);
 
   return {

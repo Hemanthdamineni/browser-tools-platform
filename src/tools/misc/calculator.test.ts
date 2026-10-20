@@ -35,4 +35,11 @@ describe('calculator', () => {
     await expect(run('globalThis')).rejects.toThrow(ToolError);
     expect((await run('')).output).toBe('');
   });
+  it('rejects functions called with no arguments', async () => {
+    await expect(run('sqrt()')).rejects.toThrow(/at least one argument/i);
+    await expect(run('abs()')).rejects.toThrow(/at least one argument/i);
+  });
+  it('rejects results that are not finite numbers', async () => {
+    await expect(run('10^400')).rejects.toThrow(/finite/i);
+  });
 });

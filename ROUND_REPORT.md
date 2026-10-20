@@ -47,6 +47,7 @@ against `astro preview`): `merge-cache-headers` 270 files / 2022 tests; `qr-scan
 `pdf-compress` 273 / 2098 (292 pages); `ml-runtime-foundation` 280 / 2145 (291 pages).
 
 New dependencies (both lazy; neither is in the eager bundle):
+
 - `jsqr@^1.4.0` — Apache-2.0, ~46 KB gzip — dynamically imported only when `BarcodeDetector` is
   unavailable.
 - `@huggingface/transformers@^4.3.1` — Apache-2.0 — pulled in by `import()` inside `loadModel()`;
@@ -59,7 +60,8 @@ New dependencies (both lazy; neither is in the eager bundle):
   the whole `converters` category.
 
 Incidents:
-- `/tmp` runs on a tmpfs with a *per-user quota*, and this run exhausted it: `git` began failing with
+
+- `/tmp` runs on a tmpfs with a _per-user quota_, and this run exhausted it: `git` began failing with
   `unable to write file …`, which truncated `BACKLOG.md` to 0 bytes mid-run. Both the interrupted
   `git reset --hard` and a machine restart hit the same working tree, so the tick-off commit had to be
   re-applied from scratch on a freshly reset `origin/master`. Deleting the two finished item worktrees
@@ -68,7 +70,7 @@ Incidents:
   The branches survived in the repo, so all in-flight work was recovered from git and re-verified. The
   first `pdf-compress` verify reported EXIT=1 for this reason alone; re-run on a fresh worktree it is
   green.
-- The `ml-runtime-foundation` sub-agent died *after* committing, with a transient
+- The `ml-runtime-foundation` sub-agent died _after_ committing, with a transient
   LLM-infrastructure error (`getaddrinfo ETIMEOUT opencode.ai`) — not an item failure. Its commit
   survived, so I verified and merged it instead of spending a failed attempt on it.
 - The run's first batch (`merge-conditional-headers`, `upgrade-image-batch-2/3`, `video-foundation`)
@@ -77,8 +79,9 @@ Incidents:
   rejected and had to be re-applied.
 
 Mistakes noticed:
+
 - **`pdf-lib` ships eagerly to the whole site.** `src/tools/pdf/shared.ts` imports `pdf-lib`, and all
-  12 eager `src/tools/pdf/*.meta.ts` files import *values* (`pdfCredit`, `fflateCredit`) from it.
+  12 eager `src/tools/pdf/*.meta.ts` files import _values_ (`pdfCredit`, `fflateCredit`) from it.
   Because the registry eagerly imports every `*.meta.ts`, the shared chunk grows to 963 KB raw /
   322 KB gzip and 267 of the 291 built pages load it — including pages with nothing to do with PDF
   (`/tools/yaml-to-json`, `/tools/request-id`, `/tools/x-frame-options`, …). The credit strings need
@@ -110,6 +113,7 @@ Mistakes noticed:
 
 Ideas (new tools, not variants of anything already in the catalogue — each id checked against
 `docs/TOOLS.md`):
+
 - `parquet-inspect` — read a Parquet file's schema, row groups and per-column stats in the browser
   (`hyparquet`, MIT), plus Parquet ↔ CSV/JSON. Nothing in the catalogue touches columnar data, and
   data engineers constantly need to look inside a `.parquet` without uploading it anywhere.
@@ -119,3 +123,72 @@ Ideas (new tools, not variants of anything already in the catalogue — each id 
   Only `diff-text` exists today, and every binary-debugging session needs this.
 - `subtitle-convert` — SRT/VTT/ASS conversion, shifting and retiming, entirely on-device; there is no
   subtitle tool in the catalogue.
+
+## run-20261021-0200-recovery — 2026-10-21T02:00:00Z
+
+Recovery round. The 2026-10-17 runs left the repo mid-flight: `master` was 20 commits behind
+`origin/master`, four `⏳` claims were four days stale, six branches held finished work that was
+never merged, and the primary checkout held 282 untracked tool files that one `git reset` away from
+being lost. No orchestrator was running.
+
+- Merged: **the uncommitted tranche** — 94 new tools rescued from the 2026-10-19 working tree onto
+  `master` (`recover/uncommitted-tranche` → `1904c74`, `71e3f12`, merged as `9a22354`). It arrived
+  broken and was fixed rather than pushed as-is:
+  - `src/tools/text/unicode-lookup.meta.ts` had been committed **without its `.tool.ts`**, so
+    `build()` in `src/lib/registry.ts` threw and took `src/lib/registry.test.ts` down with it.
+    The implementation and 8 tests were written from the meta's own spec.
+  - The tranche's copy of `src/lib/registry.test.ts` was an **older revision** that reverted
+    `origin/master`'s alias coverage (`ALIAS_TOOLS`, `redirectTarget`) and its 120 s timeout. The
+    upstream version was kept.
+  - 32 `related` arrays pointed at ids that the header merges had turned into hidden aliases, so
+    those links resolved to nothing. They now point at the merged replacement.
+- Merged: `tool/merge-escape-tools-r432a` (`85eb2e3`) — `string-escape` absorbs backslash/json/
+  unicode escape; the old ids are aliases.
+- Merged: `tool/upgrade-image-batch-2` (`4979654`) and `tool/upgrade-image-batch-3` (`5903715`) —
+  the image tools are now `stable`.
+- Merged: `tool/video-foundation` (`14f0fc6`) — the `video` category plus a shared lazy video
+  engine on Mediabunny (MPL-2.0). `mediabunny@^1.61.6` added to `package.json`/`NOTICE`.
+- Merged: `tool/image-strip-metadata-r432a` (`4c3fe6b`) — lossless EXIF/GPS/XMP removal.
+- Merged: `worktree-new-tool-worktree` — 7 new tools (matrix calculator, binary file signature
+  inspector, CSV transpose, markdown table format, Unicode styles, whitespace visualizer). Its
+  `image-resize` was dropped in favour of the `stable` version, and its `markdown-toc` was dropped
+  because the rescued tranche already ships that id — the registry rejects duplicate ids.
+- Fixed (from the unmerged `phase2/verification` branch): the workbench capped file selection
+  (20 files / 100 MB), sanitised ZIP entry names (`../x` no longer escapes the archive, duplicates
+  no longer overwrite each other), made file reads abortable, escaped filenames before they reach
+  `innerHTML`, invalidated stale runs so a cancelled run cannot publish a result after a reset,
+  and released preview object URLs. `tar-create` now writes the ustar `size`/`mtime` fields as
+  12-byte fields with a POSIX base-256 fallback, and `calculator` rejects empty function arguments
+  and non-finite results.
+- Control files: `BACKLOG.md` and `TODOS.md` no longer carry a single `⏳` claim. Everything that
+  landed is ticked with its merge SHA, and the four dead runs are marked `⚠️ run died`.
+- Tooling: `scripts/gen-tools-doc.mjs` is committed and wired to `npm run docs:tools`; CI gained a
+  "Tool docs are current" step, so the inventory cannot drift again. The whole tree is now
+  Prettier-clean (671 files were not) and `npm run format:check` passes.
+
+Checks: `astro check` → 0 errors; `eslint .` → clean; `prettier --check` → clean;
+`vitest run` → 389 files / 3347 tests; `astro build` → 396 pages.
+
+Mistakes noticed:
+
+- **`npm run test` was OOM-killed on this machine**, not logically red: every test file passed
+  (389/389) but vitest reported `Worker exited unexpectedly` and exited 1, because a jsdom
+  environment per file at 12 workers exceeded the 15 GB of RAM. Capping the pool
+  (`maxWorkers: 6`) makes it deterministic. The earlier "main is red" note in
+  `run-20261016-1001-61fc` was this same symptom seen at a smaller catalogue size.
+- **The control files were the only record of what had been done**, and they were four days stale.
+  Six branches (`tool/merge-escape-tools-r432a`, `tool/upgrade-image-batch-2/3`,
+  `tool/video-foundation`, `tool/image-strip-metadata-r432a`, `tool/merge-cache-headers-r68f4`)
+  held finished work that no control file referenced.
+- **Dead branches pile up and collide on bare names.** `tool/merge-cache-headers`,
+  `tool/merge-cache-headers-r68f4`, `tool/merge-conditional-headers`, `tool/pdf-compress`,
+  `tool/qr-scanner-r68f4` and `tool/ml-runtime-foundation` are byte-identical patches to work
+  already on `origin/master`. They should be deleted.
+- **The `phase2/verification` branch is a work of its own**, not a merge candidate: it carries its
+  own `docs/mission/` ledger and was written against a much older tree. Merging it wholesale would
+  have reverted newer work; the security fixes were ported by hand instead.
+
+Ideas:
+
+- `parquet-inspect`, `hex-diff` and `subtitle-convert` are still worth building (see the ideas
+  list above) — `subtitle-convert` in particular is already half-built in the rescued tranche.
