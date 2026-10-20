@@ -27,6 +27,7 @@ export const CATEGORY_IDS = [
   'pdf',
   'archive',
   'audio',
+  'video',
   'misc',
 ] as const;
 
