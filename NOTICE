@@ -10,6 +10,11 @@ visitor's browser.
 - marked             — MIT      — https://github.com/markedjs/marked
 - qrcode-generator   — MIT      — https://github.com/kazuhikoarase/qrcode-generator
 - cronstrue          — MIT      — https://github.com/bradymholt/cronstrue
+- libheif-js         — LGPL-3.0 — https://github.com/catdad-experiments/libheif-js
+
+`libheif-js` is an Emscripten build of libheif (LGPL-3.0). It is pulled into its
+own chunk with a dynamic import and is only ever executed in the browser, never
+on a server, so the LGPL relinking obligation on the rest of the app is avoided.
 
 Build-time only (not shipped to visitors): astro, tailwindcss, typescript,
 vitest, playwright, eslint, prettier.
