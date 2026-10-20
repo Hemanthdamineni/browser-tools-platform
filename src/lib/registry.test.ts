@@ -101,6 +101,16 @@ describe('registry aliases', () => {
     }
   });
 
+  it('keeps the merged escape ids routable as hidden redirects to string-escape', () => {
+    for (const id of ['backslash-escape', 'json-escape', 'unicode-escape']) {
+      const tool = getTool(id);
+      expect(tool, `${id} should still resolve`).toBeTruthy();
+      expect(tool?.meta.hidden).toBe(true);
+      expect(tool?.meta.redirectTo).toBe('string-escape');
+      expect(redirectTarget(tool!.meta)?.meta.id).toBe('string-escape');
+    }
+  });
+
   it('points every alias at a real, non-alias, visible tool', () => {
     expect(ALIAS_TOOLS.length).toBeGreaterThanOrEqual(legacyIds.length);
     for (const alias of ALIAS_TOOLS) {
