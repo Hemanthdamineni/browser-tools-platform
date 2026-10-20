@@ -12,6 +12,7 @@ visitor's browser.
 - qrcode-generator   — MIT      — https://github.com/kazuhikoarase/qrcode-generator
 - jsqr               — Apache-2.0 — https://github.com/cozmo/jsQR
 - cronstrue          — MIT      — https://github.com/bradymholt/cronstrue
+- prettier           — MIT      — https://github.com/prettier/prettier
 - @huggingface/transformers — Apache-2.0 — https://github.com/huggingface/transformers.js
 - onnxruntime-web     — MIT      — https://github.com/microsoft/onnxruntime
 
@@ -20,6 +21,6 @@ models on the reviewed, permissively-licensed allow-list in
 `src/lib/ml/licenses.ts`; they are not redistributed with the site.
 
 Build-time only (not shipped to visitors): astro, tailwindcss, typescript,
-vitest, playwright, eslint, prettier.
+vitest, playwright, eslint.
 
 Full licence texts are in the corresponding node_modules/<pkg>/LICENSE files.

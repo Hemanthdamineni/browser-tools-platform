@@ -187,12 +187,19 @@ const p = meta.id;
       runBtn.setAttribute('aria-busy', 'true');
       if (runLabel) runLabel.textContent = 'Running…';
       updateInputStats(); // clear any "live run paused" hint left by schedule()
+      timing.textContent = ''; // clear the previous timing / progress message
       const started = performance.now();
       try {
         const result = await runToolById<TextRunResult>(
           toolId,
           { text: input?.value ?? '', options: readOptions(optionsRoot) },
-          { signal: controller.signal },
+          {
+            signal: controller.signal,
+            // Tools may announce slow steps (e.g. "Loading formatter…") while busy.
+            onProgress: (_fraction, message) => {
+              if (seq === runSeq && message) timing.textContent = message;
+            },
+          },
         );
         if (seq !== runSeq) return;
         last = result;
@@ -224,6 +231,7 @@ const p = meta.id;
         const e = err as Error & { hint?: string };
         if (e.name === 'AbortError') return;
         resultWrap.hidden = true;
+        timing.textContent = '';
         showError(errorBox, e.message || 'Something went wrong.', e.hint);
       } finally {
         if (seq === runSeq) {
