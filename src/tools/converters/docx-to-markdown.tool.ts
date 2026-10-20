@@ -40,8 +40,6 @@ type ImageMode = 'skip' | 'embed' | 'link';
 
 interface ListBlock {
   type: 'list';
-  /** numId of the source list — a change means a brand-new list. */
-  id: string;
   ordered: boolean;
   level: number;
   text: string;
@@ -513,7 +511,7 @@ function makeParagraph(p: XmlElement, ctx: Ctx): Block | undefined {
   }
   if (numId && numId !== '0') {
     const level = Math.max(0, Math.min(8, Number(ilvl ?? '0') || 0));
-    return { type: 'list', id: numId, ordered: ctx.numbering.isOrdered(numId, ilvl), level, text };
+    return { type: 'list', ordered: ctx.numbering.isOrdered(numId, ilvl), level, text };
   }
 
   if (ctx.styles.isQuote(styleId)) return { type: 'quote', text };

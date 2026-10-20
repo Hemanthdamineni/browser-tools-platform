@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import type { TextRunResult } from '@/lib/types';
+import { DATAMATRIX_MAX_BYTES } from './datamatrix';
 import tool, {
   CODE128_PATTERNS,
   gtinCheckDigit,
@@ -12,6 +13,8 @@ import tool, {
   buildBarcode,
   renderSvg,
   svgDataUri,
+  buildMatrixBarcode,
+  renderMatrixSvg,
 } from './barcode.tool';
 
 const run = (text: string, options: Record<string, string | number | boolean> = {}) =>
@@ -275,12 +278,74 @@ describe('renderSvg / run', () => {
       ['upca', '036000291452'],
       ['itf14', '1540014128876'],
       ['itf', '1234'],
+      ['datamatrix', 'LOT-8842-A'],
     ];
     for (const [symbology, text] of cases) {
       const result = run(text, { symbology });
       expect(result.render, symbology).toBe('image');
       expect(result.output.startsWith('data:image/svg+xml;base64,'), symbology).toBe(true);
     }
+  });
+});
+
+/* --------------------------------- DataMatrix --------------------------------- */
+
+describe('DataMatrix', () => {
+  it('renders a square module grid as a compact path', () => {
+    const result = run('LOT-8842-A', { symbology: 'datamatrix' });
+    expect(result.render).toBe('image');
+    expect(result.filename).toBe('datamatrix-barcode.svg');
+    const svg = decodeSvg(result.output);
+    expect(svg).toContain('<svg');
+    expect(svg).toContain('shape-rendering="crispEdges"');
+    expect(svg).toContain('<path');
+    expect(svg).not.toContain('<text'); // 2D codes carry no human-readable line
+    // square viewBox
+    const w = svg.match(/width="(\d+)"/)![1];
+    expect(svg).toContain(`viewBox="0 0 ${w} ${w}"`);
+  });
+
+  it('reports the symbol size and character count as stats', () => {
+    const result = run('Hello', { symbology: 'datamatrix' });
+    expect(result.stats?.Size).toBe('12 × 12 modules');
+    expect(result.stats?.Symbology).toBe('DataMatrix');
+    expect(result.stats?.Characters).toBe(5);
+  });
+
+  it('scales with module width and honours a transparent background', () => {
+    const side = (moduleWidth: number) => {
+      const svg = decodeSvg(run('Hello', { symbology: 'datamatrix', moduleWidth }).output);
+      return Number(svg.match(/width="(\d+)"/)![1]);
+    };
+    expect(side(4)).toBe(2 * side(2));
+    const svg = decodeSvg(run('Hello', { symbology: 'datamatrix', background: 'none' }).output);
+    expect(svg).not.toContain('#ffffff');
+  });
+
+  it('rejects an empty payload and one that is too large', () => {
+    expect(() => buildMatrixBarcode('   ')).toThrow(/Enter text/i);
+    expect(() => buildMatrixBarcode('A'.repeat(DATAMATRIX_MAX_BYTES + 1))).toThrow(/too much/i);
+  });
+
+  it('round-trips arbitrary Unicode through UTF-8 bytes', () => {
+    const dm = buildMatrixBarcode('日本語 — π≈3.14 😀');
+    expect(dm.size).toBeGreaterThan(10);
+    expect([...dm.matrix].every((v) => v === 0 || v === 1)).toBe(true);
+  });
+
+  it('renderMatrixSvg places a quiet zone around the symbol', () => {
+    const dm = buildMatrixBarcode('A');
+    const svg = renderMatrixSvg(dm, {
+      moduleWidth: 4,
+      height: 80,
+      showText: false,
+      quietZone: 2,
+      color: '#000000',
+      background: '#ffffff',
+    });
+    // 10 modules + 2×2 quiet zone, ×4 px
+    expect(svg).toContain('width="56"');
+    expect(svg).toContain('height="56"');
   });
 });
 

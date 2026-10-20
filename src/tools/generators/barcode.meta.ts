@@ -4,9 +4,9 @@ export const meta: ToolMeta = {
   id: 'barcode',
   name: 'Barcode Generator',
   category: 'generators',
-  summary: 'Create Code 128, Code 39, EAN-13/8, UPC-A and ITF-14 barcodes as crisp, scannable SVG.',
+  summary: 'Create Code 128, Code 39, EAN-13/8, UPC-A, ITF-14 and DataMatrix barcodes as crisp, scannable SVG.',
   description:
-    'Turn text or a product number into a real 1D barcode. Nine symbologies, automatic GTIN check digits, a proper quiet zone and human-readable text — all encoded locally as vector SVG you can print or embed.',
+    'Turn text or a product number into a real barcode. Nine 1D symbologies plus 2D DataMatrix, automatic GTIN check digits, a proper quiet zone and human-readable text — all encoded locally as vector SVG you can print or embed.',
   keywords: [
     'barcode',
     'barcode generator',
@@ -19,6 +19,10 @@ export const meta: ToolMeta = {
     'upc',
     'itf-14',
     'interleaved 2 of 5',
+    'datamatrix',
+    'data matrix',
+    '2d barcode',
+    'ecc200',
     'gtin',
     'sku barcode',
     'svg barcode',
@@ -42,6 +46,7 @@ export const meta: ToolMeta = {
         { value: 'upca', label: 'UPC-A — North America (11 or 12 digits)' },
         { value: 'itf14', label: 'ITF-14 — carton / GTIN-14 (13 or 14 digits)' },
         { value: 'itf', label: 'Interleaved 2 of 5 — even digits' },
+        { value: 'datamatrix', label: 'DataMatrix — 2D, compact square' },
       ],
     },
     {
@@ -68,6 +73,7 @@ export const meta: ToolMeta = {
       label: 'Show human-readable text',
       type: 'boolean',
       default: true,
+      help: 'The printed line under 1D codes. 2D (DataMatrix) codes are machine-read only.',
     },
     {
       key: 'quietZone',
@@ -101,11 +107,20 @@ export const meta: ToolMeta = {
       options: { symbology: 'upca' },
     },
     { title: 'Code 39 — ABC-123', input: 'ABC-123', options: { symbology: 'code39' } },
+    {
+      title: 'DataMatrix — 2D (batch: LOT-8842-A)',
+      input: 'LOT-8842-A',
+      options: { symbology: 'datamatrix' },
+    },
   ],
   faq: [
     {
       q: 'Which symbology should I use?',
-      a: 'Code 128 is the best general-purpose choice — compact and it handles the full ASCII range. Choose EAN-13 / EAN-8 / UPC-A for products sold in stores, Code 39 for older industrial or asset-tag systems, and ITF-14 for shipping cartons.',
+      a: 'Code 128 is the best general-purpose choice — compact and it handles the full ASCII range. Choose EAN-13 / EAN-8 / UPC-A for products sold in stores, Code 39 for older industrial or asset-tag systems, ITF-14 for shipping cartons, and DataMatrix when you need a small 2D symbol that fits a lot of data into a tight square.',
+    },
+    {
+      q: 'What is DataMatrix and when should I use it?',
+      a: 'DataMatrix is a 2D code (ECC200) that packs a lot of data into a small square — common on electronics, medical devices and parts. It handles any text (encoded as UTF-8) and needs no check digit from you. Use it when a 1D barcode would be too wide.',
     },
     {
       q: 'Does it add the check digit?',

@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { describe, it, expect } from 'vitest';
 import { strToU8, zipSync } from 'fflate';
 import tool from './docx-to-markdown.tool';
@@ -368,5 +370,37 @@ describe('docx-to-markdown multiple files', () => {
   it('warns when a document has no text', async () => {
     const result = await convert('');
     expect(result.warnings?.join(' ')).toMatch(/no text/i);
+  });
+});
+
+describe('docx-to-markdown real fixture', () => {
+  // e2e/fixtures/sample.docx is written by scripts/gen-fixtures.mjs with a
+  // dependency-free STORE-method ZIP writer, so this also guards that fixture.
+  const bytes = new Uint8Array(
+    readFileSync(resolve(process.cwd(), 'e2e/fixtures/sample.docx')),
+  );
+
+  it('converts the generated sample document end to end', async () => {
+    const result = await tool.run({
+      files: [new File([bytes as unknown as BlobPart], 'sample.docx')],
+      options: {},
+    });
+    expect(result.report?.output).toBe(
+      [
+        '# Fixture Document',
+        '',
+        'Hello **world**.',
+        '',
+        '- Bullet item',
+        '1. Numbered item',
+        '',
+        '| Name | Value |',
+        '| --- | --- |',
+        '| alpha | 1 |',
+        '',
+        '[Toolbench](https://toolbench.example/)',
+      ].join('\n'),
+    );
+    expect(result.outputs[0]?.filename).toBe('sample.md');
   });
 });

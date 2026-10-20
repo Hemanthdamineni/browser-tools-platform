@@ -7,6 +7,7 @@ for (const [id, files] of [
   ['image-resize', ['tiny.png']],
   ['audio-info', ['tone.wav']],
   ['pdf-metadata', ['one-page.pdf']],
+  ['docx-to-markdown', ['sample.docx']],
 ] as const) {
   test(`${id} processes a local fixture without network requests`, async ({ page, baseURL }) => {
     const externalRequests: string[] = [];

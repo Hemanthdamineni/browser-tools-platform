@@ -26,7 +26,8 @@ Date/time: unix timestamp convert, timezone convert, duration/diff, age, week
 number, cron → human.
 Numbers: unit converter (length/mass/temp/data/…), percentage, roman numerals,
 number to words, GCD/LCM/primes, statistics, random number/dice/picker.
-Generators: UUID ✔, NanoID, ULID, QR code (text/URL/wifi/vcard), lorem, fake data,
+Generators: UUID ✔, NanoID, ULID, QR code (text/URL/wifi/vcard), barcode
+(Code 128/39, EAN-13/8, UPC-A, ITF-14, DataMatrix), lorem, fake data,
 vCard, iCal, UTM link builder.
 Network: IPv4/IPv6 validate + expand, CIDR / subnet calculator, IP ↔ integer,
 user-agent parser, MAC format.
@@ -51,7 +52,7 @@ programmer calculator, tip/split, BMI, aspect-ratio, bandwidth/time, data-size.
 - Real image codecs: AVIF encode, MozJPEG, OxiPNG (WASM) for better ratios than Canvas.
 - Video: trim / convert / to-GIF. `ffmpeg.wasm` licence needs legal review;
   prefer WebCodecs where available. Screen + webcam recording ship now.
-- Barcodes (`jsbarcode`), QR **reading** where `BarcodeDetector` is missing (`jsQR`).
+- QR **reading** where `BarcodeDetector` is missing (`jsQR`).
 - Spreadsheet (`xlsx`) for CSV ↔ XLSX.
 - Multi-GB streaming hashing / compression (incremental-hash lib, OPFS).
 - `zxcvbn` password-strength (heavy) — a DIY entropy estimate ships now.

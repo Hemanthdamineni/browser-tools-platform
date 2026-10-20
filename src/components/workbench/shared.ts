@@ -49,17 +49,79 @@ export function clearError(box: HTMLElement): void {
   box.textContent = '';
 }
 
+/**
+ * Rasterise an image data URL to a PNG blob via an offscreen `<img>` + `<canvas>`.
+ * SVG must be drawn this way — `createImageBitmap` rejects SVG blobs in Chromium.
+ */
+async function imageToPngBlob(url: string, scale = 2): Promise<Blob> {
+  const image = new Image();
+  image.src = url;
+  await image.decode();
+  const w = image.naturalWidth || image.width;
+  const h = image.naturalHeight || image.height;
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.max(1, Math.round(w * scale));
+  canvas.height = Math.max(1, Math.round(h * scale));
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('Canvas 2D context is unavailable.');
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+  return await new Promise<Blob>((resolve, reject) =>
+    canvas.toBlob(
+      (b) => (b ? resolve(b) : reject(new Error('PNG encoding failed.'))),
+      'image/png',
+    ),
+  );
+}
+
 /** Render a TextRunResult into `host`. Every branch is XSS-safe. */
 export function renderTextResult(host: HTMLElement, result: TextRunResult): void {
   const kind = result.render ?? 'text';
   host.innerHTML = '';
 
   if (kind === 'image') {
+    const wrap = document.createElement('div');
+    wrap.className = 'flex flex-col items-start gap-3';
     const img = document.createElement('img');
     img.src = result.output;
     img.alt = 'Generated output';
-    img.className = 'max-h-[420px] w-auto rounded-lg border'; img.style.backgroundColor = '#fff';
-    host.appendChild(img);
+    img.className = 'max-h-[420px] w-auto rounded-lg border';
+    img.style.backgroundColor = '#fff';
+    wrap.appendChild(img);
+
+    // Vector results get an on-the-spot PNG rasteriser; the toolbar Download
+    // still hands over the original SVG.
+    if (result.output.startsWith('data:image/svg+xml')) {
+      const base = (result.filename ?? 'image').replace(/\.svg$/i, '');
+      const png = document.createElement('button');
+      png.type = 'button';
+      png.className = 'btn btn-ghost !py-1 !px-2 text-xs';
+      png.textContent = 'Download PNG';
+      png.addEventListener('click', () => {
+        void (async () => {
+          const label = png.textContent;
+          png.disabled = true;
+          png.textContent = 'Rendering…';
+          try {
+            const blob = await imageToPngBlob(result.output);
+            const href = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = href;
+            a.download = `${base}.png`;
+            a.click();
+            setTimeout(() => URL.revokeObjectURL(href), 1000);
+          } catch {
+            (window as unknown as { toast?: (m: string) => void }).toast?.('PNG export failed');
+          } finally {
+            png.disabled = false;
+            png.textContent = label;
+          }
+        })();
+      });
+      wrap.appendChild(png);
+    }
+
+    host.appendChild(wrap);
     return;
   }
 

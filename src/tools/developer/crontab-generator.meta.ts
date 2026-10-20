@@ -1,0 +1,136 @@
+import type { ToolMeta } from '@/lib/types';
+
+export const meta: ToolMeta = {
+  id: 'crontab-generator',
+  name: 'Crontab Generator',
+  category: 'developer',
+  summary:
+    'Build a cron expression from presets or fields and get the crontab line plus a plain-English summary.',
+  description:
+    'Compose a cron schedule without memorizing the syntax: pick a preset (every minute, every 5/15 minutes, hourly, daily, weekly, monthly) or fill the five fields by hand — minute, hour, day-of-month, month, day-of-week — with ranges, steps, lists and weekday/month names supported. The tool validates every field, renders the crontab line (optionally with a command), and explains the schedule in plain English. Pair with cron-parser for next-run times.',
+  keywords: [
+    'cron generator',
+    'crontab line generator',
+    'cron expression builder',
+    'schedule crontab',
+    'cron syntax help',
+    'every minute cron',
+    'cron job generator',
+  ],
+  privacy: { processing: 'on-device', network: 'none', offline: true },
+  input: 'text',
+  options: [
+    {
+      key: 'preset',
+      label: 'Preset',
+      type: 'select',
+      choices: [
+        { value: 'every-minute', label: 'Every minute' },
+        { value: 'every-5-minutes', label: 'Every 5 minutes' },
+        { value: 'every-15-minutes', label: 'Every 15 minutes' },
+        { value: 'hourly', label: 'Hourly' },
+        { value: 'daily', label: 'Daily' },
+        { value: 'weekly', label: 'Weekly' },
+        { value: 'monthly', label: 'Monthly' },
+        { value: 'custom', label: 'Custom fields' },
+      ],
+      default: 'every-minute',
+    },
+    {
+      key: 'hour',
+      label: 'Hour (0–23)',
+      type: 'number',
+      default: 9,
+      min: 0,
+      max: 23,
+    },
+    {
+      key: 'minute',
+      label: 'Minute (0–59)',
+      type: 'number',
+      default: 0,
+      min: 0,
+      max: 59,
+    },
+    {
+      key: 'dayOfWeek',
+      label: 'Day of week (0=Sun … 6=Sat)',
+      type: 'select',
+      choices: ['0', '1', '2', '3', '4', '5', '6'].map((v) => ({ value: v, label: v })),
+      default: '1',
+    },
+    {
+      key: 'dayOfMonth',
+      label: 'Day of month (1–31)',
+      type: 'number',
+      default: 1,
+      min: 1,
+      max: 31,
+    },
+    {
+      key: 'minuteField',
+      label: 'Custom minute field',
+      type: 'text',
+      default: '',
+      placeholder: '*/15',
+    },
+    {
+      key: 'hourField',
+      label: 'Custom hour field',
+      type: 'text',
+      default: '',
+      placeholder: '9-17',
+    },
+    {
+      key: 'dayOfMonthField',
+      label: 'Custom day-of-month field',
+      type: 'text',
+      default: '',
+      placeholder: '1,15',
+    },
+    {
+      key: 'monthField',
+      label: 'Custom month field',
+      type: 'text',
+      default: '',
+      placeholder: 'JAN-AUG',
+    },
+    {
+      key: 'dayOfWeekField',
+      label: 'Custom day-of-week field',
+      type: 'text',
+      default: '',
+      placeholder: 'MON-FRI',
+    },
+    {
+      key: 'command',
+      label: 'Command (optional, appended)',
+      type: 'text',
+      default: '',
+      placeholder: '/usr/bin/example',
+    },
+  ],
+  examples: [
+    {
+      title: 'Daily at 09:00',
+      input: '',
+      options: { preset: 'daily', hour: 9, minute: 0 },
+    },
+  ],
+  faq: [
+    {
+      q: 'What do the five fields mean?',
+      a: 'minute hour day-of-month month day-of-week. Steps, ranges and lists work: */5, 9-17, 1,15, MON-FRI, JAN. The tool validates them and flags bad input.',
+    },
+    {
+      q: 'How do "every minute" and "hourly" differ?',
+      a: 'Every minute is * * * * *; every 5 minutes is */5 * * * *; hourly at minute m is m * * * *. Presets set these for you, and custom lets you tweak any field directly.',
+    },
+    {
+      q: 'Why show a summary?',
+      a: 'Cron syntax is easy to tie in knots. The plain-English summary confirms what you actually scheduled before you save it, complementing cron-parser for next-run times.',
+    },
+  ],
+  related: ['cron-parser', 'recurrence-dates', 'timestamp', 'timezone-convert'],
+  status: 'stable',
+};
