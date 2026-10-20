@@ -25,7 +25,7 @@ export const meta: ToolMeta = {
     { q: 'What does * mean for PUT?', a: 'It commonly means proceed only when no current representation exists, supporting create-if-absent workflows.' },
     { q: 'Are weak tags allowed?', a: 'Yes. If-None-Match uses weak comparison, so weak tags can participate in cache validation.' },
   ],
-  related: ['etag', 'if-match', 'cache-control'],
+  related: ['conditional-request-headers', 'cache-headers'],
   hidden: true,
   redirectTo: 'conditional-request-headers',
   status: 'stable',

@@ -19,6 +19,6 @@ export const meta: ToolMeta = {
     { q: 'How does fetch metadata help security?', a: 'Because these headers are set by the browser and describe intent, servers can use them as a defense-in-depth signal against cross-site request forgery.' },
     { q: 'Can an attacker forge them?', a: 'They cannot be set by scripts due to their forbidden-header status, which is what makes them a trustworthy signal.' },
   ],
-  related: ['security-headers', 'access-control-allow-origin', 'http-status'],
+  related: ['security-headers', 'cors-headers', 'http-status'],
   status: 'stable',
 };

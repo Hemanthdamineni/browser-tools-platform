@@ -25,7 +25,7 @@ export const meta: ToolMeta = {
     { q: 'Which parameters are defined?', a: 'ttl, hit-or-miss, stale, collapsed, stored, partial, waiting, and fwd (with its reason sub-parameter). Others behavior is implementation-defined.' },
     { q: 'How does it differ from Cache-Control?', a: 'Cache-Control is a request from the origin for the cache. Cache-Status records what the cache actually did. A debug header typically appended by the cache itself.' },
   ],
-  related: ['cache-control', 'cdn-cache-control', 'surrogate-control'],
+  related: ['cache-headers'],
   hidden: true,
   redirectTo: 'cache-headers',
   status: 'stable',

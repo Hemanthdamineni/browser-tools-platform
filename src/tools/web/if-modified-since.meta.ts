@@ -22,7 +22,7 @@ export const meta: ToolMeta = {
     { q: 'What date format should I send?', a: 'Use IMF-fixdate, for example Wed, 21 Oct 2015 07:28:00 GMT. Servers must accept older formats but send the modern form.' },
     { q: 'Is this as precise as an entity tag?', a: 'No. HTTP dates have one-second granularity and can miss changes made within the same second; ETags are generally more reliable.' },
   ],
-  related: ['if-none-match', 'etag', 'cache-control'],
+  related: ['conditional-request-headers', 'cache-headers'],
   hidden: true,
   redirectTo: 'conditional-request-headers',
   status: 'stable',

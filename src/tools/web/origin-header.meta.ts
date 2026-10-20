@@ -19,6 +19,6 @@ export const meta: ToolMeta = {
     { q: 'Why is the value null?', a: 'A null Origin indicates a sandboxed or downgraded context (file://, sandboxed iframe), which servers often reject or treat cautiously.' },
     { q: 'How does Origin help CSRF defense?', a: 'Comparing the Origin against an allowlist rejects requests from foreign websites. It complements same-site cookies and CSRF tokens.' },
   ],
-  related: ['access-control-allow-origin', 'sec-fetch-inspector', 'basic-auth'],
+  related: ['cors-headers', 'sec-fetch-inspector', 'basic-auth'],
   status: 'stable',
 };

@@ -22,6 +22,6 @@ export const meta: ToolMeta = {
     { q: 'Is Critical-CH an opt-in?', a: 'Accept-CH advertises requested hints; Critical-CH marks a subset as necessary. Browser support and retry behavior vary.' },
     { q: 'Can it affect caching?', a: 'Yes. Responses that vary by hints need matching Vary and cache-key policy to avoid incorrect variants.' },
   ],
-  related: ['accept-ch', 'vary-header', 'permissions-policy'],
+  related: ['accept-ch', 'cache-headers', 'permissions-policy'],
   status: 'stable',
 };

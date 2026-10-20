@@ -22,7 +22,7 @@ export const meta: ToolMeta = {
     { q: 'Why are weak ETags rejected?', a: 'If-Range requires a strong validator because partial bytes must correspond to the exact representation.' },
     { q: 'Does this create a Range header?', a: 'No. It validates only the If-Range validator; use the HTTP Range tool to build the byte range separately.' },
   ],
-  related: ['http-range', 'etag', 'if-modified-since'],
+  related: ['http-range', 'conditional-request-headers'],
   hidden: true,
   redirectTo: 'conditional-request-headers',
   status: 'stable',

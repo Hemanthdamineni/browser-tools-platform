@@ -25,6 +25,6 @@ export const meta: ToolMeta = {
     { q: 'Is dur required?', a: 'No. A metric can be a simple milestone such as cache; a duration is optional.' },
     { q: 'Should sensitive data go in descriptions?', a: 'No. Header values can be observable to clients, logs, and intermediaries. Avoid secrets, user data, and internal details.' },
   ],
-  related: ['http-status', 'cache-control', 'vary-header'],
+  related: ['http-status', 'cache-headers'],
   status: 'stable',
 };

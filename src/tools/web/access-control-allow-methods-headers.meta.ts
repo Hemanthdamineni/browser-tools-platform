@@ -23,7 +23,7 @@ export const meta: ToolMeta = {
     { q: 'What is a wildcard grant?', a: 'A * value answers that any of the simple methods or safe headers are allowed, but it cannot be combined with credentials in some cases.' },
     { q: 'What counts as a simple method?', a: 'GET, HEAD, and POST are simple; most others (PUT, DELETE, PATCH) trigger a preflight.' },
   ],
-  related: ['access-control-allow-origin', 'security-headers', 'http-status'],
+  related: ['cors-headers', 'security-headers', 'http-status'],
   hidden: true,
   redirectTo: 'cors-headers',
   status: 'stable',

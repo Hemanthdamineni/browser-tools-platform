@@ -22,7 +22,7 @@ export const meta: ToolMeta = {
     { q: 'Is it as precise as an ETag?', a: 'No. Dates have one-second granularity and can miss rapid updates; entity tags are usually stronger validators.' },
     { q: 'Can the date be in the future?', a: 'It should normally reflect the representation’s modification time, so future values often indicate clock skew or bad source metadata.' },
   ],
-  related: ['if-modified-since', 'date-header', 'etag'],
+  related: ['conditional-request-headers', 'date-header'],
   hidden: true,
   redirectTo: 'conditional-request-headers',
   status: 'stable',

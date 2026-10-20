@@ -5,6 +5,7 @@
  *   - e2e/fixtures/tiny.png        — 2×2 PNG (hand-built PNG with a zlib stream)
  *   - e2e/fixtures/tone.wav        — 0.1s mono 440 Hz sine WAV
  *   - e2e/fixtures/one-page.pdf    — 1-page PDF (pdf-lib not required: minimal valid PDF)
+ *   - e2e/fixtures/sample.docx     — small Word document (zip of XML, STORE-method ZIP)
  *
  * Run: node scripts/gen-fixtures.mjs
  */
@@ -119,12 +120,126 @@ function buildPdf() {
 
 const pdf = buildPdf();
 
+/* ------------------------------ sample DOCX ----------------------------- */
+
+/** Minimal STORE-method ZIP writer (no dependency) so the .docx fixture is real. */
+function buildZip(entries) {
+  const chunks = [];
+  const central = [];
+  let offset = 0;
+  const dosTime = 0;
+  const dosDate = (1 << 5) | 1; // 1980-01-01
+  for (const { name, data } of entries) {
+    const nameBuf = Buffer.from(name, 'utf8');
+    const crc = zlibCrc32(data);
+    const local = Buffer.alloc(30);
+    local.writeUInt32LE(0x04034b50, 0);
+    local.writeUInt16LE(20, 4);
+    local.writeUInt16LE(0, 6);
+    local.writeUInt16LE(0, 8); // stored
+    local.writeUInt16LE(dosTime, 10);
+    local.writeUInt16LE(dosDate, 12);
+    local.writeUInt32LE(crc, 14);
+    local.writeUInt32LE(data.length, 18);
+    local.writeUInt32LE(data.length, 22);
+    local.writeUInt16LE(nameBuf.length, 26);
+    local.writeUInt16LE(0, 28);
+    chunks.push(local, nameBuf, data);
+
+    const cd = Buffer.alloc(46);
+    cd.writeUInt32LE(0x02014b50, 0);
+    cd.writeUInt16LE(20, 4);
+    cd.writeUInt16LE(20, 6);
+    cd.writeUInt16LE(0, 8);
+    cd.writeUInt16LE(0, 10);
+    cd.writeUInt16LE(dosTime, 12);
+    cd.writeUInt16LE(dosDate, 14);
+    cd.writeUInt32LE(crc, 16);
+    cd.writeUInt32LE(data.length, 20);
+    cd.writeUInt32LE(data.length, 24);
+    cd.writeUInt16LE(nameBuf.length, 28);
+    cd.writeUInt16LE(0, 30);
+    cd.writeUInt16LE(0, 32);
+    cd.writeUInt16LE(0, 34);
+    cd.writeUInt16LE(0, 36);
+    cd.writeUInt32LE(0, 38);
+    cd.writeUInt32LE(offset, 42);
+    central.push(cd, nameBuf);
+    offset += local.length + nameBuf.length + data.length;
+  }
+  const cdBuf = Buffer.concat(central);
+  const eocd = Buffer.alloc(22);
+  eocd.writeUInt32LE(0x06054b50, 0);
+  eocd.writeUInt16LE(0, 4);
+  eocd.writeUInt16LE(0, 6);
+  eocd.writeUInt16LE(entries.length, 8);
+  eocd.writeUInt16LE(entries.length, 10);
+  eocd.writeUInt32LE(cdBuf.length, 12);
+  eocd.writeUInt32LE(offset, 16);
+  eocd.writeUInt16LE(0, 20);
+  return Buffer.concat([...chunks, cdBuf, eocd]);
+}
+
+const W = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
+const R = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships';
+
+function buildDocx() {
+  const parts = {
+    '[Content_Types].xml':
+      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+      '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">' +
+      '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>' +
+      '<Default Extension="xml" ContentType="application/xml"/>' +
+      '<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>' +
+      '</Types>',
+    '_rels/.rels':
+      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+      '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+      '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>' +
+      '</Relationships>',
+    'word/_rels/document.xml.rels':
+      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+      '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+      '<Relationship Id="rId9" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" Target="https://toolbench.example/" TargetMode="External"/>' +
+      '</Relationships>',
+    'word/styles.xml':
+      `<w:styles xmlns:w="${W}">` +
+      '<w:style w:type="paragraph" w:styleId="Heading1"><w:name w:val="heading 1"/><w:pPr><w:outlineLvl w:val="0"/></w:pPr></w:style>' +
+      '<w:style w:type="paragraph" w:styleId="Quote"><w:name w:val="Quote"/></w:style>' +
+      '</w:styles>',
+    'word/numbering.xml':
+      `<w:numbering xmlns:w="${W}">` +
+      '<w:abstractNum w:abstractNumId="0"><w:lvl w:ilvl="0"><w:numFmt w:val="decimal"/></w:lvl></w:abstractNum>' +
+      '<w:abstractNum w:abstractNumId="1"><w:lvl w:ilvl="0"><w:numFmt w:val="bullet"/></w:lvl></w:abstractNum>' +
+      '<w:num w:numId="1"><w:abstractNumId w:val="0"/></w:num>' +
+      '<w:num w:numId="2"><w:abstractNumId w:val="1"/></w:num>' +
+      '</w:numbering>',
+    'word/document.xml':
+      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+      `<w:document xmlns:w="${W}" xmlns:r="${R}"><w:body>` +
+      '<w:p><w:pPr><w:pStyle w:val="Heading1"/></w:pPr><w:r><w:t>Fixture Document</w:t></w:r></w:p>' +
+      '<w:p><w:r><w:t xml:space="preserve">Hello </w:t></w:r><w:r><w:rPr><w:b/></w:rPr><w:t>world</w:t></w:r><w:r><w:t>.</w:t></w:r></w:p>' +
+      '<w:p><w:pPr><w:numPr><w:ilvl w:val="0"/><w:numId w:val="2"/></w:numPr></w:pPr><w:r><w:t>Bullet item</w:t></w:r></w:p>' +
+      '<w:p><w:pPr><w:numPr><w:ilvl w:val="0"/><w:numId w:val="1"/></w:numPr></w:pPr><w:r><w:t>Numbered item</w:t></w:r></w:p>' +
+      '<w:tbl><w:tr><w:tc><w:p><w:r><w:t>Name</w:t></w:r></w:p></w:tc><w:tc><w:p><w:r><w:t>Value</w:t></w:r></w:p></w:tc></w:tr>' +
+      '<w:tr><w:tc><w:p><w:r><w:t>alpha</w:t></w:r></w:p></w:tc><w:tc><w:p><w:r><w:t>1</w:t></w:r></w:p></w:tc></w:tr></w:tbl>' +
+      `<w:p><w:hyperlink r:id="rId9"><w:r><w:t>Toolbench</w:t></w:r></w:hyperlink></w:p>` +
+      '</w:body></w:document>',
+  };
+  return buildZip(
+    Object.entries(parts).map(([name, body]) => ({ name, data: Buffer.from(body, 'utf8') })),
+  );
+}
+
+const docx = buildDocx();
+
 /* ---------------------------------- write --------------------------------- */
 
 mkdirSync(outDir, { recursive: true });
 writeFileSync(join(outDir, 'tiny.png'), png);
 writeFileSync(join(outDir, 'tone.wav'), wav);
 writeFileSync(join(outDir, 'one-page.pdf'), pdf);
+writeFileSync(join(outDir, 'sample.docx'), docx);
 console.log(
-  `wrote ${outDir}: tiny.png (${png.length}B), tone.wav (${wav.length}B), one-page.pdf (${pdf.length}B)`,
+  `wrote ${outDir}: tiny.png (${png.length}B), tone.wav (${wav.length}B), one-page.pdf (${pdf.length}B), sample.docx (${docx.length}B)`,
 );

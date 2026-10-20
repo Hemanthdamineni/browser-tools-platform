@@ -22,7 +22,7 @@ export const meta: ToolMeta = {
     { q: 'Does the wildcard work with credentials?', a: 'No. When Access-Control-Allow-Credentials: true is set, the value cannot be a wildcard and must name specific headers.' },
     { q: 'How do I read custom headers cross-origin?', a: 'Add each custom header name here so the browser lets scripts access it from a cross-origin fetch.' },
   ],
-  related: ['access-control-allow-origin', 'access-control-allow-methods-headers', 'security-headers'],
+  related: ['cors-headers', 'security-headers'],
   hidden: true,
   redirectTo: 'cors-headers',
   status: 'stable',

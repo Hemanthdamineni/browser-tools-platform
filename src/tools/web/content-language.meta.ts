@@ -22,6 +22,6 @@ export const meta: ToolMeta = {
     { q: 'What does * mean?', a: 'The wildcard can indicate that all languages are intended or that no specific language was selected, depending on application context.' },
     { q: 'Does this fully implement BCP 47?', a: 'It validates common language, script, region, variant, extension, and private-use shapes. It does not maintain the complete IANA language-subtag registry.' },
   ],
-  related: ['http-encoding', 'vary-header', 'meta-tags'],
+  related: ['http-encoding', 'cache-headers', 'meta-tags'],
   status: 'stable',
 };

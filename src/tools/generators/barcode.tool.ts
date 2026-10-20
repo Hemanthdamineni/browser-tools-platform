@@ -2,6 +2,7 @@ import type { TextToolModule, TextRunInput, TextRunResult } from '@/lib/types';
 import { ToolError } from '@/lib/types';
 import { resolveOptions } from '@/lib/options';
 import { clamp } from '@/lib/format';
+import { encodeDataMatrix, DATAMATRIX_MAX_BYTES } from './datamatrix';
 import { meta } from './barcode.meta';
 
 /* -------------------------------------------------------------------------- */
@@ -299,7 +300,11 @@ const SYMBOLOGY_NAMES: Record<string, string> = {
   upca: 'UPC-A',
   itf14: 'ITF-14',
   itf: 'Interleaved 2 of 5',
+  datamatrix: 'DataMatrix',
 };
+
+/** 2D symbologies rendered as a square module grid rather than bars. */
+const MATRIX_SYMBOLOGIES = new Set(['datamatrix']);
 
 const NUMERIC_HINT = 'Digits 0–9 only — spaces and dashes are ignored.';
 
@@ -439,6 +444,45 @@ export function buildBarcode(symbology: string, raw: string): EncodedBarcode {
 }
 
 /* -------------------------------------------------------------------------- */
+/*  DataMatrix (2D)                                                           */
+/* -------------------------------------------------------------------------- */
+
+export interface MatrixBarcode {
+  symbology: 'datamatrix';
+  /** Symbol edge length in modules. */
+  size: number;
+  /** Row-major modules, `1` = dark. Length is `size * size`. */
+  matrix: Uint8Array;
+  /** The text a human would read off the symbol. */
+  humanText: string;
+  /** Whether the payload is ASCII-safe (affects the hint shown to the reader). */
+  ascii: boolean;
+}
+
+/** Validate and encode `raw` as a DataMatrix. Throws ToolError on bad input. */
+export function buildMatrixBarcode(raw: string): MatrixBarcode {
+  const text = raw.trim();
+  if (!text)
+    throw new ToolError('Enter text to encode.', 'A DataMatrix symbol needs at least one character.');
+  let dm;
+  try {
+    dm = encodeDataMatrix(text);
+  } catch {
+    throw new ToolError(
+      `That is ${text.length} characters — too much for a DataMatrix.`,
+      `A square DataMatrix holds up to ${DATAMATRIX_MAX_BYTES} bytes (non-ASCII characters use several bytes each). Shorten the text or use a QR code.`,
+    );
+  }
+  return {
+    symbology: 'datamatrix',
+    size: dm.size,
+    matrix: dm.matrix,
+    humanText: text,
+    ascii: /^[\x20-\x7e]*$/.test(text),
+  };
+}
+
+/* -------------------------------------------------------------------------- */
 /*  SVG rendering                                                             */
 /* -------------------------------------------------------------------------- */
 
@@ -544,6 +588,43 @@ export function renderSvg(encoded: EncodedBarcode, opts: RenderOptions): string 
   );
 }
 
+/** Render a DataMatrix as a standalone SVG document string. */
+export function renderMatrixSvg(encoded: MatrixBarcode, opts: RenderOptions): string {
+  const mw = clamp(Math.round(opts.moduleWidth), 1, 24);
+  const quiet = Math.max(clamp(Math.round(opts.quietZone), 0, 32), 1);
+  const { size, matrix, humanText } = encoded;
+
+  // Merge horizontal runs into a single path — far smaller than one rect each.
+  let d = '';
+  for (let r = 0; r < size; r++) {
+    let c = 0;
+    while (c < size) {
+      if (matrix[r * size + c] !== 1) {
+        c++;
+        continue;
+      }
+      let e = c;
+      while (e < size && matrix[r * size + e] === 1) e++;
+      d += `M${(quiet + c) * mw} ${(quiet + r) * mw}h${(e - c) * mw}v${mw}h${-(e - c) * mw}z`;
+      c = e;
+    }
+  }
+
+  const side = (size + 2 * quiet) * mw;
+  const bg = isTransparent(opts.background)
+    ? ''
+    : `<rect width="${side}" height="${side}" fill="${opts.background}"/>`;
+
+  return (
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${side}" height="${side}" ` +
+    `viewBox="0 0 ${side} ${side}" shape-rendering="crispEdges" role="img" ` +
+    `aria-label="${escapeXml(`DataMatrix barcode for ${humanText}`)}">` +
+    bg +
+    `<path fill="${opts.color}" d="${d}"/>` +
+    `</svg>`
+  );
+}
+
 /** Base64-encode an (ASCII) SVG string as an `image/svg+xml` data URI. */
 export function svgDataUri(svg: string): string {
   const bytes = new TextEncoder().encode(svg);
@@ -575,15 +656,35 @@ function run(input: TextRunInput): TextRunResult {
       'Enter the background as a hex colour, or "none" for transparent.',
     );
 
-  const encoded = buildBarcode(symbology, input.text);
-  const svg = renderSvg(encoded, {
+  const renderOpts = {
     moduleWidth: Number(o.moduleWidth ?? 2),
     height: Number(o.height ?? 80),
     showText: Boolean(o.showText ?? true),
     quietZone: Number(o.quietZone ?? 10),
     color,
     background,
-  });
+  };
+
+  if (MATRIX_SYMBOLOGIES.has(symbology)) {
+    const dm = buildMatrixBarcode(input.text);
+    const svg = renderMatrixSvg(dm, renderOpts);
+    return {
+      output: svgDataUri(svg),
+      render: 'image',
+      filename: `${dm.symbology}-barcode.svg`,
+      stats: {
+        Symbology: SYMBOLOGY_NAMES[dm.symbology]!,
+        Size: `${dm.size} × ${dm.size} modules`,
+        Characters: dm.humanText.length,
+      },
+      notes: [
+        'Print at 100% or larger — 2D codes need a clear quiet zone and solid, unblurred modules.',
+      ],
+    };
+  }
+
+  const encoded = buildBarcode(symbology, input.text);
+  const svg = renderSvg(encoded, renderOpts);
 
   const name = SYMBOLOGY_NAMES[encoded.symbology]!;
   return {

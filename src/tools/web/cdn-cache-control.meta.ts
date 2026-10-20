@@ -22,7 +22,7 @@ export const meta: ToolMeta = {
     { q: 'Does a CDN have to honor it?', a: 'Only if the CDN supports the field and its documented precedence rules. Treat it as provider-specific behavior, not a universal browser contract.' },
     { q: 'Are stale responses always safe?', a: 'No. Stale serving can expose outdated or user-specific data; pair policies with correct cache keys and privacy controls.' },
   ],
-  related: ['cache-control', 'surrogate-control', 'expires-header'],
+  related: ['cache-headers'],
   hidden: true,
   redirectTo: 'cache-headers',
   status: 'stable',

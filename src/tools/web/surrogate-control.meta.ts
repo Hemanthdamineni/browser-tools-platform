@@ -22,7 +22,7 @@ export const meta: ToolMeta = {
     { q: 'What does content mean?', a: 'The content directive can identify surrogate processing technologies, such as ESI, supported by an intermediary.' },
     { q: 'Is this a universal CDN standard?', a: 'Support and precedence vary by proxy or CDN. Verify the target provider documentation before relying on it.' },
   ],
-  related: ['cdn-cache-control', 'cache-control', 'content-type'],
+  related: ['cache-headers', 'content-type'],
   hidden: true,
   redirectTo: 'cache-headers',
   status: 'stable',

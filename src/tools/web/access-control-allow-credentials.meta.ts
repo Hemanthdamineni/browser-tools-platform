@@ -22,7 +22,7 @@ export const meta: ToolMeta = {
     { q: 'Can it combine with a wildcard?', a: 'No. When credentials are allowed, Access-Control-Allow-Origin must name the specific origin and cannot be *.', },
     { q: 'Is false a valid value?', a: 'The CORS spec defines only true; a false value is non-standard and generally treated as absent.', },
   ],
-  related: ['access-control-allow-origin', 'access-control-expose-headers', 'security-headers'],
+  related: ['cors-headers', 'security-headers'],
   hidden: true,
   redirectTo: 'cors-headers',
   status: 'stable',
