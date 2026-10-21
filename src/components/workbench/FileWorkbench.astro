@@ -109,6 +109,9 @@ const p = meta.id;
   import type { FileRunResult } from '@/lib/types';
 
   document.querySelectorAll<HTMLElement>('[data-file-workbench]').forEach((root) => {
+    // The dedicated signing panel reuses the `data-file-workbench` marker (the
+    // shared e2e checks look for it) but mounts itself — skip it here.
+    if (root.dataset.signatureWorkbench) return;
     const toolId = root.dataset.toolId!;
     const accept = root.dataset.accept || undefined;
     const multiple = root.dataset.multiple === 'true';

@@ -126,6 +126,13 @@ export interface ToolMeta {
    * that can capture from `getUserMedia` as well as accept files.
    */
   camera?: boolean;
+  /**
+   * Use a dedicated workbench instead of the generic file/text workbench.
+   * `'signature'` renders the signing panel: choose a PDF, capture a signature
+   * (draw / type / upload), preview the page and place the mark. It is a flow
+   * the generic option form cannot express.
+   */
+  panel?: 'signature';
   options?: ToolOption[];
   /** Runnable examples — one click fills the workbench. */
   examples?: { title: string; input?: string; options?: OptionValues }[];
