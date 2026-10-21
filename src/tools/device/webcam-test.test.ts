@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ToolError } from '@/lib/types';
+import { ToolError, type OptionValues } from '@/lib/types';
 import tool from './webcam-test.tool';
 import { meta } from './webcam-test.meta';
 import {
@@ -33,7 +33,7 @@ type Result = {
   warnings?: string[];
 };
 
-const run = (text: string, options: Record<string, unknown> = {}): Result =>
+const run = (text: string, options: OptionValues = {}): Result =>
   tool.run({ text, options }) as Result;
 
 const rowsOf = (result: Result): string[][] => JSON.parse(result.output).rows;

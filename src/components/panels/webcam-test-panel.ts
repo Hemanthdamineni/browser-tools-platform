@@ -92,31 +92,33 @@ function describeFailure(error: unknown): CameraFailure {
 export function mountWebcamTestPanel(root: HTMLElement): void {
   const toolId = root.dataset.toolId || 'webcam-test';
 
-  const statusEl = root.querySelector<HTMLElement>('[data-wt-status]');
-  const errorEl = root.querySelector<HTMLElement>('[data-wt-error]');
-  const video = root.querySelector<HTMLVideoElement>('[data-wt-video]');
-  const stage = root.querySelector<HTMLElement>('[data-wt-stage]');
-  const placeholder = root.querySelector<HTMLElement>('[data-wt-placeholder]');
-  const startBtn = root.querySelector<HTMLButtonElement>('[data-wt-start]');
-  const stopBtn = root.querySelector<HTMLButtonElement>('[data-wt-stop]');
-  const snapshotBtn = root.querySelector<HTMLButtonElement>('[data-wt-snapshot]');
-  const deviceSelect = root.querySelector<HTMLSelectElement>('[data-wt-device]');
-  const deviceNote = root.querySelector<HTMLElement>('[data-wt-device-note]');
-  const resolutionSelect = root.querySelector<HTMLSelectElement>('[data-wt-resolution]');
-  const audioToggle = root.querySelector<HTMLInputElement>('[data-wt-audio]');
-  const settingsToggle = root.querySelector<HTMLInputElement>('[data-wt-settings]');
-  const resolutionValue = root.querySelector<HTMLElement>('[data-wt-resolution-value]');
-  const fpsValue = root.querySelector<HTMLElement>('[data-wt-fps-value]');
-  const audioValue = root.querySelector<HTMLElement>('[data-wt-audio-value]');
-  const camerasValue = root.querySelector<HTMLElement>('[data-wt-cameras-value]');
-  const canvas = root.querySelector<HTMLCanvasElement>('[data-wt-canvas]');
-  const snapshotWrap = root.querySelector<HTMLElement>('[data-wt-snapshot-wrap]');
-  const snapshotLink = root.querySelector<HTMLAnchorElement>('[data-wt-snapshot-link]');
-  const reportWrap = root.querySelector<HTMLElement>('[data-wt-report-wrap]');
-  const reportEl = root.querySelector<HTMLElement>('[data-wt-report]');
-  const statsEl = root.querySelector<HTMLElement>('[data-wt-stats]');
-  const notesEl = root.querySelector<HTMLElement>('[data-wt-notes]');
-  const warningsEl = root.querySelector<HTMLElement>('[data-wt-warnings]');
+  // Astro always renders these; the guard below keeps a markup change from
+  // crashing the page.
+  const statusEl = root.querySelector<HTMLElement>('[data-wt-status]')!;
+  const errorEl = root.querySelector<HTMLElement>('[data-wt-error]')!;
+  const video = root.querySelector<HTMLVideoElement>('[data-wt-video]')!;
+  const stage = root.querySelector<HTMLElement>('[data-wt-stage]')!;
+  const placeholder = root.querySelector<HTMLElement>('[data-wt-placeholder]')!;
+  const startBtn = root.querySelector<HTMLButtonElement>('[data-wt-start]')!;
+  const stopBtn = root.querySelector<HTMLButtonElement>('[data-wt-stop]')!;
+  const snapshotBtn = root.querySelector<HTMLButtonElement>('[data-wt-snapshot]')!;
+  const deviceSelect = root.querySelector<HTMLSelectElement>('[data-wt-device]')!;
+  const deviceNote = root.querySelector<HTMLElement>('[data-wt-device-note]')!;
+  const resolutionSelect = root.querySelector<HTMLSelectElement>('[data-wt-resolution]')!;
+  const audioToggle = root.querySelector<HTMLInputElement>('[data-wt-audio]')!;
+  const settingsToggle = root.querySelector<HTMLInputElement>('[data-wt-settings]')!;
+  const resolutionValue = root.querySelector<HTMLElement>('[data-wt-resolution-value]')!;
+  const fpsValue = root.querySelector<HTMLElement>('[data-wt-fps-value]')!;
+  const audioValue = root.querySelector<HTMLElement>('[data-wt-audio-value]')!;
+  const camerasValue = root.querySelector<HTMLElement>('[data-wt-cameras-value]')!;
+  const canvas = root.querySelector<HTMLCanvasElement>('[data-wt-canvas]')!;
+  const snapshotWrap = root.querySelector<HTMLElement>('[data-wt-snapshot-wrap]')!;
+  const snapshotLink = root.querySelector<HTMLAnchorElement>('[data-wt-snapshot-link]')!;
+  const reportWrap = root.querySelector<HTMLElement>('[data-wt-report-wrap]')!;
+  const reportEl = root.querySelector<HTMLElement>('[data-wt-report]')!;
+  const statsEl = root.querySelector<HTMLElement>('[data-wt-stats]')!;
+  const notesEl = root.querySelector<HTMLElement>('[data-wt-notes]')!;
+  const warningsEl = root.querySelector<HTMLElement>('[data-wt-warnings]')!;
 
   if (
     !statusEl ||
