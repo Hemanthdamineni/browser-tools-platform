@@ -1,0 +1,225 @@
+---
+/**
+ * The webcam recorder panel: camera permission, a live preview, a
+ * record/stop control and a playback preview of the finished clip.
+ *
+ * The generic file workbench cannot express this flow (a live camera feed and
+ * a record button are not a file input), so the tool opts into this panel via
+ * `meta.panel = 'recorder'`.
+ */
+import type { ToolMeta } from '@/lib/types';
+import Icon from '@/components/Icon.astro';
+
+interface Props {
+  meta: ToolMeta;
+}
+const { meta } = Astro.props;
+const p = meta.id;
+
+// The panel renders the tool's own options, so they are read from the
+// metadata instead of being written down twice.
+const options = meta.options ?? [];
+const qualityOption = options.find((o) => o.key === 'quality');
+const qualityChoices = qualityOption && 'choices' in qualityOption ? qualityOption.choices : [];
+const qualityDefault =
+  qualityOption && 'choices' in qualityOption ? qualityOption.default : 'balanced';
+const maxOption = options.find((o) => o.key === 'maxSeconds');
+const maxDefault = maxOption ? String(maxOption.default) : '300';
+const maxMin = maxOption && 'min' in maxOption ? maxOption.min : 0;
+const maxMax = maxOption && 'max' in maxOption ? maxOption.max : 3600;
+const maxStep = maxOption && 'step' in maxOption ? maxOption.step : 5;
+const nameOption = options.find((o) => o.key === 'filename');
+const nameDefault = nameOption ? String(nameOption.default) : 'webcam-recording';
+---
+
+<!--
+  `data-file-workbench` is the marker the shared end-to-end checks look for on
+  every tool page. `data-signature-workbench` is the escape hatch the generic
+  file workbench uses to skip panels that mount themselves — the recorder
+  panel is such a panel, so it carries the same marker.
+-->
+<section
+  class="surface rounded-lg p-4 sm:p-6"
+  data-file-workbench
+  data-signature-workbench
+  data-webcam-recorder-workbench
+  data-tool-id={meta.id}
+  data-accept={meta.accept ?? ''}
+  data-multiple="false"
+  aria-label={`${meta.name} workbench`}
+>
+  <h2 class="text-base font-semibold text-[rgb(var(--text))]">1 · Check the framing</h2>
+  <p class="mt-1 text-sm text-[rgb(var(--text-muted))]">
+    The preview is live, but nothing is recorded until you press Record. The microphone is never
+    asked for, so the clip is silent.
+  </p>
+
+  <div
+    class="relative mt-3 overflow-hidden rounded-lg border"
+    style="background-color: rgb(var(--bg-inset))"
+  >
+    <video
+      class="block aspect-video w-full object-cover"
+      data-preview
+      playsinline
+      muted
+      aria-label="Live camera preview"
+    >
+    </video>
+    <p
+      class="absolute inset-0 flex items-center justify-center p-4 text-center text-sm text-[rgb(var(--text-muted))]"
+      data-preview-placeholder
+    >
+      The camera preview appears here.
+    </p>
+  </div>
+
+  <p class="mt-2 text-sm text-[rgb(var(--text))]" data-status role="status" aria-live="polite">
+    The camera is off.
+  </p>
+
+  <div class="mt-3 flex flex-wrap items-center gap-2.5">
+    <button type="button" class="btn btn-primary" data-start>
+      <Icon name="camera" size={16} /> Start camera
+    </button>
+    <button
+      type="button"
+      class="btn btn-primary aria-pressed:bg-[rgb(var(--accent))] aria-pressed:text-[rgb(var(--accent-fg))]"
+      data-record
+      aria-pressed="false"
+      disabled
+    >
+      <Icon name="zap" size={16} /> Record
+    </button>
+    <button type="button" class="btn btn-ghost" data-camera-off hidden>Turn camera off</button>
+  </div>
+
+  <p class="mt-3 flex flex-wrap items-center gap-2 text-sm">
+    <span
+      class="inline-flex items-center gap-1.5 font-medium"
+      style="color: rgb(var(--danger))"
+      data-rec-badge
+      hidden
+    >
+      <span
+        class="inline-block h-2.5 w-2.5 rounded-full"
+        style="background-color: rgb(var(--danger))"
+        data-rec-dot
+        aria-hidden="true"
+      >
+      </span>
+      Recording
+    </span>
+    <span class="text-[rgb(var(--text-muted))]">Elapsed</span>
+    <span class="font-medium tabular-nums" data-timer role="timer" aria-live="off">00:00</span>
+  </p>
+
+  <fieldset class="mt-5 rounded-lg border p-3">
+    <legend class="px-1 text-sm font-medium">Recording settings</legend>
+    <div class="mt-2 grid gap-3 sm:grid-cols-3">
+      <div>
+        <label class="text-xs font-medium" for={`${p}-quality`}>Quality</label>
+        <select class="field mt-1" id={`${p}-quality`} data-quality>
+          {
+            qualityChoices.map((choice) => (
+              <option value={choice.value} selected={choice.value === qualityDefault}>
+                {choice.label}
+              </option>
+            ))
+          }
+        </select>
+      </div>
+      <div>
+        <label class="text-xs font-medium" for={`${p}-max-seconds`}>Stop after (seconds)</label>
+        <input
+          class="field mt-1"
+          id={`${p}-max-seconds`}
+          type="number"
+          min={maxMin}
+          max={maxMax}
+          step={maxStep}
+          value={maxDefault}
+          data-max-seconds
+        />
+        <p class="mt-1 text-xs text-[rgb(var(--text-muted))]">0 means no limit.</p>
+      </div>
+      <div>
+        <label class="text-xs font-medium" for={`${p}-filename`}>File name</label>
+        <input
+          class="field mt-1"
+          id={`${p}-filename`}
+          type="text"
+          value={nameDefault}
+          data-filename
+        />
+        <p class="mt-1 text-xs text-[rgb(var(--text-muted))]">
+          The date and time are added to the name.
+        </p>
+      </div>
+    </div>
+  </fieldset>
+
+  <div
+    class="mt-4 rounded-lg border px-3 py-2 text-sm"
+    style="background-color: rgb(var(--danger-soft)); border-color: rgb(var(--danger)); color: rgb(var(--danger))"
+    role="alert"
+    data-error
+    hidden
+  >
+  </div>
+
+  <div class="mt-4" hidden data-result-wrap>
+    <div class="mb-2 flex items-center justify-between">
+      <span class="text-sm font-semibold text-[rgb(var(--text))]">2 · Play it back, then save</span>
+    </div>
+    <video
+      class="block w-full rounded-lg border"
+      data-playback
+      controls
+      playsinline
+      aria-label="Recorded clip"
+    >
+    </video>
+    <ul class="mt-3 space-y-2" data-outputs></ul>
+    <ul class="mt-2 space-y-1 text-xs" data-notes></ul>
+  </div>
+</section>
+
+<style>
+  /* The recording dot breathes so it is obvious that the camera is rolling. */
+  @keyframes recorder-pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.3;
+    }
+  }
+
+  [data-rec-dot] {
+    animation: recorder-pulse 1.6s ease-in-out infinite;
+  }
+
+  /* No motion when the reader (or the reader's user) asked for none. */
+  @media (prefers-reduced-motion: reduce) {
+    [data-rec-dot] {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-webcam-recorder-workbench]').forEach((root) => {
+    // Loaded on demand: the recorder panel is only used by the webcam recorder.
+    void import('./webcam-recorder-workbench')
+      .then(({ mountWebcamRecorderWorkbench }) => mountWebcamRecorderWorkbench(root))
+      .catch(() => {
+        const error = root.querySelector<HTMLElement>('[data-error]');
+        if (error) {
+          error.hidden = false;
+          error.textContent = 'The webcam recorder could not be loaded in this browser.';
+        }
+      });
+  });
+</script>
