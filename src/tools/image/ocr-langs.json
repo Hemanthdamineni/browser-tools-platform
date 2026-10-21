@@ -1,0 +1,12 @@
+{
+  "languages": [
+    { "code": "eng", "label": "English" },
+    { "code": "deu", "label": "German" },
+    { "code": "fra", "label": "French" },
+    { "code": "ita", "label": "Italian" },
+    { "code": "spa", "label": "Spanish" },
+    { "code": "por", "label": "Portuguese" },
+    { "code": "nld", "label": "Dutch" },
+    { "code": "rus", "label": "Russian" }
+  ]
+}

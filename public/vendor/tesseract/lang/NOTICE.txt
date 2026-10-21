@@ -1,0 +1,23 @@
+Tesseract language models
+========================
+
+The *.traineddata.gz files in this directory are the Tesseract LSTM language
+models, taken unchanged from the npm packages:
+
+  @tesseract.js-data/eng@1.0.0  (4.0.0_best_int/eng.traineddata.gz)
+  @tesseract.js-data/deu@1.0.0  (4.0.0_best_int/deu.traineddata.gz)
+  @tesseract.js-data/fra@1.0.0  (4.0.0_best_int/fra.traineddata.gz)
+  @tesseract.js-data/ita@1.0.0  (4.0.0_best_int/ita.traineddata.gz)
+  @tesseract.js-data/spa@1.0.0  (4.0.0_best_int/spa.traineddata.gz)
+  @tesseract.js-data/por@1.0.0  (4.0.0_best_int/por.traineddata.gz)
+  @tesseract.js-data/nld@1.0.0  (4.0.0_best_int/nld.traineddata.gz)
+  @tesseract.js-data/rus@1.0.0  (4.0.0_best_int/rus.traineddata.gz)
+
+Those packages are published by the tesseract.js project and are declared MIT
+on the npm registry. The models themselves are the tessdata_best models from
+the Tesseract OCR project (https://github.com/tesseract-ocr/tessdata), which
+are licensed under the Apache License 2.0. The full Apache-2.0 text of the
+Tesseract core is in ../core/LICENSE.
+
+Run `npm run vendor:tesseract` after changing the language list to refresh
+this file.
