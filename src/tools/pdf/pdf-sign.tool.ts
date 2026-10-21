@@ -81,10 +81,22 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   // The visible region of the page: the crop box clipped to the media box.
   // pdf.js uses the same box for its preview, so both agree on where the
   // signature ends up.
-  const media: PageBox = page.getMediaBox();
-  const crop: PageBox = page.getCropBox();
+  let media: PageBox;
+  let crop: PageBox;
+  let rotation: number;
+  try {
+    media = page.getMediaBox();
+    crop = page.getCropBox();
+    rotation = page.getRotation().angle;
+  } catch {
+    // pdf-lib walks the page's /Parent chain to read inherited attributes.
+    // A PDF whose /Parent does not point at a page tree makes that walk fail.
+    throw new ToolError(
+      'This PDF has a broken page tree, so its page size cannot be read.',
+      'Re-export the PDF from the app that made it and try again.',
+    );
+  }
   const box = visiblePageBox(media, crop);
-  const rotation = page.getRotation().angle;
   const pageSize = displayPageSize(box, rotation);
   const aspect = aspectOf(info.width, info.height);
 

@@ -287,6 +287,19 @@ describe('pdf-sign', () => {
     await expect(sign(makeInvalidPdf())).rejects.toThrow(/not a valid, readable PDF/);
   });
 
+  it('reports a PDF with a broken page tree clearly', async () => {
+    // The page's /Parent points at the catalog instead of the page tree, so
+    // pdf-lib cannot read the inherited /MediaBox.
+    const broken = assemblePdf([
+      '<< /Type /Catalog /Pages 3 0 R >>',
+      '<< /Type /Page /Parent 1 0 R /MediaBox [0 0 200 200] /Contents 4 0 R /Resources << >> >>',
+      '<< /Type /Pages /Kids [2 0 R] /Count 1 >>',
+      '<< /Length 44 >>\nstream\nBT /F1 12 Tf 20 100 Td (Hello Toolbench) Tj ET\nendstream',
+    ]);
+    const file = new File([broken], 'broken.pdf', { type: 'application/pdf' });
+    await expect(sign(file)).rejects.toThrow(/broken page tree/);
+  });
+
   it('reports an empty file clearly', async () => {
     const empty = new File([], 'empty.pdf', { type: 'application/pdf' });
     await expect(sign(empty)).rejects.toThrow(/not a valid, readable PDF/);
