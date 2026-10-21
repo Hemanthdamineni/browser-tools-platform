@@ -15,7 +15,16 @@ export type MinifyFormat = (typeof MINIFY_FORMATS)[number];
 export const MINIFY_PRESETS = ['safe', 'aggressive'] as const;
 export type MinifyPreset = (typeof MINIFY_PRESETS)[number];
 
-/** Label shown on the result and used as the `language` hint. */
+/** Name of the language the user pasted in. */
+const FORMAT_NAMES: Record<MinifyFormat, string> = {
+  javascript: 'javascript',
+  typescript: 'typescript',
+  css: 'css',
+  html: 'html',
+  json: 'json',
+};
+
+/** Language of the *output* — TypeScript is compiled to JavaScript. */
 const FORMAT_LABELS: Record<MinifyFormat, string> = {
   javascript: 'javascript',
   typescript: 'javascript',
@@ -545,8 +554,41 @@ function loadCsso(): Promise<CssoModule> {
   return cssoPromise;
 }
 
+/**
+ * `clean-css` — a dependency of html-minifier-terser — reads a few Node
+ * globals: `process.env` while the module is evaluated and `process.nextTick`
+ * while it runs. A browser has neither, so the chunk would fail to load with
+ * "process is not defined".
+ *
+ * The stub below fills the gap for the short time the minifier is imported
+ * and used, and is removed again straight afterwards, so no other code on the
+ * page ever sees a `process` object.
+ */
+const PROCESS_STUB = {
+  env: {} as Record<string, string | undefined>,
+  platform: 'browser',
+  nextTick: (fn: () => void) => queueMicrotask(fn),
+};
+
+async function withProcessStub<T>(run: () => Promise<T>): Promise<T> {
+  const scope = globalThis as typeof globalThis & { process?: typeof PROCESS_STUB };
+  const existing = scope.process;
+  // A real Node process (or any good enough stand-in) is used as it is.
+  if (existing && existing.env && typeof existing.nextTick === 'function') {
+    return run();
+  }
+  const hadProcess = 'process' in scope;
+  scope.process = { ...PROCESS_STUB, ...(existing ?? {}) };
+  try {
+    return await run();
+  } finally {
+    if (hadProcess) scope.process = existing;
+    else Reflect.deleteProperty(scope, 'process');
+  }
+}
+
 function loadHtmlMinifier(): Promise<HtmlMinifierModule> {
-  htmlMinifierPromise ??= import('html-minifier-terser');
+  htmlMinifierPromise ??= withProcessStub(() => import('html-minifier-terser'));
   return htmlMinifierPromise;
 }
 
@@ -674,7 +716,7 @@ async function minifyHtml(code: string, preset: MinifyPreset): Promise<string> {
     });
   }
   try {
-    return await htmlMinifier.minify(code, options);
+    return await withProcessStub(() => htmlMinifier.minify(code, options));
   } catch (error) {
     throw new ToolError(
       firstLine(error),
@@ -811,7 +853,7 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     filename: outputFilename(format),
     notes: notes.length > 0 ? notes : undefined,
     stats: {
-      language: FORMAT_LABELS[format],
+      language: FORMAT_NAMES[format],
       'input bytes': savings.inputBytes,
       'output bytes': savings.outputBytes,
       'bytes saved': savings.savedBytes,

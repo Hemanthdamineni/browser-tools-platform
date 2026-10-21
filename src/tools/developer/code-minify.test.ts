@@ -216,6 +216,9 @@ describe('code-minify — one happy path per format', () => {
     expect(res.output).toBe('const u={id:1,name:"Ada"};');
     expect(res.output).not.toContain('interface');
     expect(res.filename).toBe('minified.ts');
+    // The output is plain JavaScript, but the stats name the source language.
+    expect(res.language).toBe('javascript');
+    expect(res.stats?.language).toBe('typescript');
   });
 
   it('TypeScript — enums and namespaces survive as JavaScript', async () => {
@@ -406,6 +409,29 @@ describe('code-minify — errors and edges', () => {
     const res = await run(source, { language: 'javascript' });
     expect(res.output.length).toBeLessThan(source.length);
     expect(res.stats?.['bytes saved']).toBeGreaterThan(0);
+  });
+
+  it('minifies HTML in a browser-like environment without a Node process', async () => {
+    // `clean-css` (inside html-minifier-terser) reads `process.env` and
+    // `process.nextTick`; the tool has to cope with a browser that has neither.
+    const scope = globalThis as unknown as {
+      process?: { platform?: string; env?: unknown; nextTick?: unknown };
+    };
+    const real = scope.process;
+    scope.process = { platform: 'browser' };
+    try {
+      const res = await run(
+        '<!doctype html>\n<html>\n  <body>\n    <p>Hi</p>\n  </body>\n</html>',
+        {
+          language: 'html',
+        },
+      );
+      expect(res.output).toContain('<p>Hi</p>');
+    } finally {
+      scope.process = real;
+    }
+    // The stand-in is put back the way it was found.
+    expect(scope.process).toBe(real);
   });
 });
 
