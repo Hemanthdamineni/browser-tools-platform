@@ -12,7 +12,13 @@ import type { FileRunResult } from '@/lib/types';
 import { createDropZone, downloadBlob, validateFileSelection } from '@/lib/files';
 import { escapeHtml, formatBytes } from '@/lib/format';
 import { SIGNATURE_CHANGE_EVENT, type SignatureAsset } from '@/lib/signature/types';
-import { clampRect, defaultPlacement, fitSize, type DisplayRect } from '@/tools/pdf/pdf-sign.core';
+import {
+  clampRect,
+  defaultPlacement,
+  fitSize,
+  looksLikePdfBytes,
+  type DisplayRect,
+} from '@/tools/pdf/pdf-sign.core';
 import { runToolById } from '@/lib/worker/client';
 import { clearError, showError } from './shared';
 
@@ -22,18 +28,16 @@ type PdfDocument = Awaited<ReturnType<PdfJsModule['getDocument']>['promise']>;
 /** Page size used when the preview cannot be rendered (A4 in points). */
 const FALLBACK_PAGE = { width: 595.28, height: 841.89 };
 
+/** How many bytes of a file are inspected for the `%PDF-` header. */
+const HEADER_SCAN_BYTES = 1024;
+
 /**
  * Cheap check that a file really is a PDF: the `%PDF-` header, which the spec
  * allows to be preceded by a little junk.
  */
 async function looksLikePdf(file: File): Promise<boolean> {
-  const head = new Uint8Array(await file.slice(0, 1024).arrayBuffer());
-  for (let i = 0; i + 4 <= head.length; i++) {
-    if (head[i] === 0x25 && head[i + 1] === 0x50 && head[i + 2] === 0x44 && head[i + 3] === 0x46) {
-      return true;
-    }
-  }
-  return false;
+  const head = new Uint8Array(await file.slice(0, HEADER_SCAN_BYTES).arrayBuffer());
+  return looksLikePdfBytes(head);
 }
 
 let pdfJsPromise: Promise<PdfJsModule> | null = null;
@@ -146,6 +150,9 @@ export function mountSignatureWorkbench(root: HTMLElement): void {
     if (next.width !== undefined) {
       // The height always follows the signature's own aspect ratio.
       const size = fitSize(next.width, aspect(), pageSize);
+      // Resizing keeps the bottom edge — the baseline — where it was, so the
+      // mark does not jump away from the line it sits on.
+      merged.y = placement.y + (placement.height - size.height);
       merged.width = size.width;
       merged.height = size.height;
     }

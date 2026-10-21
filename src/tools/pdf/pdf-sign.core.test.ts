@@ -5,6 +5,7 @@ import {
   defaultPlacement,
   displayPageSize,
   fitSize,
+  looksLikePdfBytes,
   normalizeRotation,
   placementForWidth,
   toDisplaySpace,
@@ -15,6 +16,35 @@ import {
 } from './pdf-sign.core';
 
 const A4: PageBox = { x: 0, y: 0, width: 595.28, height: 841.89 };
+
+describe('looksLikePdfBytes', () => {
+  const ascii = (text: string) => new TextEncoder().encode(text);
+
+  it('recognises a PDF header', () => {
+    expect(looksLikePdfBytes(ascii('%PDF-1.7\n'))).toBe(true);
+  });
+
+  it('recognises a header that follows a little junk', () => {
+    expect(looksLikePdfBytes(ascii('junk\n%PDF-1.4\n'))).toBe(true);
+  });
+
+  it('rejects bytes that are not a PDF', () => {
+    expect(looksLikePdfBytes(ascii('not a pdf at all'))).toBe(false);
+  });
+
+  it('rejects an empty buffer', () => {
+    expect(looksLikePdfBytes(new Uint8Array(0))).toBe(false);
+  });
+
+  it('rejects a truncated header', () => {
+    expect(looksLikePdfBytes(ascii('%PD'))).toBe(false);
+  });
+
+  it('does not confuse a lookalike header for the real one', () => {
+    // "%PDG" is not "%PDF-".
+    expect(looksLikePdfBytes(ascii('%PDG-1.7'))).toBe(false);
+  });
+});
 
 describe('normalizeRotation', () => {
   it('snaps any angle to a quarter turn', () => {

@@ -14,6 +14,30 @@
  * is why a signature dropped on the preview lands exactly where it was put.
  */
 
+/** The bytes every PDF file starts with. */
+const PDF_HEADER = [0x25, 0x50, 0x44, 0x46, 0x2d]; // "%PDF-"
+
+/**
+ * True when `bytes` contain the `%PDF-` header.
+ *
+ * The PDF specification lets a file carry a little junk before the header, so
+ * the bytes are scanned instead of compared at a fixed offset. Callers pass the
+ * first kilobyte of a file, which is where the header is expected to be.
+ */
+export function looksLikePdfBytes(bytes: Uint8Array): boolean {
+  for (let start = 0; start + PDF_HEADER.length <= bytes.length; start++) {
+    let match = true;
+    for (let i = 0; i < PDF_HEADER.length; i++) {
+      if (bytes[start + i] !== PDF_HEADER[i]) {
+        match = false;
+        break;
+      }
+    }
+    if (match) return true;
+  }
+  return false;
+}
+
 /** A page rectangle in user space (a media box or a crop box). */
 export interface PageBox {
   x: number;
