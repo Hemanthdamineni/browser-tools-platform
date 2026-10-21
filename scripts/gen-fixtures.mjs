@@ -94,9 +94,12 @@ function buildPdf() {
     objects.push(body);
     return objects.length;
   };
-  const pages = add('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 200 200] /Contents 5 0 R /Resources << /Font << /F1 4 0 R >> >> >>');
+  // The page's /Parent must point at the page tree (object 3), not at the
+  // catalog. pdf-lib walks /Parent to read inherited attributes such as
+  // /MediaBox, and a catalog there makes every page-geometry call throw.
+  add('<< /Type /Page /Parent 3 0 R /MediaBox [0 0 200 200] /Contents 5 0 R /Resources << /Font << /F1 4 0 R >> >> >>');
   const catalog = add('<< /Type /Catalog /Pages 3 0 R >>');
-  const pageTree = add('<< /Type /Pages /Kids [1 0 R] /Count 1 >>');
+  add('<< /Type /Pages /Kids [1 0 R] /Count 1 >>');
   const font = add('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>');
   const stream = 'BT /F1 12 Tf 20 100 Td (Hello Toolbench) Tj ET';
   const streamObj = add(`<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`);
