@@ -6,6 +6,7 @@ visitor's browser.
 - pdfjs-dist         — Apache-2.0 — https://github.com/mozilla/pdf.js
 - fflate             — MIT      — https://github.com/101arrowz/fflate
 - mediabunny         — MPL-2.0  — https://github.com/vanilagy/mediabunny
+- gifenc             — MIT      — https://github.com/mattdesl/gifenc
 - yaml               — ISC      — https://github.com/eemeli/yaml
 - diff               — BSD-3-Clause — https://github.com/kpdecker/jsdiff
 - marked             — MIT      — https://github.com/markedjs/marked
