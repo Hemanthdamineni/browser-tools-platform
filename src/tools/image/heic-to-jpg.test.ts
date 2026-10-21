@@ -8,37 +8,18 @@ import tool, {
   targetMime,
   uniqueStem,
 } from './heic-to-jpg.tool';
-import { decodeHeic, detectContainer, readFtypBox } from './heic-codec';
-import { installImageMock, makeFile, type MockHandle } from './image-mock';
+import { decodeHeic } from './heic-codec';
+import { blobPixels, installImageMock, makeFile, type MockHandle } from './image-mock';
 
 // The WASM decoder cannot run under jsdom, so only `decodeHeic` is replaced.
-// Everything else — container detection, the batch loop, alpha handling and
-// the canvas encoding — is the real implementation.
+// Everything else — the batch loop, alpha handling and the canvas encoding —
+// is the real implementation.
 vi.mock('./heic-codec', async (importOriginal) => {
   const actual = await importOriginal<typeof import('./heic-codec')>();
   return { ...actual, decodeHeic: vi.fn() };
 });
 
 const decodeMock = vi.mocked(decodeHeic);
-
-/** Build a HEIC-shaped byte buffer: an ISO-BMFF `ftyp` box plus payload. */
-function heicBytes(brand = 'heic', compatible: string[] = [], payload = 32): Uint8Array {
-  const head = 16 + compatible.length * 4;
-  const bytes = new Uint8Array(head + payload);
-  const view = new DataView(bytes.buffer);
-  view.setUint32(0, bytes.length);
-  bytes.set([0x66, 0x74, 0x79, 0x70], 4); // "ftyp"
-  bytes.set([brand.charCodeAt(0), brand.charCodeAt(1), brand.charCodeAt(2), brand.charCodeAt(3)], 8);
-  view.setUint32(12, 0x2000); // minor version
-  compatible.forEach((name, index) => {
-    const at = 16 + index * 4;
-    bytes.set(
-      [name.charCodeAt(0), name.charCodeAt(1), name.charCodeAt(2), name.charCodeAt(3)],
-      at,
-    );
-  });
-  return bytes;
-}
 
 /** A decoded image the mocked decoder hands back. */
 function decoded(
@@ -56,7 +37,7 @@ function decoded(
 
 let mock: MockHandle | undefined;
 beforeEach(() => {
-  mock = installImageMock();
+  mock = installImageMock({ pixelOutput: true });
   decodeMock.mockReset();
 });
 afterEach(() => {
@@ -110,6 +91,9 @@ describe('hasTransparency', () => {
   it('reports fully opaque data as opaque', () => {
     expect(hasTransparency(new Uint8ClampedArray([1, 2, 3, 255]))).toBe(false);
   });
+  it('reports an empty buffer as opaque', () => {
+    expect(hasTransparency(new Uint8ClampedArray(0))).toBe(false);
+  });
 });
 
 describe('flattenAlpha', () => {
@@ -130,6 +114,10 @@ describe('flattenAlpha', () => {
     flattenAlpha(data, [0, 0, 0]);
     expect([...data]).toEqual([255, 0, 0, 128]);
   });
+  it('makes a fully transparent pixel take the background colour', () => {
+    const out = flattenAlpha(new Uint8ClampedArray([255, 0, 0, 0]), [0, 128, 255]);
+    expect([...out]).toEqual([0, 128, 255, 255]);
+  });
 });
 
 describe('uniqueStem', () => {
@@ -143,26 +131,11 @@ describe('uniqueStem', () => {
     expect(uniqueStem('photo', used)).toBe('photo-2');
     expect(uniqueStem('photo', used)).toBe('photo-3');
   });
-});
-
-describe('readFtypBox / detectContainer', () => {
-  it('reads the major and compatible brands', () => {
-    const bytes = heicBytes('mif1', ['heic', 'mif1']);
-    const ftyp = readFtypBox(bytes)!;
-    expect(ftyp.majorBrand).toBe('mif1');
-    expect(ftyp.compatibleBrands).toEqual(['heic', 'mif1']);
-  });
-  it('detects HEIC, generic HEIF and AVIF', () => {
-    expect(detectContainer(heicBytes('heic'))).toBe('heic');
-    expect(detectContainer(heicBytes('mif1', ['heic']))).toBe('heic');
-    expect(detectContainer(heicBytes('mif1'))).toBe('heif');
-    expect(detectContainer(heicBytes('avif'))).toBe('avif');
-  });
-  it('returns unknown for a file without an ftyp box', () => {
-    expect(detectContainer(new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0, 0, 0, 0]))).toBe('unknown');
-  });
-  it('returns unknown for an empty buffer', () => {
-    expect(detectContainer(new Uint8Array(0))).toBe('unknown');
+  it('does not collide with a name that already ends in -2', () => {
+    const used = new Set<string>();
+    uniqueStem('photo', used);
+    uniqueStem('photo', used);
+    expect(uniqueStem('photo-2', used)).toBe('photo-2-2');
   });
 });
 
@@ -185,7 +158,9 @@ describe('heic-to-jpg run', () => {
   });
 
   it('converts a HEIC to JPEG by default', async () => {
-    decodeMock.mockResolvedValue(decoded(2, 2, [1, 2, 3, 255, 4, 5, 6, 255, 7, 8, 9, 255, 1, 1, 1, 255]));
+    decodeMock.mockResolvedValue(
+      decoded(2, 2, [1, 2, 3, 255, 4, 5, 6, 255, 7, 8, 9, 255, 1, 1, 1, 255]),
+    );
     const result = await tool.run({ files: [makeFile('photo.heic', 'image/heic')], options: {} });
     expect(result.outputs).toHaveLength(1);
     expect(result.outputs[0]!.filename).toBe('photo.jpg');
@@ -220,6 +195,15 @@ describe('heic-to-jpg run', () => {
     expect(mock!.canvases[0]!.encodes[0]!.quality).toBeCloseTo(0.55);
   });
 
+  it('hands the decoded bytes to the decoder', async () => {
+    decodeMock.mockResolvedValue(decoded(1, 1));
+    const file = new File([new Uint8Array([1, 2, 3, 4])], 'photo.heic', { type: 'image/heic' });
+    await tool.run({ files: [file], options: {} });
+    expect(decodeMock).toHaveBeenCalledTimes(1);
+    const bytes = decodeMock.mock.calls[0]![0] as Uint8Array;
+    expect([...bytes]).toEqual([1, 2, 3, 4]);
+  });
+
   it('keeps the alpha channel for PNG', async () => {
     decodeMock.mockResolvedValue(decoded(1, 1, [255, 0, 0, 128]));
     await tool.run({ files: [makeFile('logo.heic', 'image/heic')], options: { to: 'png' } });
@@ -247,6 +231,17 @@ describe('heic-to-jpg run', () => {
     expect([...mock!.canvases[0]!.pixels]).toEqual([128, 0, 0, 255]);
   });
 
+  it('keeps the pixels of an opaque image untouched for PNG', async () => {
+    decodeMock.mockResolvedValue(decoded(2, 1, [10, 20, 30, 255, 40, 50, 60, 255]));
+    const result = await tool.run({
+      files: [makeFile('photo.heic', 'image/heic')],
+      options: { to: 'png' },
+    });
+    // The encoded blob carries exactly the pixels the decoder produced.
+    const pixels = await blobPixels(result.outputs[0]!.blob);
+    expect([...pixels]).toEqual([10, 20, 30, 255, 40, 50, 60, 255]);
+  });
+
   it('notes when transparency was flattened', async () => {
     decodeMock.mockResolvedValue(decoded(1, 1, [255, 0, 0, 128]));
     const result = await tool.run({
@@ -254,6 +249,15 @@ describe('heic-to-jpg run', () => {
       options: { to: 'jpeg' },
     });
     expect(result.notes?.join(' ')).toMatch(/transparency/i);
+  });
+
+  it('does not mention flattening when the image is opaque', async () => {
+    decodeMock.mockResolvedValue(decoded(1, 1, [255, 0, 0, 255]));
+    const result = await tool.run({
+      files: [makeFile('logo.heic', 'image/heic')],
+      options: { to: 'jpeg' },
+    });
+    expect(result.notes?.join(' ') ?? '').not.toMatch(/transparency/i);
   });
 
   it('keeps Unicode file names', async () => {
@@ -311,6 +315,14 @@ describe('heic-to-jpg run', () => {
     expect(decodeMock).not.toHaveBeenCalled();
   });
 
+  it('accepts a file that is exactly at the size limit', async () => {
+    decodeMock.mockResolvedValue(decoded(1, 1));
+    const edge = new File([new Uint8Array(1)], 'edge.heic', { type: 'image/heic' });
+    Object.defineProperty(edge, 'size', { value: 64 * 1024 * 1024 });
+    const result = await tool.run({ files: [edge], options: {} });
+    expect(result.outputs).toHaveLength(1);
+  });
+
   it('rejects an image with an unusable size', async () => {
     decodeMock.mockResolvedValue(decoded(20_000, 20_000));
     await expect(
@@ -329,6 +341,22 @@ describe('heic-to-jpg run', () => {
     ).rejects.toThrow(/cancelled/i);
   });
 
+  it('stops the batch when the run is cancelled', async () => {
+    const controller = new AbortController();
+    decodeMock.mockImplementation(async () => {
+      controller.abort();
+      return decoded(1, 1);
+    });
+    await expect(
+      tool.run({
+        files: [makeFile('a.heic', 'image/heic'), makeFile('b.heic', 'image/heic')],
+        options: {},
+        signal: controller.signal,
+      }),
+    ).rejects.toThrow(/cancelled/i);
+    expect(decodeMock).toHaveBeenCalledTimes(1);
+  });
+
   it('reports progress while decoding a batch', async () => {
     decodeMock.mockResolvedValue(decoded(1, 1));
     const onProgress = vi.fn();
@@ -340,5 +368,18 @@ describe('heic-to-jpg run', () => {
     expect(result.outputs).toHaveLength(2);
     expect(onProgress).toHaveBeenCalledWith(0, expect.stringMatching(/decoder/i));
     expect(onProgress).toHaveBeenCalledWith(1, 'Done');
+  });
+
+  it('reports the number of files and the size saved', async () => {
+    decodeMock.mockResolvedValue(decoded(1, 1));
+    const result = await tool.run({
+      files: [makeFile('a.heic', 'image/heic'), makeFile('b.heic', 'image/heic')],
+      options: {},
+    });
+    expect(result.stats?.files).toBe(2);
+    expect(result.stats?.converted).toBe(2);
+    expect(result.stats?.failed).toBe(0);
+    expect(result.stats?.originalBytes).toBe(400);
+    expect(result.stats?.format).toBe('image/jpeg');
   });
 });

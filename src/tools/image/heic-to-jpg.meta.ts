@@ -4,13 +4,15 @@ export const meta: ToolMeta = {
   id: 'heic-to-jpg',
   name: 'HEIC to JPG',
   category: 'image',
-  summary: 'Convert HEIC photos from iPhone and Android to JPG, PNG or WebP — right in your browser.',
+  summary:
+    'Convert HEIC photos from iPhone and Android to JPG, PNG or WebP — right in your browser.',
   description:
     'Decode HEIC/HEIF photos and save them as JPG, PNG or WebP. The decoder runs locally in a Web Worker, so your photos never leave the device.',
   keywords: [
     'heic to jpg',
     'heic converter',
     'heic to png',
+    'heic to webp',
     'heif to jpeg',
     'iphone heic',
     'convert heic',

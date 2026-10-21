@@ -328,6 +328,6 @@
  * hiding an option. This rule is deliberately unlayered so it outranks the
  * utilities layer.
  */
-[hidden][hidden]:where(:not([hidden="until-found"])) {
+[hidden]:not([hidden='until-found']) {
   display: none;
 }

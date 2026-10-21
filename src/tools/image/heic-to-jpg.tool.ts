@@ -118,6 +118,9 @@ function failureMessage(err: unknown): string {
   return 'That file could not be converted.';
 }
 
+/** Human-readable size of the per-file limit, used in the error message. */
+const MAX_HEIC_MB = Math.round(MAX_HEIC_BYTES / 1024 / 1024);
+
 async function run(input: FileRunInput): Promise<FileRunResult> {
   const o = resolveOptions(meta, input.options);
   const files = input.files;
@@ -151,7 +154,7 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
     try {
       if (file.size > MAX_HEIC_BYTES) {
         throw new ToolError(
-          `“${file.name}” is too large to decode (limit ${Math.round(MAX_HEIC_BYTES / 1024 / 1024)} MB).`,
+          `“${file.name}” is too large to decode (limit ${MAX_HEIC_MB} MB).`,
           'Split the file or pick a smaller export from your camera app.',
         );
       }
