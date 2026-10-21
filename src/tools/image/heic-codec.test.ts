@@ -78,9 +78,7 @@ describe('packInterleaved', () => {
 
   it('drops the padding between rows', () => {
     // One pixel per row, but every row is padded to eight bytes.
-    const plane = new Uint8Array([
-      1, 2, 3, 4, 99, 99, 99, 99, 5, 6, 7, 8, 99, 99, 99, 99,
-    ]);
+    const plane = new Uint8Array([1, 2, 3, 4, 99, 99, 99, 99, 5, 6, 7, 8, 99, 99, 99, 99]);
     const out = packInterleaved(plane, 1, 2, 8);
     expect([...out]).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
   });

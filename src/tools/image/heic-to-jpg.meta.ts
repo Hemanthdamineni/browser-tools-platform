@@ -68,7 +68,11 @@ export const meta: ToolMeta = {
     },
     {
       q: 'Which HEIC files are supported?',
-      a: 'HEIC and HEIF files that use HEVC — the format iPhones, iPads and most Android phones use. AVIF files are a different format; use the Image Converter for those.',
+      a: 'HEIC and HEIF files that use HEVC — the format iPhones, iPads and most Android phones use. The rotation and crop stored in the file are applied. AVIF files are a different format; use the Image Converter for those.',
+    },
+    {
+      q: 'Are the colours and the metadata preserved?',
+      a: 'The pixels are decoded to 8-bit sRGB, so HDR gain maps and the original colour profile are not carried over. The output is a fresh file: no EXIF, GPS or other metadata is copied into it.',
     },
     {
       q: 'Are the original photos modified?',
