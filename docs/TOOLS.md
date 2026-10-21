@@ -1,6 +1,6 @@
 # Complete Tool List
 
-Total: **372** tools across **19** categories.
+Total: **376** tools across **19** categories.
 
 Generated from `src/tools/**/*.meta.ts` (source of truth).
 
@@ -221,7 +221,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `uuid` | UUID Generator | text | stable | Generate RFC 4122 UUIDs (v4 random or v7 time-ordered) in bulk. |
 | `vcard` | vCard Generator | text | stable | Build vCard 3.0 contact files, or parse a pasted vCard back into fields. |
 
-## image (14)
+## image (15)
 
 | id | name | input | status | summary |
 | --- | --- | --- | --- | --- |
@@ -231,6 +231,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `datauri-to-image` | Data URI to Image | file | beta | Decode an image data URI from a text file into an image file. |
 | `image-palette` | Extract Colour Palette | file | stable | Extract the dominant colour palette from an image locally. |
 | `favicon-generator` | Favicon Generator | file | stable | Generate favicon, Apple touch, and Android icon assets from one image. |
+| `heic-to-jpg` | HEIC to JPG | file | beta | Convert HEIC photos from iPhone and Android to JPG, PNG or WebP — right in your browser. |
 | `image-diff` | Image Difference | file | stable | Compare two images and visualize their pixel differences. |
 | `image-metadata` | Image Metadata & EXIF Viewer | file | stable | Inspect image dimensions, file details, and common JPEG EXIF tags. |
 | `image-to-datauri` | Image to Data URI | file | beta | Encode an image as a data URI for HTML, CSS, or source code. |
@@ -281,7 +282,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `vin-validator` | VIN Validator & Decoder | text | stable | Validate and decode 17-character VINs with check digit. |
 | `words-to-number` | Words to Number | text | stable | Parse English number words like "two hundred thirty-four" into 234, with decimals and negatives. |
 
-## pdf (12)
+## pdf (13)
 
 | id | name | input | status | summary |
 | --- | --- | --- | --- | --- |
@@ -294,6 +295,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `pdf-merge` | Merge PDFs | file | stable | Combine several PDF files into one document, page by page. |
 | `pdf-to-images` | PDF to Images | file | stable | Render selected PDF pages as PNG, JPEG, or WebP images. |
 | `pdf-rotate` | Rotate Pages | file | stable | Rotate every page — or a selection — of a PDF by 90, 180, or 270 degrees. |
+| `pdf-sign` | Sign PDF | file | beta | Draw, type or upload a signature, place it on a page and flatten it into the PDF. |
 | `pdf-split` | Split PDF | file | stable | Split a PDF into one file per page, per range, or into fixed-size chunks. |
 | `pdf-metadata` | View / Edit PDF Metadata | file | stable | Inspect document properties or update PDF title, author, subject, keywords and more. |
 | `pdf-watermark` | Watermark PDF | file | stable | Overlay translucent text on selected PDF pages as a centered or tiled watermark. |
@@ -348,13 +350,14 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `word-frequency` | Word Frequency Counter | text | stable | Count how often each word appears, with case folding, a minimum length, stop-word removal and a top-N limit. |
 | `wrap-text` | Wrap / Unwrap Text | text | stable | Hard-wrap text to a fixed column width with greedy word wrap, or unwrap wrapped lines back into paragraphs. |
 
-## video (1)
+## video (2)
 
 | id | name | input | status | summary |
 | --- | --- | --- | --- | --- |
 | `video-info` | Video File Info | file | beta | Inspect a video: container, duration, resolution, codecs, frame rate and bitrate. |
+| `video-to-gif` | Video to GIF | file | beta | Turn a clip into an animated GIF: trim it, pick the frame rate, width and palette quality. |
 
-## web (112)
+## web (113)
 
 | id | name | input | status | summary |
 | --- | --- | --- | --- | --- |
@@ -386,7 +389,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `content-language` | Content-Language Builder & Analyzer | text | stable | Build or inspect HTTP Content-Language locale tags. |
 | `content-length-app` | Content-Length & Body Byte Counter | text | stable | Compute body byte length and verify content-length. |
 | `content-location` | Content-Location Builder & Analyzer | text | stable | Build or inspect HTTP Content-Location resource references. |
-| `content-md5` | Content-MD5 Builder & Analyzer | text | stable | Build or verify legacy Content-MD5 integrity values. |
+| `content-md5` | Content-MD5 Builder & Analyzer | text | stable | Build or verify legacy Content-MD5 integrity values — the header is deprecated. |
 | `content-security-policy` | Content-Security-Policy Builder & Analyzer | text | stable | Build or inspect CSP directives and sources. |
 | `content-type` | Content-Type Header Builder & Parser | text | stable | Build or inspect HTTP media-type headers, charsets, and multipart boundaries. |
 | `cookie-request` | Cookie Request Header Analyzer | text | stable | Parse and inspect Cookie request-header pairs. |
@@ -416,6 +419,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `html-prettifier` | HTML Prettifier | text | stable | Beautify HTML output — indented tags, one attribute per line for long tags, preserved text. |
 | `basic-auth` | HTTP Basic Auth Header | text | stable | Build or decode HTTP Basic Authorization headers, UTF-8 safe. |
 | `http-encoding` | HTTP Encoding Header Builder & Analyzer | text | stable | Build or inspect Accept-Encoding and Content-Encoding negotiation values. |
+| `http-header-analyzer` | HTTP Header Analyzer | text | beta | Paste any HTTP headers and auto-detect, parse and check every one of them. |
 | `link-header` | HTTP Link Header Builder & Parser | text | stable | Build or inspect HTTP Link headers for preload, canonical, pagination, and alternates. |
 | `http-range` | HTTP Range Header Builder & Parser | text | stable | Build or inspect byte-range request and response headers. |
 | `http-status` | HTTP Status Code Reference | text | stable | Look up HTTP status codes — what they mean and when APIs return them. |

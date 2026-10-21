@@ -22,10 +22,10 @@ Line order is priority: top first. This file is written by a human (via review) 
 - [x] **pdf-compress** · pdf — Re-encode or downsample embedded images and clean up streams. Quality presets; show before/after size. ⚠️ run died ✅ d7aa8b6
 - [x] **barcode-generator** · generators — bwip-js or JsBarcode. Code128, EAN-13, UPC-A, Code39, ITF, DataMatrix. SVG and PNG export. ✅ already exists as barcode
 - [x] **qr-scanner** · generators — Camera (getUserMedia) plus image upload. Native BarcodeDetector with jsQR or zxing-wasm fallback. Actions for detected URL, Wi-Fi, or vCard content. ⚠️ run died ✅ efe0e63
-- [ ] **heic-to-jpg** · image — libheif-js / heic2any. Batch mode; JPEG, PNG, and WebP output. ⚠️ run died ⏳ run-20261020-2217-a799 @ 2026-10-20T22:20:00Z
+- [x] **heic-to-jpg** · image — libheif-js / heic2any. Batch mode; JPEG, PNG, and WebP output. ⚠️ run died ✅ dec427e
 - [x] **image-strip-metadata** · image — Strip EXIF, GPS, and XMP. Prefer lossless JPEG segment removal; show what was removed. Batch mode. ⚠️ run died ✅ 4c3fe6b
-- [ ] **video-to-gif** · video · after: video-foundation — Time range, fps, width, palette quality. Preview before export. ⏳ run-20261020-2217-a799 @ 2026-10-20T22:20:00Z
-- [ ] **pdf-sign** · pdf — Draw, type, or upload a signature. Place and resize on the page, then flatten with pdf-lib. ⚠️ run died ⏳ run-20261020-2217-a799 @ 2026-10-20T22:20:00Z
+- [x] **video-to-gif** · video · after: video-foundation — Time range, fps, width, palette quality. Preview before export. ✅ bc08c91
+- [x] **pdf-sign** · pdf — Draw, type, or upload a signature. Place and resize on the page, then flatten with pdf-lib. ⚠️ run died ✅ 75d7414
 - [ ] **code-beautify** · developer — Prettier standalone for JS/TS/CSS/SCSS/HTML/JSON/Markdown/YAML. Lazy-load parsers per language. ⚠️ run died
 - [ ] **code-minify** · developer — terser, lightningcss-wasm or csso, html-minifier-terser. Show bytes saved. ⚠️ run died
 - [ ] **video-compress** · video · after: video-foundation — Presets by target size or quality. Warn on memory limits for long files.

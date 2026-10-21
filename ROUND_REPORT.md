@@ -211,3 +211,86 @@ Ideas:
 
 - `parquet-inspect`, `hex-diff` and `subtitle-convert` are still worth building (see the ideas
   list above) — `subtitle-convert` in particular is already half-built in the rescued tranche.
+
+## run-20261020-2217-a799 — 2026-10-21T10:16:51Z
+
+Batch of four: one merge item from `BACKLOG.md` and three tools from `TODOS.md`. Two decisions
+worth a reviewer's eye: the remote has no `main` branch (`origin/HEAD` → `origin/master`), so
+`master` was used as `MAIN_BRANCH`; and the three non-merge items were run **one sub-agent at a
+time** rather than all four at once, because four concurrent suites on this box (load average 49)
+crashed the session twice — each sub-agent committed in small steps, so no work was lost.
+
+- Merged: `http-header-analyzer` (`1faf3a8`) — paste any header block and every line is detected
+  and parsed with that header's rules; 30 long-tail header tools (`alt-used`, `early-data`,
+  `trailer-header`, `priority-header`, `signature-input`, `tracestate` and 24 more) became hidden
+  aliases that redirect to it, and `Content-MD5` / `Warning` are flagged as deprecated in the UI.
+  The tools that do something else (request builders, curl converters, media types, cookies, the
+  security-policy family) were deliberately left alone.
+- Merged: `heic-to-jpg` (`dec427e`) — batch HEIC/HEIF → JPEG/PNG/WebP; the libheif WASM is served
+  from this origin and loaded on demand, never from a CDN.
+- Merged: `video-to-gif` (`bc08c91`) — time range, fps, width and palette quality, with the
+  finished animation previewed inline before the export.
+- Merged: `pdf-sign` (`75d7414`) — draw, type or upload a signature, place it on a page, flatten
+  it into the PDF with pdf-lib. The reusable signature logic lives in `src/lib/signature/` so the
+  later `signature-maker` item can share it.
+- New dependencies: `libheif-js@1.23.5` (LGPL-3.0, ~512 kB gzip including the WASM, **lazy** —
+  separate chunk, WASM served from `/vendor/libheif/` on this origin with its licence next to it)
+  and `gifenc@1.0.3` (MIT, 3.6 kB gzip, **lazy** — dynamic `import()` on first use). Both are in
+  `NOTICE`.
+- Limitations: `heic-to-jpg` — HEVC-coded HEIC/HEIF only (AVIF is refused with a pointer to the
+  image converter), output is 8-bit sRGB, no EXIF/GPS is carried over, 64 MB per file.
+  `video-to-gif` — max 300 frames, audio is dropped, alpha is composited over black, GIF delays
+  are centiseconds so 30 fps plays back at 33.3 fps, the preview is skipped above 4 MB.
+  `pdf-sign` — one signature on one page per run, encrypted PDFs are refused, the mark is
+  rasterised so it cannot be moved afterwards, typed signatures use system fonts only.
+  `http-header-analyzer` — analysis only; the folded tools' "build" modes are no longer reachable
+  in the UI, following the `cors-headers` / `conditional-request-headers` merge precedent.
+- Mistakes noticed:
+  - `scripts/gen-fixtures.mjs` built `e2e/fixtures/one-page.pdf` with the page's `/Parent`
+    pointing at the **catalog** instead of the page tree. pdf-lib walks `/Parent` to read
+    inherited attributes, so every page-geometry call on that fixture threw
+    `Parent.ascend is not a function` — which breaks `pdf-watermark`, `pdf-page-numbers`,
+    `pdf-rotate` and `pdf-sign`. The e2e suite never caught it because the fixture was only ever
+    used by `pdf-metadata`. Fixed in this run (generator + regenerated fixture), and `pdf-sign`
+    now reports a broken page tree in plain language.
+  - Tailwind's `[hidden]` preflight rule is `:where()`-scoped in the base layer, so the HTML
+    `hidden` attribute loses to `.flex`/`.btn`: the Cancel/Reset and "Download all (.zip)"
+    buttons show before they should, and `showWhen` never hid an option — roughly 25 tools are
+    affected. A global fix breaks `e2e/workbench-robustness.spec.ts`, so only the option wrapper
+    was patched (in `heic-to-jpg`). This needs a proper fix in the base layer.
+  - The heavy libraries are eagerly loaded on **every** tool page: `import.meta.glob` in
+    `src/lib/worker/tool.worker.ts` is evaluated twice by Vite — once for the worker bundle and
+    once for the main graph — so ~1.2 MB raw / ~400 kB gzip (including a full copy of `pdf-lib`)
+    lands in the page chunk of every tool. `import ToolWorker from './tool.worker.ts?worker'` in
+    `src/lib/worker/client.ts` would keep it out of the main graph.
+  - `dist/_astro/pdf.worker.min.mjs` is emitted twice under two names (1.37 MB each).
+  - `src/lib/worker/client.ts` terminates the worker on abort, so a `blob:` URL minted inside a
+    worker dies with it; `video-to-gif` had to use data URLs for its preview.
+  - `src/lib/video/index.ts` never emits a "loading the video engine" progress message, so the
+    worker shows a bare bar while the ~180 kB engine chunk loads.
+  - `src/components/workbench/shared.ts` `readOptions` turns a cleared number field into
+    `Number('')` → `0`, so an empty numeric option silently means zero.
+  - `related` ids are still not validated: twelve visible tools point at the `string-escape`
+    aliases (`json-escape`, `unicode-escape`, `backslash-escape`) and those links are silently
+    dropped. A registry test for dangling `related` ids would catch this class of mistake.
+  - The old `priority-header` tool reported `u=0` as "not set", because `'0'` is falsy; the new
+    analyzer parses it correctly.
+  - `e2e/privacy.spec.ts` hardcodes `http://localhost:4321` instead of using `baseURL`, so it
+    fails on any other port.
+  - Four pre-existing tools fail `e2e/smoke.spec.ts` ("every tool page renders a working
+    workbench"): `csv-sanitize`, `jsonpath`, `rsa-encrypt-decrypt` and
+    `x509-certificate-inspector` — their examples raise an error instead of producing a result.
+  - `npm run docs:check` is a CI step, but `docs/TOOLS.md` is only ever regenerated by hand, so
+    every run that adds a tool leaves CI red until someone runs `npm run docs:tools`. (Regenerated
+    in this run: 376 tools across 19 categories.)
+- Ideas:
+  - A shared **batch-runner panel**: pick N files once, run them through the same tool, get one
+    progress table and one zip. Half the catalogue now has a batch mode, each re-implemented from
+    scratch, and the duplication is growing every round.
+  - An **HTML accessibility audit** for a whole pasted page — contrast, `alt` text, heading order,
+    form labels, landmark structure — as a linter rather than the single-purpose checks that
+    exist today.
+  - **Burn subtitles into a video** (SRT/VTT → hardcoded or soft): `subtitle-converter` changes
+  the text file, but nothing can put the subtitles on the picture.
+  - A **font inspector** for WOFF2/WOFF — coverage, variation axes, unicode ranges, licence bits
+    — since nothing in the catalogue touches fonts at all.
