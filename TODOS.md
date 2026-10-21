@@ -26,10 +26,10 @@ Line order is priority: top first. This file is written by a human (via review) 
 - [x] **image-strip-metadata** · image — Strip EXIF, GPS, and XMP. Prefer lossless JPEG segment removal; show what was removed. Batch mode. ⚠️ run died ✅ 4c3fe6b
 - [x] **video-to-gif** · video · after: video-foundation — Time range, fps, width, palette quality. Preview before export. ✅ bc08c91
 - [x] **pdf-sign** · pdf — Draw, type, or upload a signature. Place and resize on the page, then flatten with pdf-lib. ⚠️ run died ✅ 75d7414
-- [ ] **code-beautify** · developer — Prettier standalone for JS/TS/CSS/SCSS/HTML/JSON/Markdown/YAML. Lazy-load parsers per language. ⚠️ run died
-- [ ] **code-minify** · developer — terser, lightningcss-wasm or csso, html-minifier-terser. Show bytes saved. ⚠️ run died
-- [ ] **video-compress** · video · after: video-foundation — Presets by target size or quality. Warn on memory limits for long files.
-- [ ] **image-ocr** · image — tesseract.js with a language picker and self-hosted traineddata. Copy or download the text. ⚠️ run died
+- [x] **code-beautify** · developer — Prettier standalone for JS/TS/CSS/SCSS/HTML/JSON/Markdown/YAML. Lazy-load parsers per language. ⚠️ run died ✅ already exists as code-beautify
+- [ ] **code-minify** · developer — terser, lightningcss-wasm or csso, html-minifier-terser. Show bytes saved. ⚠️ run died ⏳ run-20261021-1531-369a @ 2026-10-21T15:41:05Z
+- [ ] **video-compress** · video · after: video-foundation — Presets by target size or quality. Warn on memory limits for long files. ⏳ run-20261021-1531-369a @ 2026-10-21T15:41:05Z
+- [ ] **image-ocr** · image — tesseract.js with a language picker and self-hosted traineddata. Copy or download the text. ⚠️ run died ⏳ run-20261021-1531-369a @ 2026-10-21T15:41:05Z
 - [ ] **background-remover** · image · after: ml-runtime-foundation — Use a permissively licensed model (e.g. MODNet); RMBG-1.4 is non-commercial, so don't use it. Output transparent PNG or a solid-colour background.
 - [ ] **screen-recorder** · video — getDisplayMedia + MediaRecorder with a mic toggle. WebM output, plus MP4 where the browser supports it. ⚠️ run died
 - [ ] **webcam-recorder** · video — getUserMedia + MediaRecorder. Share the recording code with screen-recorder.
