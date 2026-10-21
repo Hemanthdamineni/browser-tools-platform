@@ -8,11 +8,14 @@ import fs from 'node:fs';
  * HEIC file, the binary is served from this origin, and a file that cannot be
  * decoded fails with a readable message instead of a broken result.
  *
- * `e2e/fixtures/sample.heic` is a synthetic 24×24 red-to-blue gradient that
- * was encoded with libheif's own `heif-enc` (a 24×24 gradient, no third-party
- * imagery). Regenerate it with:
+ * `e2e/fixtures/sample.heic` is a synthetic 24×24 red-to-blue gradient and
+ * `e2e/fixtures/alpha.heic` a 24×24 image whose left half is transparent —
+ * both encoded with libheif's own `heif-enc` (no third-party imagery).
+ * Regenerate them with:
  *   magick -size 24x24 gradient:'#ff0000-#0000ff' -depth 8 PNG24:src.png
  *   heif-enc -q 90 src.png e2e/fixtures/sample.heic
+ *   magick -size 24x24 xc:none -fill red -draw "rectangle 12,0 23,23" PNG32:a.png
+ *   heif-enc -q 90 a.png e2e/fixtures/alpha.heic
  */
 
 const fixture = (name: string) => fileURLToPath(new URL(`./fixtures/${name}`, import.meta.url));
@@ -49,6 +52,32 @@ async function saveFirstOutput(page: import('@playwright/test').Page): Promise<B
   const file = await download;
   const path = await file.path();
   return fs.readFileSync(path!);
+}
+
+/** Decode an encoded image in the browser and read one RGBA pixel. */
+async function pixelAt(
+  page: import('@playwright/test').Page,
+  mime: string,
+  bytes: Buffer,
+  x: number,
+  y: number,
+): Promise<number[]> {
+  return page.evaluate(
+    async ({ mime, data, x, y }) => {
+      const img = new Image();
+      img.src = `data:${mime};base64,${data}`;
+      await img.decode();
+      const canvas = document.createElement('canvas');
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) throw new Error('No 2D context.');
+      ctx.drawImage(img, 0, 0);
+      const pixel = ctx.getImageData(x, y, 1, 1).data;
+      return [pixel[0] ?? 0, pixel[1] ?? 0, pixel[2] ?? 0, pixel[3] ?? 0];
+    },
+    { mime, data: bytes.toString('base64'), x, y },
+  );
 }
 
 test('converts a HEIC photo to JPG in the browser', async ({ page, baseURL }) => {
@@ -163,10 +192,60 @@ test('explains that a corrupt HEIC cannot be decoded', async ({ page, baseURL })
   await expect(page.locator('[data-result-wrap]')).toBeHidden();
 });
 
-test('keeps the progress and error areas hidden until a run starts', async ({
-  page,
-  baseURL,
-}) => {
+test('keeps the alpha channel when the output format supports it', async ({ page, baseURL }) => {
+  await page.goto(`${baseURL}/tools/heic-to-jpg`);
+  await page.selectOption('[data-opt-key="to"]', 'png');
+  await page.setInputFiles('input[type=file]', fixture('alpha.heic'));
+  await page.locator('[data-run]').click();
+
+  await expect(page.locator('[data-result-wrap]')).toBeVisible({ timeout: 30_000 });
+  const bytes = await saveFirstOutput(page);
+  expect(bytes.subarray(0, 8)).toEqual(
+    Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+  );
+
+  // The left half of the fixture is transparent, the right half is red.
+  const transparent = await pixelAt(page, 'image/png', bytes, 2, 12);
+  expect(transparent[3]).toBeLessThan(8);
+  const opaque = await pixelAt(page, 'image/png', bytes, 20, 12);
+  expect(opaque[3]).toBe(255);
+  expect(opaque[0]).toBeGreaterThan(200);
+  expect(opaque[1]).toBeLessThan(60);
+});
+
+test('flattens transparency onto the chosen background for JPEG', async ({ page, baseURL }) => {
+  await page.goto(`${baseURL}/tools/heic-to-jpg`);
+  await page.fill('[data-opt-key="background"]', '#000000');
+  await page.setInputFiles('input[type=file]', fixture('alpha.heic'));
+  await page.locator('[data-run]').click();
+
+  await expect(page.locator('[data-result-wrap]')).toBeVisible({ timeout: 30_000 });
+  const bytes = await saveFirstOutput(page);
+
+  // The transparent half is now the background colour, the other half red.
+  const background = await pixelAt(page, 'image/jpeg', bytes, 2, 12);
+  expect(background[0]).toBeLessThan(30);
+  expect(background[1]).toBeLessThan(30);
+  expect(background[2]).toBeLessThan(30);
+  const opaque = await pixelAt(page, 'image/jpeg', bytes, 20, 12);
+  expect(opaque[0]).toBeGreaterThan(180);
+  expect(opaque[1]).toBeLessThan(80);
+});
+
+test('runs the decoder in a Web Worker so the page stays responsive', async ({ page, baseURL }) => {
+  const workers: string[] = [];
+  page.on('worker', (worker) => workers.push(worker.url()));
+
+  await page.goto(`${baseURL}/tools/heic-to-jpg`);
+  await page.setInputFiles('input[type=file]', fixture('sample.heic'));
+  await page.locator('[data-run]').click();
+  await expect(page.locator('[data-result-wrap]')).toBeVisible({ timeout: 30_000 });
+
+  expect(workers.length).toBeGreaterThan(0);
+  expect(workers.some((url) => url.includes('worker'))).toBe(true);
+});
+
+test('keeps the progress and error areas hidden until a run starts', async ({ page, baseURL }) => {
   await page.goto(`${baseURL}/tools/heic-to-jpg`);
   await expect(page.locator('[data-progress-wrap]')).toBeHidden();
   await expect(page.locator('[data-error]')).toBeHidden();
