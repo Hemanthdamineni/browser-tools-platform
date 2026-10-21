@@ -64,6 +64,8 @@ export const meta: ToolMeta = {
       a: 'No. It only validates and formats header text locally.',
     },
   ],
-  related: ['server-timing', 'forwarded-header', 'user-agent'],
+  related: ['http-header-analyzer', 'user-agent'],
+  hidden: true,
+  redirectTo: 'http-header-analyzer',
   status: 'stable',
 };

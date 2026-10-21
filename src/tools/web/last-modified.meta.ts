@@ -57,7 +57,7 @@ export const meta: ToolMeta = {
       a: 'It should normally reflect the representation’s modification time, so future values often indicate clock skew or bad source metadata.',
     },
   ],
-  related: ['conditional-request-headers', 'date-header'],
+  related: ['conditional-request-headers', 'http-header-analyzer'],
   hidden: true,
   redirectTo: 'conditional-request-headers',
   status: 'stable',

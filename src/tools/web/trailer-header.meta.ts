@@ -56,6 +56,8 @@ export const meta: ToolMeta = {
       a: 'No. It only builds the declaration. Streaming and transfer framing remain server responsibilities.',
     },
   ],
-  related: ['content-digest', 'server-timing', 'http-range'],
+  related: ['http-header-analyzer', 'http-range'],
+  hidden: true,
+  redirectTo: 'http-header-analyzer',
   status: 'stable',
 };

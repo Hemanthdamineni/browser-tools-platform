@@ -55,6 +55,8 @@ export const meta: ToolMeta = {
       a: 'No. It validates field syntax locally and never makes a network request.',
     },
   ],
-  related: ['upgrade-header', 'http-status', 'content-location'],
+  related: ['http-header-analyzer', 'http-status', 'content-location'],
+  hidden: true,
+  redirectTo: 'http-header-analyzer',
   status: 'stable',
 };

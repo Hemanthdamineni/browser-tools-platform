@@ -51,6 +51,8 @@ export const meta: ToolMeta = {
       a: 'Extensions are possible in theory, but interoperability is limited. This tool flags them for review rather than claiming universal support.',
     },
   ],
-  related: ['http-status', 'retry-after', 'content-type'],
+  related: ['http-status', 'http-header-analyzer', 'content-type'],
+  hidden: true,
+  redirectTo: 'http-header-analyzer',
   status: 'stable',
 };

@@ -84,6 +84,8 @@ export const meta: ToolMeta = {
       a: 'fail-open retains default network behavior when delivery fails; fail-closed asks the browser to block the request outright.',
     },
   ],
-  related: ['reporting-endpoints', 'server-timing', 'security-headers'],
+  related: ['http-header-analyzer', 'security-headers'],
+  hidden: true,
+  redirectTo: 'http-header-analyzer',
   status: 'stable',
 };

@@ -41,6 +41,8 @@ export const meta: ToolMeta = {
       a: 'Yes. RFC 7230 requires proxies to add Via headers to their forwarded requests and responses.',
     },
   ],
-  related: ['proxy-authorization', 'trailer-header'],
+  related: ['proxy-authorization', 'http-header-analyzer'],
+  hidden: true,
+  redirectTo: 'http-header-analyzer',
   status: 'stable',
 };

@@ -41,5 +41,7 @@ export const meta: ToolMeta = {
     },
   ],
   related: ['cors-headers', 'sec-fetch-inspector', 'basic-auth'],
+  hidden: true,
+  redirectTo: 'http-header-analyzer',
   status: 'stable',
 };

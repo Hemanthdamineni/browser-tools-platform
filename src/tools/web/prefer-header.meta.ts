@@ -61,6 +61,8 @@ export const meta: ToolMeta = {
       a: 'Yes. Applications can define extension preferences, but both sides must agree on their meaning.',
     },
   ],
-  related: ['http-status', 'cache-headers', 'allow-header'],
+  related: ['http-status', 'cache-headers', 'http-header-analyzer'],
+  hidden: true,
+  redirectTo: 'http-header-analyzer',
   status: 'stable',
 };

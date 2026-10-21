@@ -57,7 +57,7 @@ export const meta: ToolMeta = {
       a: 'Use IMF-fixdate, for example Wed, 21 Oct 2030 07:28:00 GMT. This tool does not make network requests.',
     },
   ],
-  related: ['cache-headers', 'date-header', 'conditional-request-headers'],
+  related: ['cache-headers', 'http-header-analyzer', 'conditional-request-headers'],
   hidden: true,
   redirectTo: 'cache-headers',
   status: 'stable',

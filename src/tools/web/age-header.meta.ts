@@ -52,7 +52,7 @@ export const meta: ToolMeta = {
       a: 'A very large Age suggests a shared cache has held the copy for too long; compare it to the Cache-Control max-age to see whether the cached copy is stale.',
     },
   ],
-  related: ['cache-headers', 'date-header'],
+  related: ['cache-headers', 'http-header-analyzer'],
   hidden: true,
   redirectTo: 'cache-headers',
   status: 'stable',

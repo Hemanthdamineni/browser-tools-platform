@@ -56,6 +56,6 @@ export const meta: ToolMeta = {
       a: 'Permissions-Policy is the current header name. Browser support and feature names evolve, so test the target browsers.',
     },
   ],
-  related: ['security-headers', 'accept-ch', 'content-security-policy'],
+  related: ['security-headers', 'http-header-analyzer', 'content-security-policy'],
   status: 'stable',
 };

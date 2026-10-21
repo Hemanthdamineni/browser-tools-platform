@@ -57,6 +57,8 @@ export const meta: ToolMeta = {
       a: 'It is a separate header from CORS but serves a similar allowlisting role specifically for performance timing data.',
     },
   ],
-  related: ['server-timing', 'security-headers', 'cross-origin-resource-policy'],
+  related: ['http-header-analyzer', 'security-headers', 'cross-origin-resource-policy'],
+  hidden: true,
+  redirectTo: 'http-header-analyzer',
   status: 'stable',
 };

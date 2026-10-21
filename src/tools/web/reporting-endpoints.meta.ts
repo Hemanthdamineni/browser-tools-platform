@@ -62,6 +62,8 @@ export const meta: ToolMeta = {
       a: 'The optional priority parameter (0-255) controls connection pooling priority for the endpoint; it does not change report routing between groups.',
     },
   ],
-  related: ['security-headers', 'content-security-policy', 'network-error-logging'],
+  related: ['security-headers', 'content-security-policy', 'http-header-analyzer'],
+  hidden: true,
+  redirectTo: 'http-header-analyzer',
   status: 'stable',
 };

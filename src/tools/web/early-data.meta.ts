@@ -49,6 +49,8 @@ export const meta: ToolMeta = {
       a: 'No. Applications must still use idempotency keys, reject unsafe replayable operations, and apply server-side anti-replay policy.',
     },
   ],
-  related: ['http-status', 'retry-after', 'security-headers'],
+  related: ['http-status', 'http-header-analyzer', 'security-headers'],
+  hidden: true,
+  redirectTo: 'http-header-analyzer',
   status: 'stable',
 };

@@ -57,5 +57,7 @@ export const meta: ToolMeta = {
     },
   ],
   related: ['http-status', 'cors', 'security-headers'],
+  hidden: true,
+  redirectTo: 'http-header-analyzer',
   status: 'stable',
 };

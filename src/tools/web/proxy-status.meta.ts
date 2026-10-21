@@ -57,6 +57,6 @@ export const meta: ToolMeta = {
       a: 'No. This tool parses and builds header values locally without making network requests.',
     },
   ],
-  related: ['server-timing', 'forwarded-header', 'http-status'],
+  related: ['http-header-analyzer', 'http-status'],
   status: 'stable',
 };

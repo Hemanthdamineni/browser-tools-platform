@@ -53,6 +53,8 @@ export const meta: ToolMeta = {
       a: 'No. It validates the header value locally and never opens a network connection.',
     },
   ],
-  related: ['http-status', 'connection-header', 'content-type'],
+  related: ['http-status', 'http-header-analyzer', 'content-type'],
+  hidden: true,
+  redirectTo: 'http-header-analyzer',
   status: 'stable',
 };

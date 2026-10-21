@@ -77,6 +77,6 @@ export const meta: ToolMeta = {
       a: 'The server must echo back Access-Control-Allow-Methods/Headers covering those requested values; otherwise the browser blocks the real request.',
     },
   ],
-  related: ['cors-headers', 'origin-header'],
+  related: ['cors-headers', 'http-header-analyzer'],
   status: 'stable',
 };
