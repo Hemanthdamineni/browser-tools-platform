@@ -1,0 +1,37 @@
+---
+/**
+ * Generic mount point for a tool-specific panel.
+ *
+ * Most tools use the shared text or file workbench. A few need a flow the
+ * generic forms cannot express — a live camera preview, a level meter, a
+ * drawing pad, an on-screen keyboard. Those tools set `meta.panel` to the id
+ * of a panel component in `src/components/panels/<id>.astro`, and this
+ * component loads it.
+ *
+ * The panel is resolved with a lazy glob, so every panel becomes its own
+ * chunk: a tool page only ever ships the panel it actually uses. A panel id
+ * with no matching file fails the build instead of quietly shipping an empty
+ * page.
+ */
+import type { ComponentInstance } from 'astro';
+import type { ToolMeta } from '@/lib/types';
+
+interface Props {
+  meta: ToolMeta;
+}
+const { meta } = Astro.props;
+
+const panels = import.meta.glob<ComponentInstance>('../../components/panels/*.astro');
+const panelId = meta.panel ?? '';
+const key = Object.keys(panels).find((path) => path.endsWith(`/${panelId}.astro`));
+
+if (!key) {
+  throw new Error(
+    `Tool "${meta.id}" asks for panel "${panelId}" but src/components/panels/${panelId}.astro does not exist`,
+  );
+}
+
+const Panel = (await panels[key]!()).default;
+---
+
+<Panel meta={meta} />
