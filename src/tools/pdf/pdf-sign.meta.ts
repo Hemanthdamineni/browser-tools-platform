@@ -43,6 +43,15 @@ export const meta: ToolMeta = {
       min: 8,
       max: 2000,
     },
+    {
+      // Filled in by the signature panel with the PNG data URL of the mark the
+      // user drew, typed or uploaded. Declared so the contract is explicit;
+      // there is no sensible default — an empty value means "no signature".
+      key: 'signature',
+      label: 'Signature image (PNG data URL)',
+      type: 'text',
+      default: '',
+    },
   ],
   examples: [{ title: 'Sign the first page' }],
   faq: [
