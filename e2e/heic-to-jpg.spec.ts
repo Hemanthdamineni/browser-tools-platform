@@ -163,11 +163,14 @@ test('explains that a corrupt HEIC cannot be decoded', async ({ page, baseURL })
   await expect(page.locator('[data-result-wrap]')).toBeHidden();
 });
 
-test('keeps the Cancel and Reset buttons hidden until a run starts', async ({ page, baseURL }) => {
+test('keeps the progress and error areas hidden until a run starts', async ({
+  page,
+  baseURL,
+}) => {
   await page.goto(`${baseURL}/tools/heic-to-jpg`);
-  await expect(page.locator('[data-cancel]')).toBeHidden();
-  await expect(page.locator('[data-reset]')).toBeHidden();
   await expect(page.locator('[data-progress-wrap]')).toBeHidden();
+  await expect(page.locator('[data-error]')).toBeHidden();
+  await expect(page.locator('[data-result-wrap]')).toBeHidden();
 });
 
 test('only offers the JPEG background while the output format is JPEG', async ({

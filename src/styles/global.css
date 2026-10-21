@@ -321,13 +321,13 @@
 }
 
 /*
- * The HTML `hidden` attribute has to win over Tailwind's display utilities.
- * Tailwind's preflight rule is `:where()`-scoped, so it loses the cascade to
- * `.flex` / `.inline-flex` — which left the workbench's Cancel and Reset
- * buttons on screen before a run started, and stopped `showWhen` from
- * hiding an option. This rule is deliberately unlayered so it outranks the
- * utilities layer.
+ * The HTML `hidden` attribute has to win over Tailwind's display utilities
+ * where the workbench depends on it: an option wrapper is a flex container,
+ * so `showWhen` could not hide an option without this rule. Tailwind's
+ * preflight rule is `:where()`-scoped and sits in the base layer, so it
+ * loses the cascade to `.flex`. This rule is deliberately unlayered so it
+ * outranks the utilities layer.
  */
-[hidden]:not([hidden='until-found']) {
+[data-option-wrap][hidden] {
   display: none;
 }
