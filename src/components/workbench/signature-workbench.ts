@@ -291,10 +291,14 @@ export function mountSignatureWorkbench(root: HTMLElement): void {
       box.hidden = true;
       previewStatus.textContent = 'That file is not a PDF — choose a PDF to sign.';
       showError(errorBox, 'That file is not a PDF.', 'Choose a PDF document to sign.');
+      updateRunState();
       return;
     }
     fileUsable = true;
     await renderPreview();
+    // The signature may already exist (the user can sign before picking a
+    // file), so the run button is refreshed once the PDF is usable.
+    updateRunState();
   }
 
   const dz = createDropZone(dropEl, {
@@ -359,6 +363,10 @@ export function mountSignatureWorkbench(root: HTMLElement): void {
     const mode = target.closest('[data-resize-handle]') ? 'resize' : 'move';
     drag = { mode, startX: event.clientX, startY: event.clientY, origin: { ...placement } };
     box.setPointerCapture(event.pointerId);
+    // `preventDefault()` below stops the compatibility mouse events, so the
+    // box would not be focused — focus it explicitly so the arrow keys work
+    // right after a drag.
+    box.focus();
     event.preventDefault();
   });
 

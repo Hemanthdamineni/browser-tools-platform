@@ -162,6 +162,24 @@ describe('mountSignatureWorkbench', () => {
     ).toBe(asset.dataUrl);
   });
 
+  it('enables signing when the signature was created before the file was chosen', async () => {
+    const root = fixture();
+    mountSignatureWorkbench(root);
+
+    // The user signs first…
+    publishSignature(root);
+    expect(root.querySelector<HTMLButtonElement>('[data-run]')!.disabled).toBe(true);
+
+    // …and picks the PDF afterwards.
+    await chooseFile(root, pdfFile());
+    await vi.waitFor(() => {
+      expect(root.querySelector<HTMLElement>('[data-preview-status]')!.textContent).toMatch(
+        /Page 1 of 2/,
+      );
+    });
+    expect(root.querySelector<HTMLButtonElement>('[data-run]')!.disabled).toBe(false);
+  });
+
   it('moves the signature with the keyboard and signs with the placement', async () => {
     const root = fixture();
     mountSignatureWorkbench(root);
