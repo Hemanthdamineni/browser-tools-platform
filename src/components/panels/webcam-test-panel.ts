@@ -355,7 +355,18 @@ export function mountWebcamTestPanel(root: HTMLElement): void {
 
   /* Devices -------------------------------------------------------------- */
 
-  function renderDevices(): void {
+  /** What the browser says about camera permission — when it will tell us. */
+  async function permissionState(): Promise<PermissionState | 'unknown'> {
+    try {
+      const status = await navigator.permissions?.query({ name: 'camera' });
+      return status?.state ?? 'unknown';
+    } catch {
+      // Firefox and Safari refuse to answer for the camera; that is fine.
+      return 'unknown';
+    }
+  }
+
+  function renderDevices(permission: PermissionState | 'unknown'): void {
     deviceSelect.replaceChildren();
     if (!cameras.length) {
       const option = document.createElement('option');
@@ -363,7 +374,15 @@ export function mountWebcamTestPanel(root: HTMLElement): void {
       option.textContent = 'No camera detected';
       deviceSelect.appendChild(option);
       deviceSelect.disabled = true;
-      deviceNote.textContent = 'No camera was found on this device.';
+      // An empty list means different things: the user has not allowed access
+      // yet (Safari lists nothing before permission), the site is blocked, or
+      // the device really has no camera.
+      deviceNote.textContent =
+        permission === 'granted'
+          ? 'No camera was found on this device.'
+          : permission === 'denied'
+            ? 'Camera access is blocked for this site — allow it, then start the camera.'
+            : 'No camera listed yet — camera names appear after you allow access.';
       return;
     }
 
@@ -402,7 +421,7 @@ export function mountWebcamTestPanel(root: HTMLElement): void {
     cameras = found
       .filter((device) => device.kind === 'videoinput')
       .map((device) => ({ deviceId: device.deviceId, label: device.label }));
-    renderDevices();
+    renderDevices(await permissionState());
     updateReadout();
   }
 
