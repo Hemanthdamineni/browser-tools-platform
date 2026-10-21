@@ -1,6 +1,6 @@
 # Complete Tool List
 
-Total: **376** tools across **19** categories.
+Total: **378** tools across **19** categories.
 
 Generated from `src/tools/**/*.meta.ts` (source of truth).
 
@@ -129,7 +129,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `workday-calculator` | Workday Calculator | text | stable | Add business days to a date or count the working days between two dates, skipping weekends and holidays. |
 | `world-clock` | World Clock | text | stable | Current time, date and UTC offset for any IANA time zones, instantly and on your device. |
 
-## developer (48)
+## developer (49)
 
 | id | name | input | status | summary |
 | --- | --- | --- | --- | --- |
@@ -138,6 +138,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `backslash-escape` | Backslash Escape / Unescape | text | stable | Turn control characters into readable \\n \\t \\xNN \\uNNNN sequences, or interpret those sequences back into characters. |
 | `chmod-calculator` | chmod Permission Calculator | text | stable | Convert Unix file permissions between octal (755) and symbolic (rwxr-xr-x), with a per-class breakdown. |
 | `code-beautify` | Code Beautifier | text | beta | Beautify JS, TS, CSS, SCSS, Less, HTML, Vue, JSON, Markdown and YAML with Prettier, in your browser. |
+| `code-minify` | Code Minifier | text | beta | Minify JavaScript, TypeScript, CSS, HTML and JSON in your browser, and see exactly how many bytes you saved. |
 | `conventional-commit` | Conventional Commit Builder | text | stable | Compose a Conventional Commits message — type, scope, breaking change and body — and copy the ready commit text. |
 | `cron-parser` | Cron Expression Parser | text | stable | Explain a cron expression in plain English and list its next run times in UTC. |
 | `crontab-generator` | Crontab Generator | text | stable | Build a cron expression from presets or fields and get the crontab line plus a plain-English summary. |
@@ -189,7 +190,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `ascii85` | Ascii85 / Base85 | text | stable | Encode and decode Ascii85 / Base85 text in the Adobe, btoa and Z85 variants. |
 | `base32` | Base32 Encode / Decode | text | stable | RFC 4648 Base32 and Crockford Base32 encoding and decoding of text. |
 | `base58` | Base58 Encode / Decode | text | stable | Convert text to and from Base58 using the Bitcoin and IPFS alphabet. |
-| `base64` | Base64 Encode / Decode | text | stable | Convert text to and from Base64, with URL-safe and MIME line-wrap options. |
+| `base64` | Base64 Encode / Decode | file | stable | Convert text or a file to and from Base64, with URL-safe and MIME line-wrap options. |
 | `hex` | Hex Encode / Decode | text | stable | Convert text to and from hexadecimal (UTF-8), with configurable separators. |
 | `html-entity` | HTML Entity Converter | text | stable | Encode text to HTML entities (safe for &<>) and decode &amp;, &eacute;, &#123; back to text. |
 | `html-entities` | HTML Entity Encode / Decode | text | stable | Escape text for safe insertion into HTML, or decode named and numeric entities. |
@@ -350,10 +351,11 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `word-frequency` | Word Frequency Counter | text | stable | Count how often each word appears, with case folding, a minimum length, stop-word removal and a top-N limit. |
 | `wrap-text` | Wrap / Unwrap Text | text | stable | Hard-wrap text to a fixed column width with greedy word wrap, or unwrap wrapped lines back into paragraphs. |
 
-## video (2)
+## video (3)
 
 | id | name | input | status | summary |
 | --- | --- | --- | --- | --- |
+| `video-compress` | Video Compressor | file | beta | Shrink a video in your browser: aim at a target file size or at a quality level. Nothing is uploaded. |
 | `video-info` | Video File Info | file | beta | Inspect a video: container, duration, resolution, codecs, frame rate and bitrate. |
 | `video-to-gif` | Video to GIF | file | beta | Turn a clip into an animated GIF: trim it, pick the frame rate, width and palette quality. |
 
