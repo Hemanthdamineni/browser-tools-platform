@@ -165,21 +165,22 @@ being lost. No orchestrator was running.
 - Tooling: `scripts/gen-tools-doc.mjs` is committed and wired to `npm run docs:tools`; CI gained a
   "Tool docs are current" step, so the inventory cannot drift again. The whole tree is now
   Prettier-clean (671 files were not) and `npm run format:check` passes.
-- Tests: the external golden-output checks from `phase2/verification` were ported too — our ZIP,
-  WAV and PDF writers are now verified with `unzip`, `ffprobe`, `qpdf` and `pdfinfo` instead of
-  only against our own readers. Each skips itself when its reference tool is absent; CI installs
-  all four so they actually run there.
 - Tests: the external golden-output checks from `phase2/verification` were ported — `unzip` for
-  zip-create, `ffprobe` for audio-to-wav, `qpdf` and `pdfinfo` for pdf-metadata. They check our
+  `zip-create`, `ffprobe` for `audio-to-wav`, `qpdf` and `pdfinfo` for `pdf-metadata`. They check our
   output with programs we do not control, which is the only way to catch a file we can read back
-  but no other program can. Each skips itself when its tool is absent; CI installs the four so the
-  checks actually run there.
-- Tests: the external golden-output checks from `phase2/verification` were ported — `unzip` for
-  `zip-create`, `ffprobe` for `audio-to-wav`, `qpdf` and `pdfinfo` for `pdf-metadata`. Each skips
-  itself when its reference tool is missing, and CI now installs all four so they really run.
+  but no other program can. Each skips itself when its reference tool is absent; CI installs the
+  four so the checks actually run there.
+- Merged: **two more tools rescued from the dead runs' abandoned worktrees** — `yaml-format`
+  (YAML 1.2 formatter/validator, no new dependencies) and `code-beautify` (Prettier standalone with
+  each parser plugin loaded lazily). `prettier` moves from devDependencies to dependencies because
+  the tool ships it to the browser, and `NOTICE` records it as a runtime dependency. The text
+  workbench now shows a tool's progress message while it runs, which the lazy parser loading
+  needs. The remaining abandoned implementations (`code-minify`, `image-ocr`, `merge-base64`,
+  `pdf-sign`, `heic-to-jpg`) were committed onto their branches and pushed, so they are preserved
+  rather than lost; they need dependency, licence and review work before they can be merged.
 
 Checks: `astro check` → 0 errors; `eslint .` → clean; `prettier --check` → clean;
-`vitest run` → 393 files / 3351 tests; `astro build` → 396 pages.
+`vitest run` → 395 files / 3406 tests; `astro build` → 398 pages.
 
 Mistakes noticed:
 
