@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildPayload, modeInputs } from './data-uri-panel';
+import { buildPayload, modeInputs } from './data-uri';
 
 describe('data-uri panel · buildPayload', () => {
   it('sends the text for the text modes', () => {

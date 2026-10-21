@@ -7,7 +7,7 @@
  * `meta.panel = 'data-uri'`.
  */
 import type { ToolMeta } from '@/lib/types';
-import OptionsFields from './OptionsFields.astro';
+import OptionsFields from '../workbench/OptionsFields.astro';
 import Icon from '@/components/Icon.astro';
 
 interface Props {
@@ -152,7 +152,7 @@ const p = meta.id;
 <script>
   document.querySelectorAll<HTMLElement>('[data-data-uri-workbench]').forEach((root) => {
     // Loaded on demand: the panel is only used by the data URI converter.
-    void import('./data-uri-panel')
+    void import('./data-uri')
       .then(({ mountDataUriPanel }) => mountDataUriPanel(root))
       .catch(() => {
         const error = root.querySelector<HTMLElement>('[data-error]');

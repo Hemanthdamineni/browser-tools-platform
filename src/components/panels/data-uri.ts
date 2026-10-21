@@ -12,7 +12,7 @@ import type { FileRunResult, OptionValues } from '@/lib/types';
 import { createDropZone, downloadBlob, validateFileSelection } from '@/lib/files';
 import { escapeHtml, formatBytes } from '@/lib/format';
 import { runToolById } from '@/lib/worker/client';
-import { applyShowWhen, clearError, readOptions, showError } from './shared';
+import { applyShowWhen, clearError, readOptions, showError } from '../workbench/shared';
 
 /** The four modes of the merged tool. */
 export type PanelMode = 'text-encode' | 'text-decode' | 'image-encode' | 'image-decode';
