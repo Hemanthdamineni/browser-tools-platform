@@ -122,6 +122,12 @@ export interface ToolMeta {
   /** Allow selecting multiple files. */
   multiple?: boolean;
   /**
+   * This file tool also accepts text typed into the workbench. The shared file
+   * workbench renders an extra textarea for such tools and passes the value
+   * to `run()` as `input.text`. Only meaningful for `input: 'file'`.
+   */
+  acceptsText?: boolean;
+  /**
    * Render the live camera panel above the workbench. Used by scanning tools
    * that can capture from `getUserMedia` as well as accept files.
    */
@@ -201,6 +207,11 @@ export interface TextRunResult {
 export interface FileRunInput extends RunContext {
   files: File[];
   options: OptionValues;
+  /**
+   * Text typed into the workbench. Only sent by tools that declare
+   * `meta.acceptsText`; empty or absent when the user typed nothing.
+   */
+  text?: string;
 }
 
 export interface OutputFile {
