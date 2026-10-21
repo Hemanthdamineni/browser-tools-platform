@@ -40,10 +40,10 @@ Line order is priority: top first. This file is written by a human (via review) 
 - [ ] **gst-calculator** · misc — Add or remove GST; CGST/SGST/IGST split. Verify current slab rates against an official source before shipping. ⚠️ run died ⏳ run-20261021-1731-c91e @ 2026-10-21T17:37:32Z
 - [ ] **sip-calculator** · misc — SIP, step-up SIP, and lumpsum, with a growth chart. Add a "not financial advice" note. ⚠️ run died ⏳ run-20261021-1731-c91e @ 2026-10-21T17:37:32Z
 - [x] **compound-interest** · misc — Compounding frequency, periodic contributions, and a yearly schedule table. ✅ already exists as compound-interest-calculator
-- [ ] **webcam-test** · device — Registers the `device` category. Device picker, resolution and fps readout, snapshot. Nothing leaves the device.
-- [ ] **mic-test** · device — Level meter, waveform, record and play back.
-- [ ] **keyboard-tester** · device — On-screen layout that lights up per key; key/code readout; ghosting test.
-- [ ] **video-trim** · video · after: video-foundation — Stream copy when cut points allow, re-encode otherwise. Scrubber preview.
+- [ ] **webcam-test** · device — Registers the `device` category. Device picker, resolution and fps readout, snapshot. Nothing leaves the device. ⏳ run-20261021-1803-9613 @ 2026-10-21T18:14:43Z
+- [ ] **mic-test** · device — Level meter, waveform, record and play back. ⏳ run-20261021-1803-9613 @ 2026-10-21T18:14:43Z
+- [ ] **keyboard-tester** · device — On-screen layout that lights up per key; key/code readout; ghosting test. ⏳ run-20261021-1803-9613 @ 2026-10-21T18:14:43Z
+- [ ] **video-trim** · video · after: video-foundation — Stream copy when cut points allow, re-encode otherwise. Scrubber preview. ⏳ run-20261021-1803-9613 @ 2026-10-21T18:14:43Z
 - [ ] **video-extract-audio** · video · after: video-foundation — MP3, AAC, and WAV output.
 - [ ] **video-convert** · video · after: video-foundation — MP4, WebM, MOV, and MKV. Remux when possible, transcode when needed.
 - [ ] **image-watermark** · image — Text or logo watermark; opacity, position, or tiled. Batch mode.
