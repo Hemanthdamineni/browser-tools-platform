@@ -1,0 +1,142 @@
+import type { ToolMeta } from '@/lib/types';
+
+export const meta: ToolMeta = {
+  id: 'video-compress',
+  name: 'Video Compressor',
+  category: 'video',
+  summary:
+    'Shrink a video in your browser: aim at a target file size or at a quality level. Nothing is uploaded.',
+  description:
+    'Re-encode a clip to a smaller file entirely on your device. Pick a preset — half the size, a quarter of the size, a target number of megabytes, or a quality level — and the tool decodes, re-encodes and muxes a fresh MP4 or WebM for you. The video never leaves your computer.',
+  keywords: [
+    'video',
+    'compress',
+    'compressor',
+    'shrink',
+    'smaller',
+    'reduce size',
+    'file size',
+    'bitrate',
+    'reencode',
+    'mp4',
+    'webm',
+    'h264',
+    'vp9',
+    'optimize',
+    'offline',
+  ],
+  privacy: { processing: 'on-device', network: 'none', offline: true },
+  input: 'file',
+  accept: 'video/*,.mp4,.m4v,.mov,.webm,.mkv,.ogv,.ts',
+  options: [
+    {
+      key: 'preset',
+      label: 'Compression',
+      type: 'select',
+      default: 'size-50',
+      choices: [
+        { value: 'size-50', label: '50% smaller — half the size of the original' },
+        { value: 'size-25', label: '25% smaller — a quarter of the original size' },
+        { value: 'size-target', label: 'A specific target size' },
+        { value: 'quality-high', label: 'High quality — keep the picture, spend the bits' },
+        { value: 'quality-medium', label: 'Medium quality — a good everyday balance' },
+        { value: 'quality-low', label: 'Low quality — smallest possible file' },
+      ],
+      help: 'Aim at a file size, or at a picture quality and let the size fall where it may.',
+    },
+    {
+      key: 'targetSize',
+      label: 'Target size (megabytes)',
+      type: 'number',
+      default: 10,
+      min: 0.1,
+      max: 2048,
+      step: 0.5,
+      showWhen: { key: 'preset', value: 'size-target' },
+      help: 'The size the compressed file should come close to. The tool gets as near as the codec allows.',
+    },
+    {
+      key: 'width',
+      label: 'Output width (pixels)',
+      type: 'number',
+      default: 0,
+      min: 0,
+      max: 3840,
+      step: 10,
+      help: 'Narrow the video to this width; the height follows the aspect ratio. 0 keeps the original width.',
+    },
+    {
+      key: 'fps',
+      label: 'Maximum frame rate (fps)',
+      type: 'number',
+      default: 0,
+      min: 0,
+      max: 60,
+      step: 1,
+      help: 'Cap the frame rate. 0 keeps the original rate; 24 or 30 fps is plenty for most clips.',
+    },
+    {
+      key: 'container',
+      label: 'Container',
+      type: 'select',
+      default: 'mp4',
+      choices: [
+        { value: 'mp4', label: 'MP4 — H.264, plays everywhere' },
+        { value: 'webm', label: 'WebM — VP9, smaller and open' },
+      ],
+      help: 'MP4 works on every phone and player. WebM is usually a little smaller for the same quality.',
+    },
+    {
+      key: 'audio',
+      label: 'Keep the audio',
+      type: 'boolean',
+      default: true,
+      help: 'Re-encode the sound track as well. Turn it off for a smaller, silent file.',
+    },
+  ],
+  examples: [
+    { title: 'Halve the size of a clip', options: { preset: 'size-50' } },
+    { title: 'Compress a clip to 5 MB', options: { preset: 'size-target', targetSize: 5 } },
+    {
+      title: 'Make a 1080p clip phone-friendly',
+      options: { preset: 'size-50', width: 1280, fps: 30 },
+    },
+  ],
+  faq: [
+    {
+      q: 'How does the tool decide how small the file should be?',
+      a: 'The size presets turn the original file size into a target bitrate: "50% smaller" aims for half the bytes, "25% smaller" for a quarter, and "a specific target size" uses the number of megabytes you type. The quality presets work the other way round — they pick a bitrate from the picture size and frame rate, and let the file size fall where it may.',
+    },
+    {
+      q: 'Will the compressed video really be smaller?',
+      a: 'Usually, yes. But if the original was already compressed hard — a low bitrate recording, say — re-encoding it cannot beat it, and the tool says so instead of pretending otherwise.',
+    },
+    {
+      q: 'Does the tool keep the sound?',
+      a: 'Yes, by default the audio is re-encoded too and stays in sync with the picture. Turn "Keep the audio" off for a smaller, silent file.',
+    },
+    {
+      q: 'Which format should I pick?',
+      a: 'MP4 with H.264 plays on practically every phone, browser and video editor. WebM with VP9 is usually a little smaller for the same quality and is fully open, but older players may refuse it.',
+    },
+    {
+      q: 'Can it handle a long recording?',
+      a: 'Up to an hour. Longer clips get a warning first, because the re-encode takes a while and the finished file is held in memory until you download it. Past the limits the tool says so up front instead of freezing the tab.',
+    },
+    {
+      q: 'Why does my browser say it cannot encode video?',
+      a: 'The tool needs WebCodecs, the browser feature that does the encoding. It is available in recent Chrome, Edge and Firefox. If it is missing, the tool says so plainly rather than producing a broken file.',
+    },
+    {
+      q: 'Is my video uploaded anywhere?',
+      a: 'No. The clip is read from your device, decoded, re-encoded and muxed in your browser. Nothing is sent over the network, and the page keeps working offline once it has loaded.',
+    },
+    {
+      q: 'What happens to the original file?',
+      a: 'Nothing — it is never modified. The compressed copy is a new file you can save next to it.',
+    },
+  ],
+  credits: [{ name: 'mediabunny', url: 'https://mediabunny.dev', license: 'MPL-2.0' }],
+  related: ['video-to-gif', 'video-info'],
+  status: 'beta',
+};
