@@ -7,6 +7,7 @@ import PrivacyBadge from './PrivacyBadge.astro';
 import TextWorkbench from './workbench/TextWorkbench.astro';
 import FileWorkbench from './workbench/FileWorkbench.astro';
 import CameraPanel from './workbench/CameraPanel.astro';
+import PanelWorkbench from './workbench/PanelWorkbench.astro';
 import SignatureWorkbench from './workbench/SignatureWorkbench.astro';
 import ToolCard from './ToolCard.astro';
 
@@ -52,6 +53,8 @@ const related = relatedTools(meta);
     {
       meta.panel === 'signature' ? (
         <SignatureWorkbench meta={meta} />
+      ) : meta.panel ? (
+        <PanelWorkbench meta={meta} />
       ) : meta.input === 'file' ? (
         <FileWorkbench meta={meta} />
       ) : (

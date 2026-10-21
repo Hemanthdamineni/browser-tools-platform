@@ -138,8 +138,13 @@ export interface ToolMeta {
    * `'signature'` renders the signing panel: choose a PDF, capture a signature
    * (draw / type / upload), preview the page and place the mark. It is a flow
    * the generic option form cannot express.
+   *
+   * Any other value names a panel component in `src/components/panels/<id>.astro`
+   * (the panel id is usually the tool id). The panel replaces the generic
+   * workbench and is loaded lazily, one chunk per panel. A panel id with no
+   * matching component fails the build, so a typo never ships an empty page.
    */
-  panel?: 'signature';
+  panel?: 'signature' | (string & {});
   options?: ToolOption[];
   /** Runnable examples — one click fills the workbench. */
   examples?: { title: string; input?: string; options?: OptionValues }[];
