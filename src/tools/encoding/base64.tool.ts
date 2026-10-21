@@ -1,9 +1,11 @@
-import type { TextToolModule, TextRunInput, TextRunResult } from '@/lib/types';
+import type { FileToolModule, FileRunInput, FileRunResult } from '@/lib/types';
 import { ToolError } from '@/lib/types';
+import { resolveOptions } from '@/lib/options';
 import { meta } from './base64.meta';
 
 const STD_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
+/** Standard (RFC 4648 §4) Base64 of raw bytes. */
 function bytesToBase64(bytes: Uint8Array): string {
   let out = '';
   for (let i = 0; i < bytes.length; i += 3) {
@@ -18,6 +20,10 @@ function bytesToBase64(bytes: Uint8Array): string {
   return out;
 }
 
+/**
+ * Lenient decoder for typed text: ignores whitespace, accepts the URL-safe
+ * alphabet and adds the missing padding. Throws on anything else.
+ */
 function base64ToBytes(input: string): Uint8Array {
   const clean = input
     .replace(/[\r\n\t ]/g, '')
@@ -43,37 +49,127 @@ function base64ToBytes(input: string): Uint8Array {
   return new Uint8Array(bytes);
 }
 
-function run(input: TextRunInput): TextRunResult {
-  const { text, options } = input;
-  const mode = String(options.mode ?? 'encode');
-  const urlSafe = Boolean(options.urlSafe);
-
-  if (!text) return { output: '' };
-
-  if (mode === 'encode') {
-    let b64 = bytesToBase64(new TextEncoder().encode(text));
-    if (urlSafe) b64 = b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-    if (options.wrap) b64 = b64.replace(/.{76}/g, '$&\n');
-    return {
-      output: b64,
-      render: 'code',
-      language: 'base64',
-      stats: {
-        'input bytes': new TextEncoder().encode(text).length,
-        'output chars': b64.replace(/\n/g, '').length,
-      },
-    };
-  }
-
-  const decoded = new TextDecoder('utf-8', { fatal: false }).decode(base64ToBytes(text));
-  return {
-    output: decoded,
-    stats: { 'output chars': decoded.length },
-    notes: decoded.includes('�')
-      ? ['Output contains replacement characters — the data may not be UTF-8 text.']
-      : undefined,
-  };
+/** Base64 of a whole file, chunked so huge files do not blow the call stack. */
+function encodeFileBase64(bytes: Uint8Array): string {
+  let binary = '';
+  for (let i = 0; i < bytes.length; i += 0x8000)
+    binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  return btoa(binary);
 }
 
-const tool: TextToolModule = { meta, run };
+/**
+ * Strict decoder for files: a complete Base64 string (or a data URI). A
+ * truncated or malformed payload is an error — never a partial file.
+ */
+function decodeFileBase64(text: string): Uint8Array {
+  const normalized = text.replace(/\s+/g, '').replace(/^data:[^,]*;base64,/i, '');
+  if (
+    !normalized ||
+    normalized.length % 4 !== 0 ||
+    !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(normalized)
+  ) {
+    throw new ToolError('Invalid Base64 input.', 'Provide a complete Base64 string or data URI.');
+  }
+  try {
+    const binary = atob(normalized);
+    return Uint8Array.from(binary, (character) => character.charCodeAt(0));
+  } catch {
+    throw new ToolError('Invalid Base64 input.', 'Provide a complete Base64 string or data URI.');
+  }
+}
+
+/** The file workbench shows notes but not stats, so mirror the stats as notes. */
+function statNotes(stats: Record<string, string | number>): string[] {
+  return Object.entries(stats).map(([key, value]) => `${key}: ${value}`);
+}
+
+async function run(input: FileRunInput): Promise<FileRunResult> {
+  const options = resolveOptions(meta, input.options);
+  const mode = String(options.mode ?? 'encode');
+  const urlSafe = Boolean(options.urlSafe);
+  const wrap = Boolean(options.wrap);
+  const files = input.files ?? [];
+  const text = input.text ?? '';
+
+  /* ---------------------------------------------------------------------- */
+  /*  File path — a file was chosen. It wins over any pasted text.          */
+  /* ---------------------------------------------------------------------- */
+  if (files.length > 0) {
+    const file = files[0]!;
+    if (input.signal?.aborted) throw new DOMException('Aborted', 'AbortError');
+    const notes: string[] = [];
+    if (text) notes.push('A file was selected, so the pasted text was ignored.');
+
+    if (mode === 'encode') {
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      const encoded = encodeFileBase64(bytes);
+      input.onProgress?.(1, 'Done');
+      return {
+        outputs: [
+          {
+            filename: `${file.name}.base64.txt`,
+            blob: new Blob([encoded], { type: 'text/plain' }),
+          },
+        ],
+        report: { output: encoded, render: 'code', language: 'text' },
+        stats: { inputBytes: bytes.length, encodedCharacters: encoded.length },
+        notes,
+      };
+    }
+
+    if (mode === 'decode') {
+      const decoded = decodeFileBase64(await file.text());
+      const filename = String(options.outputName || 'decoded.bin').replace(/[\\/\0]/g, '_');
+      input.onProgress?.(1, 'Done');
+      return {
+        outputs: [{ filename, blob: new Blob([decoded.slice().buffer as ArrayBuffer]) }],
+        stats: { inputCharacters: file.size, outputBytes: decoded.length },
+        notes,
+      };
+    }
+
+    throw new ToolError(`Unknown mode "${mode}".`, 'Use encode or decode.');
+  }
+
+  /* ---------------------------------------------------------------------- */
+  /*  Text path — nothing was dropped in, only text was typed or pasted.     */
+  /* ---------------------------------------------------------------------- */
+  if (text) {
+    if (mode === 'encode') {
+      const bytes = new TextEncoder().encode(text);
+      let b64 = bytesToBase64(bytes);
+      if (urlSafe) b64 = b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+      if (wrap) b64 = b64.replace(/.{76}/g, '$&\n');
+      const stats = {
+        'input bytes': bytes.length,
+        'output chars': b64.replace(/\n/g, '').length,
+      };
+      return {
+        outputs: [],
+        report: { output: b64, render: 'code', language: 'base64' },
+        stats,
+        notes: statNotes(stats),
+      };
+    }
+
+    if (mode === 'decode') {
+      const decoded = new TextDecoder('utf-8', { fatal: false }).decode(base64ToBytes(text));
+      const stats = { 'output chars': decoded.length };
+      const notes = statNotes(stats);
+      if (decoded.includes('\uFFFD')) {
+        notes.push('Output contains replacement characters — the data may not be UTF-8 text.');
+      }
+      return { outputs: [], report: { output: decoded }, stats, notes };
+    }
+
+    throw new ToolError(`Unknown mode "${mode}".`, 'Use encode or decode.');
+  }
+
+  throw new ToolError(
+    'Choose a file or paste some text.',
+    'There is nothing to encode or decode yet.',
+  );
+}
+
+const tool: FileToolModule = { meta, run };
 export default tool;

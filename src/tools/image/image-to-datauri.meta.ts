@@ -30,6 +30,6 @@ export const meta: ToolMeta = {
     },
   ],
   examples: [{ title: 'Encode an image' }],
-  related: ['datauri-to-image', 'data-uri', 'base64-file'],
+  related: ['datauri-to-image', 'data-uri', 'base64'],
   status: 'beta',
 };

@@ -13,6 +13,6 @@ export const meta: ToolMeta = {
   multiple: true,
   options: [{ key: 'hash', label: 'Compute SHA-256', type: 'boolean', default: true }],
   examples: [{ title: 'Inspect file metadata' }],
-  related: ['file-split', 'base64-file'],
+  related: ['file-split', 'base64'],
   status: 'stable',
 };
