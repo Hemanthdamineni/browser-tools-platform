@@ -1253,6 +1253,7 @@ function fakeEngine(config: { decodable?: boolean; videoTrack?: boolean; sinkErr
     constructor(public track: unknown) {}
     async *samples(): AsyncGenerator<never> {
       if (config.sinkError) throw config.sinkError;
+      yield* [];
     }
   }
 
