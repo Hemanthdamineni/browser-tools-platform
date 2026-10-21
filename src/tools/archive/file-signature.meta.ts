@@ -49,6 +49,6 @@ export const meta: ToolMeta = {
       a: 'No. It reads only the configured leading sample (at most 256 bytes) in your browser, and makes no network request.',
     },
   ],
-  related: ['file-metadata', 'mime-lookup', 'base64-file'],
+  related: ['file-metadata', 'mime-lookup', 'base64'],
   status: 'stable',
 };

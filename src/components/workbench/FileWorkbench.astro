@@ -8,6 +8,7 @@ interface Props {
 }
 const { meta } = Astro.props;
 const options = meta.options ?? [];
+const examples = meta.acceptsText ? (meta.examples ?? []) : [];
 const p = meta.id;
 ---
 
@@ -35,6 +36,47 @@ const p = meta.id;
   </div>
 
   <ul class="mt-3 space-y-1.5 text-sm" data-file-list></ul>
+
+  {
+    meta.acceptsText && (
+      <div class="mt-4">
+        {examples.length > 0 && (
+          <div class="mb-3 flex flex-wrap items-center gap-2">
+            <span class="text-xs font-medium text-[rgb(var(--text-muted))]">Try:</span>
+            {examples.map((ex, i) => (
+              <button
+                type="button"
+                class="chip hover:text-[rgb(var(--text))]"
+                data-example={i}
+                data-example-payload={JSON.stringify({
+                  input: ex.input ?? '',
+                  options: ex.options ?? {},
+                })}
+              >
+                {ex.title}
+              </button>
+            ))}
+          </div>
+        )}
+        <label for={`${p}-text-input`} class="text-sm font-medium">
+          Or paste text directly
+        </label>
+        <textarea
+          id={`${p}-text-input`}
+          class="field mt-1.5"
+          rows="6"
+          spellcheck="false"
+          autocapitalize="off"
+          autocomplete="off"
+          data-text-input
+          placeholder="Type or paste here…"
+        />
+        <p class="mt-1 text-xs text-[rgb(var(--text-muted))]">
+          Text is processed on this device. If a file is selected, the file is used instead.
+        </p>
+      </div>
+    )
+  }
 
   {
     options.length > 0 && (
@@ -106,7 +148,7 @@ const p = meta.id;
     clearError,
     renderTextResult,
   } from './shared';
-  import type { FileRunResult } from '@/lib/types';
+  import type { FileRunResult, OptionValues } from '@/lib/types';
 
   document.querySelectorAll<HTMLElement>('[data-file-workbench]').forEach((root) => {
     // The dedicated signing panel reuses the `data-file-workbench` marker (the
@@ -130,6 +172,10 @@ const p = meta.id;
     const notesEl = root.querySelector<HTMLUListElement>('[data-notes]')!;
     const downloadAllBtn = root.querySelector<HTMLButtonElement>('[data-download-all]')!;
     const optionsRoot = root.querySelector<HTMLElement>('[data-options]') ?? root;
+    // Only tools that opt in (`meta.acceptsText`) get the extra textarea; for
+    // every other file tool this is null and the behaviour is unchanged.
+    const textEl = root.querySelector<HTMLTextAreaElement>('[data-text-input]');
+    const acceptsText = textEl !== null;
 
     let files: File[] = [];
     let controller: AbortController | null = null;
@@ -160,8 +206,26 @@ const p = meta.id;
         </li>`,
         )
         .join('');
-      runBtn.disabled = files.length === 0;
-      resetBtn.hidden = files.length === 0;
+      syncRunState();
+    }
+
+    /** The pasted text, or '' when the tool does not accept text. */
+    function pastedText(): string {
+      return acceptsText ? textEl!.value : '';
+    }
+
+    function hasPastedText(): boolean {
+      return pastedText().length > 0;
+    }
+
+    /**
+     * The Run button is enabled once a file is chosen — and, for tools that
+     * also accept text, as soon as the textarea has content.
+     */
+    function syncRunState() {
+      const ready = files.length > 0 || hasPastedText();
+      runBtn.disabled = !ready;
+      resetBtn.hidden = !ready;
     }
 
     function addFiles(incoming: File[]) {
@@ -188,7 +252,7 @@ const p = meta.id;
     optionsRoot.addEventListener('change', () => applyShowWhen(optionsRoot));
 
     async function run() {
-      if (!files.length) return;
+      if (!files.length && !hasPastedText()) return;
       const limit = validateFileSelection(files);
       if (limit) {
         showError(errorBox, limit);
@@ -207,21 +271,24 @@ const p = meta.id;
       revokePreviews();
 
       try {
-        const result = await runToolById<FileRunResult>(
-          toolId,
-          { files, options: readOptions(optionsRoot) },
-          {
-            signal: controller.signal,
-            onProgress: (fraction, message) => {
-              if (generation !== runGeneration) return;
-              const pct = Math.round(Math.min(1, Math.max(0, fraction)) * 100);
-              progressBar.style.width = `${pct}%`;
-              // The progress message region is aria-live="polite"; always include
-              // the percentage so screen readers announce progress + completion.
-              progressMsg.textContent = message ? `${message} — ${pct}%` : `${pct}%`;
-            },
+        // Only tools that opt in receive the typed text; every other file tool
+        // gets exactly the payload it got before.
+        const payload: { files: File[]; options: OptionValues; text?: string } = {
+          files,
+          options: readOptions(optionsRoot),
+        };
+        if (acceptsText) payload.text = pastedText();
+        const result = await runToolById<FileRunResult>(toolId, payload, {
+          signal: controller.signal,
+          onProgress: (fraction, message) => {
+            if (generation !== runGeneration) return;
+            const pct = Math.round(Math.min(1, Math.max(0, fraction)) * 100);
+            progressBar.style.width = `${pct}%`;
+            // The progress message region is aria-live="polite"; always include
+            // the percentage so screen readers announce progress + completion.
+            progressMsg.textContent = message ? `${message} — ${pct}%` : `${pct}%`;
           },
-        );
+        });
         if (generation !== runGeneration) return;
         progressBar.style.width = '100%';
         progressMsg.textContent = 'Done';
@@ -307,6 +374,7 @@ const p = meta.id;
       controller?.abort();
       controller = null;
       files = [];
+      if (textEl) textEl.value = '';
       outputs = [];
       revokePreviews();
       renderList();
@@ -320,6 +388,41 @@ const p = meta.id;
       clearError(errorBox);
     });
     downloadAllBtn.addEventListener('click', () => downloadZip(outputs, `${toolId}-output.zip`));
+
+    // Typing in the textarea re-enables Run (for tools that accept text) and
+    // hides the now-stale result.
+    textEl?.addEventListener('input', () => {
+      syncRunState();
+      resultWrap.hidden = true;
+      clearError(errorBox);
+    });
+
+    // Example chips fill the textarea (and the options) and run straight away.
+    root.querySelectorAll<HTMLButtonElement>('[data-example]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        try {
+          const payload = JSON.parse(btn.dataset.examplePayload!) as {
+            input: string;
+            options: Record<string, unknown>;
+          };
+          if (textEl) textEl.value = payload.input;
+          for (const [k, v] of Object.entries(payload.options)) {
+            const el = optionsRoot.querySelector<HTMLInputElement | HTMLSelectElement>(
+              `[data-opt-key="${k}"]`,
+            );
+            if (!el) continue;
+            if ((el as HTMLInputElement).type === 'checkbox')
+              (el as HTMLInputElement).checked = Boolean(v);
+            else el.value = String(v);
+          }
+          applyShowWhen(optionsRoot);
+          syncRunState();
+          run();
+        } catch {
+          /* malformed example */
+        }
+      });
+    });
 
     window.addEventListener(
       'beforeunload',

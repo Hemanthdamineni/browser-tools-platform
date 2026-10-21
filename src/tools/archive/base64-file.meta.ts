@@ -1,4 +1,10 @@
 import type { ToolMeta } from '@/lib/types';
+
+/**
+ * Legacy id. The tool was merged into `base64`, which now handles both text
+ * and files. The id stays routable so old links and bookmarks keep working —
+ * the page redirects to the merged tool.
+ */
 export const meta: ToolMeta = {
   id: 'base64-file',
   name: 'File to Base64',
@@ -24,6 +30,8 @@ export const meta: ToolMeta = {
     { key: 'outputName', label: 'Decoded filename', type: 'text', default: 'decoded.bin' },
   ],
   examples: [{ title: 'Encode or decode a file' }],
-  related: ['file-metadata', 'image-to-datauri'],
+  related: ['base64'],
   status: 'stable',
+  hidden: true,
+  redirectTo: 'base64',
 };
