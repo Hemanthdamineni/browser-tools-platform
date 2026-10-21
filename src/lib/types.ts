@@ -131,8 +131,10 @@ export interface ToolMeta {
    * `'signature'` renders the signing panel: choose a PDF, capture a signature
    * (draw / type / upload), preview the page and place the mark. It is a flow
    * the generic option form cannot express.
+   * `'markdown'` renders the split-pane preview panel: a source editor next to
+   * a sandboxed live preview, with export and print actions.
    */
-  panel?: 'signature';
+  panel?: 'signature' | 'markdown';
   options?: ToolOption[];
   /** Runnable examples — one click fills the workbench. */
   examples?: { title: string; input?: string; options?: OptionValues }[];

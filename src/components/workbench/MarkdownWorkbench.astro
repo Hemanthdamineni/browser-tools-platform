@@ -1,0 +1,180 @@
+---
+/**
+ * The Markdown preview workbench: a split-pane editor.
+ *
+ * The generic text workbench cannot express this flow (a source editor next
+ * to a live, sandboxed rendering of it), so the tool opts into this panel via
+ * `meta.panel = 'markdown'` — the same route `pdf-sign` takes.
+ *
+ * The preview is rendered into an `<iframe sandbox>` without `allow-scripts`
+ * and without `allow-same-origin`: raw HTML in the document can never run
+ * script and can never reach this page.
+ */
+import type { ToolMeta } from '@/lib/types';
+import OptionsFields from './OptionsFields.astro';
+import Icon from '@/components/Icon.astro';
+
+interface Props {
+  meta: ToolMeta;
+}
+const { meta } = Astro.props;
+const examples = meta.examples ?? [];
+const options = meta.options ?? [];
+const p = meta.id;
+---
+
+<section
+  class="surface rounded-lg p-4 sm:p-6"
+  data-text-workbench
+  data-markdown-workbench
+  data-tool-id={meta.id}
+  aria-label={`${meta.name} workbench`}
+>
+  {
+    examples.length > 0 && (
+      <div class="mb-4 flex flex-wrap items-center gap-2">
+        <span class="text-xs font-medium text-[rgb(var(--text-muted))]">Try:</span>
+        {examples.map((ex, i) => (
+          <button
+            type="button"
+            class="chip hover:text-[rgb(var(--text))]"
+            data-example={i}
+            data-example-payload={JSON.stringify({
+              input: ex.input ?? '',
+              options: ex.options ?? {},
+            })}
+          >
+            {ex.title}
+          </button>
+        ))}
+      </div>
+    )
+  }
+
+  <div class="grid gap-4 lg:grid-cols-2">
+    <div class="flex min-w-0 flex-col">
+      <label class="mb-1.5 text-sm font-medium" for={`${p}-input`}>Markdown source</label>
+      <textarea
+        id={`${p}-input`}
+        class="field !min-h-[22rem] flex-1 font-mono text-[13px]"
+        rows="18"
+        spellcheck="false"
+        autocapitalize="off"
+        autocomplete="off"
+        data-input
+        placeholder="Type or paste Markdown here…"
+      />
+      <p class="mt-1 text-xs text-[rgb(var(--text-muted))]" data-input-stats aria-live="off" />
+    </div>
+
+    <section
+      class="flex min-w-0 flex-col"
+      aria-label="Rendered Markdown preview"
+      data-result-wrap
+    >
+      <div class="mb-1.5 flex items-center justify-between gap-3">
+        <span class="text-sm font-medium">Preview</span>
+        <span
+          class="truncate text-xs text-[rgb(var(--text-muted))]"
+          data-status
+          role="status"
+          aria-live="polite"></span>
+      </div>
+      <iframe
+        class="min-h-[22rem] w-full flex-1 rounded-md border"
+        style="background-color: rgb(var(--surface));"
+        data-preview-frame
+        sandbox=""
+        title="Rendered Markdown preview"
+        referrerpolicy="no-referrer"></iframe>
+    </section>
+  </div>
+
+  {
+    options.length > 0 && (
+      <details class="mt-4 rounded-lg border" open>
+        <summary class="cursor-pointer select-none px-3 py-2 text-sm font-medium">Options</summary>
+        <div class="border-t p-3">
+          <OptionsFields options={options} idPrefix={p} />
+        </div>
+      </details>
+    )
+  }
+
+  <div class="mt-4 flex flex-wrap items-center gap-2.5">
+    <button type="button" class="btn btn-primary" data-export>
+      <Icon name="download" size={16} />
+      Export HTML
+    </button>
+    <button type="button" class="btn btn-ghost" data-copy>
+      <Icon name="copy" size={16} />
+      Copy HTML
+    </button>
+    <button type="button" class="btn btn-ghost" data-print>
+      <Icon name="file-text" size={16} />
+      Print / Save as PDF
+    </button>
+    <button type="button" class="btn btn-ghost" data-clear>
+      <Icon name="x" size={16} />
+      Clear
+    </button>
+    <span class="ml-auto text-xs tabular-nums text-[rgb(var(--text-muted))]" data-stats></span>
+  </div>
+  <p class="mt-2 text-xs text-[rgb(var(--text-muted))]">
+    For a PDF, press "Print / Save as PDF" and choose <strong>Save as PDF</strong> as the
+    destination in the browser's print dialog. Only the rendered document is printed — nothing is
+    uploaded.
+  </p>
+
+  <div
+    class="mt-4 rounded-lg border px-3 py-2 text-sm"
+    style="background-color: rgb(var(--danger-soft)); border-color: rgb(var(--danger)); color: rgb(var(--danger))"
+    role="alert"
+    data-error
+    hidden
+  >
+  </div>
+</section>
+
+<!--
+  The print view is created by the panel and appended to <body> so it can be
+  printed on its own: everything else on the page is hidden while the browser's
+  print dialog is open.
+-->
+<style is:global>
+  html[data-printing] body > *:not([data-print-root]) {
+    display: none !important;
+  }
+  html[data-printing] body > [data-print-root] {
+    display: block !important;
+  }
+  [data-print-root] {
+    display: none;
+  }
+  @media print {
+    @page {
+      margin: 16mm;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    [data-markdown-workbench] iframe,
+    [data-markdown-workbench] textarea {
+      transition: none !important;
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-markdown-workbench]').forEach((root) => {
+    // Loaded on demand: the preview panel is only used by the Markdown preview.
+    void import('./markdown-workbench')
+      .then(({ mountMarkdownWorkbench }) => mountMarkdownWorkbench(root))
+      .catch(() => {
+        const error = root.querySelector<HTMLElement>('[data-error]');
+        if (error) {
+          error.hidden = false;
+          error.textContent = 'The Markdown preview panel could not be loaded in this browser.';
+        }
+      });
+  });
+</script>

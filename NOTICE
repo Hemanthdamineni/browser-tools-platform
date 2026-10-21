@@ -10,6 +10,7 @@ visitor's browser.
 - yaml               — ISC      — https://github.com/eemeli/yaml
 - diff               — BSD-3-Clause — https://github.com/kpdecker/jsdiff
 - marked             — MIT      — https://github.com/markedjs/marked
+- shiki              — MIT      — https://github.com/shikijs/shiki
 - qrcode-generator   — MIT      — https://github.com/kazuhikoarase/qrcode-generator
 - jsqr               — Apache-2.0 — https://github.com/cozmo/jsQR
 - cronstrue          — MIT      — https://github.com/bradymholt/cronstrue
@@ -27,6 +28,11 @@ separate chunk on demand, and the WebAssembly binary it needs is served from
 this origin at `/vendor/libheif/libheif.wasm` (committed under
 `public/vendor/libheif/`, with its licence text next to it). It is never
 fetched from a third party.
+
+shiki (MIT) is used by the Markdown preview only. It is loaded on demand and
+uses the JavaScript regex engine, so no WebAssembly binary is downloaded. Each
+language and theme is a separate chunk that is fetched from this origin only
+when the document actually contains a matching code block.
 
 Build-time only (not shipped to visitors): astro, tailwindcss, typescript,
 vitest, playwright, eslint.
