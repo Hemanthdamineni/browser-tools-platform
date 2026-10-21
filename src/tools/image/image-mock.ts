@@ -9,9 +9,9 @@
  * actual pixels** that end up on (or come off) a canvas.
  *
  * The fake 2D context implements `fillRect`, `drawImage` (with source-over
- * compositing), `getImageData` and `putImageData`, which lets the pixel-based
- * tools (favicon, diff, spritesheet, svg-to-png) assert real output rather than
- * only call shapes.
+ * compositing), `createImageData`, `getImageData` and `putImageData`, which
+ * lets the pixel-based tools (favicon, diff, spritesheet, svg-to-png) assert
+ * real output rather than only call shapes.
  *
  * Not a `.test.ts` / `.tool.ts` file, so vitest's glob and the registry both
  * ignore it in production builds.
@@ -190,6 +190,17 @@ export class MockContext2D {
         this.canvas.blend(dx + x, dy + y, [sp[si]!, sp[si + 1]!, sp[si + 2]!, sp[si + 3]!]);
       }
     }
+  }
+
+  createImageData(width: number, height: number): ImageData {
+    const w = Math.max(0, Math.round(width));
+    const h = Math.max(0, Math.round(height));
+    return {
+      data: new Uint8ClampedArray(w * h * 4),
+      width: w,
+      height: h,
+      colorSpace: 'srgb',
+    } as unknown as ImageData;
   }
 
   getImageData(x: number, y: number, width: number, height: number): ImageData {
