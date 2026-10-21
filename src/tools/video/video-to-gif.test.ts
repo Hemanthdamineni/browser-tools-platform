@@ -268,7 +268,7 @@ function lzwDecode(data: Uint8Array, minCodeSize: number): Uint8Array {
   };
 
   let previous: number[] | null = null;
-  while ((bit >> 3) < data.length) {
+  while (bit >> 3 < data.length) {
     const code = readCode();
     if (code === clearCode) {
       resetTable();
@@ -787,7 +787,12 @@ describe('ditherToIndices', () => {
 describe('colorDepthForPalette', () => {
   it('uses the smallest colour depth that fits the palette', () => {
     expect(colorDepthForPalette([{ r: 0, g: 0, b: 0 }])).toBe(2);
-    expect(colorDepthForPalette([{ r: 0, g: 0, b: 0 }, { r: 1, g: 1, b: 1 }])).toBe(2);
+    expect(
+      colorDepthForPalette([
+        { r: 0, g: 0, b: 0 },
+        { r: 1, g: 1, b: 1 },
+      ]),
+    ).toBe(2);
     expect(colorDepthForPalette(new Array(32).fill({ r: 0, g: 0, b: 0 }))).toBe(5);
     expect(colorDepthForPalette(new Array(128).fill({ r: 0, g: 0, b: 0 }))).toBe(7);
     expect(colorDepthForPalette(new Array(256).fill({ r: 0, g: 0, b: 0 }))).toBe(8);
@@ -1107,12 +1112,7 @@ describe('convertVideoToGif', () => {
   it('writes a shared palette for the small-file preset', async () => {
     const src = fakeSource([0, 0.5]);
     const open: GifSourceOpener = async () => src;
-    const result = await convertVideoToGif(
-      file(),
-      { ...options, palette: 'small' },
-      {},
-      open,
-    );
+    const result = await convertVideoToGif(file(), { ...options, palette: 'small' }, {}, open);
     expect(result.colors).toBe(32);
     expect(result.paletteScope).toBe('global');
     const gif = readGif(result.bytes);
@@ -1124,12 +1124,7 @@ describe('convertVideoToGif', () => {
   it('writes a dithered per-frame palette for the best-quality preset', async () => {
     const src = fakeSource([0, 0.5]);
     const open: GifSourceOpener = async () => src;
-    const result = await convertVideoToGif(
-      file(),
-      { ...options, palette: 'high' },
-      {},
-      open,
-    );
+    const result = await convertVideoToGif(file(), { ...options, palette: 'high' }, {}, open);
     expect(result.colors).toBe(256);
     expect(result.paletteScope).toBe('local');
     expect(result.dither).toBe(true);
@@ -1199,8 +1194,32 @@ describe('convertVideoToGif', () => {
 
 type Method = (...args: never[]) => Promise<unknown>;
 
+/**
+ * A stand-in for `OffscreenCanvas` — jsdom has no 2D canvas, and the decode
+ * path only needs somewhere to draw a frame.
+ */
+class FakeOffscreenCanvas {
+  constructor(
+    public width: number,
+    public height: number,
+  ) {}
+  getContext(): {
+    fillStyle: string;
+    fillRect: () => void;
+    getImageData: () => { data: Uint8ClampedArray };
+  } {
+    return {
+      fillStyle: '#000000',
+      fillRect: () => {},
+      getImageData: () => ({ data: new Uint8ClampedArray(this.width * this.height * 4) }),
+    };
+  }
+}
+
 /** A structural stand-in for the Mediabunny engine — no real codec. */
-function fakeEngine(config: { decodable?: boolean; videoTrack?: boolean } = {}) {
+function fakeEngine(
+  config: { decodable?: boolean; videoTrack?: boolean; sinkError?: Error } = {},
+) {
   const videoTrack: Record<string, Method> = {
     getDisplayWidth: async () => 640,
     getDisplayHeight: async () => 360,
@@ -1232,8 +1251,14 @@ function fakeEngine(config: { decodable?: boolean; videoTrack?: boolean } = {}) 
   class BlobSource {
     constructor(public blob: Blob) {}
   }
+  class VideoSampleSink {
+    constructor(public track: unknown) {}
+    async *samples(): AsyncGenerator<never> {
+      if (config.sinkError) throw config.sinkError;
+    }
+  }
 
-  return { Input, BlobSource, ALL_FORMATS: [] } as unknown as VideoEngine;
+  return { Input, BlobSource, VideoSampleSink, ALL_FORMATS: [] } as unknown as VideoEngine;
 }
 
 describe('openMediabunnySource', () => {
@@ -1272,6 +1297,43 @@ describe('openMediabunnySource', () => {
       expect(src.durationSeconds).toBe(4);
       expect(src.hasAudio).toBe(false);
       src.dispose();
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it('turns a decoder failure into a clear error', async () => {
+    vi.stubGlobal('VideoDecoder', class FakeVideoDecoder {});
+    vi.stubGlobal('OffscreenCanvas', FakeOffscreenCanvas);
+    try {
+      const engine = fakeEngine({ sinkError: new Error('decoder exploded') });
+      const src = await openMediabunnySource(file(), {}, engine);
+      const request = { width: 16, height: 12, startSeconds: 0, endSeconds: 1 };
+      const drain = async (): Promise<void> => {
+        for await (const _frame of src.frames(request, {})) {
+          /* the sink throws before yielding */
+        }
+      };
+      await expect(drain()).rejects.toThrow(/could not be decoded/i);
+      await expect(drain()).rejects.toThrow(ToolError);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it('keeps a cancellation a cancellation', async () => {
+    vi.stubGlobal('VideoDecoder', class FakeVideoDecoder {});
+    vi.stubGlobal('OffscreenCanvas', FakeOffscreenCanvas);
+    try {
+      const engine = fakeEngine({ sinkError: new DOMException('cancelled', 'AbortError') });
+      const src = await openMediabunnySource(file(), {}, engine);
+      const request = { width: 16, height: 12, startSeconds: 0, endSeconds: 1 };
+      const drain = async (): Promise<void> => {
+        for await (const _frame of src.frames(request, {})) {
+          /* the sink throws before yielding */
+        }
+      };
+      await expect(drain()).rejects.toMatchObject({ name: 'AbortError' });
     } finally {
       vi.unstubAllGlobals();
     }
@@ -1409,7 +1471,10 @@ describe('runVideoToGif', () => {
   });
 
   it('offers a thumbnail for a small GIF but not for a big one', async () => {
-    const small = await runVideoToGif({ files: [file()], options: {} }, vi.fn(async () => conversion()));
+    const small = await runVideoToGif(
+      { files: [file()], options: {} },
+      vi.fn(async () => conversion()),
+    );
     expect(small.outputs[0]!.previewUrl).toMatch(/^data:image\/gif;base64,/);
 
     const medium = new Uint8Array(2 * 1024 * 1024);

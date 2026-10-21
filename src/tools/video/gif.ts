@@ -91,7 +91,7 @@ export const PALETTE_PRESETS: readonly PalettePreset[] = [
 
 /** Look up a palette preset, failing loudly on an unknown value. */
 export function palettePreset(value: unknown): PalettePreset {
-  const id = String(value ?? 'balanced');
+  const id = String(value ?? 'balanced').trim() || 'balanced';
   const preset = PALETTE_PRESETS.find((p) => p.id === id);
   if (!preset) {
     throw new ToolError(
@@ -355,9 +355,9 @@ export function fitSize(
 /* -------------------------------------------------------------------------- */
 
 /**
- * The timestamps (in seconds, relative to the clip) that the GIF samples.
- * The first frame sits exactly on `start`; the spacing is the requested frame
- * rate, and the last frame always stays inside the range.
+ * The timestamps (in seconds, on the clip's own timeline) that the GIF
+ * samples. The first frame sits exactly on `start`; the spacing is the
+ * requested frame rate, and the last frame always stays inside the range.
  */
 export function planFrameTimestamps(start: number, end: number, fps: number): number[] {
   const count = Math.max(1, Math.round((end - start) * fps));

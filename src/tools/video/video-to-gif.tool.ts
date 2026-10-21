@@ -198,21 +198,31 @@ async function* decodeFrames(
   }
 
   const sink = new engine.VideoSampleSink(track);
-  for await (const sample of sink.samples(request.startSeconds, request.endSeconds)) {
-    ctx.signal?.throwIfAborted?.();
-    try {
-      // A GIF has no alpha channel, so every frame is composited over black.
-      // Without this, a transparent video would leave undefined pixels behind.
-      context.fillStyle = '#000000';
-      context.fillRect(0, 0, request.width, request.height);
-      // `draw` honours the rotation and flip metadata of the track.
-      sample.draw(context, 0, 0, request.width, request.height);
-      const image = context.getImageData(0, 0, request.width, request.height);
-      yield { timestamp: sample.timestamp, rgba: image.data };
-    } finally {
-      // Release the decoded frame even when the consumer stops early.
-      sample.close();
+  try {
+    for await (const sample of sink.samples(request.startSeconds, request.endSeconds)) {
+      ctx.signal?.throwIfAborted?.();
+      try {
+        // A GIF has no alpha channel, so every frame is composited over black.
+        // Without this, a transparent video would leave undefined pixels behind.
+        context.fillStyle = '#000000';
+        context.fillRect(0, 0, request.width, request.height);
+        // `draw` honours the rotation and flip metadata of the track.
+        sample.draw(context, 0, 0, request.width, request.height);
+        const image = context.getImageData(0, 0, request.width, request.height);
+        yield { timestamp: sample.timestamp, rgba: image.data };
+      } finally {
+        // Release the decoded frame even when the consumer stops early.
+        sample.close();
+      }
     }
+  } catch (error) {
+    // A cancellation must stay a cancellation; the workbench shows it as such.
+    if ((error as { name?: string })?.name === 'AbortError') throw error;
+    if (error instanceof ToolError) throw error;
+    throw new ToolError(
+      'This video could not be decoded.',
+      'The file may be damaged, or it may use a codec this browser cannot handle. Try another clip, or re-export it as H.264 (MP4).',
+    );
   }
 }
 
@@ -352,8 +362,7 @@ export async function runVideoToGif(
   const previewUrl = previewable ? gifDataUrl(result.bytes) : undefined;
   // The thumbnail next to the download is a second copy of the same bytes, so
   // it is only offered for small GIFs.
-  const thumbnailUrl =
-    result.bytes.byteLength <= GIF_MAX_THUMBNAIL_BYTES ? previewUrl : undefined;
+  const thumbnailUrl = result.bytes.byteLength <= GIF_MAX_THUMBNAIL_BYTES ? previewUrl : undefined;
 
   const notes: string[] = [
     previewUrl
