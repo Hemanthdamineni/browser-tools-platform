@@ -28,6 +28,7 @@ export const CATEGORY_IDS = [
   'archive',
   'audio',
   'video',
+  'device',
   'misc',
 ] as const;
 

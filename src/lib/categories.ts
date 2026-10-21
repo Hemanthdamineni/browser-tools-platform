@@ -134,6 +134,13 @@ export const CATEGORIES: Record<CategoryId, Category> = {
     icon: 'wrench',
     order: 19,
   },
+  device: {
+    id: 'device',
+    name: 'Device & Hardware',
+    blurb: 'Test your camera, microphone, keyboard and screen without leaving the page.',
+    icon: 'camera',
+    order: 20,
+  },
 };
 
 export const CATEGORY_LIST: Category[] = Object.values(CATEGORIES).sort(
