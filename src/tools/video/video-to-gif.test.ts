@@ -1217,9 +1217,7 @@ class FakeOffscreenCanvas {
 }
 
 /** A structural stand-in for the Mediabunny engine — no real codec. */
-function fakeEngine(
-  config: { decodable?: boolean; videoTrack?: boolean; sinkError?: Error } = {},
-) {
+function fakeEngine(config: { decodable?: boolean; videoTrack?: boolean; sinkError?: Error } = {}) {
   const videoTrack: Record<string, Method> = {
     getDisplayWidth: async () => 640,
     getDisplayHeight: async () => 360,
