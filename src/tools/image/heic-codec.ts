@@ -29,16 +29,30 @@ export const HEIC_WASM_URL = `${import.meta.env.BASE_URL}vendor/libheif/libheif.
 
 /** One image inside a HEIF container. */
 interface HeifImageHandle {
-  get_width(): number;
-  get_height(): number;
-  /**
-   * Decode into `target` (an RGBA buffer) and call `done` with it.
-   * `done` receives `null` when the image could not be decoded.
-   */
-  display(
-    target: { data: Uint8ClampedArray; width: number; height: number },
-    done: (result: unknown) => void,
-  ): void;
+  /** The `heif_image_handle` the decoder works with. */
+  handle: unknown;
+}
+
+/** One decoded plane of an image. */
+interface HeifChannel {
+  /** The channel id; the interleaved RGBA plane is the one we want. */
+  id: unknown;
+  /** Plane width in pixels. */
+  width: number;
+  /** Plane height in pixels. */
+  height: number;
+  /** Bytes per row, which can be larger than `width * 4`. */
+  stride: number;
+  /** The plane bytes, RGBA, `stride * height` long. */
+  data: Uint8Array;
+}
+
+/** The result of `heif_js_decode_image2`. */
+interface HeifDecodedImage {
+  /** Set when the decode failed. */
+  code?: unknown;
+  image?: unknown;
+  channels?: HeifChannel[];
 }
 
 interface HeifDecoderInstance {
@@ -47,6 +61,18 @@ interface HeifDecoderInstance {
 
 interface HeifModule {
   HeifDecoder: new () => HeifDecoderInstance;
+  /** Decode one handle into its planes, applying the container's transforms. */
+  heif_js_decode_image2(
+    handle: unknown,
+    colorspace: unknown,
+    chroma: unknown,
+  ): HeifDecodedImage | Promise<HeifDecodedImage>;
+  /** The enum values the module exposes at its root. */
+  heif_colorspace_RGB: unknown;
+  heif_chroma_interleaved_RGBA: unknown;
+  heif_channel_interleaved: unknown;
+  /** Free a decoded image. */
+  heif_image_release(image: unknown): void;
 }
 
 /** The Emscripten factory: `factory({ wasmBinary })` returns the module. */
@@ -147,6 +173,36 @@ const UNDECODABLE_HINT =
   'It may be corrupt, truncated, or use an HEVC profile this decoder does not support.';
 
 /**
+ * Copy a decoded interleaved plane into a tightly packed RGBA buffer.
+ *
+ * The plane's rows can be padded (`stride` is larger than `width * 4`), so the
+ * rows are copied one by one. The plane dimensions are the *decoded* ones —
+ * they already have the container's rotation and crop applied, which is not
+ * necessarily what the item signalled.
+ */
+export function packInterleaved(
+  data: Uint8Array,
+  width: number,
+  height: number,
+  stride: number,
+): Uint8ClampedArray {
+  const rowBytes = width * 4;
+  const out = new Uint8ClampedArray(width * height * 4);
+  if (stride === rowBytes) {
+    out.set(data.subarray(0, out.length));
+    return out;
+  }
+  // A malformed plane with a stride below the row size is copied as far as it
+  // goes rather than throwing.
+  const copyBytes = Math.min(rowBytes, stride);
+  for (let row = 0; row < height; row++) {
+    const from = row * stride;
+    out.set(data.subarray(from, from + copyBytes), row * rowBytes);
+  }
+  return out;
+}
+
+/**
  * Decode a HEIC/HEIF file into RGBA pixels.
  *
  * Throws a `ToolError` for anything the visitor can act on: a file that is
@@ -181,21 +237,35 @@ export async function decodeHeic(bytes: Uint8Array, signal?: AbortSignal): Promi
   const image = images[0];
   if (!image) throw new ToolError(UNDECODABLE, UNDECODABLE_HINT);
 
-  const width = image.get_width();
-  const height = image.get_height();
-  if (!(width > 0) || !(height > 0)) {
+  let decoded: HeifDecodedImage;
+  try {
+    decoded = await libheif.heif_js_decode_image2(
+      image.handle,
+      libheif.heif_colorspace_RGB,
+      libheif.heif_chroma_interleaved_RGBA,
+    );
+  } catch {
+    throw new ToolError(UNDECODABLE, UNDECODABLE_HINT);
+  }
+  if (!decoded || decoded.code) throw new ToolError(UNDECODABLE, UNDECODABLE_HINT);
+
+  const channel = (decoded.channels ?? []).find(
+    (candidate) => candidate.id === libheif.heif_channel_interleaved,
+  );
+  if (!channel || !(channel.width > 0) || !(channel.height > 0)) {
     throw new ToolError(UNDECODABLE, UNDECODABLE_HINT);
   }
 
-  const target = { data: new Uint8ClampedArray(width * height * 4), width, height };
-  const decoded = await new Promise<boolean>((resolve) => {
+  const data = packInterleaved(channel.data, channel.width, channel.height, channel.stride);
+  // The planes live in the WebAssembly heap; give them back now that the
+  // pixels have been copied out.
+  if (decoded.image !== undefined) {
     try {
-      image.display(target, (result) => resolve(Boolean(result)));
+      libheif.heif_image_release(decoded.image);
     } catch {
-      resolve(false);
+      /* nothing to release */
     }
-  });
-  if (!decoded) throw new ToolError(UNDECODABLE, UNDECODABLE_HINT);
+  }
 
-  return { width, height, data: target.data };
+  return { width: channel.width, height: channel.height, data };
 }

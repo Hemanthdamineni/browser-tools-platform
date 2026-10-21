@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ToolError } from '@/lib/types';
-import { decodeHeic, HEIC_WASM_URL } from './heic-codec';
+import { decodeHeic, HEIC_WASM_URL, packInterleaved } from './heic-codec';
 
 /**
  * The WebAssembly decoder itself cannot run under jsdom, so these tests cover
@@ -66,5 +66,36 @@ describe('HEIC_WASM_URL', () => {
   it('points at the copy of the binary served from this origin', () => {
     expect(HEIC_WASM_URL).toMatch(/^.*vendor\/libheif\/libheif\.wasm$/);
     expect(HEIC_WASM_URL.startsWith('http')).toBe(false);
+  });
+});
+
+describe('packInterleaved', () => {
+  it('copies a tightly packed plane as it is', () => {
+    const plane = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]);
+    const out = packInterleaved(plane, 2, 1, 8);
+    expect([...out]).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
+  });
+
+  it('drops the padding between rows', () => {
+    // One pixel per row, but every row is padded to eight bytes.
+    const plane = new Uint8Array([
+      1, 2, 3, 4, 99, 99, 99, 99, 5, 6, 7, 8, 99, 99, 99, 99,
+    ]);
+    const out = packInterleaved(plane, 1, 2, 8);
+    expect([...out]).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
+  });
+
+  it('handles a single pixel', () => {
+    const out = packInterleaved(new Uint8Array([9, 8, 7, 6]), 1, 1, 4);
+    expect([...out]).toEqual([9, 8, 7, 6]);
+  });
+
+  it('returns an empty buffer for an empty plane', () => {
+    expect(packInterleaved(new Uint8Array(0), 0, 0, 0).length).toBe(0);
+  });
+
+  it('copies the plane bytes through unchanged', () => {
+    const out = packInterleaved(new Uint8Array([1, 2, 3, 4]), 1, 1, 4);
+    expect([...out]).toEqual([1, 2, 3, 4]);
   });
 });

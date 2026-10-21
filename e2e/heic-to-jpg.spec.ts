@@ -11,7 +11,9 @@ import fs from 'node:fs';
  * `e2e/fixtures/sample.heic` is a synthetic 24×24 red-to-blue gradient and
  * `e2e/fixtures/alpha.heic` a 24×24 image whose left half is transparent —
  * both encoded with libheif's own `heif-enc` (no third-party imagery).
- * Regenerate them with:
+ * `e2e/fixtures/rotated.heic` is a 40×24 gradient with an `irot` property
+ * (90° counter-clockwise) added, so the decoder has to rotate it to 24×40.
+ * Regenerate the first two with:
  *   magick -size 24x24 gradient:'#ff0000-#0000ff' -depth 8 PNG24:src.png
  *   heif-enc -q 90 src.png e2e/fixtures/sample.heic
  *   magick -size 24x24 xc:none -fill red -draw "rectangle 12,0 23,23" PNG32:a.png
@@ -190,6 +192,20 @@ test('explains that a corrupt HEIC cannot be decoded', async ({ page, baseURL })
   await expect(error).toBeVisible({ timeout: 30_000 });
   await expect(error).toContainText(/could not be decoded/i);
   await expect(page.locator('[data-result-wrap]')).toBeHidden();
+});
+
+test('applies the rotation stored in the file', async ({ page, baseURL }) => {
+  await page.goto(`${baseURL}/tools/heic-to-jpg`);
+  await page.selectOption('[data-opt-key="to"]', 'png');
+  await page.setInputFiles('input[type=file]', fixture('rotated.heic'));
+  await page.locator('[data-run]').click();
+
+  await expect(page.locator('[data-result-wrap]')).toBeVisible({ timeout: 30_000 });
+  // The report lists the decoded size, which is the rotated one.
+  await expect(page.locator('[data-report]')).toContainText('24×40');
+
+  const bytes = await saveFirstOutput(page);
+  expect(pngSize(bytes)).toEqual({ width: 24, height: 40 });
 });
 
 test('keeps the alpha channel when the output format supports it', async ({ page, baseURL }) => {
