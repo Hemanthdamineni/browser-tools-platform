@@ -10,7 +10,7 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "node scripts/vendor-heif-wasm.mjs --check && astro build",
     "preview": "astro preview",
     "check": "astro check",
     "lint": "eslint .",

@@ -31,7 +31,6 @@ function decoded(
     width,
     height,
     data: new Uint8ClampedArray(pixels),
-    hasAlpha: pixels[3] !== 255,
   };
 }
 

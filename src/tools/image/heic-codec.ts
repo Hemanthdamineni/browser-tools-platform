@@ -31,7 +31,6 @@ export const HEIC_WASM_URL = `${import.meta.env.BASE_URL}vendor/libheif/libheif.
 interface HeifImageHandle {
   get_width(): number;
   get_height(): number;
-  has_alpha_channel(): boolean;
   /**
    * Decode into `target` (an RGBA buffer) and call `done` with it.
    * `done` receives `null` when the image could not be decoded.
@@ -59,8 +58,6 @@ export interface DecodedHeic {
   height: number;
   /** RGBA, 4 bytes per pixel, row-major. */
   data: Uint8ClampedArray;
-  /** True when the source carried an alpha channel. */
-  hasAlpha: boolean;
 }
 
 let modulePromise: Promise<HeifModule> | null = null;
@@ -200,5 +197,5 @@ export async function decodeHeic(bytes: Uint8Array, signal?: AbortSignal): Promi
   });
   if (!decoded) throw new ToolError(UNDECODABLE, UNDECODABLE_HINT);
 
-  return { width, height, data: target.data, hasAlpha: image.has_alpha_channel() };
+  return { width, height, data: target.data };
 }
