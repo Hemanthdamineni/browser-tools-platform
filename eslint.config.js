@@ -15,6 +15,9 @@ export default [
       'test-results/',
       'scripts/',
       'public/sw.js',
+      // Vendored third-party binaries served from this origin (see
+      // scripts/vendor-heif-wasm.mjs and scripts/vendor-tesseract.mjs).
+      'public/vendor/',
       '**/*.d.ts',
       // Third-party / non-product vendored trees.
       '.dsh-open-design/',
