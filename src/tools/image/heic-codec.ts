@@ -116,11 +116,13 @@ function provideCurrentScript(): void {
 export function loadHeifModule(): Promise<HeifModule> {
   if (!modulePromise) {
     modulePromise = (async () => {
-      const [glue, wasmBinary] = await Promise.all([
-        import('libheif-js/libheif-wasm/libheif.js'),
-        fetchWasmBinary(),
-      ]);
-      const factory = (glue as { default?: unknown }).default as HeifFactory | undefined;
+      // The glue and the binary are independent, so fetch them at the same
+      // time. A failed import is turned into a friendly error below instead
+      // of bubbling up as a bundler message.
+      const gluePromise = import('libheif-js/libheif-wasm/libheif.js').catch(() => null);
+      const wasmBinary = await fetchWasmBinary();
+      const glue = await gluePromise;
+      const factory = (glue as { default?: unknown } | null)?.default as HeifFactory | undefined;
       if (typeof factory !== 'function') {
         throw new ToolError('The HEIC decoder could not be loaded.', 'Try reloading the page.');
       }
