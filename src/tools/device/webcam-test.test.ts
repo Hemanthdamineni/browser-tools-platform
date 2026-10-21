@@ -128,6 +128,22 @@ describe('webcam-test tool', () => {
     expect(result.notes?.join(' ')).toContain('Allow camera access');
   });
 
+  it('reports a camera that was stopped as off, not as broken', () => {
+    const result = run(
+      payload({
+        state: 'stopped',
+        cameraLabel: '',
+        cameras: [{ deviceId: 'cam-1', label: '' }],
+        errorMessage: 'The camera was stopped.',
+      }),
+    );
+    const rows = rowsOf(result);
+    expect(rows).toContainEqual(['Status', 'Camera off']);
+    expect(rows).toContainEqual(['Details', 'The camera was stopped.']);
+    expect(rows.some((row) => row[0] === 'Resolution')).toBe(false);
+    expect(result.notes?.join(' ')).toContain('stopped');
+  });
+
   it('warns when the preview delivered fewer frames than the track claims', () => {
     const result = run(payload({ ...LIVE_FACTS, reportedFps: 30, measuredFps: 12 }));
     expect(result.warnings?.[0]).toMatch(/dropping frames/i);

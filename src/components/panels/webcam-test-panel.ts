@@ -280,8 +280,10 @@ export function mountWebcamTestPanel(root: HTMLElement): void {
     return {
       state,
       cameraLabel: track?.label || chosen?.label || '',
-      width: settings?.width ?? null,
-      height: settings?.height ?? null,
+      // `track.getSettings()` is the source of truth; the rendered frame size
+      // is the fallback for the browsers that do not report it.
+      width: settings?.width ?? (video.videoWidth || null),
+      height: settings?.height ?? (video.videoHeight || null),
       reportedFps: typeof settings?.frameRate === 'number' ? settings.frameRate : null,
       measuredFps,
       hasAudio: (stream?.getAudioTracks().length ?? 0) > 0,
@@ -581,7 +583,7 @@ export function mountWebcamTestPanel(root: HTMLElement): void {
   startBtn.addEventListener('click', () => void start());
   stopBtn.addEventListener('click', () => {
     stopCamera('Camera off.');
-    void refreshReport('failed', 'The camera was stopped.');
+    void refreshReport('stopped', 'The camera was stopped.');
   });
   snapshotBtn.addEventListener('click', () => void takeSnapshot());
 

@@ -48,6 +48,7 @@ export const MAX_CAMERAS = 64;
 /** The panel reports exactly one of these states. */
 export const WEBCAM_STATES = [
   'live',
+  'stopped',
   'denied',
   'no-camera',
   'in-use',
@@ -60,6 +61,7 @@ export type WebcamState = (typeof WEBCAM_STATES)[number];
 /** How each state reads in the report. */
 export const STATE_LABELS: Record<WebcamState, string> = {
   live: 'Camera running',
+  stopped: 'Camera off',
   denied: 'Permission denied',
   'no-camera': 'No camera found',
   'in-use': 'Camera already in use',
@@ -436,6 +438,9 @@ export function buildNotes(facts: WebcamFacts): string[] {
     'Measured in this tab — no frame left your device and nothing was recorded or stored.',
   ];
   switch (facts.state) {
+    case 'stopped':
+      notes.push('The camera was stopped — start it again to measure the camera.');
+      break;
     case 'denied':
       notes.push('Allow camera access for this site, then start the camera again.');
       break;
