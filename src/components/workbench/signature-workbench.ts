@@ -22,6 +22,20 @@ type PdfDocument = Awaited<ReturnType<PdfJsModule['getDocument']>['promise']>;
 /** Page size used when the preview cannot be rendered (A4 in points). */
 const FALLBACK_PAGE = { width: 595.28, height: 841.89 };
 
+/**
+ * Cheap check that a file really is a PDF: the `%PDF-` header, which the spec
+ * allows to be preceded by a little junk.
+ */
+async function looksLikePdf(file: File): Promise<boolean> {
+  const head = new Uint8Array(await file.slice(0, 1024).arrayBuffer());
+  for (let i = 0; i + 4 <= head.length; i++) {
+    if (head[i] === 0x25 && head[i + 1] === 0x50 && head[i + 2] === 0x44 && head[i + 3] === 0x46) {
+      return true;
+    }
+  }
+  return false;
+}
+
 let pdfJsPromise: Promise<PdfJsModule> | null = null;
 
 /** Load pdf.js once, pointing it at the bundled (same-origin) worker. */
@@ -88,6 +102,8 @@ export function mountSignatureWorkbench(root: HTMLElement): void {
     return;
   }
   let file: File | null = null;
+  /** False when the chosen file is not a PDF and cannot be signed. */
+  let fileUsable = false;
   let asset: SignatureAsset | null = null;
   let placement: DisplayRect | null = null;
   let pageNumber = 1;
@@ -151,7 +167,7 @@ export function mountSignatureWorkbench(root: HTMLElement): void {
   }
 
   function updateRunState(): void {
-    runBtn.disabled = !file || !asset || !placement;
+    runBtn.disabled = !fileUsable || !asset || !placement;
   }
 
   /* ---------------------------------------------------------------------- */
@@ -247,6 +263,7 @@ export function mountSignatureWorkbench(root: HTMLElement): void {
 
   async function setFile(next: File | null): Promise<void> {
     file = next;
+    fileUsable = false;
     pageNumber = 1;
     pageInput.value = '1';
     if (pdfDoc) {
@@ -263,6 +280,13 @@ export function mountSignatureWorkbench(root: HTMLElement): void {
       previewStatus.textContent = 'Choose a PDF to see the page.';
       return;
     }
+    if (!(await looksLikePdf(file))) {
+      box.hidden = true;
+      previewStatus.textContent = 'That file is not a PDF — choose a PDF to sign.';
+      showError(errorBox, 'That file is not a PDF.', 'Choose a PDF document to sign.');
+      return;
+    }
+    fileUsable = true;
     await renderPreview();
   }
 
