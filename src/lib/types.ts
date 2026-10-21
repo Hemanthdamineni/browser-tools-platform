@@ -131,8 +131,12 @@ export interface ToolMeta {
    * `'signature'` renders the signing panel: choose a PDF, capture a signature
    * (draw / type / upload), preview the page and place the mark. It is a flow
    * the generic option form cannot express.
+   * `'screen-recorder'` renders the recorder panel: share a screen, toggle the
+   * microphone, record and download — a flow built on main-thread browser APIs
+   * (`getDisplayMedia` + `MediaRecorder`) that the generic workbench cannot
+   * express either.
    */
-  panel?: 'signature';
+  panel?: 'signature' | 'screen-recorder';
   options?: ToolOption[];
   /** Runnable examples — one click fills the workbench. */
   examples?: { title: string; input?: string; options?: OptionValues }[];

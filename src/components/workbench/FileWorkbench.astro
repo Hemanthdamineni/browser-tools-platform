@@ -110,8 +110,10 @@ const p = meta.id;
 
   document.querySelectorAll<HTMLElement>('[data-file-workbench]').forEach((root) => {
     // The dedicated signing panel reuses the `data-file-workbench` marker (the
-    // shared e2e checks look for it) but mounts itself — skip it here.
+    // shared e2e checks look for it) but mounts itself — skip it here. The
+    // screen recorder panel does the same.
     if (root.hasAttribute('data-signature-workbench')) return;
+    if (root.hasAttribute('data-screen-recorder-workbench')) return;
     const toolId = root.dataset.toolId!;
     const accept = root.dataset.accept || undefined;
     const multiple = root.dataset.multiple === 'true';

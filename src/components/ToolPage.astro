@@ -8,6 +8,7 @@ import TextWorkbench from './workbench/TextWorkbench.astro';
 import FileWorkbench from './workbench/FileWorkbench.astro';
 import CameraPanel from './workbench/CameraPanel.astro';
 import SignatureWorkbench from './workbench/SignatureWorkbench.astro';
+import ScreenRecorderPanel from './workbench/ScreenRecorderPanel.astro';
 import ToolCard from './ToolCard.astro';
 
 interface Props {
@@ -52,6 +53,8 @@ const related = relatedTools(meta);
     {
       meta.panel === 'signature' ? (
         <SignatureWorkbench meta={meta} />
+      ) : meta.panel === 'screen-recorder' ? (
+        <ScreenRecorderPanel meta={meta} />
       ) : meta.input === 'file' ? (
         <FileWorkbench meta={meta} />
       ) : (
