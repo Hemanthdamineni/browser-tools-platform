@@ -319,3 +319,15 @@
   white-space: nowrap;
   border: 0;
 }
+
+/*
+ * The HTML `hidden` attribute has to win over Tailwind's display utilities
+ * where the workbench depends on it: an option wrapper is a flex container,
+ * so `showWhen` could not hide an option without this rule. Tailwind's
+ * preflight rule is `:where()`-scoped and sits in the base layer, so it
+ * loses the cascade to `.flex`. This rule is deliberately unlayered so it
+ * outranks the utilities layer.
+ */
+[data-option-wrap][hidden] {
+  display: none;
+}
