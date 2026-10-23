@@ -31,14 +31,14 @@ Line order is priority: top first. This file is written by a human (via review) 
 - [x] **video-compress** · video · after: video-foundation — Presets by target size or quality. Warn on memory limits for long files. ⚠️ run died ✅ already exists as video-compress
 - [ ] **image-ocr** · image — tesseract.js with a language picker and self-hosted traineddata. Copy or download the text. ⚠️ run died ⏳ run-20261021-1531-369a @ 2026-10-21T15:41:05Z ⏳ run-20261023-2031-a3f2 @ 2026-10-23T20:57:24Z
 - [ ] **background-remover** · image · after: ml-runtime-foundation — Use a permissively licensed model (e.g. MODNet); RMBG-1.4 is non-commercial, so don't use it. Output transparent PNG or a solid-colour background. ⚠️ run died ⏳ run-20261023-2100-7541 @ 2026-10-23T21:16:07Z
-- [ ] **screen-recorder** · video — getDisplayMedia + MediaRecorder with a mic toggle. WebM output, plus MP4 where the browser supports it. ⚠️ run died ⏳ run-20261021-1604-7f47 @ 2026-10-21T17:30:00Z
+- [ ] **screen-recorder** · video — getDisplayMedia + MediaRecorder with a mic toggle. WebM output, plus MP4 where the browser supports it. ⚠️ run died ⚠️ run died
 - [ ] **webcam-recorder** · video — getUserMedia + MediaRecorder. Share the recording code with screen-recorder. ⏳ run-20261021-1731-c91e @ 2026-10-21T17:37:32Z ⏳ run-20261023-2031-a3f2 @ 2026-10-23T20:57:24Z
 - [ ] **pdf-organize** · pdf — Thumbnail grid with drag-to-reorder, rotate, delete, and insert blank page. ⚠️ run died ⏳ run-20261021-1604-7f47 @ 2026-10-21T17:30:00Z ⏳ run-20261023-2031-a3f2 @ 2026-10-23T20:57:24Z
 - [x] **password-strength** · security — zxcvbn-ts. Show estimated crack time and feedback. The password is never stored or logged. ⚠️ run died ✅ already exists as password-strength
-- [ ] **markdown-preview** · developer — Split-pane live editor: GFM, code highlighting, export to HTML, print to PDF. ⚠️ run died ⏳ run-20261021-1731-c91e @ 2026-10-21T17:37:32Z
+- [ ] **markdown-preview** · developer — Split-pane live editor: GFM, code highlighting, export to HTML, print to PDF. ⚠️ run died ⚠️ run died
 - [x] **percentage-calculator** · misc — X% of Y; X is what % of Y; % change; increase/decrease by %. ⚠️ run died ✅ already exists as percentage-calculator
-- [ ] **gst-calculator** · misc — Add or remove GST; CGST/SGST/IGST split. Verify current slab rates against an official source before shipping. ⚠️ run died ⏳ run-20261021-1731-c91e @ 2026-10-21T17:37:32Z
-- [ ] **sip-calculator** · misc — SIP, step-up SIP, and lumpsum, with a growth chart. Add a "not financial advice" note. ⚠️ run died ⏳ run-20261021-1731-c91e @ 2026-10-21T17:37:32Z
+- [ ] **gst-calculator** · misc — Add or remove GST; CGST/SGST/IGST split. Verify current slab rates against an official source before shipping. ⚠️ run died ⚠️ run died
+- [ ] **sip-calculator** · misc — SIP, step-up SIP, and lumpsum, with a growth chart. Add a "not financial advice" note. ⚠️ run died ⚠️ run died
 - [x] **compound-interest** · misc — Compounding frequency, periodic contributions, and a yearly schedule table. ✅ already exists as compound-interest-calculator
 - [ ] **webcam-test** · device — Registers the `device` category. Device picker, resolution and fps readout, snapshot. Nothing leaves the device. ⚠️ run died ⏳ run-20261023-2100-7541 @ 2026-10-23T21:16:07Z
 - [ ] **mic-test** · device — Level meter, waveform, record and play back. ⚠️ run died ⏳ run-20261023-2100-7541 @ 2026-10-23T21:16:07Z
@@ -46,10 +46,10 @@ Line order is priority: top first. This file is written by a human (via review) 
 - [ ] **video-trim** · video · after: video-foundation — Stream copy when cut points allow, re-encode otherwise. Scrubber preview. ⏳ run-20261023-2024-f777 @ 2026-10-23T21:35:19Z
 - [ ] **video-extract-audio** · video · after: video-foundation — MP3, AAC, and WAV output. ⏳ run-20261023-2024-f777 @ 2026-10-23T21:35:19Z
 - [ ] **video-convert** · video · after: video-foundation — MP4, WebM, MOV, and MKV. Remux when possible, transcode when needed. ⏳ run-20261023-2024-f777 @ 2026-10-23T21:35:19Z
-- [ ] **image-watermark** · image — Text or logo watermark; opacity, position, or tiled. Batch mode.
-- [ ] **image-add-text** · image — Captions and meme-style text: fonts, stroke, shadow, drag to position.
-- [ ] **image-blur-redact** · image — Draw regions to blur, pixelate, or black out. Strip metadata on export.
-- [ ] **pdf-protect** · pdf — Add a password via qpdf-wasm (Apache-2.0). AES-256.
+- [ ] **image-watermark** · image — Text or logo watermark; opacity, position, or tiled. Batch mode. ⏳ run-20261023-2148-a5dd @ 2026-10-23T22:08:30Z
+- [ ] **image-add-text** · image — Captions and meme-style text: fonts, stroke, shadow, drag to position. ⏳ run-20261023-2148-a5dd @ 2026-10-23T22:08:30Z
+- [ ] **image-blur-redact** · image — Draw regions to blur, pixelate, or black out. Strip metadata on export. ⏳ run-20261023-2148-a5dd @ 2026-10-23T22:08:30Z
+- [ ] **pdf-protect** · pdf — Add a password via qpdf-wasm (Apache-2.0). AES-256. ⏳ run-20261023-2148-a5dd @ 2026-10-23T22:08:30Z
 - [ ] **pdf-unlock** · pdf — Remove a password the user already knows (qpdf-wasm). No cracking.
 - [ ] **pdf-fill-form** · pdf — Fill AcroForm fields with pdf-lib; option to flatten.
 - [ ] **speech-to-text** · audio · after: ml-runtime-foundation — Whisper tiny/base. Timestamps; export TXT, SRT, and VTT. File input and mic input.
