@@ -17,12 +17,15 @@ import {
   formatElapsed,
   formatTimestamp,
   insecureContextError,
+  listCameras,
   mediaRecorderUnavailableError,
   noSupportedMimeTypeError,
   pickRecordingMimeType,
   recorderSupportError,
+  requestCamera,
   sanitizeFilenamePrefix,
   startRecording,
+  videoConstraintsForResolution,
   type RecorderFactory,
   type RecorderLike,
 } from './webcam-recorder-core';
@@ -284,6 +287,120 @@ describe('bitrateForQuality', () => {
     expect(bitrateForQuality('ultra')).toBe(RECORDING_BITRATES.balanced);
     expect(bitrateForQuality('')).toBe(RECORDING_BITRATES.balanced);
     expect(bitrateForQuality(null)).toBe(RECORDING_BITRATES.balanced);
+  });
+});
+
+/* -------------------------------------------------------------------------- */
+/*  Resolutions                                                                 */
+/* -------------------------------------------------------------------------- */
+
+describe('videoConstraintsForResolution', () => {
+  it('maps every preset onto its ideal size', () => {
+    expect(videoConstraintsForResolution('1080')).toEqual({
+      width: { ideal: 1920 },
+      height: { ideal: 1080 },
+    });
+    expect(videoConstraintsForResolution('720')).toEqual({
+      width: { ideal: 1280 },
+      height: { ideal: 720 },
+    });
+    expect(videoConstraintsForResolution('480')).toEqual({
+      width: { ideal: 854 },
+      height: { ideal: 480 },
+    });
+  });
+
+  it('returns no constraint for auto and unknown values', () => {
+    expect(videoConstraintsForResolution('auto')).toBeNull();
+    expect(videoConstraintsForResolution('')).toBeNull();
+    expect(videoConstraintsForResolution('2160')).toBeNull();
+    expect(videoConstraintsForResolution(null)).toBeNull();
+    expect(videoConstraintsForResolution(undefined)).toBeNull();
+  });
+});
+
+describe('requestCamera', () => {
+  /** A getUserMedia stub that records the constraints it was called with. */
+  function captureStub(): {
+    getUserMedia: (constraints: MediaStreamConstraints) => Promise<MediaStream>;
+    calls: MediaStreamConstraints[];
+  } {
+    const calls: MediaStreamConstraints[] = [];
+    return {
+      calls,
+      getUserMedia: async (constraints) => {
+        calls.push(constraints);
+        return { id: 'stub' } as unknown as MediaStream;
+      },
+    };
+  }
+
+  it('asks for the chosen resolution', async () => {
+    const devices = captureStub();
+    await requestCamera(devices, { resolution: '1080' });
+    expect(devices.calls[0]).toEqual({
+      video: { width: { ideal: 1920 }, height: { ideal: 1080 } },
+      audio: false,
+    });
+  });
+
+  it('falls back to a sane default resolution', async () => {
+    const devices = captureStub();
+    await requestCamera(devices, { resolution: 'auto' });
+    expect(devices.calls[0]).toEqual({
+      video: { width: { ideal: 1280 }, height: { ideal: 720 } },
+      audio: false,
+    });
+  });
+
+  it('keeps the microphone off unless it is asked for', async () => {
+    const devices = captureStub();
+    await requestCamera(devices, { mic: false });
+    expect(devices.calls[0]!.audio).toBe(false);
+    await requestCamera(devices, { mic: true });
+    expect(devices.calls[1]!.audio).toBe(true);
+    await requestCamera(devices, {});
+    expect(devices.calls[2]!.audio).toBe(false);
+  });
+
+  it('pins the camera by device id when one is chosen', async () => {
+    const devices = captureStub();
+    await requestCamera(devices, { deviceId: 'cam-2' });
+    expect(devices.calls[0]!.video).toEqual({
+      width: { ideal: 1280 },
+      height: { ideal: 720 },
+      deviceId: { exact: 'cam-2' },
+    });
+  });
+});
+
+describe('listCameras', () => {
+  const camera = (id: string, label = ''): MediaDeviceInfo =>
+    ({ kind: 'videoinput', deviceId: id, label }) as MediaDeviceInfo;
+
+  it('returns only video inputs', async () => {
+    const devices = {
+      enumerateDevices: async () => [
+        camera('a'),
+        { kind: 'audioinput', deviceId: 'b', label: 'mic' } as MediaDeviceInfo,
+        camera('c'),
+      ],
+    };
+    const cameras = await listCameras(devices);
+    expect(cameras.map((c) => c.deviceId)).toEqual(['a', 'c']);
+  });
+
+  it('returns an empty list without enumerateDevices', async () => {
+    expect(await listCameras({ getUserMedia: async () => ({}) as MediaStream } as never)).toEqual(
+      [],
+    );
+    expect(await listCameras(null)).toEqual([]);
+    expect(await listCameras(undefined)).toEqual([]);
+  });
+
+  it('survives an enumerateDevices rejection', async () => {
+    const devices = { enumerateDevices: async () => Promise.reject(new Error('nope')) };
+    await expect(listCameras(devices)).resolves.toEqual([]);
   });
 });
 
@@ -559,7 +676,7 @@ describe('the webcam recorder tool', () => {
     expect(tool.meta).toBe(meta);
     expect(tool.meta.id).toBe('webcam-recorder');
     expect(tool.meta.category).toBe('video');
-    expect(tool.meta.panel).toBe('recorder');
+    expect(tool.meta.panel).toBe('webcam-recorder');
     expect(tool.meta.input).toBe('file');
     expect(tool.meta.privacy.network).toBe('none');
     expect(meta.summary.length).toBeLessThanOrEqual(120);
@@ -596,6 +713,13 @@ describe('the webcam recorder tool', () => {
     const result = await run({ files: [recorded()], options: { quality: 'high' } });
     expect(result.stats?.quality).toBe('high');
     expect(result.notes?.join(' ')).toMatch(/high/i);
+  });
+
+  it('reports whether the microphone was recorded', async () => {
+    const withMic = await run({ files: [recorded()], options: { mic: true } });
+    expect(withMic.notes?.join(' ')).toMatch(/microphone audio/i);
+    const withoutMic = await run({ files: [recorded()], options: { mic: false } });
+    expect(withoutMic.notes?.join(' ')).toMatch(/without audio/i);
   });
 
   it('refuses to run without a recording', async () => {

@@ -7,7 +7,7 @@ export const meta: ToolMeta = {
   summary:
     'Record your webcam in the browser and download the clip — the video never leaves your device.',
   description:
-    'Record straight from your camera: press Record, do your thing, press Stop, then play the clip back and save it. The recording happens in this tab, so the video never leaves your device and the page keeps working offline.',
+    'Record straight from your camera: press Record, do your thing, press Stop, then play the clip back and save it. Pick the resolution, the camera and (optionally) the microphone. The recording happens in this tab, so nothing ever leaves your device and the page keeps working offline.',
   keywords: [
     'webcam',
     'camera',
@@ -22,17 +22,38 @@ export const meta: ToolMeta = {
     'capture',
     'webm',
     'mp4',
+    'microphone',
   ],
   privacy: { processing: 'on-device', network: 'none', offline: true },
   input: 'file',
   accept: 'video/*',
   // Recording from the camera is a flow the generic file workbench cannot
   // express (permission, a live preview, a record/stop control), so the tool
-  // opts into the dedicated recorder panel. The options below are the ones
-  // that panel drives; they are read by `run()` through `resolveOptions` and
-  // keep the tool usable without the UI.
-  panel: 'recorder',
+  // opts into its own panel component (`src/components/panels/`). The options
+  // below are the ones that panel drives; they are read by `run()` through
+  // `resolveOptions` and keep the tool usable without the UI.
+  panel: 'webcam-recorder',
   options: [
+    {
+      key: 'resolution',
+      label: 'Resolution',
+      type: 'select',
+      default: '720',
+      choices: [
+        { value: '1080', label: '1080p — Full HD' },
+        { value: '720', label: '720p — HD' },
+        { value: '480', label: '480p — small file' },
+        { value: 'auto', label: 'Auto — camera default' },
+      ],
+      help: 'A wish, not a demand: the camera records at the closest mode it actually has.',
+    },
+    {
+      key: 'mic',
+      label: 'Record microphone audio',
+      type: 'boolean',
+      default: false,
+      help: 'Off by default. When on, the browser asks for microphone permission and the clip carries sound.',
+    },
     {
       key: 'quality',
       label: 'Recording quality',
@@ -70,7 +91,15 @@ export const meta: ToolMeta = {
     },
     {
       q: 'Does it record sound as well?',
-      a: 'No — the microphone is not requested at all, so the clip is silent. That keeps the recording private and avoids asking for a second permission.',
+      a: 'Only if you turn on “Record microphone audio” (it is off by default). When it is on, the browser asks for microphone permission and the clip carries sound. The audio is recorded by this tab, like the video — it never leaves your device.',
+    },
+    {
+      q: 'Which resolution do I get?',
+      a: 'The resolution option is a request, not a command: the browser picks the closest mode your camera actually has. A 720p webcam stays 720p even with 1080p selected; “Auto” uses whatever mode the camera opens with.',
+    },
+    {
+      q: 'Can I choose which camera to use?',
+      a: 'Yes, if your device has more than one. Once the camera starts, a picker lists the cameras the browser knows about (after permission, it can show their names). Switching cameras restarts the preview — stop the recording first.',
     },
     {
       q: 'Which format will I get?',

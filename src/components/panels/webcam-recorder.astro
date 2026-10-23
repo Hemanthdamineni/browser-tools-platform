@@ -1,11 +1,11 @@
 ---
 /**
- * The webcam recorder panel: camera permission, a live preview, a
+ * The webcam-recorder panel: camera permission, a live preview, a
  * record/stop control and a playback preview of the finished clip.
  *
  * The generic file workbench cannot express this flow (a live camera feed and
  * a record button are not a file input), so the tool opts into this panel via
- * `meta.panel = 'recorder'`.
+ * `meta.panel = 'webcam-recorder'`.
  */
 import type { ToolMeta } from '@/lib/types';
 import Icon from '@/components/Icon.astro';
@@ -19,6 +19,13 @@ const p = meta.id;
 // The panel renders the tool's own options, so they are read from the
 // metadata instead of being written down twice.
 const options = meta.options ?? [];
+const resolutionOption = options.find((o) => o.key === 'resolution');
+const resolutionChoices =
+  resolutionOption && 'choices' in resolutionOption ? resolutionOption.choices : [];
+const resolutionDefault =
+  resolutionOption && 'choices' in resolutionOption ? resolutionOption.default : '720';
+const micOption = options.find((o) => o.key === 'mic');
+const micDefault = micOption && 'default' in micOption ? micOption.default === true : false;
 const qualityOption = options.find((o) => o.key === 'quality');
 const qualityChoices = qualityOption && 'choices' in qualityOption ? qualityOption.choices : [];
 const qualityDefault =
@@ -34,14 +41,12 @@ const nameDefault = nameOption ? String(nameOption.default) : 'webcam-recording'
 
 <!--
   `data-file-workbench` is the marker the shared end-to-end checks look for on
-  every tool page. `data-signature-workbench` is the escape hatch the generic
-  file workbench uses to skip panels that mount themselves — the recorder
-  panel is such a panel, so it carries the same marker.
+  every tool page. This panel replaces the generic file workbench, so it
+  carries the marker itself.
 -->
 <section
   class="surface rounded-lg p-4 sm:p-6"
   data-file-workbench
-  data-signature-workbench
   data-webcam-recorder-workbench
   data-tool-id={meta.id}
   data-accept={meta.accept ?? ''}
@@ -50,8 +55,8 @@ const nameDefault = nameOption ? String(nameOption.default) : 'webcam-recording'
 >
   <h2 class="text-base font-semibold text-[rgb(var(--text))]">1 · Check the framing</h2>
   <p class="mt-1 text-sm text-[rgb(var(--text-muted))]">
-    The preview is live, but nothing is recorded until you press Record. The microphone is never
-    asked for, so the clip is silent.
+    The preview is live, but nothing is recorded until you press Record. The microphone is only
+    asked for when you turn it on below.
   </p>
 
   <div
@@ -77,6 +82,13 @@ const nameDefault = nameOption ? String(nameOption.default) : 'webcam-recording'
   <p class="mt-2 text-sm text-[rgb(var(--text))]" data-status role="status" aria-live="polite">
     The camera is off.
   </p>
+
+  <div class="mt-3 flex flex-wrap items-center gap-2" data-device-wrap hidden>
+    <label class="text-xs font-medium text-[rgb(var(--text-muted))]" for={`${p}-device`}
+      >Camera</label
+    >
+    <select class="field !w-auto !py-1 text-sm" id={`${p}-device`} data-device></select>
+  </div>
 
   <div class="mt-3 flex flex-wrap items-center gap-2.5">
     <button type="button" class="btn btn-primary" data-start>
@@ -116,7 +128,32 @@ const nameDefault = nameOption ? String(nameOption.default) : 'webcam-recording'
 
   <fieldset class="mt-5 rounded-lg border p-3">
     <legend class="px-1 text-sm font-medium">Recording settings</legend>
-    <div class="mt-2 grid gap-3 sm:grid-cols-3">
+    <div class="mt-2 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div>
+        <label class="text-xs font-medium" for={`${p}-resolution`}>Resolution</label>
+        <select class="field mt-1" id={`${p}-resolution`} data-resolution>
+          {
+            resolutionChoices.map((choice) => (
+              <option value={choice.value} selected={choice.value === resolutionDefault}>
+                {choice.label}
+              </option>
+            ))
+          }
+        </select>
+        <p class="mt-1 text-xs text-[rgb(var(--text-muted))]">
+          The camera uses the closest mode it has.
+        </p>
+      </div>
+      <div>
+        <span class="block text-xs font-medium">Audio</span>
+        <label class="mt-1 flex items-center gap-2 text-sm" for={`${p}-mic`}>
+          <input class="accent-[rgb(var(--accent))]" id={`${p}-mic`} type="checkbox" checked={micDefault} data-mic />
+          Record microphone
+        </label>
+        <p class="mt-1 text-xs text-[rgb(var(--text-muted))]">
+          Off keeps the clip silent and skips the mic permission.
+        </p>
+      </div>
       <div>
         <label class="text-xs font-medium" for={`${p}-quality`}>Quality</label>
         <select class="field mt-1" id={`${p}-quality`} data-quality>
@@ -212,7 +249,7 @@ const nameDefault = nameOption ? String(nameOption.default) : 'webcam-recording'
 <script>
   document.querySelectorAll<HTMLElement>('[data-webcam-recorder-workbench]').forEach((root) => {
     // Loaded on demand: the recorder panel is only used by the webcam recorder.
-    void import('./webcam-recorder-workbench')
+    void import('./webcam-recorder')
       .then(({ mountWebcamRecorderWorkbench }) => mountWebcamRecorderWorkbench(root))
       .catch(() => {
         const error = root.querySelector<HTMLElement>('[data-error]');

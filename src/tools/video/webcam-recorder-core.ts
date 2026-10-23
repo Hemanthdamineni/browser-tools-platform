@@ -164,6 +164,36 @@ export function bitrateForQuality(quality: string | null | undefined): number {
 }
 
 /* -------------------------------------------------------------------------- */
+/*  Resolutions                                                                 */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * The resolution presets, tallest-first as the option list shows them. Each
+ * preset is an *ideal*, not a demand — `getUserMedia` hands back the closest
+ * mode the camera actually has, so a 480p laptop camera stays 480p.
+ */
+export const RECORDING_RESOLUTIONS = {
+  1080: { width: 1920, height: 1080 },
+  720: { width: 1280, height: 720 },
+  480: { width: 854, height: 480 },
+} as const;
+
+export type RecordingResolution = keyof typeof RECORDING_RESOLUTIONS;
+
+/**
+ * The `video` constraint for a resolution option value. `null` (the "auto"
+ * value) means no preference — the browser's default mode is used.
+ */
+export function videoConstraintsForResolution(
+  resolution: string | null | undefined,
+): MediaTrackConstraints | null {
+  const preset = (RECORDING_RESOLUTIONS as Record<string, { width: number; height: number }>)[
+    String(resolution ?? '')
+  ];
+  return preset ? { width: { ideal: preset.width }, height: { ideal: preset.height } } : null;
+}
+
+/* -------------------------------------------------------------------------- */
 /*  Errors                                                                      */
 /* -------------------------------------------------------------------------- */
 
@@ -312,6 +342,61 @@ export function describeRecorderError(err: unknown): ToolError {
         e?.message || 'The recording failed.',
         'Try again — if it keeps failing, check that the camera works in another app.',
       );
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/*  The camera request                                                          */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * The shape of `navigator.mediaDevices` the recorder needs — narrow, so a
+ * test can stub it.
+ */
+export interface MediaDevicesLike {
+  getUserMedia: (constraints: MediaStreamConstraints) => Promise<MediaStream>;
+  enumerateDevices?: () => Promise<MediaDeviceInfo[]>;
+}
+
+/**
+ * Open the camera (and optionally the microphone) with the chosen resolution.
+ *
+ * The constraints are always *ideals*: the browser picks the closest mode the
+ * device actually has, so requesting 1080p on a 720p camera never fails — it
+ * just records at 720p.
+ *
+ * @throws the `getUserMedia` rejection verbatim — the panel maps it to a
+ *   friendly message with `describeCaptureError`.
+ */
+export async function requestCamera(
+  devices: MediaDevicesLike,
+  options: { resolution?: string | null; mic?: boolean; deviceId?: string | null } = {},
+): Promise<MediaStream> {
+  const resolution = videoConstraintsForResolution(options.resolution);
+  const video: MediaTrackConstraints = resolution
+    ? { ...resolution }
+    : { width: { ideal: 1280 }, height: { ideal: 720 } };
+  if (options.deviceId) video.deviceId = { exact: options.deviceId };
+  return devices.getUserMedia({ video, audio: options.mic === true });
+}
+
+/**
+ * List the cameras this device exposes.
+ *
+ * @param devices `navigator.mediaDevices`, or a stub — only `enumerateDevices`
+ *   is read.
+ * @returns the cameras, or an empty list when `enumerateDevices` is missing
+ *   (older browsers) or refuses to run — the picker is simply not shown then.
+ */
+export async function listCameras(
+  devices: { enumerateDevices?: () => Promise<MediaDeviceInfo[]> } | undefined | null,
+): Promise<MediaDeviceInfo[]> {
+  if (!devices || typeof devices.enumerateDevices !== 'function') return [];
+  try {
+    const all = await devices.enumerateDevices();
+    return all.filter((device) => device.kind === 'videoinput');
+  } catch {
+    return [];
   }
 }
 

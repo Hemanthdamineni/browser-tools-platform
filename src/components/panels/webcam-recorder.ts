@@ -1,5 +1,5 @@
 /**
- * The webcam recorder panel.
+ * The webcam-recorder panel.
  *
  * Owns the camera: the permission prompt, the live preview, the record/stop
  * control and the playback preview. The clip is captured with the browser's
@@ -22,15 +22,18 @@ import {
   describeCaptureError,
   describeRecorderError,
   formatElapsed,
+  listCameras,
   recorderSupportError,
+  requestCamera,
   // Aliased: this module has its own `startRecording()` control below, and the
   // two must not shadow each other.
   startRecording as startMediaRecording,
+  type MediaDevicesLike,
   type RecordedClip,
   type RecorderFactory,
   type RecordingSession,
 } from '@/tools/video/webcam-recorder-core';
-import { clearError, showError } from './shared';
+import { clearError, showError } from '../workbench/shared';
 
 /** How often the elapsed time is refreshed, in milliseconds. */
 const TICK_MS = 200;
@@ -57,6 +60,10 @@ export function mountWebcamRecorderWorkbench(root: HTMLElement): void {
   const qualitySelect = root.querySelector<HTMLSelectElement>('[data-quality]')!;
   const maxSecondsInput = root.querySelector<HTMLInputElement>('[data-max-seconds]')!;
   const filenameInput = root.querySelector<HTMLInputElement>('[data-filename]')!;
+  const resolutionSelect = root.querySelector<HTMLSelectElement>('[data-resolution]')!;
+  const micToggle = root.querySelector<HTMLInputElement>('[data-mic]')!;
+  const deviceSelect = root.querySelector<HTMLSelectElement>('[data-device]');
+  const deviceWrap = root.querySelector<HTMLElement>('[data-device-wrap]');
 
   if (
     !video ||
@@ -74,7 +81,9 @@ export function mountWebcamRecorderWorkbench(root: HTMLElement): void {
     !notesEl ||
     !qualitySelect ||
     !maxSecondsInput ||
-    !filenameInput
+    !filenameInput ||
+    !resolutionSelect ||
+    !micToggle
   ) {
     return;
   }
@@ -86,6 +95,7 @@ export function mountWebcamRecorderWorkbench(root: HTMLElement): void {
   let startedAt = 0;
   let playbackUrl: string | null = null;
   let busy = false;
+  let deviceId = '';
 
   const announce = (message: string): void => {
     statusEl.textContent = message;
@@ -131,6 +141,25 @@ export function mountWebcamRecorderWorkbench(root: HTMLElement): void {
   /*  Camera                                                                 */
   /* ---------------------------------------------------------------------- */
 
+  /**
+   * Fill the camera picker. Before permission the labels are usually blank,
+   * so cameras are named by position; afterwards the real names show up.
+   */
+  async function populateDevices(): Promise<void> {
+    if (!deviceSelect || !deviceWrap) return;
+    const cameras = await listCameras(navigator.mediaDevices as unknown as MediaDevicesLike);
+    if (cameras.length < 2) return;
+    deviceSelect.replaceChildren();
+    cameras.forEach((camera, index) => {
+      const option = document.createElement('option');
+      option.value = camera.deviceId;
+      option.textContent = camera.label || `Camera ${index + 1}`;
+      option.selected = camera.deviceId === deviceId;
+      deviceSelect.appendChild(option);
+    });
+    deviceWrap.hidden = false;
+  }
+
   async function startCamera(): Promise<void> {
     if (busy) return;
     clearError(errorBox);
@@ -146,16 +175,26 @@ export function mountWebcamRecorderWorkbench(root: HTMLElement): void {
     startBtn.disabled = true;
     announce('Waiting for camera permission…');
     try {
-      // Video only — a webcam recorder does not need the microphone.
-      const media = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+      const media = await requestCamera(navigator.mediaDevices as unknown as MediaDevicesLike, {
+        resolution: resolutionSelect.value,
+        mic: micToggle.checked,
+        deviceId: deviceId || null,
+      });
       stream = media;
+      const track = media.getVideoTracks()[0];
+      if (track?.getSettings?.().deviceId) deviceId = track.getSettings().deviceId!;
       video.srcObject = media;
       await video.play().catch(() => undefined);
       placeholder.hidden = true;
       startBtn.hidden = true;
       cameraOffBtn.hidden = false;
       recordBtn.disabled = false;
-      announce('Camera on — press Record when you are ready.');
+      announce(
+        micToggle.checked
+          ? 'Camera on — press Record when you are ready.'
+          : 'Camera on (no microphone) — press Record when you are ready.',
+      );
+      void populateDevices();
     } catch (err) {
       const toolError = describeCaptureError(err);
       showError(errorBox, toolError.message, toolError.hint);
@@ -264,6 +303,8 @@ export function mountWebcamRecorderWorkbench(root: HTMLElement): void {
       result = await runToolById<FileRunResult>(toolId, {
         files: [file],
         options: {
+          resolution: resolutionSelect.value,
+          mic: micToggle.checked,
           quality: qualitySelect.value,
           maxSeconds: Math.max(0, Number(maxSecondsInput.value) || 0),
           filename: filenameInput.value,
@@ -331,6 +372,15 @@ export function mountWebcamRecorderWorkbench(root: HTMLElement): void {
 
   startBtn.addEventListener('click', () => void startCamera());
   cameraOffBtn.addEventListener('click', () => turnCameraOff());
+  deviceSelect?.addEventListener('change', () => {
+    if (deviceSelect.value === deviceId) return;
+    deviceId = deviceSelect.value;
+    // Switching cameras restarts the preview; recording is stopped first so
+    // a clip never mixes frames from two cameras.
+    if (session) void stopRecording();
+    turnCameraOff('Switching camera…');
+    void startCamera();
+  });
   recordBtn.addEventListener('click', () => {
     if (session) void stopRecording();
     else startRecording();

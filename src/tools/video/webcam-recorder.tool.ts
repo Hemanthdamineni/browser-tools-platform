@@ -50,12 +50,14 @@ export async function runWebcamRecorder(input: FileRunInput): Promise<FileRunRes
   const container = containerForMimeType(file.type);
   const filename = buildRecordingFilename(container, new Date(), String(o.filename ?? ''));
   const quality = String(o.quality ?? 'balanced');
+  const mic = o.mic === true;
 
   const notes: string[] = [
     container === 'mp4'
       ? 'Recorded as MP4 (H.264) — it plays in almost every player.'
       : 'Recorded as WebM (VP8/VP9) — it plays in every modern browser; convert it to MP4 if you need it elsewhere.',
   ];
+  notes.push(mic ? 'Recorded with microphone audio.' : 'Recorded without audio (microphone off).');
   if (quality !== 'balanced') {
     notes.push(`Recorded at the “${quality}” quality setting.`);
   }
@@ -67,6 +69,7 @@ export async function runWebcamRecorder(input: FileRunInput): Promise<FileRunRes
       container,
       sizeBytes: file.size,
       quality,
+      mic: mic ? 1 : 0,
     },
   };
 }
