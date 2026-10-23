@@ -190,11 +190,16 @@ interface ShikiHighlighter {
 
 export interface CodeHighlighter {
   /**
+   * Make sure a language is loaded. The grammar is a separate chunk, so this
+   * is the only asynchronous part of the highlighter.
+   */
+  prepare(language: string): Promise<void>;
+  /**
    * Highlight one block of code. Returns `null` when the language is not
    * supported or the highlighter failed — the caller then falls back to a
    * plain `<pre><code>`.
    */
-  highlight(code: string, language: string): Promise<string | null>;
+  highlight(code: string, language: string): string | null;
 }
 
 const highlighterCache = new Map<ThemeName, Promise<CodeHighlighter | null>>();
@@ -228,14 +233,17 @@ async function createHighlighter(theme: ThemeName): Promise<CodeHighlighter> {
   })) as unknown as ShikiHighlighter;
 
   return {
-    async highlight(code: string, language: string): Promise<string | null> {
+    async prepare(language: string): Promise<void> {
+      const name = normalizeLanguage(language);
+      if (!name || name === PLAIN_TEXT) return;
+      if (highlighter.getLoadedLanguages().includes(name)) return;
+      const languageModule = await importLanguage(name as LanguageName);
+      highlighter.loadLanguage(languageModule.default);
+    },
+    highlight(code: string, language: string): string | null {
       const name = normalizeLanguage(language);
       if (!name) return null;
       try {
-        if (name !== PLAIN_TEXT && !highlighter.getLoadedLanguages().includes(name)) {
-          const languageModule = await importLanguage(name as LanguageName);
-          highlighter.loadLanguage(languageModule.default);
-        }
         return highlighter.codeToHtml(code, { lang: name, theme });
       } catch {
         return null;
