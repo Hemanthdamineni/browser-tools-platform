@@ -27,10 +27,10 @@ Line order is priority: top first. This file is written by a human (via review) 
 - [x] **video-to-gif** · video · after: video-foundation — Time range, fps, width, palette quality. Preview before export. ✅ bc08c91
 - [x] **pdf-sign** · pdf — Draw, type, or upload a signature. Place and resize on the page, then flatten with pdf-lib. ⚠️ run died ✅ 75d7414
 - [x] **code-beautify** · developer — Prettier standalone for JS/TS/CSS/SCSS/HTML/JSON/Markdown/YAML. Lazy-load parsers per language. ⚠️ run died ✅ already exists as code-beautify
-- [ ] **code-minify** · developer — terser, lightningcss-wasm or csso, html-minifier-terser. Show bytes saved. ⚠️ run died ⏳ run-20261021-1531-369a @ 2026-10-21T15:41:05Z
-- [ ] **video-compress** · video · after: video-foundation — Presets by target size or quality. Warn on memory limits for long files. ⏳ run-20261021-1531-369a @ 2026-10-21T15:41:05Z
+- [ ] **code-minify** · developer — terser, lightningcss-wasm or csso, html-minifier-terser. Show bytes saved. ⚠️ run died ⚠️ run died
+- [x] **video-compress** · video · after: video-foundation — Presets by target size or quality. Warn on memory limits for long files. ⚠️ run died ✅ already exists as video-compress
 - [ ] **image-ocr** · image — tesseract.js with a language picker and self-hosted traineddata. Copy or download the text. ⚠️ run died ⏳ run-20261021-1531-369a @ 2026-10-21T15:41:05Z ⏳ run-20261023-2031-a3f2 @ 2026-10-23T20:57:24Z
-- [ ] **background-remover** · image · after: ml-runtime-foundation — Use a permissively licensed model (e.g. MODNet); RMBG-1.4 is non-commercial, so don't use it. Output transparent PNG or a solid-colour background. ⏳ run-20261021-1604-7f47 @ 2026-10-21T17:30:00Z
+- [ ] **background-remover** · image · after: ml-runtime-foundation — Use a permissively licensed model (e.g. MODNet); RMBG-1.4 is non-commercial, so don't use it. Output transparent PNG or a solid-colour background. ⚠️ run died ⏳ run-20261023-2100-7541 @ 2026-10-23T21:16:07Z
 - [ ] **screen-recorder** · video — getDisplayMedia + MediaRecorder with a mic toggle. WebM output, plus MP4 where the browser supports it. ⚠️ run died ⏳ run-20261021-1604-7f47 @ 2026-10-21T17:30:00Z
 - [ ] **webcam-recorder** · video — getUserMedia + MediaRecorder. Share the recording code with screen-recorder. ⏳ run-20261021-1731-c91e @ 2026-10-21T17:37:32Z ⏳ run-20261023-2031-a3f2 @ 2026-10-23T20:57:24Z
 - [ ] **pdf-organize** · pdf — Thumbnail grid with drag-to-reorder, rotate, delete, and insert blank page. ⚠️ run died ⏳ run-20261021-1604-7f47 @ 2026-10-21T17:30:00Z ⏳ run-20261023-2031-a3f2 @ 2026-10-23T20:57:24Z
@@ -40,8 +40,8 @@ Line order is priority: top first. This file is written by a human (via review) 
 - [ ] **gst-calculator** · misc — Add or remove GST; CGST/SGST/IGST split. Verify current slab rates against an official source before shipping. ⚠️ run died ⏳ run-20261021-1731-c91e @ 2026-10-21T17:37:32Z
 - [ ] **sip-calculator** · misc — SIP, step-up SIP, and lumpsum, with a growth chart. Add a "not financial advice" note. ⚠️ run died ⏳ run-20261021-1731-c91e @ 2026-10-21T17:37:32Z
 - [x] **compound-interest** · misc — Compounding frequency, periodic contributions, and a yearly schedule table. ✅ already exists as compound-interest-calculator
-- [ ] **webcam-test** · device — Registers the `device` category. Device picker, resolution and fps readout, snapshot. Nothing leaves the device. ⏳ run-20261021-1803-9613 @ 2026-10-21T18:14:43Z
-- [ ] **mic-test** · device — Level meter, waveform, record and play back. ⏳ run-20261021-1803-9613 @ 2026-10-21T18:14:43Z
+- [ ] **webcam-test** · device — Registers the `device` category. Device picker, resolution and fps readout, snapshot. Nothing leaves the device. ⚠️ run died ⏳ run-20261023-2100-7541 @ 2026-10-23T21:16:07Z
+- [ ] **mic-test** · device — Level meter, waveform, record and play back. ⚠️ run died ⏳ run-20261023-2100-7541 @ 2026-10-23T21:16:07Z
 - [ ] **keyboard-tester** · device — On-screen layout that lights up per key; key/code readout; ghosting test. ⏳ run-20261021-1803-9613 @ 2026-10-21T18:14:43Z
 - [ ] **video-trim** · video · after: video-foundation — Stream copy when cut points allow, re-encode otherwise. Scrubber preview. ⏳ run-20261021-1803-9613 @ 2026-10-21T18:14:43Z
 - [ ] **video-extract-audio** · video · after: video-foundation — MP3, AAC, and WAV output.
