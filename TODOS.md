@@ -29,11 +29,11 @@ Line order is priority: top first. This file is written by a human (via review) 
 - [x] **code-beautify** · developer — Prettier standalone for JS/TS/CSS/SCSS/HTML/JSON/Markdown/YAML. Lazy-load parsers per language. ⚠️ run died ✅ already exists as code-beautify
 - [ ] **code-minify** · developer — terser, lightningcss-wasm or csso, html-minifier-terser. Show bytes saved. ⚠️ run died ⏳ run-20261021-1531-369a @ 2026-10-21T15:41:05Z
 - [ ] **video-compress** · video · after: video-foundation — Presets by target size or quality. Warn on memory limits for long files. ⏳ run-20261021-1531-369a @ 2026-10-21T15:41:05Z
-- [ ] **image-ocr** · image — tesseract.js with a language picker and self-hosted traineddata. Copy or download the text. ⚠️ run died ⏳ run-20261021-1531-369a @ 2026-10-21T15:41:05Z
+- [ ] **image-ocr** · image — tesseract.js with a language picker and self-hosted traineddata. Copy or download the text. ⚠️ run died ⏳ run-20261021-1531-369a @ 2026-10-21T15:41:05Z ⏳ run-20261023-2031-a3f2 @ 2026-10-23T20:57:24Z
 - [ ] **background-remover** · image · after: ml-runtime-foundation — Use a permissively licensed model (e.g. MODNet); RMBG-1.4 is non-commercial, so don't use it. Output transparent PNG or a solid-colour background. ⏳ run-20261021-1604-7f47 @ 2026-10-21T17:30:00Z
 - [ ] **screen-recorder** · video — getDisplayMedia + MediaRecorder with a mic toggle. WebM output, plus MP4 where the browser supports it. ⚠️ run died ⏳ run-20261021-1604-7f47 @ 2026-10-21T17:30:00Z
-- [ ] **webcam-recorder** · video — getUserMedia + MediaRecorder. Share the recording code with screen-recorder. ⏳ run-20261021-1731-c91e @ 2026-10-21T17:37:32Z
-- [ ] **pdf-organize** · pdf — Thumbnail grid with drag-to-reorder, rotate, delete, and insert blank page. ⚠️ run died ⏳ run-20261021-1604-7f47 @ 2026-10-21T17:30:00Z
+- [ ] **webcam-recorder** · video — getUserMedia + MediaRecorder. Share the recording code with screen-recorder. ⏳ run-20261021-1731-c91e @ 2026-10-21T17:37:32Z ⏳ run-20261023-2031-a3f2 @ 2026-10-23T20:57:24Z
+- [ ] **pdf-organize** · pdf — Thumbnail grid with drag-to-reorder, rotate, delete, and insert blank page. ⚠️ run died ⏳ run-20261021-1604-7f47 @ 2026-10-21T17:30:00Z ⏳ run-20261023-2031-a3f2 @ 2026-10-23T20:57:24Z
 - [x] **password-strength** · security — zxcvbn-ts. Show estimated crack time and feedback. The password is never stored or logged. ⚠️ run died ✅ already exists as password-strength
 - [ ] **markdown-preview** · developer — Split-pane live editor: GFM, code highlighting, export to HTML, print to PDF. ⚠️ run died ⏳ run-20261021-1731-c91e @ 2026-10-21T17:37:32Z
 - [x] **percentage-calculator** · misc — X% of Y; X is what % of Y; % change; increase/decrease by %. ⚠️ run died ✅ already exists as percentage-calculator
