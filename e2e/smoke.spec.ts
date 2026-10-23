@@ -55,7 +55,9 @@ test('every tool page renders a working workbench', async ({ page, baseURL }) =>
       failures.push(`${tool.id}: no <h1> "${tool.name}"`);
       continue;
     }
-    const workbench = page.locator('[data-text-workbench], [data-file-workbench]');
+    const workbench = page.locator(
+      '[data-text-workbench], [data-file-workbench], [data-panel-workbench]',
+    );
     if (!(await workbench.count())) {
       failures.push(`${tool.id}: no workbench`);
       continue;

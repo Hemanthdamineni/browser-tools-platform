@@ -34,4 +34,8 @@ if (!key) {
 const Panel = (await panels[key]!()).default;
 ---
 
-<Panel meta={meta} />
+<!-- The `data-panel-workbench` marker is what the e2e workbench sweep looks for
+     on pages that use a panel instead of the generic text/file workbench. -->
+<div data-panel-workbench={meta.id}>
+  <Panel meta={meta} />
+</div>
