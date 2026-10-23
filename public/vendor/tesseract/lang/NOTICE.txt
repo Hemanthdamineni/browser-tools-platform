@@ -9,6 +9,8 @@ models, taken unchanged from the npm packages:
   @tesseract.js-data/fra@1.0.0  (4.0.0_best_int/fra.traineddata.gz)
   @tesseract.js-data/ita@1.0.0  (4.0.0_best_int/ita.traineddata.gz)
   @tesseract.js-data/spa@1.0.0  (4.0.0_best_int/spa.traineddata.gz)
+  @tesseract.js-data/hin@1.0.0  (4.0.0_best_int/hin.traineddata.gz)
+  @tesseract.js-data/chi_sim@1.0.0  (4.0.0_best_int/chi_sim.traineddata.gz)
   @tesseract.js-data/por@1.0.0  (4.0.0_best_int/por.traineddata.gz)
   @tesseract.js-data/nld@1.0.0  (4.0.0_best_int/nld.traineddata.gz)
   @tesseract.js-data/rus@1.0.0  (4.0.0_best_int/rus.traineddata.gz)

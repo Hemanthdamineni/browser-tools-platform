@@ -122,6 +122,8 @@ test('only offers the languages whose models are shipped with the site', async (
     'French',
     'Italian',
     'Spanish',
+    'Hindi',
+    'Chinese (Simplified)',
     'Portuguese',
     'Dutch',
     'Russian',

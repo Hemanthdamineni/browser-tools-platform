@@ -152,7 +152,7 @@ describe('language list', () => {
     expect(OCR_LANGUAGES.length).toBeGreaterThan(0);
     expect(new Set(OCR_LANGUAGE_CODES).size).toBe(OCR_LANGUAGES.length);
     for (const language of OCR_LANGUAGES) {
-      expect(language.code).toMatch(/^[a-z]{3}$/);
+      expect(language.code).toMatch(/^[a-z]{3}(_[a-z]+)?$/);
       expect(language.label.trim().length).toBeGreaterThan(0);
     }
   });

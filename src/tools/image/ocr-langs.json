@@ -5,6 +5,8 @@
     { "code": "fra", "label": "French" },
     { "code": "ita", "label": "Italian" },
     { "code": "spa", "label": "Spanish" },
+    { "code": "hin", "label": "Hindi" },
+    { "code": "chi_sim", "label": "Chinese (Simplified)" },
     { "code": "por", "label": "Portuguese" },
     { "code": "nld", "label": "Dutch" },
     { "code": "rus", "label": "Russian" }

@@ -31,6 +31,7 @@
     "@astrojs/tailwind": "^5.1.5",
     "@huggingface/transformers": "^4.3.1",
     "@jspawn/qpdf-wasm": "^0.0.2",
+    "@tesseract.js-data/chi_sim": "^1.0.0",
     "@tesseract.js-data/deu": "^1.0.0",
     "@tesseract.js-data/eng": "^1.0.0",
     "@tesseract.js-data/fra": "^1.0.0",
