@@ -42,10 +42,10 @@ Line order is priority: top first. This file is written by a human (via review) 
 - [x] **compound-interest** · misc — Compounding frequency, periodic contributions, and a yearly schedule table. ✅ already exists as compound-interest-calculator
 - [ ] **webcam-test** · device — Registers the `device` category. Device picker, resolution and fps readout, snapshot. Nothing leaves the device. ⚠️ run died ⏳ run-20261023-2100-7541 @ 2026-10-23T21:16:07Z
 - [ ] **mic-test** · device — Level meter, waveform, record and play back. ⚠️ run died ⏳ run-20261023-2100-7541 @ 2026-10-23T21:16:07Z
-- [ ] **keyboard-tester** · device — On-screen layout that lights up per key; key/code readout; ghosting test. ⏳ run-20261021-1803-9613 @ 2026-10-21T18:14:43Z
-- [ ] **video-trim** · video · after: video-foundation — Stream copy when cut points allow, re-encode otherwise. Scrubber preview. ⏳ run-20261021-1803-9613 @ 2026-10-21T18:14:43Z
-- [ ] **video-extract-audio** · video · after: video-foundation — MP3, AAC, and WAV output.
-- [ ] **video-convert** · video · after: video-foundation — MP4, WebM, MOV, and MKV. Remux when possible, transcode when needed.
+- [ ] **keyboard-tester** · device — On-screen layout that lights up per key; key/code readout; ghosting test. ⏳ run-20261023-2024-f777 @ 2026-10-23T21:35:19Z
+- [ ] **video-trim** · video · after: video-foundation — Stream copy when cut points allow, re-encode otherwise. Scrubber preview. ⏳ run-20261023-2024-f777 @ 2026-10-23T21:35:19Z
+- [ ] **video-extract-audio** · video · after: video-foundation — MP3, AAC, and WAV output. ⏳ run-20261023-2024-f777 @ 2026-10-23T21:35:19Z
+- [ ] **video-convert** · video · after: video-foundation — MP4, WebM, MOV, and MKV. Remux when possible, transcode when needed. ⏳ run-20261023-2024-f777 @ 2026-10-23T21:35:19Z
 - [ ] **image-watermark** · image — Text or logo watermark; opacity, position, or tiled. Batch mode.
 - [ ] **image-add-text** · image — Captions and meme-style text: fonts, stroke, shadow, drag to position.
 - [ ] **image-blur-redact** · image — Draw regions to blur, pixelate, or black out. Strip metadata on export.
