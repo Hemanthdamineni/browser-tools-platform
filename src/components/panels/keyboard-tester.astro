@@ -1,0 +1,332 @@
+---
+import type { ToolMeta } from '@/lib/types';
+import Icon from '@/components/Icon.astro';
+import {
+  GHOSTING_CHALLENGES,
+  KEYBOARD_LAYOUT,
+  formatCombination,
+  keyAccessibleName,
+} from '@/tools/device/keyboard-tester.core';
+
+interface Props {
+  meta: ToolMeta;
+}
+const { meta } = Astro.props;
+const id = meta.id;
+const headingId = `${id}-heading`;
+
+/** A readable name for every row of the layout, used as the group's label. */
+const ROW_LABELS: Record<string, string> = {
+  function: 'Function keys',
+  number: 'Number row',
+  qwerty: 'Top letter row',
+  asdf: 'Home row',
+  zxcv: 'Bottom letter row',
+  bottom: 'Modifier row',
+};
+
+const challenges = GHOSTING_CHALLENGES.map((challenge) => ({
+  value: challenge.id,
+  label: formatCombination(challenge.codes),
+}));
+---
+
+<section
+  class="surface rounded-lg p-4 sm:p-6"
+  data-keyboard-panel
+  data-tool-id={meta.id}
+  aria-labelledby={headingId}
+>
+  <div class="flex flex-wrap items-center gap-2">
+    <h2
+      id={headingId}
+      class="flex items-center gap-2 text-base font-semibold text-[rgb(var(--text))]"
+    >
+      <Icon name="terminal" size={18} /> On-screen keyboard
+    </h2>
+    <span class="chip">Beta</span>
+  </div>
+  <p class="mt-1.5 max-w-prose text-sm leading-relaxed text-[rgb(var(--text-muted))]">
+    Type on your keyboard — the matching key lights up here. The readout shows exactly what the
+    browser received. Key events are read in this tab only: nothing is recorded, stored or sent.
+  </p>
+
+  <!-- The keyboard -->
+  <div class="mt-4 overflow-x-auto pb-1" data-kb-keys>
+    {
+      KEYBOARD_LAYOUT.map((row) => (
+        <div class="kb-row" role="group" aria-label={ROW_LABELS[row.id] ?? row.id}>
+          {row.keys.map((key) => (
+            <button
+              type="button"
+              class="kb-key"
+              style={`--kb-w: ${key.width}`}
+              data-kb-code={key.code}
+              data-pressed="false"
+              aria-label={keyAccessibleName(key.code)}
+              aria-pressed="false"
+            >
+              {key.label}
+            </button>
+          ))}
+        </div>
+      ))
+    }
+  </div>
+
+  <p class="mt-2 text-xs text-[rgb(var(--text-muted))]" data-kb-preview>
+    Activate a key above to see what it produces.
+  </p>
+
+  <div class="mt-5 grid gap-4 lg:grid-cols-2">
+    <!-- The readout -->
+    <div class="rounded-lg border p-3">
+      <h3 class="text-sm font-semibold text-[rgb(var(--text))]">Last key</h3>
+      <dl
+        class="mt-2 grid grid-cols-[5.5rem_1fr] gap-x-3 gap-y-1 text-sm"
+        data-kb-readout
+        aria-live="polite"
+      >
+        <dt class="text-[rgb(var(--text-muted))]">state</dt>
+        <dd class="font-mono" data-kb-field="state">—</dd>
+        <dt class="text-[rgb(var(--text-muted))]">key</dt>
+        <dd class="font-mono break-all" data-kb-field="key">—</dd>
+        <dt class="text-[rgb(var(--text-muted))]">code</dt>
+        <dd class="font-mono break-all" data-kb-field="code">—</dd>
+        <dt class="text-[rgb(var(--text-muted))]">char</dt>
+        <dd class="font-mono break-all" data-kb-field="char">—</dd>
+        <dt class="text-[rgb(var(--text-muted))]">combo</dt>
+        <dd class="font-mono break-all" data-kb-field="combo">—</dd>
+        <dt class="text-[rgb(var(--text-muted))]">repeat</dt>
+        <dd class="font-mono" data-kb-field="repeat">—</dd>
+        <dt class="text-[rgb(var(--text-muted))]">modifiers</dt>
+        <dd class="font-mono break-all" data-kb-field="modifiers">none</dd>
+      </dl>
+
+      <ul class="mt-3 flex flex-wrap gap-1.5" data-kb-modifiers>
+        {
+          ['Shift', 'Ctrl', 'Alt', 'Meta'].map((name) => (
+            <li>
+              <span class="chip" data-kb-mod={name.toLowerCase()} data-on="false">
+                {name}
+                <span class="font-mono text-[11px]" data-kb-mod-state={name.toLowerCase()}>
+                  off
+                </span>
+              </span>
+            </li>
+          ))
+        }
+      </ul>
+
+      <label class="mt-3 flex items-center gap-2 text-sm text-[rgb(var(--text-muted))]">
+        <input type="checkbox" class="h-4 w-4" data-kb-pin />
+        Pin the last key
+      </label>
+    </div>
+
+    <!-- The rollover test -->
+    <div class="rounded-lg border p-3">
+      <h3 class="text-sm font-semibold text-[rgb(var(--text))]">Rollover (ghosting) test</h3>
+      <p class="mt-1 text-sm leading-relaxed text-[rgb(var(--text-muted))]">
+        Press every key of the combination at the same time and hold them for a moment. If one of
+        them never arrives, the report names it.
+      </p>
+
+      <div class="mt-3 grid gap-3 sm:grid-cols-2">
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-medium text-[rgb(var(--text-muted))]" for={`${id}-challenge`}>
+            Combination
+          </label>
+          <select id={`${id}-challenge`} class="field !py-1 text-sm" data-kb-challenge>
+            {challenges.map((challenge) => (
+              <option value={challenge.value}>{challenge.label}</option>
+            ))}
+          </select>
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-medium text-[rgb(var(--text-muted))]" for={`${id}-custom`}>
+            Custom combination
+          </label>
+          <div class="flex gap-2">
+            <input
+              id={`${id}-custom`}
+              type="text"
+              class="field !py-1 font-mono text-sm"
+              placeholder="ctrl + shift + t"
+              autocomplete="off"
+              data-kb-custom
+            />
+            <button type="button" class="btn btn-subtle btn-sm shrink-0" data-kb-use-custom>
+              Use
+            </button>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-medium text-[rgb(var(--text-muted))]" for={`${id}-window`}>
+            Wait window (ms)
+          </label>
+          <input
+            id={`${id}-window`}
+            type="number"
+            class="field !py-1 text-sm"
+            min="200"
+            max="5000"
+            step="100"
+            value="1200"
+            data-kb-window
+          />
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-medium text-[rgb(var(--text-muted))]" for={`${id}-history`}>
+            Attempts kept in the report
+          </label>
+          <input
+            id={`${id}-history`}
+            type="number"
+            class="field !py-1 text-sm"
+            min="1"
+            max="50"
+            step="1"
+            value="10"
+            data-kb-history
+          />
+        </div>
+      </div>
+
+      <div class="mt-3 flex flex-wrap items-center gap-2">
+        <button type="button" class="btn btn-primary btn-sm" data-kb-start>Start test</button>
+        <button type="button" class="btn btn-ghost btn-sm" data-kb-clear>Clear history</button>
+        <label class="flex items-center gap-2 text-sm text-[rgb(var(--text-muted))]">
+          <input type="checkbox" class="h-4 w-4" data-kb-timestamps checked />
+          Show times
+        </label>
+      </div>
+
+      <p
+        class="mt-3 text-sm leading-relaxed text-[rgb(var(--text-muted))]"
+        data-kb-status
+        role="status"
+      >
+        Idle — start the test, then press the keys of the combination at the same time.
+      </p>
+    </div>
+  </div>
+
+  <!-- The report -->
+  <div class="mt-5" data-kb-result-wrap data-result-wrap hidden>
+    <h3 class="text-sm font-semibold text-[rgb(var(--text))]">Rollover report</h3>
+    <div class="mt-2" data-kb-report></div>
+    <div
+      class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-[rgb(var(--text-muted))]"
+      data-kb-stats
+    >
+    </div>
+    <ul class="mt-2 space-y-1 text-xs leading-relaxed" data-kb-notes></ul>
+  </div>
+
+  <div
+    class="mt-4 rounded-lg border px-3 py-2 text-sm"
+    style="background-color: rgb(var(--danger-soft)); border-color: rgb(var(--danger)); color: rgb(var(--danger))"
+    role="alert"
+    data-kb-error
+    hidden
+  >
+  </div>
+
+  <noscript>
+    <p class="mt-4 text-sm text-[rgb(var(--text-muted))]">
+      The live keyboard needs JavaScript. The page itself works without it.
+    </p>
+  </noscript>
+</section>
+
+<style>
+  .kb-row {
+    display: flex;
+    gap: 0.3rem;
+    min-width: 34rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .kb-key {
+    flex: var(--kb-w, 1) 1 0%;
+    min-width: 0;
+    overflow: hidden;
+    padding: 0.5rem 0.15rem;
+    border: 1px solid rgb(var(--border-strong));
+    border-radius: 0.375rem;
+    background: rgb(var(--surface-raised));
+    color: rgb(var(--text));
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    line-height: 1.1;
+    text-align: center;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      background-color var(--dur-fast) var(--ease),
+      border-color var(--dur-fast) var(--ease),
+      box-shadow var(--dur-fast) var(--ease);
+  }
+
+  .kb-key:hover {
+    background: rgb(var(--bg-inset));
+  }
+
+  /*
+   * A held key is marked three ways — a colour change, an inset ring and a
+   * dot — so the state never depends on colour alone.
+   */
+  .kb-key[data-pressed='true'] {
+    position: relative;
+    padding-bottom: 0.9rem;
+    border-color: rgb(var(--accent));
+    background: rgb(var(--accent-soft));
+    color: rgb(var(--accent-strong));
+    box-shadow: inset 0 0 0 2px rgb(var(--accent));
+  }
+
+  .kb-key[data-pressed='true']::after {
+    content: '';
+    position: absolute;
+    bottom: 0.25rem;
+    left: 50%;
+    width: 0.35rem;
+    height: 0.35rem;
+    border-radius: 9999px;
+    background: rgb(var(--accent));
+    transform: translateX(-50%);
+  }
+
+  /* The modifier chips carry their state in text as well as in colour. */
+  .chip[data-on='true'] {
+    background: rgb(var(--accent-soft));
+    color: rgb(var(--accent-strong));
+    box-shadow: inset 0 0 0 1px rgb(var(--accent));
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .kb-key {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-keyboard-panel]').forEach((panel) => {
+    // The panel's logic is loaded on demand so no keyboard code ships to
+    // pages that don't use it.
+    void import('./keyboard-tester-panel')
+      .then(({ mountKeyboardTesterPanel }) => mountKeyboardTesterPanel(panel))
+      .catch(() => {
+        const error = panel.querySelector<HTMLElement>('[data-kb-error]');
+        if (error) {
+          error.hidden = false;
+          error.textContent = 'The keyboard panel could not be loaded in this browser.';
+        }
+      });
+  });
+</script>
