@@ -1,6 +1,6 @@
 # Complete Tool List
 
-Total: **389** tools across **20** categories.
+Total: **392** tools across **20** categories.
 
 Generated from `src/tools/**/*.meta.ts` (source of truth).
 
@@ -183,11 +183,13 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `text-inspector` | Text Encoding & Character Inspector | text | stable | Inspect BOMs, line endings, control characters, and Unicode code points in text. |
 | `ua-parser` | User-Agent Parser | text | stable | Decode any User-Agent string into browser, version, engine, OS, OS version and device class — on your device. |
 
-## device (1)
+## device (3)
 
 | id | name | input | status | summary |
 | --- | --- | --- | --- | --- |
 | `keyboard-tester` | Keyboard Tester | text | beta | Watch every key you press light up on screen, read the key and code the browser receives, and test for ghosting. |
+| `mic-test` | Microphone Test | file | beta | Check a microphone: live level meter and waveform, then record a take and play it back. |
+| `webcam-test` | Webcam Test | file | beta | Preview a camera, read its live resolution and frame rate, and save a PNG snapshot. |
 
 ## encoding (13)
 
@@ -228,7 +230,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `uuid` | UUID Generator | text | stable | Generate RFC 4122 UUIDs (v4 random or v7 time-ordered) in bulk. |
 | `vcard` | vCard Generator | text | stable | Build vCard 3.0 contact files, or parse a pasted vCard back into fields. |
 
-## image (19)
+## image (20)
 
 | id | name | input | status | summary |
 | --- | --- | --- | --- | --- |
@@ -245,6 +247,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `image-metadata` | Image Metadata & EXIF Viewer | file | stable | Inspect image dimensions, file details, and common JPEG EXIF tags. |
 | `image-ocr` | Image OCR | file | beta | Read text out of images with on-device OCR — nothing is uploaded, nothing leaves your browser. |
 | `image-to-datauri` | Image to Data URI | file | beta | Encode an image as a data URI for HTML, CSS, or source code. |
+| `background-remover` | Remove Background | file | beta | Cut a subject out of a photo with an on-device AI matting model (MODNet). |
 | `image-resize` | Resize Image | file | stable | Resize images by percentage or to exact dimensions, entirely in your browser. |
 | `image-rotate` | Rotate / Flip Image | file | stable | Rotate images by 90-degree steps or flip them horizontally and vertically. |
 | `image-spritesheet` | Sprite Sheet Builder | file | stable | Combine multiple images into one sprite sheet with a position map. |
