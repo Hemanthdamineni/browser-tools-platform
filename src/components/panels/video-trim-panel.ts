@@ -243,7 +243,7 @@ export function mountVideoTrimPanel(root: HTMLElement): void {
   /*  The preview                                                             */
   /* ---------------------------------------------------------------------- */
 
-  videoEl.addEventListener('loadedmetadata', () => {
+  function onMetadata(): void {
     const total = videoEl.duration;
     if (!Number.isFinite(total) || total <= 0) {
       announce('The length of this clip could not be read.');
@@ -256,7 +256,12 @@ export function mountVideoTrimPanel(root: HTMLElement): void {
     end = total;
     announce(`The clip is ${formatTrimTime(total)} long — drag the handles to cut it.`);
     syncUi();
-  });
+  }
+
+  videoEl.addEventListener('loadedmetadata', onMetadata);
+  // The panel module is imported lazily, so the metadata of a file that
+  // started loading before this listener existed may already have arrived.
+  if (videoEl.readyState >= 1) onMetadata();
 
   videoEl.addEventListener('timeupdate', () => {
     if (duration <= 0) return;
