@@ -13,8 +13,6 @@ const fftId = `${meta.id}-fft`;
 const smoothingId = `${meta.id}-smoothing`;
 const floorId = `${meta.id}-floor`;
 const limitId = `${meta.id}-limit`;
-const peakLabelId = `${meta.id}-peak-label`;
-const rmsLabelId = `${meta.id}-rms-label`;
 ---
 
 <section
@@ -153,17 +151,25 @@ const rmsLabelId = `${meta.id}-rms-label`;
     <canvas
       class="h-32 w-full rounded-lg border bg-[rgb(var(--bg-subtle))]"
       data-mic-waveform
-      aria-hidden="true"></canvas>
+      role="img"
+      aria-label="Live waveform of the microphone input. Its shape is decorative; the peak and RMS meters below carry the level."
+    >
+    </canvas>
 
     <div class="space-y-2">
       <div>
         <div class="flex items-center justify-between gap-2 text-xs text-[rgb(var(--text-muted))]">
-          <span id={peakLabelId}>Peak</span>
+          <span>Peak</span>
           <span class="font-mono" data-mic-peak-db>−∞ dB</span>
         </div>
         <div
           class="mt-1 h-2.5 w-full overflow-hidden rounded-full bg-[rgb(var(--bg-subtle))]"
-          aria-hidden="true"
+          role="progressbar"
+          aria-label="Peak level in dBFS"
+          aria-valuemin="-80"
+          aria-valuemax="0"
+          aria-valuenow="-80"
+          aria-valuetext="−∞ dB"
           data-mic-peak-bar
         >
           <div
@@ -176,12 +182,17 @@ const rmsLabelId = `${meta.id}-rms-label`;
       </div>
       <div>
         <div class="flex items-center justify-between gap-2 text-xs text-[rgb(var(--text-muted))]">
-          <span id={rmsLabelId}>RMS (average loudness)</span>
+          <span>RMS (average loudness)</span>
           <span class="font-mono" data-mic-rms-db>−∞ dB</span>
         </div>
         <div
           class="mt-1 h-2.5 w-full overflow-hidden rounded-full bg-[rgb(var(--bg-subtle))]"
-          aria-hidden="true"
+          role="progressbar"
+          aria-label="RMS level in dBFS"
+          aria-valuemin="-80"
+          aria-valuemax="0"
+          aria-valuenow="-80"
+          aria-valuetext="−∞ dB"
           data-mic-rms-bar
         >
           <div
@@ -221,6 +232,19 @@ const rmsLabelId = `${meta.id}-rms-label`;
     </p>
   </noscript>
 </section>
+
+<style>
+  /*
+   * `hidden` must beat the display utilities on the controls it toggles: a
+   * `.btn` is `inline-flex` and the device picker carries `.flex`, both of
+   * which outrank Tailwind's preflight `[hidden]` rule — the same reason
+   * global.css special-cases `[data-option-wrap][hidden]`. Scoped to this
+   * panel so nothing else on the page changes.
+   */
+  [data-mic-test-panel] [hidden] {
+    display: none;
+  }
+</style>
 
 <script>
   document.querySelectorAll<HTMLElement>('[data-mic-test-panel]').forEach((panel) => {

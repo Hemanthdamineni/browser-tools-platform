@@ -12,7 +12,9 @@ import {
   describeMicError,
   formatDb,
   levelVerdict,
+  MAX_RECORDING_BYTES,
   meterSettings,
+  MIN_RECORDING_MS,
   pickRecorderMime,
   readingOf,
   readingOfAnalyserBytes,
@@ -198,8 +200,11 @@ describe('dB helpers', () => {
     expect(dbToFraction(-80, -80)).toBe(0);
     expect(dbToFraction(0, -80)).toBe(1);
     expect(dbToFraction(-40, -80)).toBeCloseTo(0.5);
-    expect(dbToFraction(0, -80)).toBe(1);
+    expect(dbToFraction(-20, -80)).toBeCloseTo(0.75);
     expect(dbToFraction(-Infinity, -80)).toBe(0);
+    // Clamped at both ends: below the floor reads empty, above full scale full.
+    expect(dbToFraction(-120, -80)).toBe(0);
+    expect(dbToFraction(6, -80)).toBe(1);
   });
 
   it('formats dB readouts', () => {
@@ -237,10 +242,30 @@ describe('level verdicts', () => {
 });
 
 describe('recording validation', () => {
-  it('accepts a healthy clip', () => {
+  it('accepts a healthy clip, and clips at the boundaries exactly', () => {
+    // A normal take, at the exact length and size limits, with an unknown MIME
+    // type from a browser that does not report one: all pass.
     expect(() =>
       validateRecording({ size: 4096, type: 'audio/webm;codecs=opus', durationMs: 2000 }),
     ).not.toThrow();
+    expect(() =>
+      validateRecording({
+        size: MAX_RECORDING_BYTES,
+        type: '',
+        durationMs: MIN_RECORDING_MS,
+      }),
+    ).not.toThrow();
+    // One step outside either limit is rejected, with the matching message.
+    expect(() =>
+      validateRecording({
+        size: MAX_RECORDING_BYTES + 1,
+        type: 'audio/webm',
+        durationMs: 2000,
+      }),
+    ).toThrow(/too large/);
+    expect(() =>
+      validateRecording({ size: 4096, type: 'audio/webm', durationMs: MIN_RECORDING_MS - 1 }),
+    ).toThrow(/too short/);
   });
   it('throws on a missing size', () => {
     expect(() => validateRecording({ size: 0, type: 'audio/webm', durationMs: 500 })).toThrow(

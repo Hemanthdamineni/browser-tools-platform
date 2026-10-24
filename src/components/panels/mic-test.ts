@@ -93,7 +93,9 @@ export function mountMicPanel(panel: HTMLElement): void {
   if (!startBtn || !recordBtn || !stopBtn || !resetBtn || !status || !errorBox || !results) return;
 
   const canvas = panel.querySelector<HTMLCanvasElement>('[data-mic-waveform]');
+  const peakBar = panel.querySelector<HTMLElement>('[data-mic-peak-bar]');
   const peakFill = panel.querySelector<HTMLElement>('[data-mic-peak-fill]');
+  const rmsBar = panel.querySelector<HTMLElement>('[data-mic-rms-bar]');
   const rmsFill = panel.querySelector<HTMLElement>('[data-mic-rms-fill]');
   const peakDbEl = panel.querySelector<HTMLElement>('[data-mic-peak-db]');
   const rmsDbEl = panel.querySelector<HTMLElement>('[data-mic-rms-db]');
@@ -175,10 +177,29 @@ export function mountMicPanel(panel: HTMLElement): void {
     return analyserBytesToFloat(byteBuf);
   }
 
+  /**
+   * Move one meter bar. The fill and the programmatic value (`aria-valuenow`,
+   * in dBFS) are updated together, and only when a value actually changes, so
+   * assistive tech can read the level without a per-frame DOM storm.
+   */
+  function paintBar(bar: HTMLElement | null, fill: HTMLElement | null, db: number): void {
+    const floorDb = settings.floorDb;
+    const fraction = dbToFraction(db, floorDb);
+    if (fill) fill.style.width = `${(fraction * 100).toFixed(1)}%`;
+    if (!bar) return;
+    const attrs: Record<string, string> = {
+      'aria-valuemin': String(floorDb),
+      'aria-valuenow': (floorDb * (1 - fraction)).toFixed(1),
+      'aria-valuetext': formatDb(db),
+    };
+    for (const [name, value] of Object.entries(attrs)) {
+      if (bar.getAttribute(name) !== value) bar.setAttribute(name, value);
+    }
+  }
+
   function paintMeter(reading: MeterReading): void {
-    const width = (db: number) => `${(dbToFraction(db, settings.floorDb) * 100).toFixed(1)}%`;
-    if (peakFill) peakFill.style.width = width(reading.peakDb);
-    if (rmsFill) rmsFill.style.width = width(reading.rmsDb);
+    paintBar(peakBar, peakFill, reading.peakDb);
+    paintBar(rmsBar, rmsFill, reading.rmsDb);
     if (peakDbEl) peakDbEl.textContent = formatDb(reading.peakDb);
     if (rmsDbEl) rmsDbEl.textContent = formatDb(reading.rmsDb);
     if (verdictEl) {
@@ -278,6 +299,44 @@ export function mountMicPanel(panel: HTMLElement): void {
     objectUrl = null;
   }
 
+  /** Close the AudioContext and drop the reference, so nothing is left running. */
+  function releaseContext(): void {
+    const current = context;
+    context = null;
+    if (current) void current.close().catch(() => undefined);
+  }
+
+  /**
+   * Stop everything and put every control back to the microphone-off state.
+   * Used by Reset and by the page-hide handlers, so a bfcache-restored page is
+   * idle and usable rather than showing a Record button that cannot work.
+   */
+  function releaseAll(message: string): void {
+    generation += 1;
+    stopRecording();
+    stopLoop();
+    releaseStream();
+    revokeObjectUrl();
+    releaseContext();
+    if (audio) {
+      audio.removeAttribute('src');
+      audio.load();
+    }
+    if (playbackWrap) playbackWrap.hidden = true;
+    if (meterWrap) meterWrap.hidden = true;
+    if (deviceWrap) deviceWrap.hidden = true;
+    results!.replaceChildren();
+    resetMeter();
+    clearError(errorBox!);
+    startBtn!.hidden = false;
+    startBtn!.disabled = false;
+    recordBtn!.hidden = true;
+    recordBtn!.disabled = false;
+    stopBtn!.hidden = true;
+    resetBtn!.hidden = true;
+    announce(message);
+  }
+
   async function populateDevices(): Promise<void> {
     if (!deviceSelect || !deviceWrap || !navigator.mediaDevices?.enumerateDevices) return;
     try {
@@ -307,6 +366,9 @@ export function mountMicPanel(panel: HTMLElement): void {
     clearError(errorBox!);
     startBtn!.disabled = true;
     announce('Requesting microphone permission…');
+    // Reset (or page hide) bumps the generation; a permission grant that lands
+    // afterwards must not bring the microphone live on a released panel.
+    const requestGeneration = generation;
     try {
       if (!navigator.mediaDevices?.getUserMedia) {
         throw Object.assign(new Error('getUserMedia is unavailable'), { name: 'TypeError' });
@@ -322,20 +384,32 @@ export function mountMicPanel(panel: HTMLElement): void {
           autoGainControl: false,
         },
       });
+      if (requestGeneration !== generation) {
+        media.getTracks().forEach((track) => track.stop());
+        return;
+      }
+
+      const audio = context ?? createAudioContext();
+      if (audio.state === 'suspended') await audio.resume().catch(() => undefined);
+      if (requestGeneration !== generation) {
+        media.getTracks().forEach((track) => track.stop());
+        // The context was created during this request, so reset never saw it.
+        if (audio !== context) void audio.close().catch(() => undefined);
+        return;
+      }
+      context = audio;
       stream = media;
       const track = media.getAudioTracks()[0];
       const trackId = track?.getSettings?.().deviceId;
       activeDeviceId = trackId ?? deviceId;
 
-      context = context ?? createAudioContext();
-      if (context.state === 'suspended') await context.resume().catch(() => undefined);
       sourceNode?.disconnect();
       analyser?.disconnect();
-      analyser = context.createAnalyser();
+      analyser = audio.createAnalyser();
       applySettings();
-      sourceNode = context.createMediaStreamSource(media);
+      sourceNode = audio.createMediaStreamSource(media);
       sourceNode.connect(analyser);
-      // Deliberately not connected to context.destination — monitoring on the
+      // Deliberately not connected to audio.destination — monitoring on the
       // speakers would feed back into the microphone.
 
       releaseLive();
@@ -344,7 +418,7 @@ export function mountMicPanel(panel: HTMLElement): void {
       recordBtn!.hidden = false;
       resetBtn!.hidden = false;
       announce(
-        `Microphone live at ${Math.round(context.sampleRate / 1000)} kHz — speak and watch the meter.`,
+        `Microphone live at ${Math.round(audio.sampleRate / 1000)} kHz — speak and watch the meter.`,
       );
       startLoop();
       void populateDevices();
@@ -538,6 +612,8 @@ export function mountMicPanel(panel: HTMLElement): void {
       if (takeGeneration !== generation) return;
       renderResult(result);
     } catch (err) {
+      // A rejection that lands after a Reset belongs to the cleared panel.
+      if (takeGeneration !== generation) return;
       results!.replaceChildren();
       const described = errorText(err, 'The recording could not be summarised');
       showError(errorBox!, described.message, described.hint);
@@ -596,32 +672,7 @@ export function mountMicPanel(panel: HTMLElement): void {
   startBtn.addEventListener('click', () => void start());
   recordBtn.addEventListener('click', () => startRecording());
   stopBtn.addEventListener('click', () => stopRecording());
-  resetBtn.addEventListener('click', () => {
-    generation += 1;
-    stopRecording();
-    stopLoop();
-    releaseStream();
-    revokeObjectUrl();
-    void context?.close().catch(() => undefined);
-    context = null;
-    if (audio) {
-      audio.removeAttribute('src');
-      audio.load();
-    }
-    if (playbackWrap) playbackWrap.hidden = true;
-    if (meterWrap) meterWrap.hidden = true;
-    if (deviceWrap) deviceWrap.hidden = true;
-    results.replaceChildren();
-    resetMeter();
-    clearError(errorBox!);
-    startBtn.hidden = false;
-    startBtn.disabled = false;
-    recordBtn.hidden = true;
-    recordBtn.disabled = false;
-    stopBtn.hidden = true;
-    resetBtn.hidden = true;
-    announce('Microphone released.');
-  });
+  resetBtn.addEventListener('click', () => releaseAll('Microphone released.'));
 
   for (const control of [fftSelect, smoothingInput, floorInput, limitInput]) {
     control?.addEventListener('input', () => {
@@ -639,13 +690,8 @@ export function mountMicPanel(panel: HTMLElement): void {
     void start(activeDeviceId);
   });
 
-  const shutdown = () => {
-    generation += 1;
-    stopRecording();
-    stopLoop();
-    releaseStream();
-    revokeObjectUrl();
-  };
-  window.addEventListener('pagehide', shutdown);
-  window.addEventListener('beforeunload', shutdown);
+  // Free the microphone and the audio context when the page goes away; the
+  // panel is left idle so a bfcache restore can start again straight away.
+  window.addEventListener('pagehide', () => releaseAll('Microphone off.'));
+  window.addEventListener('beforeunload', () => releaseAll('Microphone off.'));
 }
