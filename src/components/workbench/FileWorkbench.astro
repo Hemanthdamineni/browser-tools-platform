@@ -154,6 +154,11 @@ const p = meta.id;
     // The dedicated signing panel reuses the `data-file-workbench` marker (the
     // shared e2e checks look for it) but mounts itself — skip it here.
     if (root.hasAttribute('data-signature-workbench')) return;
+    // Other dedicated panels (the data URI panel, for one) reuse the same
+    // marker so the shared e2e checks still find a workbench, but they mount
+    // themselves. The generic file workbench is the only one with a
+    // "download all" button, so a root without it belongs to such a panel.
+    if (!root.querySelector('[data-download-all]')) return;
     const toolId = root.dataset.toolId!;
     const accept = root.dataset.accept || undefined;
     const multiple = root.dataset.multiple === 'true';
