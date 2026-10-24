@@ -27,7 +27,7 @@ Line order is priority: top first. This file is written by a human (via review) 
 - [x] **video-to-gif** · video · after: video-foundation — Time range, fps, width, palette quality. Preview before export. ✅ bc08c91
 - [x] **pdf-sign** · pdf — Draw, type, or upload a signature. Place and resize on the page, then flatten with pdf-lib. ⚠️ run died ✅ 75d7414
 - [x] **code-beautify** · developer — Prettier standalone for JS/TS/CSS/SCSS/HTML/JSON/Markdown/YAML. Lazy-load parsers per language. ⚠️ run died ✅ already exists as code-beautify
-- [ ] **code-minify** · developer — terser, lightningcss-wasm or csso, html-minifier-terser. Show bytes saved. ⚠️ run died ⚠️ run died
+- [x] **code-minify** · developer — terser, lightningcss-wasm or csso, html-minifier-terser. Show bytes saved. ⚠️ run died ⚠️ run died ✅ already on master
 - [x] **video-compress** · video · after: video-foundation — Presets by target size or quality. Warn on memory limits for long files. ⚠️ run died ✅ already exists as video-compress
 - [x] **image-ocr** · image — tesseract.js with a language picker and self-hosted traineddata. Copy or download the text. ⚠️ run died ⏳ run-20261021-1531-369a @ 2026-10-21T15:41:05Z ✅ 8784cc2
 - [x] **background-remover** · image · after: ml-runtime-foundation — Use a permissively licensed model (e.g. MODNet); RMBG-1.4 is non-commercial, so don't use it. Output transparent PNG or a solid-colour background. ⚠️ run died ⏳ run-20261023-2100-7541 @ 2026-10-23T21:16:07Z ✅ round/complete-2
@@ -37,8 +37,8 @@ Line order is priority: top first. This file is written by a human (via review) 
 - [x] **password-strength** · security — zxcvbn-ts. Show estimated crack time and feedback. The password is never stored or logged. ⚠️ run died ✅ already exists as password-strength
 - [x] **markdown-preview** · developer — Split-pane live editor: GFM, code highlighting, export to HTML, print to PDF. ⚠️ run died ⚠️ run died ✅ round/complete-2
 - [x] **percentage-calculator** · misc — X% of Y; X is what % of Y; % change; increase/decrease by %. ⚠️ run died ✅ already exists as percentage-calculator
-- [ ] **gst-calculator** · misc — Add or remove GST; CGST/SGST/IGST split. Verify current slab rates against an official source before shipping. ⚠️ run died ⚠️ run died
-- [ ] **sip-calculator** · misc — SIP, step-up SIP, and lumpsum, with a growth chart. Add a "not financial advice" note. ⚠️ run died ⚠️ run died
+- [x] **gst-calculator** · misc — Add or remove GST; CGST/SGST/IGST split. Verify current slab rates against an official source before shipping. ⚠️ run died ⚠️ run died ✅ already on master
+- [x] **sip-calculator** · misc — SIP, step-up SIP, and lumpsum, with a growth chart. Add a "not financial advice" note. ⚠️ run died ⚠️ run died ✅ already on master
 - [x] **compound-interest** · misc — Compounding frequency, periodic contributions, and a yearly schedule table. ✅ already exists as compound-interest-calculator
 - [x] **webcam-test** · device — Registers the `device` category. Device picker, resolution and fps readout, snapshot. Nothing leaves the device. ⚠️ run died ⏳ run-20261023-2100-7541 @ 2026-10-23T21:16:07Z ✅ round/complete-2
 - [x] **mic-test** · device — Level meter, waveform, record and play back. ⚠️ run died ⏳ run-20261023-2100-7541 @ 2026-10-23T21:16:07Z ✅ round/complete-2
@@ -74,7 +74,7 @@ Line order is priority: top first. This file is written by a human (via review) 
 - [x] **image-filters** · image — Brightness, contrast, saturation, grayscale, sepia, sharpen, with live preview. ✅ round/complete-2
 - [x] **gif-maker** · image — Images to animated GIF with gifenc; frame delay and loop settings. ✅ round/complete-2
 - [x] **image-collage** · image — Grid layouts, spacing, background; export. ✅ round/complete-2
-- [ ] **svg-optimizer** · image — SVGO browser build; preset toggles; before/after size and preview.
+- [x] **svg-optimizer** · image — SVGO browser build; preset toggles; before/after size and preview. ✅ already on master
 - [x] **x509-decoder** · security — Decode PEM/DER certificates and CSRs with @peculiar/x509: validity, SANs, issuer fields, fingerprints. ✅ already exists as x509-certificate-inspector
 - [x] **keypair-generator** · security — RSA, ECDSA, and Ed25519 via WebCrypto. PEM and OpenSSH formats. ✅ already exists as keypair-generator
 - [x] **bcrypt** · security — Hash and verify with a cost factor; bcryptjs in a worker. ✅ round/complete-2

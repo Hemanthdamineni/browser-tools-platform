@@ -383,49 +383,25 @@ export async function mountPdfOcrPanel(root: HTMLElement): Promise<void> {
   const [{ createDropZone, downloadBlob, validateFileSelection }, { runToolById }] =
     await Promise.all([import('@/lib/files'), import('@/lib/worker/client')]);
 
-  const dropEl = root.querySelector<HTMLElement>('[data-drop]');
-  const listEl = root.querySelector<HTMLUListElement>('[data-file-list]');
-  const languageEl = root.querySelector<HTMLSelectElement>('[data-language]');
-  const scaleEl = root.querySelector<HTMLInputElement>('[data-scale]');
-  const scaleValueEl = root.querySelector<HTMLElement>('[data-scale-value]');
-  const modeEl = root.querySelector<HTMLSelectElement>('[data-mode]');
-  const pagesEl = root.querySelector<HTMLInputElement>('[data-pages]');
-  const planStatusEl = root.querySelector<HTMLElement>('[data-plan-status]');
-  const runBtn = root.querySelector<HTMLButtonElement>('[data-run]');
-  const cancelBtn = root.querySelector<HTMLButtonElement>('[data-cancel]');
-  const resetBtn = root.querySelector<HTMLButtonElement>('[data-reset]');
-  const errorBox = root.querySelector<HTMLElement>('[data-error]');
-  const progressWrap = root.querySelector<HTMLElement>('[data-progress-wrap]');
-  const progressBar = root.querySelector<HTMLElement>('[data-progress-bar]');
-  const progressMsg = root.querySelector<HTMLElement>('[data-progress-msg]');
-  const resultWrap = root.querySelector<HTMLElement>('[data-result-wrap]');
-  const outputsEl = root.querySelector<HTMLUListElement>('[data-outputs]');
-  const notesEl = root.querySelector<HTMLUListElement>('[data-notes]');
-  const statsEl = root.querySelector<HTMLUListElement>('[data-stats]');
-
-  if (
-    !dropEl ||
-    !listEl ||
-    !languageEl ||
-    !scaleEl ||
-    !scaleValueEl ||
-    !modeEl ||
-    !pagesEl ||
-    !planStatusEl ||
-    !runBtn ||
-    !cancelBtn ||
-    !resetBtn ||
-    !errorBox ||
-    !progressWrap ||
-    !progressBar ||
-    !progressMsg ||
-    !resultWrap ||
-    !outputsEl ||
-    !notesEl ||
-    !statsEl
-  ) {
-    return;
-  }
+  const dropEl = root.querySelector<HTMLElement>('[data-drop]')!;
+  const listEl = root.querySelector<HTMLUListElement>('[data-file-list]')!;
+  const languageEl = root.querySelector<HTMLSelectElement>('[data-language]')!;
+  const scaleEl = root.querySelector<HTMLInputElement>('[data-scale]')!;
+  const scaleValueEl = root.querySelector<HTMLElement>('[data-scale-value]')!;
+  const modeEl = root.querySelector<HTMLSelectElement>('[data-mode]')!;
+  const pagesEl = root.querySelector<HTMLInputElement>('[data-pages]')!;
+  const planStatusEl = root.querySelector<HTMLElement>('[data-plan-status]')!;
+  const runBtn = root.querySelector<HTMLButtonElement>('[data-run]')!;
+  const cancelBtn = root.querySelector<HTMLButtonElement>('[data-cancel]')!;
+  const resetBtn = root.querySelector<HTMLButtonElement>('[data-reset]')!;
+  const errorBox = root.querySelector<HTMLElement>('[data-error]')!;
+  const progressWrap = root.querySelector<HTMLElement>('[data-progress-wrap]')!;
+  const progressBar = root.querySelector<HTMLElement>('[data-progress-bar]')!;
+  const progressMsg = root.querySelector<HTMLElement>('[data-progress-msg]')!;
+  const resultWrap = root.querySelector<HTMLElement>('[data-result-wrap]')!;
+  const outputsEl = root.querySelector<HTMLUListElement>('[data-outputs]')!;
+  const notesEl = root.querySelector<HTMLUListElement>('[data-notes]')!;
+  const statsEl = root.querySelector<HTMLUListElement>('[data-stats]')!;
 
   const toolId = root.dataset.toolId || 'pdf-ocr';
   let file: File | null = null;
