@@ -1,0 +1,213 @@
+---
+/**
+ * The spectrogram panel.
+ *
+ * The generic file workbench cannot express a live, scrolling microphone
+ * spectrogram with a colour legend and a capture/export flow, so this tool
+ * opts into a panel via `meta.panel = 'spectrogram'`. The behaviour — the file
+ * path, the live `AnalyserNode` loop and the canvas painting — lives in
+ * `./spectrogram-panel.ts` and is loaded on demand; this component only lays
+ * out the workbench and hands the root element to `mountSpectrogramPanel`.
+ * Nothing is uploaded: the audio is decoded and rendered in this tab.
+ */
+import type { ToolMeta } from '@/lib/types';
+import Icon from '@/components/Icon.astro';
+import OptionsFields from '@/components/workbench/OptionsFields.astro';
+
+interface Props {
+  meta: ToolMeta;
+}
+const { meta } = Astro.props;
+const p = meta.id;
+---
+
+<section
+  class="surface rounded-lg p-4 sm:p-6"
+  data-file-workbench
+  data-spectrogram-panel
+  data-tool-id={meta.id}
+  aria-label={`${meta.name} workbench`}
+>
+  <div class="flex flex-wrap items-center gap-2">
+    <h2 class="flex items-center gap-2 text-base font-semibold text-[rgb(var(--text))]">
+      <Icon name="audio-lines" size={18} /> Spectrogram
+    </h2>
+    <span class="chip">On-device</span>
+  </div>
+  <p class="mt-1.5 max-w-prose text-sm leading-relaxed text-[rgb(var(--text-muted))]">
+    Turn an audio file — or your microphone — into a spectrogram PNG. Choose the FFT size, window,
+    colour map, frequency band and dB range; the analysis runs entirely in this tab.
+  </p>
+
+  <div
+    class="mt-3 rounded-lg border px-3 py-2 text-sm"
+    style="background-color: rgb(var(--danger-soft)); border-color: rgb(var(--danger)); color: rgb(var(--danger))"
+    role="alert"
+    data-spec-error
+    hidden
+  >
+  </div>
+
+  <label
+    class="drop-zone mt-4 flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed px-4 py-8 text-center transition-colors"
+    data-spec-drop
+    aria-label="Choose an audio file or drop one here"
+  >
+    <Icon name="download" size={26} class="opacity-60" />
+    <p class="text-sm font-medium">
+      Drop an audio file here, or <span class="link">browse</span>
+    </p>
+    <p class="text-xs text-[rgb(var(--text-muted))]">
+      MP3, WAV, OGG, FLAC and M4A all work — decoded locally, never uploaded.
+    </p>
+    <input class="sr-only" type="file" accept={meta.accept ?? 'audio/*'} data-spec-input />
+  </label>
+  <ul class="mt-2 space-y-1 text-sm text-[rgb(var(--text))]" data-spec-files></ul>
+
+  <div class="mt-4 flex flex-wrap items-center gap-2.5">
+    <button type="button" class="btn btn-primary" data-spec-run disabled>
+      <Icon name="zap" size={16} /> Analyse file
+    </button>
+    <button type="button" class="btn btn-ghost" data-spec-mic-start>
+      <Icon name="audio-lines" size={16} /> Use microphone
+    </button>
+    <button type="button" class="btn btn-ghost" data-spec-mic-stop hidden>
+      <Icon name="stop" size={14} /> Stop microphone
+    </button>
+    <button type="button" class="btn btn-subtle" data-spec-capture aria-pressed="false">
+      Capture
+    </button>
+    <button type="button" class="btn btn-subtle" data-spec-mic-export disabled>
+      No capture yet
+    </button>
+  </div>
+
+  <div class="mt-3" data-spec-progress hidden>
+    <div class="h-2 overflow-hidden rounded-full" style="background-color: rgb(var(--bg-inset))">
+      <div
+        class="h-full transition-[width] duration-200 ease-out"
+        style="width:0%; background-color: rgb(var(--accent))"
+        data-spec-progress-bar
+      >
+      </div>
+    </div>
+    <p
+      class="mt-1 text-xs tabular-nums text-[rgb(var(--text-muted))]"
+      data-spec-progress-label
+      aria-live="polite"
+    >
+    </p>
+  </div>
+
+  <div class="mt-4">
+    <div
+      class="relative overflow-hidden rounded-lg border"
+      style="background-color: rgb(var(--bg-inset))"
+    >
+      <canvas
+        class="block h-64 w-full"
+        data-spec-canvas
+        role="img"
+        aria-label="Live spectrogram preview"
+        hidden
+      >
+      </canvas>
+      <div
+        class="flex h-64 flex-col items-center justify-center gap-2 text-center"
+        data-spec-canvas-alt
+      >
+        <Icon name="audio-lines" size={26} class="opacity-60" />
+        <p class="text-sm text-[rgb(var(--text-muted))]">
+          Press “Use microphone” to watch the live spectrogram.
+        </p>
+      </div>
+    </div>
+    <div
+      class="mt-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-xs text-[rgb(var(--text-muted))]"
+    >
+      <div class="flex items-center gap-2" data-spec-legend>
+        <span class="tabular-nums" data-spec-legend-floor>— dB</span>
+        <span
+          class="h-2 w-24 rounded-full"
+          style="background: linear-gradient(90deg, rgb(68,1,84), rgb(59,82,139), rgb(33,145,140), rgb(94,201,98), rgb(253,231,37))"
+          aria-hidden="true"
+        >
+        </span>
+        <span class="tabular-nums" data-spec-legend-ceiling>— dB</span>
+      </div>
+      <span class="tabular-nums" data-spec-axis-freq></span>
+      <span class="tabular-nums" data-spec-axis-time></span>
+    </div>
+  </div>
+
+  <p
+    class="mt-3 text-sm text-[rgb(var(--text-muted))]"
+    data-spec-status
+    role="status"
+    aria-live="polite"
+  >
+    Choose a file to analyse, or open the microphone for the live view.
+  </p>
+
+  <p class="mt-1 text-xs text-[rgb(var(--text-muted))]" data-spec-summary></p>
+
+  <div class="mt-4" data-spec-result hidden>
+    <h3 class="text-sm font-semibold text-[rgb(var(--text))]">Spectrogram</h3>
+    <img class="mt-2 w-full rounded-lg border" data-spec-image alt="" hidden />
+    <div class="mt-2 flex flex-wrap items-center gap-2">
+      <a class="btn btn-subtle btn-sm" data-spec-download href="#" download hidden>
+        <Icon name="download" size={14} /> Download PNG
+      </a>
+    </div>
+    <ul class="mt-2 space-y-1 text-xs tabular-nums text-[rgb(var(--text-muted))]" data-spec-stats>
+    </ul>
+    <ul class="mt-2 space-y-1 text-xs" data-spec-notes></ul>
+  </div>
+
+  <details class="mt-5 rounded-lg border">
+    <summary class="cursor-pointer select-none px-3 py-2 text-sm font-medium">Options</summary>
+    <div class="border-t p-3" data-spec-options>
+      <OptionsFields options={meta.options ?? []} idPrefix={p} />
+    </div>
+  </details>
+
+  <noscript>
+    <p class="mt-3 text-sm text-[rgb(var(--text-muted))]">
+      The spectrogram needs JavaScript — the FFT and the canvas rendering cannot run without it.
+    </p>
+  </noscript>
+</section>
+
+<style>
+  /*
+   * `.btn` sets `display: inline-flex` in the components layer, which beats
+   * Tailwind's base-layer `[hidden] { display: none }` — so a hidden button
+   * (and the `block`/`flex` canvas and placeholder) would still be on screen.
+   * This panel toggles elements with the `hidden` attribute, so the attribute
+   * has to win here.
+   */
+  [hidden] {
+    display: none !important;
+  }
+  /* The panel marks the drop zone with `data-dragging` while a file hovers. */
+  [data-dragging] {
+    border-color: rgb(var(--accent));
+    background: rgb(var(--accent-soft));
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-spectrogram-panel]').forEach((panel) => {
+    // Loaded on demand: the DSP (FFT, windows, colour maps, PNG encoder) is
+    // only shipped to pages that actually use the spectrogram.
+    void import('./spectrogram-panel')
+      .then(({ mountSpectrogramPanel }) => mountSpectrogramPanel(panel))
+      .catch(() => {
+        const error = panel.querySelector<HTMLElement>('[data-spec-error]');
+        if (error) {
+          error.hidden = false;
+          error.textContent = 'The spectrogram panel could not be loaded in this browser.';
+        }
+      });
+  });
+</script>
