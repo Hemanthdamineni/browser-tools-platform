@@ -1,0 +1,321 @@
+---
+/**
+ * The watermark workbench.
+ *
+ * A watermark is a visual decision — where it sits, how big, how opaque — so
+ * the generic option form is a poor fit. This panel shows a live canvas
+ * preview that uses the same layout maths as the worker, and stamps every
+ * chosen image through `image-watermark.tool.ts` in a Web Worker.
+ *
+ * The root carries the shared workbench markers (`data-file-workbench`,
+ * `data-tool-id`, …) so the page behaves like every other file tool, plus its
+ * own `data-image-watermark-panel` marker. `data-multiple` is declared as
+ * "false" only because the shared FileWorkbench script owns that attribute; the
+ * panel's own drop zone accepts as many images as `validateFileSelection`
+ * allows.
+ */
+import type { ToolMeta } from '@/lib/types';
+import Icon from '@/components/Icon.astro';
+
+interface Props {
+  meta: ToolMeta;
+}
+const { meta } = Astro.props;
+const p = meta.id;
+const ids = {
+  mode: `${p}-mode`,
+  text: `${p}-text`,
+  fontSize: `${p}-font-size`,
+  color: `${p}-color`,
+  logo: `${p}-logo`,
+  logoScale: `${p}-logo-scale`,
+  opacity: `${p}-opacity`,
+  position: `${p}-position`,
+  margin: `${p}-margin`,
+  tiled: `${p}-tiled`,
+  tileSpacing: `${p}-tile-spacing`,
+  tileAngle: `${p}-tile-angle`,
+  format: `${p}-format`,
+  previewHelp: `${p}-preview-help`,
+};
+---
+
+<section
+  class="surface rounded-lg p-4 sm:p-6"
+  data-file-workbench
+  data-image-watermark-panel
+  data-tool-id={meta.id}
+  data-accept={meta.accept ?? ''}
+  data-multiple="false"
+  aria-label={`${meta.name} workbench`}
+>
+  <h2 class="text-base font-semibold text-[rgb(var(--text))]">1 · Choose the images</h2>
+  <div
+    class="drop-zone mt-3 flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed px-4 py-8 text-center transition-colors"
+    data-drop
+    role="button"
+    tabindex="0"
+    aria-label="Choose PNG, JPEG or WebP images, or drop them here"
+  >
+    <Icon name="image" size={26} class="opacity-60" />
+    <p class="text-sm font-medium">Drop images here, or <span class="link">browse</span></p>
+    <p class="text-xs text-[rgb(var(--text-muted))]">
+      PNG, JPEG or WebP · up to 20 files · they never leave your device.
+    </p>
+  </div>
+  <ul class="mt-3 space-y-1.5 text-sm" data-file-list></ul>
+
+  <h2 class="mt-6 text-base font-semibold text-[rgb(var(--text))]">2 · Design the watermark</h2>
+  <div class="mt-3 grid gap-4 sm:grid-cols-2">
+    <div class="flex min-w-0 flex-col gap-1.5">
+      <label class="text-sm font-medium text-[rgb(var(--text))]" for={ids.mode}>Watermark type</label>
+      <select class="field" id={ids.mode} data-opt="mode">
+        <option value="text">Text</option>
+        <option value="logo">Logo image</option>
+      </select>
+    </div>
+
+    <div class="flex min-w-0 flex-col gap-1.5" data-visible-when="mode:text">
+      <label class="text-sm font-medium text-[rgb(var(--text))]" for={ids.text}>Text</label>
+      <input
+        class="field"
+        id={ids.text}
+        type="text"
+        value="WATERMARK"
+        placeholder="The words to stamp"
+        data-opt="text"
+      />
+    </div>
+
+    <div class="flex min-w-0 flex-col gap-1.5" data-visible-when="mode:text">
+      <label class="text-sm font-medium text-[rgb(var(--text))]" for={ids.fontSize}>
+        Font size <output class="tabular-nums" data-out="fontSize">10</output>% of the short edge
+      </label>
+      <input
+        class="field"
+        id={ids.fontSize}
+        type="range"
+        min="1"
+        max="100"
+        step="1"
+        value="10"
+        data-opt="fontSize"
+      />
+    </div>
+
+    <div class="flex min-w-0 flex-col gap-1.5" data-visible-when="mode:text">
+      <label class="text-sm font-medium text-[rgb(var(--text))]" for={ids.color}>Text colour</label>
+      <div class="flex items-center gap-2">
+        <input class="h-9 w-14 cursor-pointer rounded border" id={ids.color} type="color" value="#000000" data-opt="color" />
+        <span class="text-xs text-[rgb(var(--text-muted))]">Pick a hex colour</span>
+      </div>
+    </div>
+
+    <div class="flex min-w-0 flex-col gap-1.5 sm:col-span-2" data-visible-when="mode:logo">
+      <span class="text-sm font-medium text-[rgb(var(--text))]" id={ids.logo}>Logo image</span>
+      <div
+        class="drop-zone flex cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed px-4 py-5 text-center transition-colors"
+        data-logo-drop
+        role="button"
+        tabindex="0"
+        aria-labelledby={ids.logo}
+      >
+        <Icon name="sparkles" size={20} class="opacity-60" />
+        <span class="text-sm">Drop a PNG, JPEG or SVG logo, or <span class="link">browse</span></span>
+      </div>
+      <p class="text-xs text-[rgb(var(--text-muted))]" data-logo-status role="status" aria-live="polite">
+        No logo chosen yet.
+      </p>
+    </div>
+
+    <div class="flex min-w-0 flex-col gap-1.5" data-visible-when="mode:logo">
+      <label class="text-sm font-medium text-[rgb(var(--text))]" for={ids.logoScale}>
+        Logo width <output class="tabular-nums" data-out="logoScale">20</output>% of the image width
+      </label>
+      <input
+        class="field"
+        id={ids.logoScale}
+        type="range"
+        min="1"
+        max="100"
+        step="1"
+        value="20"
+        data-opt="logoScale"
+      />
+    </div>
+
+    <div class="flex min-w-0 flex-col gap-1.5">
+      <label class="text-sm font-medium text-[rgb(var(--text))]" for={ids.opacity}>
+        Opacity <output class="tabular-nums" data-out="opacity">50</output>%
+      </label>
+      <input
+        class="field"
+        id={ids.opacity}
+        type="range"
+        min="0"
+        max="100"
+        step="1"
+        value="50"
+        data-opt="opacity"
+      />
+    </div>
+
+    <div class="flex min-w-0 flex-col gap-1.5">
+      <label class="text-sm font-medium text-[rgb(var(--text))]" for={ids.position}>Position</label>
+      <select class="field" id={ids.position} data-opt="position">
+        <option value="top-left">Top left</option>
+        <option value="top-center">Top centre</option>
+        <option value="top-right">Top right</option>
+        <option value="middle-left">Middle left</option>
+        <option value="center" selected>Centre</option>
+        <option value="middle-right">Middle right</option>
+        <option value="bottom-left">Bottom left</option>
+        <option value="bottom-center">Bottom centre</option>
+        <option value="bottom-right">Bottom right</option>
+      </select>
+    </div>
+
+    <div class="flex min-w-0 flex-col gap-1.5" data-visible-when="tiled:off">
+      <label class="text-sm font-medium text-[rgb(var(--text))]" for={ids.margin}>
+        Margin <output class="tabular-nums" data-out="margin">4</output>% of the short edge
+      </label>
+      <input
+        class="field"
+        id={ids.margin}
+        type="range"
+        min="0"
+        max="50"
+        step="1"
+        value="4"
+        data-opt="margin"
+      />
+    </div>
+
+    <div class="flex min-w-0 flex-col gap-1.5">
+      <label class="flex cursor-pointer items-center gap-2.5 rounded-lg border px-3 py-2 text-sm">
+        <input class="h-4 w-4" id={ids.tiled} type="checkbox" data-opt="tiled" />
+        <span>Repeat across the whole image</span>
+      </label>
+    </div>
+
+    <div class="flex min-w-0 flex-col gap-1.5" data-visible-when="tiled:on">
+      <label class="text-sm font-medium text-[rgb(var(--text))]" for={ids.tileSpacing}>
+        Tile spacing <output class="tabular-nums" data-out="tileSpacing">25</output>% of the short edge
+      </label>
+      <input
+        class="field"
+        id={ids.tileSpacing}
+        type="range"
+        min="1"
+        max="100"
+        step="1"
+        value="25"
+        data-opt="tileSpacing"
+      />
+    </div>
+
+    <div class="flex min-w-0 flex-col gap-1.5" data-visible-when="tiled:on">
+      <label class="text-sm font-medium text-[rgb(var(--text))]" for={ids.tileAngle}>
+        Tile angle <output class="tabular-nums" data-out="tileAngle">-30</output>°
+      </label>
+      <input
+        class="field"
+        id={ids.tileAngle}
+        type="range"
+        min="-180"
+        max="180"
+        step="1"
+        value="-30"
+        data-opt="tileAngle"
+      />
+    </div>
+
+    <div class="flex min-w-0 flex-col gap-1.5">
+      <label class="text-sm font-medium text-[rgb(var(--text))]" for={ids.format}>Output format</label>
+      <select class="field" id={ids.format} data-opt="format">
+        <option value="original">Same as the source</option>
+        <option value="png">PNG</option>
+        <option value="jpeg">JPEG</option>
+        <option value="webp">WebP</option>
+      </select>
+    </div>
+  </div>
+
+  <h2 class="mt-6 text-base font-semibold text-[rgb(var(--text))]">3 · Preview</h2>
+  <div class="mt-3 overflow-hidden rounded-lg border" data-preview>
+    <canvas
+      class="block w-full"
+      width="640"
+      height="360"
+      data-preview-canvas
+      role="img"
+      aria-label="Live preview of the first image with the watermark applied"
+      aria-describedby={ids.previewHelp}></canvas>
+  </div>
+  <p
+    class="mt-2 text-xs text-[rgb(var(--text-muted))]"
+    id={ids.previewHelp}
+    data-preview-status
+    role="status"
+    aria-live="polite"
+  >
+    The preview is downscaled — the saved files keep their full resolution.
+  </p>
+
+  <div class="mt-5 flex flex-wrap items-center gap-2.5">
+    <button type="button" class="btn btn-primary" data-run disabled>
+      <Icon name="zap" size={16} /> Watermark images
+    </button>
+    <button type="button" class="btn btn-ghost" data-cancel hidden>Cancel</button>
+    <button type="button" class="btn btn-ghost" data-reset hidden>Reset</button>
+  </div>
+
+  <div class="mt-3" hidden data-progress-wrap>
+    <div class="h-2 overflow-hidden rounded-full" style="background-color: rgb(var(--bg-inset))">
+      <div
+        class="h-full transition-[width] duration-200 ease-out"
+        style="width:0%; background-color: rgb(var(--accent))"
+        data-progress-bar
+      >
+      </div>
+    </div>
+    <p
+      class="mt-1 text-xs tabular-nums text-[rgb(var(--text-muted))]"
+      data-progress-msg
+      aria-live="polite"
+    >
+    </p>
+  </div>
+
+  <div
+    class="mt-4 rounded-lg border px-3 py-2 text-sm"
+    style="background-color: rgb(var(--danger-soft)); border-color: rgb(var(--danger)); color: rgb(var(--danger))"
+    role="alert"
+    data-error
+    hidden
+  >
+  </div>
+
+  <div class="mt-4" hidden data-result-wrap>
+    <div class="mb-2 flex items-center justify-between">
+      <span class="text-sm font-semibold text-[rgb(var(--text))]" data-result-title>Results</span>
+    </div>
+    <ul class="space-y-2" data-outputs></ul>
+    <ul class="mt-2 space-y-1 text-xs" data-notes></ul>
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-image-watermark-panel]').forEach((root) => {
+    // Loaded on demand: only the watermark page ships the preview code.
+    void import('./image-watermark')
+      .then(({ mountWatermarkPanel }) => mountWatermarkPanel(root))
+      .catch(() => {
+        const error = root.querySelector<HTMLElement>('[data-error]');
+        if (error) {
+          error.hidden = false;
+          error.textContent = 'The watermark panel could not be loaded in this browser.';
+        }
+      });
+  });
+</script>
