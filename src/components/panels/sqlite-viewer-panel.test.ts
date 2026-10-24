@@ -155,11 +155,14 @@ describe('CSV and JSON serialisation', () => {
       { id: 1, name: 'Ada' },
       { id: 2, name: null },
     ]);
-    expect(JSON.parse(toJson(['blob'], [[new Uint8Array([104, 105])]]))).toEqual([{ blob: 'aGk=' }]);
+    expect(JSON.parse(toJson(['blob'], [[new Uint8Array([104, 105])]]))).toEqual([
+      { blob: 'aGk=' },
+    ]);
   });
 
   it('falls back to columns+rows when two columns share a name', () => {
-    expect(JSON.parse(toJson(['n', 'n'], [[1, 2]]))).toEqual({ columns: ['n', 'n'], rows: [[1, 2]] });
+    const json = toJson(['n', 'n'], [[1, 2]]);
+    expect(JSON.parse(json)).toEqual({ columns: ['n', 'n'], rows: [[1, 2]] });
   });
 
   it('describes a value for the preview table', () => {
