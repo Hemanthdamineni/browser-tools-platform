@@ -13,6 +13,12 @@
  * lets the pixel-based tools (favicon, diff, spritesheet, svg-to-png) assert
  * real output rather than only call shapes.
  *
+ * It also records `fillText` / `strokeText` calls — with the font, alignment,
+ * outline, shadow and alpha in force — and measures text through
+ * `MockConfig.textWidth`, so text-drawing tools (image-add-text, …) can assert
+ * exactly what they painted. Text is not rasterised into the fake pixels:
+ * glyphs are recorded, not blended.
+ *
  * Not a `.test.ts` / `.tool.ts` file, so vitest's glob and the registry both
  * ignore it in production builds.
  */
@@ -50,6 +56,38 @@ export interface MockFillCall {
   w: number;
   h: number;
   style: string;
+}
+
+/** One recorded `fillText` / `strokeText` call, with the state in force. */
+export interface MockTextCall {
+  kind: 'fill' | 'stroke';
+  text: string;
+  x: number;
+  y: number;
+  maxWidth?: number;
+  font: string;
+  align: CanvasTextAlign;
+  baseline: CanvasTextBaseline;
+  style: string;
+  lineWidth: number;
+  alpha: number;
+  shadow: { color: string; blur: number; offsetX: number; offsetY: number };
+}
+
+/** Mutable context state that `save()` / `restore()` round-trips. */
+interface MockContextState {
+  style: string;
+  strokeStyle: string;
+  lineWidth: number;
+  font: string;
+  textAlign: CanvasTextAlign;
+  textBaseline: CanvasTextBaseline;
+  globalAlpha: number;
+  shadowColor: string;
+  shadowBlur: number;
+  shadowOffsetX: number;
+  shadowOffsetY: number;
+  transform: MockTransform;
 }
 
 export interface MockEncodeCall {
@@ -104,9 +142,115 @@ export class MockContext2D {
   imageSmoothingQuality: ImageSmoothingQuality = 'high';
   private style = '#000000';
   private transform: MockTransform = { translate: [0, 0], rotate: 0, scale: [1, 1] };
+  /** Text state, mirroring the canvas defaults. */
+  strokeStyle = '#000000';
+  lineWidth = 1;
+  font = '10px sans-serif';
+  textAlign: CanvasTextAlign = 'start';
+  textBaseline: CanvasTextBaseline = 'alphabetic';
+  globalAlpha = 1;
+  shadowColor = 'rgba(0, 0, 0, 0)';
+  shadowBlur = 0;
+  shadowOffsetX = 0;
+  shadowOffsetY = 0;
+  private readonly saved: MockContextState[] = [];
 
   constructor(canvas: MockCanvas) {
     this.canvas = canvas;
+  }
+
+  /** Snapshot the mutable state so `restore()` can put it back. */
+  save(): void {
+    this.saved.push({
+      style: this.style,
+      strokeStyle: String(this.strokeStyle),
+      lineWidth: this.lineWidth,
+      font: this.font,
+      textAlign: this.textAlign,
+      textBaseline: this.textBaseline,
+      globalAlpha: this.globalAlpha,
+      shadowColor: this.shadowColor,
+      shadowBlur: this.shadowBlur,
+      shadowOffsetX: this.shadowOffsetX,
+      shadowOffsetY: this.shadowOffsetY,
+      transform: {
+        translate: [...this.transform.translate],
+        rotate: this.transform.rotate,
+        scale: [...this.transform.scale],
+      },
+    });
+  }
+
+  restore(): void {
+    const state = this.saved.pop();
+    if (!state) return; // like the real canvas: a stray restore() is a no-op
+    this.style = state.style;
+    this.strokeStyle = state.strokeStyle;
+    this.lineWidth = state.lineWidth;
+    this.font = state.font;
+    this.textAlign = state.textAlign;
+    this.textBaseline = state.textBaseline;
+    this.globalAlpha = state.globalAlpha;
+    this.shadowColor = state.shadowColor;
+    this.shadowBlur = state.shadowBlur;
+    this.shadowOffsetX = state.shadowOffsetX;
+    this.shadowOffsetY = state.shadowOffsetY;
+    this.transform = state.transform;
+  }
+
+  /** Width of `text` in the current font, via the canvas's measure hook. */
+  measureText(text: string): { width: number } {
+    const fontPx = Number(/(\d+(?:\.\d+)?)px/.exec(this.font)?.[1]) || 10;
+    const custom = this.canvas.textMeasure;
+    return {
+      width: custom ? custom(text, fontPx) : Math.round(text.length * fontPx * 0.6 * 100) / 100,
+    };
+  }
+
+  fillText(text: string, x: number, y: number, maxWidth?: number): void {
+    this.recordText('fill', this.style, 0, String(text), x, y, maxWidth);
+  }
+
+  strokeText(text: string, x: number, y: number, maxWidth?: number): void {
+    this.recordText(
+      'stroke',
+      String(this.strokeStyle),
+      this.lineWidth,
+      String(text),
+      x,
+      y,
+      maxWidth,
+    );
+  }
+
+  private recordText(
+    kind: 'fill' | 'stroke',
+    style: string,
+    lineWidth: number,
+    text: string,
+    x: number,
+    y: number,
+    maxWidth?: number,
+  ): void {
+    this.canvas.texts.push({
+      kind,
+      text,
+      x,
+      y,
+      maxWidth,
+      font: this.font,
+      align: this.textAlign,
+      baseline: this.textBaseline,
+      style,
+      lineWidth,
+      alpha: this.globalAlpha,
+      shadow: {
+        color: this.shadowColor,
+        blur: this.shadowBlur,
+        offsetX: this.shadowOffsetX,
+        offsetY: this.shadowOffsetY,
+      },
+    });
   }
 
   get fillStyle(): string {
@@ -245,9 +389,13 @@ export class MockCanvas {
   height: number;
   draws: MockDrawCall[] = [];
   fills: MockFillCall[] = [];
+  /** Every recorded `fillText` / `strokeText` call, in order. */
+  texts: MockTextCall[] = [];
   encodes: MockEncodeCall[] = [];
   encodeType: string | null;
   encodeSize: number;
+  /** Measure hook for the current font, installed by {@link installImageMock}. */
+  textMeasure: ((text: string, fontPx: number) => number) | null = null;
   readonly pixels: Uint8ClampedArray;
   private readonly supports: string[];
   private readonly pixelOutput: boolean;
@@ -351,6 +499,11 @@ export interface MockConfig {
   pixelOutput?: boolean;
   /** Force the MIME type `convertToBlob` reports (simulates an unsupported encoder). */
   blobType?: string;
+  /**
+   * Measure text for `measureText()`: `(text, fontPx) => width`. Defaults to
+   * 0.6em per character, deterministic enough to drive wrapping tests.
+   */
+  textWidth?: (text: string, fontPx: number) => number;
 }
 
 export interface MockHandle {
@@ -467,6 +620,7 @@ export function installImageMock(config: MockConfig = {}): MockHandle {
       blobTypeOverride,
       config.pixels,
     );
+    canvas.textMeasure = config.textWidth ?? null;
     canvases.push(canvas);
     return canvas;
   }
