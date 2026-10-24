@@ -40,7 +40,11 @@ describe('buildDocument', () => {
   });
 
   it('neutralises a closing script tag inside user JS', () => {
-    const doc = buildDocument({ html: '', css: '', js: 'const s = "</script><script>alert(1)</script>"' });
+    const doc = buildDocument({
+      html: '',
+      css: '',
+      js: 'const s = "</script><script>alert(1)</script>"',
+    });
     // The user's closing tags must not be present as raw HTML.
     expect(doc).not.toContain('</script><script>');
     // The neutralised form is still present.

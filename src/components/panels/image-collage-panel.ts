@@ -33,7 +33,6 @@ import {
   moveItem,
   previewCanvas,
   readCollageOptions,
-  type CellRect,
 } from '@/tools/image/image-collage.core';
 
 /** Longest edge, in px, of a decoded preview copy. Keeps big photos cheap. */
@@ -147,8 +146,6 @@ export function mountImageCollagePanel(root: HTMLElement): void {
   /** Bumped on every run / load / reset so a late reply cannot publish stale state. */
   let runGeneration = 0;
   let loadGeneration = 0;
-  /** The preview cell rectangles, for hit-testing a drag. */
-  let previewCells: CellRect[] = [];
   const resultUrls = new Set<string>();
 
   const announce = (message: string) => {
@@ -266,7 +263,8 @@ export function mountImageCollagePanel(root: HTMLElement): void {
       item.setAttribute('aria-label', `${label}, position ${index + 1} of ${slides.length}`);
 
       const position = document.createElement('span');
-      position.className = 'w-5 shrink-0 text-center text-xs tabular-nums text-[rgb(var(--text-muted))]';
+      position.className =
+        'w-5 shrink-0 text-center text-xs tabular-nums text-[rgb(var(--text-muted))]';
       position.textContent = String(index + 1);
 
       const name = document.createElement('span');
@@ -519,7 +517,8 @@ export function mountImageCollagePanel(root: HTMLElement): void {
     outputsEl!.innerHTML = '';
     for (const output of result.outputs) {
       const li = document.createElement('li');
-      li.className = 'flex flex-wrap items-center justify-between gap-3 rounded-lg border px-3 py-2';
+      li.className =
+        'flex flex-wrap items-center justify-between gap-3 rounded-lg border px-3 py-2';
       const preview = document.createElement('img');
       const url = URL.createObjectURL(output.blob);
       resultUrls.add(url);

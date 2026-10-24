@@ -216,7 +216,9 @@ export function mountVideoTrimPanel(root: HTMLElement): void {
       }
       return seconds;
     } catch (error) {
-      announce(error instanceof Error ? error.message : `That ${label.toLowerCase()} is not valid.`);
+      announce(
+        error instanceof Error ? error.message : `That ${label.toLowerCase()} is not valid.`,
+      );
       return null;
     }
   }
@@ -310,7 +312,9 @@ export function mountVideoTrimPanel(root: HTMLElement): void {
     if (document.activeElement !== endInput) endInput.value = formatTrimTime(end);
 
     durationEl.textContent =
-      duration > 0 ? `Clip length ${formatTrimTime(duration)} · keeping ${formatTrimTime(end - start)}` : '';
+      duration > 0
+        ? `Clip length ${formatTrimTime(duration)} · keeping ${formatTrimTime(end - start)}`
+        : '';
     runBtn.disabled = !file || duration <= 0;
   }
 

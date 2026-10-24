@@ -31,12 +31,15 @@ const p = meta.id;
     examples.length > 0 && (
       <div class="mb-4 flex flex-wrap items-center gap-2">
         <span class="text-xs font-medium text-[rgb(var(--text-muted))]">Try:</span>
-        {examples.map((ex, i) => (
+        {examples.map((ex) => (
           <button
             type="button"
             class="chip hover:text-[rgb(var(--text))]"
             data-example
-            data-example-payload={JSON.stringify({ input: ex.input ?? '', options: ex.options ?? {} })}
+            data-example-payload={JSON.stringify({
+              input: ex.input ?? '',
+              options: ex.options ?? {},
+            })}
           >
             {ex.title}
           </button>
@@ -46,7 +49,9 @@ const p = meta.id;
   }
 
   <details class="mb-4 rounded-lg border" open>
-    <summary class="cursor-pointer select-none px-3 py-2 text-sm font-medium">Action &amp; options</summary>
+    <summary class="cursor-pointer select-none px-3 py-2 text-sm font-medium"
+      >Action &amp; options</summary
+    >
     <div class="border-t p-3">
       <OptionsFields options={options} idPrefix={p} />
     </div>
@@ -59,18 +64,29 @@ const p = meta.id;
       <h3 class="mb-2 text-sm font-semibold text-[rgb(var(--text))]">Key pair</h3>
       <div class="grid gap-3 sm:grid-cols-2">
         <div class="flex flex-col gap-1.5">
-          <label for={`${p}-gen-pass`} class="text-sm font-medium text-[rgb(var(--text))]">Passphrase (optional but recommended)</label>
-          <input id={`${p}-gen-pass`} type="password" class="field" data-gen-pass autocomplete="new-password" spellcheck="false" />
+          <label for={`${p}-gen-pass`} class="text-sm font-medium text-[rgb(var(--text))]"
+            >Passphrase (optional but recommended)</label
+          >
+          <input
+            id={`${p}-gen-pass`}
+            type="password"
+            class="field"
+            data-gen-pass
+            autocomplete="new-password"
+            spellcheck="false"
+          />
           <p class="text-xs text-[rgb(var(--text-muted))]" data-gen-hint></p>
         </div>
-        <label class="flex items-center gap-2.5 rounded-lg border px-3 py-2 text-sm transition-colors hover:bg-[rgb(var(--bg-subtle))]">
+        <label
+          class="flex items-center gap-2.5 rounded-lg border px-3 py-2 text-sm transition-colors hover:bg-[rgb(var(--bg-subtle))]"
+        >
           <input type="checkbox" class="h-4 w-4" data-gen-save />
           Save this key pair to this browser (localStorage)
         </label>
       </div>
       <p class="mt-2 text-xs leading-relaxed text-[rgb(var(--text-muted))]">
-        The private key never leaves this tab. Saving it locally is optional and
-        on-by-nothing — leave the box unchecked to keep it only in your hands.
+        The private key never leaves this tab. Saving it locally is optional and on-by-nothing —
+        leave the box unchecked to keep it only in your hands.
       </p>
       <button type="button" class="btn btn-primary mt-3" data-gen-run>
         <Icon name="zap" size={16} /> Generate key pair
@@ -81,12 +97,26 @@ const p = meta.id;
     <section class="rounded-lg border p-4" data-enc hidden>
       <h3 class="mb-2 text-sm font-semibold text-[rgb(var(--text))]">Encrypt</h3>
       <div class="mb-2 flex items-center justify-between">
-        <label for={`${p}-enc-key`} class="text-sm font-medium text-[rgb(var(--text))]">Recipient public key</label>
+        <label for={`${p}-enc-key`} class="text-sm font-medium text-[rgb(var(--text))]"
+          >Recipient public key</label
+        >
         <button type="button" class="btn btn-subtle btn-sm" data-load-pub>Load saved</button>
       </div>
-      <textarea id={`${p}-enc-key`} class="field mb-3 !min-h-[6rem] font-mono text-xs" data-enc-key spellcheck="false" placeholder="-----BEGIN PGP PUBLIC KEY BLOCK-----&#10;…"></textarea>
-      <label for={`${p}-enc-msg`} class="text-sm font-medium text-[rgb(var(--text))]">Message</label>
-      <textarea id={`${p}-enc-msg`} class="field mb-2 !min-h-[7rem]" data-enc-msg spellcheck="false" placeholder="Type a message, or drop a file below."></textarea>
+      <textarea
+        id={`${p}-enc-key`}
+        class="field mb-3 !min-h-[6rem] font-mono text-xs"
+        data-enc-key
+        spellcheck="false"
+        placeholder="-----BEGIN PGP PUBLIC KEY BLOCK-----
+…"></textarea>
+      <label for={`${p}-enc-msg`} class="text-sm font-medium text-[rgb(var(--text))]">Message</label
+      >
+      <textarea
+        id={`${p}-enc-msg`}
+        class="field mb-2 !min-h-[7rem]"
+        data-enc-msg
+        spellcheck="false"
+        placeholder="Type a message, or drop a file below."></textarea>
       <div
         class="drop-zone mt-1 flex cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed px-4 py-5 text-center transition-colors"
         data-drop
@@ -96,8 +126,12 @@ const p = meta.id;
         aria-label="Choose a file to encrypt"
       >
         <Icon name="file-text" size={22} class="opacity-60" />
-        <p class="text-sm"><span data-file-label>Choose a file</span>, or <span class="link">browse</span></p>
-        <p class="text-xs text-[rgb(var(--text-muted))]">Optional — attach a file to encrypt it as binary.</p>
+        <p class="text-sm">
+          <span data-file-label>Choose a file</span>, or <span class="link">browse</span>
+        </p>
+        <p class="text-xs text-[rgb(var(--text-muted))]">
+          Optional — attach a file to encrypt it as binary.
+        </p>
       </div>
       <p class="mt-1 text-xs text-[rgb(var(--text-muted))]" data-file-name></p>
       <button type="button" class="btn btn-primary mt-3" data-enc-run>
@@ -109,14 +143,40 @@ const p = meta.id;
     <section class="rounded-lg border p-4" data-dec hidden>
       <h3 class="mb-2 text-sm font-semibold text-[rgb(var(--text))]">Decrypt</h3>
       <div class="mb-2 flex items-center justify-between">
-        <label for={`${p}-dec-key`} class="text-sm font-medium text-[rgb(var(--text))]">Your private key</label>
+        <label for={`${p}-dec-key`} class="text-sm font-medium text-[rgb(var(--text))]"
+          >Your private key</label
+        >
         <button type="button" class="btn btn-subtle btn-sm" data-load-priv>Load saved</button>
       </div>
-      <textarea id={`${p}-dec-key`} class="field mb-3 !min-h-[6rem] font-mono text-xs" data-dec-key spellcheck="false" placeholder="-----BEGIN PGP PRIVATE KEY BLOCK-----&#10;…"></textarea>
-      <label for={`${p}-dec-pass`} class="text-sm font-medium text-[rgb(var(--text))]">Private key passphrase</label>
-      <input id={`${p}-dec-pass`} type="password" class="field mb-3" data-dec-pass autocomplete="current-password" spellcheck="false" />
-      <label for={`${p}-dec-msg`} class="text-sm font-medium text-[rgb(var(--text))]">Ciphertext</label>
-      <textarea id={`${p}-dec-msg`} class="field mb-2 !min-h-[7rem] font-mono text-xs" data-dec-msg spellcheck="false" placeholder="-----BEGIN PGP MESSAGE-----&#10;…&#10;or drop a .pgp file below."></textarea>
+      <textarea
+        id={`${p}-dec-key`}
+        class="field mb-3 !min-h-[6rem] font-mono text-xs"
+        data-dec-key
+        spellcheck="false"
+        placeholder="-----BEGIN PGP PRIVATE KEY BLOCK-----
+…"></textarea>
+      <label for={`${p}-dec-pass`} class="text-sm font-medium text-[rgb(var(--text))]"
+        >Private key passphrase</label
+      >
+      <input
+        id={`${p}-dec-pass`}
+        type="password"
+        class="field mb-3"
+        data-dec-pass
+        autocomplete="current-password"
+        spellcheck="false"
+      />
+      <label for={`${p}-dec-msg`} class="text-sm font-medium text-[rgb(var(--text))]"
+        >Ciphertext</label
+      >
+      <textarea
+        id={`${p}-dec-msg`}
+        class="field mb-2 !min-h-[7rem] font-mono text-xs"
+        data-dec-msg
+        spellcheck="false"
+        placeholder="-----BEGIN PGP MESSAGE-----
+…
+or drop a .pgp file below."></textarea>
       <div
         class="drop-zone mt-1 flex cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed px-4 py-5 text-center transition-colors"
         data-drop
@@ -126,8 +186,12 @@ const p = meta.id;
         aria-label="Choose an encrypted file to decrypt"
       >
         <Icon name="file-text" size={22} class="opacity-60" />
-        <p class="text-sm"><span data-file-label>Choose a file</span>, or <span class="link">browse</span></p>
-        <p class="text-xs text-[rgb(var(--text-muted))]">Optional — drop a binary .pgp/.gpg file.</p>
+        <p class="text-sm">
+          <span data-file-label>Choose a file</span>, or <span class="link">browse</span>
+        </p>
+        <p class="text-xs text-[rgb(var(--text-muted))]">
+          Optional — drop a binary .pgp/.gpg file.
+        </p>
       </div>
       <p class="mt-1 text-xs text-[rgb(var(--text-muted))]" data-file-name></p>
       <button type="button" class="btn btn-primary mt-3" data-dec-run>
@@ -139,14 +203,38 @@ const p = meta.id;
     <section class="rounded-lg border p-4" data-sig hidden>
       <h3 class="mb-2 text-sm font-semibold text-[rgb(var(--text))]">Sign</h3>
       <div class="mb-2 flex items-center justify-between">
-        <label for={`${p}-sig-key`} class="text-sm font-medium text-[rgb(var(--text))]">Your private key</label>
+        <label for={`${p}-sig-key`} class="text-sm font-medium text-[rgb(var(--text))]"
+          >Your private key</label
+        >
         <button type="button" class="btn btn-subtle btn-sm" data-load-priv>Load saved</button>
       </div>
-      <textarea id={`${p}-sig-key`} class="field mb-3 !min-h-[6rem] font-mono text-xs" data-sig-key spellcheck="false" placeholder="-----BEGIN PGP PRIVATE KEY BLOCK-----&#10;…"></textarea>
-      <label for={`${p}-sig-pass`} class="text-sm font-medium text-[rgb(var(--text))]">Private key passphrase</label>
-      <input id={`${p}-sig-pass`} type="password" class="field mb-3" data-sig-pass autocomplete="current-password" spellcheck="false" />
-      <label for={`${p}-sig-msg`} class="text-sm font-medium text-[rgb(var(--text))]">Text to sign</label>
-      <textarea id={`${p}-sig-msg`} class="field mb-2 !min-h-[7rem]" data-sig-msg spellcheck="false" placeholder="Message to sign…"></textarea>
+      <textarea
+        id={`${p}-sig-key`}
+        class="field mb-3 !min-h-[6rem] font-mono text-xs"
+        data-sig-key
+        spellcheck="false"
+        placeholder="-----BEGIN PGP PRIVATE KEY BLOCK-----
+…"></textarea>
+      <label for={`${p}-sig-pass`} class="text-sm font-medium text-[rgb(var(--text))]"
+        >Private key passphrase</label
+      >
+      <input
+        id={`${p}-sig-pass`}
+        type="password"
+        class="field mb-3"
+        data-sig-pass
+        autocomplete="current-password"
+        spellcheck="false"
+      />
+      <label for={`${p}-sig-msg`} class="text-sm font-medium text-[rgb(var(--text))]"
+        >Text to sign</label
+      >
+      <textarea
+        id={`${p}-sig-msg`}
+        class="field mb-2 !min-h-[7rem]"
+        data-sig-msg
+        spellcheck="false"
+        placeholder="Message to sign…"></textarea>
       <button type="button" class="btn btn-primary mt-3" data-sig-run>
         <Icon name="zap" size={16} /> Sign
       </button>
@@ -156,14 +244,39 @@ const p = meta.id;
     <section class="rounded-lg border p-4" data-ver hidden>
       <h3 class="mb-2 text-sm font-semibold text-[rgb(var(--text))]">Verify</h3>
       <div class="mb-2 flex items-center justify-between">
-        <label for={`${p}-ver-key`} class="text-sm font-medium text-[rgb(var(--text))]">Signer public key</label>
+        <label for={`${p}-ver-key`} class="text-sm font-medium text-[rgb(var(--text))]"
+          >Signer public key</label
+        >
         <button type="button" class="btn btn-subtle btn-sm" data-load-pub>Load saved</button>
       </div>
-      <textarea id={`${p}-ver-key`} class="field mb-3 !min-h-[6rem] font-mono text-xs" data-ver-key spellcheck="false" placeholder="-----BEGIN PGP PUBLIC KEY BLOCK-----&#10;…"></textarea>
-      <label for={`${p}-ver-msg`} class="text-sm font-medium text-[rgb(var(--text))]">Signed message</label>
-      <textarea id={`${p}-ver-msg`} class="field mb-3 !min-h-[7rem]" data-ver-msg spellcheck="false" placeholder="The message that was signed, or the clearsigned block."></textarea>
-      <label for={`${p}-ver-sig`} class="text-sm font-medium text-[rgb(var(--text))]">Detached signature</label>
-      <textarea id={`${p}-ver-sig`} class="field !min-h-[5rem] font-mono text-xs" data-ver-sig spellcheck="false" placeholder="-----BEGIN PGP SIGNATURE-----&#10;…&#10;(leave empty for a clearsigned message)"></textarea>
+      <textarea
+        id={`${p}-ver-key`}
+        class="field mb-3 !min-h-[6rem] font-mono text-xs"
+        data-ver-key
+        spellcheck="false"
+        placeholder="-----BEGIN PGP PUBLIC KEY BLOCK-----
+…"></textarea>
+      <label for={`${p}-ver-msg`} class="text-sm font-medium text-[rgb(var(--text))]"
+        >Signed message</label
+      >
+      <textarea
+        id={`${p}-ver-msg`}
+        class="field mb-3 !min-h-[7rem]"
+        data-ver-msg
+        spellcheck="false"
+        placeholder="The message that was signed, or the clearsigned block."></textarea>
+      <label for={`${p}-ver-sig`} class="text-sm font-medium text-[rgb(var(--text))]"
+        >Detached signature</label
+      >
+      <textarea
+        id={`${p}-ver-sig`}
+        class="field !min-h-[5rem] font-mono text-xs"
+        data-ver-sig
+        spellcheck="false"
+        placeholder="-----BEGIN PGP SIGNATURE-----
+…
+(leave empty for a clearsigned message)"
+      ></textarea>
       <button type="button" class="btn btn-primary mt-3" data-ver-run>
         <Icon name="shield-check" size={16} /> Verify
       </button>
@@ -173,12 +286,29 @@ const p = meta.id;
     <section class="rounded-lg border p-4" data-imp hidden>
       <h3 class="mb-2 text-sm font-semibold text-[rgb(var(--text))]">Import / export</h3>
       <div class="mb-2 flex items-center justify-between">
-        <label for={`${p}-imp-key`} class="text-sm font-medium text-[rgb(var(--text))]">Private key</label>
+        <label for={`${p}-imp-key`} class="text-sm font-medium text-[rgb(var(--text))]"
+          >Private key</label
+        >
         <button type="button" class="btn btn-subtle btn-sm" data-load-priv>Load saved</button>
       </div>
-      <textarea id={`${p}-imp-key`} class="field mb-3 !min-h-[6rem] font-mono text-xs" data-imp-key spellcheck="false" placeholder="-----BEGIN PGP PRIVATE KEY BLOCK-----&#10;…"></textarea>
-      <label for={`${p}-imp-pass`} class="text-sm font-medium text-[rgb(var(--text))]">Private key passphrase</label>
-      <input id={`${p}-imp-pass`} type="password" class="field mb-3" data-imp-pass autocomplete="current-password" spellcheck="false" />
+      <textarea
+        id={`${p}-imp-key`}
+        class="field mb-3 !min-h-[6rem] font-mono text-xs"
+        data-imp-key
+        spellcheck="false"
+        placeholder="-----BEGIN PGP PRIVATE KEY BLOCK-----
+…"></textarea>
+      <label for={`${p}-imp-pass`} class="text-sm font-medium text-[rgb(var(--text))]"
+        >Private key passphrase</label
+      >
+      <input
+        id={`${p}-imp-pass`}
+        type="password"
+        class="field mb-3"
+        data-imp-pass
+        autocomplete="current-password"
+        spellcheck="false"
+      />
       <button type="button" class="btn btn-primary mt-3" data-imp-run>
         <Icon name="arrow-right" size={16} /> Export public key
       </button>
@@ -192,8 +322,7 @@ const p = meta.id;
       class="ml-auto text-xs tabular-nums text-[rgb(var(--text-muted))]"
       data-progress-msg
       role="status"
-      aria-live="polite"
-    ></span>
+      aria-live="polite"></span>
   </div>
 
   <div class="mt-4" hidden data-progress-wrap>
@@ -208,7 +337,8 @@ const p = meta.id;
     role="alert"
     data-error
     hidden
-  ></div>
+  >
+  </div>
 
   <div class="mt-4" hidden data-result-wrap>
     <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
@@ -224,14 +354,15 @@ const p = meta.id;
     <div
       class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-[rgb(var(--text-muted))]"
       data-stats
-    ></div>
+    >
+    </div>
     <ul class="mt-2 space-y-1 text-xs" data-notes></ul>
   </div>
 </section>
 
 <script>
   document.querySelectorAll<HTMLElement>('[data-pgp-panel]').forEach((root) => {
-    void import('./pgp-tool-panel')
+    void import('./pgp-tool-panel.client')
       .then(({ mountPgpPanel }) => mountPgpPanel(root))
       .catch(() => {
         const error = root.querySelector<HTMLElement>('[data-error]');

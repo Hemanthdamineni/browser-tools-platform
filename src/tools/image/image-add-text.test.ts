@@ -220,7 +220,12 @@ describe('readTextOptions', () => {
 
 describe('planCaption', () => {
   it('sizes the font from the image short edge and builds the CSS font string', () => {
-    const plan = planCaption(measure, optionsFor({ text: 'Hi', font: 'serif', size: 10 }), 400, 200);
+    const plan = planCaption(
+      measure,
+      optionsFor({ text: 'Hi', font: 'serif', size: 10 }),
+      400,
+      200,
+    );
     expect(plan.fontPx).toBe(20);
     expect(plan.font).toBe(`20px ${FONT_STACKS.serif}`);
     expect(plan.lineHeight).toBe(24);
@@ -286,7 +291,12 @@ describe('planCaption', () => {
       200,
     );
     expect(center.box.left).toBe(192);
-    const right = planCaption(measure, optionsFor({ text: 'Hi', align: 'right', x: 100 }), 400, 200);
+    const right = planCaption(
+      measure,
+      optionsFor({ text: 'Hi', align: 'right', x: 100 }),
+      400,
+      200,
+    );
     expect(right.box.left).toBe(384);
   });
 
@@ -319,7 +329,7 @@ describe('planCaption', () => {
 describe('position mapping', () => {
   it('clamps a block inside the canvas for every alignment and edge', () => {
     const block = { width: 100, height: 40 };
-    const cases: [('left' | 'center' | 'right'), number, number, number, number][] = [
+    const cases: ['left' | 'center' | 'right', number, number, number, number][] = [
       ['left', -50, -50, 0, 20],
       ['left', 9999, 9999, 300, 180],
       ['center', -50, -50, 50, 20],
@@ -395,16 +405,37 @@ describe('position mapping', () => {
   it('keeps the block under the pointer when it is grabbed by its middle', () => {
     // Grabbing the block's own centre must not move it at all.
     expect(
-      dragToAnchor({ x: 250, y: 120 }, { x: 50, y: 20 }, { width: 100, height: 40 }, 'center', 400, 200),
+      dragToAnchor(
+        { x: 250, y: 120 },
+        { x: 50, y: 20 },
+        { width: 100, height: 40 },
+        'center',
+        400,
+        200,
+      ),
     ).toEqual({ x: 250, y: 120 });
   });
 
   it('clamps a drag past the canvas edge onto the edge', () => {
     expect(
-      dragToAnchor({ x: -999, y: -999 }, { x: 0, y: 0 }, { width: 100, height: 40 }, 'center', 400, 200),
+      dragToAnchor(
+        { x: -999, y: -999 },
+        { x: 0, y: 0 },
+        { width: 100, height: 40 },
+        'center',
+        400,
+        200,
+      ),
     ).toEqual({ x: 50, y: 20 });
     expect(
-      dragToAnchor({ x: 9999, y: 9999 }, { x: 0, y: 0 }, { width: 100, height: 40 }, 'center', 400, 200),
+      dragToAnchor(
+        { x: 9999, y: 9999 },
+        { x: 0, y: 0 },
+        { width: 100, height: 40 },
+        'center',
+        400,
+        200,
+      ),
     ).toEqual({ x: 350, y: 180 });
   });
 });
@@ -631,7 +662,11 @@ describe('image-add-text run', () => {
 
   it('wraps long text into several drawn lines that all fit the maximum width', async () => {
     mock = installImageMock({ width: 400, height: 200, textWidth });
-    await run([makeFile('a.png')], { text: 'aaaaaaaaaa bbbbbbbbbb cccccccccc', size: 5, wrapWidth: 30 });
+    await run([makeFile('a.png')], {
+      text: 'aaaaaaaaaa bbbbbbbbbb cccccccccc',
+      size: 5,
+      wrapWidth: 30,
+    });
     const texts = mock.canvases[0]!.texts;
     expect(texts.map((t) => t.text)).toEqual(['aaaaaaaaaa bbbbbbbbbb', 'cccccccccc']);
     // 30% of 400px = 120px per line at 10px font.
@@ -725,9 +760,7 @@ describe('image-add-text run', () => {
     const result = await run([makeFile('photo.png')], { text: 'Hi', format: 'jpeg' });
     expect(result.outputs[0]!.filename).toBe('photo-text.jpg');
     expect(result.outputs[0]!.blob.type).toBe('image/jpeg');
-    expect(mock.canvases[0]!.fills).toEqual([
-      { x: 0, y: 0, w: 400, h: 200, style: '#ffffff' },
-    ]);
+    expect(mock.canvases[0]!.fills).toEqual([{ x: 0, y: 0, w: 400, h: 200, style: '#ffffff' }]);
   });
 
   it('writes WebP output without flattening', async () => {

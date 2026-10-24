@@ -81,10 +81,9 @@ describe('computeTotals', () => {
   });
 
   it('handles a discount on the subtotal', () => {
-    const m = model(
-      [{ description: 'Retainer', quantity: 1, unitPrice: 100, taxRate: 10 }],
-      { discountPercent: 10 },
-    );
+    const m = model([{ description: 'Retainer', quantity: 1, unitPrice: 100, taxRate: 10 }], {
+      discountPercent: 10,
+    });
     const t = computeTotals(m);
     // subtotal 100.00, tax 10.00, discount 10% of 100 = 10.00
     expect(t.subtotalCents).toBe(10000);
@@ -124,9 +123,7 @@ describe('validation', () => {
   });
 
   it('rejects a negative price and an out-of-range tax rate', () => {
-    const m = model([
-      { description: 'a', quantity: -1, unitPrice: -5, taxRate: 120 },
-    ]);
+    const m = model([{ description: 'a', quantity: -1, unitPrice: -5, taxRate: 120 }]);
     const errors = validateModel(m);
     expect(errors.join('|')).toContain('quantity');
     expect(errors.join('|')).toContain('unit price');
@@ -171,10 +168,12 @@ describe('draft serialisation', () => {
 
 describe('buildPdfBytes', () => {
   it('produces a loadable one-page A4 PDF with totals', async () => {
-    const m = model(
-      [{ description: 'Design', quantity: 2, unitPrice: 40, taxRate: 10 }],
-      { invoiceNumber: 'INV-7', currency: 'EUR', notes: 'Net 30', terms: 'Pay promptly.' },
-    );
+    const m = model([{ description: 'Design', quantity: 2, unitPrice: 40, taxRate: 10 }], {
+      invoiceNumber: 'INV-7',
+      currency: 'EUR',
+      notes: 'Net 30',
+      terms: 'Pay promptly.',
+    });
     const totals = computeTotals(m);
     const bytes = await buildPdfBytes(m, totals);
     expect(bytes.byteLength).toBeGreaterThan(0);

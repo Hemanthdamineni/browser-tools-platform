@@ -50,7 +50,9 @@ describe('ssh-config-auditor', () => {
     const result = await run(CONFIG);
     const found = problems(await view(CONFIG, 'audit'));
     expect(found).toContain('Host * shadows later blocks');
-    const row = (await view(CONFIG, 'audit')).rows.find((entry) => entry[2] === 'Host * shadows later blocks');
+    const row = (await view(CONFIG, 'audit')).rows.find(
+      (entry) => entry[2] === 'Host * shadows later blocks',
+    );
     expect(row?.[3]).toMatch(/identityfile, user/);
     expect(result.stats?.warnings).toBe(6);
     expect(result.stats?.errors).toBe(0);
@@ -114,7 +116,12 @@ describe('ssh-config-auditor', () => {
   });
 
   it('honours negated host patterns', async () => {
-    const config = ['Host * !skip.example', '\tUser general', 'Host skip.example', '\tUser special'].join('\n');
+    const config = [
+      'Host * !skip.example',
+      '\tUser general',
+      'Host skip.example',
+      '\tUser special',
+    ].join('\n');
     const skipped = await view(config, 'resolve', { host: 'skip.example' });
     expect(skipped.rows).toEqual([['user', 'special', 'Host skip.example line 4']]);
     const other = await view(config, 'resolve', { host: 'other.example' });
@@ -137,7 +144,9 @@ describe('ssh-config-auditor', () => {
       ['forwardagent', 'yes', 'Match host *.corp line 4'],
     ]);
     expect(result.notes?.join(' ')).toMatch(/1 Match block\(s\) could not be evaluated/i);
-    expect(problems(await view(config, 'audit'))).toContain('Match block depends on the live session');
+    expect(problems(await view(config, 'audit'))).toContain(
+      'Match block depends on the live session',
+    );
   });
 
   it('treats Match all as matching', async () => {
@@ -228,7 +237,12 @@ describe('ssh-config-auditor', () => {
   });
 
   it('notes global directives and includes without following them', async () => {
-    const config = ['User root', 'Include ~/.ssh/other.conf', 'Host prod', '\tHostName p.example.com'].join('\n');
+    const config = [
+      'User root',
+      'Include ~/.ssh/other.conf',
+      'Host prod',
+      '\tHostName p.example.com',
+    ].join('\n');
     const result = await run(config);
     expect(result.notes?.join(' ')).toMatch(/before the first Host apply to every host/i);
     expect(result.notes?.join(' ')).toMatch(/Include line\(s\) were reported but not followed/i);
@@ -291,6 +305,8 @@ describe('ssh-config-auditor', () => {
   });
 
   it('requires a host for the resolve view', async () => {
-    await expect(run(CONFIG, { format: 'resolve' })).rejects.toThrow(/no host was given to resolve/i);
+    await expect(run(CONFIG, { format: 'resolve' })).rejects.toThrow(
+      /no host was given to resolve/i,
+    );
   });
 });

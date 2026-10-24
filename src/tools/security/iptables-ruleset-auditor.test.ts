@@ -9,137 +9,137 @@ import { meta } from './iptables-ruleset-auditor.meta';
  */
 const ORACLE: { rule: string; verdict: 'ok' | 'reject'; message: string; divergent: boolean }[] = [
   {
-    "rule": "-A INPUT -p tcp --dport 22 -j ACCEPT",
-    "verdict": "ok",
-    "message": "",
-    "divergent": false
+    rule: '-A INPUT -p tcp --dport 22 -j ACCEPT',
+    verdict: 'ok',
+    message: '',
+    divergent: false,
   },
   {
-    "rule": "-A INPUT --dport 22 -j ACCEPT",
-    "verdict": "reject",
-    "message": "unknown option \"--dport\"",
-    "divergent": false
+    rule: '-A INPUT --dport 22 -j ACCEPT',
+    verdict: 'reject',
+    message: 'unknown option "--dport"',
+    divergent: false,
   },
   {
-    "rule": "-A INPUT -p all --dport 22 -j ACCEPT",
-    "verdict": "reject",
-    "message": "unknown option \"--dport\"",
-    "divergent": false
+    rule: '-A INPUT -p all --dport 22 -j ACCEPT',
+    verdict: 'reject',
+    message: 'unknown option "--dport"',
+    divergent: false,
   },
   {
-    "rule": "-A INPUT --dport 22 -p tcp -j ACCEPT",
-    "verdict": "reject",
-    "message": "unknown option \"--dport\"",
-    "divergent": false
+    rule: '-A INPUT --dport 22 -p tcp -j ACCEPT',
+    verdict: 'reject',
+    message: 'unknown option "--dport"',
+    divergent: false,
   },
   {
-    "rule": "-A OUTPUT -i eth0 -j ACCEPT",
-    "verdict": "reject",
-    "message": "Can't use --in-interface with OUTPUT",
-    "divergent": false
+    rule: '-A OUTPUT -i eth0 -j ACCEPT',
+    verdict: 'reject',
+    message: "Can't use --in-interface with OUTPUT",
+    divergent: false,
   },
   {
-    "rule": "-A INPUT -o eth0 -j ACCEPT",
-    "verdict": "reject",
-    "message": "Can't use --out-interface with INPUT",
-    "divergent": false
+    rule: '-A INPUT -o eth0 -j ACCEPT',
+    verdict: 'reject',
+    message: "Can't use --out-interface with INPUT",
+    divergent: false,
   },
   {
-    "rule": "-A INPUT -j ACCEPT -j DROP",
-    "verdict": "reject",
-    "message": "multiple --jump options not allowed",
-    "divergent": false
+    rule: '-A INPUT -j ACCEPT -j DROP',
+    verdict: 'reject',
+    message: 'multiple --jump options not allowed',
+    divergent: false,
   },
   {
-    "rule": "-A INPUT -j",
-    "verdict": "reject",
-    "message": "option \"-j\" requires an argument",
-    "divergent": false
+    rule: '-A INPUT -j',
+    verdict: 'reject',
+    message: 'option "-j" requires an argument',
+    divergent: false,
   },
   {
-    "rule": "-A INPUT -p tcp --dport 99999 -j ACCEPT",
-    "verdict": "reject",
-    "message": "invalid port/service `99999' specified",
-    "divergent": false
+    rule: '-A INPUT -p tcp --dport 99999 -j ACCEPT',
+    verdict: 'reject',
+    message: "invalid port/service `99999' specified",
+    divergent: false,
   },
   {
-    "rule": "-A INPUT -p tcp -m multiport --dports 80,443, -j ACCEPT",
-    "verdict": "reject",
-    "message": "invalid port/service `' specified",
-    "divergent": false
+    rule: '-A INPUT -p tcp -m multiport --dports 80,443, -j ACCEPT',
+    verdict: 'reject',
+    message: "invalid port/service `' specified",
+    divergent: false,
   },
   {
-    "rule": "-A INPUT -m conntrack --ctstate BOGUS -j ACCEPT",
-    "verdict": "reject",
-    "message": "Bad ctstate \"BOGUS\"",
-    "divergent": false
+    rule: '-A INPUT -m conntrack --ctstate BOGUS -j ACCEPT',
+    verdict: 'reject',
+    message: 'Bad ctstate "BOGUS"',
+    divergent: false,
   },
   {
-    "rule": "-A INPUT -p tcp --dport 1024:2048 -j DROP",
-    "verdict": "ok",
-    "message": "",
-    "divergent": false
+    rule: '-A INPUT -p tcp --dport 1024:2048 -j DROP',
+    verdict: 'ok',
+    message: '',
+    divergent: false,
   },
   {
-    "rule": "-A INPUT -p tcp --sport 1024: -j ACCEPT",
-    "verdict": "ok",
-    "message": "",
-    "divergent": false
+    rule: '-A INPUT -p tcp --sport 1024: -j ACCEPT',
+    verdict: 'ok',
+    message: '',
+    divergent: false,
   },
   {
-    "rule": "-A INPUT -p tcp -m multiport --dports 80,443 -j ACCEPT",
-    "verdict": "ok",
-    "message": "",
-    "divergent": false
+    rule: '-A INPUT -p tcp -m multiport --dports 80,443 -j ACCEPT',
+    verdict: 'ok',
+    message: '',
+    divergent: false,
   },
   {
-    "rule": "-A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT",
-    "verdict": "ok",
-    "message": "",
-    "divergent": false
+    rule: '-A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT',
+    verdict: 'ok',
+    message: '',
+    divergent: false,
   },
   {
-    "rule": "-A INPUT -p tcp --dport 22",
-    "verdict": "ok",
-    "message": "",
-    "divergent": false
+    rule: '-A INPUT -p tcp --dport 22',
+    verdict: 'ok',
+    message: '',
+    divergent: false,
   },
   {
-    "rule": "-A INPUT -p tcp --dport 22 -j ACCEPT --wait",
-    "verdict": "ok",
-    "message": "",
-    "divergent": false
+    rule: '-A INPUT -p tcp --dport 22 -j ACCEPT --wait',
+    verdict: 'ok',
+    message: '',
+    divergent: false,
   },
   {
-    "rule": "-A INPUT -j NOSUCHCHAIN",
-    "verdict": "ok",
-    "message": "",
-    "divergent": false
+    rule: '-A INPUT -j NOSUCHCHAIN',
+    verdict: 'ok',
+    message: '',
+    divergent: false,
   },
   {
-    "rule": "-A INPUT -p 6 --dport 22 -j ACCEPT",
-    "verdict": "ok",
-    "message": "",
-    "divergent": false
+    rule: '-A INPUT -p 6 --dport 22 -j ACCEPT',
+    verdict: 'ok',
+    message: '',
+    divergent: false,
   },
   {
-    "rule": "-A INPUT -p tcp --dport ssh -j ACCEPT",
-    "verdict": "ok",
-    "message": "",
-    "divergent": false
+    rule: '-A INPUT -p tcp --dport ssh -j ACCEPT',
+    verdict: 'ok',
+    message: '',
+    divergent: false,
   },
   {
-    "rule": "-A INPUT -p tcp --dport notaport -j ACCEPT",
-    "verdict": "reject",
-    "message": "invalid port/service `notaport' specified",
-    "divergent": true
+    rule: '-A INPUT -p tcp --dport notaport -j ACCEPT',
+    verdict: 'reject',
+    message: "invalid port/service `notaport' specified",
+    divergent: true,
   },
   {
-    "rule": "-A INPUT -p tcp --dport 0 -j ACCEPT",
-    "verdict": "ok",
-    "message": "",
-    "divergent": false
-  }
+    rule: '-A INPUT -p tcp --dport 0 -j ACCEPT',
+    verdict: 'ok',
+    message: '',
+    divergent: false,
+  },
 ];
 
 const FIX = {
@@ -188,17 +188,28 @@ interface Result {
 }
 
 const table = (result: Result): { headers: string[]; rows: string[][] } =>
-  JSON.parse(result.report?.output ?? '{"headers":[],"rows":[]}') as { headers: string[]; rows: string[][] };
+  JSON.parse(result.report?.output ?? '{"headers":[],"rows":[]}') as {
+    headers: string[];
+    rows: string[][];
+  };
 
-const run = (text: string, format: string, options: Record<string, unknown> = {}): Promise<Result> =>
+const run = (
+  text: string,
+  format: string,
+  options: Record<string, unknown> = {},
+): Promise<Result> =>
   tool.run({ files: [], text, options: { format, ...options } }) as unknown as Promise<Result>;
 
-const summaryOf = async (text: string, options: Record<string, unknown> = {}): Promise<Map<string, string>> => {
+const summaryOf = async (
+  text: string,
+  options: Record<string, unknown> = {},
+): Promise<Map<string, string>> => {
   const result = await run(text, 'summary', options);
   return new Map(table(result).rows.map((row) => [row[0] ?? '', row[1] ?? '']));
 };
 
-const columns = (result: Result, index: number): string[] => table(result).rows.map((row) => row[index] ?? '');
+const columns = (result: Result, index: number): string[] =>
+  table(result).rows.map((row) => row[index] ?? '');
 const details = (result: Result): string => JSON.stringify(table(result).rows);
 
 describe('iptables-ruleset-auditor metadata', () => {
@@ -210,11 +221,17 @@ describe('iptables-ruleset-auditor metadata', () => {
     expect(meta.privacy.processing).toBe('on-device');
     expect(meta.privacy.network).toBe('none');
     expect(meta.summary.length).toBeLessThanOrEqual(120);
-    expect((meta.options ?? []).map((option) => option.key)).toEqual(['format', 'sensitive', 'top']);
+    expect((meta.options ?? []).map((option) => option.key)).toEqual([
+      'format',
+      'sensitive',
+      'top',
+    ]);
   });
 
   it('explains where the verdicts come from without stray escape sequences', () => {
-    const answer = (meta.faq ?? []).find((entry) => entry.q.includes('Where do the error messages come from'))?.a ?? '';
+    const answer =
+      (meta.faq ?? []).find((entry) => entry.q.includes('Where do the error messages come from'))
+        ?.a ?? '';
     expect(answer).toContain('unknown option "--dport" when a port is given without -p tcp');
     expect(answer).toContain("Can't use --out-interface with INPUT");
     expect(answer).not.toContain('\\');
@@ -231,7 +248,11 @@ describe('grammar against the iptables toolchain (independent oracle)', () => {
         // /etc/services does not exist in a browser, so a service name is kept rather than resolved.
         expect([index, entry.verdict, invalid]).toEqual([index, 'reject', false]);
       } else {
-        expect([index, entry.rule, invalid]).toEqual([index, entry.rule, entry.verdict === 'reject']);
+        expect([index, entry.rule, invalid]).toEqual([
+          index,
+          entry.rule,
+          entry.verdict === 'reject',
+        ]);
       }
     }
   });
@@ -242,7 +263,9 @@ describe('grammar against the iptables toolchain (independent oracle)', () => {
     const rejects = ORACLE.filter((entry) => entry.verdict === 'reject' && !entry.divergent);
     expect(rejects.length).toBe(10);
     for (const entry of rejects) {
-      const found = rows.some((row) => (row[2] ?? '').includes(entry.message) && (row[0] ?? '') === 'error');
+      const found = rows.some(
+        (row) => (row[2] ?? '').includes(entry.message) && (row[0] ?? '') === 'error',
+      );
       expect([entry.rule, found]).toEqual([entry.rule, true]);
     }
   });
@@ -279,7 +302,14 @@ describe('ruleset summary', () => {
   it('reports counters and warns about the open sensitive port', async () => {
     const result = await run(FIX.example, 'summary');
     expect(result.stats).toMatchObject({
-      tables: 2, chains: 8, rules: 8, exposedPorts: 4, sensitiveOpen: 1, errors: 0, warnings: 0, notes: 2,
+      tables: 2,
+      chains: 8,
+      rules: 8,
+      exposedPorts: 4,
+      sensitiveOpen: 1,
+      errors: 0,
+      warnings: 0,
+      notes: 2,
     });
     expect(result.warnings).toEqual(['1 sensitive port(s) are accepted from anywhere.']);
   });
@@ -333,7 +363,16 @@ describe('rules view', () => {
     expect(rows[2]).toEqual(['3', '8', 'INPUT', '-p tcp --dport 22', '-j ACCEPT', 'no --syn']);
     expect(rows[5]).toEqual(['6', '11', 'INPUT', '(no match conditions)', '-j LOG_DROP', '-']);
     expect(rows[7]).toEqual(['8', '13', 'LOG_DROP', '(no match conditions)', '-j DROP', '-']);
-    expect(columns(result, 2)).toEqual(['INPUT', 'INPUT', 'INPUT', 'INPUT', 'INPUT', 'INPUT', 'LOG_DROP', 'LOG_DROP']);
+    expect(columns(result, 2)).toEqual([
+      'INPUT',
+      'INPUT',
+      'INPUT',
+      'INPUT',
+      'INPUT',
+      'INPUT',
+      'LOG_DROP',
+      'LOG_DROP',
+    ]);
   });
 
   it('marks an inserted rule and the rule it makes unreachable', async () => {
@@ -348,7 +387,15 @@ describe('ports view', () => {
   it('lists accepted ports with sensitive ones first', async () => {
     const result = await run(FIX.example, 'ports');
     const rows = table(result).rows;
-    expect(rows[0]).toEqual(['1', '22', 'tcp', 'any', 'INPUT', '#3', 'sensitive, open to the world']);
+    expect(rows[0]).toEqual([
+      '1',
+      '22',
+      'tcp',
+      'any',
+      'INPUT',
+      '#3',
+      'sensitive, open to the world',
+    ]);
     expect(rows[1]).toEqual(['2', '53', 'udp', 'any', 'INPUT', '#5', '-']);
     expect(rows[2]?.[1]).toBe('80');
     expect(rows[2]?.[5]).toBe('#4');
@@ -368,12 +415,16 @@ describe('ports view', () => {
     const rows = table(await run(FIX.restrictedSensitive, 'ports')).rows;
     expect(rows[0]?.[3]).toBe('192.0.2.0/24');
     expect(rows[0]?.[6]).toBe('sensitive, but restricted');
-    expect((await summaryOf(FIX.restrictedSensitive)).get('Sensitive ports open')).toBe('none from any source');
+    expect((await summaryOf(FIX.restrictedSensitive)).get('Sensitive ports open')).toBe(
+      'none from any source',
+    );
   });
 
   it('honours the sensitive list option and the row limit', async () => {
     expect((await summaryOf(FIX.openApp)).get('Sensitive ports open')).toBe('none from any source');
-    expect((await summaryOf(FIX.openApp, { sensitive: '8080' })).get('Sensitive ports open')).toBe('8080');
+    expect((await summaryOf(FIX.openApp, { sensitive: '8080' })).get('Sensitive ports open')).toBe(
+      '8080',
+    );
     const result = await run(FIX.manyPorts, 'ports', { top: 3 });
     expect(table(result).rows.length).toBe(3);
     expect(columns(result, 1)).toEqual(['22', '23', '3306']);
@@ -383,24 +434,32 @@ describe('ports view', () => {
 
 describe('findings', () => {
   it('flags the risky combination of a DROP rule under an ACCEPT policy', async () => {
-    expect(details(await run(FIX.failOpen, 'findings'))).toContain('A drop rule sits under an ACCEPT policy');
+    expect(details(await run(FIX.failOpen, 'findings'))).toContain(
+      'A drop rule sits under an ACCEPT policy',
+    );
   });
 
   it('flags a chain that drops / replies it cannot return', async () => {
     const result = await run(FIX.noEstablished, 'findings');
     expect(result.stats?.warnings).toBe(1);
     const rows = table(result).rows;
-    const found = rows.filter((row) => (row[1] ?? '') === 'Nothing accepts established connections');
+    const found = rows.filter(
+      (row) => (row[1] ?? '') === 'Nothing accepts established connections',
+    );
     expect(found.length).toBe(1);
     expect(found[0]?.[2]).toContain('INPUT');
   });
 
   it('flags an unrate-limited log rule', async () => {
-    expect(details(await run(FIX.logNoLimit, 'findings'))).toContain('A log rule has no rate limit');
+    expect(details(await run(FIX.logNoLimit, 'findings'))).toContain(
+      'A log rule has no rate limit',
+    );
   });
 
   it('flags the deprecated state module', async () => {
-    expect(details(await run(FIX.deprecated, 'findings'))).toContain('A deprecated match module is used');
+    expect(details(await run(FIX.deprecated, 'findings'))).toContain(
+      'A deprecated match module is used',
+    );
   });
 
   it('flags a duplicate rule once, with both line numbers', async () => {
@@ -422,7 +481,9 @@ describe('findings', () => {
   });
 
   it('notes a user chain nothing jumps to', async () => {
-    expect(details(await run(FIX.unreferencedChain, 'findings'))).toContain('MYCHAIN is created but no rule jumps to it');
+    expect(details(await run(FIX.unreferencedChain, 'findings'))).toContain(
+      'MYCHAIN is created but no rule jumps to it',
+    );
   });
 
   it('flags a policy name the kernel cannot accept', async () => {
@@ -446,7 +507,9 @@ describe('findings', () => {
   });
 
   it('says the ruleset would be refused while an error is present', async () => {
-    expect(details(await run(FIX.missingChain, 'findings'))).toContain('would be refused before it does anything');
+    expect(details(await run(FIX.missingChain, 'findings'))).toContain(
+      'would be refused before it does anything',
+    );
   });
 });
 
@@ -456,12 +519,18 @@ describe('guards', () => {
   });
 
   it('refuses input with no rules at all', async () => {
-    await expect(tool.run({ files: [], text: 'just some prose', options: {} })).rejects.toThrow(/No iptables rules/u);
-    await expect(tool.run({ files: [], text: '   \n\n', options: {} })).rejects.toThrow(/No ruleset/u);
+    await expect(tool.run({ files: [], text: 'just some prose', options: {} })).rejects.toThrow(
+      /No iptables rules/u,
+    );
+    await expect(tool.run({ files: [], text: '   \n\n', options: {} })).rejects.toThrow(
+      /No ruleset/u,
+    );
   });
 
   it('refuses an empty file', async () => {
-    await expect(tool.run({ files: [new File([''], 'rules.v4')], options: {} })).rejects.toThrow(/empty/u);
+    await expect(tool.run({ files: [new File([''], 'rules.v4')], options: {} })).rejects.toThrow(
+      /empty/u,
+    );
   });
 
   it('accepts an uploaded file and names it', async () => {

@@ -93,7 +93,8 @@ export const meta: ToolMeta = {
     },
     {
       title: 'Heading and paragraph',
-      input: '# Getting started\n\nWrite **Markdown** on the left and the preview follows along on the right.\n',
+      input:
+        '# Getting started\n\nWrite **Markdown** on the left and the preview follows along on the right.\n',
     },
     {
       title: 'GFM table',

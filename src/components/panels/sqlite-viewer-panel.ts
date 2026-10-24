@@ -143,7 +143,8 @@ export function mountSqliteViewerPanel(root: HTMLElement): void {
       const name = row[nameColumn] ?? '';
       if (!name) continue;
       const li = document.createElement('li');
-      li.className = 'flex flex-wrap items-center justify-between gap-2 rounded-lg border px-3 py-2';
+      li.className =
+        'flex flex-wrap items-center justify-between gap-2 rounded-lg border px-3 py-2';
 
       const browse = document.createElement('button');
       browse.type = 'button';
@@ -303,15 +304,19 @@ export function mountSqliteViewerPanel(root: HTMLElement): void {
     const browsing = request.action === 'browse';
 
     try {
-      const result = await runToolById<FileRunResult>(toolId, { files: [file], options }, {
-        signal: controller.signal,
-        onProgress: (fraction, message) => {
-          if (generation !== runGeneration) return;
-          const pct = Math.round(Math.min(1, Math.max(0, fraction)) * 100);
-          progressBar.style.width = `${pct}%`;
-          progressMsg.textContent = message ? `${message} — ${pct}%` : `${pct}%`;
+      const result = await runToolById<FileRunResult>(
+        toolId,
+        { files: [file], options },
+        {
+          signal: controller.signal,
+          onProgress: (fraction, message) => {
+            if (generation !== runGeneration) return;
+            const pct = Math.round(Math.min(1, Math.max(0, fraction)) * 100);
+            progressBar.style.width = `${pct}%`;
+            progressMsg.textContent = message ? `${message} — ${pct}%` : `${pct}%`;
+          },
         },
-      });
+      );
       if (generation !== runGeneration) return;
       progressBar.style.width = '100%';
       progressMsg.textContent = 'Done';

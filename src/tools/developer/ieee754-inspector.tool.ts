@@ -59,10 +59,14 @@ function analyse(format: Format, bits: bigint): Parts {
 
   let className: string;
   if (exp === expMax) className = frac === 0n ? 'Infinity' : 'NaN';
-  else if (exp === 0) className = frac === 0n ? (sign === 1 ? 'Negative zero' : 'Zero') : 'Subnormal';
+  else if (exp === 0)
+    className = frac === 0n ? (sign === 1 ? 'Negative zero' : 'Zero') : 'Subnormal';
   else className = 'Normal';
 
-  const hexBody = bits.toString(16).toUpperCase().padStart(width / 4, '0');
+  const hexBody = bits
+    .toString(16)
+    .toUpperCase()
+    .padStart(width / 4, '0');
   const binary = bits.toString(2).padStart(width, '0');
 
   return {
@@ -71,7 +75,10 @@ function analyse(format: Format, bits: bigint): Parts {
     sign,
     exponentBits: exp.toString(2).padStart(expBits, '0'),
     unbiased: className === 'Normal' ? exp - bias : null,
-    mantissaHex: frac.toString(16).toUpperCase().padStart(format === 'float64' ? 13 : 6, '0'),
+    mantissaHex: frac
+      .toString(16)
+      .toUpperCase()
+      .padStart(format === 'float64' ? 13 : 6, '0'),
     hex: '0x' + hexBody,
     binary,
     className,
@@ -121,7 +128,8 @@ function parseDecimal(raw: string): number {
   const cleaned = raw.replace(/[\s_]/gu, '');
   const lower = cleaned.toLowerCase();
   if (lower === 'nan' || lower === '+nan' || lower === '-nan') return NaN;
-  if (lower === 'inf' || lower === '+inf' || lower === 'infinity' || lower === '+infinity') return Infinity;
+  if (lower === 'inf' || lower === '+inf' || lower === 'infinity' || lower === '+infinity')
+    return Infinity;
   if (lower === '-inf' || lower === '-infinity') return -Infinity;
   const value = Number(cleaned);
   if (Number.isNaN(value)) {
@@ -176,7 +184,12 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   const warnings: string[] = [];
 
   for (const raw of lines) {
-    const kind: Kind = inputMode === 'decimal' ? 'decimal' : inputMode === 'bits' ? detectBitsKind(raw) : detectKind(raw);
+    const kind: Kind =
+      inputMode === 'decimal'
+        ? 'decimal'
+        : inputMode === 'bits'
+          ? detectBitsKind(raw)
+          : detectKind(raw);
 
     if (kind === 'decimal') {
       const value = parseDecimal(raw);

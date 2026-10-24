@@ -43,9 +43,9 @@ describe('voice-recorder run', () => {
   });
 
   it('rejects more than one take', async () => {
-    await expect(
-      tool.run({ files: [file('a.wav'), file('b.wav')], options: {} }),
-    ).rejects.toThrow(/one recording at a time/i);
+    await expect(tool.run({ files: [file('a.wav'), file('b.wav')], options: {} })).rejects.toThrow(
+      /one recording at a time/i,
+    );
   });
 
   it('rejects an empty take', async () => {

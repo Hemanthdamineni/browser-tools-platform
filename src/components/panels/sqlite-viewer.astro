@@ -50,8 +50,8 @@ const p = meta.id;
 
   <h2 class="mt-6 text-base font-semibold text-[rgb(var(--text))]">2 · Explore the tables</h2>
   <p class="mt-1 text-xs text-[rgb(var(--text-muted))]">
-    Pick a table to browse its rows, or view its <code>CREATE</code> statements. The list and the
-    row counts come from the database itself.
+    Pick a table to browse its rows, or view its <code>CREATE</code> statements. The list and the row
+    counts come from the database itself.
   </p>
   <ul class="mt-3 space-y-1.5" data-tables aria-label="Tables and views in the database" hidden>
   </ul>
@@ -64,8 +64,7 @@ const p = meta.id;
     rows="4"
     spellcheck="false"
     placeholder="SELECT * FROM users LIMIT 50;"
-    data-query
-  ></textarea>
+    data-query></textarea>
   <p class="mt-1 text-xs text-[rgb(var(--text-muted))]">
     Read-only. SELECT, WITH, VALUES, TABLE, EXPLAIN, metadata PRAGMAs and the
     <code>.tables</code> / <code>.schema</code> shortcuts run; anything that writes is refused.

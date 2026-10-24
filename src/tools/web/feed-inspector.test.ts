@@ -35,7 +35,8 @@ const summary = async (text: string, options: Record<string, string | number | b
 
 const problems = (table: Table): string[] => table.rows.map((row) => row[2] ?? '');
 
-const AAA = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+const AAA =
+  'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 
 const RSS = [
   '<?xml version="1.0" encoding="UTF-8"?>',
@@ -147,7 +148,13 @@ describe('feed-inspector', () => {
 
   it('finds no problems in a well-formed RSS feed', async () => {
     const result = await run(RSS);
-    expect(result.stats).toMatchObject({ dialect: 'RSS 2.0', items: 2, enclosures: 1, errors: 0, warnings: 0 });
+    expect(result.stats).toMatchObject({
+      dialect: 'RSS 2.0',
+      items: 2,
+      enclosures: 1,
+      errors: 0,
+      warnings: 0,
+    });
     expect(result.warnings ?? []).toEqual([]);
     const issues = await view(RSS, 'issues');
     expect(issues.rows[0]?.[1]).toBe('ok');
@@ -155,7 +162,15 @@ describe('feed-inspector', () => {
 
   it('lists items with dates, identifiers and enclosures', async () => {
     const table = await view(RSS, 'items');
-    expect(table.headers).toEqual(['#', 'Title', 'Link', 'Date', 'Identifier', 'Author', 'Enclosure']);
+    expect(table.headers).toEqual([
+      '#',
+      'Title',
+      'Link',
+      'Date',
+      'Identifier',
+      'Author',
+      'Enclosure',
+    ]);
     expect(table.rows).toHaveLength(2);
     expect(table.rows[0]).toEqual([
       '1',
@@ -172,7 +187,12 @@ describe('feed-inspector', () => {
   it('lists enclosures with a human readable size', async () => {
     const table = await view(RSS, 'enclosures');
     expect(table.headers).toEqual(['Item', 'URL', 'Type', 'Size']);
-    expect(table.rows[0]).toEqual(['1. Episode 2', 'https://example.com/2.mp3', 'audio/mpeg', '10.0 MB']);
+    expect(table.rows[0]).toEqual([
+      '1. Episode 2',
+      'https://example.com/2.mp3',
+      'audio/mpeg',
+      '10.0 MB',
+    ]);
   });
 
   it('says so when a feed has no enclosures', async () => {
@@ -257,7 +277,8 @@ describe('feed-inspector', () => {
   });
 
   it('flags a relative feed link and a missing version', async () => {
-    const rss = '<rss><channel><title>t</title><link>/feed</link><description>d</description></channel></rss>';
+    const rss =
+      '<rss><channel><title>t</title><link>/feed</link><description>d</description></channel></rss>';
     const found = problems(await view(rss, 'issues'));
     expect(found).toContain('Missing version attribute');
     expect(found).toContain('Relative feed link');
@@ -296,7 +317,10 @@ describe('feed-inspector', () => {
   });
 
   it('caps how many items it lists', async () => {
-    const items = Array.from({ length: 210 }, (_, index) => '<item><title>i' + index + '</title></item>').join('');
+    const items = Array.from(
+      { length: 210 },
+      (_, index) => '<item><title>i' + index + '</title></item>',
+    ).join('');
     const rss =
       '<rss version="2.0"><channel><title>t</title><link>https://e.com/</link><description>d</description>' +
       items +
@@ -324,6 +348,8 @@ describe('feed-inspector', () => {
   });
 
   it('rejects a document that is not a feed', async () => {
-    await expect(run('<html><body>hi</body></html>')).rejects.toThrow(/unrecognised feed root element <html>/i);
+    await expect(run('<html><body>hi</body></html>')).rejects.toThrow(
+      /unrecognised feed root element <html>/i,
+    );
   });
 });

@@ -175,9 +175,7 @@ export function mountPdfFillFormPanel(root: HTMLElement): void {
         const select = formEl.querySelector<HTMLSelectElement>(selector);
         if (!select) return;
         if (field.multiselect) {
-          values[field.name] = Array.from(select.selectedOptions).map(
-            (option) => option.value,
-          );
+          values[field.name] = Array.from(select.selectedOptions).map((option) => option.value);
         } else if (select.value) {
           values[field.name] = select.value;
         }

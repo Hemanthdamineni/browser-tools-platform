@@ -82,7 +82,7 @@ describe('mermaid-renderer tool', () => {
   });
 
   it('applies the declared defaults when options are omitted', () => {
-    const out = tool.run({ text: FLOWCHART }) as ToolOut;
+    const out = tool.run({ text: FLOWCHART, options: {} }) as ToolOut;
     expect(out.filename).toBe('diagram.mmd');
     expect(out.output).toBe(FLOWCHART);
   });
@@ -90,7 +90,9 @@ describe('mermaid-renderer tool', () => {
 
 describe('normaliseSource', () => {
   it('unifies line endings and strips trailing whitespace and outer blank lines', () => {
-    expect(normaliseSource('\r\nflowchart TD  \r\n\tA --> B\r\n\r\n')).toBe('flowchart TD\n\tA --> B');
+    expect(normaliseSource('\r\nflowchart TD  \r\n\tA --> B\r\n\r\n')).toBe(
+      'flowchart TD\n\tA --> B',
+    );
   });
 
   it('keeps interior blank lines', () => {

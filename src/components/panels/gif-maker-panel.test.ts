@@ -192,13 +192,35 @@ describe('normalizeDelayCs', () => {
 
 describe('totalDurationMs / formatTotalDuration', () => {
   it('sums the per-frame delays (centiseconds → ms)', () => {
-    expect(totalDurationMs(entries([[1, 10], [2, 5], [3, 20]]))).toBe(350);
+    expect(
+      totalDurationMs(
+        entries([
+          [1, 10],
+          [2, 5],
+          [3, 20],
+        ]),
+      ),
+    ).toBe(350);
     expect(totalDurationMs([])).toBe(0);
   });
 
   it('formats the total as a readable duration', () => {
-    expect(formatTotalDuration(entries([[1, 10], [2, 10]]))).toBe('200 ms');
-    expect(formatTotalDuration(entries([[1, 60], [2, 60]]))).toBe('1.20 s');
+    expect(
+      formatTotalDuration(
+        entries([
+          [1, 10],
+          [2, 10],
+        ]),
+      ),
+    ).toBe('200 ms');
+    expect(
+      formatTotalDuration(
+        entries([
+          [1, 60],
+          [2, 60],
+        ]),
+      ),
+    ).toBe('1.20 s');
   });
 });
 
@@ -274,9 +296,9 @@ describe('mountGifMakerPanel', () => {
     fps.value = '30';
     fps.dispatchEvent(new Event('change', { bubbles: true }));
     await vi.waitFor(() => {
-      const delays = Array.from(
-        root.querySelectorAll<HTMLInputElement>('[data-frame-delay]'),
-      ).map((input) => input.value);
+      const delays = Array.from(root.querySelectorAll<HTMLInputElement>('[data-frame-delay]')).map(
+        (input) => input.value,
+      );
       expect(delays).toEqual(['3', '3']);
     });
     // 30 fps rounds to 3 cs, which plays back at 33.3 fps.

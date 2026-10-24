@@ -120,7 +120,10 @@ describe('pomodoro-timer tool', () => {
 
   it('clamps an out-of-range option rather than trusting it', () => {
     const session = openPhase(SETTINGS, initialState(), Date.now(), false);
-    const result = run(snapshot(session, SETTINGS), { workMinutes: 1000, cyclesBeforeLongBreak: 0 });
+    const result = run(snapshot(session, SETTINGS), {
+      workMinutes: 1000,
+      cyclesBeforeLongBreak: 0,
+    });
     expect(valueOf(result, 'Work')).toBe('120 min');
     expect(valueOf(result, 'Work phases this cycle')).toBe('0 / 1');
   });

@@ -15,11 +15,7 @@ import {
   outputNameFor,
   type OcrPlan,
 } from '@/components/panels/pdf-ocr-panel';
-import {
-  ocrLanguageLabel,
-  ocrTextStats,
-  resolveOcrMode,
-} from '@/tools/image/ocr-languages';
+import { ocrLanguageLabel, ocrTextStats, resolveOcrMode } from '@/tools/image/ocr-languages';
 import { supportsSimd } from '@/tools/image/ocr-image';
 import { context2d, createCanvas, encodeCanvas, throwIfAborted } from '@/tools/image/image-batch';
 
@@ -196,8 +192,7 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
 
   let engine: OcrEngine | null = null;
   let engineReady = false;
-  const { promise: creationFailure, reject: rejectCreation } =
-    Promise.withResolvers<never>();
+  const { promise: creationFailure, reject: rejectCreation } = Promise.withResolvers<never>();
   let currentPage = plan.pages[0] ?? 1;
 
   const logger = (event: { status?: string; progress?: number }) => {
@@ -206,10 +201,7 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
     if (status === 'recognizing text') {
       const index = plan.pages.indexOf(currentPage);
       const within = (Math.max(0, index) + progress) / pageCount;
-      input.onProgress?.(
-        SETUP_SHARE + (1 - SETUP_SHARE) * within,
-        `Reading page ${currentPage}…`,
-      );
+      input.onProgress?.(SETUP_SHARE + (1 - SETUP_SHARE) * within, `Reading page ${currentPage}…`);
       return;
     }
     const phase = SETUP_PHASES[status];
@@ -291,7 +283,10 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
         }
         throwIfAborted(signal);
 
-        const result = await raceAbort(ocr.recognize(png, {}, { text: true, blocks: true }), signal);
+        const result = await raceAbort(
+          ocr.recognize(png, {}, { text: true, blocks: true }),
+          signal,
+        );
         const layerWords = flattenTesseractWords(result?.data?.blocks);
         const items = buildTextLayer(layerWords, plan.scale, {
           width: base.width,
@@ -358,7 +353,8 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
       'Words in scripts the built-in PDF font cannot encode (for example Chinese, Hindi or Cyrillic) were left out of the layer; the scan itself is unchanged.',
     );
   }
-  if (emptyPages) notes.push(`${emptyPages} page(s) had no recognisable text — those pages are images only.`);
+  if (emptyPages)
+    notes.push(`${emptyPages} page(s) had no recognisable text — those pages are images only.`);
   result.notes = notes;
   if (warnings.length) result.warnings = warnings;
   return result;

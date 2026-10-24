@@ -31,7 +31,12 @@ const summary = async (text: string, options: Record<string, string | number | b
 
 const issues = async (text: string, options: Record<string, string | number | boolean> = {}) => {
   const { r, parsed } = await table(text, { ...options, format: 'issues' });
-  return { r, rows: parsed.rows, problems: parsed.rows.map((row) => row[2]), paths: parsed.rows.map((row) => row[0]) };
+  return {
+    r,
+    rows: parsed.rows,
+    problems: parsed.rows.map((row) => row[2]),
+    paths: parsed.rows.map((row) => row[0]),
+  };
 };
 
 const POINT = '{"type":"Point","coordinates":[13.4,52.5]}';
@@ -52,8 +57,16 @@ describe('geojson-validator', () => {
     const doc = JSON.stringify({
       type: 'FeatureCollection',
       features: [
-        { type: 'Feature', properties: { name: 'A' }, geometry: { type: 'Point', coordinates: [13.4, 52.5] } },
-        { type: 'Feature', properties: {}, geometry: { type: 'Polygon', coordinates: [JSON.parse(CLOSED_RING)] } },
+        {
+          type: 'Feature',
+          properties: { name: 'A' },
+          geometry: { type: 'Point', coordinates: [13.4, 52.5] },
+        },
+        {
+          type: 'Feature',
+          properties: {},
+          geometry: { type: 'Polygon', coordinates: [JSON.parse(CLOSED_RING)] },
+        },
       ],
     });
     const { r, map } = await summary(doc);
@@ -99,7 +112,8 @@ describe('geojson-validator', () => {
     const good = await summary('{"type":"MultiPolygon","coordinates":[[' + CLOSED_RING + ']]}');
     expect(good.map.Status).toBe('valid');
 
-    const bad = '{"type":"MultiPolygon","coordinates":[[ ' + CLOSED_RING + '],[[[0,0],[1,0],[1,1],[0,1]]]]}';
+    const bad =
+      '{"type":"MultiPolygon","coordinates":[[ ' + CLOSED_RING + '],[[[0,0],[1,0],[1,1],[0,1]]]]}';
     const { problems, paths } = await issues(bad);
     expect(problems).toContain('Ring is not closed');
     expect(paths).toContain('$.coordinates[1][0]');
@@ -134,7 +148,8 @@ describe('geojson-validator', () => {
   });
 
   it('warns about the deprecated crs member only in strict mode', async () => {
-    const doc = '{"type":"Point","coordinates":[0,0],"crs":{"type":"name","properties":{"name":"EPSG:4326"}}}';
+    const doc =
+      '{"type":"Point","coordinates":[0,0],"crs":{"type":"name","properties":{"name":"EPSG:4326"}}}';
     expect((await issues(doc)).problems).toContain('Deprecated crs member');
     expect((await issues(doc, { strict: false })).problems).not.toContain('Deprecated crs member');
   });
@@ -151,9 +166,9 @@ describe('geojson-validator', () => {
     const { map } = await summary('{"type":"Point","coordinates":[0,0],"bbox":[0,0,0,0]}');
     expect(map['Declared bbox']).toBe('0, 0, 0, 0');
 
-    expect((await issues('{"type":"Point","coordinates":[0,0],"bbox":[0,0,0]}')).problems).toContain(
-      'Invalid bbox',
-    );
+    expect(
+      (await issues('{"type":"Point","coordinates":[0,0],"bbox":[0,0,0]}')).problems,
+    ).toContain('Invalid bbox');
     expect(
       (await issues('{"type":"Point","coordinates":[0,0],"bbox":[5,0,1,1]}')).problems,
     ).toContain('bbox minimum exceeds maximum');
@@ -166,9 +181,9 @@ describe('geojson-validator', () => {
     const nullGeometry = await issues('{"type":"Feature","geometry":null,"properties":null}');
     expect(nullGeometry.rows[0]?.[1]).toBe('ok');
 
-    expect(
-      (await issues('{"type":"Feature","geometry":null}')).problems,
-    ).toContain('Missing properties member');
+    expect((await issues('{"type":"Feature","geometry":null}')).problems).toContain(
+      'Missing properties member',
+    );
     expect(
       (await issues('{"type":"Feature","geometry":null,"properties":[1]}')).problems,
     ).toContain('Invalid properties member');
@@ -178,7 +193,9 @@ describe('geojson-validator', () => {
   });
 
   it('validates FeatureCollection structure', async () => {
-    expect((await issues('{"type":"FeatureCollection"}')).problems).toContain('Missing features array');
+    expect((await issues('{"type":"FeatureCollection"}')).problems).toContain(
+      'Missing features array',
+    );
     const { problems, paths } = await issues(
       '{"type":"FeatureCollection","features":[{"type":"Point","coordinates":[0,0]}]}',
     );
@@ -214,8 +231,23 @@ describe('geojson-validator', () => {
     const doc = JSON.stringify({
       type: 'FeatureCollection',
       features: [
-        { type: 'Feature', id: 'a', properties: { x: 1, y: 2 }, geometry: { type: 'Point', coordinates: [1, 2] } },
-        { type: 'Feature', properties: {}, geometry: { type: 'MultiPoint', coordinates: [[0, 0], [1, 1]] } },
+        {
+          type: 'Feature',
+          id: 'a',
+          properties: { x: 1, y: 2 },
+          geometry: { type: 'Point', coordinates: [1, 2] },
+        },
+        {
+          type: 'Feature',
+          properties: {},
+          geometry: {
+            type: 'MultiPoint',
+            coordinates: [
+              [0, 0],
+              [1, 1],
+            ],
+          },
+        },
       ],
     });
     const { parsed } = await table(doc, { format: 'features' });

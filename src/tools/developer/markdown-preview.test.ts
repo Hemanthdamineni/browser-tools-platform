@@ -204,10 +204,13 @@ describe('applyCodeHighlighting', () => {
 
   it('passes the unescaped code and the language to the highlighter', () => {
     const seen: [string, string][] = [];
-    applyCodeHighlighting('<pre><code class="language-js">a &lt; b</code></pre>', (code, language) => {
-      seen.push([code, language]);
-      return null;
-    });
+    applyCodeHighlighting(
+      '<pre><code class="language-js">a &lt; b</code></pre>',
+      (code, language) => {
+        seen.push([code, language]);
+        return null;
+      },
+    );
     expect(seen).toEqual([['a < b', 'js']]);
   });
 
@@ -400,7 +403,9 @@ describe('isSafeUrl', () => {
 
 describe('documentStats', () => {
   it('counts the words, the headings, the code blocks and the links', () => {
-    const stats = documentStats('# Title\n\nOne two three.\n\n```js\ncode\n```\n\n[link](https://x)');
+    const stats = documentStats(
+      '# Title\n\nOne two three.\n\n```js\ncode\n```\n\n[link](https://x)',
+    );
     expect(stats.words).toBe(7);
     expect(stats.headings).toBe(1);
     expect(stats.codeBlocks).toBe(2);
@@ -444,9 +449,9 @@ describe('buildExportDocument', () => {
   });
 
   it('escapes the title', () => {
-    expect(
-      buildExportDocument({ title: '<script>alert(1)</script>', body: '<p>x</p>' }),
-    ).toContain('&lt;script&gt;');
+    expect(buildExportDocument({ title: '<script>alert(1)</script>', body: '<p>x</p>' })).toContain(
+      '&lt;script&gt;',
+    );
   });
 
   it('honours the dark theme', () => {

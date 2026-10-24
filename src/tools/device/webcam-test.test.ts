@@ -178,16 +178,18 @@ describe('webcam-test tool', () => {
   });
 
   it('rejects implausible numbers', () => {
-    expect(() => run(payload({ ...LIVE_FACTS, width: MAX_DIMENSION + 1 }))).toThrow(/out of range/i);
+    expect(() => run(payload({ ...LIVE_FACTS, width: MAX_DIMENSION + 1 }))).toThrow(
+      /out of range/i,
+    );
     expect(() => run(payload({ ...LIVE_FACTS, height: 0 }))).toThrow(/out of range/i);
     expect(() => run(payload({ ...LIVE_FACTS, measuredFps: -1 }))).toThrow(/out of range/i);
     expect(() => run(payload({ ...LIVE_FACTS, measuredFps: MAX_FPS + 1 }))).toThrow(
       /out of range/i,
     );
     // 1e999 survives JSON.parse as Infinity — the parser must not accept it.
-    expect(() =>
-      run('{"state":"live","width":1280,"height":720,"reportedFps":1e999}'),
-    ).toThrow(/finite/i);
+    expect(() => run('{"state":"live","width":1280,"height":720,"reportedFps":1e999}')).toThrow(
+      /finite/i,
+    );
   });
 
   it('treats a non-finite number that JSON dropped as "not measured"', () => {
@@ -219,9 +221,12 @@ describe('webcam-test tool', () => {
         { deviceId: 'b', label: '' },
       ]),
     ).toBe('2 cameras detected (names hidden until you allow access)');
-    expect(summariseCameraList([{ deviceId: 'a', label: 'One' }, { deviceId: 'b', label: '' }])).toBe(
-      '2 cameras detected (1 named)',
-    );
+    expect(
+      summariseCameraList([
+        { deviceId: 'a', label: 'One' },
+        { deviceId: 'b', label: '' },
+      ]),
+    ).toBe('2 cameras detected (1 named)');
     expect(summariseCameraList([])).toBe('No cameras detected');
   });
 });

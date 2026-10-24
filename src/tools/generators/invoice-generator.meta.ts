@@ -113,7 +113,14 @@ export const meta: ToolMeta = {
           issueDate: '2026-09-15',
           dueDate: '2026-10-15',
           currency: 'GBP',
-          lines: [{ description: 'Onboarding workshop (10 seats)', quantity: 10, unitPrice: 45, taxRate: 20 }],
+          lines: [
+            {
+              description: 'Onboarding workshop (10 seats)',
+              quantity: 10,
+              unitPrice: 45,
+              taxRate: 20,
+            },
+          ],
           discountPercent: 10,
           notes: '',
           terms: 'Payment due within 30 days.',

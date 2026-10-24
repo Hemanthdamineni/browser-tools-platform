@@ -63,9 +63,9 @@ describe('speech-to-text run', () => {
 
   it('rejects a file over the byte cap before decoding', async () => {
     const big = audioFile('big.wav', MAX_INPUT_BYTES + 1);
-    await expect(
-      tool.run({ files: [big], options: {}, onProgress: () => {} }),
-    ).rejects.toThrow(/larger than/);
+    await expect(tool.run({ files: [big], options: {}, onProgress: () => {} })).rejects.toThrow(
+      /larger than/,
+    );
     expect(transcriber).not.toHaveBeenCalled();
   });
 
@@ -86,11 +86,7 @@ describe('speech-to-text run', () => {
     expect(call.samples).toBeInstanceOf(Float32Array);
     expect(call.modelId).toBe('Xenova/whisper-tiny.en');
 
-    expect(result.outputs.map((o) => o.filename)).toEqual([
-      'clip.txt',
-      'clip.srt',
-      'clip.vtt',
-    ]);
+    expect(result.outputs.map((o) => o.filename)).toEqual(['clip.txt', 'clip.srt', 'clip.vtt']);
 
     expect(await result.outputs[0]!.blob.text()).toBe('Hello there\nHow are you');
     expect(await result.outputs[1]!.blob.text()).toBe(

@@ -161,6 +161,7 @@ export function looksLikeText(bytes: Uint8Array): boolean {
 /** Reduce a sender-supplied filename to a safe basename for the download link. */
 export function safeFilename(name: string | undefined, fallback: string): string {
   const base = (name ?? '').split(/[\\/]/).pop() ?? '';
+  // eslint-disable-next-line no-control-regex -- removing control characters from armoured keys is the point
   const cleaned = base.replace(/[\u0000-\u001f\u007f]/g, '').trim();
   return cleaned && cleaned !== '.' && cleaned !== '..' ? cleaned : fallback;
 }
@@ -459,9 +460,7 @@ export async function encryptData(api: OpenPgpApi, o: EncryptInput): Promise<Enc
   }
 
   const message = await api.createMessage(
-    o.binary
-      ? { binary: o.binary, filename: o.filename ?? 'data.bin' }
-      : { text: o.text! },
+    o.binary ? { binary: o.binary, filename: o.filename ?? 'data.bin' } : { text: o.text! },
   );
 
   const result = await api.encrypt({

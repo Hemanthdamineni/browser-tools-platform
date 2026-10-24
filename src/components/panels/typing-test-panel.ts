@@ -17,6 +17,7 @@
  */
 import type { TextRunResult } from '@/lib/types';
 import { renderTextResult } from '../workbench/shared';
+import { runToolById } from '@/lib/worker/client';
 import {
   appendHistory,
   buildTarget,
@@ -25,9 +26,6 @@ import {
   readHistory,
   sampleWords,
   DEFAULT_TIME_MS,
-  HISTORY_KEY,
-  HISTORY_CAP,
-  CONSISTENCY_WINDOW_MS,
   TIME_MODE_WORDS,
   type HistoryEntry,
   type KeystrokeRecord,
@@ -226,8 +224,7 @@ export function mountTypingTestPanel(panel: HTMLElement): void {
     clearError();
     mode = currentMode();
     applyMode();
-    configuredDurationMs =
-      mode === 'time' ? Math.round(Number(timeSel.value) * 1000) : 0;
+    configuredDurationMs = mode === 'time' ? Math.round(Number(timeSel.value) * 1000) : 0;
 
     const count = mode === 'time' ? TIME_MODE_WORDS : wordCount();
     target = buildTarget(seedForRun(), count);

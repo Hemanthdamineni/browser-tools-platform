@@ -48,6 +48,7 @@ function reasonFor(name: string): string {
 
 /** Whitespace and control characters are stripped so "java\nscript:" cannot slip through. */
 function compact(value: string): string {
+  // eslint-disable-next-line no-control-regex -- stripping control characters is the sanitizer's purpose
   return value.replace(/[\u0000-\u0020]/gu, '').toLowerCase();
 }
 
@@ -106,17 +107,25 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   } else {
     text = String(input.text ?? '');
   }
-  if (text.trim() === '') throw new ToolError('No SVG was provided.', 'Paste SVG markup, or drop an .svg file.');
+  if (text.trim() === '')
+    throw new ToolError('No SVG was provided.', 'Paste SVG markup, or drop an .svg file.');
   if (text.length > MAX_BYTES) throw new ToolError('That is more than 10 MB of SVG.');
 
   let doc: Document;
   try {
     doc = new DOMParser().parseFromString(text, 'image/svg+xml');
   } catch {
-    throw new ToolError('That is not well-formed XML.', 'Check for unclosed tags or stray ampersands.');
+    throw new ToolError(
+      'That is not well-formed XML.',
+      'Check for unclosed tags or stray ampersands.',
+    );
   }
   const root = doc.documentElement;
-  if (root === null || root.localName === 'parsererror' || doc.querySelector('parsererror') !== null) {
+  if (
+    root === null ||
+    root.localName === 'parsererror' ||
+    doc.querySelector('parsererror') !== null
+  ) {
     throw new ToolError(
       'That is not well-formed SVG.',
       'The markup could not be parsed as XML; check for unclosed tags or a missing </svg>.',
@@ -174,7 +183,11 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
     const name = element.localName.toLowerCase();
 
     if (DROP_ELEMENTS.has(name)) {
-      changes.push({ action: 'Removed element', target: describe(element), detail: reasonFor(name) });
+      changes.push({
+        action: 'Removed element',
+        target: describe(element),
+        detail: reasonFor(name),
+      });
       element.remove();
       continue;
     }
@@ -182,7 +195,10 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
     if (name === 'set' || name === 'animate') {
       const attributeName = (element.getAttribute('attributeName') ?? '').trim().toLowerCase();
       const value = compact(element.getAttribute('to') ?? element.getAttribute('values') ?? '');
-      if ((attributeName === 'href' || attributeName === 'xlink:href') && value.startsWith('javascript:')) {
+      if (
+        (attributeName === 'href' || attributeName === 'xlink:href') &&
+        value.startsWith('javascript:')
+      ) {
         changes.push({
           action: 'Removed element',
           target: describe(element),
@@ -260,12 +276,16 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
 
   if (root.namespaceURI !== SVG_NS) {
     warnings.push(
-      'The root <svg> element is not in the SVG namespace (' + SVG_NS + '), so some renderers may reject it.',
+      'The root <svg> element is not in the SVG namespace (' +
+        SVG_NS +
+        '), so some renderers may reject it.',
     );
   }
 
   const removedElements = changes.filter((change) => change.action === 'Removed element').length;
-  const removedAttributes = changes.filter((change) => change.action === 'Removed attribute').length;
+  const removedAttributes = changes.filter(
+    (change) => change.action === 'Removed attribute',
+  ).length;
   const otherRemovals = changes.length - removedElements - removedAttributes;
   const active = removedElements + removedAttributes;
 
@@ -273,7 +293,9 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
     'Sanitizing is a hardening filter, not a sandbox: keep treating output from untrusted sources as untrusted.',
   );
   if (externalRefs === 'keep') {
-    notes.push('References outside the document were kept, so opening this file may still make network requests.');
+    notes.push(
+      'References outside the document were kept, so opening this file may still make network requests.',
+    );
   }
   if (changes.length === 0) {
     notes.push('No risky constructs were found; the artwork was left as it was.');

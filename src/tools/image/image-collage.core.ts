@@ -48,7 +48,7 @@ export function parseOrder(raw: unknown, count: number): number[] {
     throw new ToolError(`The image order must list all ${count} images.`);
   }
   const seen = new Set<number>();
-  return parts.map((part, index) => {
+  return parts.map((part) => {
     const n = Number(part);
     if (!Number.isInteger(n) || n < 0 || n >= count) {
       throw new ToolError(`Invalid position "${part}" in the image order.`);
@@ -193,10 +193,7 @@ export interface CollageOptions {
  * checked, and a bad colour throws a `ToolError` so a typo fails loudly instead
  * of silently falling back.
  */
-export function readCollageOptions(
-  values: Record<string, unknown>,
-  count: number,
-): CollageOptions {
+export function readCollageOptions(values: Record<string, unknown>, count: number): CollageOptions {
   const background = resolveBackground(String(values.background ?? 'transparent'));
   const rawBorderColor = resolveBackground(String(values.borderColor ?? '#ffffff'));
   return {

@@ -196,15 +196,11 @@ function formatDistance(km: number, imperial: boolean): string {
 }
 
 function formatElevation(metres: number, imperial: boolean): string {
-  return imperial
-    ? Math.round(metres / METRES_PER_FOOT) + ' ft'
-    : Math.round(metres) + ' m';
+  return imperial ? Math.round(metres / METRES_PER_FOOT) + ' ft' : Math.round(metres) + ' m';
 }
 
 function formatSpeed(kmh: number, imperial: boolean): string {
-  return imperial
-    ? (kmh / KM_PER_MILE).toFixed(2) + ' mph'
-    : kmh.toFixed(2) + ' km/h';
+  return imperial ? (kmh / KM_PER_MILE).toFixed(2) + ' mph' : kmh.toFixed(2) + ' km/h';
 }
 
 async function run(input: FileRunInput): Promise<FileRunResult> {
@@ -323,7 +319,14 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
       outputs: [],
       report: {
         output: JSON.stringify({
-          headers: ['Split', 'Distance', 'Elevation gain', 'Elevation loss', 'Duration', 'Avg speed'],
+          headers: [
+            'Split',
+            'Distance',
+            'Elevation gain',
+            'Elevation loss',
+            'Duration',
+            'Avg speed',
+          ],
           rows,
         }),
         render: 'table',

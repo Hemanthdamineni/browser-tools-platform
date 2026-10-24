@@ -241,7 +241,9 @@ export function codeToKey(code: string, shifted = false): string {
  * Unknown codes are shown as they were written.
  */
 export function formatCombination(codes: readonly string[] | undefined): string {
-  return normalizeCodes(codes).map((code) => keyLabel(code)).join(' + ');
+  return normalizeCodes(codes)
+    .map((code) => keyLabel(code))
+    .join(' + ');
 }
 
 /* -------------------------------------------------------------------------- */

@@ -34,10 +34,41 @@ interface AuthRow {
   detail: string;
 }
 
-const FAILING = new Set(['fail', 'softfail', 'hardfail', 'permerror', 'temperror', 'policy', 'reject', 'quarantine']);
-const VERDICTS = new Set(['pass', 'fail', 'neutral', 'none', 'softfail', 'temperror', 'permerror', 'policy', 'hardfail', 'quarantine', 'reject']);
+const FAILING = new Set([
+  'fail',
+  'softfail',
+  'hardfail',
+  'permerror',
+  'temperror',
+  'policy',
+  'reject',
+  'quarantine',
+]);
+const VERDICTS = new Set([
+  'pass',
+  'fail',
+  'neutral',
+  'none',
+  'softfail',
+  'temperror',
+  'permerror',
+  'policy',
+  'hardfail',
+  'quarantine',
+  'reject',
+]);
 
-const ADDRESS_HEADERS = ['from', 'sender', 'reply-to', 'return-path', 'to', 'cc', 'bcc', 'delivered-to', 'errors-to'];
+const ADDRESS_HEADERS = [
+  'from',
+  'sender',
+  'reply-to',
+  'return-path',
+  'to',
+  'cc',
+  'bcc',
+  'delivered-to',
+  'errors-to',
+];
 
 function parseHeaderBlock(text: string): { headers: Header[]; bodyLines: number; quoted: boolean } {
   const lines = text.replace(/\r\n?/gu, '\n').split('\n');
@@ -187,7 +218,12 @@ function parseAddresses(value: string): { name: string; address: string }[] {
 
 function domainOf(address: string): string {
   const at = address.lastIndexOf('@');
-  return at === -1 ? '' : address.slice(at + 1).replace(/[>.,;]+$/u, '').toLowerCase();
+  return at === -1
+    ? ''
+    : address
+        .slice(at + 1)
+        .replace(/[>.,;]+$/u, '')
+        .toLowerCase();
 }
 
 function parseHop(value: string): Hop {
@@ -214,14 +250,17 @@ function parseAuthHeader(name: string, value: string): AuthRow[] {
   const text = value.replace(/\s+/gu, ' ').trim();
   if (name === 'received-spf') {
     const result = (/^([a-z]+)/iu.exec(text)?.[1] ?? '').toLowerCase();
-    return [{ mechanism: 'spf', result, source: 'Received-SPF', detail: text.slice(0, MAX_DETAIL) }];
+    return [
+      { mechanism: 'spf', result, source: 'Received-SPF', detail: text.slice(0, MAX_DETAIL) },
+    ];
   }
 
   const segments = text
     .split(';')
     .map((segment) => segment.trim())
     .filter((segment) => segment !== '');
-  if (name === 'arc-authentication-results' && /^i=\d+$/iu.test(segments[0] ?? '')) segments.shift();
+  if (name === 'arc-authentication-results' && /^i=\d+$/iu.test(segments[0] ?? ''))
+    segments.shift();
 
   const source = segments[0] ?? '';
   const rows: AuthRow[] = [];
@@ -267,13 +306,17 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   let text: string;
   if (file !== undefined) {
     if (file.size === 0) throw new ToolError('That file is empty.');
-    if (file.size > MAX_BYTES) throw new ToolError('That file is larger than 5 MB.', 'Paste just the header block.');
+    if (file.size > MAX_BYTES)
+      throw new ToolError('That file is larger than 5 MB.', 'Paste just the header block.');
     text = await file.text();
   } else {
     text = String(input.text ?? '');
   }
   if (text.trim() === '') {
-    throw new ToolError('No email headers found.', 'Paste a message header block, or drop an .eml file.');
+    throw new ToolError(
+      'No email headers found.',
+      'Paste a message header block, or drop an .eml file.',
+    );
   }
   if (text.length > MAX_BYTES) {
     throw new ToolError('That is more than 5 MB of headers.', 'Paste just the header block.');
@@ -291,7 +334,9 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
     );
   }
   if (headers.length > MAX_HEADERS) {
-    notes.push('Only the first ' + MAX_HEADERS + ' headers were read (' + headers.length + ' present).');
+    notes.push(
+      'Only the first ' + MAX_HEADERS + ' headers were read (' + headers.length + ' present).',
+    );
     headers = headers.slice(0, MAX_HEADERS);
   }
 
@@ -326,7 +371,8 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   }
   const addressDomains = new Map<string, string>();
   for (const entry of addresses) {
-    if (!addressDomains.has(entry.address)) addressDomains.set(entry.address, domainOf(entry.address));
+    if (!addressDomains.has(entry.address))
+      addressDomains.set(entry.address, domainOf(entry.address));
   }
 
   const fromDomain = domainOf(parseAddresses(firstOf('from'))[0]?.address ?? '');
@@ -343,10 +389,23 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   /* ------------------------------- diagnostics ------------------------------ */
 
   for (const row of authFailures) {
-    warnings.push(row.mechanism.toUpperCase() + ' reported "' + row.result + '" from ' + (row.source || 'an unnamed server') + '.');
+    warnings.push(
+      row.mechanism.toUpperCase() +
+        ' reported "' +
+        row.result +
+        '" from ' +
+        (row.source || 'an unnamed server') +
+        '.',
+    );
   }
   if (fromDomain !== '' && returnDomain !== '' && fromDomain !== returnDomain) {
-    warnings.push('From domain (' + fromDomain + ') differs from Return-Path domain (' + returnDomain + '); this is normal for mailing lists but also common in spoofing.');
+    warnings.push(
+      'From domain (' +
+        fromDomain +
+        ') differs from Return-Path domain (' +
+        returnDomain +
+        '); this is normal for mailing lists but also common in spoofing.',
+    );
   }
   if (dateRaw !== '' && Number.isNaN(dateValue)) {
     warnings.push('The Date header could not be parsed as a date.');
@@ -356,26 +415,41 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
     const current = chronological[i]?.time ?? null;
     if (previous !== null && current !== null && current < previous) {
       warnings.push(
-        'Hop ' + (i + 1) + ' is timestamped before hop ' + i + ', so a clock is out of step or the chain was altered.',
+        'Hop ' +
+          (i + 1) +
+          ' is timestamped before hop ' +
+          i +
+          ', so a clock is out of step or the chain was altered.',
       );
     }
   }
   const spamFlag = firstOf('x-spam-flag');
-  if (/^yes/iu.test(spamFlag)) warnings.push('X-Spam-Flag says this message was classified as spam.');
+  if (/^yes/iu.test(spamFlag))
+    warnings.push('X-Spam-Flag says this message was classified as spam.');
 
   const knownMailHeaders = headers.some((header) =>
     ['from', 'to', 'subject', 'date', 'received', 'return-path'].includes(header.name),
   );
   if (!knownMailHeaders) {
-    warnings.push('No From, To, Subject, Date or Received header was found, so this may not be an email.');
+    warnings.push(
+      'No From, To, Subject, Date or Received header was found, so this may not be an email.',
+    );
   }
 
   if (parsed.quoted) notes.push('Lines beginning with ">" were unquoted before reading.');
   if (parsed.bodyLines > 0) {
-    notes.push('Body content after the blank line was ignored (' + parsed.bodyLines + ' non-empty line(s)).');
+    notes.push(
+      'Body content after the blank line was ignored (' + parsed.bodyLines + ' non-empty line(s)).',
+    );
   }
-  if (authRows.length === 0) notes.push('No Authentication-Results, ARC-Authentication-Results or Received-SPF header was present.');
-  if (hops.length > 1) notes.push('Received headers are listed newest first; the hop table is in delivery order, oldest first.');
+  if (authRows.length === 0)
+    notes.push(
+      'No Authentication-Results, ARC-Authentication-Results or Received-SPF header was present.',
+    );
+  if (hops.length > 1)
+    notes.push(
+      'Received headers are listed newest first; the hop table is in delivery order, oldest first.',
+    );
   if (replyDomain !== '' && fromDomain !== '' && replyDomain !== fromDomain) {
     notes.push('Reply-To uses ' + replyDomain + ' while From uses ' + fromDomain + '.');
   }
@@ -395,7 +469,11 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
     const rows = chronological.map((hop, index) => {
       const previous = index === 0 ? null : (chronological[index - 1]?.time ?? null);
       const delay =
-        previous === null || hop.time === null ? (index === 0 ? '-' : 'n/a') : formatDuration((hop.time - previous) / 1000);
+        previous === null || hop.time === null
+          ? index === 0
+            ? '-'
+            : 'n/a'
+          : formatDuration((hop.time - previous) / 1000);
       return [
         String(index + 1),
         hop.from || 'n/a',
@@ -477,7 +555,9 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   const authSummary =
     authRows.length === 0
       ? 'none found'
-      : [...new Set(authRows.map((row) => row.mechanism.toUpperCase() + ' ' + row.result))].join(', ');
+      : [...new Set(authRows.map((row) => row.mechanism.toUpperCase() + ' ' + row.result))].join(
+          ', ',
+        );
 
   const rows: string[][] = [
     ['From', show(firstOf('from')) || 'n/a'],
@@ -487,7 +567,10 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   if (firstOf('reply-to') !== '') rows.push(['Reply-To', show(firstOf('reply-to'))]);
   if (firstOf('return-path') !== '') rows.push(['Return-Path', show(firstOf('return-path'))]);
   rows.push(['Subject', show(firstOf('subject')) || 'n/a']);
-  rows.push(['Date', Number.isNaN(dateValue) ? dateRaw || 'n/a' : new Date(dateValue).toISOString()]);
+  rows.push([
+    'Date',
+    Number.isNaN(dateValue) ? dateRaw || 'n/a' : new Date(dateValue).toISOString(),
+  ]);
   rows.push(['Message-ID', firstOf('message-id') || 'n/a']);
   rows.push(['Headers', String(headers.length)]);
   rows.push(['Received hops', String(hops.length)]);
@@ -499,12 +582,16 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   }
   rows.push(['Authentication', authSummary]);
   if (firstOf('x-spam-score') !== '') rows.push(['Spam score', firstOf('x-spam-score')]);
-  else if (firstOf('x-spam-status') !== '') rows.push(['Spam score', clip(firstOf('x-spam-status'))]);
+  else if (firstOf('x-spam-status') !== '')
+    rows.push(['Spam score', clip(firstOf('x-spam-status'))]);
   if (spamFlag !== '') rows.push(['Spam flag', spamFlag]);
   if (firstOf('x-ms-exchange-organization-scl') !== '') {
     rows.push(['Spam confidence level', firstOf('x-ms-exchange-organization-scl')]);
   }
-  rows.push(['Distinct domains', String(new Set([...addressDomains.values()].filter((d) => d !== '')).size)]);
+  rows.push([
+    'Distinct domains',
+    String(new Set([...addressDomains.values()].filter((d) => d !== '')).size),
+  ]);
 
   return {
     outputs: [],

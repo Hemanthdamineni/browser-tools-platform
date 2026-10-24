@@ -22,16 +22,16 @@ npm install
 npm run dev            # http://localhost:4321
 ```
 
-| Script                            | What                                                          |
-| --------------------------------- | ------------------------------------------------------------- |
-| `npm run dev`                     | Dev server                                                    |
-| `npm run build`                   | Static build to `dist/` (see env vars below)                  |
-| `npm run preview`                 | Serve the build                                               |
-| `npm run check`                   | `astro check` (types)                                         |
-| `npm run lint` / `npm run format` | ESLint / Prettier                                             |
-| `npm test`                        | Vitest unit tests                                             |
-| `npm run test:e2e`                | Playwright smoke + "no network egress" privacy check          |
-| `npm run verify`                  | check + lint + test + build (the CI gate)                     |
+| Script                            | What                                                 |
+| --------------------------------- | ---------------------------------------------------- |
+| `npm run dev`                     | Dev server                                           |
+| `npm run build`                   | Static build to `dist/` (see env vars below)         |
+| `npm run preview`                 | Serve the build                                      |
+| `npm run check`                   | `astro check` (types)                                |
+| `npm run lint` / `npm run format` | ESLint / Prettier                                    |
+| `npm test`                        | Vitest unit tests                                    |
+| `npm run test:e2e`                | Playwright smoke + "no network egress" privacy check |
+| `npm run verify`                  | check + lint + test + build (the CI gate)            |
 
 Requires Node 20+.
 

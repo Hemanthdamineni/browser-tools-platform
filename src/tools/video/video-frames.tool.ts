@@ -206,8 +206,7 @@ interface SampleLike {
 /** Create an offscreen canvas, stubbable in tests via `globalThis.OffscreenCanvas`. */
 export function createFrameCanvas(width: number, height: number): FrameCanvas {
   const Canvas = globalThis.OffscreenCanvas as
-    | (new (w: number, h: number) => FrameCanvas)
-    | undefined;
+    (new (w: number, h: number) => FrameCanvas) | undefined;
   if (!Canvas) {
     throw new ToolError(
       'This browser cannot draw video frames outside the page.',
@@ -420,7 +419,8 @@ export async function runVideoFrames(
   const outputs = result.frames.map((frame) => ({
     filename: frame.filename,
     blob: new Blob([frame.bytes.slice().buffer as ArrayBuffer], { type: 'image/png' }),
-    previewUrl: frame.bytes.byteLength <= FRAMES_MAX_PREVIEW_BYTES ? pngDataUrl(frame.bytes) : undefined,
+    previewUrl:
+      frame.bytes.byteLength <= FRAMES_MAX_PREVIEW_BYTES ? pngDataUrl(frame.bytes) : undefined,
   }));
   return {
     outputs,

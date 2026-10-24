@@ -216,15 +216,17 @@ describe('image-collage run', () => {
     const onProgress = vi.fn();
     const controller = new AbortController();
     controller.abort();
-    const result = await tool.run({
-      files: [makeFile('a.png')],
-      options: {},
-      onProgress,
-      signal: controller.signal,
-    }).then(
-      () => null,
-      (error) => error,
-    );
+    const result = await tool
+      .run({
+        files: [makeFile('a.png')],
+        options: {},
+        onProgress,
+        signal: controller.signal,
+      })
+      .then(
+        () => null,
+        (error) => error,
+      );
     expect((result as Error).name).toBe('AbortError');
   });
 

@@ -32,7 +32,11 @@ const table = async (hex: string, options: Record<string, string | number | bool
 
 /** Independent base64 encoding, so the base64 input path is not tested against itself. */
 const base64Of = (hex: string): string =>
-  btoa((hex.match(/../gu) ?? []).map((pair) => String.fromCharCode(Number.parseInt(pair, 16))).join(''));
+  btoa(
+    (hex.match(/../gu) ?? [])
+      .map((pair) => String.fromCharCode(Number.parseInt(pair, 16)))
+      .join(''),
+  );
 
 describe('cbor-decoder', () => {
   it('decodes unsigned integers of every width', async () => {
@@ -162,7 +166,10 @@ describe('cbor-decoder', () => {
   });
 
   it('reads the same bytes from a File', async () => {
-    const file = new File([new Uint8Array([0xa2, 0x61, 0x61, 0x01, 0x61, 0x62, 0x82, 0x02, 0x03])], 'x.cbor');
+    const file = new File(
+      [new Uint8Array([0xa2, 0x61, 0x61, 0x01, 0x61, 0x62, 0x82, 0x02, 0x03])],
+      'x.cbor',
+    );
     const r = (await tool.run({ files: [file], options: {} })) as Result;
     expect(JSON.parse(r.report?.output ?? 'null')).toEqual({ a: 1, b: [2, 3] });
     expect(r.report?.render).toBe('code');

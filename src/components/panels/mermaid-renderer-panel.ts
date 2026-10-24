@@ -52,18 +52,21 @@ export interface Debounced<T extends unknown[]> {
  * a second) into a single re-render. The last scheduled call wins. Exported so
  * the preview's re-render cadence can be tested directly.
  */
-export function debounce<T extends unknown[]>(fn: (...args: T) => void, wait: number): Debounced<T> {
-  let timer: ReturnType<typeof setTimeout> | null = null;
+export function debounce<T extends unknown[]>(
+  fn: (...args: T) => void,
+  wait: number,
+): Debounced<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
   const schedule = (...args: T): void => {
     clearTimeout(timer);
     timer = setTimeout(() => {
-      timer = null;
+      timer = undefined;
       fn(...args);
     }, wait);
   };
   const cancel = (): void => {
     clearTimeout(timer);
-    timer = null;
+    timer = undefined;
   };
   return { schedule, cancel };
 }
@@ -93,7 +96,10 @@ export interface SvgSize {
 export function parseViewBox(svg: string): SvgSize | null {
   const m = /\bviewBox\s*=\s*"([^"]*)"/i.exec(svg);
   if (!m) return null;
-  const parts = m[1]!.trim().split(/[\s,]+/).map(Number);
+  const parts = m[1]!
+    .trim()
+    .split(/[\s,]+/)
+    .map(Number);
   if (parts.length !== 4 || parts.some((n) => !Number.isFinite(n))) return null;
   return { width: Math.max(1, Math.round(parts[2]!)), height: Math.max(1, Math.round(parts[3]!)) };
 }
@@ -481,7 +487,8 @@ export function mountMermaidRendererPanel(root: HTMLElement): void {
           `[data-opt-key="${k}"]`,
         );
         if (!el) continue;
-        if ((el as HTMLInputElement).type === 'checkbox') (el as HTMLInputElement).checked = Boolean(v);
+        if ((el as HTMLInputElement).type === 'checkbox')
+          (el as HTMLInputElement).checked = Boolean(v);
         else el.value = String(v);
       }
       rerender.cancel();

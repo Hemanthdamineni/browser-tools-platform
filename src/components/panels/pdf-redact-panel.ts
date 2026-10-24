@@ -662,7 +662,7 @@ export function mountPdfRedactPanel(root: HTMLElement): void {
       remove.className = 'btn btn-subtle btn-sm ml-auto';
       remove.setAttribute('data-region-remove', '');
       remove.setAttribute('aria-label', `Remove region ${index + 1}`);
-      remove.textContent = "Delete";
+      remove.textContent = 'Delete';
       head.append(label, remove);
 
       const fields = document.createElement('div');
@@ -722,7 +722,8 @@ export function mountPdfRedactPanel(root: HTMLElement): void {
     commit();
     if (selected >= 0) focusRegion(selected);
     else addBtn.focus();
-    if (!regions.length) setPageStatus('No rectangles on this page — drag on the preview to add one.');
+    if (!regions.length)
+      setPageStatus('No rectangles on this page — drag on the preview to add one.');
   }
 
   /* ---------------------------------------------------------------------- */
@@ -1144,7 +1145,8 @@ export function mountPdfRedactPanel(root: HTMLElement): void {
     } catch (error) {
       if (generation !== runGeneration) return;
       const err = error as Error & { hint?: string };
-      if (err.name !== 'AbortError') showError(errorBox, err.message || 'Redaction failed', err.hint);
+      if (err.name !== 'AbortError')
+        showError(errorBox, err.message || 'Redaction failed', err.hint);
       else progressMsg.textContent = 'Cancelled';
     } finally {
       if (generation === runGeneration) {

@@ -63,9 +63,9 @@ describe('parseRedactPlan', () => {
     expect(() => parseRedactPlan('{', 3)).toThrow(/not valid JSON/);
     expect(() => parseRedactPlan('{}', 3)).toThrow(/JSON array/);
     expect(() => parseRedactPlan('[{"regions":[]}]', 3)).toThrow(/no page number/);
-    expect(() => parseRedactPlan('[{"page":1,"regions":[{"x":"bad","y":0,"w":1,"h":1}]}]', 3)).toThrow(
-      /not a number/,
-    );
+    expect(() =>
+      parseRedactPlan('[{"page":1,"regions":[{"x":"bad","y":0,"w":1,"h":1}]}]', 3),
+    ).toThrow(/not a number/);
   });
 
   it('rejects a page outside the document', () => {

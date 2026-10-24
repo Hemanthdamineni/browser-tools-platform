@@ -128,7 +128,9 @@ describe('lapRows', () => {
 
 describe('parseSnapshot', () => {
   it('parses a well-formed snapshot and clamps bad numbers', () => {
-    const parsed = parseSnapshot(JSON.stringify(snap({ accumulated: 500, laps: [{ atMs: 10, splitMs: 10 }] })));
+    const parsed = parseSnapshot(
+      JSON.stringify(snap({ accumulated: 500, laps: [{ atMs: 10, splitMs: 10 }] })),
+    );
     expect(parsed.accumulated).toBe(500);
     expect(parsed.laps).toEqual([{ atMs: 10, splitMs: 10 }]);
   });

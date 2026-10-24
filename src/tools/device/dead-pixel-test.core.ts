@@ -102,11 +102,7 @@ export function prevIndex(index: number, length: number): number {
  * stepping a whole number of intervals since the last change, floored to
  * zero so it never goes negative when the timer is slightly late.
  */
-export function cycleDelayMs(
-  now: number,
-  lastAdvancedAt: number,
-  intervalMs: number,
-): number {
+export function cycleDelayMs(now: number, lastAdvancedAt: number, intervalMs: number): number {
   if (!Number.isFinite(intervalMs) || intervalMs <= 0) return 0;
   const elapsed = Math.max(0, now - lastAdvancedAt);
   const remainder = elapsed % intervalMs;

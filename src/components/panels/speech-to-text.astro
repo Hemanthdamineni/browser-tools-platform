@@ -56,7 +56,9 @@ const examples = meta.examples ?? [];
   >
     <Icon name="audio-lines" size={26} class="opacity-60" />
     <p class="text-sm font-medium">Drop an audio file here, or <span class="link">browse</span></p>
-    <p class="text-xs text-[rgb(var(--text-muted))]">Or record a clip straight from the microphone below.</p>
+    <p class="text-xs text-[rgb(var(--text-muted))]">
+      Or record a clip straight from the microphone below.
+    </p>
   </div>
   <ul class="mt-3 space-y-1.5 text-sm" data-file-list></ul>
 
@@ -75,8 +77,7 @@ const examples = meta.examples ?? [];
       <span
         class="inline-block h-2.5 w-2.5 animate-pulse rounded-full"
         style="background-color: rgb(var(--danger))"
-        aria-hidden="true"
-      ></span>
+        aria-hidden="true"></span>
       <span>Recording</span>
       <span class="font-mono tabular-nums" data-mic-timer>0:00</span>
     </span>
@@ -86,11 +87,7 @@ const examples = meta.examples ?? [];
     <summary class="cursor-pointer select-none px-3 py-2 text-sm font-medium">Options</summary>
     <div class="border-t p-3">
       <OptionsFields options={meta.options ?? []} idPrefix={p} />
-      <p
-        class="mt-2 text-xs text-[rgb(var(--text-muted))]"
-        data-english-note
-        hidden
-      >
+      <p class="mt-2 text-xs text-[rgb(var(--text-muted))]" data-english-note hidden>
         The tiny.en model only understands English — switch to “Whisper base” for other languages.
       </p>
       <p class="mt-2 text-xs text-[rgb(var(--text-muted))]" data-download-hint></p>
@@ -110,13 +107,15 @@ const examples = meta.examples ?? [];
         class="h-full transition-[width] duration-200 ease-out"
         style="width:0%; background-color: rgb(var(--accent))"
         data-progress-bar
-      ></div>
+      >
+      </div>
     </div>
     <p
       class="mt-1 text-xs tabular-nums text-[rgb(var(--text-muted))]"
       data-progress-msg
       aria-live="polite"
-    ></p>
+    >
+    </p>
   </div>
 
   <div
@@ -125,14 +124,15 @@ const examples = meta.examples ?? [];
     role="alert"
     data-error
     hidden
-  ></div>
+  >
+  </div>
 
   <div class="mt-4" data-result-wrap hidden>
     <h3 class="mb-2 text-sm font-semibold text-[rgb(var(--text))]">Transcript</h3>
     <pre
       class="max-h-72 overflow-auto whitespace-pre-wrap rounded-lg border p-3 text-sm leading-relaxed"
-      data-transcript
-    ></pre>
+      data-transcript>
+    </pre>
     <div class="mt-3 flex flex-wrap items-center gap-2" data-outputs></div>
     <ul class="mt-2 space-y-1 text-xs" data-notes></ul>
   </div>

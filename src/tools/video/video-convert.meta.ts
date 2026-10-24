@@ -4,8 +4,7 @@ export const meta: ToolMeta = {
   id: 'video-convert',
   name: 'Video Converter',
   category: 'video',
-  summary:
-    'Convert a video between MP4, WebM, MOV and MKV in your browser. Nothing is uploaded.',
+  summary: 'Convert a video between MP4, WebM, MOV and MKV in your browser. Nothing is uploaded.',
   description:
     'Change a video from one container to another entirely on your device. The tool copies the streams when they already fit the target container — fast and lossless — and re-encodes only what has to change, telling you exactly which happened. MP4, WebM, MOV and MKV are all supported, in both directions.',
   keywords: [
@@ -56,16 +55,14 @@ export const meta: ToolMeta = {
         { value: 'vp8', label: 'VP8 — older WebM' },
         { value: 'av1', label: 'AV1 — smallest, slow to encode' },
       ],
-      help:
-        'Auto copies the video when it already fits the container and re-encodes when it does not. A specific codec forces a re-encode into that codec and fails clearly when the browser cannot produce it.',
+      help: 'Auto copies the video when it already fits the container and re-encodes when it does not. A specific codec forces a re-encode into that codec and fails clearly when the browser cannot produce it.',
     },
     {
       key: 'audio',
       label: 'Keep the audio',
       type: 'boolean',
       default: true,
-      help:
-        'Copy or convert the sound track as well. Turn it off for a smaller, silent file.',
+      help: 'Copy or convert the sound track as well. Turn it off for a smaller, silent file.',
     },
   ],
   examples: [

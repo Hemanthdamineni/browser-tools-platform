@@ -15,10 +15,12 @@ import {
 } from './noise-reduction-panel';
 
 /** Wrap a per-frame function into a seam factory that hands out fresh states. */
-const factoryOf = (process: (frame: Float32Array) => Float32Array): DenoiseFactory => () => ({
-  process,
-  close: () => {},
-});
+const factoryOf =
+  (process: (frame: Float32Array) => Float32Array<ArrayBuffer>): DenoiseFactory =>
+  () => ({
+    process,
+    close: () => {},
+  });
 
 /** A denoiser that returns the frame unchanged — the neutral seam. */
 const identity = factoryOf((frame) => frame.slice(0));
@@ -252,6 +254,7 @@ describe('waveformComparisonSvg', () => {
     const svg = atob(
       waveformComparisonSvg(ramp(100), ramp(100)).slice('data:image/svg+xml;base64,'.length),
     );
+    // eslint-disable-next-line no-control-regex -- asserting ASCII-only output needs the control range
     expect(/^[\x00-\x7f]*$/.test(svg)).toBe(true);
   });
 });

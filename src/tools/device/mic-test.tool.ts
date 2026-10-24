@@ -60,19 +60,22 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
 
   const mimeType = clip.type || measurements.mimeType || 'audio/webm';
   const filename = recordingFilename(clipName || measurements.deviceLabel, mimeType, 'mic-clip');
-  const frameMs = measurements.sampleRate
-    ? (frameSize / measurements.sampleRate) * 1000
-    : 0;
+  const frameMs = measurements.sampleRate ? (frameSize / measurements.sampleRate) * 1000 : 0;
 
   const rows: string[][] = [
     ['Microphone', measurements.deviceLabel],
     ['Recording format', mimeType],
     ['Duration', `${(measurements.durationMs / 1000).toFixed(2)} s`],
-    ['Sample rate', measurements.sampleRate ? `${measurements.sampleRate.toLocaleString()} Hz` : '—'],
+    [
+      'Sample rate',
+      measurements.sampleRate ? `${measurements.sampleRate.toLocaleString()} Hz` : '—',
+    ],
     ['Channels', String(measurements.channels)],
     [
       'Analysis frame',
-      frameMs ? `${frameSize.toLocaleString()} samples (${frameMs.toFixed(1)} ms)` : `${frameSize.toLocaleString()} samples`,
+      frameMs
+        ? `${frameSize.toLocaleString()} samples (${frameMs.toFixed(1)} ms)`
+        : `${frameSize.toLocaleString()} samples`,
     ],
     ['Peak level', formatDb(summary.peakDb)],
     ['Peak level (% of full scale)', `${dbToFullScalePercent(summary.peakDb).toFixed(1)} %`],

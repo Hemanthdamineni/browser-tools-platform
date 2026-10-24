@@ -4,7 +4,8 @@ export const meta: ToolMeta = {
   id: 'csr-decoder',
   name: 'CSR Decoder',
   category: 'crypto',
-  summary: 'Decode a PKCS#10 certificate request: subject, SANs, key details and a signature check.',
+  summary:
+    'Decode a PKCS#10 certificate request: subject, SANs, key details and a signature check.',
   description:
     'Paste a certificate signing request (PEM or DER) and read exactly what a CA would see: the subject fields in order, every requested subjectAltName with its type, the public key algorithm, curve and size, the requested extensions and whether they are critical, the signature algorithm, and a real cryptographic check that the request is signed by the key it carries. A findings list flags problems before you sign it.',
   keywords: [

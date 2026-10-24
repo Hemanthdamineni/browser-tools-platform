@@ -239,7 +239,10 @@ describe('csvEscape / toCsvText', () => {
 
 describe('toJsonText', () => {
   it('uses the first row as headers', () => {
-    const json = JSON.parse(toJsonText(worksheetToCells(peopleSheet()))) as Record<string, string>[];
+    const json = JSON.parse(toJsonText(worksheetToCells(peopleSheet()))) as Record<
+      string,
+      string
+    >[];
     expect(json).toEqual([
       { name: 'Ada', score: '36', team: 'A' },
       { name: 'Linus, Jr.', score: '54', team: 'B' },
@@ -248,7 +251,11 @@ describe('toJsonText', () => {
   });
 
   it('skips a leading blank row when picking the header', () => {
-    const cells = [['', ''], ['k', 'v'], ['a', '1']];
+    const cells = [
+      ['', ''],
+      ['k', 'v'],
+      ['a', '1'],
+    ];
     expect(JSON.parse(toJsonText(cells))).toEqual([{ k: 'a', v: '1' }]);
   });
 
@@ -258,12 +265,22 @@ describe('toJsonText', () => {
   });
 
   it('names blank headers col1, col2, …', () => {
-    expect(JSON.parse(toJsonText([['', 'b'], ['x', 'y']]))).toEqual([{ col1: 'x', b: 'y' }]);
+    expect(
+      JSON.parse(
+        toJsonText([
+          ['', 'b'],
+          ['x', 'y'],
+        ]),
+      ),
+    ).toEqual([{ col1: 'x', b: 'y' }]);
   });
 });
 
 describe('sheetSummaries / resolveSheetName', () => {
-  const wb = book({ People: peopleSheet(), Notes: { '!ref': 'A1:B2' } as WorkSheet }, ['People', 'Notes']);
+  const wb = book({ People: peopleSheet(), Notes: { '!ref': 'A1:B2' } as WorkSheet }, [
+    'People',
+    'Notes',
+  ]);
 
   it('lists every sheet with its size', () => {
     expect(sheetSummaries(wb)).toEqual([
@@ -290,7 +307,10 @@ describe('sheetSummaries / resolveSheetName', () => {
 
 describe('buildGridViewModel / describeSheet', () => {
   it('clamps the active index and reports truncation', () => {
-    const wb = book({ People: peopleSheet(), Notes: { '!ref': 'A1:B2' } as WorkSheet }, ['People', 'Notes']);
+    const wb = book({ People: peopleSheet(), Notes: { '!ref': 'A1:B2' } as WorkSheet }, [
+      'People',
+      'Notes',
+    ]);
     const view = buildGridViewModel(wb, 5, 2, 2);
     expect(view.activeIndex).toBe(1);
     expect(view.tabs).toHaveLength(2);
@@ -299,7 +319,9 @@ describe('buildGridViewModel / describeSheet', () => {
     const big = buildGridViewModel(wb, 0, 2, 2);
     expect(big.projection.totalRows).toBe(4);
     expect(big.projection.shownRows).toBe(2);
-    expect(describeSheet(big)).toMatch(/Showing the first 2 rows and 2 columns of 4 rows × 3 columns/);
+    expect(describeSheet(big)).toMatch(
+      /Showing the first 2 rows and 2 columns of 4 rows × 3 columns/,
+    );
   });
 
   it('describes an untruncated sheet simply', () => {
@@ -351,7 +373,10 @@ describe('mountSpreadsheetViewerPanel', () => {
     mountSpreadsheetViewerPanel(root);
     readMock.mockReturnValue(
       book(
-        { People: peopleSheet(), Notes: { '!ref': 'A1:B2', A1: { t: 's', v: 'k', w: 'k' } } as WorkSheet },
+        {
+          People: peopleSheet(),
+          Notes: { '!ref': 'A1:B2', A1: { t: 's', v: 'k', w: 'k' } } as WorkSheet,
+        },
         ['People', 'Notes'],
       ),
     );
@@ -368,7 +393,10 @@ describe('mountSpreadsheetViewerPanel', () => {
     mountSpreadsheetViewerPanel(root);
     readMock.mockReturnValue(
       book(
-        { People: peopleSheet(), Notes: { '!ref': 'A1:B2', A1: { t: 's', v: 'k', w: 'k' } } as WorkSheet },
+        {
+          People: peopleSheet(),
+          Notes: { '!ref': 'A1:B2', A1: { t: 's', v: 'k', w: 'k' } } as WorkSheet,
+        },
         ['People', 'Notes'],
       ),
     );

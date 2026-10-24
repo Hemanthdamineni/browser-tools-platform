@@ -11,7 +11,8 @@ export const meta: ToolMeta = {
   id: 'sqlite-viewer',
   name: 'SQLite Viewer',
   category: 'developer',
-  summary: 'Open a .db or .sqlite file in your browser: browse tables, run read-only SQL, export CSV.',
+  summary:
+    'Open a .db or .sqlite file in your browser: browse tables, run read-only SQL, export CSV.',
   description:
     'Inspect a SQLite database without installing anything: open the file, see every table with its column and row counts, dump the CREATE statements, and query the data. Results export as CSV or JSON, and every statement is checked before it runs, so nothing can change the database.',
   keywords: [

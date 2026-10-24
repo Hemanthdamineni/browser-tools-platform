@@ -4,7 +4,8 @@ export const meta: ToolMeta = {
   id: 'image-blur-redact',
   name: 'Blur & Redact Image',
   category: 'image',
-  summary: 'Blur, pixelate or black out parts of an image and export a clean copy with no metadata.',
+  summary:
+    'Blur, pixelate or black out parts of an image and export a clean copy with no metadata.',
   description:
     'Draw rectangles over a photo and blur, pixelate or black them out, then export a re-encoded copy with no EXIF, GPS or XMP left in it. The redaction is baked into the exported pixels — it is a real change to the image data, never a reversible overlay that a viewer could peel off.',
   keywords: [

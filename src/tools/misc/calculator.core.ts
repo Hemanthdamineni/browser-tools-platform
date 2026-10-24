@@ -71,7 +71,9 @@ export const PRECEDENCE: { level: number; ops: string[]; note: string }[] = [
  * precedence table above (the `unary -`/`unary +` rows share the `-`/`+`
  * characters already listed at level 5).
  */
-const OP_CHARS = [...new Set(PRECEDENCE.flatMap((p) => p.ops).filter((op) => op.length === 1))].join('');
+const OP_CHARS = [
+  ...new Set(PRECEDENCE.flatMap((p) => p.ops).filter((op) => op.length === 1)),
+].join('');
 
 /* ------------------------------------------------------------------------ */
 /*  Function registry                                                       */
@@ -149,7 +151,13 @@ export const FUNCTIONS: Record<string, FnDef> = {
     minArgs: 1,
     call: ([v]) => Math.ceil(v!),
   },
-  sign: { label: 'sign', insert: 'sign(', scientific: false, minArgs: 1, call: ([v]) => Math.sign(v!) },
+  sign: {
+    label: 'sign',
+    insert: 'sign(',
+    scientific: false,
+    minArgs: 1,
+    call: ([v]) => Math.sign(v!),
+  },
   ln: {
     label: 'ln',
     insert: 'ln(',
@@ -249,8 +257,20 @@ export const FUNCTIONS: Record<string, FnDef> = {
     minArgs: 1,
     call: ([v]) => Math.tanh(v!),
   },
-  min: { label: 'min', insert: 'min(', scientific: false, minArgs: 1, call: (args) => Math.min(...args) },
-  max: { label: 'max', insert: 'max(', scientific: false, minArgs: 1, call: (args) => Math.max(...args) },
+  min: {
+    label: 'min',
+    insert: 'min(',
+    scientific: false,
+    minArgs: 1,
+    call: (args) => Math.min(...args),
+  },
+  max: {
+    label: 'max',
+    insert: 'max(',
+    scientific: false,
+    minArgs: 1,
+    call: (args) => Math.max(...args),
+  },
   pow: {
     label: 'pow',
     insert: 'pow(',
@@ -258,7 +278,13 @@ export const FUNCTIONS: Record<string, FnDef> = {
     minArgs: 2,
     call: ([base, exp]) => Math.pow(base!, exp!),
   },
-  hypot: { label: 'hypot', insert: 'hypot(', scientific: false, minArgs: 1, call: (args) => Math.hypot(...args) },
+  hypot: {
+    label: 'hypot',
+    insert: 'hypot(',
+    scientific: false,
+    minArgs: 1,
+    call: (args) => Math.hypot(...args),
+  },
   gcd: {
     label: 'gcd',
     insert: 'gcd(',

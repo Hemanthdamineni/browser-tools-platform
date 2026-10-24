@@ -91,7 +91,7 @@ async function toMp3(
   push(encoder.encodeBuffer(left, right ?? new Int16Array(0)));
   push(encoder.flush());
 
-  const blob = new Blob(parts, { type: FORMAT_MIME.mp3 });
+  const blob = new Blob(parts as Uint8Array<ArrayBuffer>[], { type: FORMAT_MIME.mp3 });
   return { blob, frames: count.count, bytes: count.size };
 }
 
@@ -294,11 +294,11 @@ async function toOpus(
   }
 
   onProgress?.(1, 'Done');
-  return new Blob(pages, { type: FORMAT_MIME.opus });
+  return new Blob(pages as Uint8Array<ArrayBuffer>[], { type: FORMAT_MIME.opus });
 }
 
 /** Estimate granule advancement from a chunk's microsecond duration. */
-function framesPerPacket(durationMicros: number, sampleRate: number): number {
+function framesPerPacket(durationMicros: number, _sampleRate: number): number {
   if (durationMicros > 0) return Math.round((durationMicros / 1_000_000) * 48000);
   return 960; // default: 20 ms at 48 kHz
 }

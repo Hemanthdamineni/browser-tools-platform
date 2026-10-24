@@ -351,7 +351,15 @@ export async function runGifMaker(
   const api = await loadGifEncoder();
   const bytes = encode(
     frames,
-    { width, height, colors: preset.colors, paletteScope: preset.scope, dither: preset.dither, loop, delaysCs },
+    {
+      width,
+      height,
+      colors: preset.colors,
+      paletteScope: preset.scope,
+      dither: preset.dither,
+      loop,
+      delaysCs,
+    },
     api,
   );
 

@@ -111,8 +111,7 @@ function jaroWinkler(a: string[], b: string[]): number {
   }
   transpositions /= 2;
 
-  const jaro =
-    (matches / n + matches / m + (matches - transpositions) / matches) / 3;
+  const jaro = (matches / n + matches / m + (matches - transpositions) / matches) / 3;
 
   const maxPrefix = Math.min(4, n, m);
   let prefix = 0;
@@ -163,13 +162,12 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   }
 
   const allLines = text.split(/\r\n|\r|\n/u);
-  const lines = trimWhitespace ? allLines.map((line) => line.trim()).filter((line) => line !== '') : allLines;
+  const lines = trimWhitespace
+    ? allLines.map((line) => line.trim()).filter((line) => line !== '')
+    : allLines;
   if (lines.length === 0) throw new ToolError('Paste some text to compare.');
   if (lines.length > MAX_LINES) {
-    throw new ToolError(
-      'Too many lines to compare.',
-      'Keep it under ' + MAX_LINES + ' lines.',
-    );
+    throw new ToolError('Too many lines to compare.', 'Keep it under ' + MAX_LINES + ' lines.');
   }
 
   const supplied = trimWhitespace ? String(o.reference ?? '').trim() : String(o.reference ?? '');

@@ -10,12 +10,19 @@ type Result = {
 };
 type Table = { headers: string[]; rows: string[][] };
 
-const run = async (bytes: number[] | null, options: Record<string, string | number | boolean> = {}) => {
-  const files = bytes === null ? [] : [new File([new Uint8Array(bytes)], 'song.mp3', { type: 'audio/mpeg' })];
+const run = async (
+  bytes: number[] | null,
+  options: Record<string, string | number | boolean> = {},
+) => {
+  const files =
+    bytes === null ? [] : [new File([new Uint8Array(bytes)], 'song.mp3', { type: 'audio/mpeg' })];
   return (await tool.run({ files, options })) as Result;
 };
 
-const table = async (bytes: number[] | null, options: Record<string, string | number | boolean> = {}) => {
+const table = async (
+  bytes: number[] | null,
+  options: Record<string, string | number | boolean> = {},
+) => {
   const r = await run(bytes, options);
   return { r, parsed: JSON.parse(r.report?.output ?? '{}') as Table };
 };
@@ -105,7 +112,8 @@ function v1Trailer(fields: {
     ...pad(fields.album ?? '', 30),
     ...pad(fields.year ?? '', 4),
   ];
-  if (fields.track !== undefined) out.push(...pad(fields.comment ?? '', 28), 0, fields.track & 0xff);
+  if (fields.track !== undefined)
+    out.push(...pad(fields.comment ?? '', 28), 0, fields.track & 0xff);
   else out.push(...pad(fields.comment ?? '', 30));
   out.push(fields.genre ?? 255);
   return out;
@@ -278,7 +286,10 @@ describe('id3-tag-reader', () => {
 
   it('lets ID3v2 win while ID3v1 fills the gaps', async () => {
     const v2 = tagBytes([textFrame('TIT2', 'Modern Title'), textFrame('TPE1', 'Modern Artist')]);
-    const bytes = [...v2, ...v1Trailer({ title: 'Legacy Title', artist: 'Legacy Artist', album: 'Legacy Album' })];
+    const bytes = [
+      ...v2,
+      ...v1Trailer({ title: 'Legacy Title', artist: 'Legacy Artist', album: 'Legacy Album' }),
+    ];
     const { parsed } = await table(bytes);
     const map = asMap(parsed.rows);
     expect(map.Title).toBe('Modern Title');

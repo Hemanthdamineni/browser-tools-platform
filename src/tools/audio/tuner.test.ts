@@ -155,7 +155,12 @@ describe('detectPitch pipeline', () => {
 
 describe('tuner run', () => {
   it('reports a known-good tuning with an exact expected value', () => {
-    const out = run('440 440.5 439.5 441 440', {}) as { output: string; stats: Record<string, string | number>; notes: string[] };
+    const out = run('440 440.5 439.5 441 440', {}) as {
+      output: string;
+      render: string;
+      stats: Record<string, string | number>;
+      notes: string[];
+    };
     expect(out.render).toBe('table');
     const table = JSON.parse(out.output) as { headers: string[]; rows: string[][] };
     expect(table.headers).toEqual(['Note', 'Reference', 'Average', 'Deviation', 'In tune']);
@@ -189,7 +194,10 @@ describe('tuner run', () => {
     const deviation = table.rows[0]![3]!;
     expect(deviation).toMatch(/[+]|−/);
     // Recalibrate to 442 and it reads as in tune instead.
-    const recal = run('442', { a4: 442 }) as { output: string; stats: Record<string, string | number> };
+    const recal = run('442', { a4: 442 }) as {
+      output: string;
+      stats: Record<string, string | number>;
+    };
     const recalTable = JSON.parse(recal.output) as { rows: string[][] };
     expect(recalTable.rows[0]![3]).toBe('0.0 ¢');
     expect(recal.stats.Calibration).toBe('A4 = 442.0 Hz');
@@ -208,9 +216,15 @@ describe('tuner run', () => {
   it('applies the in-tune tolerance to the report counts', () => {
     // A4 sharpened 8 cents should be marked out of tune at ±2 but in tune at ±10.
     const sharp = 440 * Math.pow(2, 8 / 1200);
-    const tight = run(String(sharp), { toleranceCents: 2 }) as { output: string; stats: Record<string, string | number> };
+    const tight = run(String(sharp), { toleranceCents: 2 }) as {
+      output: string;
+      stats: Record<string, string | number>;
+    };
     expect(tight.stats['In tune']).toBe('0 of 1');
-    const loose = run(String(sharp), { toleranceCents: 10 }) as { output: string; stats: Record<string, string | number> };
+    const loose = run(String(sharp), { toleranceCents: 10 }) as {
+      output: string;
+      stats: Record<string, string | number>;
+    };
     expect(loose.stats['In tune']).toBe('1 of 1');
   });
 

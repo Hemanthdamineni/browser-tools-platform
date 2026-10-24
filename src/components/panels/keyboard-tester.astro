@@ -138,9 +138,11 @@ const challenges = GHOSTING_CHALLENGES.map((challenge) => ({
             Combination
           </label>
           <select id={`${id}-challenge`} class="field !py-1 text-sm" data-kb-challenge>
-            {challenges.map((challenge) => (
-              <option value={challenge.value}>{challenge.label}</option>
-            ))}
+            {
+              challenges.map((challenge) => (
+                <option value={challenge.value}>{challenge.label}</option>
+              ))
+            }
           </select>
         </div>
 

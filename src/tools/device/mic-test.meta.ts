@@ -4,7 +4,8 @@ export const meta: ToolMeta = {
   id: 'mic-test',
   name: 'Microphone Test',
   category: 'device',
-  summary: 'Check your microphone: live input level in dBFS, a scrolling waveform, and a clip to play back.',
+  summary:
+    'Check your microphone: live input level in dBFS, a scrolling waveform, and a clip to play back.',
   description:
     'Open your microphone and watch the input level in dBFS on a live meter with a peak-hold marker, follow the waveform on a rolling scope, then record a short clip and play it back. Everything happens in this tab — the recording is never uploaded and never stored.',
   keywords: [

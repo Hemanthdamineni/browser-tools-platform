@@ -468,8 +468,7 @@ export function mountCountdownTimerPanel(panel: HTMLElement): void {
       if (timer.fired) row.style.borderColor = 'rgb(var(--accent))';
 
       const label = document.createElement('span');
-      label.className =
-        'min-w-0 flex-1 truncate text-sm font-medium text-[rgb(var(--text))]';
+      label.className = 'min-w-0 flex-1 truncate text-sm font-medium text-[rgb(var(--text))]';
       label.textContent = timer.label;
       row.append(label);
 
@@ -562,9 +561,7 @@ export function mountCountdownTimerPanel(panel: HTMLElement): void {
   function updateReadouts(): void {
     const now = Date.now();
     for (const timer of timers) {
-      const cell = listEl.querySelector<HTMLElement>(
-        `[data-timer-remaining="${timer.id}"]`,
-      );
+      const cell = listEl.querySelector<HTMLElement>(`[data-timer-remaining="${timer.id}"]`);
       if (cell) cell.textContent = formatRemaining(remainingMs(timer, now));
     }
   }
@@ -603,7 +600,10 @@ export function mountCountdownTimerPanel(panel: HTMLElement): void {
     if (!AudioContextCtor) return;
     try {
       if (!audioCtx) audioCtx = new AudioContextCtor();
-      void audioCtx.resume().then(() => beep(audioCtx!)).catch(() => undefined);
+      void audioCtx
+        .resume()
+        .then(() => beep(audioCtx!))
+        .catch(() => undefined);
     } catch {
       // The beep is a nicety — never fail the panel because audio is blocked.
     }
@@ -685,8 +685,7 @@ export function mountCountdownTimerPanel(panel: HTMLElement): void {
       const tr = document.createElement('tr');
       for (const cell of row) {
         const td = document.createElement('td');
-        td.className =
-          'border-b px-3 py-1.5 align-top font-mono text-xs text-[rgb(var(--text))]';
+        td.className = 'border-b px-3 py-1.5 align-top font-mono text-xs text-[rgb(var(--text))]';
         td.textContent = cell;
         tr.append(td);
       }

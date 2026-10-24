@@ -4,7 +4,8 @@ export const meta: ToolMeta = {
   id: 'mbox-archive-analyzer',
   name: 'mbox Archive Analyzer',
   category: 'data',
-  summary: 'Analyze an mbox mail archive: messages, senders, attachments, flags and archive problems.',
+  summary:
+    'Analyze an mbox mail archive: messages, senders, attachments, flags and archive problems.',
   description:
     'Drop an mbox file from Thunderbird, mutt, procmail or a mail backup and see what is inside it. The analyzer splits the archive on its From_ separator lines, unfolds and decodes headers (including RFC 2047 encoded words), walks the MIME tree to list attachments with their real decoded sizes, reads the Status and X-Status flags, and reports the archive-level problems that make a mailbox hard to trust: messages with no Date or From, dates that do not parse, duplicate Message-IDs, replies whose parent is missing, escaped From lines left over from mboxrd, base64 payloads with broken padding, and a body that no reader could split because a blank line is missing after the headers. Nothing is uploaded and nothing is executed.',
   keywords: [

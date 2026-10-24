@@ -4,7 +4,8 @@ export const meta: ToolMeta = {
   id: 'email-header-analyzer',
   name: 'Email Header Analyzer',
   category: 'security',
-  summary: 'Analyze email headers: delivery hops and delays, SPF, DKIM and DMARC results, addresses.',
+  summary:
+    'Analyze email headers: delivery hops and delays, SPF, DKIM and DMARC results, addresses.',
   description:
     'Paste a message header block or drop an .eml file and see how the mail actually travelled: every Received hop in delivery order with the delay between them, SPF, DKIM and DMARC verdicts with their sources, the addresses behind each role, spam scores, and any timestamp or domain mismatch that suggests spoofing. Encoded-words in subjects and display names are decoded for you.',
   keywords: [

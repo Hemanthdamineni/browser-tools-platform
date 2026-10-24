@@ -35,7 +35,9 @@ function formatEngineering(negative: boolean, digits: string, exponent: number):
   const padded = digits.padEnd(pointPosition, '0');
   const whole = padded.slice(0, pointPosition);
   const fraction = padded.slice(pointPosition);
-  return (negative ? '-' : '') + whole + (fraction === '' ? '' : '.' + fraction) + 'e' + engExponent;
+  return (
+    (negative ? '-' : '') + whole + (fraction === '' ? '' : '.' + fraction) + 'e' + engExponent
+  );
 }
 
 function analyseLiteral(raw: string): SigInfo {
@@ -151,9 +153,7 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   if (ambiguous.length > 0) {
     notes.push(
       'Ambiguous: ' +
-        ambiguous
-          .map((item) => '"' + item.raw + '"')
-          .join(', ') +
+        ambiguous.map((item) => '"' + item.raw + '"').join(', ') +
         ' has trailing zeros with no decimal point, so the digit count may understate its precision. Write 1200. or 1.200e3 to be explicit.',
     );
   }

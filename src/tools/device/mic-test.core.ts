@@ -397,10 +397,11 @@ export function chooseRecorderMimeType(
  * and the download must match what was actually recorded.
  */
 export function extensionForMimeType(mimeType: string): string {
-  const subtype = String(mimeType ?? '')
-    .toLowerCase()
-    .split(';')[0]!
-    .split('/')[1] ?? '';
+  const subtype =
+    String(mimeType ?? '')
+      .toLowerCase()
+      .split(';')[0]!
+      .split('/')[1] ?? '';
   if (!subtype) return 'webm';
   if (subtype === 'mpeg' || subtype === 'mpga') return 'mp3';
   if (subtype.includes('m4a')) return 'm4a';
@@ -575,16 +576,10 @@ export function parseMeasurements(payload: string | undefined | null): MicMeasur
   try {
     raw = JSON.parse(text);
   } catch {
-    throw new ToolError(
-      'The microphone readings could not be read.',
-      'Record the clip again.',
-    );
+    throw new ToolError('The microphone readings could not be read.', 'Record the clip again.');
   }
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
-    throw new ToolError(
-      'The microphone readings are malformed.',
-      'Record the clip again.',
-    );
+    throw new ToolError('The microphone readings are malformed.', 'Record the clip again.');
   }
 
   const record = raw as Record<string, unknown>;

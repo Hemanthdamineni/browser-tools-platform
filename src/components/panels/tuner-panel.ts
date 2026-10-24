@@ -12,7 +12,12 @@
 import type { OptionValues, TextRunResult } from '@/lib/types';
 import { ToolError } from '@/lib/types';
 import { runToolById } from '@/lib/worker/client';
-import { clearError, readOptions, renderTextResult, showError } from '@/components/workbench/shared';
+import {
+  clearError,
+  readOptions,
+  renderTextResult,
+  showError,
+} from '@/components/workbench/shared';
 
 /* -------------------------------------------------------------------------- */
 /*  Constants                                                                 */
@@ -28,7 +33,7 @@ export const DEFAULT_A4 = 440;
 /** Defaults for the YIN detector. */
 export const DEFAULT_THRESHOLD = 0.12;
 export const DEFAULT_MIN_FREQUENCY = 40;
-export const DEFAULT_MAX_FREQUENCY = 4000   ;
+export const DEFAULT_MAX_FREQUENCY = 4000;
 export const DEFAULT_SILENCE_RMS = 0.004;
 
 /** How far left/right the cents needle can travel (± cents). */
@@ -265,7 +270,13 @@ export function needlePosition(cents: number, range = NEEDLE_RANGE_CENTS): numbe
 export function detectPitch(
   samples: Float32Array,
   sampleRate: number,
-  options: { a4?: number; threshold?: number; minFrequency?: number; maxFrequency?: number; silenceRms?: number } = {},
+  options: {
+    a4?: number;
+    threshold?: number;
+    minFrequency?: number;
+    maxFrequency?: number;
+    silenceRms?: number;
+  } = {},
 ): { pitch: PitchResult; note: TunerNote | null } {
   const pitch = yinPitchDetect(samples, { sampleRate, ...options });
   if (pitch.frequency === null) return { pitch, note: null };
@@ -306,9 +317,12 @@ export function tunerSettings(o: OptionValues): TunerSettings {
   const tolerance = Number(o.toleranceCents);
   return {
     a4: Number.isFinite(a4) && a4 > 0 ? a4 : DEFAULT_A4,
-    threshold: Number.isFinite(threshold) && threshold > 0 && threshold < 1 ? threshold : DEFAULT_THRESHOLD,
-    minFrequency: Number.isFinite(minFrequency) && minFrequency > 0 ? minFrequency : DEFAULT_MIN_FREQUENCY,
-    maxFrequency: Number.isFinite(maxFrequency) && maxFrequency > 0 ? maxFrequency : DEFAULT_MAX_FREQUENCY,
+    threshold:
+      Number.isFinite(threshold) && threshold > 0 && threshold < 1 ? threshold : DEFAULT_THRESHOLD,
+    minFrequency:
+      Number.isFinite(minFrequency) && minFrequency > 0 ? minFrequency : DEFAULT_MIN_FREQUENCY,
+    maxFrequency:
+      Number.isFinite(maxFrequency) && maxFrequency > 0 ? maxFrequency : DEFAULT_MAX_FREQUENCY,
     silenceRms: Number.isFinite(silenceRms) && silenceRms >= 0 ? silenceRms : DEFAULT_SILENCE_RMS,
     tolerance: Number.isFinite(tolerance) && tolerance > 0 ? tolerance : 5,
     notation: o.notation === 'flats' ? 'flats' : 'sharps',
@@ -341,11 +355,13 @@ export function runTuner(text: string, options: OptionValues): TextRunResult {
     perNote.set(note.midi, list);
   }
   if (!perNote.size) {
-    throw new ToolError('No pitch was detected in that input.', 'The frequencies must be positive numbers.');
+    throw new ToolError(
+      'No pitch was detected in that input.',
+      'The frequencies must be positive numbers.',
+    );
   }
 
   const sortedMidis = [...perNote.keys()].sort((a, b) => a - b);
-  const totalInTune: number[] = [];
   for (const midi of sortedMidis) {
     const freqs = perNote.get(midi)!;
     const note = frequencyToNote(freqs[0]!, settings.a4)!;
@@ -368,7 +384,9 @@ export function runTuner(text: string, options: OptionValues): TextRunResult {
     const note = frequencyToNote(f, settings.a4);
     return note ? Math.abs(note.cents) : Number.NaN;
   });
-  const inTuneCount = allCents.filter((c) => Number.isFinite(c) && Math.abs(c) <= settings.tolerance).length;
+  const inTuneCount = allCents.filter(
+    (c) => Number.isFinite(c) && Math.abs(c) <= settings.tolerance,
+  ).length;
   const stats: Record<string, string | number> = {
     'Notes heard': rows.length,
     Readings: readings.length,
@@ -379,7 +397,7 @@ export function runTuner(text: string, options: OptionValues): TextRunResult {
 
   const notes: string[] = [];
   const worst = rows
-    .map((row, index) => ({ note: row[0]!, cents: parseFloat(row[3]!.replace(/[+−¢\s]/g, '')) }))
+    .map((row) => ({ note: row[0]!, cents: parseFloat(row[3]!.replace(/[+−¢\s]/g, '')) }))
     .filter((r) => Number.isFinite(r.cents));
   if (worst.length) {
     const max = worst.reduce((a, b) => (Math.abs(b.cents) > Math.abs(a.cents) ? b : a));
@@ -405,22 +423,36 @@ export function runTuner(text: string, options: OptionValues): TextRunResult {
 export function parseTunerInput(text: string): TunerSnapshot {
   const raw = (text ?? '').trim();
   if (!raw) {
-    throw new ToolError('No readings were provided.', 'Type a list of frequencies or capture a mic session.');
+    throw new ToolError(
+      'No readings were provided.',
+      'Type a list of frequencies or capture a mic session.',
+    );
   }
   if (raw.startsWith('{')) {
     let parsed: unknown;
     try {
       parsed = JSON.parse(raw);
     } catch {
-      throw new ToolError('That is not a valid tuner snapshot.', 'It should be JSON like {"readings": [440, 441]}');
+      throw new ToolError(
+        'That is not a valid tuner snapshot.',
+        'It should be JSON like {"readings": [440, 441]}',
+      );
     }
     if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
-      throw new ToolError('That is not a valid tuner snapshot.', 'It should be JSON like {"readings": [440, 441]}');
+      throw new ToolError(
+        'That is not a valid tuner snapshot.',
+        'It should be JSON like {"readings": [440, 441]}',
+      );
     }
     const obj = parsed as Partial<TunerSnapshot>;
-    const readings = Array.isArray(obj.readings) ? obj.readings.filter((f) => typeof f === 'number') : [];
+    const readings = Array.isArray(obj.readings)
+      ? obj.readings.filter((f) => typeof f === 'number')
+      : [];
     if (obj.readings !== undefined && !readings.length) {
-      throw new ToolError('That snapshot holds no readings.', 'Add at least one frequency to "readings".');
+      throw new ToolError(
+        'That snapshot holds no readings.',
+        'Add at least one frequency to "readings".',
+      );
     }
     return {
       readings,
@@ -434,7 +466,10 @@ export function parseTunerInput(text: string): TunerSnapshot {
   for (const token of tokens) {
     const value = Number(token);
     if (!Number.isFinite(value)) {
-      throw new ToolError('That is not a list of frequencies.', 'Use numbers like 440 441.2 439.8, or a JSON snapshot.');
+      throw new ToolError(
+        'That is not a list of frequencies.',
+        'Use numbers like 440 441.2 439.8, or a JSON snapshot.',
+      );
     }
     readings.push(value);
   }
@@ -452,16 +487,6 @@ function audioContextConstructor(): typeof AudioContext | undefined {
     webkitAudioContext?: typeof AudioContext;
   };
   return win.AudioContext ?? win.webkitAudioContext;
-}
-
-/** Read a theme colour (`--accent` is stored as `r g b`). */
-function themeColor(name: string, fallback: string): string {
-  try {
-    const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-    return value ? `rgb(${value})` : fallback;
-  } catch {
-    return fallback;
-  }
 }
 
 /** Mount the tuner UI into a `[data-tuner-panel]` element. */
@@ -488,10 +513,25 @@ export function mountTunerPanel(root: HTMLElement): void {
   const reportEl = root.querySelector<HTMLElement>('[data-tuner-report-host]')!;
 
   if (
-    !startBtn || !stopBtn || !statusEl || !errorBox || !stage ||
-    !noteEl || !freqEl || !centsEl || !verdictEl || !needle || !scaleEl ||
-    !liveEl || !refEl || !captureBtn || !reportBtn || !clearBtn || !sessionEl ||
-    !resultWrap || !reportEl
+    !startBtn ||
+    !stopBtn ||
+    !statusEl ||
+    !errorBox ||
+    !stage ||
+    !noteEl ||
+    !freqEl ||
+    !centsEl ||
+    !verdictEl ||
+    !needle ||
+    !scaleEl ||
+    !liveEl ||
+    !refEl ||
+    !captureBtn ||
+    !reportBtn ||
+    !clearBtn ||
+    !sessionEl ||
+    !resultWrap ||
+    !reportEl
   ) {
     return;
   }
@@ -547,7 +587,11 @@ export function mountTunerPanel(root: HTMLElement): void {
   }
 
   /** Update the needle, readout and reference line for one detection. */
-  function renderReading(pitch: PitchResult, note: TunerNote | null, settings: TunerSettings): void {
+  function renderReading(
+    pitch: PitchResult,
+    note: TunerNote | null,
+    settings: TunerSettings,
+  ): void {
     if (!note || pitch.frequency === null) {
       noteEl.textContent = '·';
       freqEl.textContent = '—';
@@ -568,7 +612,10 @@ export function mountTunerPanel(root: HTMLElement): void {
     const pos = needlePosition(cents);
     needle.style.left = `${(pos * 100).toFixed(2)}%`;
     needle.setAttribute('aria-valuenow', cents.toFixed(1));
-    needle.setAttribute('aria-valuetext', `${noteName} ${centsWord(cents, settings.tolerance)} — ${formatCents(cents)}`);
+    needle.setAttribute(
+      'aria-valuetext',
+      `${noteName} ${centsWord(cents, settings.tolerance)} — ${formatCents(cents)}`,
+    );
     refEl.textContent = `${semitoneName(note.midi, settings.notation)}${note.octave} = ${formatFrequency(note.reference)}`;
     announceNote(noteName, cents, performance.now());
   }
@@ -644,7 +691,11 @@ export function mountTunerPanel(root: HTMLElement): void {
     if (stream) return;
     clearError(errorBox);
 
-    if (!window.isSecureContext || !navigator.mediaDevices || typeof navigator.mediaDevices.getUserMedia !== 'function') {
+    if (
+      !window.isSecureContext ||
+      !navigator.mediaDevices ||
+      typeof navigator.mediaDevices.getUserMedia !== 'function'
+    ) {
       showError(
         errorBox,
         'The microphone is not available here.',
@@ -748,30 +799,42 @@ export function mountTunerPanel(root: HTMLElement): void {
   startBtn.addEventListener('click', () => void start(), { signal });
   stopBtn.addEventListener('click', () => stopMicrophone(), { signal });
 
-  captureBtn.addEventListener('click', () => {
-    if (!currentPitch || !currentNote || currentPitch.frequency === null) return;
-    sessionReadings.push(currentPitch.frequency);
-    sessionEl.textContent = `${sessionReadings.length} reading${sessionReadings.length === 1 ? '' : 's'} captured`;
-    captureBtn.disabled = true;
-    delete captureBtn.dataset.ready;
-    reportBtn.disabled = false;
-  }, { signal });
+  captureBtn.addEventListener(
+    'click',
+    () => {
+      if (!currentPitch || !currentNote || currentPitch.frequency === null) return;
+      sessionReadings.push(currentPitch.frequency);
+      sessionEl.textContent = `${sessionReadings.length} reading${sessionReadings.length === 1 ? '' : 's'} captured`;
+      captureBtn.disabled = true;
+      delete captureBtn.dataset.ready;
+      reportBtn.disabled = false;
+    },
+    { signal },
+  );
 
   reportBtn.addEventListener('click', () => void renderReport(), { signal });
 
-  clearBtn.addEventListener('click', () => {
-    sessionReadings = [];
-    sessionEl.textContent = 'No readings yet.';
-    reportBtn.disabled = true;
-    resultWrap.hidden = true;
-    reportEl.replaceChildren();
-    clearError(errorBox);
-  }, { signal });
+  clearBtn.addEventListener(
+    'click',
+    () => {
+      sessionReadings = [];
+      sessionEl.textContent = 'No readings yet.';
+      reportBtn.disabled = true;
+      resultWrap.hidden = true;
+      reportEl.replaceChildren();
+      clearError(errorBox);
+    },
+    { signal },
+  );
 
   // Keep the needle current when options (calibration, notation) change.
-  optionsRoot.addEventListener('change', () => {
-    if (analyser) drawScale();
-  }, { signal });
+  optionsRoot.addEventListener(
+    'change',
+    () => {
+      if (analyser) drawScale();
+    },
+    { signal },
+  );
 
   /** Release everything: the loop, the stream and the context. */
   function destroy(): void {

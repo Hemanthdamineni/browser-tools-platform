@@ -151,7 +151,17 @@ describe('CSV and JSON serialisation', () => {
   });
 
   it('keys JSON rows by column, keeping NULL and BLOBs lossless', () => {
-    expect(JSON.parse(toJson(['id', 'name'], [[1, 'Ada'], [2, null]]))).toEqual([
+    expect(
+      JSON.parse(
+        toJson(
+          ['id', 'name'],
+          [
+            [1, 'Ada'],
+            [2, null],
+          ],
+        ),
+      ),
+    ).toEqual([
       { id: 1, name: 'Ada' },
       { id: 2, name: null },
     ]);

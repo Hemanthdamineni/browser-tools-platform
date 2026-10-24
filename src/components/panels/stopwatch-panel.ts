@@ -139,9 +139,7 @@ export function buildReport(
   const headers = includeSplits ? ['Lap', 'Split', 'Total'] : ['Lap', 'Total'];
 
   const tableRows = rows.map((row) =>
-    includeSplits
-      ? [String(row.index), row.split, row.total]
-      : [String(row.index), row.total],
+    includeSplits ? [String(row.index), row.split, row.total] : [String(row.index), row.total],
   );
 
   if (snapshot.running) {
@@ -281,8 +279,7 @@ export function mountStopwatchPanel(root: HTMLElement): void {
       const li = document.createElement('li');
       let liClass = 'flex items-baseline gap-3 rounded-md border px-3 py-1.5 text-sm';
       if (row.fastest || row.slowest) {
-        liClass +=
-          ' border-[rgb(var(--accent))] bg-[rgb(var(--accent-soft))]';
+        liClass += ' border-[rgb(var(--accent))] bg-[rgb(var(--accent-soft))]';
       }
       if (row.slowest) {
         liClass += ' border-[rgb(var(--danger))] bg-[rgb(var(--danger-soft))]';

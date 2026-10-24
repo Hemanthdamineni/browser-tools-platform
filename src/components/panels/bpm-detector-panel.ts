@@ -358,8 +358,7 @@ export function averageTapTempo(taps: number[]): number {
   if (intervals.length === 0) return 0;
   const sorted = intervals.slice().sort((a, b) => a - b);
   const mid = Math.floor(sorted.length / 2);
-  const median =
-    sorted.length % 2 === 1 ? sorted[mid]! : (sorted[mid - 1]! + sorted[mid]!) / 2;
+  const median = sorted.length % 2 === 1 ? sorted[mid]! : (sorted[mid - 1]! + sorted[mid]!) / 2;
   return Math.round(60000 / median);
 }
 
@@ -381,9 +380,7 @@ export function tapStatus(taps: number[]): string {
 /* -------------------------------------------------------------------------- */
 
 /** Coerce caller option values (possibly strings) into a `TempoOptions`. */
-export function readTempoOptions(
-  values: Record<string, string | number | boolean>,
-): TempoOptions {
+export function readTempoOptions(values: Record<string, string | number | boolean>): TempoOptions {
   const minBpm = Number(values.minBpm ?? 70);
   const maxBpm = Number(values.maxBpm ?? 180);
   return {
@@ -537,7 +534,10 @@ export function mountBpmDetectorPanel(root: HTMLElement): void {
     clearResult();
     setStatus(`Analysing ${source}…`);
     try {
-      const result = await runToolById<FileRunResult>(toolId, { files: [file], options: options() });
+      const result = await runToolById<FileRunResult>(toolId, {
+        files: [file],
+        options: options(),
+      });
       resultWrap.hidden = false;
       if (result.report) {
         renderTextResult(reportEl, {
@@ -623,7 +623,10 @@ export function mountBpmDetectorPanel(root: HTMLElement): void {
   document.addEventListener('keydown', (event) => {
     if (event.repeat || event.code !== 'Space') return;
     const target = event.target as HTMLElement | null;
-    if (target && ['input', 'textarea', 'select', 'button'].includes(target.tagName.toLowerCase())) {
+    if (
+      target &&
+      ['input', 'textarea', 'select', 'button'].includes(target.tagName.toLowerCase())
+    ) {
       return;
     }
     event.preventDefault();

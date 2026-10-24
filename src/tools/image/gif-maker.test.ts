@@ -18,7 +18,13 @@ function imageFile(name: string, bytes = 16): File {
 }
 
 /** A single-colour RGBA frame. */
-function solidFrame(width: number, height: number, r: number, g: number, b: number): Uint8ClampedArray {
+function solidFrame(
+  width: number,
+  height: number,
+  r: number,
+  g: number,
+  b: number,
+): Uint8ClampedArray {
   const data = new Uint8ClampedArray(width * height * 4);
   for (let i = 0; i < data.length; i += 4) {
     data[i] = r;
@@ -154,7 +160,15 @@ describe('encodeFrames', () => {
     ];
     const bytes = encodeFrames(
       frames,
-      { width: 4, height: 4, colors: 32, paletteScope: 'global', dither: false, loop: 5, delaysCs: [3, 20] },
+      {
+        width: 4,
+        height: 4,
+        colors: 32,
+        paletteScope: 'global',
+        dither: false,
+        loop: 5,
+        delaysCs: [3, 20],
+      },
       api,
     );
     const gif = readGif(bytes);
@@ -168,7 +182,15 @@ describe('encodeFrames', () => {
     const frames: MakerFrame[] = [{ rgba: solidFrame(4, 4, 1, 2, 3), delayCs: 10 }];
     const bytes = encodeFrames(
       frames,
-      { width: 4, height: 4, colors: 32, paletteScope: 'global', dither: false, loop: 0, delaysCs: [10] },
+      {
+        width: 4,
+        height: 4,
+        colors: 32,
+        paletteScope: 'global',
+        dither: false,
+        loop: 0,
+        delaysCs: [10],
+      },
       api,
     );
     expect(readGif(bytes).loopCount).toBe(0);
@@ -179,7 +201,15 @@ describe('encodeFrames', () => {
     expect(() =>
       encodeFrames(
         [],
-        { width: 4, height: 4, colors: 32, paletteScope: 'global', dither: false, loop: 0, delaysCs: [] },
+        {
+          width: 4,
+          height: 4,
+          colors: 32,
+          paletteScope: 'global',
+          dither: false,
+          loop: 0,
+          delaysCs: [],
+        },
         api,
       ),
     ).toThrow(/no frames/i);
@@ -191,7 +221,15 @@ describe('encodeFrames', () => {
     expect(() =>
       encodeFrames(
         frames,
-        { width: 8, height: 4, colors: 32, paletteScope: 'global', dither: false, loop: 0, delaysCs: [10] },
+        {
+          width: 8,
+          height: 4,
+          colors: 32,
+          paletteScope: 'global',
+          dither: false,
+          loop: 0,
+          delaysCs: [10],
+        },
         api,
       ),
     ).toThrow(/wrong size|not match/i);
@@ -240,20 +278,14 @@ describe('runGifMaker', () => {
   it('rejects a delay list that does not match the frame count', async () => {
     const load = fakeLoad([{ rgba: solidFrame(8, 6, 1, 2, 3), delayCs: 0 }]);
     await expect(
-      runGifMaker(
-        { files: [imageFile('a.png')], options: { frameDelays: '[10, 20]' } },
-        load,
-      ),
+      runGifMaker({ files: [imageFile('a.png')], options: { frameDelays: '[10, 20]' } }, load),
     ).rejects.toThrow(/2 entries for 1 frame/);
   });
 
   it('rejects malformed delay JSON', async () => {
     const load = fakeLoad([{ rgba: solidFrame(8, 6, 1, 2, 3), delayCs: 0 }]);
     await expect(
-      runGifMaker(
-        { files: [imageFile('a.png')], options: { frameDelays: 'not json' } },
-        load,
-      ),
+      runGifMaker({ files: [imageFile('a.png')], options: { frameDelays: 'not json' } }, load),
     ).rejects.toThrow(/not valid JSON/);
   });
 

@@ -25,7 +25,9 @@ const runToolByIdMock = vi.mocked(runToolById);
 /* -------------------------------------------------------------------------- */
 
 /** A three-page document, enough for the panel to plan against. */
-const { fakePdf } = vi.hoisted(() => ({ fakePdf: { numPages: 3, destroy: async () => undefined } }));
+const { fakePdf } = vi.hoisted(() => ({
+  fakePdf: { numPages: 3, destroy: async () => undefined },
+}));
 
 vi.mock('pdfjs-dist', () => ({
   GlobalWorkerOptions: { workerSrc: '' },
@@ -42,7 +44,14 @@ vi.mock('@/lib/worker/client', () => ({
 /* -------------------------------------------------------------------------- */
 
 /** A word box in raster pixels, with a confidence. */
-function word(text: string, x0: number, y0: number, x1: number, y1: number, confidence = 90): OcrWord {
+function word(
+  text: string,
+  x0: number,
+  y0: number,
+  x1: number,
+  y1: number,
+  confidence = 90,
+): OcrWord {
   return { text, x0, y0, x1, y1, confidence };
 }
 
@@ -211,9 +220,7 @@ describe('the searchable text layer', () => {
 
   it('creates an invisible text object per recognised word', () => {
     const items = buildTextLayer([word('Hello', 100, 50, 190, 80, 95)], 2, page);
-    expect(items).toEqual([
-      { text: 'Hello', x: 50, y: 760, size: 15, renderingMode: 3 },
-    ]);
+    expect(items).toEqual([{ text: 'Hello', x: 50, y: 760, size: 15, renderingMode: 3 }]);
   });
 
   it('orders the words in reading order, top to bottom then left to right', () => {
@@ -245,7 +252,9 @@ describe('the searchable text layer', () => {
 
   it('drops low-confidence words when a floor is given', () => {
     const words = [word('sure', 100, 50, 190, 80, 90), word('maybe', 100, 100, 190, 130, 30)];
-    expect(buildTextLayer(words, 2, page, { minConfidence: 50 }).map((i) => i.text)).toEqual(['sure']);
+    expect(buildTextLayer(words, 2, page, { minConfidence: 50 }).map((i) => i.text)).toEqual([
+      'sure',
+    ]);
   });
 });
 
@@ -302,13 +311,17 @@ describe('tesseract words', () => {
     expect(flattenTesseractWords(null)).toEqual([]);
     expect(flattenTesseractWords(undefined)).toEqual([]);
     expect(flattenTesseractWords([{ paragraphs: 'nope' }])).toEqual([]);
-    expect(flattenTesseractWords([{ paragraphs: [{ lines: [{ words: [{ text: 'x' }] }] }] }])).toEqual(
-      [],
-    );
+    expect(
+      flattenTesseractWords([{ paragraphs: [{ lines: [{ words: [{ text: 'x' }] }] }] }]),
+    ).toEqual([]);
   });
 
   it('defaults a missing confidence to zero', () => {
-    const blocks = [{ paragraphs: [{ lines: [{ words: [{ text: 'x', bbox: { x0: 1, y0: 2, x1: 3, y1: 4 } }] }] }] }];
+    const blocks = [
+      {
+        paragraphs: [{ lines: [{ words: [{ text: 'x', bbox: { x0: 1, y0: 2, x1: 3, y1: 4 } }] }] }],
+      },
+    ];
     expect(flattenTesseractWords(blocks)[0]!.confidence).toBe(0);
   });
 });
@@ -397,7 +410,9 @@ describe('mountPdfOcrPanel', () => {
     root.querySelector<HTMLInputElement>('[data-pages]')!.dispatchEvent(new Event('input'));
 
     expect(root.querySelector<HTMLElement>('[data-error]')!.hidden).toBe(false);
-    expect(root.querySelector<HTMLElement>('[data-error]')!.textContent).toMatch(/outside this PDF/);
+    expect(root.querySelector<HTMLElement>('[data-error]')!.textContent).toMatch(
+      /outside this PDF/,
+    );
     root.querySelector<HTMLButtonElement>('[data-run]')!.click();
     expect(runToolByIdMock).not.toHaveBeenCalled();
   });

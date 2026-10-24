@@ -50,7 +50,7 @@ function fakeSource(
     durationSeconds: 10,
     sourceWidth: 1920,
     sourceHeight: 1080,
-    *samples(timestamps) {
+    async *samples(timestamps) {
       requested++;
       for (let i = 0; i < sampleCount; i++) {
         yield { timestamp: timestamps[i] ?? i, draw: () => {} };
@@ -267,9 +267,9 @@ describe('resolveFramesSettings', () => {
   });
 
   it('rejects a start after the end', () => {
-    expect(() =>
-      resolveFramesSettings(defaults({ start: 20, end: 5 }), sourceInfo()),
-    ).toThrow(/start time is after/i);
+    expect(() => resolveFramesSettings(defaults({ start: 20, end: 5 }), sourceInfo())).toThrow(
+      /start time is after/i,
+    );
   });
 
   it('defaults the individual width and keeps the aspect ratio', () => {
@@ -381,12 +381,7 @@ describe('extractFrames', () => {
   it('assembles a single contact sheet in sheet mode', async () => {
     const src = fakeSource(9);
     const open: FramesSourceOpener = async () => src;
-    const result = await extractFrames(
-      file(),
-      defaults({ layout: 'sheet', columns: 3 }),
-      {},
-      open,
-    );
+    const result = await extractFrames(file(), defaults({ layout: 'sheet', columns: 3 }), {}, open);
     expect(result.frames).toHaveLength(0);
     expect(result.sheet).not.toBeNull();
     expect(result.sheet!.filename).toBe('clip-contact-sheet.png');
@@ -492,8 +487,20 @@ describe('runVideoFrames', () => {
     return {
       settings,
       frames: [
-        { bytes: new Uint8Array([1, 2, 3]), filename: 'clip-01.png', width: 480, height: 270, timestamp: 0 },
-        { bytes: new Uint8Array([4, 5, 6]), filename: 'clip-02.png', width: 480, height: 270, timestamp: 1 },
+        {
+          bytes: new Uint8Array([1, 2, 3]),
+          filename: 'clip-01.png',
+          width: 480,
+          height: 270,
+          timestamp: 0,
+        },
+        {
+          bytes: new Uint8Array([4, 5, 6]),
+          filename: 'clip-02.png',
+          width: 480,
+          height: 270,
+          timestamp: 1,
+        },
       ],
       sheet: null,
       sourceWidth: 1920,

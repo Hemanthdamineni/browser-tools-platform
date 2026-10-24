@@ -449,9 +449,7 @@ export function toCsv(columns: string[], values: SqlCell[][]): string {
  */
 export function toJson(columns: string[], values: SqlCell[][]): string {
   const jsonValue = (cell: SqlCell): string | number | null =>
-    cell === null || typeof cell === 'string' || typeof cell === 'number'
-      ? cell
-      : toBase64(cell);
+    cell === null || typeof cell === 'string' || typeof cell === 'number' ? cell : toBase64(cell);
 
   if (new Set(columns).size !== columns.length) {
     const rows = values.map((row) =>

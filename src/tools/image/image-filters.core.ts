@@ -43,8 +43,7 @@ export interface FilterParams {
   sharpen: number;
 }
 
-const clamp = (n: number, min: number, max: number): number =>
-  n < min ? min : n > max ? max : n;
+const clamp = (n: number, min: number, max: number): number => (n < min ? min : n > max ? max : n);
 
 /** Coerce an option value to a finite number, or fall back when absent. */
 function numberOption(value: unknown, fallback: number): number {
@@ -115,10 +114,26 @@ export function describeParams(params: FilterParams): string {
 type ColourMatrix = readonly number[];
 
 const IDENTITY: ColourMatrix = [
-  1, 0, 0, 0, 0, //
-  0, 1, 0, 0, 0, //
-  0, 0, 1, 0, 0, //
-  0, 0, 0, 1, 0,
+  1,
+  0,
+  0,
+  0,
+  0, //
+  0,
+  1,
+  0,
+  0,
+  0, //
+  0,
+  0,
+  1,
+  0,
+  0, //
+  0,
+  0,
+  0,
+  1,
+  0,
 ];
 
 /** The standard pivot-at-128 contrast factor from the well-known formula
@@ -135,10 +150,26 @@ function contrastFactor(contrast: number): number {
 function brightnessMatrix(value: number): ColourMatrix {
   const offset = clamp(value, -100, 100) * 2.55;
   return [
-    1, 0, 0, 0, offset, //
-    0, 1, 0, 0, offset, //
-    0, 0, 1, 0, offset, //
-    0, 0, 0, 1, 0,
+    1,
+    0,
+    0,
+    0,
+    offset, //
+    0,
+    1,
+    0,
+    0,
+    offset, //
+    0,
+    0,
+    1,
+    0,
+    offset, //
+    0,
+    0,
+    0,
+    1,
+    0,
   ];
 }
 
@@ -147,10 +178,26 @@ function contrastMatrix(value: number): ColourMatrix {
   const factor = contrastFactor(value);
   const offset = 128 * (1 - factor);
   return [
-    factor, 0, 0, 0, offset, //
-    0, factor, 0, 0, offset, //
-    0, 0, factor, 0, offset, //
-    0, 0, 0, 1, 0,
+    factor,
+    0,
+    0,
+    0,
+    offset, //
+    0,
+    factor,
+    0,
+    0,
+    offset, //
+    0,
+    0,
+    factor,
+    0,
+    offset, //
+    0,
+    0,
+    0,
+    1,
+    0,
   ];
 }
 
@@ -159,10 +206,26 @@ function saturationMatrix(value: number): ColourMatrix {
   const s = 1 + clamp(value, -100, 100) / 100;
   const inv = 1 - s;
   return [
-    LR * inv + s, LG * inv, LB * inv, 0, 0, //
-    LR * inv, LG * inv + s, LB * inv, 0, 0, //
-    LR * inv, LG * inv, LB * inv + s, 0, 0, //
-    0, 0, 0, 1, 0,
+    LR * inv + s,
+    LG * inv,
+    LB * inv,
+    0,
+    0, //
+    LR * inv,
+    LG * inv + s,
+    LB * inv,
+    0,
+    0, //
+    LR * inv,
+    LG * inv,
+    LB * inv + s,
+    0,
+    0, //
+    0,
+    0,
+    0,
+    1,
+    0,
   ];
 }
 
@@ -171,10 +234,26 @@ const GRAYSCALE: ColourMatrix = saturationMatrix(-100);
 
 /** Sepia matrix, the classic photographic mix. */
 const SEPIA: ColourMatrix = [
-  0.393, 0.769, 0.189, 0, 0, //
-  0.349, 0.686, 0.168, 0, 0, //
-  0.272, 0.534, 0.131, 0, 0, //
-  0, 0, 0, 1, 0,
+  0.393,
+  0.769,
+  0.189,
+  0,
+  0, //
+  0.349,
+  0.686,
+  0.168,
+  0,
+  0, //
+  0.272,
+  0.534,
+  0.131,
+  0,
+  0, //
+  0,
+  0,
+  0,
+  1,
+  0,
 ];
 
 /** Multiply `left ∘ right` (apply `right` first, then `left`). */

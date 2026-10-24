@@ -119,9 +119,17 @@ describe('pomodoro-timer state machine', () => {
 
   it('rolls a break back into working without touching the counters', () => {
     const short: PomodoroState = { phase: 'shortBreak', completedWork: 1, completedSessions: 3 };
-    expect(nextPhase(SETTINGS, short)).toEqual({ phase: 'working', completedWork: 1, completedSessions: 3 });
+    expect(nextPhase(SETTINGS, short)).toEqual({
+      phase: 'working',
+      completedWork: 1,
+      completedSessions: 3,
+    });
     const long: PomodoroState = { phase: 'longBreak', completedWork: 0, completedSessions: 3 };
-    expect(nextPhase(SETTINGS, long)).toEqual({ phase: 'working', completedWork: 0, completedSessions: 3 });
+    expect(nextPhase(SETTINGS, long)).toEqual({
+      phase: 'working',
+      completedWork: 0,
+      completedSessions: 3,
+    });
   });
 
   it('computes the phase length from the settings', () => {
@@ -257,7 +265,11 @@ describe('pomodoro-timer formatting and notifications', () => {
 
 describe('pomodoro-timer settings and persistence', () => {
   it('normalises settings into range and keeps booleans', () => {
-    const s = normalizeSettings({ workMinutes: 0, shortBreakMinutes: 99, cyclesBeforeLongBreak: 0 });
+    const s = normalizeSettings({
+      workMinutes: 0,
+      shortBreakMinutes: 99,
+      cyclesBeforeLongBreak: 0,
+    });
     expect(s.workMinutes).toBe(1);
     expect(s.shortBreakMinutes).toBe(60);
     expect(s.cyclesBeforeLongBreak).toBe(1);
@@ -271,7 +283,12 @@ describe('pomodoro-timer settings and persistence', () => {
   });
 
   it('round-trips a session through JSON and rejects bad ones', () => {
-    const session = openPhase(SETTINGS, { phase: 'working', completedWork: 2, completedSessions: 5 }, 1_000_000, true);
+    const session = openPhase(
+      SETTINGS,
+      { phase: 'working', completedWork: 2, completedSessions: 5 },
+      1_000_000,
+      true,
+    );
     const raw = JSON.stringify(session);
     expect(parseSession(raw)).toEqual(session);
     expect(parseSession(null)).toBeNull();
@@ -282,7 +299,12 @@ describe('pomodoro-timer settings and persistence', () => {
 
 describe('mountPomodoroTimerPanel', () => {
   it('mounts, then advances the phase when the running deadline passes', () => {
-    runToolByIdMock.mockResolvedValue({ output: '{}', render: 'table', stats: {}, notes: [] } as never);
+    runToolByIdMock.mockResolvedValue({
+      output: '{}',
+      render: 'table',
+      stats: {},
+      notes: [],
+    } as never);
     const root = fixture();
     const phase = root.querySelector<HTMLElement>('[data-phase]')!;
     const sessions = root.querySelector<HTMLElement>('[data-sessions]')!;
@@ -328,6 +350,8 @@ describe('mountPomodoroTimerPanel', () => {
     expect(report.hidden).toBe(false);
     expect(wrap.hidden).toBe(false);
     expect(root.querySelector<HTMLElement>('[data-stats]')!.textContent).toContain('phase');
-    expect(root.querySelector<HTMLElement>('[data-notes]')!.textContent).toContain('deadline-based');
+    expect(root.querySelector<HTMLElement>('[data-notes]')!.textContent).toContain(
+      'deadline-based',
+    );
   });
 });

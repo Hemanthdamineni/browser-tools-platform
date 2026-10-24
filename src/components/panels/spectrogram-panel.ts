@@ -17,12 +17,20 @@ import { ToolError } from '@/lib/types';
 import type { FileRunResult, OptionValues } from '@/lib/types';
 import { runToolById } from '@/lib/worker/client';
 import { decodeFile } from '@/tools/audio/lib';
-import {
-  clearError,
-  readOptions,
-  renderTextResult,
-  showError,
-} from '../workbench/shared';
+import { clearError, readOptions, showError } from '../workbench/shared';
+
+/** Average every channel into one mono signal, matching the live path. */
+function monoMix(channels: Float32Array[]): Float32Array {
+  if (channels.length === 0) return new Float32Array(0);
+  const length = Math.max(...channels.map((c) => c.length));
+  const out = new Float32Array(length);
+  for (let i = 0; i < length; i++) {
+    let sum = 0;
+    for (const ch of channels) sum += ch[i] ?? 0;
+    out[i] = sum / channels.length;
+  }
+  return out;
+}
 
 /* -------------------------------------------------------------------------- */
 /*  Windows                                                                   */
@@ -295,10 +303,7 @@ export function layoutFor(sampleRate: number, opts: SpectrogramOptions): Spectro
   const minFreq = clampNumber(opts.minFreq, 0, nyquist);
   const maxFreq = Math.min(nyquist, Math.max(minFreq, clampNumber(opts.maxFreq, 0, nyquist)));
   const minBin = Math.max(0, Math.floor((minFreq / rate) * fftSize));
-  const maxBin = Math.min(
-    fftSize >> 1,
-    Math.max(minBin, Math.ceil((maxFreq / rate) * fftSize)),
-  );
+  const maxBin = Math.min(fftSize >> 1, Math.max(minBin, Math.ceil((maxFreq / rate) * fftSize)));
   const bins = maxBin - minBin + 1;
   const height = Math.min(MAX_ROWS, bins);
 
@@ -405,8 +410,8 @@ export function computeSpectrogram(
 
   const rowFreqs = new Float32Array(height);
   for (let row = 0; row < height; row++) {
-    rowFreqs[row] = ((layout.minBin + Math.floor(row * layout.binsPerRow)) * layout.sampleRate) /
-      layout.fftSize;
+    rowFreqs[row] =
+      ((layout.minBin + Math.floor(row * layout.binsPerRow)) * layout.sampleRate) / layout.fftSize;
   }
 
   return { data, width, height, rowFreqs };
@@ -676,6 +681,47 @@ export function columnsToGrid(columns: Float32Array[], height: number): Spectrog
 export const LIVE_COLUMNS = MAX_COLUMNS;
 
 /**
+ * Decode an audio file, mix it to mono and render its spectrogram to a PNG.
+ * The file-path counterpart of the live microphone loop — both feed the same
+ * `computeSpectrogram` → `gridToPng` pipeline, so a saved capture and an
+ * uploaded file are analysed identically.
+ */
+export async function analyseSpectrogramFile(
+  file: File,
+  spec: SpectrogramOptions,
+  colourMap: ColourMapId,
+): Promise<FileRunResult> {
+  const decoded = await decodeFile(file);
+  const mono = monoMix(decoded.channels);
+  const grid = computeSpectrogram(mono, decoded.sampleRate, spec);
+  const png = gridToPng(grid, colourMap, spec.floorDb, spec.ceilingDb);
+  const blob = new Blob([png as BlobPart], { type: 'image/png' });
+  const warnings: string[] = [];
+  if (decoded.sampleRate / 2 < spec.maxFreq) {
+    warnings.push(
+      `The file's Nyquist frequency is ${Math.round(decoded.sampleRate / 2)} Hz, so the band above it is empty.`,
+    );
+  }
+  return {
+    outputs: [
+      {
+        filename: `${file.name.replace(/\.[^.]+$/, '') || 'spectrogram'}-spectrogram.png`,
+        blob,
+      },
+    ],
+    stats: {
+      sampleRate: decoded.sampleRate,
+      columns: grid.width,
+      rows: grid.height,
+      'frequency range': `${Math.round(grid.rowFreqs[0] ?? 0)}–${Math.round(
+        grid.rowFreqs[grid.height - 1] ?? 0,
+      )} Hz`,
+    },
+    warnings: warnings.length ? warnings : undefined,
+  };
+}
+
+/**
  * Mount the spectrogram panel into a `[data-spectrogram-panel]` element.
  *
  * The panel owns the browser-only work: choosing or dropping a file, opening
@@ -752,7 +798,10 @@ export function mountSpectrogramPanel(panel: HTMLElement): void {
   /** Validate the options, reporting the problem in the panel instead of throwing. */
   function readSpec(): { spec: SpectrogramOptions; colourMap: ColourMapId } | null {
     try {
-      return { spec: resolveSpectrogramOptions(optionValues()), colourMap: resolveColourMap(optionValues().colourMap) };
+      return {
+        spec: resolveSpectrogramOptions(optionValues()),
+        colourMap: resolveColourMap(optionValues().colourMap),
+      };
     } catch (error) {
       const err = error as Error & { hint?: string };
       showError(errorBox, err.message, err.hint);
@@ -766,7 +815,15 @@ export function mountSpectrogramPanel(panel: HTMLElement): void {
 
   const escape = (value: string): string =>
     value.replace(/[&<>"']/g, (c) =>
-      c === '&' ? '&amp;' : c === '<' ? '&lt;' : c === '>' ? '&gt;' : c === '"' ? '&quot;' : '&#39;',
+      c === '&'
+        ? '&amp;'
+        : c === '<'
+          ? '&lt;'
+          : c === '>'
+            ? '&gt;'
+            : c === '"'
+              ? '&quot;'
+              : '&#39;',
     );
 
   function chooseFile(file: File): void {
@@ -882,32 +939,105 @@ export function mountSpectrogramPanel(panel: HTMLElement): void {
   let sourceNode: MediaStreamAudioSourceNode | null = null;
   let micStream: MediaStream | null = null;
   let liveLayout: SpectrogramLayout | null = null;
+  let liveSamples: Float32Array<ArrayBuffer> | null = null;
   let liveReal: Float32Array | null = null;
   let liveImag: Float32Array | null = null;
   let liveColumn: Float32Array | null = null;
-  let liveColumns: Float32Array[] = [];
   let liveLut: ColourLut = colourLut('viridis');
+  /** dB columns captured while the Capture toggle is on, oldest first. */
+  let recordedColumns: Float32Array[] = [];
+  /** The layout the capture was recorded with, kept for the export path. */
+  let captureLayout: SpectrogramLayout | null = null;
+  /** CSS-pixel size of the live canvas, kept in sync by `sizeCanvas`. */
+  let viewW = 0;
+  let viewH = 0;
   let rafId: number | null = null;
   let recording = false;
+  /** Width of one live column in CSS pixels. */
+  const LIVE_COL_W = 2;
 
   const win = window as unknown as Record<string, unknown>;
-  const CtxCtor = (typeof win.AudioContext === 'function'
-    ? win.AudioContext
-    : typeof win.webkitAudioContext === 'function'
-      ? win.webkitAudioContext
-      : null) as typeof AudioContext | null;
+  const CtxCtor = (
+    typeof win.AudioContext === 'function'
+      ? win.AudioContext
+      : typeof win.webkitAudioContext === 'function'
+        ? win.webkitAudioContext
+        : null
+  ) as typeof AudioContext | null;
 
   function sizeCanvas(): void {
     const rect = canvas.getBoundingClientRect();
     const dpr = Math.min(2, window.devicePixelRatio || 1);
-    const w = Math.max(1, Math.round(rect.width));
-    const h = Math.max(1, Math.round(rect.height));
-    canvas.width = Math.round(w * dpr);
-    canvas.height = Math.round(h * dpr);
+    viewW = Math.max(1, Math.round(rect.width));
+    viewH = Math.max(1, Math.round(rect.height));
+    canvas.width = Math.round(viewW * dpr);
+    canvas.height = Math.round(viewH * dpr);
     canvas.getContext('2d')?.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 
-  /** The live view renders at most this many columns, to keep redraws cheap. */
+  /**
+   * One animation frame: read the analyser's time-domain samples, analyse them
+   * with the shared DSP, append the dB column to the capture and paint the
+   * whole recent history to the canvas. The scroll direction matches the PNG:
+   * time runs left (oldest) to right (newest), frequency bottom (low) to top
+   * (high).
+   */
+  function tick(): void {
+    const layout = liveLayout;
+    const buffers = { real: liveReal, imag: liveImag, column: liveColumn };
+    if (!layout || !analyser || !buffers.real || !buffers.imag || !buffers.column) return;
+    if (!liveSamples || liveSamples.length !== layout.fftSize) {
+      liveSamples = new Float32Array(layout.fftSize);
+    }
+    analyser.getFloatTimeDomainData(liveSamples);
+    analyseFrame(layout, liveSamples, buffers.real, buffers.imag, buffers.column);
+    recordedColumns.push(buffers.column.slice());
+    // Decimate: keep the capture bounded by dropping the oldest half.
+    if (recordedColumns.length > LIVE_COLUMNS * 2) {
+      recordedColumns = recordedColumns.slice(-LIVE_COLUMNS);
+    }
+    drawLive();
+    rafId = window.requestAnimationFrame(tick);
+  }
+
+  /** Paint the recent columns (and the legend axis) onto the live canvas. */
+  function drawLive(): void {
+    const ctx = canvas.getContext('2d');
+    const layout = liveLayout;
+    if (!ctx || !layout || viewW <= 0 || viewH <= 0) return;
+    const image = columnsToGrid(recordedColumns, layout.height);
+    const rgba = gridToRgba(
+      { ...image, rowFreqs: new Float32Array(image.height) },
+      liveLut,
+      layout.floorDb,
+      layout.ceilingDb,
+    );
+    // Draw the most recent columns that fit the canvas at LIVE_COL_W px each.
+    const visibleCols = Math.max(1, Math.floor(viewW / LIVE_COL_W));
+    const fromCol = Math.max(0, image.width - visibleCols);
+    const shown = image.width - fromCol;
+    const pxW = shown * LIVE_COL_W;
+    const off = document.createElement('canvas');
+    off.width = Math.max(1, image.width);
+    off.height = Math.max(1, image.height);
+    const offCtx = off.getContext('2d');
+    if (!offCtx) return;
+    const imageData = offCtx.createImageData(image.width, image.height);
+    imageData.data.set(rgba.subarray(0, imageData.data.length));
+    offCtx.putImageData(imageData, 0, 0);
+    ctx.imageSmoothingEnabled = false;
+    ctx.clearRect(0, 0, viewW, viewH);
+    ctx.drawImage(off, fromCol, 0, shown, image.height, 0, 0, pxW, viewH);
+    axisTime.textContent = `${shown} frames ≈ ${((shown * layout.fftSize) / (2 * layout.sampleRate)).toFixed(1)} s`;
+    summary.textContent = `Live — ${layout.fftSize}-point FFT, ${image.height} rows, ${Math.round(layout.minFreqHz)}–${Math.round(layout.maxFreqHz)} Hz`;
+  }
+
+  function allocateLive(layout: SpectrogramLayout): void {
+    liveLayout = layout;
+    liveReal = new Float32Array(layout.fftSize);
+    liveImag = new Float32Array(layout.fftSize);
+    liveColumn = new Float32Array(layout.height);
+  }
 
   function optionsChanged(): void {
     const parsed = readSpec();
@@ -915,11 +1045,8 @@ export function mountSpectrogramPanel(panel: HTMLElement): void {
     liveLut = colourLut(parsed.colourMap);
     if (audioCtx && analyser) {
       const layout = layoutFor(audioCtx.sampleRate, parsed.spec);
-      liveLayout = layout;
+      allocateLive(layout);
       analyser.fftSize = layout.fftSize;
-      liveReal = new Float32Array(layout.fftSize);
-      liveImag = new Float32Array(layout.fftSize);
-      liveColumn = new Float32Array(layout.height);
       legendFloor.textContent = `${parsed.spec.floorDb.toFixed(0)} dB`;
       legendCeiling.textContent = `${parsed.spec.ceilingDb.toFixed(0)} dB`;
       axisFreq.textContent = `${Math.round(layout.minFreqHz)}–${Math.round(layout.maxFreqHz)} Hz`;
@@ -934,7 +1061,11 @@ export function mountSpectrogramPanel(panel: HTMLElement): void {
   micStart.addEventListener('click', () => {
     void (async () => {
       if (!CtxCtor) {
-        showError(errorBox, 'Your browser does not support the Web Audio API.', 'Try a recent Chrome, Edge, Firefox or Safari.');
+        showError(
+          errorBox,
+          'Your browser does not support the Web Audio API.',
+          'Try a recent Chrome, Edge, Firefox or Safari.',
+        );
         return;
       }
       const parsed = readSpec();
@@ -950,13 +1081,10 @@ export function mountSpectrogramPanel(panel: HTMLElement): void {
         analyser.fftSize = layout.fftSize;
         sourceNode.connect(analyser);
         analyser.connect(audioCtx.destination);
-        liveLayout = layout;
-        liveReal = new Float32Array(layout.fftSize);
-        liveImag = new Float32Array(layout.fftSize);
-        liveColumn = new Float32Array(layout.height);
+        allocateLive(layout);
         liveLut = colourLut(parsed.colourMap);
-        liveColumns = [];
         recordedColumns = [];
+        captureLayout = layout;
         recording = false;
         sizeCanvas();
         legendFloor.textContent = `${parsed.spec.floorDb.toFixed(0)} dB`;
@@ -976,7 +1104,9 @@ export function mountSpectrogramPanel(panel: HTMLElement): void {
         showError(
           errorBox,
           denied ? 'Microphone access was denied.' : 'The microphone could not be opened.',
-          denied ? 'Allow microphone access and try again.' : 'Check that a microphone is plugged in and not in use by another app.',
+          denied
+            ? 'Allow microphone access and try again.'
+            : 'Check that a microphone is plugged in and not in use by another app.',
         );
       }
     })();
@@ -989,7 +1119,7 @@ export function mountSpectrogramPanel(panel: HTMLElement): void {
     sourceNode?.disconnect();
     analyser = null;
     sourceNode = null;
-    liveLayout = null;
+    // `liveLayout` stays: the export path still needs the capture's geometry.
     micStream?.getTracks().forEach((track) => track.stop());
     micStream = null;
     audioCtx?.close();
@@ -1010,38 +1140,46 @@ export function mountSpectrogramPanel(panel: HTMLElement): void {
     if (recording) return;
     const parsed = readSpec();
     if (!parsed) return;
-    if (recordedColumns.length === 0 || !audioCtx) {
-      showError(errorBox, 'Nothing captured yet.', 'Start the microphone, press Capture, then Stop, then Export.');
+    if (recordedColumns.length === 0) {
+      showError(
+        errorBox,
+        'Nothing captured yet.',
+        'Start the microphone, press Capture, then Stop, then Export.',
+      );
       return;
     }
-    // Reuse the file path: the tool decodes this WAV and builds the PNG.
-    void (async () => {
-      const layout = liveLayout;
-      if (!layout) return;
-      const image = columnsToGrid(recordedColumns, layout.height);
-      const png = gridToPng(image, parsed.colourMap, parsed.spec.floorDb, parsed.spec.ceilingDb);
-      const blob = new Blob([png as BlobPart], { type: 'image/png' });
-      if (resultUrl) URL.revokeObjectURL(resultUrl);
-      resultUrl = URL.createObjectURL(blob);
-      resultWrap.hidden = false;
-      imageEl.src = resultUrl;
-      imageEl.alt = 'Live microphone spectrogram';
-      imageEl.hidden = false;
-      downloadEl.href = resultUrl;
-      downloadEl.download = `microphone-spectrogram-${new Date().toISOString().slice(0, 10)}.png`;
-      downloadEl.hidden = false;
-      renderNotes({
-        outputs: [],
-        stats: {
-          frames: recordedColumns.length,
-          'frequency range': `${Math.round(layout.minFreqHz)}–${Math.round(layout.maxFreqHz)} Hz`,
-        },
-        notes: ['This PNG was built live in your browser from the microphone capture.'],
-      });
-      announce('Exported your microphone spectrogram as a PNG.');
-      recordedColumns = [];
-      micExport.disabled = true;
-    })();
+    // Reuse the shared DSP: flatten the captured columns and encode the PNG
+    // right here — no audio needs to be re-decoded for a live capture.
+    const layout = captureLayout ?? liveLayout;
+    if (!layout) return;
+    const image = columnsToGrid(recordedColumns, layout.height);
+    const png = gridToPng(
+      { ...image, rowFreqs: new Float32Array(image.height) },
+      parsed.colourMap,
+      parsed.spec.floorDb,
+      parsed.spec.ceilingDb,
+    );
+    const blob = new Blob([png as BlobPart], { type: 'image/png' });
+    if (resultUrl) URL.revokeObjectURL(resultUrl);
+    resultUrl = URL.createObjectURL(blob);
+    resultWrap.hidden = false;
+    imageEl.src = resultUrl;
+    imageEl.alt = 'Live microphone spectrogram';
+    imageEl.hidden = false;
+    downloadEl.href = resultUrl;
+    downloadEl.download = `microphone-spectrogram-${new Date().toISOString().slice(0, 10)}.png`;
+    downloadEl.hidden = false;
+    renderNotes({
+      outputs: [],
+      stats: {
+        frames: recordedColumns.length,
+        'frequency range': `${Math.round(layout.minFreqHz)}–${Math.round(layout.maxFreqHz)} Hz`,
+      },
+      notes: ['This PNG was built live in your browser from the microphone capture.'],
+    });
+    announce('Exported your microphone spectrogram as a PNG.');
+    recordedColumns = [];
+    micExport.disabled = true;
   });
 
   // A "Capture" toggle is described by the astro; wire it here if present.
@@ -1049,13 +1187,21 @@ export function mountSpectrogramPanel(panel: HTMLElement): void {
   if (captureBtn) {
     captureBtn.addEventListener('click', () => {
       if (!audioCtx || !analyser) {
-        showError(errorBox, 'Start the microphone first.', 'Press "Use microphone" to begin monitoring.');
+        showError(
+          errorBox,
+          'Start the microphone first.',
+          'Press "Use microphone" to begin monitoring.',
+        );
         return;
       }
       recording = !recording;
       captureBtn.setAttribute('aria-pressed', String(recording));
       captureBtn.textContent = recording ? 'Recording…' : 'Capture';
-      announce(recording ? 'Recording a spectrogram capture.' : 'Capture stored — press Export to save the PNG.');
+      announce(
+        recording
+          ? 'Recording a spectrogram capture.'
+          : 'Capture stored — press Export to save the PNG.',
+      );
     });
   }
 }

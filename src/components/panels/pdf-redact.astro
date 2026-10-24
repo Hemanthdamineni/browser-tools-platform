@@ -42,10 +42,10 @@ const options = meta.options ?? [];
     role="note"
   >
     <strong class="font-semibold">A black box over the text is not redaction.</strong>
-    A viewer can still select and copy the words underneath unless the page is flattened.
-    This tool rasterises every page you mark and burns the boxes into the pixels, so the hidden
-    content is destroyed — those pages lose their text layer and are no longer searchable. Pages
-    you leave alone keep their text. Keep a copy of the original file.
+    A viewer can still select and copy the words underneath unless the page is flattened. This tool rasterises
+    every page you mark and burns the boxes into the pixels, so the hidden content is destroyed — those
+    pages lose their text layer and are no longer searchable. Pages you leave alone keep their text. Keep
+    a copy of the original file.
   </div>
 
   <h2 class="mt-6 text-base font-semibold text-[rgb(var(--text))]">1 · Choose the PDF</h2>
@@ -66,8 +66,8 @@ const options = meta.options ?? [];
   <p class="mt-1.5 max-w-prose text-sm leading-relaxed text-[rgb(var(--text-muted))]">
     Pick a page, then drag on the preview to draw a rectangle over the content that must be
     destroyed. Tab to a rectangle and use the arrow keys to move it (hold Shift for bigger steps),
-    <kbd>+</kbd> / <kbd>-</kbd> to resize it and Delete to remove it. Every rectangle is listed
-    below with number fields, so it can be placed without a mouse.
+    <kbd>+</kbd> / <kbd>-</kbd> to resize it and Delete to remove it. Every rectangle is listed below
+    with number fields, so it can be placed without a mouse.
   </p>
 
   <div class="mt-3 flex flex-wrap gap-1.5" data-page-tabs aria-label="PDF pages"></div>
@@ -77,7 +77,10 @@ const options = meta.options ?? [];
       class="relative inline-block max-w-full touch-none select-none rounded-lg border"
       data-stage
     >
-      <canvas class="block h-auto max-w-full rounded-lg" data-preview role="img"
+      <canvas
+        class="block h-auto max-w-full rounded-lg"
+        data-preview
+        role="img"
         aria-label="Preview of the page being redacted"></canvas>
       <div class="absolute inset-0" data-overlay>
         <div
@@ -90,7 +93,8 @@ const options = meta.options ?? [];
 
     <div class="mt-3 flex flex-wrap items-center gap-2">
       <button type="button" class="btn btn-subtle btn-sm" data-add-region>Add a region</button>
-      <button type="button" class="btn btn-subtle btn-sm" data-clear-regions>Clear this page</button>
+      <button type="button" class="btn btn-subtle btn-sm" data-clear-regions>Clear this page</button
+      >
     </div>
 
     <ul class="mt-3 space-y-2" data-region-list></ul>

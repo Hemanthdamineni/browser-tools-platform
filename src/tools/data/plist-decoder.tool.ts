@@ -145,8 +145,10 @@ interface BinaryPlist {
 
 function readUint64(bytes: Uint8Array, offset: number): number {
   let value = 0n;
-  for (let index = 0; index < 8; index += 1) value = (value << 8n) | BigInt(bytes[offset + index] ?? 0);
-  if (value > BigInt(Number.MAX_SAFE_INTEGER)) throw new PlistError('A header field is too large to be real.');
+  for (let index = 0; index < 8; index += 1)
+    value = (value << 8n) | BigInt(bytes[offset + index] ?? 0);
+  if (value > BigInt(Number.MAX_SAFE_INTEGER))
+    throw new PlistError('A header field is too large to be real.');
   return Number(value);
 }
 
@@ -156,7 +158,9 @@ function readHeader(bytes: Uint8Array): BinaryPlist {
   if (magic !== 'bplist') throw new PlistError('The file does not start with bplist.');
   const version = new TextDecoder('latin1').decode(bytes.subarray(6, 8));
   if (version !== '00') {
-    throw new PlistError('Binary plist version ' + version + ' is not supported (only bplist00 is defined).');
+    throw new PlistError(
+      'Binary plist version ' + version + ' is not supported (only bplist00 is defined).',
+    );
   }
 
   const trailerStart = bytes.length - 32;
@@ -166,11 +170,17 @@ function readHeader(bytes: Uint8Array): BinaryPlist {
   const topObject = readUint64(bytes, trailerStart + 16);
   const offsetTableOffset = readUint64(bytes, trailerStart + 24);
 
-  if (offsetIntSize < 1 || offsetIntSize > 8) throw new PlistError('The offset size in the trailer is invalid.');
-  if (objectRefSize < 1 || objectRefSize > 8) throw new PlistError('The object reference size is invalid.');
+  if (offsetIntSize < 1 || offsetIntSize > 8)
+    throw new PlistError('The offset size in the trailer is invalid.');
+  if (objectRefSize < 1 || objectRefSize > 8)
+    throw new PlistError('The object reference size is invalid.');
   if (objectCount === 0) throw new PlistError('The trailer says there are no objects.');
-  if (objectCount > MAX_OBJECTS) throw new PlistError('The trailer claims ' + objectCount + ' objects, which is past this tool\u2019s limit.');
-  if (topObject >= objectCount) throw new PlistError('The top object index is past the end of the offset table.');
+  if (objectCount > MAX_OBJECTS)
+    throw new PlistError(
+      'The trailer claims ' + objectCount + ' objects, which is past this tool\u2019s limit.',
+    );
+  if (topObject >= objectCount)
+    throw new PlistError('The top object index is past the end of the offset table.');
 
   const tableEnd = offsetTableOffset + objectCount * offsetIntSize;
   if (offsetTableOffset < 8 || tableEnd > trailerStart) {
@@ -186,7 +196,16 @@ function readHeader(bytes: Uint8Array): BinaryPlist {
     offsets.push(value);
   }
 
-  return { version, objectCount, topObject, offsets, offsetIntSize, objectRefSize, offsetTableOffset, trailerStart };
+  return {
+    version,
+    objectCount,
+    topObject,
+    offsets,
+    offsetIntSize,
+    objectRefSize,
+    offsetTableOffset,
+    trailerStart,
+  };
 }
 
 interface BinaryState {
@@ -202,7 +221,12 @@ interface BinaryState {
   trailingBytes: number;
 }
 
-function addFinding(findings: Finding[], level: Finding['level'], problem: string, detail: string): void {
+function addFinding(
+  findings: Finding[],
+  level: Finding['level'],
+  problem: string,
+  detail: string,
+): void {
   if (findings.length < MAX_FINDINGS) findings.push({ level, problem, detail });
 }
 
@@ -211,7 +235,8 @@ function readLength(state: BinaryState, offset: number): { length: number; next:
   const info = marker & 0x0f;
   if (info !== 0x0f) return { length: info, next: offset + 1 };
   const intMarker = state.bytes[offset + 1] ?? 0;
-  if (intMarker >> 4 !== 0x1) throw new PlistError('An extended length is not followed by an integer.');
+  if (intMarker >> 4 !== 0x1)
+    throw new PlistError('An extended length is not followed by an integer.');
   const intBytes = 1 << (intMarker & 0x0f);
   if (intBytes > 8) throw new PlistError('An extended length uses an integer that is too wide.');
   let length = 0;
@@ -231,7 +256,8 @@ function readRef(state: BinaryState, offset: number): number {
 
 function readIntegerBytes(state: BinaryState, offset: number, byteCount: number): bigint {
   let value = 0n;
-  for (let index = 0; index < byteCount; index += 1) value = (value << 8n) | BigInt(state.bytes[offset + index] ?? 0);
+  for (let index = 0; index < byteCount; index += 1)
+    value = (value << 8n) | BigInt(state.bytes[offset + index] ?? 0);
   // Writers store 1, 2 and 4 byte integers unsigned, so negative values always take 8 bytes.
   // Only the 8 and 16 byte widths are two's complement.
   if (byteCount < 8) return value;
@@ -252,7 +278,8 @@ function readObject(state: BinaryState, index: number, depth: number): Node {
   }
 
   const offset = state.header.offsets[index];
-  if (offset === undefined || offset >= state.bytes.length) throw new PlistError('An object offset points outside the file.');
+  if (offset === undefined || offset >= state.bytes.length)
+    throw new PlistError('An object offset points outside the file.');
   const marker = state.bytes[offset] ?? 0;
   const type = marker >> 4;
   const info = marker & 0x0f;
@@ -287,7 +314,12 @@ function readObject(state: BinaryState, index: number, depth: number): Node {
       const view = new DataView(state.bytes.buffer, state.bytes.byteOffset + offset + 1, byteCount);
       const value = byteCount === 8 ? view.getFloat64(0, false) : view.getFloat32(0, false);
       if (!Number.isFinite(value)) {
-        addFinding(state.findings, 'note', 'A real number is not finite', 'The stored value is ' + value + '.');
+        addFinding(
+          state.findings,
+          'note',
+          'A real number is not finite',
+          'The stored value is ' + value + '.',
+        );
       }
       node = { kind: 'real', value, bytes: byteCount };
       break;
@@ -297,20 +329,27 @@ function readObject(state: BinaryState, index: number, depth: number): Node {
       const seconds = view.getFloat64(0, false);
       const iso = new Date(978307200000 + seconds * 1000).toISOString();
       if (seconds < -978307200 || seconds > 4_000_000_000) {
-        addFinding(state.findings, 'note', 'A date is far outside the expected range', iso + ' is stored in this plist.');
+        addFinding(
+          state.findings,
+          'note',
+          'A date is far outside the expected range',
+          iso + ' is stored in this plist.',
+        );
       }
       node = { kind: 'date', iso, seconds };
       break;
     }
     case 0x4: {
       const { length, next } = readLength(state, offset);
-      if (next + length > state.bytes.length) throw new PlistError('A data object runs past the end of the file.');
+      if (next + length > state.bytes.length)
+        throw new PlistError('A data object runs past the end of the file.');
       node = { kind: 'data', length, base64: toBase64(state.bytes.subarray(next, next + length)) };
       break;
     }
     case 0x5: {
       const { length, next } = readLength(state, offset);
-      if (next + length > state.bytes.length) throw new PlistError('A string runs past the end of the file.');
+      if (next + length > state.bytes.length)
+        throw new PlistError('A string runs past the end of the file.');
       const raw = state.bytes.subarray(next, next + length);
       if (raw.some((byte) => byte > 0x7f)) {
         state.nonAsciiStrings += 1;
@@ -327,7 +366,8 @@ function readObject(state: BinaryState, index: number, depth: number): Node {
     case 0x6: {
       const { length, next } = readLength(state, offset);
       const byteLength = length * 2;
-      if (next + byteLength > state.bytes.length) throw new PlistError('A UTF-16 string runs past the end of the file.');
+      if (next + byteLength > state.bytes.length)
+        throw new PlistError('A UTF-16 string runs past the end of the file.');
       node = {
         kind: 'string',
         value: new TextDecoder('utf-16be').decode(state.bytes.subarray(next, next + byteLength)),
@@ -338,7 +378,8 @@ function readObject(state: BinaryState, index: number, depth: number): Node {
     case 0x8: {
       const byteCount = info + 1;
       let value = 0n;
-      for (let byte = 0; byte < byteCount; byte += 1) value = (value << 8n) | BigInt(state.bytes[offset + 1 + byte] ?? 0);
+      for (let byte = 0; byte < byteCount; byte += 1)
+        value = (value << 8n) | BigInt(state.bytes[offset + 1 + byte] ?? 0);
       node = { kind: 'uid', text: value.toString(), bytes: byteCount };
       break;
     }
@@ -350,7 +391,9 @@ function readObject(state: BinaryState, index: number, depth: number): Node {
       }
       const items: Node[] = [];
       for (let item = 0; item < length; item += 1) {
-        items.push(readObject(state, readRef(state, next + item * state.header.objectRefSize), depth + 1));
+        items.push(
+          readObject(state, readRef(state, next + item * state.header.objectRefSize), depth + 1),
+        );
       }
       node = type === 0xa ? { kind: 'array', items } : { kind: 'set', items };
       break;
@@ -358,7 +401,8 @@ function readObject(state: BinaryState, index: number, depth: number): Node {
     case 0xd: {
       const { length, next } = readLength(state, offset);
       const refs = length * 2 * state.header.objectRefSize;
-      if (next + refs > state.bytes.length) throw new PlistError('A dictionary runs past the end of the file.');
+      if (next + refs > state.bytes.length)
+        throw new PlistError('A dictionary runs past the end of the file.');
       const entries: { key: string; node: Node }[] = [];
       const seen = new Set<string>();
       for (let entry = 0; entry < length; entry += 1) {
@@ -367,7 +411,14 @@ function readObject(state: BinaryState, index: number, depth: number): Node {
         const keyNode = readObject(state, keyRef, depth + 1);
         const key = keyNode.kind === 'string' ? keyNode.value : valueText(keyNode, false);
         if (seen.has(key)) {
-          addFinding(state.findings, 'warning', 'Duplicate key in a dictionary', 'The key "' + clip(key, 40) + '" appears more than once; the later value is the one readers see.');
+          addFinding(
+            state.findings,
+            'warning',
+            'Duplicate key in a dictionary',
+            'The key "' +
+              clip(key, 40) +
+              '" appears more than once; the later value is the one readers see.',
+          );
         }
         seen.add(key);
         entries.push({ key, node: readObject(state, valueRef, depth + 1) });
@@ -376,7 +427,9 @@ function readObject(state: BinaryState, index: number, depth: number): Node {
       break;
     }
     default:
-      throw new PlistError('Object marker 0x' + marker.toString(16) + ' is not a type this tool knows.');
+      throw new PlistError(
+        'Object marker 0x' + marker.toString(16) + ' is not a type this tool knows.',
+      );
   }
 
   state.reading.delete(index);
@@ -394,7 +447,12 @@ function describeObject(state: BinaryState, index: number): string[] {
   try {
     switch (type) {
       case 0x0:
-        return [hex, info === 0x9 ? 'true' : info === 0x8 ? 'false' : info === 0xf ? 'fill' : 'null', '-', '-'];
+        return [
+          hex,
+          info === 0x9 ? 'true' : info === 0x8 ? 'false' : info === 0xf ? 'fill' : 'null',
+          '-',
+          '-',
+        ];
       case 0x1:
         return [
           hex,
@@ -404,12 +462,26 @@ function describeObject(state: BinaryState, index: number): string[] {
         ];
       case 0x2: {
         const byteCount = info === 0x3 ? 8 : 4;
-        const view = new DataView(state.bytes.buffer, state.bytes.byteOffset + offset + 1, byteCount);
-        return [hex, 'real', byteCount + ' bytes', String(byteCount === 8 ? view.getFloat64(0, false) : view.getFloat32(0, false))];
+        const view = new DataView(
+          state.bytes.buffer,
+          state.bytes.byteOffset + offset + 1,
+          byteCount,
+        );
+        return [
+          hex,
+          'real',
+          byteCount + ' bytes',
+          String(byteCount === 8 ? view.getFloat64(0, false) : view.getFloat32(0, false)),
+        ];
       }
       case 0x3: {
         const view = new DataView(state.bytes.buffer, state.bytes.byteOffset + offset + 1, 8);
-        return [hex, 'date', '8 bytes', new Date(978307200000 + view.getFloat64(0, false) * 1000).toISOString()];
+        return [
+          hex,
+          'date',
+          '8 bytes',
+          new Date(978307200000 + view.getFloat64(0, false) * 1000).toISOString(),
+        ];
       }
       case 0x4: {
         const { length } = readLength(state, offset);
@@ -421,14 +493,24 @@ function describeObject(state: BinaryState, index: number): string[] {
         const byteLength = type === 0x6 ? length * 2 : length;
         const raw = state.bytes.subarray(next, next + byteLength);
         const text = new TextDecoder(type === 0x6 ? 'utf-16be' : 'utf-8').decode(raw);
-        return [hex, type === 0x6 ? 'string (UTF-16)' : 'string', length + (type === 0x6 ? ' chars' : ' bytes'), clip(text, 60)];
+        return [
+          hex,
+          type === 0x6 ? 'string (UTF-16)' : 'string',
+          length + (type === 0x6 ? ' chars' : ' bytes'),
+          clip(text, 60),
+        ];
       }
       case 0x8:
         return [hex, 'UID', info + 1 + ' bytes', '-'];
       case 0xa:
       case 0xc: {
         const { length } = readLength(state, offset);
-        return [hex, type === 0xa ? 'array' : 'set', length + ' items', length * refSize + ' bytes of refs'];
+        return [
+          hex,
+          type === 0xa ? 'array' : 'set',
+          length + ' items',
+          length * refSize + ' bytes of refs',
+        ];
       }
       case 0xd: {
         const { length } = readLength(state, offset);
@@ -480,7 +562,12 @@ interface XmlResult {
   findings: Finding[];
 }
 
-function readXmlValue(element: Element, depth: number, findings: Finding[], counts: Map<string, number>): Node {
+function readXmlValue(
+  element: Element,
+  depth: number,
+  findings: Finding[],
+  counts: Map<string, number>,
+): Node {
   const tag = localName(element);
   const text = element.textContent ?? '';
   switch (tag) {
@@ -491,13 +578,23 @@ function readXmlValue(element: Element, depth: number, findings: Finding[], coun
         const child = children[index];
         if (child === undefined) continue;
         if (localName(child) !== 'key') {
-          addFinding(findings, 'note', 'Unexpected element inside <dict>', '<' + localName(child) + '> was skipped because a <key> was expected.');
+          addFinding(
+            findings,
+            'note',
+            'Unexpected element inside <dict>',
+            '<' + localName(child) + '> was skipped because a <key> was expected.',
+          );
           continue;
         }
         const key = child.textContent ?? '';
         const valueElement = children[index + 1];
         if (valueElement === undefined) {
-          addFinding(findings, 'warning', 'A <key> has no value', 'The key "' + clip(key, 40) + '" is the last element in its dictionary.');
+          addFinding(
+            findings,
+            'warning',
+            'A <key> has no value',
+            'The key "' + clip(key, 40) + '" is the last element in its dictionary.',
+          );
           entries.push({ key, node: { kind: 'null' } });
           break;
         }
@@ -507,14 +604,26 @@ function readXmlValue(element: Element, depth: number, findings: Finding[], coun
       const seen = new Set<string>();
       for (const entry of entries) {
         if (seen.has(entry.key)) {
-          addFinding(findings, 'warning', 'Duplicate key in a dictionary', 'The key "' + clip(entry.key, 40) + '" appears more than once; the later value is the one readers see.');
+          addFinding(
+            findings,
+            'warning',
+            'Duplicate key in a dictionary',
+            'The key "' +
+              clip(entry.key, 40) +
+              '" appears more than once; the later value is the one readers see.',
+          );
         }
         seen.add(entry.key);
       }
       return { kind: 'dict', entries };
     }
     case 'array':
-      return { kind: 'array', items: Array.from(element.children).map((child) => readXmlValue(child, depth + 1, findings, counts)) };
+      return {
+        kind: 'array',
+        items: Array.from(element.children).map((child) =>
+          readXmlValue(child, depth + 1, findings, counts),
+        ),
+      };
     case 'string':
       return { kind: 'string', value: text, utf16: false };
     case 'data': {
@@ -523,14 +632,24 @@ function readXmlValue(element: Element, depth: number, findings: Finding[], coun
         const bytes = compact === '' ? new Uint8Array(0) : fromBase64(compact);
         return { kind: 'data', length: bytes.length, base64: toBase64(bytes) };
       } catch {
-        addFinding(findings, 'warning', 'A <data> element is not valid base64', 'It was treated as empty.');
+        addFinding(
+          findings,
+          'warning',
+          'A <data> element is not valid base64',
+          'It was treated as empty.',
+        );
         return { kind: 'data', length: 0, base64: '' };
       }
     }
     case 'integer': {
       const trimmed = text.trim();
       if (!/^-?\d+$/u.test(trimmed)) {
-        addFinding(findings, 'error', 'An <integer> is not a number', 'It reads "' + clip(trimmed, 40) + '".');
+        addFinding(
+          findings,
+          'error',
+          'An <integer> is not a number',
+          'It reads "' + clip(trimmed, 40) + '".',
+        );
         return { kind: 'null' };
       }
       return { kind: 'integer', text: BigInt(trimmed).toString(), bytes: 8 };
@@ -538,7 +657,12 @@ function readXmlValue(element: Element, depth: number, findings: Finding[], coun
     case 'real': {
       const value = Number(text.trim());
       if (!Number.isFinite(value)) {
-        addFinding(findings, 'error', 'A <real> is not a number', 'It reads "' + clip(text.trim(), 40) + '".');
+        addFinding(
+          findings,
+          'error',
+          'A <real> is not a number',
+          'It reads "' + clip(text.trim(), 40) + '".',
+        );
         return { kind: 'null' };
       }
       return { kind: 'real', value, bytes: 8 };
@@ -550,13 +674,27 @@ function readXmlValue(element: Element, depth: number, findings: Finding[], coun
     case 'date': {
       const milliseconds = Date.parse(text.trim());
       if (Number.isNaN(milliseconds)) {
-        addFinding(findings, 'error', 'A <date> is not a valid date', 'It reads "' + clip(text.trim(), 40) + '".');
+        addFinding(
+          findings,
+          'error',
+          'A <date> is not a valid date',
+          'It reads "' + clip(text.trim(), 40) + '".',
+        );
         return { kind: 'null' };
       }
-      return { kind: 'date', iso: new Date(milliseconds).toISOString(), seconds: milliseconds / 1000 - 978307200 };
+      return {
+        kind: 'date',
+        iso: new Date(milliseconds).toISOString(),
+        seconds: milliseconds / 1000 - 978307200,
+      };
     }
     default:
-      addFinding(findings, 'note', 'Unsupported element <' + tag + '>', 'This is not part of the property list schema, so it was skipped.');
+      addFinding(
+        findings,
+        'note',
+        'Unsupported element <' + tag + '>',
+        'This is not part of the property list schema, so it was skipped.',
+      );
       return { kind: 'null' };
   }
 }
@@ -567,7 +705,8 @@ function readXml(text: string): XmlResult {
     findings.push({
       level: 'note',
       problem: 'The XML declares a DOCTYPE',
-      detail: 'External entities are never fetched here, so anything defined in the DTD is ignored.',
+      detail:
+        'External entities are never fetched here, so anything defined in the DTD is ignored.',
     });
   }
 
@@ -575,26 +714,41 @@ function readXml(text: string): XmlResult {
   try {
     document = new DOMParser().parseFromString(text, 'application/xml');
   } catch {
-    throw new ToolError('That XML could not be parsed.', 'Check for an unclosed tag or a stray character.');
+    throw new ToolError(
+      'That XML could not be parsed.',
+      'Check for an unclosed tag or a stray character.',
+    );
   }
   if (document.querySelector('parsererror') !== null) {
-    throw new ToolError('That XML could not be parsed.', 'Check for an unclosed tag or a stray character.');
+    throw new ToolError(
+      'That XML could not be parsed.',
+      'Check for an unclosed tag or a stray character.',
+    );
   }
 
   const root = document.documentElement;
   if (root === null || localName(root) !== 'plist') {
     throw new ToolError(
       'That XML is not a property list.',
-      root === null ? 'The document is empty.' : 'The root element is <' + localName(root) + '>, not <plist>.',
+      root === null
+        ? 'The document is empty.'
+        : 'The root element is <' + localName(root) + '>, not <plist>.',
     );
   }
   const version = root.getAttribute('version') ?? '';
   if (version !== '' && version !== '1.0') {
-    findings.push({ level: 'note', problem: 'Unexpected plist version', detail: 'The document declares version "' + version + '"; 1.0 is the defined value.' });
+    findings.push({
+      level: 'note',
+      problem: 'Unexpected plist version',
+      detail: 'The document declares version "' + version + '"; 1.0 is the defined value.',
+    });
   }
   const valueElement = root.children[0];
   if (valueElement === undefined) {
-    throw new ToolError('That property list has no value.', 'A <plist> element must contain exactly one value such as <dict> or <array>.');
+    throw new ToolError(
+      'That property list has no value.',
+      'A <plist> element must contain exactly one value such as <dict> or <array>.',
+    );
   }
   const counts = new Map<string, number>();
   const node = readXmlValue(valueElement, 0, findings, counts);
@@ -616,7 +770,11 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
     sourceLabel = source.name === '' ? 'uploaded file' : source.name;
   } else {
     const text = String(input.text ?? '');
-    if (text.trim() === '') throw new ToolError('No property list was provided.', 'Drop a .plist file or paste its text.');
+    if (text.trim() === '')
+      throw new ToolError(
+        'No property list was provided.',
+        'Drop a .plist file or paste its text.',
+      );
     if (text.length > MAX_BYTES) throw new ToolError('That is more than 8 MB of input.');
     bytes = new TextEncoder().encode(text);
     sourceLabel = 'pasted text';
@@ -654,7 +812,8 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
     try {
       node = readObject(state, header.topObject, 0);
     } catch (error) {
-      const reason = error instanceof PlistError ? error.message : 'The structure could not be read.';
+      const reason =
+        error instanceof PlistError ? error.message : 'The structure could not be read.';
       throw new ToolError('That binary plist could not be decoded.', reason);
     }
     version = header.version;
@@ -676,14 +835,19 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
       })();
       const refSize = header?.objectRefSize ?? 0;
       if (type === 0xa || type === 0xc) {
-        for (let item = 0; item < length; item += 1) mark(readRef(state as BinaryState, next + item * refSize), depth + 1);
+        for (let item = 0; item < length; item += 1)
+          mark(readRef(state as BinaryState, next + item * refSize), depth + 1);
       } else if (type === 0xd) {
-        for (let entry = 0; entry < length * 2; entry += 1) mark(readRef(state as BinaryState, next + entry * refSize), depth + 1);
+        for (let entry = 0; entry < length * 2; entry += 1)
+          mark(readRef(state as BinaryState, next + entry * refSize), depth + 1);
       }
     };
     mark(header.topObject, 0);
     state.unreachable = header.objectCount - reachable.size;
-    state.trailingBytes = Math.max(0, header.trailerStart - (header.offsetTableOffset + header.objectCount * header.offsetIntSize));
+    state.trailingBytes = Math.max(
+      0,
+      header.trailerStart - (header.offsetTableOffset + header.objectCount * header.offsetIntSize),
+    );
     if (state.unreachable > 0) {
       addFinding(
         findings,
@@ -693,7 +857,12 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
       );
     }
     if (state.trailingBytes > 0) {
-      addFinding(findings, 'note', state.trailingBytes + ' byte(s) sit between the tables', 'The offset table does not end where the trailer begins.');
+      addFinding(
+        findings,
+        'note',
+        state.trailingBytes + ' byte(s) sit between the tables',
+        'The offset table does not end where the trailer begins.',
+      );
     }
     if (state.cyclic) {
       addFinding(
@@ -704,25 +873,47 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
       );
     }
     if (state.depthExceeded) {
-      addFinding(findings, 'warning', 'Nesting is deeper than ' + MAX_DEPTH + ' levels', 'Deeper values were not expanded.');
+      addFinding(
+        findings,
+        'warning',
+        'Nesting is deeper than ' + MAX_DEPTH + ' levels',
+        'Deeper values were not expanded.',
+      );
     }
   } else {
     const text = new TextDecoder('utf-8').decode(bytes);
     const result = readXml(text);
     node = result.node;
     version = result.version;
-    for (const finding of result.findings) addFinding(findings, finding.level, finding.problem, finding.detail);
+    for (const finding of result.findings)
+      addFinding(findings, finding.level, finding.problem, finding.detail);
   }
 
-  const walkState: WalkState = { rows: 0, depth: 0, counts: isBinary ? new Map() : xmlCounts, truncated: false, maxDepth: 0 };
+  const walkState: WalkState = {
+    rows: 0,
+    depth: 0,
+    counts: isBinary ? new Map() : xmlCounts,
+    truncated: false,
+    maxDepth: 0,
+  };
   const rows: string[][] = [];
   walk(node, 'root', 0, walkState, dataPreview, rows);
   if (walkState.truncated) {
-    addFinding(findings, 'note', 'The value tree was cut off', 'Only the first ' + MAX_TREE_ROWS + ' values are listed.');
+    addFinding(
+      findings,
+      'note',
+      'The value tree was cut off',
+      'Only the first ' + MAX_TREE_ROWS + ' values are listed.',
+    );
   }
   const uidCount = walkState.counts.get('UID (1 bytes)') ?? 0;
   if (uidCount > 0) {
-    addFinding(findings, 'note', 'UID values are present', 'These come from keyed archives such as NSKeyedArchiver and refer to objects by index.');
+    addFinding(
+      findings,
+      'note',
+      'UID values are present',
+      'These come from keyed archives such as NSKeyedArchiver and refer to objects by index.',
+    );
   }
 
   const errors = findings.filter((finding) => finding.level === 'error').length;
@@ -732,7 +923,8 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
 
   const resultNotes: string[] = [];
   const resultWarnings: string[] = [];
-  if (rows.length >= MAX_TREE_ROWS) resultNotes.push('Only the first ' + MAX_TREE_ROWS + ' tree rows are shown.');
+  if (rows.length >= MAX_TREE_ROWS)
+    resultNotes.push('Only the first ' + MAX_TREE_ROWS + ' tree rows are shown.');
   if (errors > 0) resultWarnings.push(errors + ' structural error(s) found.');
 
   const stats: Record<string, string | number> = {
@@ -751,20 +943,40 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
       ['Bytes', String(bytes.length)],
       ['Version', version],
       ['Top-level type', typeLabel(node)],
-      ['Top-level size', childCount(node) === 0 ? 'scalar value' : String(childCount(node)) + (node.kind === 'dict' ? ' keys' : ' items')],
-      ['Objects in offset table', isBinary && header !== null ? String(header.objectCount) : 'not applicable'],
-      ['Object ref size', isBinary && header !== null ? header.objectRefSize + ' bytes' : 'not applicable'],
-      ['Offset size', isBinary && header !== null ? header.offsetIntSize + ' bytes' : 'not applicable'],
+      [
+        'Top-level size',
+        childCount(node) === 0
+          ? 'scalar value'
+          : String(childCount(node)) + (node.kind === 'dict' ? ' keys' : ' items'),
+      ],
+      [
+        'Objects in offset table',
+        isBinary && header !== null ? String(header.objectCount) : 'not applicable',
+      ],
+      [
+        'Object ref size',
+        isBinary && header !== null ? header.objectRefSize + ' bytes' : 'not applicable',
+      ],
+      [
+        'Offset size',
+        isBinary && header !== null ? header.offsetIntSize + ' bytes' : 'not applicable',
+      ],
       ['Values walked', String(rows.length)],
       ['Deepest nesting', String(walkState.depth)],
-      ['Types', types.length === 0 ? 'none' : types.map((entry) => entry[0] + ' × ' + entry[1]).join(', ')],
+      [
+        'Types',
+        types.length === 0 ? 'none' : types.map((entry) => entry[0] + ' × ' + entry[1]).join(', '),
+      ],
       ['Errors', String(errors)],
       ['Warnings', String(warnings)],
       ['Notes', String(notes)],
     ];
     return {
       outputs: [],
-      report: { output: JSON.stringify({ headers: ['Item', 'Value'], rows: summaryRows }), render: 'table' },
+      report: {
+        output: JSON.stringify({ headers: ['Item', 'Value'], rows: summaryRows }),
+        render: 'table',
+      },
       notes: resultNotes,
       warnings: resultWarnings,
       stats,
@@ -778,7 +990,15 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
         report: {
           output: JSON.stringify({
             headers: ['#', 'Marker', 'Type', 'Size', 'Value'],
-            rows: [['-', '-', 'not applicable', '-', 'The offset table is part of the binary format; this is an XML plist.']],
+            rows: [
+              [
+                '-',
+                '-',
+                'not applicable',
+                '-',
+                'The offset table is part of the binary format; this is an XML plist.',
+              ],
+            ],
           }),
           render: 'table',
         },
@@ -788,7 +1008,11 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
       };
     }
     const objectRows: string[][] = [];
-    for (let index = 0; index < header.objectCount && objectRows.length < MAX_OBJECT_ROWS; index += 1) {
+    for (
+      let index = 0;
+      index < header.objectCount && objectRows.length < MAX_OBJECT_ROWS;
+      index += 1
+    ) {
       objectRows.push([String(index), ...describeObject(state, index)]);
     }
     if (header.objectCount > objectRows.length) {
@@ -798,7 +1022,10 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
     return {
       outputs: [],
       report: {
-        output: JSON.stringify({ headers: ['#', 'Marker', 'Type', 'Size', 'Value'], rows: objectRows }),
+        output: JSON.stringify({
+          headers: ['#', 'Marker', 'Type', 'Size', 'Value'],
+          rows: objectRows,
+        }),
         render: 'table',
       },
       notes: resultNotes,
@@ -815,7 +1042,13 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
           headers: ['Level', 'Problem', 'Detail'],
           rows:
             findings.length === 0
-              ? [['ok', 'Nothing to flag', 'The property list reads cleanly and no structural problems were found.']]
+              ? [
+                  [
+                    'ok',
+                    'Nothing to flag',
+                    'The property list reads cleanly and no structural problems were found.',
+                  ],
+                ]
               : findings.map((finding) => [finding.level, finding.problem, finding.detail]),
         }),
         render: 'table',

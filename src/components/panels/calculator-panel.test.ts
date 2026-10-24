@@ -53,7 +53,9 @@ function fixture(): HTMLElement {
 }
 
 const findKey = (root: HTMLElement, label: string): HTMLButtonElement =>
-  Array.from(root.querySelectorAll<HTMLButtonElement>('button')).find((b) => b.textContent === label)!;
+  Array.from(root.querySelectorAll<HTMLButtonElement>('button')).find(
+    (b) => b.textContent === label,
+  )!;
 
 beforeEach(() => {
   vi.useFakeTimers();
@@ -78,7 +80,20 @@ describe('calculator keypad registry', () => {
 
   it('exposes keys for every scientific function the evaluator understands', () => {
     const inserts = SCIENTIFIC_KEYS.map((k) => k.insert);
-    for (const insert of ['sin(', 'cos(', 'tan(', 'log10(', 'ln(', 'log2(', 'sqrt(', 'cbrt(', '^', '!', 'pi', 'e']) {
+    for (const insert of [
+      'sin(',
+      'cos(',
+      'tan(',
+      'log10(',
+      'ln(',
+      'log2(',
+      'sqrt(',
+      'cbrt(',
+      '^',
+      '!',
+      'pi',
+      'e',
+    ]) {
       expect(inserts, `missing ${insert}`).toContain(insert);
     }
   });
@@ -151,7 +166,11 @@ describe('calculator memory register', () => {
 
 describe('calculator panel mounting', () => {
   it('evaluates the typed expression through the tool', async () => {
-    runToolByIdMock.mockResolvedValue({ output: '14', render: 'text', notes: ['Parsed expression: 2+3*4'] });
+    runToolByIdMock.mockResolvedValue({
+      output: '14',
+      render: 'text',
+      notes: ['Parsed expression: 2+3*4'],
+    });
     const root = fixture();
     document.body.append(root);
     mountCalculatorPanel(root);
@@ -310,7 +329,10 @@ describe('applyExampleOptions', () => {
 
   it('writes only the options it understands', () => {
     const root = fixture();
-    applyExampleOptions(root, JSON.stringify({ angleMode: 'degrees', precision: 4, scientific: true }));
+    applyExampleOptions(
+      root,
+      JSON.stringify({ angleMode: 'degrees', precision: 4, scientific: true }),
+    );
     expect(root.querySelector<HTMLSelectElement>('[data-angle-mode]')!.value).toBe('degrees');
     expect(root.querySelector<HTMLInputElement>('[data-precision]')!.value).toBe('4');
     expect(root.querySelector<HTMLInputElement>('[data-scientific]')!.checked).toBe(true);

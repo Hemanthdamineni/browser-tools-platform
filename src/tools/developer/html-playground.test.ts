@@ -27,7 +27,10 @@ describe('html-playground tool', () => {
   });
 
   it('uses the declared defaults when options are omitted', () => {
-    const out = tool.run({ text: JSON.stringify({ html: '<p>a</p>', css: '', js: '' }) }) as {
+    const out = tool.run({
+      text: JSON.stringify({ html: '<p>a</p>', css: '', js: '' }),
+      options: {},
+    }) as {
       output: string;
       filename?: string;
     };

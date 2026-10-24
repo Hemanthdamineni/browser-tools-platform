@@ -135,7 +135,9 @@ export function parseDuration(raw: string | number | undefined, fallback = 3000)
       ? clamp(Math.round(raw), MIN_DURATION_MS, MAX_DURATION_MS)
       : fallback;
   }
-  const text = String(raw ?? '').trim().toLowerCase();
+  const text = String(raw ?? '')
+    .trim()
+    .toLowerCase();
   const match = /^([0-9]*\.?[0-9]+)\s*(ms|s|m)?$/.exec(text);
   if (!match) return fallback;
   const value = Number(match[1]);
@@ -181,7 +183,9 @@ export function channelLabel(channel: SpeakerChannel): string {
 
 /** Read the channel select. */
 function readChannel(root: HTMLElement): SpeakerChannel {
-  const value = (root.querySelector<HTMLSelectElement>('[data-sp-channel]')?.value ?? 'both').trim();
+  const value = (
+    root.querySelector<HTMLSelectElement>('[data-sp-channel]')?.value ?? 'both'
+  ).trim();
   return value === 'left' || value === 'right' ? value : 'both';
 }
 
@@ -331,7 +335,9 @@ export function mountSpeakerTestPanel(root: HTMLElement): void {
     const mode = readMode(root);
     const durationMs = readDuration(root);
     const startFreq =
-      mode === 'sweep' ? readFrequency(root, '[data-sp-sweep-start]', MIN_FREQ) : readFrequency(root, '[data-sp-frequency]', DEFAULT_FREQUENCY);
+      mode === 'sweep'
+        ? readFrequency(root, '[data-sp-sweep-start]', MIN_FREQ)
+        : readFrequency(root, '[data-sp-frequency]', DEFAULT_FREQUENCY);
     const endFreq =
       mode === 'sweep' ? readFrequency(root, '[data-sp-sweep-end]', MAX_FREQ) : startFreq;
 

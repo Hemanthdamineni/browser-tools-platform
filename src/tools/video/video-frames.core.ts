@@ -90,11 +90,7 @@ function readWhole(value: unknown, fallback: number, label: string, min: number)
  * Generation stops after {@link FRAMES_MAX} + 1 entries, which is all the
  * caller needs to know the plan is over the cap — it never walks a huge range.
  */
-export function planIntervalTimestamps(
-  start: number,
-  end: number,
-  interval: number,
-): number[] {
+export function planIntervalTimestamps(start: number, end: number, interval: number): number[] {
   if (!Number.isFinite(interval) || interval <= 0) {
     throw new ToolError('The interval must be greater than zero.');
   }
@@ -112,11 +108,7 @@ export function planIntervalTimestamps(
  * Sample `count` timestamps evenly across the `[start, end]` range. The first
  * and last frames sit exactly on the range bounds.
  */
-export function planCountTimestamps(
-  start: number,
-  end: number,
-  count: number,
-): number[] {
+export function planCountTimestamps(start: number, end: number, count: number): number[] {
   const whole = Math.max(1, Math.round(count));
   const span = Math.max(0, end - start);
   if (span <= 0 || whole === 1) return [roundTimestamp(start)];
@@ -295,7 +287,16 @@ export function resolveFramesSettings(
     sheet = sheetGrid(timestamps.length, columns, w, h);
   }
 
-  return { mode, layout, startSeconds: start, endSeconds: end, timestamps, width: w, height: h, sheet };
+  return {
+    mode,
+    layout,
+    startSeconds: start,
+    endSeconds: end,
+    timestamps,
+    width: w,
+    height: h,
+    sheet,
+  };
 }
 
 /* -------------------------------------------------------------------------- */
@@ -304,7 +305,10 @@ export function resolveFramesSettings(
 
 /** Strip the extension and neutralise path separators for a base name. */
 function baseName(sourceName: string): string {
-  return sourceName.replace(/\.[^./\\]+$/, '').replace(/[\\/]+/g, '-').trim();
+  return sourceName
+    .replace(/\.[^./\\]+$/, '')
+    .replace(/[\\/]+/g, '-')
+    .trim();
 }
 
 /**

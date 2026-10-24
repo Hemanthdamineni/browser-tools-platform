@@ -53,34 +53,55 @@ function clampInt(value: unknown, min: number, max: number, fallback: number): n
 export function parseSession(text: string): DeadPixelSession {
   const raw = (text ?? '').trim();
   if (!raw) {
-    throw new ToolError('No dead-pixel sweep has been recorded yet.', 'Run the fullscreen test and the report fills in here.');
+    throw new ToolError(
+      'No dead-pixel sweep has been recorded yet.',
+      'Run the fullscreen test and the report fills in here.',
+    );
   }
 
   let parsed: unknown;
   try {
     parsed = JSON.parse(raw);
   } catch {
-    throw new ToolError('The recorded sweep could not be read.', 'Reload the page and run the test again.');
+    throw new ToolError(
+      'The recorded sweep could not be read.',
+      'Reload the page and run the test again.',
+    );
   }
 
   if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
-    throw new ToolError('The recorded sweep is not in the expected shape.', 'Reload the page and try again.');
+    throw new ToolError(
+      'The recorded sweep is not in the expected shape.',
+      'Reload the page and try again.',
+    );
   }
 
   const session = parsed as Partial<DeadPixelSession>;
   if (!Array.isArray(session.shown)) {
-    throw new ToolError('The recorded sweep holds no colours.', 'Run the fullscreen test and the report appears here.');
+    throw new ToolError(
+      'The recorded sweep holds no colours.',
+      'Run the fullscreen test and the report appears here.',
+    );
   }
 
   session.shown.forEach((colour, index) => {
     if (!colour || typeof colour !== 'object') {
-      throw new ToolError(`Colour ${index + 1} of the sweep is malformed.`, 'Reload the page and try again.');
+      throw new ToolError(
+        `Colour ${index + 1} of the sweep is malformed.`,
+        'Reload the page and try again.',
+      );
     }
     if (typeof colour.name !== 'string' || !colour.name) {
-      throw new ToolError(`Colour ${index + 1} of the sweep has no name.`, 'Reload the page and try again.');
+      throw new ToolError(
+        `Colour ${index + 1} of the sweep has no name.`,
+        'Reload the page and try again.',
+      );
     }
     if (typeof colour.value !== 'string' || !colour.value) {
-      throw new ToolError(`Colour ${index + 1} of the sweep has no value.`, 'Reload the page and try again.');
+      throw new ToolError(
+        `Colour ${index + 1} of the sweep has no value.`,
+        'Reload the page and try again.',
+      );
     }
   });
 
@@ -117,7 +138,9 @@ export function buildReport(session: DeadPixelSession): TextRunResult {
   if (suspects > 0) {
     notes.push(`You flagged ${suspects} screen${suspects === 1 ? '' : 's'} as suspect.`);
   } else {
-    notes.push('No screen was flagged. A clean panel is usually good news, but check the greys — stuck sub-pixels hide there.');
+    notes.push(
+      'No screen was flagged. A clean panel is usually good news, but check the greys — stuck sub-pixels hide there.',
+    );
   }
 
   return {

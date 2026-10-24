@@ -376,7 +376,10 @@ export async function svgToPngBlob(svgUrl: string): Promise<Blob> {
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('Canvas 2D context is unavailable.');
   ctx.drawImage(image, 0, 0);
-  canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error('PNG encoding failed.'))), 'image/png');
+  canvas.toBlob(
+    (blob) => (blob ? resolve(blob) : reject(new Error('PNG encoding failed.'))),
+    'image/png',
+  );
   return promise;
 }
 

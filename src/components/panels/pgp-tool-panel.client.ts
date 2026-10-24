@@ -11,7 +11,13 @@ import type { FileRunResult } from '@/lib/types';
 import { createDropZone, downloadBlob } from '@/lib/files';
 import { escapeHtml, formatBytes } from '@/lib/format';
 import { runToolById } from '@/lib/worker/client';
-import { applyShowWhen, clearError, readOptions, renderTextResult, showError } from '../workbench/shared';
+import {
+  applyShowWhen,
+  clearError,
+  readOptions,
+  renderTextResult,
+  showError,
+} from '../workbench/shared';
 import {
   buildPgpPayload,
   missingField,
@@ -34,12 +40,6 @@ const SECTION_ATTR: Record<PgpSection, string> = {
   sig: 'data-sig',
   ver: 'data-ver',
   imp: 'data-imp',
-};
-
-/** Per-section file slot, used to attach a chosen file to encrypt/decrypt. */
-const FILE_SLOT: Partial<Record<PgpSection, 'data-drop-enc' | 'data-drop-dec'>> = {
-  enc: 'data-drop-enc',
-  dec: 'data-drop-dec',
 };
 
 /** The visible panel state read straight off the DOM. */
@@ -225,15 +225,19 @@ export function mountPgpPanel(root: HTMLElement): void {
 
     const payload = buildPgpPayload(mode, values);
     try {
-      const result = await runToolById<FileRunResult>(toolId, payload, {
-        signal: controller.signal,
-        onProgress: (fraction, message) => {
-          if (generation !== runGeneration) return;
-          const pct = Math.round(Math.min(1, Math.max(0, fraction)) * 100);
-          if (progressBar) progressBar.style.width = `${pct}%`;
-          if (progressMsg) progressMsg.textContent = message ? `${message} — ${pct}%` : `${pct}%`;
+      const result = await runToolById<FileRunResult>(
+        toolId,
+        { ...payload },
+        {
+          signal: controller.signal,
+          onProgress: (fraction, message) => {
+            if (generation !== runGeneration) return;
+            const pct = Math.round(Math.min(1, Math.max(0, fraction)) * 100);
+            if (progressBar) progressBar.style.width = `${pct}%`;
+            if (progressMsg) progressMsg.textContent = message ? `${message} — ${pct}%` : `${pct}%`;
+          },
         },
-      });
+      );
       if (generation !== runGeneration) return;
       if (progressBar) progressBar.style.width = '100%';
       if (progressMsg) progressMsg.textContent = 'Done';
@@ -307,9 +311,7 @@ export function mountPgpPanel(root: HTMLElement): void {
   function loadSaved(which: 'public' | 'private'): void {
     let value: string | null = null;
     try {
-      value = localStorage.getItem(
-        which === 'public' ? STORAGE_PUBLIC_KEY : STORAGE_PRIVATE_KEY,
-      );
+      value = localStorage.getItem(which === 'public' ? STORAGE_PUBLIC_KEY : STORAGE_PRIVATE_KEY);
     } catch {
       showError(errorBox, 'Could not read from this browser\u2019s storage.');
       return;
@@ -351,7 +353,9 @@ export function mountPgpPanel(root: HTMLElement): void {
     controller?.abort();
     controller = null;
     root
-      .querySelectorAll<HTMLTextAreaElement>('textarea[data-enc-key], textarea[data-dec-key], textarea[data-sig-key], textarea[data-ver-key], textarea[data-imp-key], textarea[data-enc-msg], textarea[data-dec-msg], textarea[data-sig-msg], textarea[data-ver-msg], textarea[data-ver-sig]')
+      .querySelectorAll<HTMLTextAreaElement>(
+        'textarea[data-enc-key], textarea[data-dec-key], textarea[data-sig-key], textarea[data-ver-key], textarea[data-imp-key], textarea[data-enc-msg], textarea[data-dec-msg], textarea[data-sig-msg], textarea[data-ver-msg], textarea[data-ver-sig]',
+      )
       .forEach((el) => (el.value = ''));
     root
       .querySelectorAll<HTMLInputElement>('input[type="password"]')

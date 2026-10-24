@@ -101,7 +101,12 @@ function pixelRegion(
 describe('regionToPixels', () => {
   it('turns percentages into rounded pixel bounds', () => {
     expect(regionToPixels(region(0, 0, 50, 25), 200, 400)).toEqual({ x: 0, y: 0, w: 100, h: 100 });
-    expect(regionToPixels(region(10, 20, 30, 40), 100, 100)).toEqual({ x: 10, y: 20, w: 30, h: 40 });
+    expect(regionToPixels(region(10, 20, 30, 40), 100, 100)).toEqual({
+      x: 10,
+      y: 20,
+      w: 30,
+      h: 40,
+    });
   });
 
   it('rounds fractional percentages to whole pixels', () => {
@@ -114,8 +119,18 @@ describe('regionToPixels', () => {
   });
 
   it('clamps a region that hangs off the image', () => {
-    expect(regionToPixels(region(50, 50, 100, 100), 100, 100)).toEqual({ x: 50, y: 50, w: 50, h: 50 });
-    expect(regionToPixels(region(-20, -20, 50, 50), 100, 100)).toEqual({ x: 0, y: 0, w: 30, h: 30 });
+    expect(regionToPixels(region(50, 50, 100, 100), 100, 100)).toEqual({
+      x: 50,
+      y: 50,
+      w: 50,
+      h: 50,
+    });
+    expect(regionToPixels(region(-20, -20, 50, 50), 100, 100)).toEqual({
+      x: 0,
+      y: 0,
+      w: 30,
+      h: 30,
+    });
   });
 
   it('rejects regions entirely outside the image', () => {
@@ -535,10 +550,7 @@ describe('applyRegions', () => {
       blackThenPixelate,
       2,
       2,
-      [
-        pixelRegion(0, 0, 1, 1, 'black', 0),
-        pixelRegion(0, 0, 2, 2, 'pixelate', 1),
-      ],
+      [pixelRegion(0, 0, 1, 1, 'black', 0), pixelRegion(0, 0, 2, 2, 'pixelate', 1)],
       params({ cellSize: 2 }),
     );
     // Blackening the corner first drags the average down: (0+10+20+30)/4 = 15.
@@ -552,10 +564,7 @@ describe('applyRegions', () => {
       pixelateThenBlack,
       2,
       2,
-      [
-        pixelRegion(0, 0, 2, 2, 'pixelate', 0),
-        pixelRegion(0, 0, 1, 1, 'black', 1),
-      ],
+      [pixelRegion(0, 0, 2, 2, 'pixelate', 0), pixelRegion(0, 0, 1, 1, 'black', 1)],
       params({ cellSize: 2 }),
     );
     // The pixelate saw the untouched image: (200+10+20+30)/4 = 65, then the
@@ -597,8 +606,18 @@ describe('applyRegions', () => {
 
 describe('clampPixelRect', () => {
   it('rounds and clips', () => {
-    expect(clampPixelRect({ x: 1.4, y: 0, w: 10, h: 10 }, 5, 5)).toEqual({ x: 1, y: 0, w: 4, h: 5 });
-    expect(clampPixelRect({ x: -3, y: -3, w: 10, h: 10 }, 5, 5)).toEqual({ x: 0, y: 0, w: 5, h: 5 });
+    expect(clampPixelRect({ x: 1.4, y: 0, w: 10, h: 10 }, 5, 5)).toEqual({
+      x: 1,
+      y: 0,
+      w: 4,
+      h: 5,
+    });
+    expect(clampPixelRect({ x: -3, y: -3, w: 10, h: 10 }, 5, 5)).toEqual({
+      x: 0,
+      y: 0,
+      w: 5,
+      h: 5,
+    });
     expect(clampPixelRect({ x: 9, y: 0, w: 4, h: 4 }, 5, 5)).toBeNull();
   });
 });
@@ -875,8 +894,7 @@ describe('image-blur-redact run', () => {
     const result = await tool.run({
       files: [PNG()],
       options: {
-        regions:
-          '[{"x":50,"y":0,"w":50,"h":100,"effect":"black"},{"x":300,"y":300,"w":10,"h":10}]',
+        regions: '[{"x":50,"y":0,"w":50,"h":100,"effect":"black"},{"x":300,"y":300,"w":10,"h":10}]',
         format: 'png',
       },
     });
@@ -893,9 +911,9 @@ describe('image-blur-redact run', () => {
     await expect(
       tool.run({ files: [PNG()], options: { regions: REGIONS, effect: 'smear' } }),
     ).rejects.toThrow(/not a redaction effect/i);
-    await expect(
-      tool.run({ files: [PNG()], options: { regions: '[{"x":0,' } }),
-    ).rejects.toThrow(/not valid JSON/i);
+    await expect(tool.run({ files: [PNG()], options: { regions: '[{"x":0,' } })).rejects.toThrow(
+      /not valid JSON/i,
+    );
   });
 
   it('decodes with EXIF orientation applied, so the rotation is baked in', async () => {

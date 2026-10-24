@@ -96,8 +96,23 @@ interface FontData {
   cmap: Cmap | null;
   axes: Axis[];
   ttcCount: number;
-  woff: { version: string; totalSfntSize: number; compressed: number; raw: number; metaLength: number; privLength: number } | null;
-  woff2: { version: string; totalSfntSize: number; totalCompressedSize: number; transformed: string[]; decoded: boolean; metaLength: number; privLength: number } | null;
+  woff: {
+    version: string;
+    totalSfntSize: number;
+    compressed: number;
+    raw: number;
+    metaLength: number;
+    privLength: number;
+  } | null;
+  woff2: {
+    version: string;
+    totalSfntSize: number;
+    totalCompressedSize: number;
+    transformed: string[];
+    decoded: boolean;
+    metaLength: number;
+    privLength: number;
+  } | null;
   checksumFailures: string[];
   fileChecksumOk: boolean | null;
   findings: Finding[];
@@ -143,7 +158,8 @@ class Bytes {
     const raw = this.slice(at, 4);
     if (raw === null) return null;
     let out = '';
-    for (const byte of raw) out += byte >= 0x20 && byte < 0x7f ? String.fromCharCode(byte) : '\u00b7';
+    for (const byte of raw)
+      out += byte >= 0x20 && byte < 0x7f ? String.fromCharCode(byte) : '\u00b7';
     return out;
   }
 
@@ -152,14 +168,17 @@ class Bytes {
     const raw = this.slice(at, length);
     if (raw === null) return null;
     const codes: number[] = [];
-    for (let i = 0; i + 1 < raw.length; i += 2) codes.push(((raw[i] ?? 0) << 8) | (raw[i + 1] ?? 0));
+    for (let i = 0; i + 1 < raw.length; i += 2)
+      codes.push(((raw[i] ?? 0) << 8) | (raw[i + 1] ?? 0));
     const chunks: string[] = [];
-    for (let i = 0; i < codes.length; i += 512) chunks.push(String.fromCharCode(...codes.slice(i, i + 512)));
+    for (let i = 0; i < codes.length; i += 512)
+      chunks.push(String.fromCharCode(...codes.slice(i, i + 512)));
     return chunks.join('');
   }
 }
 
-const clip = (text: string, limit = CLIP): string => (text.length > limit ? text.slice(0, limit - 1) + '\u2026' : text);
+const clip = (text: string, limit = CLIP): string =>
+  text.length > limit ? text.slice(0, limit - 1) + '\u2026' : text;
 
 const formatBytes = (size: number): string => {
   if (size < 1024) return size + ' B';
@@ -173,7 +192,12 @@ const sumWords = (data: Uint8Array, zeroAt?: number): number => {
   const zeroWord = zeroAt !== undefined && zeroAt % 4 === 0 ? zeroAt : -4;
   for (let i = 0; i < data.length; i += 4) {
     if (i === zeroWord) continue;
-    const word = (((data[i] ?? 0) << 24) | ((data[i + 1] ?? 0) << 16) | ((data[i + 2] ?? 0) << 8) | (data[i + 3] ?? 0)) >>> 0;
+    const word =
+      (((data[i] ?? 0) << 24) |
+        ((data[i + 1] ?? 0) << 16) |
+        ((data[i + 2] ?? 0) << 8) |
+        (data[i + 3] ?? 0)) >>>
+      0;
     sum = (sum + word) >>> 0;
   }
   return sum >>> 0;
@@ -186,7 +210,8 @@ type StreamConstructor = new (format: string) => {
 
 /** Decompresses with the platform codec, returning null when the browser has no such codec. */
 const inflate = async (data: Uint8Array, format: string): Promise<Uint8Array | null> => {
-  const Constructor = (globalThis as unknown as { DecompressionStream?: StreamConstructor }).DecompressionStream;
+  const Constructor = (globalThis as unknown as { DecompressionStream?: StreamConstructor })
+    .DecompressionStream;
   if (Constructor === undefined) return null;
   try {
     const stream = new Constructor(format);
@@ -221,64 +246,122 @@ const inflate = async (data: Uint8Array, format: string): Promise<Uint8Array | n
 
 /** WOFF2 stores small table tags as indexes into this list. */
 const WOFF2_KNOWN_TAGS = [
-  'cmap', 'head', 'hhea', 'hmtx', 'maxp', 'name', 'OS/2', 'post', 'cvt ', 'fpgm', 'glyf', 'loca', 'prep', 'CFF ', 'VORG',
-  'EBDT', 'EBLC', 'gasp', 'hdmx', 'kern', 'LTSH', 'PCLT', 'VDMX', 'vhea', 'vmtx', 'BASE', 'GDEF', 'GPOS', 'GSUB', 'EBSC',
-  'JSTF', 'MATH', 'CBDT', 'CBLC', 'COLR', 'CPAL', 'SVG ', 'sbix', 'acnt', 'avar', 'bdat', 'bloc', 'bsln', 'cvar', 'fdsc',
-  'feat', 'fmtx', 'fvar', 'gvar', 'hsty', 'just', 'lcar', 'mort', 'morx', 'opbd', 'prop', 'trak', 'Zapf', 'Silf', 'Glat',
-  'Gloc', 'Feat', 'Sill',
+  'cmap',
+  'head',
+  'hhea',
+  'hmtx',
+  'maxp',
+  'name',
+  'OS/2',
+  'post',
+  'cvt ',
+  'fpgm',
+  'glyf',
+  'loca',
+  'prep',
+  'CFF ',
+  'VORG',
+  'EBDT',
+  'EBLC',
+  'gasp',
+  'hdmx',
+  'kern',
+  'LTSH',
+  'PCLT',
+  'VDMX',
+  'vhea',
+  'vmtx',
+  'BASE',
+  'GDEF',
+  'GPOS',
+  'GSUB',
+  'EBSC',
+  'JSTF',
+  'MATH',
+  'CBDT',
+  'CBLC',
+  'COLR',
+  'CPAL',
+  'SVG ',
+  'sbix',
+  'acnt',
+  'avar',
+  'bdat',
+  'bloc',
+  'bsln',
+  'cvar',
+  'fdsc',
+  'feat',
+  'fmtx',
+  'fvar',
+  'gvar',
+  'hsty',
+  'just',
+  'lcar',
+  'mort',
+  'morx',
+  'opbd',
+  'prop',
+  'trak',
+  'Zapf',
+  'Silf',
+  'Glat',
+  'Gloc',
+  'Feat',
+  'Sill',
 ];
 
 const TABLE_PURPOSE: Record<string, string> = {
-  'avar': 'axis variations',
-  'BASE': 'baseline positions',
-  'bdat': 'Apple bitmap data',
-  'bloc': 'Apple bitmap locations',
+  avar: 'axis variations',
+  BASE: 'baseline positions',
+  bdat: 'Apple bitmap data',
+  bloc: 'Apple bitmap locations',
   'CFF ': 'PostScript (CFF) outlines',
-  'CFF2': 'variable PostScript (CFF2) outlines',
-  'cmap': 'character to glyph mapping',
-  'COLR': 'layered colour glyphs',
-  'CPAL': 'colour palette for COLR',
-  'cvar': 'variable font CVT deltas',
+  CFF2: 'variable PostScript (CFF2) outlines',
+  cmap: 'character to glyph mapping',
+  COLR: 'layered colour glyphs',
+  CPAL: 'colour palette for COLR',
+  cvar: 'variable font CVT deltas',
   'cvt ': 'control values for hinting',
-  'DSIG': 'digital signature (often a placeholder)',
-  'EBDT': 'embedded bitmap data',
-  'EBLC': 'embedded bitmap locations',
-  'FFTM': 'written by FontForge',
-  'fpgm': 'hinting program',
-  'fvar': 'variable font axes',
-  'gasp': 'grid-fitting and scan conversion',
-  'GDEF': 'glyph classes for layout',
-  'glyf': 'TrueType outlines',
-  'GPOS': 'glyph positioning',
-  'GSUB': 'glyph substitution',
-  'gvar': 'variable font glyph deltas',
-  'hdmx': 'legacy horizontal device metrics',
-  'head': 'font header',
-  'hhea': 'horizontal header',
-  'hmtx': 'horizontal metrics',
-  'kern': 'legacy kerning pairs',
-  'loca': 'glyph outline offsets',
-  'LTSH': 'legacy linear thresholds',
-  'MATH': 'math layout',
-  'maxp': 'glyph count and limits',
-  'meta': 'extra metadata',
-  'name': 'family, version and licence names',
+  DSIG: 'digital signature (often a placeholder)',
+  EBDT: 'embedded bitmap data',
+  EBLC: 'embedded bitmap locations',
+  FFTM: 'written by FontForge',
+  fpgm: 'hinting program',
+  fvar: 'variable font axes',
+  gasp: 'grid-fitting and scan conversion',
+  GDEF: 'glyph classes for layout',
+  glyf: 'TrueType outlines',
+  GPOS: 'glyph positioning',
+  GSUB: 'glyph substitution',
+  gvar: 'variable font glyph deltas',
+  hdmx: 'legacy horizontal device metrics',
+  head: 'font header',
+  hhea: 'horizontal header',
+  hmtx: 'horizontal metrics',
+  kern: 'legacy kerning pairs',
+  loca: 'glyph outline offsets',
+  LTSH: 'legacy linear thresholds',
+  MATH: 'math layout',
+  maxp: 'glyph count and limits',
+  meta: 'extra metadata',
+  name: 'family, version and licence names',
   'OS/2': 'metrics, weight class and embedding rights',
-  'PCLT': 'legacy PCL metrics',
-  'post': 'PostScript names and italic angle',
-  'prep': 'hinting pre-program',
-  'sbix': 'bitmap glyphs (Apple)',
-  'STAT': 'axis value names',
+  PCLT: 'legacy PCL metrics',
+  post: 'PostScript names and italic angle',
+  prep: 'hinting pre-program',
+  sbix: 'bitmap glyphs (Apple)',
+  STAT: 'axis value names',
   'SVG ': 'SVG colour glyphs',
-  'TSI0': 'written by Visual TrueType',
-  'TSI1': 'written by Visual TrueType',
-  'TSI2': 'written by Visual TrueType',
-  'TSI3': 'written by Visual TrueType',
-  'TSI5': 'written by Visual TrueType',
-  'VDMX': 'legacy vertical metrics',
-  'vhea': 'vertical header',
-  'vmtx': 'vertical metrics',
-  'VORG': 'vertical origin (CFF)',
+  TSI0: 'written by Visual TrueType',
+  TSI1: 'written by Visual TrueType',
+  TSI2: 'written by Visual TrueType',
+  TSI3: 'written by Visual TrueType',
+  TSI5: 'written by Visual TrueType',
+  VDMX: 'legacy vertical metrics',
+  vhea: 'vertical header',
+  vmtx: 'vertical metrics',
+  VORG: 'vertical origin (CFF)',
 };
 
 const NAME_LABELS: Record<number, string> = {
@@ -321,7 +404,17 @@ const WEIGHT_NAMES: Record<number, string> = {
   900: 'Black',
 };
 
-const WIDTH_NAMES = ['UltraCondensed', 'ExtraCondensed', 'Condensed', 'SemiCondensed', 'Medium', 'SemiExpanded', 'Expanded', 'ExtraExpanded', 'UltraExpanded'];
+const WIDTH_NAMES = [
+  'UltraCondensed',
+  'ExtraCondensed',
+  'Condensed',
+  'SemiCondensed',
+  'Medium',
+  'SemiExpanded',
+  'Expanded',
+  'ExtraExpanded',
+  'UltraExpanded',
+];
 
 const WINDOWS_LANGUAGES: Record<number, string> = {
   0x0404: 'zh-TW',
@@ -421,12 +514,26 @@ const UNICODE_BLOCKS: [string, number, number][] = [
   ['Enclosed Alphanumerics', 0x2460, 0x24ff],
 ];
 
-const parseSfntDirectory = (data: Bytes, base: number, findings: Finding[], fileSize: number): { tables: TableRecord[]; version: number; numTables: number } | null => {
+const parseSfntDirectory = (
+  data: Bytes,
+  base: number,
+  findings: Finding[],
+  fileSize: number,
+): { tables: TableRecord[]; version: number; numTables: number } | null => {
   const numTables = data.u16(base + 4);
   const version = data.u32(base + 0);
   if (numTables === null || version === null) return null;
   if (numTables === 0 || numTables > MAX_TABLES) {
-    findings.push({ level: 'error', problem: 'The table directory is not usable', detail: 'The offset table declares ' + numTables + ' tables; a font has between 1 and ' + MAX_TABLES + '.' });
+    findings.push({
+      level: 'error',
+      problem: 'The table directory is not usable',
+      detail:
+        'The offset table declares ' +
+        numTables +
+        ' tables; a font has between 1 and ' +
+        MAX_TABLES +
+        '.',
+    });
     return null;
   }
   const tables: TableRecord[] = [];
@@ -438,18 +545,49 @@ const parseSfntDirectory = (data: Bytes, base: number, findings: Finding[], file
     const offset = data.u32(at + 8);
     const length = data.u32(at + 12);
     if (tag === null || checksum === null || offset === null || length === null) {
-      findings.push({ level: 'error', problem: 'The table directory is truncated', detail: 'The directory of the offset table stops after ' + i + ' entries, so the font file is incomplete.' });
+      findings.push({
+        level: 'error',
+        problem: 'The table directory is truncated',
+        detail:
+          'The directory of the offset table stops after ' +
+          i +
+          ' entries, so the font file is incomplete.',
+      });
       break;
     }
     const truncated = offset + length > fileSize;
     if (truncated) {
-      findings.push({ level: 'error', problem: 'A table points outside the file', detail: 'Table "' + tag + '" claims ' + length + ' bytes at offset ' + offset + ', which is past the end of a ' + fileSize + '-byte file. The file is truncated or was rebuilt incorrectly.' });
+      findings.push({
+        level: 'error',
+        problem: 'A table points outside the file',
+        detail:
+          'Table "' +
+          tag +
+          '" claims ' +
+          length +
+          ' bytes at offset ' +
+          offset +
+          ', which is past the end of a ' +
+          fileSize +
+          '-byte file. The file is truncated or was rebuilt incorrectly.',
+      });
     }
     if (seen.has(tag)) {
-      findings.push({ level: 'warning', problem: 'The same table appears twice', detail: 'Table "' + tag + '" is listed more than once; readers use the first entry.' });
+      findings.push({
+        level: 'warning',
+        problem: 'The same table appears twice',
+        detail: 'Table "' + tag + '" is listed more than once; readers use the first entry.',
+      });
     }
     seen.add(tag);
-    tables.push({ tag, checksum, offset, length, payload: data.slice(offset, Math.min(length, Math.max(0, fileSize - offset))), truncated });
+    tables.push({
+      tag,
+      checksum,
+      offset,
+      length,
+      payload: data.slice(offset, Math.min(length, Math.max(0, fileSize - offset))),
+      truncated,
+    });
   }
   return { tables, version, numTables };
 };
@@ -487,7 +625,15 @@ const readNames = (table: Bytes): NameRecord[] => {
     const nameId = table.u16(at + 6);
     const length = table.u16(at + 8);
     const offset = table.u16(at + 10);
-    if (platform === null || encoding === null || languageId === null || nameId === null || length === null || offset === null) break;
+    if (
+      platform === null ||
+      encoding === null ||
+      languageId === null ||
+      nameId === null ||
+      length === null ||
+      offset === null
+    )
+      break;
     const start = stringOffset + offset;
     let value: string | null = null;
     if (platform === 3 || platform === 0 || platform === 2) {
@@ -497,12 +643,23 @@ const readNames = (table: Bytes): NameRecord[] => {
       if (raw !== null) value = [...raw].map((byte) => String.fromCharCode(byte)).join('');
     }
     if (value === null) continue;
+    // eslint-disable-next-line no-control-regex -- the sanitizer must match NUL bytes by definition
     const cleaned = value.replace(/\u0000+$/u, '').trim();
     if (cleaned === '') continue;
-    const language = platform === 3 ? WINDOWS_LANGUAGES[languageId] ?? '0x' + languageId.toString(16).padStart(4, '0') : platform === 1 ? 'Mac ' + languageId : '-';
+    const language =
+      platform === 3
+        ? (WINDOWS_LANGUAGES[languageId] ?? '0x' + languageId.toString(16).padStart(4, '0'))
+        : platform === 1
+          ? 'Mac ' + languageId
+          : '-';
     records.push({ nameId, platform, encoding, language, value: cleaned });
   }
-  records.sort((left, right) => left.nameId - right.nameId || left.platform - right.platform || left.language.localeCompare(right.language));
+  records.sort(
+    (left, right) =>
+      left.nameId - right.nameId ||
+      left.platform - right.platform ||
+      left.language.localeCompare(right.language),
+  );
   return records;
 };
 
@@ -519,7 +676,18 @@ const readCmap = (table: Bytes): Cmap | null => {
     const encoding = table.u16(at + 2);
     const offset = table.u32(at + 4);
     if (platform === null || encoding === null || offset === null) break;
-    const score = platform === 3 && encoding === 10 ? 100 : platform === 0 && (encoding === 4 || encoding === 6) ? 90 : platform === 3 && encoding === 1 ? 80 : platform === 0 ? 70 : platform === 3 && encoding === 0 ? 60 : 10;
+    const score =
+      platform === 3 && encoding === 10
+        ? 100
+        : platform === 0 && (encoding === 4 || encoding === 6)
+          ? 90
+          : platform === 3 && encoding === 1
+            ? 80
+            : platform === 0
+              ? 70
+              : platform === 3 && encoding === 0
+                ? 60
+                : 10;
     if (best === null || score > best.score) best = { score, offset, platform, encoding };
   }
   if (best === null) return null;
@@ -538,7 +706,8 @@ const readCmap = (table: Bytes): Cmap | null => {
       const start = table.u16(startBase + i * 2);
       const delta = table.u16(deltaBase + i * 2);
       const rangeOffset = table.u16(rangeBase + i * 2);
-      if (end === null || start === null || delta === null || rangeOffset === null || start > end) continue;
+      if (end === null || start === null || delta === null || rangeOffset === null || start > end)
+        continue;
       for (let code = start; code <= end && code <= 0xffff; code += 1) {
         if (map.size >= MAX_CODEPOINTS) break;
         let glyph: number;
@@ -585,7 +754,13 @@ const readCmap = (table: Bytes): Cmap | null => {
       }
     }
   } else {
-    return { map, format, platform: best.platform, encoding: best.encoding, subtables: numSubtables };
+    return {
+      map,
+      format,
+      platform: best.platform,
+      encoding: best.encoding,
+      subtables: numSubtables,
+    };
   }
   return { map, format, platform: best.platform, encoding: best.encoding, subtables: numSubtables };
 };
@@ -617,18 +792,27 @@ const interpretFsType = (fsType: number): string => {
   else if ((fsType & 0x0008) !== 0) parts.push('editable embedding allowed');
   if ((fsType & 0x0100) !== 0) parts.push('no subsetting allowed');
   if ((fsType & 0x0200) !== 0) parts.push('bitmap embedding only');
-  return parts.length > 0 ? parts.join('; ') : 'installable (other bits set: 0x' + fsType.toString(16) + ')';
+  return parts.length > 0
+    ? parts.join('; ')
+    : 'installable (other bits set: 0x' + fsType.toString(16) + ')';
 };
 
 const font_outlineBitmap = (tableOrder: string[]): boolean =>
-  !tableOrder.includes('glyf') && !tableOrder.includes('CFF ') && !tableOrder.includes('CFF2') && tableOrder.some((tag) => tag === 'CBDT' || tag === 'EBDT' || tag === 'sbix');
+  !tableOrder.includes('glyf') &&
+  !tableOrder.includes('CFF ') &&
+  !tableOrder.includes('CFF2') &&
+  tableOrder.some((tag) => tag === 'CBDT' || tag === 'EBDT' || tag === 'sbix');
 
 const parseFont = async (bytes: Uint8Array, fileName: string): Promise<FontData> => {
   const data = new Bytes(bytes);
   const findings: Finding[] = [];
   const signatureRaw = data.u32(0);
   const signature = data.tag(0);
-  if (signatureRaw === null || signature === null) throw new ToolError('That file is too short to be a font.', 'A font needs at least an offset table in its first bytes.');
+  if (signatureRaw === null || signature === null)
+    throw new ToolError(
+      'That file is too short to be a font.',
+      'A font needs at least an offset table in its first bytes.',
+    );
 
   let container = 'sfnt';
   let flavor = baseFlavor(signature);
@@ -648,9 +832,22 @@ const parseFont = async (bytes: Uint8Array, fileName: string): Promise<FontData>
     const metaLength = data.u32(28);
     const privLength = data.u32(40);
     const flavorTag = data.tag(4) ?? '????';
-    if (numTables === null || totalSfntSize === null || major === null || minor === null) throw new ToolError('The WOFF header is truncated.', 'The first 44 bytes of a WOFF file describe its tables; this file ends before that.');
+    if (numTables === null || totalSfntSize === null || major === null || minor === null)
+      throw new ToolError(
+        'The WOFF header is truncated.',
+        'The first 44 bytes of a WOFF file describe its tables; this file ends before that.',
+      );
     if (declaredLength !== null && declaredLength !== bytes.length) {
-      findings.push({ level: 'warning', problem: 'The WOFF header length does not match the file', detail: 'The header declares ' + declaredLength + ' bytes but the file is ' + bytes.length + ' bytes long.' });
+      findings.push({
+        level: 'warning',
+        problem: 'The WOFF header length does not match the file',
+        detail:
+          'The header declares ' +
+          declaredLength +
+          ' bytes but the file is ' +
+          bytes.length +
+          ' bytes long.',
+      });
     }
     flavor = baseFlavor(flavorTag);
     let compressed = 0;
@@ -662,23 +859,62 @@ const parseFont = async (bytes: Uint8Array, fileName: string): Promise<FontData>
       const compLength = data.u32(at + 8);
       const origLength = data.u32(at + 12);
       const checksum = data.u32(at + 16);
-      if (tag === null || offset === null || compLength === null || origLength === null || checksum === null) {
-        findings.push({ level: 'error', problem: 'The WOFF table directory is truncated', detail: 'The directory stops after ' + i + ' tables.' });
+      if (
+        tag === null ||
+        offset === null ||
+        compLength === null ||
+        origLength === null ||
+        checksum === null
+      ) {
+        findings.push({
+          level: 'error',
+          problem: 'The WOFF table directory is truncated',
+          detail: 'The directory stops after ' + i + ' tables.',
+        });
         break;
       }
       const stored = data.slice(offset, compLength);
       const truncated = offset + compLength > bytes.length;
       if (truncated) {
-        findings.push({ level: 'error', problem: 'A WOFF table points outside the file', detail: 'Table "' + tag + '" claims ' + compLength + ' bytes at offset ' + offset + ', past the end of the file.' });
+        findings.push({
+          level: 'error',
+          problem: 'A WOFF table points outside the file',
+          detail:
+            'Table "' +
+            tag +
+            '" claims ' +
+            compLength +
+            ' bytes at offset ' +
+            offset +
+            ', past the end of the file.',
+        });
       }
       let payload: Uint8Array | null = stored;
       if (compLength < origLength && stored !== null) {
         payload = await inflate(stored, 'deflate');
         compressed += 1;
         if (payload === null) {
-          findings.push({ level: 'warning', problem: 'A compressed WOFF table could not be read', detail: 'Table "' + tag + '" is deflated and this browser exposes no decompressor, so only its size is shown.' });
+          findings.push({
+            level: 'warning',
+            problem: 'A compressed WOFF table could not be read',
+            detail:
+              'Table "' +
+              tag +
+              '" is deflated and this browser exposes no decompressor, so only its size is shown.',
+          });
         } else if (payload.byteLength !== origLength) {
-          findings.push({ level: 'warning', problem: 'A decompressed WOFF table has the wrong size', detail: 'Table "' + tag + '" unpacked to ' + payload.byteLength + ' bytes instead of the declared ' + origLength + '.' });
+          findings.push({
+            level: 'warning',
+            problem: 'A decompressed WOFF table has the wrong size',
+            detail:
+              'Table "' +
+              tag +
+              '" unpacked to ' +
+              payload.byteLength +
+              ' bytes instead of the declared ' +
+              origLength +
+              '.',
+          });
         }
       } else {
         raw += 1;
@@ -686,7 +922,14 @@ const parseFont = async (bytes: Uint8Array, fileName: string): Promise<FontData>
       if (payload !== null) payloads.set(tag, payload);
       tables.push({ tag, checksum, offset, length: origLength, payload, truncated });
     }
-    woff = { version: major + '.' + minor, totalSfntSize, compressed, raw, metaLength: metaLength ?? 0, privLength: privLength ?? 0 };
+    woff = {
+      version: major + '.' + minor,
+      totalSfntSize,
+      compressed,
+      raw,
+      metaLength: metaLength ?? 0,
+      privLength: privLength ?? 0,
+    };
   } else if (signatureRaw === SIGNATURES.woff2) {
     container = 'woff2';
     const flavorTag = data.tag(4) ?? '????';
@@ -697,7 +940,17 @@ const parseFont = async (bytes: Uint8Array, fileName: string): Promise<FontData>
     const minor = data.u16(26);
     const metaLength = data.u32(32);
     const privLength = data.u32(44);
-    if (numTables === null || totalSfntSize === null || totalCompressedSize === null || major === null || minor === null) throw new ToolError('The WOFF2 header is truncated.', 'The first 48 bytes of a WOFF2 file describe its tables; this file ends before that.');
+    if (
+      numTables === null ||
+      totalSfntSize === null ||
+      totalCompressedSize === null ||
+      major === null ||
+      minor === null
+    )
+      throw new ToolError(
+        'The WOFF2 header is truncated.',
+        'The first 48 bytes of a WOFF2 file describe its tables; this file ends before that.',
+      );
     flavor = baseFlavor(flavorTag);
     const tags: string[] = [];
     const lengths: number[] = [];
@@ -707,7 +960,11 @@ const parseFont = async (bytes: Uint8Array, fileName: string): Promise<FontData>
     for (let i = 0; i < Math.min(numTables, MAX_TABLES); i += 1) {
       const flags = data.u8(at);
       if (flags === null) {
-        findings.push({ level: 'error', problem: 'The WOFF2 table directory is truncated', detail: 'The directory stops after ' + i + ' tables.' });
+        findings.push({
+          level: 'error',
+          problem: 'The WOFF2 table directory is truncated',
+          detail: 'The directory stops after ' + i + ' tables.',
+        });
         break;
       }
       at += 1;
@@ -722,7 +979,11 @@ const parseFont = async (bytes: Uint8Array, fileName: string): Promise<FontData>
       }
       const origLength = readBase128(data, at);
       if (tag === null || origLength === null) {
-        findings.push({ level: 'error', problem: 'The WOFF2 table directory is malformed', detail: 'Entry ' + i + ' of the directory could not be decoded.' });
+        findings.push({
+          level: 'error',
+          problem: 'The WOFF2 table directory is malformed',
+          detail: 'Entry ' + i + ' of the directory could not be decoded.',
+        });
         break;
       }
       at = origLength.next;
@@ -732,7 +993,11 @@ const parseFont = async (bytes: Uint8Array, fileName: string): Promise<FontData>
       if (isTransformed) {
         const transformLength = readBase128(data, at);
         if (transformLength === null) {
-          findings.push({ level: 'error', problem: 'The WOFF2 table directory is malformed', detail: 'Table "' + tag + '" declares a transform but no transformed length.' });
+          findings.push({
+            level: 'error',
+            problem: 'The WOFF2 table directory is malformed',
+            detail: 'Table "' + tag + '" declares a transform but no transformed length.',
+          });
           break;
         }
         at = transformLength.next;
@@ -742,7 +1007,14 @@ const parseFont = async (bytes: Uint8Array, fileName: string): Promise<FontData>
       tags.push(tag);
       lengths.push(origLength.value);
       stored.push(dataLength);
-      tables.push({ tag, checksum: 0, offset: at, length: origLength.value, payload: null, truncated: false });
+      tables.push({
+        tag,
+        checksum: 0,
+        offset: at,
+        length: origLength.value,
+        payload: null,
+        truncated: false,
+      });
     }
     let decoded = false;
     const streamAt = at;
@@ -750,12 +1022,26 @@ const parseFont = async (bytes: Uint8Array, fileName: string): Promise<FontData>
     if (stream !== null) {
       const plain = await inflate(stream, 'brotli');
       if (plain === null) {
-        findings.push({ level: 'note', problem: 'The WOFF2 table data is compressed with Brotli', detail: 'This browser exposes no Brotli decompressor, so names, glyph counts and coverage cannot be read from a WOFF2 file here. Convert it to TTF or WOFF, or open it in a browser with Brotli support, to see those fields.' });
+        findings.push({
+          level: 'note',
+          problem: 'The WOFF2 table data is compressed with Brotli',
+          detail:
+            'This browser exposes no Brotli decompressor, so names, glyph counts and coverage cannot be read from a WOFF2 file here. Convert it to TTF or WOFF, or open it in a browser with Brotli support, to see those fields.',
+        });
       } else {
         decoded = true;
         const expected = totalSfntSize - 12 - tags.length * 16;
         if (plain.byteLength !== expected) {
-          findings.push({ level: 'warning', problem: 'The WOFF2 stream does not match its declared size', detail: 'The stream unpacked to ' + plain.byteLength + ' bytes but the tables declared ' + expected + ' bytes.' });
+          findings.push({
+            level: 'warning',
+            problem: 'The WOFF2 stream does not match its declared size',
+            detail:
+              'The stream unpacked to ' +
+              plain.byteLength +
+              ' bytes but the tables declared ' +
+              expected +
+              ' bytes.',
+          });
         }
         let cursor = 0;
         for (let i = 0; i < tags.length; i += 1) {
@@ -771,22 +1057,58 @@ const parseFont = async (bytes: Uint8Array, fileName: string): Promise<FontData>
         }
       }
     }
-    woff2 = { version: major + '.' + minor, totalSfntSize, totalCompressedSize, transformed, decoded, metaLength: metaLength ?? 0, privLength: privLength ?? 0 };
+    woff2 = {
+      version: major + '.' + minor,
+      totalSfntSize,
+      totalCompressedSize,
+      transformed,
+      decoded,
+      metaLength: metaLength ?? 0,
+      privLength: privLength ?? 0,
+    };
   } else if (signatureRaw === SIGNATURES.ttcf) {
     container = 'ttc';
     const count = data.u32(8);
-    if (count === null || count === 0) throw new ToolError('The font collection header is truncated.', 'A TTC file lists its fonts in the first bytes.');
+    if (count === null || count === 0)
+      throw new ToolError(
+        'The font collection header is truncated.',
+        'A TTC file lists its fonts in the first bytes.',
+      );
     ttcCount = count;
     if (count > MAX_TTC_FONTS) {
-      findings.push({ level: 'warning', problem: 'The collection holds a lot of fonts', detail: 'The collection declares ' + count + ' fonts; only the first ' + MAX_TTC_FONTS + ' offsets are read.' });
+      findings.push({
+        level: 'warning',
+        problem: 'The collection holds a lot of fonts',
+        detail:
+          'The collection declares ' +
+          count +
+          ' fonts; only the first ' +
+          MAX_TTC_FONTS +
+          ' offsets are read.',
+      });
     }
     if (count > 1) {
-      findings.push({ level: 'note', problem: 'This is a font collection', detail: 'The file packs ' + count + ' fonts that share tables. The first one is described here; the others share most tables with it.' });
+      findings.push({
+        level: 'note',
+        problem: 'This is a font collection',
+        detail:
+          'The file packs ' +
+          count +
+          ' fonts that share tables. The first one is described here; the others share most tables with it.',
+      });
     }
     const firstOffset = data.u32(12);
-    if (firstOffset === null || firstOffset + 12 > bytes.length) throw new ToolError('The font collection points outside the file.', 'The first font offset in the TTC header is not inside the file.');
+    if (firstOffset === null || firstOffset + 12 > bytes.length)
+      throw new ToolError(
+        'The font collection points outside the file.',
+        'The first font offset in the TTC header is not inside the file.',
+      );
     const directory = parseSfntDirectory(data, firstOffset, findings, bytes.length);
-    if (directory === null) throw new ToolError('The first font in the collection has no usable table directory.', 'The TTC header is readable but the font it points at is not.');
+    if (directory === null)
+      throw new ToolError(
+        'The first font in the collection has no usable table directory.',
+        'The TTC header is readable but the font it points at is not.',
+      );
     tables = directory.tables;
     for (const table of tables) {
       if (table.payload !== null) payloads.set(table.tag, table.payload);
@@ -799,16 +1121,32 @@ const parseFont = async (bytes: Uint8Array, fileName: string): Promise<FontData>
       }
     }
     flavor = baseFlavor(data.tag(firstOffset) ?? '????');
-  } else if (signatureRaw === SIGNATURES.otto || signatureRaw === SIGNATURES.trueType || signatureRaw === SIGNATURES.appleTrue || signatureRaw === SIGNATURES.type1) {
+  } else if (
+    signatureRaw === SIGNATURES.otto ||
+    signatureRaw === SIGNATURES.trueType ||
+    signatureRaw === SIGNATURES.appleTrue ||
+    signatureRaw === SIGNATURES.type1
+  ) {
     const directory = parseSfntDirectory(data, 0, findings, bytes.length);
-    if (directory === null) throw new ToolError('This font has no usable table directory.', 'The offset table at the start of the file could not be read.');
+    if (directory === null)
+      throw new ToolError(
+        'This font has no usable table directory.',
+        'The offset table at the start of the file could not be read.',
+      );
     tables = directory.tables;
     for (const table of tables) if (table.payload !== null) payloads.set(table.tag, table.payload);
   } else {
-    throw new ToolError('That is not a font file.', 'Font Inspector reads TTF, OTF, TTC, WOFF and WOFF2 files. The file starts with "' + clip(signature, 8) + '", which is none of those signatures.');
+    throw new ToolError(
+      'That is not a font file.',
+      'Font Inspector reads TTF, OTF, TTC, WOFF and WOFF2 files. The file starts with "' +
+        clip(signature, 8) +
+        '", which is none of those signatures.',
+    );
   }
 
-  const extension = fileName.includes('.') ? fileName.slice(fileName.lastIndexOf('.') + 1).toLowerCase() : '';
+  const extension = fileName.includes('.')
+    ? fileName.slice(fileName.lastIndexOf('.') + 1).toLowerCase()
+    : '';
   const expectedExtensions: Record<string, string[]> = {
     sfnt: ['ttf', 'otf', 'otc', 'sfnt'],
     ttc: ['ttc', 'otc', 'ttf', 'otf'],
@@ -816,7 +1154,16 @@ const parseFont = async (bytes: Uint8Array, fileName: string): Promise<FontData>
     woff2: ['woff2'],
   };
   if (extension !== '' && !(expectedExtensions[container] ?? []).includes(extension)) {
-    findings.push({ level: 'warning', problem: 'The file name does not match the contents', detail: 'The file is named ".' + extension + '" but its bytes are a ' + container + ' font. Browsers trust the MIME type and the bytes, while some build tools trust the extension, so this mismatch costs time.' });
+    findings.push({
+      level: 'warning',
+      problem: 'The file name does not match the contents',
+      detail:
+        'The file is named ".' +
+        extension +
+        '" but its bytes are a ' +
+        container +
+        ' font. Browsers trust the MIME type and the bytes, while some build tools trust the extension, so this mismatch costs time.',
+    });
   }
 
   const tableOrder = tables.map((table) => table.tag);
@@ -832,7 +1179,12 @@ const parseFont = async (bytes: Uint8Array, fileName: string): Promise<FontData>
     const indexToLocFormat = headBytes.i16(50);
     const magic = headBytes.u32(12);
     if (unitsPerEm === null || indexToLocFormat === null || magic === null) {
-      findings.push({ level: 'error', problem: 'The head table is truncated', detail: 'A head table is 54 bytes; this one ends early, so units per em and the loca format are unknown.' });
+      findings.push({
+        level: 'error',
+        problem: 'The head table is truncated',
+        detail:
+          'A head table is 54 bytes; this one ends early, so units per em and the loca format are unknown.',
+      });
     } else {
       const macStyle = headBytes.u16(44) ?? 0;
       const longDateTime = (at: number): string | null => {
@@ -843,19 +1195,52 @@ const parseFont = async (bytes: Uint8Array, fileName: string): Promise<FontData>
         if (seconds <= 0) return null;
         return new Date(seconds * 1000).toISOString().slice(0, 10);
       };
-      head = { unitsPerEm, indexToLocFormat, magic, created: longDateTime(20), modified: longDateTime(28), macStyle };
+      head = {
+        unitsPerEm,
+        indexToLocFormat,
+        magic,
+        created: longDateTime(20),
+        modified: longDateTime(28),
+        macStyle,
+      };
       if (magic !== HEAD_MAGIC) {
-        findings.push({ level: 'error', problem: 'The head table has the wrong magic number', detail: 'head.magicNumber is 0x' + magic.toString(16) + ' instead of 0x' + HEAD_MAGIC.toString(16) + ', which means the file is not a valid sfnt or was rebuilt incorrectly.' });
+        findings.push({
+          level: 'error',
+          problem: 'The head table has the wrong magic number',
+          detail:
+            'head.magicNumber is 0x' +
+            magic.toString(16) +
+            ' instead of 0x' +
+            HEAD_MAGIC.toString(16) +
+            ', which means the file is not a valid sfnt or was rebuilt incorrectly.',
+        });
       }
       if (unitsPerEm < 16 || unitsPerEm > 16384) {
-        findings.push({ level: 'error', problem: 'The units per em value is out of range', detail: 'head.unitsPerEm is ' + unitsPerEm + '; the OpenType specification allows 16 to 16384.' });
+        findings.push({
+          level: 'error',
+          problem: 'The units per em value is out of range',
+          detail:
+            'head.unitsPerEm is ' + unitsPerEm + '; the OpenType specification allows 16 to 16384.',
+        });
       }
       if (indexToLocFormat !== 0 && indexToLocFormat !== 1) {
-        findings.push({ level: 'warning', problem: 'The loca format is unknown', detail: 'head.indexToLocFormat is ' + indexToLocFormat + '; only 0 (short) and 1 (long) are defined.' });
+        findings.push({
+          level: 'warning',
+          problem: 'The loca format is unknown',
+          detail:
+            'head.indexToLocFormat is ' +
+            indexToLocFormat +
+            '; only 0 (short) and 1 (long) are defined.',
+        });
       }
     }
   } else if (container !== 'woff2' || woff2?.decoded === true) {
-    findings.push({ level: 'error', problem: 'A required table is missing', detail: 'The head table is not present, so the font has no units per em or bounding box information.' });
+    findings.push({
+      level: 'error',
+      problem: 'A required table is missing',
+      detail:
+        'The head table is not present, so the font has no units per em or bounding box information.',
+    });
   }
 
   let maxp: Maxp | null = null;
@@ -864,15 +1249,27 @@ const parseFont = async (bytes: Uint8Array, fileName: string): Promise<FontData>
     const version = maxpBytes.u32(0);
     const numGlyphs = maxpBytes.u16(4);
     if (version === null || numGlyphs === null) {
-      findings.push({ level: 'error', problem: 'The maxp table is truncated', detail: 'maxp must be at least 6 bytes; this one ends early.' });
+      findings.push({
+        level: 'error',
+        problem: 'The maxp table is truncated',
+        detail: 'maxp must be at least 6 bytes; this one ends early.',
+      });
     } else {
       maxp = { version, numGlyphs };
       if (numGlyphs === 0) {
-        findings.push({ level: 'error', problem: 'The font declares no glyphs', detail: 'maxp.numGlyphs is 0, so the font cannot render anything.' });
+        findings.push({
+          level: 'error',
+          problem: 'The font declares no glyphs',
+          detail: 'maxp.numGlyphs is 0, so the font cannot render anything.',
+        });
       }
     }
   } else if (container !== 'woff2' || woff2?.decoded === true) {
-    findings.push({ level: 'error', problem: 'A required table is missing', detail: 'The maxp table is not present, so the glyph count is unknown.' });
+    findings.push({
+      level: 'error',
+      problem: 'A required table is missing',
+      detail: 'The maxp table is not present, so the glyph count is unknown.',
+    });
   }
 
   let os2: Os2 | null = null;
@@ -884,11 +1281,26 @@ const parseFont = async (bytes: Uint8Array, fileName: string): Promise<FontData>
     const fsType = os2Bytes.u16(8);
     const vendor = os2Bytes.tag(58) ?? '\u00b7\u00b7\u00b7\u00b7';
     if (version === null || weightClass === null || widthClass === null || fsType === null) {
-      findings.push({ level: 'error', problem: 'The OS/2 table is truncated', detail: 'OS/2 needs at least 10 bytes for its version, weight, width and embedding fields.' });
+      findings.push({
+        level: 'error',
+        problem: 'The OS/2 table is truncated',
+        detail: 'OS/2 needs at least 10 bytes for its version, weight, width and embedding fields.',
+      });
     } else {
       const minimum = version === 0 ? 78 : version === 1 ? 86 : version <= 4 ? 96 : 100;
       if (os2Bytes.length < minimum) {
-        findings.push({ level: 'warning', problem: 'The OS/2 table is shorter than its version requires', detail: 'OS/2 version ' + version + ' must be at least ' + minimum + ' bytes but the table is ' + os2Bytes.length + ' bytes, so later fields are missing.' });
+        findings.push({
+          level: 'warning',
+          problem: 'The OS/2 table is shorter than its version requires',
+          detail:
+            'OS/2 version ' +
+            version +
+            ' must be at least ' +
+            minimum +
+            ' bytes but the table is ' +
+            os2Bytes.length +
+            ' bytes, so later fields are missing.',
+        });
       }
       os2 = {
         version,
@@ -920,32 +1332,76 @@ const parseFont = async (bytes: Uint8Array, fileName: string): Promise<FontData>
   })();
 
   if (payloads.size === 0 && container !== 'woff2') {
-    findings.push({ level: 'error', problem: 'No table data could be read', detail: 'The directory lists tables but none of their bytes are inside the file.' });
+    findings.push({
+      level: 'error',
+      problem: 'No table data could be read',
+      detail: 'The directory lists tables but none of their bytes are inside the file.',
+    });
   }
   if (payloads.size > 0 && cmap === null) {
-    findings.push({ level: 'error', problem: 'The font has no usable character mapping', detail: 'No cmap subtable for Unicode was found, so no text can be mapped to glyphs.' });
+    findings.push({
+      level: 'error',
+      problem: 'The font has no usable character mapping',
+      detail: 'No cmap subtable for Unicode was found, so no text can be mapped to glyphs.',
+    });
   } else if (cmap !== null && cmap.map.size === 0) {
-    findings.push({ level: 'warning', problem: 'The character mapping is empty', detail: 'The chosen cmap subtable (format ' + cmap.format + ') maps no code point to a glyph.' });
+    findings.push({
+      level: 'warning',
+      problem: 'The character mapping is empty',
+      detail:
+        'The chosen cmap subtable (format ' + cmap.format + ') maps no code point to a glyph.',
+    });
   }
   if (names.length > 0) {
     if (!names.some((record) => record.nameId === 1 || record.nameId === 16)) {
-      findings.push({ level: 'warning', problem: 'The font has no family name', detail: 'Neither name ID 1 (family) nor 16 (typographic family) is present, so the font may not be selectable by name.' });
+      findings.push({
+        level: 'warning',
+        problem: 'The font has no family name',
+        detail:
+          'Neither name ID 1 (family) nor 16 (typographic family) is present, so the font may not be selectable by name.',
+      });
     }
     if (!names.some((record) => record.nameId === 6)) {
-      findings.push({ level: 'note', problem: 'The font has no PostScript name', detail: 'Name ID 6 is missing, which some PDF and PostScript workflows expect.' });
+      findings.push({
+        level: 'note',
+        problem: 'The font has no PostScript name',
+        detail: 'Name ID 6 is missing, which some PDF and PostScript workflows expect.',
+      });
     }
     if (!names.some((record) => record.nameId === 13)) {
-      findings.push({ level: 'note', problem: 'The font ships no licence text', detail: 'Name ID 13 is missing. The fsType bits still state the embedding rights, but the terms themselves are not inside the file.' });
+      findings.push({
+        level: 'note',
+        problem: 'The font ships no licence text',
+        detail:
+          'Name ID 13 is missing. The fsType bits still state the embedding rights, but the terms themselves are not inside the file.',
+      });
     }
   } else if (payloads.has('name')) {
-    findings.push({ level: 'warning', problem: 'The name table holds no readable records', detail: 'The name table is present but every record was empty or unreadable.' });
+    findings.push({
+      level: 'warning',
+      problem: 'The name table holds no readable records',
+      detail: 'The name table is present but every record was empty or unreadable.',
+    });
   }
   if (os2 !== null) {
     const rights = interpretFsType(os2.fsType);
     if ((os2.fsType & 0x0002) !== 0) {
-      findings.push({ level: 'warning', problem: 'Embedding is restricted by the foundry', detail: 'OS/2 fsType is 0x' + os2.fsType.toString(16) + ': ' + rights + '. Check the licence records before shipping this font in a document or app.' });
+      findings.push({
+        level: 'warning',
+        problem: 'Embedding is restricted by the foundry',
+        detail:
+          'OS/2 fsType is 0x' +
+          os2.fsType.toString(16) +
+          ': ' +
+          rights +
+          '. Check the licence records before shipping this font in a document or app.',
+      });
     } else if ((os2.fsType & 0x000c) !== 0 || (os2.fsType & 0x0100) !== 0) {
-      findings.push({ level: 'note', problem: 'Embedding carries conditions', detail: 'OS/2 fsType is 0x' + os2.fsType.toString(16) + ': ' + rights + '.' });
+      findings.push({
+        level: 'note',
+        problem: 'Embedding carries conditions',
+        detail: 'OS/2 fsType is 0x' + os2.fsType.toString(16) + ': ' + rights + '.',
+      });
     }
   }
   if (tableOrder.includes('loca') && maxp !== null && head !== null) {
@@ -953,33 +1409,89 @@ const parseFont = async (bytes: Uint8Array, fileName: string): Promise<FontData>
     const entrySize = head.indexToLocFormat === 0 ? 2 : 4;
     const expected = (maxp.numGlyphs + 1) * entrySize;
     if (loca !== undefined && loca.byteLength < expected) {
-      findings.push({ level: 'warning', problem: 'The loca table is too short for the glyph count', detail: 'loca holds ' + loca.byteLength + ' bytes but ' + maxp.numGlyphs + ' glyphs with ' + (entrySize === 2 ? 'short' : 'long') + ' offsets need ' + expected + '.' });
+      findings.push({
+        level: 'warning',
+        problem: 'The loca table is too short for the glyph count',
+        detail:
+          'loca holds ' +
+          loca.byteLength +
+          ' bytes but ' +
+          maxp.numGlyphs +
+          ' glyphs with ' +
+          (entrySize === 2 ? 'short' : 'long') +
+          ' offsets need ' +
+          expected +
+          '.',
+      });
     }
   }
   if (tableOrder.includes('glyf') && !payloads.has('glyf')) {
-    findings.push({ level: 'note', problem: 'The glyph outlines are stored transformed', detail: 'This WOFF2 keeps glyf and loca in the transformed representation, and recombining them is out of scope here, so outline sizes are reported from the directory only.' });
+    findings.push({
+      level: 'note',
+      problem: 'The glyph outlines are stored transformed',
+      detail:
+        'This WOFF2 keeps glyf and loca in the transformed representation, and recombining them is out of scope here, so outline sizes are reported from the directory only.',
+    });
   }
   if (tableOrder.includes('post') && payloads.has('post')) {
     const version = new Bytes(payloads.get('post') as Uint8Array).u32(0);
     if (version === 0x00030000) {
-      findings.push({ level: 'note', problem: 'The font stores no glyph names', detail: 'The post table is version 3, which drops glyph names; older PostScript or PDF tooling may rely on them.' });
+      findings.push({
+        level: 'note',
+        problem: 'The font stores no glyph names',
+        detail:
+          'The post table is version 3, which drops glyph names; older PostScript or PDF tooling may rely on them.',
+      });
     }
   }
   if (tableOrder.includes('kern') && tableOrder.includes('GPOS')) {
-    findings.push({ level: 'note', problem: 'Kerning exists in two places', detail: 'Both the legacy kern table and OpenType GPOS kerning are present; applications usually honour only one of them.' });
+    findings.push({
+      level: 'note',
+      problem: 'Kerning exists in two places',
+      detail:
+        'Both the legacy kern table and OpenType GPOS kerning are present; applications usually honour only one of them.',
+    });
   }
   if (tableOrder.includes('DSIG')) {
-    const size = payloads.get('DSIG')?.byteLength ?? tables.find((table) => table.tag === 'DSIG')?.length ?? 0;
+    const size =
+      payloads.get('DSIG')?.byteLength ?? tables.find((table) => table.tag === 'DSIG')?.length ?? 0;
     if (size < 8) {
-      findings.push({ level: 'note', problem: 'The signature table is an empty placeholder', detail: 'DSIG exists but holds ' + size + ' bytes, which is the usual way to say "built without a signature".' });
+      findings.push({
+        level: 'note',
+        problem: 'The signature table is an empty placeholder',
+        detail:
+          'DSIG exists but holds ' +
+          size +
+          ' bytes, which is the usual way to say "built without a signature".',
+      });
     } else {
-      findings.push({ level: 'note', problem: 'The font carries a signature table', detail: 'DSIG holds ' + size + ' bytes. This inspector does not verify the signature itself.' });
+      findings.push({
+        level: 'note',
+        problem: 'The font carries a signature table',
+        detail:
+          'DSIG holds ' + size + ' bytes. This inspector does not verify the signature itself.',
+      });
     }
   }
 
-  const legacy = tableOrder.filter((tag) => tag === 'hdmx' || tag === 'LTSH' || tag === 'VDMX' || tag === 'PCLT' || tag === 'FFTM' || tag.startsWith('TSI'));
+  const legacy = tableOrder.filter(
+    (tag) =>
+      tag === 'hdmx' ||
+      tag === 'LTSH' ||
+      tag === 'VDMX' ||
+      tag === 'PCLT' ||
+      tag === 'FFTM' ||
+      tag.startsWith('TSI'),
+  );
   if (legacy.length > 0) {
-    findings.push({ level: 'note', problem: 'Legacy tables are present', detail: 'Tables ' + legacy.join(', ') + ' come from older Windows hints and editors; they are harmless and may be dropped when subsetting.' });
+    findings.push({
+      level: 'note',
+      problem: 'Legacy tables are present',
+      detail:
+        'Tables ' +
+        legacy.join(', ') +
+        ' come from older Windows hints and editors; they are harmless and may be dropped when subsetting.',
+    });
   }
 
   const checksumFailures: string[] = [];
@@ -991,14 +1503,31 @@ const parseFont = async (bytes: Uint8Array, fileName: string): Promise<FontData>
       if (expected !== table.checksum) checksumFailures.push(table.tag);
     }
     if (checksumFailures.length > 0) {
-      findings.push({ level: 'warning', problem: 'Table checksums do not match the table data', detail: 'Tables ' + checksumFailures.slice(0, 8).join(', ') + (checksumFailures.length > 8 ? ' and ' + (checksumFailures.length - 8) + ' more' : '') + ' fail their own checksum. Many shipping fonts are like this after hinting or rebuilding, so it is a warning rather than a corruption error.' });
+      findings.push({
+        level: 'warning',
+        problem: 'Table checksums do not match the table data',
+        detail:
+          'Tables ' +
+          checksumFailures.slice(0, 8).join(', ') +
+          (checksumFailures.length > 8 ? ' and ' + (checksumFailures.length - 8) + ' more' : '') +
+          ' fail their own checksum. Many shipping fonts are like this after hinting or rebuilding, so it is a warning rather than a corruption error.',
+      });
     }
     const headRecord = tables.find((table) => table.tag === 'head');
     if (headRecord !== undefined && headRecord.payload !== null) {
       const total = sumWords(bytes, headRecord.offset + 8);
       fileChecksumOk = total === FILE_CHECKSUM;
       if (fileChecksumOk === false) {
-        findings.push({ level: 'note', problem: 'The whole-file checksum does not add up', detail: 'head.checkSumAdjustment is meant to make every 32-bit word in the file sum to 0x' + FILE_CHECKSUM.toString(16) + '; this file sums to 0x' + total.toString(16) + '. Common in fonts that were rebuilt without fixing the adjustment.' });
+        findings.push({
+          level: 'note',
+          problem: 'The whole-file checksum does not add up',
+          detail:
+            'head.checkSumAdjustment is meant to make every 32-bit word in the file sum to 0x' +
+            FILE_CHECKSUM.toString(16) +
+            '; this file sums to 0x' +
+            total.toString(16) +
+            '. Common in fonts that were rebuilt without fixing the adjustment.',
+        });
       }
     }
   } else if (container === 'woff') {
@@ -1008,38 +1537,100 @@ const parseFont = async (bytes: Uint8Array, fileName: string): Promise<FontData>
       if (expected !== table.checksum) checksumFailures.push(table.tag);
     }
     if (checksumFailures.length > 0) {
-      findings.push({ level: 'warning', problem: 'WOFF table checksums do not match the unpacked data', detail: 'Tables ' + checksumFailures.slice(0, 8).join(', ') + ' fail the checksum stored in the WOFF directory.' });
+      findings.push({
+        level: 'warning',
+        problem: 'WOFF table checksums do not match the unpacked data',
+        detail:
+          'Tables ' +
+          checksumFailures.slice(0, 8).join(', ') +
+          ' fail the checksum stored in the WOFF directory.',
+      });
     }
   }
 
   if (font_outlineBitmap(tableOrder)) {
-    findings.push({ level: 'note', problem: 'This font draws with bitmaps, not outlines', detail: 'Tables ' + tableOrder.filter((tag) => tag === 'CBDT' || tag === 'CBLC' || tag === 'EBDT' || tag === 'EBLC' || tag === 'sbix').join(', ') + ' hold embedded bitmaps and there is no glyf or CFF table, so the glyphs only look right at the sizes the foundry shipped.' });
+    findings.push({
+      level: 'note',
+      problem: 'This font draws with bitmaps, not outlines',
+      detail:
+        'Tables ' +
+        tableOrder
+          .filter(
+            (tag) =>
+              tag === 'CBDT' ||
+              tag === 'CBLC' ||
+              tag === 'EBDT' ||
+              tag === 'EBLC' ||
+              tag === 'sbix',
+          )
+          .join(', ') +
+        ' hold embedded bitmaps and there is no glyf or CFF table, so the glyphs only look right at the sizes the foundry shipped.',
+    });
   }
   if (tableOrder.includes('CFF ') || tableOrder.includes('CFF2')) {
-    findings.push({ level: 'note', problem: 'Outlines are PostScript flavoured', detail: 'The font draws with ' + (tableOrder.includes('CFF2') ? 'CFF2 (a variable CFF)' : 'CFF') + ' charstrings rather than TrueType outlines.' });
+    findings.push({
+      level: 'note',
+      problem: 'Outlines are PostScript flavoured',
+      detail:
+        'The font draws with ' +
+        (tableOrder.includes('CFF2') ? 'CFF2 (a variable CFF)' : 'CFF') +
+        ' charstrings rather than TrueType outlines.',
+    });
   }
   if (axes.length > 0) {
-    findings.push({ level: 'note', problem: 'This is a variable font', detail: 'It exposes ' + axes.length + ' axis or axes: ' + axes.map((axis) => axis.tag + ' ' + axis.min + ' to ' + axis.max).join(', ') + '.' });
+    findings.push({
+      level: 'note',
+      problem: 'This is a variable font',
+      detail:
+        'It exposes ' +
+        axes.length +
+        ' axis or axes: ' +
+        axes.map((axis) => axis.tag + ' ' + axis.min + ' to ' + axis.max).join(', ') +
+        '.',
+    });
   }
-  const colorTables = tableOrder.filter((tag) => tag === 'COLR' || tag === 'SVG ' || tag === 'sbix' || tag === 'CBDT');
+  const colorTables = tableOrder.filter(
+    (tag) => tag === 'COLR' || tag === 'SVG ' || tag === 'sbix' || tag === 'CBDT',
+  );
   if (colorTables.length > 0) {
-    findings.push({ level: 'note', problem: 'The font contains colour glyphs', detail: 'Colour tables ' + colorTables.join(', ') + ' are present' + (colorTables.includes('COLR') ? ' (with CPAL palettes)' : '') + '. Older renderers fall back to the monochrome outlines.' });
+    findings.push({
+      level: 'note',
+      problem: 'The font contains colour glyphs',
+      detail:
+        'Colour tables ' +
+        colorTables.join(', ') +
+        ' are present' +
+        (colorTables.includes('COLR') ? ' (with CPAL palettes)' : '') +
+        '. Older renderers fall back to the monochrome outlines.',
+    });
   }
-  const hintTables = tableOrder.filter((tag) => tag === 'cvt ' || tag === 'fpgm' || tag === 'prep' || tag === 'glyf');
+  const hintTables = tableOrder.filter(
+    (tag) => tag === 'cvt ' || tag === 'fpgm' || tag === 'prep' || tag === 'glyf',
+  );
   if (hintTables.length >= 2 && tableOrder.includes('fpgm')) {
-    findings.push({ level: 'note', problem: 'The font is hinted', detail: 'Hinting tables ' + hintTables.filter((tag) => tag !== 'glyf').join(', ') + ' control grid fitting, which is why the file is larger than an unhinted build.' });
+    findings.push({
+      level: 'note',
+      problem: 'The font is hinted',
+      detail:
+        'Hinting tables ' +
+        hintTables.filter((tag) => tag !== 'glyf').join(', ') +
+        ' control grid fitting, which is why the file is larger than an unhinted build.',
+    });
   }
 
   return {
     container,
     flavor,
-    outline: tableOrder.includes('CFF ') || tableOrder.includes('CFF2')
-      ? 'PostScript'
-      : tableOrder.includes('glyf')
-        ? 'TrueType'
-        : tableOrder.includes('CBDT') || tableOrder.includes('EBDT') || tableOrder.includes('sbix')
-          ? 'bitmap'
-          : 'none',
+    outline:
+      tableOrder.includes('CFF ') || tableOrder.includes('CFF2')
+        ? 'PostScript'
+        : tableOrder.includes('glyf')
+          ? 'TrueType'
+          : tableOrder.includes('CBDT') ||
+              tableOrder.includes('EBDT') ||
+              tableOrder.includes('sbix')
+            ? 'bitmap'
+            : 'none',
     fileSize: bytes.length,
     tables,
     tableOrder,
@@ -1074,7 +1665,10 @@ function readBase128(data: Bytes, at: number): { value: number; next: number } |
 
 const nameValue = (font: FontData, ...ids: number[]): string | null => {
   for (const id of ids) {
-    const record = font.names.find((candidate) => candidate.nameId === id && (candidate.platform === 3 || candidate.platform === 0));
+    const record = font.names.find(
+      (candidate) =>
+        candidate.nameId === id && (candidate.platform === 3 || candidate.platform === 0),
+    );
     if (record !== undefined) return record.value;
     const fallback = font.names.find((candidate) => candidate.nameId === id);
     if (fallback !== undefined) return fallback.value;
@@ -1109,7 +1703,10 @@ const coverageBlocks = (font: FontData): { blocks: BlockCount[]; unlisted: numbe
   return { blocks: counts, unlisted };
 };
 
-const textCoverage = (font: FontData, text: string): { checked: number; available: number; missing: number[] } | null => {
+const textCoverage = (
+  font: FontData,
+  text: string,
+): { checked: number; available: number; missing: number[] } | null => {
   if (text.trim() === '') return null;
   const seen = new Set<number>();
   for (const character of Array.from(text)) {
@@ -1135,7 +1732,12 @@ const describeCode = (code: number): string => {
   return label;
 };
 
-const buildSummary = (font: FontData, textCheck: ReturnType<typeof textCoverage>, blocks: BlockCount[], unlisted: number): string[][] => {
+const buildSummary = (
+  font: FontData,
+  textCheck: ReturnType<typeof textCoverage>,
+  blocks: BlockCount[],
+  unlisted: number,
+): string[][] => {
   const rows: string[][] = [];
   const add = (item: string, value: string): void => {
     rows.push([item, value]);
@@ -1149,9 +1751,29 @@ const buildSummary = (font: FontData, textCheck: ReturnType<typeof textCoverage>
   const codepoints = font.cmap?.map.size ?? 0;
   const coveredBlocks = blocks.filter((block) => block.covered > 0).length;
   add('File', formatBytes(font.fileSize));
-  add('Container', font.container === 'woff2' ? 'WOFF2 wrapper (' + (font.woff2?.version ?? '?') + ') over ' + font.flavor : font.container === 'woff' ? 'WOFF wrapper (' + (font.woff?.version ?? '?') + ') over ' + font.flavor : font.container === 'ttc' ? 'Font collection with ' + font.ttcCount + ' font(s), first shown: ' + font.flavor : font.flavor);
-  const bitmapTables = font.tableOrder.filter((tag) => tag === 'CBDT' || tag === 'CBLC' || tag === 'EBDT' || tag === 'EBLC' || tag === 'sbix');
-  add('Outlines', font.outline === 'TrueType' ? 'TrueType (glyf)' : font.outline === 'PostScript' ? 'PostScript (CFF)' : font.outline === 'bitmap' ? 'bitmap glyphs only (' + bitmapTables.join(', ') + ')' : 'not present in the readable tables');
+  add(
+    'Container',
+    font.container === 'woff2'
+      ? 'WOFF2 wrapper (' + (font.woff2?.version ?? '?') + ') over ' + font.flavor
+      : font.container === 'woff'
+        ? 'WOFF wrapper (' + (font.woff?.version ?? '?') + ') over ' + font.flavor
+        : font.container === 'ttc'
+          ? 'Font collection with ' + font.ttcCount + ' font(s), first shown: ' + font.flavor
+          : font.flavor,
+  );
+  const bitmapTables = font.tableOrder.filter(
+    (tag) => tag === 'CBDT' || tag === 'CBLC' || tag === 'EBDT' || tag === 'EBLC' || tag === 'sbix',
+  );
+  add(
+    'Outlines',
+    font.outline === 'TrueType'
+      ? 'TrueType (glyf)'
+      : font.outline === 'PostScript'
+        ? 'PostScript (CFF)'
+        : font.outline === 'bitmap'
+          ? 'bitmap glyphs only (' + bitmapTables.join(', ') + ')'
+          : 'not present in the readable tables',
+  );
   add('Family', family ?? '(no family name record)');
   add('Style', subfamily ?? '(none)');
   if (full !== null && full !== family) add('Full name', full);
@@ -1160,43 +1782,136 @@ const buildSummary = (font: FontData, textCheck: ReturnType<typeof textCoverage>
   if (font.maxp !== null) add('Glyphs', String(font.maxp.numGlyphs));
   if (font.head !== null) {
     add('Units per em', String(font.head.unitsPerEm));
-    if (font.head.created !== null || font.head.modified !== null) add('Created / modified', (font.head.created ?? '?') + ' / ' + (font.head.modified ?? '?'));
+    if (font.head.created !== null || font.head.modified !== null)
+      add('Created / modified', (font.head.created ?? '?') + ' / ' + (font.head.modified ?? '?'));
   }
   if (font.os2 !== null) {
     const weight = WEIGHT_NAMES[font.os2.weightClass];
     const width = WIDTH_NAMES[font.os2.widthClass - 1];
-    add('Weight / width', font.os2.weightClass + (weight === undefined ? '' : ' (' + weight + ')') + ' / ' + font.os2.widthClass + (width === undefined ? '' : ' (' + width + ')'));
-    add('Embedding', interpretFsType(font.os2.fsType) + ' \u2014 fsType 0x' + font.os2.fsType.toString(16));
+    add(
+      'Weight / width',
+      font.os2.weightClass +
+        (weight === undefined ? '' : ' (' + weight + ')') +
+        ' / ' +
+        font.os2.widthClass +
+        (width === undefined ? '' : ' (' + width + ')'),
+    );
+    add(
+      'Embedding',
+      interpretFsType(font.os2.fsType) + ' \u2014 fsType 0x' + font.os2.fsType.toString(16),
+    );
     if (font.os2.vendor !== '\u00b7\u00b7\u00b7\u00b7') add('Vendor', font.os2.vendor);
   }
-  add('Tables', font.tables.length + ' table(s)' + (font.tableOrder.includes('CFF ') ? ', CFF outlines' : ''));
-  add('Coverage', codepoints === 0 ? 'no mapped code points' : codepoints.toLocaleString('en-US') + ' code points in ' + coveredBlocks + ' Unicode block(s)' + (unlisted > 0 ? ', ' + unlisted + ' outside the listed blocks' : ''));
-  if (font.cmap !== null) add('Mapping table', 'cmap format ' + font.cmap.format + ', platform ' + font.cmap.platform + '/' + font.cmap.encoding + ' of ' + font.cmap.subtables + ' subtable(s)');
-  if (font.axes.length > 0) add('Variable axes', font.axes.map((axis) => axis.tag + ' ' + axis.min + '\u2013' + axis.max + ' (default ' + axis.def + ')').join(', '));
-  const colorTables = font.tableOrder.filter((tag) => tag === 'COLR' || tag === 'SVG ' || tag === 'sbix' || tag === 'CBDT');
-  if (colorTables.length > 0) add('Colour', colorTables.join(', ') + (font.tableOrder.includes('CPAL') ? ' + CPAL palettes' : ''));
-  const hinting = font.tableOrder.filter((tag) => tag === 'cvt ' || tag === 'fpgm' || tag === 'prep');
+  add(
+    'Tables',
+    font.tables.length + ' table(s)' + (font.tableOrder.includes('CFF ') ? ', CFF outlines' : ''),
+  );
+  add(
+    'Coverage',
+    codepoints === 0
+      ? 'no mapped code points'
+      : codepoints.toLocaleString('en-US') +
+          ' code points in ' +
+          coveredBlocks +
+          ' Unicode block(s)' +
+          (unlisted > 0 ? ', ' + unlisted + ' outside the listed blocks' : ''),
+  );
+  if (font.cmap !== null)
+    add(
+      'Mapping table',
+      'cmap format ' +
+        font.cmap.format +
+        ', platform ' +
+        font.cmap.platform +
+        '/' +
+        font.cmap.encoding +
+        ' of ' +
+        font.cmap.subtables +
+        ' subtable(s)',
+    );
+  if (font.axes.length > 0)
+    add(
+      'Variable axes',
+      font.axes
+        .map(
+          (axis) => axis.tag + ' ' + axis.min + '\u2013' + axis.max + ' (default ' + axis.def + ')',
+        )
+        .join(', '),
+    );
+  const colorTables = font.tableOrder.filter(
+    (tag) => tag === 'COLR' || tag === 'SVG ' || tag === 'sbix' || tag === 'CBDT',
+  );
+  if (colorTables.length > 0)
+    add(
+      'Colour',
+      colorTables.join(', ') + (font.tableOrder.includes('CPAL') ? ' + CPAL palettes' : ''),
+    );
+  const hinting = font.tableOrder.filter(
+    (tag) => tag === 'cvt ' || tag === 'fpgm' || tag === 'prep',
+  );
   add('Hinting', hinting.length > 0 ? hinting.join(', ') : 'none');
   add('Names', font.names.length + ' record(s)');
   if (font.woff !== null) {
-    add('WOFF compression', font.woff.compressed + ' deflated and ' + font.woff.raw + ' stored table(s), ' + formatBytes(font.woff.totalSfntSize) + ' when unpacked');
-    if (font.woff.metaLength > 0 || font.woff.privLength > 0) add('WOFF extra blocks', 'metadata ' + font.woff.metaLength + ' B, private ' + font.woff.privLength + ' B');
+    add(
+      'WOFF compression',
+      font.woff.compressed +
+        ' deflated and ' +
+        font.woff.raw +
+        ' stored table(s), ' +
+        formatBytes(font.woff.totalSfntSize) +
+        ' when unpacked',
+    );
+    if (font.woff.metaLength > 0 || font.woff.privLength > 0)
+      add(
+        'WOFF extra blocks',
+        'metadata ' + font.woff.metaLength + ' B, private ' + font.woff.privLength + ' B',
+      );
   }
   if (font.woff2 !== null) {
-    add('WOFF2 compression', formatBytes(font.woff2.totalCompressedSize) + ' compressed from ' + formatBytes(font.woff2.totalSfntSize) + (font.woff2.decoded ? ', decoded' : ', not decoded (no Brotli)'));
-    if (font.woff2.transformed.length > 0) add('WOFF2 transforms', font.woff2.transformed.join(', ') + ' stored transformed');
-    if (font.woff2.metaLength > 0 || font.woff2.privLength > 0) add('WOFF2 extra blocks', 'metadata ' + font.woff2.metaLength + ' B, private ' + font.woff2.privLength + ' B');
+    add(
+      'WOFF2 compression',
+      formatBytes(font.woff2.totalCompressedSize) +
+        ' compressed from ' +
+        formatBytes(font.woff2.totalSfntSize) +
+        (font.woff2.decoded ? ', decoded' : ', not decoded (no Brotli)'),
+    );
+    if (font.woff2.transformed.length > 0)
+      add('WOFF2 transforms', font.woff2.transformed.join(', ') + ' stored transformed');
+    if (font.woff2.metaLength > 0 || font.woff2.privLength > 0)
+      add(
+        'WOFF2 extra blocks',
+        'metadata ' + font.woff2.metaLength + ' B, private ' + font.woff2.privLength + ' B',
+      );
   }
   if (textCheck !== null) {
-    add('Your text', textCheck.available + ' of ' + textCheck.checked + ' character(s) available' + (textCheck.missing.length > 0 ? ', ' + textCheck.missing.length + ' missing' : ''));
+    add(
+      'Your text',
+      textCheck.available +
+        ' of ' +
+        textCheck.checked +
+        ' character(s) available' +
+        (textCheck.missing.length > 0 ? ', ' + textCheck.missing.length + ' missing' : ''),
+    );
   }
   if (copyright !== null) add('Copyright', clip(copyright, 90));
   const errors = font.findings.filter((finding) => finding.level === 'error').length;
   const warnings = font.findings.filter((finding) => finding.level === 'warning').length;
   const notes = font.findings.filter((finding) => finding.level === 'note').length;
   add('Findings', errors + ' error, ' + warnings + ' warning, ' + notes + ' note');
-  if (font.checksumFailures.length > 0) add('Checksums', font.checksumFailures.length + ' table(s) fail' + (font.fileChecksumOk === false ? ', whole-file adjustment wrong' : ''));
-  else if (font.fileChecksumOk !== null) add('Checksums', font.fileChecksumOk ? 'all table checksums and the file adjustment match' : 'table checksums match, whole-file adjustment wrong');
+  if (font.checksumFailures.length > 0)
+    add(
+      'Checksums',
+      font.checksumFailures.length +
+        ' table(s) fail' +
+        (font.fileChecksumOk === false ? ', whole-file adjustment wrong' : ''),
+    );
+  else if (font.fileChecksumOk !== null)
+    add(
+      'Checksums',
+      font.fileChecksumOk
+        ? 'all table checksums and the file adjustment match'
+        : 'table checksums match, whole-file adjustment wrong',
+    );
   return rows;
 };
 
@@ -1204,7 +1919,8 @@ const buildTablesView = (font: FontData): string[][] => {
   const rows: string[][] = [];
   for (const table of font.tables.slice(0, MAX_ROWS)) {
     const purpose = TABLE_PURPOSE[table.tag] ?? '\u2014';
-    const share = font.fileSize === 0 ? 0 : (table.payload?.byteLength ?? table.length) / font.fileSize * 100;
+    const share =
+      font.fileSize === 0 ? 0 : ((table.payload?.byteLength ?? table.length) / font.fileSize) * 100;
     rows.push([
       table.tag,
       purpose,
@@ -1224,7 +1940,15 @@ const buildNamesView = (font: FontData): string[][] => {
     rows.push([
       String(record.nameId),
       NAME_LABELS[record.nameId] ?? 'Name ID ' + record.nameId,
-      (record.platform === 3 ? 'Windows' : record.platform === 1 ? 'Macintosh' : record.platform === 0 ? 'Unicode' : 'Platform ' + record.platform) + ' ' + record.encoding,
+      (record.platform === 3
+        ? 'Windows'
+        : record.platform === 1
+          ? 'Macintosh'
+          : record.platform === 0
+            ? 'Unicode'
+            : 'Platform ' + record.platform) +
+        ' ' +
+        record.encoding,
       record.language,
       clip(record.value, 220),
     ]);
@@ -1241,32 +1965,52 @@ const buildCoverageView = (blocks: BlockCount[], unlisted: number): string[][] =
     const size = block.end - block.start + 1;
     rows.push([
       block.name,
-      'U+' + block.start.toString(16).toUpperCase() + '\u2013U+' + block.end.toString(16).toUpperCase(),
+      'U+' +
+        block.start.toString(16).toUpperCase() +
+        '\u2013U+' +
+        block.end.toString(16).toUpperCase(),
       block.covered.toLocaleString('en-US') + ' / ' + size.toLocaleString('en-US'),
-      total === 0 ? '0%' : (block.covered / total * 100).toFixed(1) + '%',
+      total === 0 ? '0%' : ((block.covered / total) * 100).toFixed(1) + '%',
     ]);
   }
-  if (unlisted > 0) rows.push(['Outside the listed blocks', '\u2014', unlisted.toLocaleString('en-US'), total === 0 ? '0%' : (unlisted / total * 100).toFixed(1) + '%']);
+  if (unlisted > 0)
+    rows.push([
+      'Outside the listed blocks',
+      '\u2014',
+      unlisted.toLocaleString('en-US'),
+      total === 0 ? '0%' : ((unlisted / total) * 100).toFixed(1) + '%',
+    ]);
   if (rows.length === 0) rows.push(['(nothing mapped)', '\u2014', '0', '0%']);
   return rows.slice(0, MAX_ROWS);
 };
 
 const buildFindingsView = (findings: Finding[]): string[][] => {
   const rows = findings.map((finding) => [finding.level, finding.problem, finding.detail]);
-  if (rows.length === 0) rows.push(['note', 'Nothing to flag', 'Every table this inspector checked is present, readable and consistent.']);
+  if (rows.length === 0)
+    rows.push([
+      'note',
+      'Nothing to flag',
+      'Every table this inspector checked is present, readable and consistent.',
+    ]);
   return rows.slice(0, MAX_ROWS);
 };
 
 const run = async (input: FileRunInput): Promise<FileRunResult> => {
   const file = (input.files ?? [])[0];
   if (file === undefined) {
-    throw new ToolError('Choose a font file to inspect.', 'Drop a .ttf, .otf, .ttc, .woff or .woff2 file, or use the file picker.');
+    throw new ToolError(
+      'Choose a font file to inspect.',
+      'Drop a .ttf, .otf, .ttc, .woff or .woff2 file, or use the file picker.',
+    );
   }
   if (file.size === 0) {
     throw new ToolError('That file is empty.', 'Choose a font file that contains a font.');
   }
   if (file.size > MAX_BYTES) {
-    throw new ToolError('That file is larger than 32 MB.', 'Fonts that large are rare; this inspector keeps the whole file in memory, so trim the collection or pick a smaller font.');
+    throw new ToolError(
+      'That file is larger than 32 MB.',
+      'Fonts that large are rare; this inspector keeps the whole file in memory, so trim the collection or pick a smaller font.',
+    );
   }
   const bytes = new Uint8Array(await file.arrayBuffer());
   const font = await parseFont(bytes, file.name);
@@ -1277,32 +2021,77 @@ const run = async (input: FileRunInput): Promise<FileRunResult> => {
 
   if (textCheck !== null) {
     const listed = textCheck.missing.slice(0, 40).map(describeCode).join(', ');
-    const rest = textCheck.missing.length > 40 ? ' and ' + (textCheck.missing.length - 40) + ' more' : '';
+    const rest =
+      textCheck.missing.length > 40 ? ' and ' + (textCheck.missing.length - 40) + ' more' : '';
     if (textCheck.available === 0) {
-      font.findings.push({ level: 'error', problem: 'None of your text can be set in this font', detail: 'All ' + textCheck.checked + ' distinct character(s) you pasted have no glyph: ' + listed + rest + '. A renderer falls back to another font for every one of them.' });
+      font.findings.push({
+        level: 'error',
+        problem: 'None of your text can be set in this font',
+        detail:
+          'All ' +
+          textCheck.checked +
+          ' distinct character(s) you pasted have no glyph: ' +
+          listed +
+          rest +
+          '. A renderer falls back to another font for every one of them.',
+      });
     } else if (textCheck.missing.length > 0) {
-      font.findings.push({ level: 'warning', problem: 'Some of your text is missing from this font', detail: textCheck.missing.length + ' of the ' + textCheck.checked + ' character(s) you pasted have no glyph: ' + listed + rest + '. A renderer falls back to another font for those.' });
+      font.findings.push({
+        level: 'warning',
+        problem: 'Some of your text is missing from this font',
+        detail:
+          textCheck.missing.length +
+          ' of the ' +
+          textCheck.checked +
+          ' character(s) you pasted have no glyph: ' +
+          listed +
+          rest +
+          '. A renderer falls back to another font for those.',
+      });
     } else {
-      font.findings.push({ level: 'note', problem: 'Your text is fully covered', detail: 'All ' + textCheck.checked + ' distinct character(s) you pasted map to a glyph in this font.' });
+      font.findings.push({
+        level: 'note',
+        problem: 'Your text is fully covered',
+        detail:
+          'All ' +
+          textCheck.checked +
+          ' distinct character(s) you pasted map to a glyph in this font.',
+      });
     }
   }
 
   if (format === 'tables' && font.tables.length >= MAX_TABLES) {
-    font.findings.push({ level: 'note', problem: 'Only the first tables are listed', detail: 'The directory holds more than ' + MAX_TABLES + ' entries; the view stops there.' });
+    font.findings.push({
+      level: 'note',
+      problem: 'Only the first tables are listed',
+      detail: 'The directory holds more than ' + MAX_TABLES + ' entries; the view stops there.',
+    });
   }
 
   const report = (() => {
     switch (format) {
       case 'tables':
-        return { headers: ['Tag', 'Purpose', 'Offset', 'Length', 'Checksum', 'Share of file'], rows: buildTablesView(font) };
+        return {
+          headers: ['Tag', 'Purpose', 'Offset', 'Length', 'Checksum', 'Share of file'],
+          rows: buildTablesView(font),
+        };
       case 'names':
-        return { headers: ['Name ID', 'Meaning', 'Platform', 'Language', 'Value'], rows: buildNamesView(font) };
+        return {
+          headers: ['Name ID', 'Meaning', 'Platform', 'Language', 'Value'],
+          rows: buildNamesView(font),
+        };
       case 'coverage':
-        return { headers: ['Unicode block', 'Range', 'Covered', 'Share'], rows: buildCoverageView(blocks, unlisted) };
+        return {
+          headers: ['Unicode block', 'Range', 'Covered', 'Share'],
+          rows: buildCoverageView(blocks, unlisted),
+        };
       case 'findings':
         return { headers: ['Level', 'Problem', 'Detail'], rows: buildFindingsView(font.findings) };
       default:
-        return { headers: ['Item', 'Value'], rows: buildSummary(font, textCheck, blocks, unlisted) };
+        return {
+          headers: ['Item', 'Value'],
+          rows: buildSummary(font, textCheck, blocks, unlisted),
+        };
     }
   })();
 

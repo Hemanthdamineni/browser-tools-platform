@@ -314,9 +314,9 @@ describe('mic-test measurement payload', () => {
 describe('mic-test run', () => {
   it('rejects an empty input', async () => {
     await expect(run({}, payload(), [])).rejects.toThrow(ToolError);
-    await expect(run({}, payload(), [new File([], 'empty.webm', { type: 'audio/webm' })])).rejects.toThrow(
-      ToolError,
-    );
+    await expect(
+      run({}, payload(), [new File([], 'empty.webm', { type: 'audio/webm' })]),
+    ).rejects.toThrow(ToolError);
     // No measurements at all: the panel always sends them, so this is a bug
     // in the caller and must not produce a made-up report.
     await expect(tool.run({ files: [clip()], options: {} })).rejects.toThrow(ToolError);
@@ -335,8 +335,7 @@ describe('mic-test run', () => {
       rows: string[][];
     };
     expect(table.headers).toEqual(['Property', 'Value']);
-    const row = (label: string): string | undefined =>
-      table.rows.find((r) => r[0] === label)?.[1];
+    const row = (label: string): string | undefined => table.rows.find((r) => r[0] === label)?.[1];
     expect(row('Microphone')).toBe('Test Microphone');
     expect(row('Sample rate')).toBe('48,000 Hz');
     expect(row('Duration')).toBe('2.00 s');
@@ -390,10 +389,7 @@ describe('mic-test run', () => {
 
   it('never writes NaN or Infinity into the report', async () => {
     const silent = summariseLevels([{ rms: 0, peak: 0 }]);
-    const result = await run(
-      {},
-      payload({ rms: [0, 0, 0], peak: [0, 0, 0], durationMs: 0 }),
-    );
+    const result = await run({}, payload({ rms: [0, 0, 0], peak: [0, 0, 0], durationMs: 0 }));
     expect(result.report?.output).not.toMatch(/NaN|Infinity/);
     expect(silent.peakDb).toBe(SILENCE_DB);
     const table = JSON.parse(result.report?.output ?? '{}') as { rows: string[][] };

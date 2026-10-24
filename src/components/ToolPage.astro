@@ -104,16 +104,16 @@ const related = relatedTools(meta);
     )
   }
 
-  {meta.article == null && (
-    <section class="prose-tool mt-14 max-w-prose">
-      <h2>How it works</h2>
-      <p>
-        {meta.name} runs entirely in your browser tab. Your input is processed by JavaScript
-        {meta.input === 'file' ? ' and, for large files, a background Web Worker' : ''} on this device.
-        Nothing is uploaded, and the page works offline once it has loaded.
-      </p>
-      {
-        meta.privacy.network !== 'none' && (
+  {
+    meta.article == null && (
+      <section class="prose-tool mt-14 max-w-prose">
+        <h2>How it works</h2>
+        <p>
+          {meta.name} runs entirely in your browser tab. Your input is processed by JavaScript
+          {meta.input === 'file' ? ' and, for large files, a background Web Worker' : ''} on this
+          device. Nothing is uploaded, and the page works offline once it has loaded.
+        </p>
+        {meta.privacy.network !== 'none' && (
           <p>
             Network use: this tool may contact{' '}
             {(meta.privacy.network as string[]).map((n) => (
@@ -121,10 +121,8 @@ const related = relatedTools(meta);
             ))}
             . See the <a href="/privacy">privacy model</a>.
           </p>
-        )
-      }
-      {
-        meta.credits && meta.credits.length > 0 && (
+        )}
+        {meta.credits && meta.credits.length > 0 && (
           <>
             <h3>Built with</h3>
             <ul>
@@ -138,10 +136,10 @@ const related = relatedTools(meta);
               ))}
             </ul>
           </>
-        )
-      }
-    </section>
-  )}
+        )}
+      </section>
+    )
+  }
 
   {
     related.length > 0 && (

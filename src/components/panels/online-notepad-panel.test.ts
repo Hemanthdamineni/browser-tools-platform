@@ -371,9 +371,7 @@ describe('online-notepad panel', () => {
     const root = fixture();
     await mount(root, store);
 
-    root
-      .querySelector<HTMLButtonElement>('[data-note-list] [data-note-action="delete"]')!
-      .click();
+    root.querySelector<HTMLButtonElement>('[data-note-list] [data-note-action="delete"]')!.click();
     await vi.advanceTimersByTimeAsync(0);
 
     expect(store.deletes).toEqual(['a']);
@@ -433,4 +431,3 @@ describe('formatTimestamp', () => {
     expect(formatTimestamp(Number.NaN)).toBe('—');
   });
 });
-

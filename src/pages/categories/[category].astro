@@ -16,7 +16,11 @@ export const getStaticPaths = (() => {
 
 const { category, tools } = Astro.props;
 const sorted = [...tools].sort((a, b) => a.meta.name.localeCompare(b.meta.name));
-const listed = sorted.map((t) => ({ id: t.meta.id, name: t.meta.name, url: toolPageId(t.meta.id) }));
+const listed = sorted.map((t) => ({
+  id: t.meta.id,
+  name: t.meta.name,
+  url: toolPageId(t.meta.id),
+}));
 ---
 
 <Layout

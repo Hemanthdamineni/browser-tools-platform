@@ -10,9 +10,7 @@
  * blob. Everything that is worth unit-testing lives in pure functions here so
  * it can run without a DOM or a WebAssembly runtime.
  */
-import { capabilities } from '@/lib/capabilities';
 import { clamp } from '@/lib/format';
-import { clearError, readOptions, showError } from '../workbench/shared';
 
 /** Height of the window-chrome bar (traffic lights + title), in px. */
 export const CHROME_HEIGHT = 38;
@@ -113,11 +111,7 @@ export function lineToSpans(tokens: TokenLineLike): Span[] {
  * the token's colour locked to the FontStyle. An empty logical line still
  * yields one (empty) visual line so line spacing is preserved.
  */
-export function wrapSpanLine(
-  spans: Span[],
-  codeWidth: number,
-  fontSize: number,
-): VisualLine[] {
+export function wrapSpanLine(spans: Span[], codeWidth: number, fontSize: number): VisualLine[] {
   const out: VisualLine[] = [];
   let lineSpans: Span[] = [];
   let used = 0;
@@ -216,9 +210,7 @@ export function buildSvg(
   if (opts.chrome) {
     const cy = CHROME_HEIGHT / 2;
     TRAFFIC_LIGHTS.forEach((color, i) => {
-      parts.push(
-        `<circle cx="${pad + 12 + i * 16}" cy="${cy}" r="5.5" fill="${color}"/>`,
-      );
+      parts.push(`<circle cx="${pad + 12 + i * 16}" cy="${cy}" r="5.5" fill="${color}"/>`);
     });
     if (title) {
       parts.push(
@@ -230,7 +222,9 @@ export function buildSvg(
   const baseline = (i: number) =>
     contentTop + pad + (i + 1) * opts.lineHeight - (opts.lineHeight - fontSize) / 2;
 
-  parts.push(`<g font-family="${MONO_FONT}" font-size="${fontSize}" fill="${xmlEscape(colors.fg)}">`);
+  parts.push(
+    `<g font-family="${MONO_FONT}" font-size="${fontSize}" fill="${xmlEscape(colors.fg)}">`,
+  );
   for (let i = 0; i < lineCount; i++) {
     const line = visualLines[i]!;
     const y = baseline(i);
@@ -337,48 +331,6 @@ export function imageColorsFor(
 /*  Shiki (loaded lazily from this origin)                                     */
 /* -------------------------------------------------------------------------- */
 
-type LangLoader = () => Promise<unknown>;
-type ThemeLoader = () => Promise<unknown>;
-
-/** Language choices from the meta; every loader resolves to a bundled grammar. */
-const LANG_LOADERS: Record<string, LangLoader> = {
-  javascript: () => import('shiki/langs/javascript.mjs'),
-  typescript: () => import('shiki/langs/typescript.mjs'),
-  python: () => import('shiki/langs/python.mjs'),
-  json: () => import('shiki/langs/json.mjs'),
-  css: () => import('shiki/langs/css.mjs'),
-  html: () => import('shiki/langs/html.mjs'),
-  bash: () => import('shiki/langs/bash.mjs'),
-  java: () => import('shiki/langs/java.mjs'),
-  c: () => import('shiki/langs/c.mjs'),
-  cpp: () => import('shiki/langs/cpp.mjs'),
-  csharp: () => import('shiki/langs/csharp.mjs'),
-  go: () => import('shiki/langs/go.mjs'),
-  rust: () => import('shiki/langs/rust.mjs'),
-  ruby: () => import('shiki/langs/ruby.mjs'),
-  php: () => import('shiki/langs/php.mjs'),
-  sql: () => import('shiki/langs/sql.mjs'),
-  yaml: () => import('shiki/langs/yaml.mjs'),
-  markdown: () => import('shiki/langs/markdown.mjs'),
-  plaintext: () => import('shiki/langs/plaintext.mjs'),
-};
-
-/** Theme choices from the meta; every loader resolves to a bundled theme. */
-const THEME_LOADERS: Record<string, ThemeLoader> = {
-  'github-dark': () => import('shiki/themes/github-dark.mjs'),
-  'github-light': () => import('shiki/themes/github-light.mjs'),
-  'one-dark-pro': () => import('shiki/themes/one-dark-pro.mjs'),
-  'one-light': () => import('shiki/themes/one-light.mjs'),
-  nord: () => import('shiki/themes/nord.mjs'),
-  dracula: () => import('shiki/themes/dracula.mjs'),
-  'solarized-dark': () => import('shiki/themes/solarized-dark.mjs'),
-  'solarized-light': () => import('shiki/themes/solarized-light.mjs'),
-  'tokyo-night': () => import('shiki/themes/tokyo-night.mjs'),
-  monokai: () => import('shiki/themes/monokai.mjs'),
-  'min-dark': () => import('shiki/themes/min-dark.mjs'),
-  'min-light': () => import('shiki/themes/min-light.mjs'),
-};
-
 /** The loaded Shiki core (grammar loader + tokeniser). */
 interface HighlighterLike {
   loadLanguage(input: unknown): Promise<void>;
@@ -400,32 +352,17 @@ let highlighterPromise: Promise<HighlighterLike> | undefined;
  */
 export function getHighlighter(): Promise<HighlighterLike> {
   highlighterPromise ??= (async () => {
-    const [{ createHighlighterCore, createOnigurumaEngine }, { wasmBinary }] = await Promise.all([
-      import('shiki/core'),
-      import('shiki/wasm'),
-    ]);
+    const [{ createHighlighterCore }, { createOnigurumaEngine }, { wasmBinary }] =
+      await Promise.all([
+        import('shiki/core'),
+        import('shiki/engine/oniguruma'),
+        import('shiki/wasm'),
+      ]);
     const engine = await createOnigurumaEngine(() => wasmBinary);
     const highlighter = await createHighlighterCore({ themes: [], langs: [], engine });
-    const loaders = async (key: string, map: Record<string, LangLoader | ThemeLoader>): Promise<void> => {
-      const loader = map[key];
-      if (!loader) return;
-      const mod = (await loader()) as { default: unknown };
-      if (key === 'plaintext') {
-        // `plaintext` lives at a different subpath (no grammar to load).
-        return;
-      }
-      if ('loadLanguage' in (mod as object)) {
-        await (highlighter as unknown as HighlighterLike).loadLanguage(mod);
-      } else if ('loadTheme' in (mod as object)) {
-        await (highlighter as unknown as HighlighterLike).loadTheme(mod);
-      }
-    };
-    // Theme and language loaders are kept separate so the highlighter can
-    // load either kind; see usage below.
-    void loaders;
     return highlighter as unknown as HighlighterLike;
   })().catch((error: unknown) => {
-    highlighterPromise = undefinedSemaphores;
+    highlighterPromise = undefined;
     throw error;
   });
   return highlighterPromise;

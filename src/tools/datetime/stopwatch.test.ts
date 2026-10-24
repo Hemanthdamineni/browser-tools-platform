@@ -2,7 +2,12 @@ import { describe, it, expect } from 'vitest';
 import type { OptionValues } from '@/lib/types';
 import tool from './stopwatch.tool';
 
-type Result = { output: string; render?: string; stats?: Record<string, string | number>; notes?: string[] };
+type Result = {
+  output: string;
+  render?: string;
+  stats?: Record<string, string | number>;
+  notes?: string[];
+};
 const run = async (text: string, options: OptionValues = {}) =>
   (await tool.run({ text, options })) as Result;
 const table = (r: Result): { headers: string[]; rows: string[][] } =>

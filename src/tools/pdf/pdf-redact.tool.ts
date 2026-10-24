@@ -124,8 +124,16 @@ function regionOf(item: unknown, where: string): RedactRegion {
 
 /** Clamp a rectangle into `0..100`, keeping at least `MIN_REDACT_PERCENT` per side. */
 export function clampRegion(region: RedactRegion): RedactRegion {
-  const w = clamp(Number.isFinite(region.w) ? region.w : MIN_REDACT_PERCENT, MIN_REDACT_PERCENT, 100);
-  const h = clamp(Number.isFinite(region.h) ? region.h : MIN_REDACT_PERCENT, MIN_REDACT_PERCENT, 100);
+  const w = clamp(
+    Number.isFinite(region.w) ? region.w : MIN_REDACT_PERCENT,
+    MIN_REDACT_PERCENT,
+    100,
+  );
+  const h = clamp(
+    Number.isFinite(region.h) ? region.h : MIN_REDACT_PERCENT,
+    MIN_REDACT_PERCENT,
+    100,
+  );
   const x = clamp(Number.isFinite(region.x) ? region.x : 0, 0, 100 - w);
   const y = clamp(Number.isFinite(region.y) ? region.y : 0, 0, 100 - h);
   return { x, y, w, h };

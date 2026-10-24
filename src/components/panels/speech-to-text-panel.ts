@@ -78,7 +78,9 @@ export function modelSupportsLanguage(choice: string): boolean {
 
 /** Normalise a whisper chunk into a clean segment. */
 export function cleanSegmentText(text: string): string {
-  return String(text ?? '').replace(/\s+/g, ' ').trim();
+  return String(text ?? '')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 /** Break a timestamp into h/m/s/ms parts, rounding to the nearest millisecond. */
@@ -327,9 +329,9 @@ export function mountSpeechToTextPanel(panel: HTMLElement): void {
   /** Fill the option controls from an example's option bag. */
   function applyValues(values: OptionValues): void {
     for (const [key, value] of Object.entries(values)) {
-      const field = panel.querySelector<
-        HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-      >(`[data-opt-key="${key}"]`);
+      const field = panel.querySelector<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>(
+        `[data-opt-key="${key}"]`,
+      );
       if (!field) continue;
       if (field.dataset.optType === 'boolean') {
         (field as HTMLInputElement).checked = value === true || value === 'true';
@@ -374,7 +376,9 @@ export function mountSpeechToTextPanel(panel: HTMLElement): void {
   function finishMicRecording(): void {
     const blob = new Blob(micChunks, { type: recordingType });
     micChunks = [];
-    chooseFile(new File([blob], recordingFilename('recording', recordingType), { type: recordingType }));
+    chooseFile(
+      new File([blob], recordingFilename('recording', recordingType), { type: recordingType }),
+    );
   }
 
   micRecordBtn.addEventListener('click', async () => {
@@ -397,14 +401,21 @@ export function mountSpeechToTextPanel(panel: HTMLElement): void {
     }
     const format = chooseRecorderMimeType((mimeType) => {
       try {
-        return typeof window.MediaRecorder !== 'undefined' && window.MediaRecorder.isTypeSupported(mimeType);
+        return (
+          typeof window.MediaRecorder !== 'undefined' &&
+          window.MediaRecorder.isTypeSupported(mimeType)
+        );
       } catch {
         return false;
       }
     });
     if (!format) {
       stopMicStream();
-      showError(errorBox, 'This browser cannot record audio in a format the tool can transcribe.', 'Try a recent Chrome, Edge, Firefox or Safari.');
+      showError(
+        errorBox,
+        'This browser cannot record audio in a format the tool can transcribe.',
+        'Try a recent Chrome, Edge, Firefox or Safari.',
+      );
       return;
     }
     let next: MediaRecorder;
@@ -412,7 +423,11 @@ export function mountSpeechToTextPanel(panel: HTMLElement): void {
       next = new MediaRecorder(stream, { mimeType: format.mimeType });
     } catch {
       stopMicStream();
-      showError(errorBox, 'The browser refused to start the recorder.', 'Try again, or restart the browser.');
+      showError(
+        errorBox,
+        'The browser refused to start the recorder.',
+        'Try again, or restart the browser.',
+      );
       return;
     }
     recorder = next;

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { ToolError } from '@/lib/types';
 import {
   assertPdfHeader,

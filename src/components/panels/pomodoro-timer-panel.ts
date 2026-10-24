@@ -117,7 +117,9 @@ export function mountPomodoroTimerPanel(root: HTMLElement): void {
 
   function render(): void {
     const idle = session.state.phase === 'idle';
-    const total = idle ? phaseDurationMs(settings, 'working') : phaseDurationMs(settings, session.state.phase);
+    const total = idle
+      ? phaseDurationMs(settings, 'working')
+      : phaseDurationMs(settings, session.state.phase);
     const remaining = idle ? total : remainingFor(session, Date.now());
     clock.textContent = formatClock(remaining);
     phaseEl.textContent = phaseLabel(session.state.phase);
@@ -206,9 +208,7 @@ export function mountPomodoroTimerPanel(root: HTMLElement): void {
     const now = Date.now();
     if (session.running && session.endAt != null && remainingMs(session.endAt, now) <= 0) {
       const autoStart =
-        session.state.phase === 'working'
-          ? settings.autoStartBreaks
-          : settings.autoStartWork;
+        session.state.phase === 'working' ? settings.autoStartBreaks : settings.autoStartWork;
       advance(autoStart);
       return;
     }
@@ -222,7 +222,11 @@ export function mountPomodoroTimerPanel(root: HTMLElement): void {
     if (session.state.phase === 'idle') {
       session = openPhase(settings, nextPhase(settings, session.state), Date.now(), true);
     } else {
-      session = { ...session, endAt: Date.now() + remainingFor(session, Date.now()), running: true };
+      session = {
+        ...session,
+        endAt: Date.now() + remainingFor(session, Date.now()),
+        running: true,
+      };
     }
     if (session.state.phase !== previous) announce(previous, session.state.phase);
     persist();

@@ -522,9 +522,7 @@ export function mountSpreadsheetViewerPanel(root: HTMLElement): void {
         if (token !== generation) return;
         workbook = wb;
         const count = wb.SheetNames.length;
-        announce(
-          `${count} sheet${count === 1 ? '' : 's'} — pick one below, then convert it.`,
-        );
+        announce(`${count} sheet${count === 1 ? '' : 's'} — pick one below, then convert it.`);
         redraw();
       })
       .catch((error: unknown) => {

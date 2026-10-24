@@ -4,7 +4,8 @@ export const meta: ToolMeta = {
   id: 'ssh-config-auditor',
   name: 'SSH Config Auditor',
   category: 'security',
-  summary: 'Audit an SSH client config: resolve host options, flag risky settings and ordering mistakes.',
+  summary:
+    'Audit an SSH client config: resolve host options, flag risky settings and ordering mistakes.',
   description:
     'Paste an ssh_config file and see what it really does. Resolve any host alias to the settings that will actually apply and which block supplied each one, list every Host and Match block, and get a severity-labelled audit: disabled host key checking, agent forwarding to wildcards, weak or re-enabled algorithms, deprecated keywords, shadowed blocks where a top Host * steals options from later entries, duplicate and valueless directives, and typo keywords.',
   keywords: [

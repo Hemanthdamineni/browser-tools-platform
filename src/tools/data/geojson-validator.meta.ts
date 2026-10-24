@@ -48,8 +48,7 @@ export const meta: ToolMeta = {
     },
     {
       title: 'An unclosed polygon ring',
-      input:
-        '{"type":"Polygon","coordinates":[[[0,0],[1,0],[1,1],[0,1]]]}',
+      input: '{"type":"Polygon","coordinates":[[[0,0],[1,0],[1,1],[0,1]]]}',
     },
   ],
   faq: [

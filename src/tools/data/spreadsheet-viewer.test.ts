@@ -16,7 +16,10 @@ function makeWorkbookBytes(): ArrayBuffer {
     ['Grace "Hopper"', 81],
   ]);
   XLSX.utils.book_append_sheet(wb, ws, 'People');
-  const extra = XLSX.utils.aoa_to_sheet([['x', 'y'], [1, 2]]);
+  const extra = XLSX.utils.aoa_to_sheet([
+    ['x', 'y'],
+    [1, 2],
+  ]);
   XLSX.utils.book_append_sheet(wb, extra, 'Notes');
   return XLSX.write(wb, { bookType: 'xlsx', type: 'array' }) as ArrayBuffer;
 }
@@ -97,7 +100,10 @@ describe('run — real XLSX read', () => {
 
   it('rejects a file that is not a spreadsheet', async () => {
     await expect(
-      tool.run({ files: [new File(['hello world'], 'notes.txt', { type: 'text/plain' })], options: {} }),
+      tool.run({
+        files: [new File(['hello world'], 'notes.txt', { type: 'text/plain' })],
+        options: {},
+      }),
     ).rejects.toThrow(/not a spreadsheet/);
   });
 
@@ -110,9 +116,9 @@ describe('run — real XLSX read', () => {
   });
 
   it('rejects an unknown sheet name', async () => {
-    await expect(
-      tool.run({ files: [xlsxFile()], options: { sheet: 'Nope' } }),
-    ).rejects.toThrow(/no sheet called/i);
+    await expect(tool.run({ files: [xlsxFile()], options: { sheet: 'Nope' } })).rejects.toThrow(
+      /no sheet called/i,
+    );
   });
 
   it('rejects an empty file list', async () => {
@@ -124,9 +130,7 @@ describe('run — real XLSX read', () => {
 // panel module — re-assert a round trip so the tool and the panel never drift.
 describe('CSV escape round trip', () => {
   it('writes fields that parse back to the same values', () => {
-    const cells = [
-      ['plain', 'a,comma', 'a"quote"', 'line\nbreak', 'trailing,'],
-    ];
+    const cells = [['plain', 'a,comma', 'a"quote"', 'line\nbreak', 'trailing,']];
     const csv = toCsvText(cells);
     expect(csv).toBe('plain,"a,comma","a""quote""","line\nbreak","trailing,"');
   });

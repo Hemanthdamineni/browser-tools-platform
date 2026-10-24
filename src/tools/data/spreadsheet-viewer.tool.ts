@@ -41,9 +41,8 @@ export function outputNameFor(name: string, format: string): string {
 
 async function run(input: FileRunInput): Promise<FileRunResult> {
   const o = resolveOptions(meta, input.options);
-  const format = typeof o.format === 'string' && ['csv', 'json', 'xlsx'].includes(o.format)
-    ? o.format
-    : 'csv';
+  const format =
+    typeof o.format === 'string' && ['csv', 'json', 'xlsx'].includes(o.format) ? o.format : 'csv';
   const maxRows = clampInt(o.maxRows, 1, 1000, DEFAULT_MAX_ROWS);
   const maxCols = clampInt(o.maxCols, 1, 200, DEFAULT_MAX_COLS);
 
@@ -77,7 +76,10 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
     );
   }
   if (!wb.SheetNames.length) {
-    throw new ToolError('This workbook has no sheets.', 'Open a file that holds at least one sheet.');
+    throw new ToolError(
+      'This workbook has no sheets.',
+      'Open a file that holds at least one sheet.',
+    );
   }
 
   let sheetName: string;
@@ -108,7 +110,11 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
       type: 'application/json;charset=utf-8',
     });
   } else {
-    const out = XLSX.write(wb, { bookType: 'xlsx', type: 'array', compression: true }) as ArrayBuffer;
+    const out = XLSX.write(wb, {
+      bookType: 'xlsx',
+      type: 'array',
+      compression: true,
+    }) as ArrayBuffer;
     blob = new Blob([out], {
       type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     });

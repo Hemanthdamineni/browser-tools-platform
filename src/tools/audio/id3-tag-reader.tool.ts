@@ -139,7 +139,9 @@ function parsePicture(data: Uint8Array, legacy: boolean): Picture | null {
 
   let mime: string;
   if (legacy) {
-    mime = LATIN1.decode(data.subarray(offset, offset + 3)).trim().toLowerCase();
+    mime = LATIN1.decode(data.subarray(offset, offset + 3))
+      .trim()
+      .toLowerCase();
     mime = mime === 'png' ? 'image/png' : 'image/jpeg';
     offset += 3;
   } else {
@@ -176,7 +178,8 @@ function parseFrames(body: Uint8Array, version: number): Frame[] {
 
     let size: number;
     if (version === 2) {
-      size = ((body[offset + 3] ?? 0) << 16) | ((body[offset + 4] ?? 0) << 8) | (body[offset + 5] ?? 0);
+      size =
+        ((body[offset + 3] ?? 0) << 16) | ((body[offset + 4] ?? 0) << 8) | (body[offset + 5] ?? 0);
     } else if (version === 4) {
       size = syncsafe(body, offset + 4);
     } else {
@@ -303,7 +306,10 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
 
     if ((flags & 0x40) !== 0 && payload.length >= 4) {
       const declared = version === 4 ? syncsafe(payload, 0) : be32(payload, 0);
-      const skip = version === 4 ? Math.max(declared, 6) : Math.min(Math.max(declared + 4, 10), payload.length);
+      const skip =
+        version === 4
+          ? Math.max(declared, 6)
+          : Math.min(Math.max(declared + 4, 10), payload.length);
       payload = payload.subarray(Math.min(skip, payload.length));
       notes.push('An extended header was present and skipped.');
     }
@@ -332,11 +338,12 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
       }
       continue;
     }
-    const value = frame.id.startsWith('T') && !frame.id.startsWith('TXXX')
-      ? decodeText(frame.data)
-      : frame.id === 'COMM' || frame.id === 'COM'
-        ? parseComment(frame.data)
-        : '';
+    const value =
+      frame.id.startsWith('T') && !frame.id.startsWith('TXXX')
+        ? decodeText(frame.data)
+        : frame.id === 'COMM' || frame.id === 'COM'
+          ? parseComment(frame.data)
+          : '';
     if (value !== '') tagValues.push([label, value]);
   }
 
@@ -413,7 +420,10 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
       let preview = '';
       if (frame.id === 'APIC' || frame.id === 'PIC') {
         const parsed = parsePicture(frame.data, frame.legacy);
-        preview = parsed === null ? '(unreadable picture)' : parsed.mime + ', ' + parsed.bytes.length + ' bytes';
+        preview =
+          parsed === null
+            ? '(unreadable picture)'
+            : parsed.mime + ', ' + parsed.bytes.length + ' bytes';
       } else if (frame.id === 'COMM' || frame.id === 'COM') {
         preview = parseComment(frame.data);
       } else if (frame.id.startsWith('T')) {

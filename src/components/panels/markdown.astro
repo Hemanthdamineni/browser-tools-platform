@@ -70,7 +70,7 @@ const opening = examples[0]?.input ?? '';
         data-input
         set:text={opening}
       />
-      <p class="mt-1 text-xs text-[rgb(var(--text-muted))]" data-input-stats aria-live="off" />
+      <p class="mt-1 text-xs text-[rgb(var(--text-muted))]" data-input-stats aria-live="off"></p>
     </div>
 
     <div class="flex min-w-0 flex-col">
@@ -131,9 +131,8 @@ const opening = examples[0]?.input ?? '';
     <span class="ml-auto text-xs tabular-nums text-[rgb(var(--text-muted))]" data-timing></span>
   </div>
   <p class="mt-2 text-xs text-[rgb(var(--text-muted))]">
-    For a PDF, press "Print / Save as PDF" and choose <strong>Save as PDF</strong> as the
-    destination in the browser's print dialog. Only the rendered document is printed — nothing is
-    uploaded.
+    For a PDF, press "Print / Save as PDF" and choose <strong>Save as PDF</strong> as the destination
+    in the browser's print dialog. Only the rendered document is printed — nothing is uploaded.
   </p>
 
   <div
@@ -149,10 +148,7 @@ const opening = examples[0]?.input ?? '';
     <div class="mb-2 flex items-center justify-between gap-3">
       <span class="text-sm font-semibold text-[rgb(var(--text))]">Result</span>
     </div>
-    <div
-      class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-[rgb(var(--text-muted))]"
-      data-stats
-    >
+    <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-[rgb(var(--text-muted))]" data-stats>
     </div>
     <ul class="mt-2 space-y-1 text-xs" data-notes></ul>
     <details class="mt-3 rounded-lg border">

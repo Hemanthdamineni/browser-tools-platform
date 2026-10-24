@@ -102,7 +102,12 @@ export const meta: ToolMeta = {
   examples: [
     {
       title: 'Generate an Ed25519 key',
-      options: { mode: 'generate', keyType: 'ed25519', name: 'Ada Lovelace', email: 'ada@example.com' },
+      options: {
+        mode: 'generate',
+        keyType: 'ed25519',
+        name: 'Ada Lovelace',
+        email: 'ada@example.com',
+      },
     },
     {
       title: 'Generate an RSA 4096 key',

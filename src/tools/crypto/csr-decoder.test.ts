@@ -14,14 +14,15 @@ type Table = { headers: string[]; rows: string[][] };
 // `openssl req -noout -text` and `openssl req -outform DER | sha256sum`, so it is an
 // independent oracle rather than a re-encoding of this tool's own output.
 const FIXTURES = {
-  rsa: "-----BEGIN CERTIFICATE REQUEST-----\nMIIDMjCCAhoCAQAwaTELMAkGA1UEBhMCR0IxDzANBgNVBAgMBkxvbmRvbjEPMA0G\nA1UEBwwGTG9uZG9uMRQwEgYDVQQKDAtFeGFtcGxlIEx0ZDEMMAoGA1UECwwDT3Bz\nMRQwEgYDVQQDDAtleGFtcGxlLmNvbTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCC\nAQoCggEBAKNOx86QghDfXtJ9VYhQou2aqp1Ue/O9JHld9JZOxD1GpHhL+If9elW4\nOpjB8MwcssYVQqdiZqJ/1jiz5QDSjogUNDc9LykPeMx1XoctSo5ML2m3yjlzEOAq\noVOgtydm3FE9XgKF70oXDNVJ9RiTEjzup+KUHtJzWoKuLMkGemqd3O8qFm7ojxl6\nVJUfpmQV+T2alz4yfYza+6wXcL0jXlTAaOHu5RhB2kMSPirYMTXDOVKtgb5lfwwY\nOUIuG07KsGUYoAVfuMJsey+ASgRPf7KuI6qExX47jhCoBA2hUyABfklIMvil2nCy\nsZwa3m455vIYTBrwlVkhIktdO1LYNq0CAwEAAaCBgzCBgAYJKoZIhvcNAQkOMXMw\ncTBABgNVHREEOTA3ggtleGFtcGxlLmNvbYIPd3d3LmV4YW1wbGUuY29thwTAAAIK\ngRFhZG1pbkBleGFtcGxlLmNvbTAOBgNVHQ8BAf8EBAMCBaAwHQYDVR0lBBYwFAYI\nKwYBBQUHAwEGCCsGAQUFBwMCMA0GCSqGSIb3DQEBCwUAA4IBAQAsCMfyay3sduBp\nanae8rBVnIKtdLa2lrSJh07r5qvlV9mGzxgG9JZUfCMrF/yc3vy+/QgC0583k/c1\nAPhe1BVvsjAtFGE7+hyX1ic3Af3w7ZE1nLt9u7fvQ77RrSZPZ5B2B2CsRBEN7pdS\nqJnbjOHTXnUeFv3pKbyZRwUROlv0TRvAT4KQUgxt8lm0cCX2noUbWpHaENcTM4JK\nQbBtkip/2BjCRGp/tPRb/FInqpUMZg36wY9O0RTvQyoDn3m1LSrburmGtdV/Xfgi\nplvlHiEh/vB1vNdlqnCg4Zm184+CRwbQ+yDinarT7bhHYPa6vs6Z8kLKyyPFvB9m\n9VvYKgpd\n-----END CERTIFICATE REQUEST-----",
-  ec: "-----BEGIN CERTIFICATE REQUEST-----\nMIHTMHsCAQAwGTEXMBUGA1UEAwwOZWMuZXhhbXBsZS5uZXQwWTATBgcqhkjOPQIB\nBggqhkjOPQMBBwNCAASMmZGfWDApT02FXPcncfOoZg2eL97Ba+Flhh26SXrZI3Uc\nEYRJMtw5aFlYmI6CwEUzqnT/SAR4KzfQXGfCn3pGoAAwCgYIKoZIzj0EAwIDSAAw\nRQIgRqJ8Tmt6V5Dm9GB4Wk4SebfJ74sgzt+X10F3M2FB6ZkCIQDZBflkwO9i7cHZ\ny3Fb9IzCHQtF9vMpgrp67OKoZwpv3Q==\n-----END CERTIFICATE REQUEST-----",
-  weak: "-----BEGIN CERTIFICATE REQUEST-----\nMIIBWjCBxAIBADAbMRkwFwYDVQQDDBB3ZWFrLmV4YW1wbGUub3JnMIGfMA0GCSqG\nSIb3DQEBAQUAA4GNADCBiQKBgQDEa9scjIExBjzUn03atIbxo69g76n1RykI35++\ndYu3ceNlFNACWPoNfjk398OPlud2/sfNCuraSq3LrIXUSg5k1UAWYAPtivkqDvbF\nJR7k4RLcxkSFscD79/zDpW+H8EYW9KhTl/19e/1Yw3/X5pv7DYv8HQdFbilTL2ZB\nknN2WQIDAQABoAAwDQYJKoZIhvcNAQEFBQADgYEAtLCjscgpld2SNOQmqfIf1JVw\nx3Xgl5vUaa9IHHmC17PF/LRZGIsx6MZIKxOgyg2BbNjtrDE02Eadj8WMn4GQVlgp\ne0uqb08Fr3+Do4/4QF8wRxGylBgcOAe3/gW0QIL8J9em3GHOmjsNHxO+vAibfCW6\nWy3K8E8VqmnqSYqtF4Q=\n-----END CERTIFICATE REQUEST-----",
-  ed: "-----BEGIN CERTIFICATE REQUEST-----\nMIGXMEsCAQAwGDEWMBQGA1UEAwwNZWQuZXhhbXBsZS5pbzAqMAUGAytlcAMhADdg\n6l6GzfDZDPE7rX1I2WOedHD9RVOIfpPkXqHUHumdoAAwBQYDK2VwA0EA+AJDwnvN\n3YgHFQgvMSkELSyrG9YMgrEYlRSMCe1Bx1Yq7lz35xVOwPb8SicwgM3r5NHwvWXQ\nPnVaZLIKPgOWAw==\n-----END CERTIFICATE REQUEST-----",
-  odd: "-----BEGIN CERTIFICATE REQUEST-----\nMIIChzCCAW8CAQAwGjEYMBYGA1UEAwwPb2RkLmV4YW1wbGUuY29tMIIBIjANBgkq\nhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuv4wP4wKppXncwrMYHhoLgDJOoSXt2uK\ntSGTS7JaAbIU53M4ea6tG2LBOb8HI771/ImtWXJNIRewIXxBIsauxckWVNnl53kg\na2X5vmL1nhq5cQshYblxcaW7DuiWqO8zUch6iwzY8zXRg0NxIcXOzuWcgGKuBNFi\nhCgeTvaCn2Fd2qX3EmyvAjuNTHk6jvMhWI4uQSkTNl4QzUm7YPJhU90wVcN19Mx1\nsiRAJWHgBDpeX+DlP4YpRk+SKRTBUKtztepn4Tw685aQmDjw/w6mS0Ubhne0pOin\nv+acfmt5hYYp+BOetJsNPtP5sUJrJUkCR/wdeKqkRH72NWE3QRllJwIDAQABoCgw\nJgYJKoZIhvcNAQkOMRkwFzAVBgNVHREEDjAMggoxOTIuMC4yLjEwMA0GCSqGSIb3\nDQEBCwUAA4IBAQCfu2iavD8b37pREPYFGZQiMRZ4yi1oSfmZFS5Tc7SDvu29w+aJ\n+fd+3H3TCQNCYm2jHZ3Dv19Nkv+9vLB0VtwLErBhUx0es9DYLL0QHlk5CKLj4HOz\n8daWuGZvC8g0KPhTXdlGDfyMzkmNgq8h8cZn91y83o8PR3VbqMskEVCpzxNq+BPQ\nJsXjk61NyBvd3aXGPQGy+dC3a3RmNql6rHRU2vAs74nrJM4/iuzrVMLTbDMwyqvU\noThmsyvky4J20+WWG0zYOkoO8j9dwsaWjy/Vu/+O/Ae1pc8uuq6iS5FiRm5uq5+w\nFluSSi7MgsNiaOYuNujAoZdQ0jakjf+CSXSD\n-----END CERTIFICATE REQUEST-----",
+  rsa: '-----BEGIN CERTIFICATE REQUEST-----\nMIIDMjCCAhoCAQAwaTELMAkGA1UEBhMCR0IxDzANBgNVBAgMBkxvbmRvbjEPMA0G\nA1UEBwwGTG9uZG9uMRQwEgYDVQQKDAtFeGFtcGxlIEx0ZDEMMAoGA1UECwwDT3Bz\nMRQwEgYDVQQDDAtleGFtcGxlLmNvbTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCC\nAQoCggEBAKNOx86QghDfXtJ9VYhQou2aqp1Ue/O9JHld9JZOxD1GpHhL+If9elW4\nOpjB8MwcssYVQqdiZqJ/1jiz5QDSjogUNDc9LykPeMx1XoctSo5ML2m3yjlzEOAq\noVOgtydm3FE9XgKF70oXDNVJ9RiTEjzup+KUHtJzWoKuLMkGemqd3O8qFm7ojxl6\nVJUfpmQV+T2alz4yfYza+6wXcL0jXlTAaOHu5RhB2kMSPirYMTXDOVKtgb5lfwwY\nOUIuG07KsGUYoAVfuMJsey+ASgRPf7KuI6qExX47jhCoBA2hUyABfklIMvil2nCy\nsZwa3m455vIYTBrwlVkhIktdO1LYNq0CAwEAAaCBgzCBgAYJKoZIhvcNAQkOMXMw\ncTBABgNVHREEOTA3ggtleGFtcGxlLmNvbYIPd3d3LmV4YW1wbGUuY29thwTAAAIK\ngRFhZG1pbkBleGFtcGxlLmNvbTAOBgNVHQ8BAf8EBAMCBaAwHQYDVR0lBBYwFAYI\nKwYBBQUHAwEGCCsGAQUFBwMCMA0GCSqGSIb3DQEBCwUAA4IBAQAsCMfyay3sduBp\nanae8rBVnIKtdLa2lrSJh07r5qvlV9mGzxgG9JZUfCMrF/yc3vy+/QgC0583k/c1\nAPhe1BVvsjAtFGE7+hyX1ic3Af3w7ZE1nLt9u7fvQ77RrSZPZ5B2B2CsRBEN7pdS\nqJnbjOHTXnUeFv3pKbyZRwUROlv0TRvAT4KQUgxt8lm0cCX2noUbWpHaENcTM4JK\nQbBtkip/2BjCRGp/tPRb/FInqpUMZg36wY9O0RTvQyoDn3m1LSrburmGtdV/Xfgi\nplvlHiEh/vB1vNdlqnCg4Zm184+CRwbQ+yDinarT7bhHYPa6vs6Z8kLKyyPFvB9m\n9VvYKgpd\n-----END CERTIFICATE REQUEST-----',
+  ec: '-----BEGIN CERTIFICATE REQUEST-----\nMIHTMHsCAQAwGTEXMBUGA1UEAwwOZWMuZXhhbXBsZS5uZXQwWTATBgcqhkjOPQIB\nBggqhkjOPQMBBwNCAASMmZGfWDApT02FXPcncfOoZg2eL97Ba+Flhh26SXrZI3Uc\nEYRJMtw5aFlYmI6CwEUzqnT/SAR4KzfQXGfCn3pGoAAwCgYIKoZIzj0EAwIDSAAw\nRQIgRqJ8Tmt6V5Dm9GB4Wk4SebfJ74sgzt+X10F3M2FB6ZkCIQDZBflkwO9i7cHZ\ny3Fb9IzCHQtF9vMpgrp67OKoZwpv3Q==\n-----END CERTIFICATE REQUEST-----',
+  weak: '-----BEGIN CERTIFICATE REQUEST-----\nMIIBWjCBxAIBADAbMRkwFwYDVQQDDBB3ZWFrLmV4YW1wbGUub3JnMIGfMA0GCSqG\nSIb3DQEBAQUAA4GNADCBiQKBgQDEa9scjIExBjzUn03atIbxo69g76n1RykI35++\ndYu3ceNlFNACWPoNfjk398OPlud2/sfNCuraSq3LrIXUSg5k1UAWYAPtivkqDvbF\nJR7k4RLcxkSFscD79/zDpW+H8EYW9KhTl/19e/1Yw3/X5pv7DYv8HQdFbilTL2ZB\nknN2WQIDAQABoAAwDQYJKoZIhvcNAQEFBQADgYEAtLCjscgpld2SNOQmqfIf1JVw\nx3Xgl5vUaa9IHHmC17PF/LRZGIsx6MZIKxOgyg2BbNjtrDE02Eadj8WMn4GQVlgp\ne0uqb08Fr3+Do4/4QF8wRxGylBgcOAe3/gW0QIL8J9em3GHOmjsNHxO+vAibfCW6\nWy3K8E8VqmnqSYqtF4Q=\n-----END CERTIFICATE REQUEST-----',
+  ed: '-----BEGIN CERTIFICATE REQUEST-----\nMIGXMEsCAQAwGDEWMBQGA1UEAwwNZWQuZXhhbXBsZS5pbzAqMAUGAytlcAMhADdg\n6l6GzfDZDPE7rX1I2WOedHD9RVOIfpPkXqHUHumdoAAwBQYDK2VwA0EA+AJDwnvN\n3YgHFQgvMSkELSyrG9YMgrEYlRSMCe1Bx1Yq7lz35xVOwPb8SicwgM3r5NHwvWXQ\nPnVaZLIKPgOWAw==\n-----END CERTIFICATE REQUEST-----',
+  odd: '-----BEGIN CERTIFICATE REQUEST-----\nMIIChzCCAW8CAQAwGjEYMBYGA1UEAwwPb2RkLmV4YW1wbGUuY29tMIIBIjANBgkq\nhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuv4wP4wKppXncwrMYHhoLgDJOoSXt2uK\ntSGTS7JaAbIU53M4ea6tG2LBOb8HI771/ImtWXJNIRewIXxBIsauxckWVNnl53kg\na2X5vmL1nhq5cQshYblxcaW7DuiWqO8zUch6iwzY8zXRg0NxIcXOzuWcgGKuBNFi\nhCgeTvaCn2Fd2qX3EmyvAjuNTHk6jvMhWI4uQSkTNl4QzUm7YPJhU90wVcN19Mx1\nsiRAJWHgBDpeX+DlP4YpRk+SKRTBUKtztepn4Tw685aQmDjw/w6mS0Ubhne0pOin\nv+acfmt5hYYp+BOetJsNPtP5sUJrJUkCR/wdeKqkRH72NWE3QRllJwIDAQABoCgw\nJgYJKoZIhvcNAQkOMRkwFzAVBgNVHREEDjAMggoxOTIuMC4yLjEwMA0GCSqGSIb3\nDQEBCwUAA4IBAQCfu2iavD8b37pREPYFGZQiMRZ4yi1oSfmZFS5Tc7SDvu29w+aJ\n+fd+3H3TCQNCYm2jHZ3Dv19Nkv+9vLB0VtwLErBhUx0es9DYLL0QHlk5CKLj4HOz\n8daWuGZvC8g0KPhTXdlGDfyMzkmNgq8h8cZn91y83o8PR3VbqMskEVCpzxNq+BPQ\nJsXjk61NyBvd3aXGPQGy+dC3a3RmNql6rHRU2vAs74nrJM4/iuzrVMLTbDMwyqvU\noThmsyvky4J20+WWG0zYOkoO8j9dwsaWjy/Vu/+O/Ae1pc8uuq6iS5FiRm5uq5+w\nFluSSi7MgsNiaOYuNujAoZdQ0jakjf+CSXSD\n-----END CERTIFICATE REQUEST-----',
 };
 
-const RSA_FINGERPRINT = "D5:04:91:DD:3E:16:C2:AF:62:DB:FF:40:E1:23:F2:A1:1B:9E:A9:B4:AE:CF:DD:41:C1:C9:6B:79:A9:2D:65:24";
+const RSA_FINGERPRINT =
+  'D5:04:91:DD:3E:16:C2:AF:62:DB:FF:40:E1:23:F2:A1:1B:9E:A9:B4:AE:CF:DD:41:C1:C9:6B:79:A9:2D:65:24';
 
 const run = async (text: string, options: Record<string, string | number | boolean> = {}) =>
   (await tool.run({ files: [], text, options })) as Result;
@@ -51,7 +52,11 @@ const derFromPem = (pem: string): Uint8Array => {
 const toPem = (bytes: Uint8Array): string => {
   const binary = Array.from(bytes, (byte) => String.fromCharCode(byte)).join('');
   const lines = btoa(binary).match(/.{1,64}/gu) ?? [];
-  return '-----BEGIN CERTIFICATE REQUEST-----\n' + lines.join('\n') + '\n-----END CERTIFICATE REQUEST-----';
+  return (
+    '-----BEGIN CERTIFICATE REQUEST-----\n' +
+    lines.join('\n') +
+    '\n-----END CERTIFICATE REQUEST-----'
+  );
 };
 
 const findBytes = (haystack: Uint8Array, needle: string): number => {
@@ -100,7 +105,12 @@ const OID_RSA_ENCRYPTION = [0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x01, 0x01
 const OID_SHA256_RSA = [0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x01, 0x0b];
 
 const buildCsr = (
-  options: { version?: number; commonName?: string; attributeOid?: number[]; extraAttributes?: number } = {},
+  options: {
+    version?: number;
+    commonName?: string;
+    attributeOid?: number[];
+    extraAttributes?: number;
+  } = {},
 ): string => {
   const attribute = options.attributeOid ?? [0x55, 0x04, 0x03];
   const rdn = set(seq(oid(attribute), utf8(options.commonName ?? 'synthetic.example')));
@@ -116,7 +126,11 @@ const buildCsr = (
   const request = seq(info, seq(oid(OID_SHA256_RSA), nullValue()), bitString([0xaa, 0xbb, 0xcc]));
   const binary = Array.from(request, (byte) => String.fromCharCode(byte)).join('');
   const lines = btoa(binary).match(/.{1,64}/gu) ?? [];
-  return '-----BEGIN CERTIFICATE REQUEST-----\n' + lines.join('\n') + '\n-----END CERTIFICATE REQUEST-----';
+  return (
+    '-----BEGIN CERTIFICATE REQUEST-----\n' +
+    lines.join('\n') +
+    '\n-----END CERTIFICATE REQUEST-----'
+  );
 };
 
 describe('csr-decoder', () => {
@@ -152,7 +166,11 @@ describe('csr-decoder', () => {
   it('decodes the requested extensions', async () => {
     const table = await view(FIXTURES.rsa, 'extensions');
     expect(table.rows).toEqual([
-      ['subjectAltName', 'no', 'DNS:example.com, DNS:www.example.com, IP:192.0.2.10, email:admin@example.com'],
+      [
+        'subjectAltName',
+        'no',
+        'DNS:example.com, DNS:www.example.com, IP:192.0.2.10, email:admin@example.com',
+      ],
       ['keyUsage', 'yes', 'digitalSignature, keyEncipherment'],
       ['extendedKeyUsage', 'no', 'serverAuth, clientAuth'],
     ]);
@@ -161,7 +179,9 @@ describe('csr-decoder', () => {
   it('verifies the signature of an untouched request', async () => {
     const result = await run(FIXTURES.rsa);
     expect(result.stats?.signature).toBe('valid');
-    expect((await summary(FIXTURES.rsa)).get('Signature check')).toBe('valid (signed by the key in this request)');
+    expect((await summary(FIXTURES.rsa)).get('Signature check')).toBe(
+      'valid (signed by the key in this request)',
+    );
   });
 
   it('matches the SHA-256 fingerprint that openssl computes', async () => {
@@ -185,7 +205,9 @@ describe('csr-decoder', () => {
     const result = await run(tampered);
     expect(result.stats?.signature).toBe('invalid');
     expect((await summary(tampered)).get('Common Name')).toBe('dxample.com');
-    expect(problems(await view(tampered, 'findings'))).toContain('The signature does not match the key');
+    expect(problems(await view(tampered, 'findings'))).toContain(
+      'The signature does not match the key',
+    );
     expect(result.warnings?.join(' ')).toMatch(/must be fixed before signing/i);
   });
 
@@ -223,7 +245,9 @@ describe('csr-decoder', () => {
   });
 
   it('flags an IP address stored in a dNSName entry', async () => {
-    expect(problems(await view(FIXTURES.odd, 'findings'))).toContain('IP address stored as a dNSName');
+    expect(problems(await view(FIXTURES.odd, 'findings'))).toContain(
+      'IP address stored as a dNSName',
+    );
   });
 
   it('accepts bare base64 and hex DER as well as PEM', async () => {
@@ -248,11 +272,13 @@ describe('csr-decoder', () => {
   it('can skip the signature check', async () => {
     const result = await run(FIXTURES.rsa, { verifySignature: false });
     expect(result.stats?.signature).toBe('skipped');
-    expect((await summary(FIXTURES.rsa, { verifySignature: false })).get('Signature check')).toBe('not checked');
-    expect(result.notes?.join(' ')).toMatch(/verification was switched off/i);
-    expect(problems(await view(FIXTURES.rsa, 'findings', { verifySignature: false }))).not.toContain(
-      'The signature could not be checked here',
+    expect((await summary(FIXTURES.rsa, { verifySignature: false })).get('Signature check')).toBe(
+      'not checked',
     );
+    expect(result.notes?.join(' ')).toMatch(/verification was switched off/i);
+    expect(
+      problems(await view(FIXTURES.rsa, 'findings', { verifySignature: false })),
+    ).not.toContain('The signature could not be checked here');
   });
 
   it('reads a hand-built request that openssl refuses to create', async () => {
@@ -268,7 +294,9 @@ describe('csr-decoder', () => {
     const bad = buildCsr({ version: 1 });
     const result = await run(bad, { verifySignature: false });
     expect(result.stats?.errors).toBe(1);
-    expect(problems(await view(bad, 'findings', { verifySignature: false }))).toContain('Unsupported version 1');
+    expect(problems(await view(bad, 'findings', { verifySignature: false }))).toContain(
+      'Unsupported version 1',
+    );
   });
 
   it('reports an unknown subject attribute by OID', async () => {
@@ -282,7 +310,9 @@ describe('csr-decoder', () => {
 
   it('warns when the subject is empty', async () => {
     const bare = buildCsr({ commonName: '' });
-    expect(problems(await view(bare, 'findings', { verifySignature: false }))).toContain('No Common Name');
+    expect(problems(await view(bare, 'findings', { verifySignature: false }))).toContain(
+      'No Common Name',
+    );
   });
 
   it('stays bounded on a request with thousands of fields', async () => {
@@ -307,9 +337,11 @@ describe('csr-decoder', () => {
   });
 
   it('rejects a PEM block with an unexpected label', async () => {
-    const key = ['-----BEGIN PRIVATE KEY-----', 'MIIEvQIBADANBgkqhkiG9w0BAQEFAASC', '-----END PRIVATE KEY-----'].join(
-      '\n',
-    );
+    const key = [
+      '-----BEGIN PRIVATE KEY-----',
+      'MIIEvQIBADANBgkqhkiG9w0BAQEFAASC',
+      '-----END PRIVATE KEY-----',
+    ].join('\n');
     await expect(run(key)).rejects.toThrow(/labelled "PRIVATE KEY"/i);
   });
 

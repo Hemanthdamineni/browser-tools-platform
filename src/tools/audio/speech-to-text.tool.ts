@@ -85,7 +85,10 @@ async function decodeAudio(file: File): Promise<DecodedAudio> {
 /** The default pipeline: load Whisper through the shared ML runtime and run it. */
 async function transcribeWithWhisper(input: TranscribeInput): Promise<TranscriptSegment[]> {
   const loaded = await loadModel<{
-    (audio: Float32Array, opts?: Record<string, unknown>): Promise<{
+    (
+      audio: Float32Array,
+      opts?: Record<string, unknown>,
+    ): Promise<{
       text: string;
       chunks?: { text: string; timestamp: [number, number] | [null, null] }[];
     }>;
@@ -141,7 +144,9 @@ function producerError(error: unknown): unknown {
   const trimmed = detail.length > 160 ? `${detail.slice(0, 157)}…` : detail;
   return new ToolError(
     'The audio could not be transcribed.',
-    trimmed ? `The model failed to run: ${trimmed}` : 'The model failed to run. Try a recent Chrome, Edge, Firefox or Safari.',
+    trimmed
+      ? `The model failed to run: ${trimmed}`
+      : 'The model failed to run. Try a recent Chrome, Edge, Firefox or Safari.',
   );
 }
 
@@ -166,7 +171,10 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
     audio = await decode(file);
   } catch (error) {
     if (error instanceof ToolError) throw error;
-    throw new ToolError('This browser could not decode that audio file.', 'Try a WAV, MP3, OGG or M4A file.');
+    throw new ToolError(
+      'This browser could not decode that audio file.',
+      'Try a WAV, MP3, OGG or M4A file.',
+    );
   }
   signal?.throwIfAborted?.();
 
@@ -197,7 +205,10 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   return {
     outputs: [
       { filename: `${stem}.txt`, blob: new Blob([txt], { type: 'text/plain;charset=utf-8' }) },
-      { filename: `${stem}.srt`, blob: new Blob([srt], { type: 'application/x-subrip;charset=utf-8' }) },
+      {
+        filename: `${stem}.srt`,
+        blob: new Blob([srt], { type: 'application/x-subrip;charset=utf-8' }),
+      },
       { filename: `${stem}.vtt`, blob: new Blob([vtt], { type: 'text/vtt;charset=utf-8' }) },
     ],
     report: { output: txt, render: 'text' },

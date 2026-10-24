@@ -114,10 +114,7 @@ export function resolveChannelMode(value: unknown): ChannelMode {
 export function resolveQuality(value: unknown): QualityId {
   const id = String(value ?? 'medium').trim() || 'medium';
   if (id === 'high' || id === 'medium' || id === 'low') return id;
-  throw new ToolError(
-    `“${id}” is not a known quality level.`,
-    'Choose high, medium or low.',
-  );
+  throw new ToolError(`“${id}” is not a known quality level.`, 'Choose high, medium or low.');
 }
 
 /* -------------------------------------------------------------------------- */

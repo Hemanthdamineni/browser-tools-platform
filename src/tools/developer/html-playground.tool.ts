@@ -17,7 +17,11 @@ import type { TextRunInput, TextRunResult, TextToolModule } from '@/lib/types';
 import { ToolError } from '@/lib/types';
 import { resolveOptions } from '@/lib/options';
 import { meta } from './html-playground.meta';
-import { buildDocument, exportFileName, parseParts } from '../../components/panels/html-playground-panel';
+import {
+  buildDocument,
+  exportFileName,
+  parseParts,
+} from '../../components/panels/html-playground-panel';
 
 function run(input: TextRunInput): TextRunResult {
   const o = resolveOptions(meta, input.options);

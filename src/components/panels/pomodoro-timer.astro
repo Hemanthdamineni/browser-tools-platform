@@ -32,8 +32,12 @@ const headingId = `${p}-heading`;
   aria-labelledby={headingId}
 >
   <div class="flex flex-wrap items-center gap-2">
-    <h2 id={headingId} class="flex items-center gap-2 text-base font-semibold text-[rgb(var(--text))]">
-      <Icon name="clock" size={18} /> {meta.name}
+    <h2
+      id={headingId}
+      class="flex items-center gap-2 text-base font-semibold text-[rgb(var(--text))]"
+    >
+      <Icon name="clock" size={18} />
+      {meta.name}
     </h2>
     <span class="chip">Live</span>
   </div>
@@ -43,14 +47,25 @@ const headingId = `${p}-heading`;
   </p>
 
   <!-- The clock -->
-  <div class="mt-5 flex flex-col items-center gap-1 rounded-lg border p-5"
-    style="background-color: rgb(var(--bg-inset))">
-    <span class="font-mono text-5xl tabular-nums tracking-tight text-[rgb(var(--text))]" data-clock
-      role="timer">25:00</span>
-    <div class="mt-1 h-1.5 w-full max-w-xs overflow-hidden rounded-full"
-      style="background-color: rgb(var(--bg-subtle))">
-      <div class="h-full transition-[width] duration-300 ease-linear"
-        style="width:0%; background-color: rgb(var(--accent))" data-progress></div>
+  <div
+    class="mt-5 flex flex-col items-center gap-1 rounded-lg border p-5"
+    style="background-color: rgb(var(--bg-inset))"
+  >
+    <span
+      class="font-mono text-5xl tabular-nums tracking-tight text-[rgb(var(--text))]"
+      data-clock
+      role="timer">25:00</span
+    >
+    <div
+      class="mt-1 h-1.5 w-full max-w-xs overflow-hidden rounded-full"
+      style="background-color: rgb(var(--bg-subtle))"
+    >
+      <div
+        class="h-full transition-[width] duration-300 ease-linear"
+        style="width:0%; background-color: rgb(var(--accent))"
+        data-progress
+      >
+      </div>
     </div>
     <div class="mt-2 flex items-center gap-4 text-sm text-[rgb(var(--text-muted))]">
       <span class="chip" data-phase>Ready</span>
@@ -58,7 +73,9 @@ const headingId = `${p}-heading`;
         Sessions: <strong class="tabular-nums text-[rgb(var(--text))]" data-sessions>0</strong>
       </span>
       <span>
-        Cycle: <span class="tabular-nums text-[rgb(var(--text))]" data-cycle>0 / {DEFAULT_SETTINGS.cyclesBeforeLongBreak}</span>
+        Cycle: <span class="tabular-nums text-[rgb(var(--text))]" data-cycle
+          >0 / {DEFAULT_SETTINGS.cyclesBeforeLongBreak}</span
+        >
       </span>
     </div>
   </div>
@@ -79,7 +96,12 @@ const headingId = `${p}-heading`;
     </button>
   </div>
 
-  <p class="mt-2 text-sm text-[rgb(var(--text-muted))]" data-status role="status" aria-live="polite">
+  <p
+    class="mt-2 text-sm text-[rgb(var(--text-muted))]"
+    data-status
+    role="status"
+    aria-live="polite"
+  >
     Ready — press Start to begin a work phase.
   </p>
 
@@ -100,12 +122,14 @@ const headingId = `${p}-heading`;
     role="alert"
     data-error
     hidden
-  ></div>
+  >
+  </div>
 
   <div class="mt-4" data-result-wrap hidden>
     <span class="mb-2 block text-sm font-semibold text-[rgb(var(--text))]">Session summary</span>
     <div class="mb-2 min-w-0" data-report hidden></div>
-    <div class="flex flex-wrap gap-x-5 gap-y-1 text-sm text-[rgb(var(--text-muted))]" data-stats></div>
+    <div class="flex flex-wrap gap-x-5 gap-y-1 text-sm text-[rgb(var(--text-muted))]" data-stats>
+    </div>
     <ul class="mt-2 space-y-1 text-xs text-[rgb(var(--text-muted))]" data-notes></ul>
   </div>
 

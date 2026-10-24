@@ -683,18 +683,15 @@ export function mountMicPanel(panel: HTMLElement): void {
     };
 
     try {
-      const result = await runToolById<FileRunResult>(
-        'mic-test',
-        { files: [file], options, text: JSON.stringify(measurements) },
-      );
+      const result = await runToolById<FileRunResult>('mic-test', {
+        files: [file],
+        options,
+        text: JSON.stringify(measurements),
+      });
       renderResult(result);
     } catch (error) {
       const err = error as Error & { hint?: string };
-      showError(
-        errorBox,
-        err.message || 'The recording could not be measured.',
-        err.hint,
-      );
+      showError(errorBox, err.message || 'The recording could not be measured.', err.hint);
     }
   }
 

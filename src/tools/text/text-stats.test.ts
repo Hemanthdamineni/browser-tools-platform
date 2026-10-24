@@ -76,9 +76,15 @@ describe('text-stats', async () => {
     });
 
     it('Meta description 155–160 band', async () => {
-      expect(await value('a'.repeat(155), 'Meta description — 155–160')).toBe('155 · within 155–160');
-      expect(await value('a'.repeat(160), 'Meta description — 155–160')).toBe('160 · within 155–160');
-      expect(await value('a'.repeat(154), 'Meta description — 155–160')).toBe('154 · 1 short of 155');
+      expect(await value('a'.repeat(155), 'Meta description — 155–160')).toBe(
+        '155 · within 155–160',
+      );
+      expect(await value('a'.repeat(160), 'Meta description — 155–160')).toBe(
+        '160 · within 155–160',
+      );
+      expect(await value('a'.repeat(154), 'Meta description — 155–160')).toBe(
+        '154 · 1 short of 155',
+      );
       expect(await value('a'.repeat(161), 'Meta description — 155–160')).toBe('161 · 1 over 160');
     });
 

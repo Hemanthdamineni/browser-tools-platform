@@ -357,9 +357,9 @@ describe('plan parsing and serialisation', () => {
   });
 
   it('serialises a plan back to JSON the tool understands', () => {
-    expect(JSON.parse(planToJson([{ page: 3, regions: [{ x: 1.239, y: 0, w: 10, h: 10 }] }]))).toEqual(
-      [{ page: 3, regions: [{ x: 1.24, y: 0, w: 10, h: 10 }] }],
-    );
+    expect(
+      JSON.parse(planToJson([{ page: 3, regions: [{ x: 1.239, y: 0, w: 10, h: 10 }] }])),
+    ).toEqual([{ page: 3, regions: [{ x: 1.24, y: 0, w: 10, h: 10 }] }]);
   });
 
   it('derives the output file name from the source name', () => {
@@ -395,7 +395,9 @@ describe('mountPdfRedactPanel', () => {
 
     expect(root.querySelectorAll('[data-page-tabs] [data-page-tab]')).toHaveLength(3);
     expect(root.querySelector<HTMLButtonElement>('[data-run]')!.disabled).toBe(false);
-    expect(root.querySelector<HTMLElement>('[data-page-status]')!.textContent).toMatch(/Page 1 of 3/);
+    expect(root.querySelector<HTMLElement>('[data-page-status]')!.textContent).toMatch(
+      /Page 1 of 3/,
+    );
   });
 
   it('draws a rectangle mirrored into the plan field', async () => {
@@ -437,13 +439,17 @@ describe('mountPdfRedactPanel', () => {
     const tabs = root.querySelectorAll<HTMLButtonElement>('[data-page-tab]');
     tabs[1]!.click();
     await vi.waitFor(() => {
-      expect(root.querySelector<HTMLElement>('[data-page-status]')!.textContent).toMatch(/Page 2 of 3/);
+      expect(root.querySelector<HTMLElement>('[data-page-status]')!.textContent).toMatch(
+        /Page 2 of 3/,
+      );
     });
     // Page 2 starts empty.
     expect(boxes(root)).toHaveLength(0);
     addPageRegion(root);
 
-    const plan = JSON.parse(root.querySelector<HTMLTextAreaElement>('[data-opt-key="plan"]')!.value);
+    const plan = JSON.parse(
+      root.querySelector<HTMLTextAreaElement>('[data-opt-key="plan"]')!.value,
+    );
     expect(plan.map((entry: { page: number }) => entry.page)).toEqual([1, 2]);
   });
 
@@ -468,7 +474,9 @@ describe('mountPdfRedactPanel', () => {
     root.querySelector<HTMLInputElement>('[data-opt-key="scale"]')!.value = '3';
 
     runToolByIdMock.mockResolvedValue({
-      outputs: [{ filename: 'contract-redacted.pdf', blob: new Blob(['x'], { type: 'application/pdf' }) }],
+      outputs: [
+        { filename: 'contract-redacted.pdf', blob: new Blob(['x'], { type: 'application/pdf' }) },
+      ],
       warnings: ['Pages 1 were flattened to images and their text layer is gone.'],
       notes: ['Pages 2 and 3 kept their original text.'],
     } satisfies FileRunResult);
@@ -509,7 +517,9 @@ describe('mountPdfRedactPanel', () => {
       expect(root.querySelector<HTMLElement>('[data-error]')!.hidden).toBe(false);
     });
 
-    expect(root.querySelector('[data-error]')!.textContent).toContain('Draw at least one rectangle.');
+    expect(root.querySelector('[data-error]')!.textContent).toContain(
+      'Draw at least one rectangle.',
+    );
     expect(root.querySelector<HTMLElement>('[data-result-wrap]')!.hidden).toBe(true);
   });
 

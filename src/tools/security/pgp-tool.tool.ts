@@ -120,7 +120,7 @@ export async function run(input: FileRunInput): Promise<FileRunResult> {
         ? [
             {
               filename: (input.files[0]?.name ?? 'message') + '.pgp',
-              blob: new Blob([result.binary], { type: 'application/octet-stream' }),
+              blob: new Blob([result.binary as BlobPart], { type: 'application/octet-stream' }),
             },
           ]
         : [];
@@ -151,7 +151,7 @@ export async function run(input: FileRunInput): Promise<FileRunResult> {
         ? [
             {
               filename: result.filename ?? 'decrypted.bin',
-              blob: new Blob([result.binary], { type: 'application/octet-stream' }),
+              blob: new Blob([result.binary as BlobPart], { type: 'application/octet-stream' }),
             },
           ]
         : [];
@@ -160,10 +160,7 @@ export async function run(input: FileRunInput): Promise<FileRunResult> {
         : 'Message was not signed.';
       return {
         outputs,
-        report:
-          result.text !== undefined
-            ? { output: result.text, render: 'text' }
-            : undefined,
+        report: result.text !== undefined ? { output: result.text, render: 'text' } : undefined,
         notes: [sigs],
       };
     }

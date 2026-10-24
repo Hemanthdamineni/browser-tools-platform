@@ -58,7 +58,10 @@ export const meta: ToolMeta = {
   examples: [
     { title: 'Redact a document' },
     { title: 'Redact at a higher resolution', options: { scale: 3 } },
-    { title: 'Give the redacted copy its own file name', options: { outputName: 'public-copy.pdf' } },
+    {
+      title: 'Give the redacted copy its own file name',
+      options: { outputName: 'public-copy.pdf' },
+    },
   ],
   faq: [
     {

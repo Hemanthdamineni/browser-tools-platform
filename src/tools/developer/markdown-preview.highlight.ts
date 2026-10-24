@@ -219,11 +219,12 @@ export function loadHighlighter(theme: ThemeName): Promise<CodeHighlighter | nul
 }
 
 async function createHighlighter(theme: ThemeName): Promise<CodeHighlighter> {
-  const [{ createHighlighterCore }, { createJavaScriptRegexEngine }, themeModule] = await Promise.all([
-    import('shiki/core'),
-    import('shiki/engine/javascript'),
-    importTheme(theme),
-  ]);
+  const [{ createHighlighterCore }, { createJavaScriptRegexEngine }, themeModule] =
+    await Promise.all([
+      import('shiki/core'),
+      import('shiki/engine/javascript'),
+      importTheme(theme),
+    ]);
 
   const highlighter = (await createHighlighterCore({
     themes: [themeModule.default as never],

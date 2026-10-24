@@ -155,7 +155,7 @@ export function exportFileName(options?: OptionValues): string {
  * downloads. The payload is exactly `buildDocument`, so the saved file is the
  * document that was previewed.
  */
-export function assembleExport(parts: PlaygroundParts, options?: OptionValues): Blob {
+export function assembleExport(parts: PlaygroundParts, _options?: OptionValues): Blob {
   return new Blob([buildDocument(parts)], { type: 'text/html;charset=utf-8' });
 }
 
@@ -175,7 +175,10 @@ export interface Debounced<T extends unknown[]> {
  * keystroke a second) into a single re-render. The last scheduled call wins.
  * Exported so the preview's re-render cadence can be tested directly.
  */
-export function debounce<T extends unknown[]>(fn: (...args: T) => void, wait: number): Debounced<T> {
+export function debounce<T extends unknown[]>(
+  fn: (...args: T) => void,
+  wait: number,
+): Debounced<T> {
   let timer: ReturnType<typeof setTimeout> | undefined;
   const schedule = (...args: T): void => {
     clearTimeout(timer);

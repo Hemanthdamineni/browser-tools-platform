@@ -11,7 +11,11 @@
 import type { OptionValues, TextRunInput, TextRunResult, TextToolModule } from '@/lib/types';
 import { ToolError } from '@/lib/types';
 import { resolveOptions } from '@/lib/options';
-import { buildUtteranceConfig, normalizeSettings, planToResult } from '@/components/panels/text-to-speech-panel';
+import {
+  buildUtteranceConfig,
+  normalizeSettings,
+  planToResult,
+} from '@/components/panels/text-to-speech-panel';
 import { meta } from './text-to-speech.meta';
 
 /** The tool's input. `options` may be omitted — the declared defaults apply. */

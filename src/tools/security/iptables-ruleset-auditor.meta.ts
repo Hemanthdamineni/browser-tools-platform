@@ -4,7 +4,8 @@ export const meta: ToolMeta = {
   id: 'iptables-ruleset-auditor',
   name: 'iptables Ruleset Auditor',
   category: 'security',
-  summary: 'Audit an iptables-save ruleset: chains, policies, reachable ports, shadowed rules and open ports.',
+  summary:
+    'Audit an iptables-save ruleset: chains, policies, reachable ports, shadowed rules and open ports.',
   description:
     'Paste or drop the output of iptables-save and see what the firewall actually does. The auditor parses tables, chains and rules (including -I, -P, -N, -F and -D command lists), then reports each chain with its policy and verdict mix, every rule that can never match because an earlier rule is unconditional, the ports that are accepted from anywhere, log rules that will flood the journal, deprecated matches, jumps to chains that do not exist, chains nothing can reach, and the fail-open combination of a DROP rule under an ACCEPT policy. Rule grammar is checked the way iptables itself checks it, so the errors it quotes are the same ones iptables would print. Nothing is applied, uploaded or executed.',
   keywords: [
@@ -38,7 +39,8 @@ export const meta: ToolMeta = {
       key: 'sensitive',
       label: 'Ports that should not be world-open',
       type: 'text',
-      default: '22,23,21,25,135,139,445,1433,1521,2049,2375,3306,3389,5432,5601,5900,6379,9200,11211,27017',
+      default:
+        '22,23,21,25,135,139,445,1433,1521,2049,2375,3306,3389,5432,5601,5900,6379,9200,11211,27017',
       placeholder: '22,3306,6379',
     },
     {

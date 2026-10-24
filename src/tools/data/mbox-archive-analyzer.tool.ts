@@ -126,8 +126,12 @@ function splitArchive(bytes: Uint8Array): SplitResult {
   }
   const preamble = starts.length > 0 ? (starts[0] ?? 0) : bytes.length;
   return {
-    messages, total: starts.length, preamble, crlf,
-    endsWithNewline: bytes.length > 0 && byteAt(bytes, bytes.length - 1) === 10, newlines,
+    messages,
+    total: starts.length,
+    preamble,
+    crlf,
+    endsWithNewline: bytes.length > 0 && byteAt(bytes, bytes.length - 1) === 10,
+    newlines,
   };
 }
 
@@ -180,7 +184,11 @@ function readHeaders(text: string, firstLine: number): HeaderBlock {
       current = null;
       continue;
     }
-    current = { key: line.slice(0, colon).trim(), value: line.slice(colon + 1).trim(), line: firstLine + index };
+    current = {
+      key: line.slice(0, colon).trim(),
+      value: line.slice(colon + 1).trim(),
+      line: firstLine + index,
+    };
     headers.push(current);
   }
   if (!inBody) bodyStart = lines.length;
@@ -194,36 +202,52 @@ const headerValue = (headers: Header[], key: string): string =>
 function decodeWords(value: string): { text: string; failed: number; words: number } {
   let failed = 0;
   let words = 0;
-  const text = value.replace(/=\?([^?\s]+)\?([BbQq])\?([^?]*)\?=/gu, (whole: string, charset: string, mode: string, payload: string) => {
-    words += 1;
-    try {
-      let bytes: Uint8Array<ArrayBuffer>;
-      if (mode === 'B' || mode === 'b') {
-        const cleaned = payload.replace(/\s+/gu, '');
-        if (!/^[A-Za-z0-9+/]*={0,2}$/u.test(cleaned) || cleaned.length % 4 === 1) {
-          failed += 1;
-          return whole;
+  const text = value.replace(
+    /=\?([^?\s]+)\?([BbQq])\?([^?]*)\?=/gu,
+    (whole: string, charset: string, mode: string, payload: string) => {
+      words += 1;
+      try {
+        let bytes: Uint8Array<ArrayBuffer>;
+        if (mode === 'B' || mode === 'b') {
+          const cleaned = payload.replace(/\s+/gu, '');
+          if (!/^[A-Za-z0-9+/]*={0,2}$/u.test(cleaned) || cleaned.length % 4 === 1) {
+            failed += 1;
+            return whole;
+          }
+          const binary = atob(cleaned + '='.repeat((4 - (cleaned.length % 4)) % 4));
+          bytes = new Uint8Array(binary.length);
+          for (let index = 0; index < binary.length; index += 1)
+            bytes[index] = binary.charCodeAt(index);
+        } else {
+          const qp = payload
+            .replace(/_/gu, ' ')
+            .replace(/=([0-9A-Fa-f]{2})/gu, (_m, hex: string) =>
+              String.fromCharCode(Number.parseInt(hex, 16)),
+            );
+          bytes = ENCODER.encode(qp);
         }
-        const binary = atob(cleaned + '='.repeat((4 - (cleaned.length % 4)) % 4));
-        bytes = new Uint8Array(binary.length);
-        for (let index = 0; index < binary.length; index += 1) bytes[index] = binary.charCodeAt(index);
-      } else {
-        const qp = payload.replace(/_/gu, ' ').replace(/=([0-9A-Fa-f]{2})/gu, (_m, hex: string) => String.fromCharCode(Number.parseInt(hex, 16)));
-        bytes = ENCODER.encode(qp);
+        return new TextDecoder(labelFor(charset), { fatal: false }).decode(bytes);
+      } catch {
+        failed += 1;
+        return whole;
       }
-      return new TextDecoder(labelFor(charset), { fatal: false }).decode(bytes);
-    } catch {
-      failed += 1;
-      return whole;
-    }
-  });
+    },
+  );
   return { text, failed, words };
 }
 
 const CHARSETS: Record<string, string> = {
-  'utf-8': 'utf-8', utf8: 'utf-8', 'us-ascii': 'utf-8', ascii: 'utf-8', 'iso-8859-1': 'iso-8859-1',
-  'latin1': 'iso-8859-1', 'latin-1': 'iso-8859-1', 'windows-1252': 'windows-1252', cp1252: 'windows-1252',
-  'iso-8859-15': 'iso-8859-15', 'koi8-r': 'koi8-r',
+  'utf-8': 'utf-8',
+  utf8: 'utf-8',
+  'us-ascii': 'utf-8',
+  ascii: 'utf-8',
+  'iso-8859-1': 'iso-8859-1',
+  latin1: 'iso-8859-1',
+  'latin-1': 'iso-8859-1',
+  'windows-1252': 'windows-1252',
+  cp1252: 'windows-1252',
+  'iso-8859-15': 'iso-8859-15',
+  'koi8-r': 'koi8-r',
 };
 
 const labelFor = (charset: string): string => CHARSETS[charset.trim().toLowerCase()] ?? 'utf-8';
@@ -238,14 +262,18 @@ interface ParsedType {
 function parseContentType(value: string): ParsedType {
   if (value.trim() === '') return { type: 'text', sub: 'plain', params: {}, raw: 'text/plain' };
   const segments = value.split(';');
-  const [type = 'text', sub = 'plain'] = (segments[0] ?? 'text/plain').trim().toLowerCase().split('/');
+  const [type = 'text', sub = 'plain'] = (segments[0] ?? 'text/plain')
+    .trim()
+    .toLowerCase()
+    .split('/');
   const params: Record<string, string> = {};
   for (const segment of segments.slice(1)) {
     const equals = segment.indexOf('=');
     if (equals < 0) continue;
     const key = segment.slice(0, equals).trim().toLowerCase();
     let setting = segment.slice(equals + 1).trim();
-    if (setting.startsWith('"') && setting.endsWith('"') && setting.length > 1) setting = setting.slice(1, -1);
+    if (setting.startsWith('"') && setting.endsWith('"') && setting.length > 1)
+      setting = setting.slice(1, -1);
     if (key === 'filename' || key === 'name') {
       const decoded = decodeWords(setting).text;
       params[key] = decoded;
@@ -319,7 +347,10 @@ interface MimeResult {
 }
 
 /** Splits a multipart body on its boundary lines. */
-function splitOnBoundary(body: string, boundary: string): { parts: string[]; found: number; closed: boolean } {
+function splitOnBoundary(
+  body: string,
+  boundary: string,
+): { parts: string[]; found: number; closed: boolean } {
   const parts: string[] = [];
   const lines = body.split('\n');
   let current: string[] | null = null;
@@ -377,11 +408,14 @@ function walkMime(
       }
       const inner = readHeaders(part, 0);
       const innerType = headerValue(inner.headers, 'Content-Type') || 'text/plain';
-      const innerTransfer = (headerValue(inner.headers, 'Content-Transfer-Encoding') || '7bit').toLowerCase();
+      const innerTransfer = (
+        headerValue(inner.headers, 'Content-Transfer-Encoding') || '7bit'
+      ).toLowerCase();
       const disposition = headerValue(inner.headers, 'Content-Disposition');
       const innerBody = part.split('\n').slice(inner.bodyStart).join('\n').replace(/\r$/u, '');
       const innerParsed = parseContentType(innerType);
-      const filename = innerParsed.params.filename ?? parseContentType(disposition).params.filename ?? '';
+      const filename =
+        innerParsed.params.filename ?? parseContentType(disposition).params.filename ?? '';
       const innerDisposition = (disposition.split(';')[0] ?? '').trim().toLowerCase();
       const charset = innerParsed.params.charset ?? 'utf-8';
       const decodedSize =
@@ -391,8 +425,16 @@ function walkMime(
             ? quotedPrintableBytes(innerBody)
             : ENCODER.encode(innerBody).length;
       parts.push({
-        message, level, type: innerParsed.type, sub: innerParsed.sub, filename, encoding: innerTransfer,
-        disposition: innerDisposition, size: decodedSize, charset, body: innerBody,
+        message,
+        level,
+        type: innerParsed.type,
+        sub: innerParsed.sub,
+        filename,
+        encoding: innerTransfer,
+        disposition: innerDisposition,
+        size: decodedSize,
+        charset,
+        body: innerBody,
       });
       if (innerParsed.type === 'multipart') {
         walkMime(message, level + 1, innerType, innerTransfer, innerBody, parts, state);
@@ -405,10 +447,22 @@ function walkMime(
   const disposition = '';
   const charset = parsed.params.charset ?? 'utf-8';
   const decodedSize =
-    transfer === 'base64' ? base64Bytes(rawBody) : transfer === 'quoted-printable' ? quotedPrintableBytes(rawBody) : ENCODER.encode(rawBody).length;
+    transfer === 'base64'
+      ? base64Bytes(rawBody)
+      : transfer === 'quoted-printable'
+        ? quotedPrintableBytes(rawBody)
+        : ENCODER.encode(rawBody).length;
   parts.push({
-    message, level, type: parsed.type, sub: parsed.sub, filename: parsed.params.filename ?? '',
-    encoding: transfer, disposition, size: decodedSize, charset, body: rawBody,
+    message,
+    level,
+    type: parsed.type,
+    sub: parsed.sub,
+    filename: parsed.params.filename ?? '',
+    encoding: transfer,
+    disposition,
+    size: decodedSize,
+    charset,
+    body: rawBody,
   });
   if (parsed.type === 'text') {
     return decodedSize === 0 ? '' : decodeQuotedPrintable(rawBody, charset);
@@ -448,7 +502,10 @@ const MONTHS = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', '
 /** Parses an RFC 5322 date into an ISO string, or null when it does not look like one. */
 function parseDate(value: string): string | null {
   if (value.trim() === '') return null;
-  const match = /(\d{1,2})\s+([A-Za-z]{3})[a-z]*\s+(\d{4})\s+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*([+-]\d{4}|[A-Z]{2,4}|UT|GMT)?/u.exec(value);
+  const match =
+    /(\d{1,2})\s+([A-Za-z]{3})[a-z]*\s+(\d{4})\s+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*([+-]\d{4}|[A-Z]{2,4}|UT|GMT)?/u.exec(
+      value,
+    );
   if (match === null) return null;
   const day = Number.parseInt(match[1] ?? '', 10);
   const month = MONTHS.indexOf((match[2] ?? '').toLowerCase());
@@ -458,14 +515,39 @@ function parseDate(value: string): string | null {
   const second = Number.parseInt(match[6] ?? '0', 10);
   if (month < 0 || day < 1 || day > 31 || hour > 23 || minute > 59 || second > 60) return null;
   const offset = match[7] ?? '';
-  const zones: Record<string, string> = { UT: '+0000', GMT: '+0000', UTC: '+0000', EST: '-0500', EDT: '-0400', CST: '-0600', CDT: '-0500', MST: '-0700', MDT: '-0600', PST: '-0800', PDT: '-0700', CET: '+0100', CEST: '+0200' };
+  const zones: Record<string, string> = {
+    UT: '+0000',
+    GMT: '+0000',
+    UTC: '+0000',
+    EST: '-0500',
+    EDT: '-0400',
+    CST: '-0600',
+    CDT: '-0500',
+    MST: '-0700',
+    MDT: '-0600',
+    PST: '-0800',
+    PDT: '-0700',
+    CET: '+0100',
+    CEST: '+0200',
+  };
   let zone = '+0000';
   if (/^[+-]\d{4}$/u.test(offset)) zone = offset;
   else if (zones[offset.toUpperCase()] !== undefined) zone = zones[offset.toUpperCase()] ?? '+0000';
   return (
-    String(year).padStart(4, '0') + '-' + String(month + 1).padStart(2, '0') + '-' + String(day).padStart(2, '0') +
-    'T' + String(hour).padStart(2, '0') + ':' + String(minute).padStart(2, '0') + ':' + String(second).padStart(2, '0') +
-    zone.slice(0, 3) + ':' + zone.slice(3, 5)
+    String(year).padStart(4, '0') +
+    '-' +
+    String(month + 1).padStart(2, '0') +
+    '-' +
+    String(day).padStart(2, '0') +
+    'T' +
+    String(hour).padStart(2, '0') +
+    ':' +
+    String(minute).padStart(2, '0') +
+    ':' +
+    String(second).padStart(2, '0') +
+    zone.slice(0, 3) +
+    ':' +
+    zone.slice(3, 5)
   );
 }
 
@@ -474,14 +556,26 @@ function parseAddress(value: string): { name: string; address: string; domain: s
   const angled = /<([^>]*)>/u.exec(decoded);
   const address = (angled?.[1] ?? decoded).trim().toLowerCase();
   const name = angled === null ? '' : decoded.slice(0, angled.index).replace(/["']/gu, '').trim();
-  return { name, address, domain: address.includes('@') ? address.slice(address.lastIndexOf('@') + 1) : '' };
+  return {
+    name,
+    address,
+    domain: address.includes('@') ? address.slice(address.lastIndexOf('@') + 1) : '',
+  };
 }
 
 /** Reads the Status and X-Status headers the way mail readers track read/replied state. */
 function readFlags(headers: Header[]): string {
   const status = headerValue(headers, 'Status').replace(/\s+/gu, '');
   const xstatus = headerValue(headers, 'X-Status').replace(/\s+/gu, '');
-  const names: Record<string, string> = { R: 'read', O: 'old', A: 'answered', F: 'flagged', D: 'deleted', T: 'draft', N: 'new' };
+  const names: Record<string, string> = {
+    R: 'read',
+    O: 'old',
+    A: 'answered',
+    F: 'flagged',
+    D: 'deleted',
+    T: 'draft',
+    N: 'new',
+  };
   const seen: string[] = [];
   for (const character of status + xstatus) {
     const name = names[character.toUpperCase()];
@@ -506,12 +600,17 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   let sourceLabel: string;
   if (source !== undefined) {
     if (source.size === 0) throw new ToolError('That file is empty.');
-    if (source.size > MAX_BYTES) throw new ToolError('That file is larger than 16 MB.', 'Split the archive and analyze one part at a time.');
+    if (source.size > MAX_BYTES)
+      throw new ToolError(
+        'That file is larger than 16 MB.',
+        'Split the archive and analyze one part at a time.',
+      );
     bytes = new Uint8Array(await source.arrayBuffer());
     sourceLabel = source.name === '' ? 'uploaded file' : source.name;
   } else {
     const text = String(input.text ?? '');
-    if (text.trim() === '') throw new ToolError('No archive was provided.', 'Drop an mbox file or paste its text.');
+    if (text.trim() === '')
+      throw new ToolError('No archive was provided.', 'Drop an mbox file or paste its text.');
     if (text.length > MAX_BYTES) throw new ToolError('That is more than 16 MB of input.');
     bytes = ENCODER.encode(text);
     sourceLabel = 'pasted text';
@@ -543,12 +642,20 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
     const bodyText = headerText.split('\n').slice(headerBlock.bodyStart).join('\n');
 
     if (content.length === 0) {
-      push('error', 'A message block is empty', 'Message ' + raw.index + ' at line ' + raw.line + ' has a From_ line but nothing after it.');
+      push(
+        'error',
+        'A message block is empty',
+        'Message ' + raw.index + ' at line ' + raw.line + ' has a From_ line but nothing after it.',
+      );
     } else if (headerBlock.headers.length === 0) {
       push(
         'error',
         'A message has no headers at all',
-        'Message ' + raw.index + ' at line ' + raw.line + ' has no line with a "Key: value" header, so no reader can show it.',
+        'Message ' +
+          raw.index +
+          ' at line ' +
+          raw.line +
+          ' has no line with a "Key: value" header, so no reader can show it.',
       );
     }
     for (const bad of headerBlock.bad) {
@@ -556,7 +663,11 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
         push(
           'warning',
           'A header line is not a header',
-          'Line ' + bad.line + ' reads "' + bad.text + '". If this was meant to be the body, a blank line between the headers and the body is missing.',
+          'Line ' +
+            bad.line +
+            ' reads "' +
+            bad.text +
+            '". If this was meant to be the body, a blank line between the headers and the body is missing.',
         );
       }
     }
@@ -567,21 +678,43 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
     const address = parseAddress(fromValue);
     const subjectValue = decodeWords(headerValue(headerBlock.headers, 'Subject')).text;
     const toValue = decodeWords(headerValue(headerBlock.headers, 'To')).text;
-    const messageId = headerValue(headerBlock.headers, 'Message-ID') || headerValue(headerBlock.headers, 'Message-Id');
+    const messageId =
+      headerValue(headerBlock.headers, 'Message-ID') ||
+      headerValue(headerBlock.headers, 'Message-Id');
     const inReplyTo = headerValue(headerBlock.headers, 'In-Reply-To');
     if (/[\uFFFD]/u.test(headerText)) nonUtf8Headers += 1;
     if (!raw.separatedByBlank && messages.length > 0) fragileStarts += 1;
 
     if (headerValue(headerBlock.headers, 'From') === '') {
-      push('warning', 'A message has no From header', 'Message ' + raw.index + ' cannot be attributed to a sender.');
+      push(
+        'warning',
+        'A message has no From header',
+        'Message ' + raw.index + ' cannot be attributed to a sender.',
+      );
     }
     if (dateValue === '') {
-      push('warning', 'A message has no Date header', 'Message ' + raw.index + ' has no date, so its place in the timeline is unknown.');
+      push(
+        'warning',
+        'A message has no Date header',
+        'Message ' + raw.index + ' has no date, so its place in the timeline is unknown.',
+      );
     } else if (dateIso === '') {
-      push('warning', 'A Date header does not parse', 'Message ' + raw.index + ' says "' + clip(dateValue, 60) + '", which is not an RFC 5322 date.');
+      push(
+        'warning',
+        'A Date header does not parse',
+        'Message ' +
+          raw.index +
+          ' says "' +
+          clip(dateValue, 60) +
+          '", which is not an RFC 5322 date.',
+      );
     }
     if (subjectValue === '') {
-      push('warning', 'A message has no Subject header', 'Message ' + raw.index + ' is listed by sender and date only.');
+      push(
+        'warning',
+        'A message has no Subject header',
+        'Message ' + raw.index + ' is listed by sender and date only.',
+      );
     }
 
     let escaped = 0;
@@ -591,12 +724,23 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
       if (isEscapedFrom(flat)) escaped += 1;
     }
     escapedTotal += escaped;
-    const unescapedBody = bodyLines.map((line) => unescapeFrom(line.replace(/\r$/u, ''))).join('\n');
+    const unescapedBody = bodyLines
+      .map((line) => unescapeFrom(line.replace(/\r$/u, '')))
+      .join('\n');
 
-    const mime: MimeResult = { parts: [], text: '', boundaryMissing: false, badBase64: false, depthExceeded: false, partCap: false };
+    const mime: MimeResult = {
+      parts: [],
+      text: '',
+      boundaryMissing: false,
+      badBase64: false,
+      depthExceeded: false,
+      partCap: false,
+    };
     const contentType = headerValue(headerBlock.headers, 'Content-Type') || 'text/plain';
     const topType = parseContentType(contentType);
-    const topTransfer = (headerValue(headerBlock.headers, 'Content-Transfer-Encoding') || '').toLowerCase();
+    const topTransfer = (
+      headerValue(headerBlock.headers, 'Content-Transfer-Encoding') || ''
+    ).toLowerCase();
     let text = '';
     if (topType.type === 'multipart') {
       text = walkMime(raw.index, 0, contentType, topTransfer, unescapedBody, mime.parts, mime);
@@ -609,47 +753,81 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
             : unescapedBody;
       text = decoded;
       mime.parts.push({
-        message: raw.index, level: 0, type: topType.type, sub: topType.sub, filename: topType.params.filename ?? '',
-        encoding: topTransfer === '' ? '7bit' : topTransfer, disposition: '', size: ENCODER.encode(unescapedBody).length,
-        charset: topType.params.charset ?? 'utf-8', body: unescapedBody,
+        message: raw.index,
+        level: 0,
+        type: topType.type,
+        sub: topType.sub,
+        filename: topType.params.filename ?? '',
+        encoding: topTransfer === '' ? '7bit' : topTransfer,
+        disposition: '',
+        size: ENCODER.encode(unescapedBody).length,
+        charset: topType.params.charset ?? 'utf-8',
+        body: unescapedBody,
       });
     }
     // Prefer the first text part without a filename as the readable body.
-    const bodyPart = mime.parts.find((part) => part.type === 'text' && part.filename === '' && part.encoding !== 'base64');
+    const bodyPart = mime.parts.find(
+      (part) => part.type === 'text' && part.filename === '' && part.encoding !== 'base64',
+    );
     if (bodyPart !== undefined) {
-      text = bodyPart.encoding === 'quoted-printable' ? decodeQuotedPrintable(bodyPart.body, bodyPart.charset) : bodyPart.body;
+      text =
+        bodyPart.encoding === 'quoted-printable'
+          ? decodeQuotedPrintable(bodyPart.body, bodyPart.charset)
+          : bodyPart.body;
     }
     if (mime.boundaryMissing) {
       push(
         'warning',
         'A multipart message declares a boundary that never appears',
-        'Message ' + raw.index + ' claims ' + clip(contentType, 60) + ' but its body has no such boundary line, so the parts cannot be listed.',
+        'Message ' +
+          raw.index +
+          ' claims ' +
+          clip(contentType, 60) +
+          ' but its body has no such boundary line, so the parts cannot be listed.',
       );
     }
     if (mime.depthExceeded) {
-      push('note', 'MIME nesting is deeper than ' + MAX_MIME_DEPTH + ' levels', 'Message ' + raw.index + ' was not expanded further.');
+      push(
+        'note',
+        'MIME nesting is deeper than ' + MAX_MIME_DEPTH + ' levels',
+        'Message ' + raw.index + ' was not expanded further.',
+      );
     }
     if (mime.partCap) {
-      push('note', 'A message has more than ' + MAX_PARTS + ' MIME parts', 'Message ' + raw.index + ' lists only the first ' + MAX_PARTS + ' parts.');
+      push(
+        'note',
+        'A message has more than ' + MAX_PARTS + ' MIME parts',
+        'Message ' + raw.index + ' lists only the first ' + MAX_PARTS + ' parts.',
+      );
     }
     for (const part of mime.parts) {
       if (part.encoding === 'base64' && /[^A-Za-z0-9+/=\s]/u.test(part.body)) {
         push(
           'warning',
           'A base64 payload has characters outside base64',
-          'Message ' + raw.index + ', part ' + clip(part.filename || part.type + '/' + part.sub, 40) + ' contains text that base64 does not allow, so its decoded size may be wrong.',
+          'Message ' +
+            raw.index +
+            ', part ' +
+            clip(part.filename || part.type + '/' + part.sub, 40) +
+            ' contains text that base64 does not allow, so its decoded size may be wrong.',
         );
       }
       if (part.filename !== '' && part.size > LARGE_ATTACHMENT) {
         push(
           'note',
           'A large attachment: ' + clip(part.filename, 40),
-          'Message ' + raw.index + ' carries ' + formatBytes(part.size) + ', which is usually what makes an archive too big to open.',
+          'Message ' +
+            raw.index +
+            ' carries ' +
+            formatBytes(part.size) +
+            ', which is usually what makes an archive too big to open.',
         );
       }
     }
 
-    const attachments = mime.parts.filter((part) => part.filename !== '' || (part.disposition === 'attachment' && part.level > 0));
+    const attachments = mime.parts.filter(
+      (part) => part.filename !== '' || (part.disposition === 'attachment' && part.level > 0),
+    );
     if (messageId !== '') {
       const list = ids.get(messageId);
       if (list === undefined) ids.set(messageId, [raw.index]);
@@ -689,7 +867,10 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
       push(
         'warning',
         'Duplicate Message-ID',
-        id + ' appears in messages ' + list.join(', ') + '. Two copies of one message, or a broken client, both look like this.',
+        id +
+          ' appears in messages ' +
+          list.join(', ') +
+          '. Two copies of one message, or a broken client, both look like this.',
       );
     }
   }
@@ -700,7 +881,11 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
         push(
           'note',
           'A reply references a parent outside this archive',
-          'Message ' + message.index + ' replies to ' + clip(parent, 60) + ', which is not in this file, so the thread cannot be completed here.',
+          'Message ' +
+            message.index +
+            ' replies to ' +
+            clip(parent, 60) +
+            ', which is not in this file, so the thread cannot be completed here.',
         );
         break;
       }
@@ -730,11 +915,19 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   if (split.preamble > 0) {
     const preamble = UTF8.decode(bytes.subarray(0, Math.min(split.preamble, 200))).trim();
     if (preamble !== '') {
-      push('note', 'Text appears before the first From_ line', clip(preamble, 80) + ' — a reader ignores this preamble.');
+      push(
+        'note',
+        'Text appears before the first From_ line',
+        clip(preamble, 80) + ' — a reader ignores this preamble.',
+      );
     }
   }
   if (!split.endsWithNewline) {
-    push('note', 'The file does not end with a newline', 'Some tools append their next message directly to the last line if the archive is extended.');
+    push(
+      'note',
+      'The file does not end with a newline',
+      'Some tools append their next message directly to the last line if the archive is extended.',
+    );
   }
   if (nonUtf8Headers > 0) {
     push(
@@ -744,16 +937,25 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
     );
   }
   if (split.total > MAX_MESSAGES) {
-    push('note', 'The archive holds more than ' + MAX_MESSAGES + ' messages', 'Only the first ' + MAX_MESSAGES + ' were analyzed.');
+    push(
+      'note',
+      'The archive holds more than ' + MAX_MESSAGES + ' messages',
+      'Only the first ' + MAX_MESSAGES + ' were analyzed.',
+    );
   }
 
   const errors = findings.filter((finding) => finding.level === 'error').length;
   const warnings = findings.filter((finding) => finding.level === 'warning').length;
   const notes = findings.filter((finding) => finding.level === 'note').length;
-  const withDates = messages.filter((message) => message.dateIso !== '').sort((a, b) => (a.dateIso < b.dateIso ? -1 : 1));
+  const withDates = messages
+    .filter((message) => message.dateIso !== '')
+    .sort((a, b) => (a.dateIso < b.dateIso ? -1 : 1));
   const attachmentParts = messages.flatMap((message) => message.attachments);
   const attachmentBytes = attachmentParts.reduce((total, part) => total + part.size, 0);
-  const senders = new Map<string, { messages: number; bytes: number; newest: string; name: string }>();
+  const senders = new Map<
+    string,
+    { messages: number; bytes: number; newest: string; name: string }
+  >();
   for (const message of messages) {
     const key = message.fromAddress === '' ? '(no sender)' : message.fromAddress;
     const entry = senders.get(key) ?? { messages: 0, bytes: 0, newest: '', name: message.fromName };
@@ -767,8 +969,12 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   const resultNotes: string[] = [];
   const resultWarnings: string[] = [];
   if (errors > 0) resultWarnings.push(errors + ' message(s) could not be read as mail.');
-  if (split.total > MAX_MESSAGES) resultNotes.push('Only the first ' + MAX_MESSAGES + ' of ' + split.total + ' messages were analyzed.');
-  if (findings.length >= MAX_FINDINGS) resultNotes.push('Only the first ' + MAX_FINDINGS + ' findings are shown.');
+  if (split.total > MAX_MESSAGES)
+    resultNotes.push(
+      'Only the first ' + MAX_MESSAGES + ' of ' + split.total + ' messages were analyzed.',
+    );
+  if (findings.length >= MAX_FINDINGS)
+    resultNotes.push('Only the first ' + MAX_FINDINGS + ' findings are shown.');
 
   const stats: Record<string, string | number> = {
     bytes: bytes.length,
@@ -782,17 +988,22 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   };
 
   if (format === 'messages') {
-    const rows = messages.slice(0, MAX_ROWS).map((message) => [
-      String(message.index),
-      clip(message.from === '' ? message.envelopeSender : message.from, 40),
-      clip(message.to, 34),
-      message.dateIso === '' ? clip(message.date, 30) || '(no date)' : message.dateIso.slice(0, 16).replace('T', ' '),
-      clip(message.subject, 46) || '(no subject)',
-      formatBytes(message.bytes),
-      message.attachments.length === 0 ? '-' : String(message.attachments.length),
-      message.flags === '' ? '-' : message.flags,
-    ]);
-    if (messages.length > rows.length) resultNotes.push('Only the first ' + MAX_ROWS + ' messages are listed.');
+    const rows = messages
+      .slice(0, MAX_ROWS)
+      .map((message) => [
+        String(message.index),
+        clip(message.from === '' ? message.envelopeSender : message.from, 40),
+        clip(message.to, 34),
+        message.dateIso === ''
+          ? clip(message.date, 30) || '(no date)'
+          : message.dateIso.slice(0, 16).replace('T', ' '),
+        clip(message.subject, 46) || '(no subject)',
+        formatBytes(message.bytes),
+        message.attachments.length === 0 ? '-' : String(message.attachments.length),
+        message.flags === '' ? '-' : message.flags,
+      ]);
+    if (messages.length > rows.length)
+      resultNotes.push('Only the first ' + MAX_ROWS + ' messages are listed.');
     return {
       outputs: [],
       report: {
@@ -809,7 +1020,9 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   }
 
   if (format === 'senders') {
-    const ranked = [...senders.entries()].sort((a, b) => b[1].messages - a[1].messages || (a[0] < b[0] ? -1 : 1)).slice(0, top);
+    const ranked = [...senders.entries()]
+      .sort((a, b) => b[1].messages - a[1].messages || (a[0] < b[0] ? -1 : 1))
+      .slice(0, top);
     const rows = ranked.map(([address, entry], index) => [
       String(index + 1),
       entry.name === '' ? address : entry.name + ' <' + address + '>',
@@ -818,7 +1031,8 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
       ((entry.messages / messages.length) * 100).toFixed(1) + '%',
       entry.newest === '' ? '-' : entry.newest.slice(0, 16).replace('T', ' '),
     ]);
-    if (ranked.length < senders.size) resultNotes.push('Showing the top ' + ranked.length + ' of ' + senders.size + ' senders.');
+    if (ranked.length < senders.size)
+      resultNotes.push('Showing the top ' + ranked.length + ' of ' + senders.size + ' senders.');
     return {
       outputs: [],
       report: {
@@ -844,7 +1058,10 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
       part.encoding,
       formatBytes(part.size),
     ]);
-    if (ranked.length < attachmentParts.length) resultNotes.push('Showing the ' + ranked.length + ' largest of ' + attachmentParts.length + ' attachments.');
+    if (ranked.length < attachmentParts.length)
+      resultNotes.push(
+        'Showing the ' + ranked.length + ' largest of ' + attachmentParts.length + ' attachments.',
+      );
     return {
       outputs: [],
       report: {
@@ -868,7 +1085,13 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
           headers: ['Level', 'Problem', 'Detail'],
           rows:
             findings.length === 0
-              ? [['ok', 'Nothing to flag', 'Every message has the headers a reader needs and no archive-level problem was found.']]
+              ? [
+                  [
+                    'ok',
+                    'Nothing to flag',
+                    'Every message has the headers a reader needs and no archive-level problem was found.',
+                  ],
+                ]
               : findings.map((finding) => [finding.level, finding.problem, finding.detail]),
         }),
         render: 'table',
@@ -881,7 +1104,10 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
 
   const subjectCounts = new Map<string, number>();
   for (const message of messages) {
-    const base = message.subject.replace(/^(re|fwd?|aw|sv):\s*/iu, '').trim().toLowerCase();
+    const base = message.subject
+      .replace(/^(re|fwd?|aw|sv):\s*/iu, '')
+      .trim()
+      .toLowerCase();
     if (base !== '') subjectCounts.set(base, (subjectCounts.get(base) ?? 0) + 1);
   }
   const threads = [...subjectCounts.values()].filter((count) => count > 1).length;
@@ -889,23 +1115,66 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
     ['Source', sourceLabel],
     ['Bytes', formatBytes(bytes.length) + ' (' + bytes.length + ')'],
     ['Messages', String(messages.length)],
-    ['Preamble', split.preamble === 0 ? 'none' : formatBytes(split.preamble) + ' before the first message'],
+    [
+      'Preamble',
+      split.preamble === 0 ? 'none' : formatBytes(split.preamble) + ' before the first message',
+    ],
     ['Line endings', split.crlf ? 'CRLF' : 'LF'],
-    ['Date range', withDates.length === 0 ? 'no message carries a parseable date' : (withDates[0]?.dateIso.slice(0, 10) ?? '') + ' to ' + (withDates[withDates.length - 1]?.dateIso.slice(0, 10) ?? '')],
+    [
+      'Date range',
+      withDates.length === 0
+        ? 'no message carries a parseable date'
+        : (withDates[0]?.dateIso.slice(0, 10) ?? '') +
+          ' to ' +
+          (withDates[withDates.length - 1]?.dateIso.slice(0, 10) ?? ''),
+    ],
     ['Unique senders', String(senders.size)],
     ['Unique Message-IDs', String(ids.size)],
-    ['Subject threads', threads === 0 ? 'none with a shared subject' : String(threads) + ' subject(s) used more than once'],
-    ['Messages with attachments', String(messages.filter((message) => message.attachments.length > 0).length)],
-    ['Attachments', attachmentParts.length === 0 ? 'none' : attachmentParts.length + ' (' + formatBytes(attachmentBytes) + ')'],
-    ['Largest message', formatBytes(messages.reduce((largest, message) => Math.max(largest, message.bytes), 0))],
-    ['Body text', formatBytes(messages.reduce((total, message) => total + ENCODER.encode(message.text).length, 0)) + ' in ' + messages.reduce((total, message) => total + message.textLines, 0) + ' lines'],
+    [
+      'Subject threads',
+      threads === 0
+        ? 'none with a shared subject'
+        : String(threads) + ' subject(s) used more than once',
+    ],
+    [
+      'Messages with attachments',
+      String(messages.filter((message) => message.attachments.length > 0).length),
+    ],
+    [
+      'Attachments',
+      attachmentParts.length === 0
+        ? 'none'
+        : attachmentParts.length + ' (' + formatBytes(attachmentBytes) + ')',
+    ],
+    [
+      'Largest message',
+      formatBytes(messages.reduce((largest, message) => Math.max(largest, message.bytes), 0)),
+    ],
+    [
+      'Body text',
+      formatBytes(
+        messages.reduce((total, message) => total + ENCODER.encode(message.text).length, 0),
+      ) +
+        ' in ' +
+        messages.reduce((total, message) => total + message.textLines, 0) +
+        ' lines',
+    ],
     ['Escaped From_ lines', String(escapedTotal)],
-    ['Flagged as read', String(messages.filter((message) => message.flags.includes('read')).length) + ' read, ' + String(messages.filter((message) => message.flags.includes('answered')).length) + ' answered'],
+    [
+      'Flagged as read',
+      String(messages.filter((message) => message.flags.includes('read')).length) +
+        ' read, ' +
+        String(messages.filter((message) => message.flags.includes('answered')).length) +
+        ' answered',
+    ],
     ['Findings', errors + ' error, ' + warnings + ' warning, ' + notes + ' note'],
   ];
   return {
     outputs: [],
-    report: { output: JSON.stringify({ headers: ['Item', 'Value'], rows: summaryRows }), render: 'table' },
+    report: {
+      output: JSON.stringify({ headers: ['Item', 'Value'], rows: summaryRows }),
+      render: 'table',
+    },
     notes: resultNotes,
     warnings: resultWarnings,
     stats,

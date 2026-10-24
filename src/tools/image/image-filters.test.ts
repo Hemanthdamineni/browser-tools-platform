@@ -48,7 +48,12 @@ describe('parseParams', () => {
   });
 
   it('falls back to neutral for blanks and non-numbers', () => {
-    const p = parseParams({ brightness: '', contrast: 'abc', sharpen: null, saturation: undefined });
+    const p = parseParams({
+      brightness: '',
+      contrast: 'abc',
+      sharpen: null,
+      saturation: undefined,
+    });
     expect(p).toMatchObject({ brightness: 0, contrast: 0, saturation: 0, sharpen: 0 });
   });
 
@@ -78,7 +83,14 @@ describe('isNeutral', () => {
 
 describe('applyFilters — colour maths', () => {
   it('leaves pixels untouched for the identity preset', () => {
-    expect(run({}, [[128, 128, 128], [0, 0, 0], [255, 255, 255], [13, 200, 47]])).toEqual([
+    expect(
+      run({}, [
+        [128, 128, 128],
+        [0, 0, 0],
+        [255, 255, 255],
+        [13, 200, 47],
+      ]),
+    ).toEqual([
       [128, 128, 128],
       [0, 0, 0],
       [255, 255, 255],
@@ -88,7 +100,13 @@ describe('applyFilters — colour maths', () => {
 
   it('adds a brightness offset of 2.55 per unit, clamped to 8-bit', () => {
     // 128 + 20 × 2.55 = 179; white clamps; black lifts.
-    expect(run({ brightness: 20 }, [[128, 128, 128], [255, 255, 255], [0, 0, 0]])).toEqual([
+    expect(
+      run({ brightness: 20 }, [
+        [128, 128, 128],
+        [255, 255, 255],
+        [0, 0, 0],
+      ]),
+    ).toEqual([
       [179, 179, 179],
       [255, 255, 255],
       [51, 51, 51],
@@ -102,13 +120,24 @@ describe('applyFilters — colour maths', () => {
 
   it('collapses to Rec. 709 luma with grayscale', () => {
     // Red → 0.2126×255 = 54.213 → 54; green → 182.376 → 182; blue → 18.411 → 18.
-    expect(run({ grayscale: true }, [[255, 0, 0], [0, 255, 0], [0, 0, 255]])).toEqual([
+    expect(
+      run({ grayscale: true }, [
+        [255, 0, 0],
+        [0, 255, 0],
+        [0, 0, 255],
+      ]),
+    ).toEqual([
       [54, 54, 54],
       [182, 182, 182],
       [18, 18, 18],
     ]);
     // Luma weights sum to 1, so white and black are unchanged.
-    expect(run({ grayscale: true }, [[255, 255, 255], [0, 0, 0]])).toEqual([
+    expect(
+      run({ grayscale: true }, [
+        [255, 255, 255],
+        [0, 0, 0],
+      ]),
+    ).toEqual([
       [255, 255, 255],
       [0, 0, 0],
     ]);
@@ -129,13 +158,24 @@ describe('applyFilters — colour maths', () => {
 
   it('pivots contrast at mid-grey (128)', () => {
     // Contrast 100 → factor ≈ 129.5, so mid-grey stays and the extremes clip.
-    expect(run({ contrast: 100 }, [[128, 128, 128], [192, 192, 192], [64, 64, 64]])).toEqual([
+    expect(
+      run({ contrast: 100 }, [
+        [128, 128, 128],
+        [192, 192, 192],
+        [64, 64, 64],
+      ]),
+    ).toEqual([
       [128, 128, 128],
       [255, 255, 255],
       [0, 0, 0],
     ]);
     // Contrast −100 → factor 0, so every channel collapses to mid-grey.
-    expect(run({ contrast: -100 }, [[0, 0, 0], [255, 255, 255]])).toEqual([
+    expect(
+      run({ contrast: -100 }, [
+        [0, 0, 0],
+        [255, 255, 255],
+      ]),
+    ).toEqual([
       [128, 128, 128],
       [128, 128, 128],
     ]);

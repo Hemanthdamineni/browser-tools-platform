@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import type { OptionValues, TextRunResult } from '@/lib/types';
+import type { OptionValues } from '@/lib/types';
 import tool, { runTextToSpeech, type TextToSpeechInput } from './text-to-speech.tool';
 
 /** Call the tool with the options omitted, the way a bare test would. */
@@ -85,7 +85,7 @@ describe('text-to-speech', () => {
     expect(tool.meta.id).toBe('text-to-speech');
     expect(typeof tool.run).toBe('function');
     expect(runTextToSpeech({ text: 'ok' } satisfies TextToSpeechInput)).toEqual(
-      tool.run({ text: 'ok' } satisfies TextToSpeechInput),
+      tool.run({ text: 'ok', options: {} } satisfies TextToSpeechInput),
     );
   });
 });

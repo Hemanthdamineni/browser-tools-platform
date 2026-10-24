@@ -397,7 +397,11 @@ export function transcodeVideoBitrate(source: ConvertSource): number {
 export function estimateTranscodeBytes(source: ConvertSource, plan: ConvertPlan): number | null {
   if (plan.bitrate == null || source.durationSeconds == null) return null;
   const audio =
-    plan.audio.path === 'drop' ? 0 : plan.audio.path === 'transcode' ? CONVERT_DEFAULT_AUDIO_BITRATE : 0;
+    plan.audio.path === 'drop'
+      ? 0
+      : plan.audio.path === 'transcode'
+        ? CONVERT_DEFAULT_AUDIO_BITRATE
+        : 0;
   return Math.ceil(((plan.bitrate + audio) / 8) * source.durationSeconds);
 }
 
@@ -446,7 +450,8 @@ export function describeVideoPath(plan: ConvertPlan): string {
 
 /** One-line description of what happens to the audio track. */
 export function describeAudioPath(plan: ConvertPlan): string {
-  if (plan.audio.path === 'remux') return `Copied (${plan.audio.codec?.toUpperCase() ?? 'original'})`;
+  if (plan.audio.path === 'remux')
+    return `Copied (${plan.audio.codec?.toUpperCase() ?? 'original'})`;
   if (plan.audio.path === 'transcode') return `Re-encoded to ${plan.audio.codec?.toUpperCase()}`;
   return 'Dropped';
 }

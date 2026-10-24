@@ -94,9 +94,7 @@ function asFinite(value: unknown, fallback: number): number {
 }
 
 /** Normalise raw form values into clamped, finite settings. */
-export function normalizeSettings(
-  raw: Partial<TtsSettings> | OptionValues,
-): TtsSettings {
+export function normalizeSettings(raw: Partial<TtsSettings> | OptionValues): TtsSettings {
   return {
     voiceId: typeof raw.voiceId === 'string' ? raw.voiceId : '',
     rate: clampRate(asFinite(raw.rate, DEFAULT_SETTINGS.rate)),
@@ -144,10 +142,7 @@ export function findVoice(voices: VoiceLike[], id: string): VoiceLike | undefine
   const wanted = id.trim().toLowerCase();
   return voices.find((voice) => {
     if (!voice) return false;
-    return (
-      voice.voiceURI.toLowerCase() === wanted ||
-      voice.name.toLowerCase() === wanted
-    );
+    return voice.voiceURI.toLowerCase() === wanted || voice.name.toLowerCase() === wanted;
   });
 }
 
@@ -362,7 +357,7 @@ export function mountTextToSpeechPanel(panel: HTMLElement): void {
     const voice = findVoice(voices, voiceSelect.value);
     const config = buildUtteranceConfig(text, settings(), voice);
     const utterance = new SpeechSynthesisUtterance(config.text);
-    if (config.voiceURI) utterance.voiceURI = config.voiceURI;
+    if (voice) utterance.voice = voice;
     if (config.lang) utterance.lang = config.lang;
     utterance.rate = config.rate;
     utterance.pitch = config.pitch;
@@ -467,7 +462,8 @@ export function mountTextToSpeechPanel(panel: HTMLElement): void {
         clearError(errorBox);
       })
       .catch(() => {
-        if (errorBox) showError(errorBox, 'Could not read the clipboard.', 'Paste with Ctrl/Cmd+V instead.');
+        if (errorBox)
+          showError(errorBox, 'Could not read the clipboard.', 'Paste with Ctrl/Cmd+V instead.');
       });
   });
 

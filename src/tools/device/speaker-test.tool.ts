@@ -54,10 +54,7 @@ export function parseSession(text: string): { plays: SpeakerPlayEntry[] } {
   try {
     parsed = JSON.parse(raw);
   } catch {
-    throw new ToolError(
-      'The recorded plays could not be read.',
-      'Reload the page and try again.',
-    );
+    throw new ToolError('The recorded plays could not be read.', 'Reload the page and try again.');
   }
 
   if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
@@ -77,10 +74,7 @@ export function parseSession(text: string): { plays: SpeakerPlayEntry[] } {
 
   const plays = session.plays.map((entry, index) => {
     if (!entry || typeof entry !== 'object') {
-      throw new ToolError(
-        `Play ${index + 1} is malformed.`,
-        'Reload the page and try again.',
-      );
+      throw new ToolError(`Play ${index + 1} is malformed.`, 'Reload the page and try again.');
     }
     const p = entry as Record<string, unknown>;
     const channel = String(p.channel ?? '');
@@ -133,7 +127,9 @@ export function buildReport(
     const row = [
       label,
       channelLabel(play.channel),
-      play.mode === 'sweep' ? `${formatFrequency(play.frequency)} – ${formatFrequency(play.sweepEnd)}` : formatFrequency(play.frequency),
+      play.mode === 'sweep'
+        ? `${formatFrequency(play.frequency)} – ${formatFrequency(play.sweepEnd)}`
+        : formatFrequency(play.frequency),
       play.mode === 'sweep' ? '—' : frequencyToNote(play.frequency),
       `${(play.durationMs / 1000).toFixed(play.durationMs % 1000 === 0 ? 0 : 1)} s`,
     ];

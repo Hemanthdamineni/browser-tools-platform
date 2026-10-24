@@ -4,7 +4,8 @@ export const meta: ToolMeta = {
   id: 'access-log-analyzer',
   name: 'Access Log Analyzer',
   category: 'web',
-  summary: 'Analyze Apache and nginx access logs: traffic, top lists, status codes, errors and probes.',
+  summary:
+    'Analyze Apache and nginx access logs: traffic, top lists, status codes, errors and probes.',
   description:
     'Paste or drop a Common or Combined Log Format access log and get the numbers an operator actually looks for: request and byte totals, the time span covered, status class breakdown and error rate, top IPs, paths, user agents and referrers, the full status distribution, every 4xx and 5xx grouped by path, and findings that name the bots, the scanners, the sensitive paths being probed and the responses that are suspiciously empty.',
   keywords: [

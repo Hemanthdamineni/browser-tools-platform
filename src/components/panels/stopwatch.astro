@@ -56,8 +56,8 @@ const p = meta.id;
       role="timer"
       aria-live="off"
       aria-label="Elapsed time"
-      id={`${p}-readout`}
-    >00:00:00.000</output>
+      id={`${p}-readout`}>00:00:00.000</output
+    >
     <p
       class="mt-2 text-xs text-[rgb(var(--text-muted))]"
       data-sw-status
@@ -95,10 +95,11 @@ const p = meta.id;
         data-sw-laps
         aria-label="Recorded laps"
         aria-describedby={`${p}-laps-hint`}
-      ></ul>
+      >
+      </ul>
       <p class="mt-2 text-xs text-[rgb(var(--text-muted))]" id={`${p}-laps-hint`}>
-        Each lap shows its split (time since the previous lap) and its total.
-        Fastest and slowest splits are marked.
+        Each lap shows its split (time since the previous lap) and its total. Fastest and slowest
+        splits are marked.
       </p>
     </div>
 

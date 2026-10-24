@@ -55,7 +55,10 @@ function readUnsigned(state: State, count: number): number | bigint {
   return value <= BigInt(Number.MAX_SAFE_INTEGER) ? Number(value) : value;
 }
 
-function readArgument(state: State, additional: number): { value: number | bigint; indefinite: boolean } {
+function readArgument(
+  state: State,
+  additional: number,
+): { value: number | bigint; indefinite: boolean } {
   if (additional < 24) return { value: additional, indefinite: false };
   if (additional === 24) return { value: readUnsigned(state, 1), indefinite: false };
   if (additional === 25) return { value: readUnsigned(state, 2), indefinite: false };
@@ -84,7 +87,8 @@ function toHex(bytes: Uint8Array): string {
 
 function fromHex(text: string): Uint8Array {
   const out = new Uint8Array(Math.floor(text.length / 2));
-  for (let i = 0; i < out.length; i += 1) out[i] = Number.parseInt(text.slice(i * 2, i * 2 + 2), 16);
+  for (let i = 0; i < out.length; i += 1)
+    out[i] = Number.parseInt(text.slice(i * 2, i * 2 + 2), 16);
   return out;
 }
 
@@ -161,12 +165,15 @@ function isBytes(value: unknown): value is { $bytes: string } {
 }
 
 function childPath(path: string, key: string): string {
-  return /^[A-Za-z_$][A-Za-z0-9_$]*$/u.test(key) ? path + '.' + key : path + '[' + JSON.stringify(key) + ']';
+  return /^[A-Za-z_$][A-Za-z0-9_$]*$/u.test(key)
+    ? path + '.' + key
+    : path + '[' + JSON.stringify(key) + ']';
 }
 
 function keyLabel(key: unknown): string {
   if (typeof key === 'string') return key;
-  if (typeof key === 'number' || typeof key === 'bigint' || typeof key === 'boolean') return String(key);
+  if (typeof key === 'number' || typeof key === 'bigint' || typeof key === 'boolean')
+    return String(key);
   if (key === null) return 'null';
   if (key === undefined) return '$undefined';
   return compact(key);
@@ -221,7 +228,11 @@ function decodeItem(state: State, path: string, depth: number): unknown {
         return fail(state, 'Unexpected break code');
       default:
         if (additional < 20) {
-          state.outline.push({ path, type: 'simple(' + additional + ')', preview: String(additional) });
+          state.outline.push({
+            path,
+            type: 'simple(' + additional + ')',
+            preview: String(additional),
+          });
           return { $simple: additional };
         }
         return fail(state, 'Reserved simple value ' + additional);
@@ -238,8 +249,7 @@ function decodeItem(state: State, path: string, depth: number): unknown {
 
   if (major === 1) {
     if (argument.indefinite) fail(state, 'An integer cannot have an indefinite length');
-    const value =
-      typeof argument.value === 'bigint' ? -1n - argument.value : -1 - argument.value;
+    const value = typeof argument.value === 'bigint' ? -1n - argument.value : -1 - argument.value;
     state.outline.push({ path, type: 'nint', preview: String(value) });
     return value;
   }
@@ -250,7 +260,8 @@ function decodeItem(state: State, path: string, depth: number): unknown {
     if (argument.indefinite) {
       const chunks: Uint8Array[] = [];
       for (;;) {
-        if (state.offset >= state.bytes.length) fail(state, 'Unterminated indefinite-length string');
+        if (state.offset >= state.bytes.length)
+          fail(state, 'Unterminated indefinite-length string');
         if (peekBreak(state)) {
           state.offset += 1;
           break;
@@ -382,7 +393,10 @@ function parseHexInput(text: string): Uint8Array {
   const cleaned = text.replace(/0x/giu, '').replace(/[^0-9a-f]/giu, '');
   if (cleaned === '') throw new ToolError('No hexadecimal digits found in that text.');
   if (cleaned.length % 2 !== 0) {
-    throw new ToolError('Hexadecimal input has an odd number of digits.', 'Each byte needs two digits.');
+    throw new ToolError(
+      'Hexadecimal input has an odd number of digits.',
+      'Each byte needs two digits.',
+    );
   }
   return fromHex(cleaned);
 }
@@ -417,7 +431,10 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   } else {
     const text = String(input.text ?? '').trim();
     if (text === '') {
-      throw new ToolError('Choose a CBOR file or paste hex or base64.', 'Both a file and pasted text work.');
+      throw new ToolError(
+        'Choose a CBOR file or paste hex or base64.',
+        'Both a file and pasted text work.',
+      );
     }
     if (inputFormat === 'hex') bytes = parseHexInput(text);
     else if (inputFormat === 'base64') bytes = parseBase64Input(text);
@@ -449,7 +466,9 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   const notes: string[] = [];
   const warnings: string[] = [];
   if (values.length > 1) {
-    notes.push('Decoded ' + values.length + ' top-level items; CBOR sequences are printed one per line.');
+    notes.push(
+      'Decoded ' + values.length + ' top-level items; CBOR sequences are printed one per line.',
+    );
   }
   if (state.outline.some((row) => row.type === 'tag(24)')) {
     notes.push('Tag 24 payloads were decoded as embedded CBOR.');

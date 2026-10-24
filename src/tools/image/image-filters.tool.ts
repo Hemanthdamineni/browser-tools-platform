@@ -19,12 +19,7 @@ import {
   flattenForJpeg,
   runBatch,
 } from './image-batch';
-import {
-  applyFilters,
-  describeParams,
-  isNeutral,
-  parseParams,
-} from './image-filters.core';
+import { applyFilters, describeParams, isNeutral, parseParams } from './image-filters.core';
 import { meta } from './image-filters.meta';
 
 /** Quality as a 0–1 fraction for `convertToBlob`, or `undefined` for PNG. */
@@ -91,9 +86,13 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   if (neutral) {
     notes.push('No adjustments were selected, so the image was re-encoded unchanged.');
   } else {
-    notes.push('The filter is baked into the exported pixels — it is a real change, not a preview overlay.');
+    notes.push(
+      'The filter is baked into the exported pixels — it is a real change, not a preview overlay.',
+    );
   }
-  notes.push('Re-encoding drops EXIF, GPS and XMP metadata; the ICC profile and source dimensions are kept.');
+  notes.push(
+    'Re-encoding drops EXIF, GPS and XMP metadata; the ICC profile and source dimensions are kept.',
+  );
 
   return {
     outputs,

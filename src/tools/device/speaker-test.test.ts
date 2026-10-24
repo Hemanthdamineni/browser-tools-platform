@@ -13,23 +13,35 @@ vi.mock('@/lib/worker/client', () => ({
 function payload(overrides: Record<string, unknown> = {}): string {
   return JSON.stringify({
     plays: [
-      { channel: 'both', mode: 'tone', frequency: 440, sweepEnd: 440, durationMs: 3000, at: '2026-10-24T10:15:30.000Z' },
-      { channel: 'right', mode: 'sweep', frequency: 20, sweepEnd: 20000, durationMs: 6000, at: '2026-10-24T10:16:00.000Z' },
+      {
+        channel: 'both',
+        mode: 'tone',
+        frequency: 440,
+        sweepEnd: 440,
+        durationMs: 3000,
+        at: '2026-10-24T10:15:30.000Z',
+      },
+      {
+        channel: 'right',
+        mode: 'sweep',
+        frequency: 20,
+        sweepEnd: 20000,
+        durationMs: 6000,
+        at: '2026-10-24T10:16:00.000Z',
+      },
     ],
     ...overrides,
   });
 }
 
-const run = (
-  text: string,
-  options: Record<string, string | number | boolean> = {},
-) => tool.run({ text, options }) as {
-  output: string;
-  render?: string;
-  stats?: Record<string, string | number>;
-  notes?: string[];
-  warnings?: string[];
-};
+const run = (text: string, options: Record<string, string | number | boolean> = {}) =>
+  tool.run({ text, options }) as {
+    output: string;
+    render?: string;
+    stats?: Record<string, string | number>;
+    notes?: string[];
+    warnings?: string[];
+  };
 
 describe('speaker-test parseSession', () => {
   it('parses a well-formed session', () => {
@@ -65,16 +77,16 @@ describe('speaker-test buildReport', () => {
   it('produces a table with a row per play and exact known values', () => {
     const { output } = buildReport(parseSession(payload()), {});
     const table = JSON.parse(output) as { headers: string[]; rows: string[][] };
-    expect(table.headers).toEqual(['Test', 'Channel', 'Frequency', 'Note', 'Duration', 'When (UTC)']);
-    expect(table.rows).toHaveLength(2);
-    expect(table.rows[0]).toEqual([
-      'Tone 440 Hz',
-      'Both',
-      '440 Hz',
-      'A4',
-      '3 s',
-      '10:15:30',
+    expect(table.headers).toEqual([
+      'Test',
+      'Channel',
+      'Frequency',
+      'Note',
+      'Duration',
+      'When (UTC)',
     ]);
+    expect(table.rows).toHaveLength(2);
+    expect(table.rows[0]).toEqual(['Tone 440 Hz', 'Both', '440 Hz', 'A4', '3 s', '10:15:30']);
   });
 
   it('drops the timestamp column when the option is off', () => {

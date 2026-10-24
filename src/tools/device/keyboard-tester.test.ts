@@ -346,11 +346,7 @@ describe('parseCombination', () => {
   });
 
   it('ignores case and padding', () => {
-    expect(parseCombination('  CTRL + Shift + T  ')).toEqual([
-      'ControlLeft',
-      'ShiftLeft',
-      'KeyT',
-    ]);
+    expect(parseCombination('  CTRL + Shift + T  ')).toEqual(['ControlLeft', 'ShiftLeft', 'KeyT']);
   });
 
   it('rejects an empty or unknown combination', () => {
@@ -438,10 +434,13 @@ describe('keyboard-tester run', () => {
 
   it('keeps a Unicode key value in the readout unchanged', () => {
     const result = run(
-      session([], [
-        { key: 'ф', code: 'KeyA', type: 'keydown' },
-        { key: '日', code: 'KeyJ', ctrlKey: true, type: 'keydown' },
-      ]),
+      session(
+        [],
+        [
+          { key: 'ф', code: 'KeyA', type: 'keydown' },
+          { key: '日', code: 'KeyJ', ctrlKey: true, type: 'keydown' },
+        ],
+      ),
     );
     const notes = result.notes?.join(' ') ?? '';
     expect(notes).toContain('ф');

@@ -1,8 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import {
-  mountDeadPixelPanel,
-  readableOn,
-} from './dead-pixel-test-panel';
+import { mountDeadPixelPanel, readableOn } from './dead-pixel-test-panel';
 import { runToolById } from '@/lib/worker/client';
 import {
   DEAD_PIXEL_SEQUENCE,
@@ -95,13 +92,11 @@ let originalFullscreen: {
 
 beforeEach(() => {
   originalFullscreen = {
-    fullscreenEnabled: (document as Document & { fullscreenEnabled: boolean })
-      .fullscreenEnabled,
+    fullscreenEnabled: (document as Document & { fullscreenEnabled: boolean }).fullscreenEnabled,
     fullscreenElement: (document as Document & { fullscreenElement: Element | null })
       .fullscreenElement,
-    requestFullscreen: document.documentElement.requestFullscreen as ((
-      opts?: FullscreenOptions,
-    ) => Promise<void>) | null,
+    requestFullscreen: document.documentElement.requestFullscreen as
+      ((opts?: FullscreenOptions) => Promise<void>) | null,
     exitFullscreen: document.exitFullscreen as (() => Promise<void>) | null,
   };
 
@@ -320,21 +315,21 @@ describe('mountDeadPixelPanel', () => {
     const root = fixture();
     mountDeadPixelPanel(root);
 
-    expect(query(root, '[data-dp-result-wrap]').hidden).toBe(true);
+    expect(query<HTMLElement>(root, '[data-dp-result-wrap]').hidden).toBe(true);
     await enterFullscreen(root);
-    expect(query(root, '[data-dp-result-wrap]').hidden).toBe(true);
+    expect(query<HTMLElement>(root, '[data-dp-result-wrap]').hidden).toBe(true);
   });
 
   it('shows the exit hint only while fullscreen', async () => {
     const root = fixture();
     mountDeadPixelPanel(root);
 
-    expect(query(root, '[data-dp-hint]').hidden).toBe(true);
+    expect(query<HTMLElement>(root, '[data-dp-hint]').hidden).toBe(true);
     await enterFullscreen(root);
-    expect(query(root, '[data-dp-hint]').hidden).toBe(false);
+    expect(query<HTMLElement>(root, '[data-dp-hint]').hidden).toBe(false);
 
     setFullscreen(root, false);
-    expect(query(root, '[data-dp-hint]').hidden).toBe(true);
+    expect(query<HTMLElement>(root, '[data-dp-hint]').hidden).toBe(true);
   });
 
   it('steps with the arrow keys while fullscreen', async () => {
@@ -375,7 +370,7 @@ describe('mountDeadPixelPanel', () => {
     await enterFullscreen(root);
 
     window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
-    expect(query(root, '[data-dp-hint]').hidden).toBe(true);
+    expect(query<HTMLElement>(root, '[data-dp-hint]').hidden).toBe(true);
     expect(runToolByIdMock).toHaveBeenCalled();
   });
 
@@ -397,7 +392,7 @@ describe('mountDeadPixelPanel', () => {
         }),
       );
     });
-    expect(query(root, '[data-dp-result-wrap]').hidden).toBe(false);
+    expect(query<HTMLElement>(root, '[data-dp-result-wrap]').hidden).toBe(false);
   });
 
   it('reports an error when fullscreen is unsupported', () => {
@@ -409,7 +404,7 @@ describe('mountDeadPixelPanel', () => {
     mountDeadPixelPanel(root);
 
     query<HTMLButtonElement>(root, '[data-dp-start]').click();
-    expect(query(root, '[data-dp-error]').hidden).toBe(false);
+    expect(query<HTMLElement>(root, '[data-dp-error]').hidden).toBe(false);
     expect(query(root, '[data-dp-error]').textContent).toMatch(/does not support/i);
   });
 });

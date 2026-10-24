@@ -192,8 +192,7 @@ export function createDebouncedSaver(
     pending.clear();
     // Serialise so an earlier stale write can never land after a newer one.
     return entries.reduce(
-      (chain, [key, value]) =>
-        chain.then(() => sink(key, value)).catch(() => undefined),
+      (chain, [key, value]) => chain.then(() => sink(key, value)).catch(() => undefined),
       Promise.resolve(),
     );
   }
@@ -216,7 +215,7 @@ export function createDebouncedSaver(
     schedule(key, value) {
       pending.set(key, value);
       if (timer === null) {
-        timer = setTimeout(() => {
+        timer = window.setTimeout(() => {
           timer = null;
           void flush();
         }, waitMs);
@@ -285,7 +284,7 @@ export class NotepadController {
 
   private snapshot(): NotepadSnapshot {
     const current = this.currentId
-      ? this.notes.find((n) => n.id === this.currentId) ?? null
+      ? (this.notes.find((n) => n.id === this.currentId) ?? null)
       : null;
     return { notes: this.notes, current, saving: this.saver.pending() };
   }
@@ -448,8 +447,10 @@ export function mountOnlineNotepadPanel(
     }
 
     // Never overwrite a field the user is still typing into.
-    if (document.activeElement !== titleInput) titleInput.value = snapshot.current.title;
-    if (document.activeElement !== contentArea) contentArea.value = snapshot.current.content;
+    const current = snapshot.current;
+    if (!current) return;
+    if (document.activeElement !== titleInput) titleInput.value = current.title;
+    if (document.activeElement !== contentArea) contentArea.value = current.content;
     statusEl.textContent = snapshot.saving ? 'Saving…' : 'Saved to this browser.';
   }
 

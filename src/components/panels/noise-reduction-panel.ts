@@ -47,7 +47,7 @@ export const DENOISE_SAMPLE_RATE = 16000;
  */
 export interface DenoiseState {
   /** Denoise one 480-sample frame; returns the denoised frame. */
-  process(frame: Float32Array): Float32Array;
+  process(frame: Float32Array): Float32Array<ArrayBuffer>;
   /** Release the underlying resources (the wasm state and its buffers). */
   close(): void;
 }
@@ -208,9 +208,7 @@ function loadRNNoiseFromWasm(): Promise<DenoiseFactory> {
   // break the tool for the rest of the page's life.
   denoiserPromise ??= (async () => {
     const wasmUrl = (await import('@jitsi/rnnoise-wasm/dist/rnnoise.wasm?url')).default;
-    const { default: createRNNWasmModule } = await import(
-      '@jitsi/rnnoise-wasm/dist/rnnoise.js'
-    );
+    const { default: createRNNWasmModule } = await import('@jitsi/rnnoise-wasm/dist/rnnoise.js');
     const module = await createRNNWasmModule({
       locateFile: (file) => (file === 'rnnoise.wasm' ? wasmUrl : file),
     });

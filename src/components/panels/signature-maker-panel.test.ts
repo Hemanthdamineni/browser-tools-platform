@@ -56,7 +56,15 @@ describe('smoothStroke', () => {
 
 describe('signatureBounds', () => {
   it('grows the box by the padding on every side', () => {
-    const bounds = signatureBounds([[{ x: 0, y: 0 }, { x: 20, y: 10 }]], 10);
+    const bounds = signatureBounds(
+      [
+        [
+          { x: 0, y: 0 },
+          { x: 20, y: 10 },
+        ],
+      ],
+      10,
+    );
     expect(bounds).toEqual({ x: -10, y: -10, width: 40, height: 30 });
   });
 
@@ -67,11 +75,19 @@ describe('signatureBounds', () => {
 
 describe('strokesToSvg', () => {
   it('serialises a known stroke into a valid, transparent SVG', () => {
-    const svg = strokesToSvg([[{ x: 0, y: 0 }, { x: 20, y: 10 }]], {
-      color: '#111827',
-      strokeWidth: 3,
-      padding: 10,
-    });
+    const svg = strokesToSvg(
+      [
+        [
+          { x: 0, y: 0 },
+          { x: 20, y: 10 },
+        ],
+      ],
+      {
+        color: '#111827',
+        strokeWidth: 3,
+        padding: 10,
+      },
+    );
     expect(svg).toBe(
       '<svg xmlns="http://www.w3.org/2000/svg" width="40" height="30" viewBox="0 0 40 30">' +
         '<path d="M 10 10 L 30 20" fill="none" stroke="#111827" stroke-width="3" ' +
@@ -86,7 +102,12 @@ describe('strokesToSvg', () => {
   });
 
   it('keeps the background transparent and free of external references', () => {
-    const svg = strokesToSvg([[{ x: 1, y: 2 }, { x: 9, y: 8 }]]);
+    const svg = strokesToSvg([
+      [
+        { x: 1, y: 2 },
+        { x: 9, y: 8 },
+      ],
+    ]);
     expect(svg.startsWith('<svg ')).toBe(true);
     expect(svg.trim().endsWith('</svg>')).toBe(true);
     // Transparent: no background element, no fill on a covering rect.
@@ -100,7 +121,15 @@ describe('strokesToSvg', () => {
   });
 
   it('rounds coordinates so the output stays clean', () => {
-    const svg = strokesToSvg([[{ x: 1.003, y: 2.004 }, { x: 9, y: 8 }]], { padding: 5 });
+    const svg = strokesToSvg(
+      [
+        [
+          { x: 1.003, y: 2.004 },
+          { x: 9, y: 8 },
+        ],
+      ],
+      { padding: 5 },
+    );
     expect(svg).not.toContain('1.003');
   });
 

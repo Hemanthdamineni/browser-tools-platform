@@ -33,8 +33,8 @@ const p = meta.id;
     <span class="chip">On-device</span>
   </div>
   <p class="mt-1.5 max-w-prose text-sm leading-relaxed text-[rgb(var(--text-muted))]">
-    Find the tempo of a song from a file or your microphone. Onset detection and
-    autocorrelation run in this tab — the audio is never uploaded.
+    Find the tempo of a song from a file or your microphone. Onset detection and autocorrelation run
+    in this tab — the audio is never uploaded.
   </p>
 
   <div
@@ -50,12 +50,7 @@ const p = meta.id;
     <label class="btn btn-primary cursor-pointer">
       <Icon name="file-text" size={16} />
       <span>Choose an audio file</span>
-      <input
-        class="sr-only"
-        type="file"
-        accept={meta.accept ?? 'audio/*'}
-        data-bpm-file
-      />
+      <input class="sr-only" type="file" accept={meta.accept ?? 'audio/*'} data-bpm-file />
     </label>
     <button type="button" class="btn btn-ghost" data-bpm-mic>
       <Icon name="zap" size={16} /> Use microphone

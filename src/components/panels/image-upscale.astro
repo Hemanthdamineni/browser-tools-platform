@@ -44,7 +44,9 @@ const examples = meta.examples ?? [];
     aria-label="Choose an image file or drop it here"
   >
     <Icon name="image" size={26} class="opacity-60" />
-    <p class="text-sm font-medium">Drop a PNG, JPEG or WebP here, or <span class="link">browse</span></p>
+    <p class="text-sm font-medium">
+      Drop a PNG, JPEG or WebP here, or <span class="link">browse</span>
+    </p>
     <p class="text-xs text-[rgb(var(--text-muted))]">The image never leaves your device.</p>
   </div>
   <ul class="mt-3 space-y-1.5 text-sm" data-file-list></ul>
@@ -79,16 +81,20 @@ const examples = meta.examples ?? [];
       height="9"
       role="img"
       aria-label="Preview of the upscaled image"
-      data-preview-canvas
-    ></canvas>
+      data-preview-canvas></canvas>
   </div>
-  <p class="mt-2 text-xs text-[rgb(var(--text-muted))]" data-preview-status role="status" aria-live="polite">
+  <p
+    class="mt-2 text-xs text-[rgb(var(--text-muted))]"
+    data-preview-status
+    role="status"
+    aria-live="polite"
+  >
     Choose an image to see it here.
   </p>
   <p class="mt-1 text-xs leading-relaxed text-[rgb(var(--text-muted))]">
-    This is algorithmic upscaling — Lanczos3 / bicubic / nearest interpolation
-    plus an optional unsharp mask. It is not AI super-resolution, so it cannot
-    invent detail that the photo does not contain.
+    This is algorithmic upscaling — Lanczos3 / bicubic / nearest interpolation plus an optional
+    unsharp mask. It is not AI super-resolution, so it cannot invent detail that the photo does not
+    contain.
   </p>
 
   <div class="mt-5 flex flex-wrap items-center gap-2.5">

@@ -149,10 +149,9 @@ describe('email-header-analyzer', () => {
   });
 
   it('decodes Q encoded-words and joins adjacent words without the gap', async () => {
-    const text = [
-      'From: a@example.com',
-      'Subject: =?ISO-8859-1?Q?Caf=E9?= =?UTF-8?B?IQ==?=',
-    ].join('\n');
+    const text = ['From: a@example.com', 'Subject: =?ISO-8859-1?Q?Caf=E9?= =?UTF-8?B?IQ==?='].join(
+      '\n',
+    );
     const { map } = await overview(text);
     expect(map.Subject).toBe('Café!');
   });
@@ -169,7 +168,9 @@ describe('email-header-analyzer', () => {
   });
 
   it('warns when From and Return-Path domains differ', async () => {
-    const text = ['From: Alice <alice@example.com>', 'Return-Path: <bounce@list.example.net>'].join('\n');
+    const text = ['From: Alice <alice@example.com>', 'Return-Path: <bounce@list.example.net>'].join(
+      '\n',
+    );
     const { r } = await overview(text);
     expect(r.warnings?.join(' ')).toMatch(/differs from Return-Path domain/i);
   });
@@ -212,7 +213,13 @@ describe('email-header-analyzer', () => {
   });
 
   it('ignores the body and says so', async () => {
-    const text = ['From: Alice <alice@example.com>', 'Subject: Hi', '', 'Body line one', 'Body line two'].join('\n');
+    const text = [
+      'From: Alice <alice@example.com>',
+      'Subject: Hi',
+      '',
+      'Body line one',
+      'Body line two',
+    ].join('\n');
     const { r, map } = await overview(text);
     expect(map.Headers).toBe('2');
     expect(r.notes?.join(' ')).toMatch(/body content .* was ignored \(2 non-empty line\(s\)\)/i);
@@ -259,6 +266,8 @@ describe('email-header-analyzer', () => {
 
   it('rejects empty input and text without headers', async () => {
     await expect(run('')).rejects.toThrow(/no email headers found/i);
-    await expect(run('just some prose without any colons')).rejects.toThrow(/no email headers found/i);
+    await expect(run('just some prose without any colons')).rejects.toThrow(
+      /no email headers found/i,
+    );
   });
 });

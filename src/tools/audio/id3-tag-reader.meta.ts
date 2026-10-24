@@ -4,7 +4,8 @@ export const meta: ToolMeta = {
   id: 'id3-tag-reader',
   name: 'MP3 Tag (ID3) Reader',
   category: 'audio',
-  summary: 'Read ID3v2 and ID3v1 tags from an MP3: title, artist, album, year, track and cover art.',
+  summary:
+    'Read ID3v2 and ID3v1 tags from an MP3: title, artist, album, year, track and cover art.',
   description:
     'Inspect the metadata inside an MP3 file: title, artist, album, album artist, composer, year, track, genre and comments, from both ID3v2 and the older ID3v1 trailer. Shows the tag version, size and every frame when you ask for the raw list, and can pull out embedded cover art as a downloadable image.',
   keywords: [

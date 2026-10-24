@@ -217,15 +217,18 @@ export function replaceCodeBlocks(
   replace: (block: CodeBlock, index: number) => string,
 ): string {
   let index = 0;
-  return html.replace(CODE_BLOCK_RE, (_match, lang: string | undefined, code: string | undefined) => {
-    const block: CodeBlock = {
-      language: (lang ?? '').toLowerCase(),
-      code: decodeEntities(code ?? ''),
-    };
-    const out = replace(block, index);
-    index += 1;
-    return out;
-  });
+  return html.replace(
+    CODE_BLOCK_RE,
+    (_match, lang: string | undefined, code: string | undefined) => {
+      const block: CodeBlock = {
+        language: (lang ?? '').toLowerCase(),
+        code: decodeEntities(code ?? ''),
+      };
+      const out = replace(block, index);
+      index += 1;
+      return out;
+    },
+  );
 }
 
 /** The unhighlighted rendering of a code block — also the fallback. */

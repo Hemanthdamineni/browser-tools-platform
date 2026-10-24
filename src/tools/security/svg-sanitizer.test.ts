@@ -18,7 +18,11 @@ const runFile = async (
   content: string,
   name: string,
   options: Record<string, string | number | boolean> = {},
-) => (await tool.run({ files: [new File([content], name, { type: 'image/svg+xml' })], options })) as Result;
+) =>
+  (await tool.run({
+    files: [new File([content], name, { type: 'image/svg+xml' })],
+    options,
+  })) as Result;
 
 const table = (result: Result): Table => JSON.parse(result.report?.output ?? '{}') as Table;
 
@@ -31,7 +35,11 @@ const cleaned = async (result: Result): Promise<string> => {
 const actions = (result: Result): string[] => table(result).rows.map((row) => row[0] ?? '');
 
 const SVG = (body: string, attrs = ''): string =>
-  '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"' + attrs + '>' + body + '</svg>';
+  '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"' +
+  attrs +
+  '>' +
+  body +
+  '</svg>';
 
 const NASTY = [
   '<?xml-stylesheet href="https://evil.example/x.css" type="text/css"?>',
@@ -53,7 +61,11 @@ const dangerousRemnants = (svg: string): string[] => {
   const doc = new DOMParser().parseFromString(svg, 'image/svg+xml');
   const found: string[] = [];
   for (const element of Array.from(doc.getElementsByTagName('*'))) {
-    if (['script', 'foreignobject', 'iframe', 'embed', 'object'].includes(element.localName.toLowerCase())) {
+    if (
+      ['script', 'foreignobject', 'iframe', 'embed', 'object'].includes(
+        element.localName.toLowerCase(),
+      )
+    ) {
       found.push('element:' + element.localName);
     }
     for (const attribute of Array.from(element.attributes)) {
@@ -109,7 +121,9 @@ describe('svg-sanitizer', () => {
   });
 
   it('keeps external references when asked, but never a javascript: URL', async () => {
-    const svg = SVG('<image href="https://cdn.example/photo.png"/><a href="javascript:alert(1)"><text x="1" y="1">a</text></a>');
+    const svg = SVG(
+      '<image href="https://cdn.example/photo.png"/><a href="javascript:alert(1)"><text x="1" y="1">a</text></a>',
+    );
     const result = await run(svg, { externalRefs: 'keep' });
     expect(result.stats?.removedAttributes).toBe(1);
     const output = await cleaned(result);
@@ -119,7 +133,9 @@ describe('svg-sanitizer', () => {
   });
 
   it('removes foreignObject together with its contents', async () => {
-    const svg = SVG('<foreignObject width="10" height="10"><div xmlns="http://www.w3.org/1999/xhtml">x</div></foreignObject>');
+    const svg = SVG(
+      '<foreignObject width="10" height="10"><div xmlns="http://www.w3.org/1999/xhtml">x</div></foreignObject>',
+    );
     const result = await run(svg);
     expect(table(result).rows[0]?.[1]).toBe('foreignObject');
     expect(await cleaned(result)).not.toMatch(/foreignObject/iu);
@@ -129,13 +145,17 @@ describe('svg-sanitizer', () => {
     const unsafe = await run(SVG('<style>@import url("https://evil.example/a.css");</style>'));
     expect(unsafe.stats?.removedElements).toBe(1);
 
-    const safe = await run(SVG('<style>.a{fill:#0af}</style><circle class="a" cx="1" cy="1" r="1"/>'));
+    const safe = await run(
+      SVG('<style>.a{fill:#0af}</style><circle class="a" cx="1" cy="1" r="1"/>'),
+    );
     expect(safe.stats?.otherRemovals).toBe(0);
     expect(await cleaned(safe)).toContain('.a{fill:#0af}');
   });
 
   it('removes comments only when asked', async () => {
-    const kept = await run(SVG('<!-- keep me --><circle cx="1" cy="1" r="1"/>'), { stripComments: false });
+    const kept = await run(SVG('<!-- keep me --><circle cx="1" cy="1" r="1"/>'), {
+      stripComments: false,
+    });
     expect(actions(kept)).toEqual(['none']);
     expect(await cleaned(kept)).toContain('keep me');
 
@@ -145,7 +165,9 @@ describe('svg-sanitizer', () => {
   });
 
   it('removes the DOCTYPE and XML processing instructions', async () => {
-    const svg = '<?xml-stylesheet href="https://evil.example/x.css"?>\n<!DOCTYPE svg>\n' + SVG('<rect width="1" height="1"/>');
+    const svg =
+      '<?xml-stylesheet href="https://evil.example/x.css"?>\n<!DOCTYPE svg>\n' +
+      SVG('<rect width="1" height="1"/>');
     const result = await run(svg);
     expect(actions(result)).toEqual(['Removed DOCTYPE', 'Removed processing instruction']);
     expect(result.stats?.otherRemovals).toBe(2);
@@ -168,7 +190,9 @@ describe('svg-sanitizer', () => {
   });
 
   it('removes scriptable inline styles', async () => {
-    const result = await run(SVG('<rect width="1" height="1" style="fill:url(javascript:alert(1))"/>'));
+    const result = await run(
+      SVG('<rect width="1" height="1" style="fill:url(javascript:alert(1))"/>'),
+    );
     expect(result.stats?.removedAttributes).toBe(1);
     expect(await cleaned(result)).not.toMatch(/javascript:/iu);
   });
@@ -183,18 +207,29 @@ describe('svg-sanitizer', () => {
     const result = await run(svg);
     expect(actions(result)).toEqual(['none']);
     expect(table(result).rows[0]?.[0]).toBe('none');
-    expect(result.stats).toMatchObject({ removedElements: 0, removedAttributes: 0, otherRemovals: 0 });
+    expect(result.stats).toMatchObject({
+      removedElements: 0,
+      removedAttributes: 0,
+      otherRemovals: 0,
+    });
 
     const output = await cleaned(result);
     expect(output).toContain('M10 90 L50 10 L90 90 Z');
     expect(output).toContain('fill="url(#sky)"');
-    const before = new DOMParser().parseFromString(svg, 'image/svg+xml').getElementsByTagName('*').length;
-    const after = new DOMParser().parseFromString(output, 'image/svg+xml').getElementsByTagName('*').length;
+    const before = new DOMParser()
+      .parseFromString(svg, 'image/svg+xml')
+      .getElementsByTagName('*').length;
+    const after = new DOMParser()
+      .parseFromString(output, 'image/svg+xml')
+      .getElementsByTagName('*').length;
     expect(after).toBe(before);
   });
 
   it('produces a sanitized file named after the input', async () => {
-    const result = await runFile(SVG('<script>x()</script><rect width="1" height="1"/>'), 'logo.svg');
+    const result = await runFile(
+      SVG('<script>x()</script><rect width="1" height="1"/>'),
+      'logo.svg',
+    );
     const output = result.outputs[0];
     expect(output?.filename).toBe('logo.sanitized.svg');
     expect(output?.blob.type).toBe('image/svg+xml');

@@ -224,7 +224,13 @@ describe('tempoReport', () => {
   });
 
   it('notes the doubling alternative', () => {
-    const r = tempoReport({ bpm: 60, confidence: 0.8, lag: 43, alternate: 120, alternateKind: 'double' });
+    const r = tempoReport({
+      bpm: 60,
+      confidence: 0.8,
+      lag: 43,
+      alternate: 120,
+      alternateKind: 'double',
+    });
     expect(r.output).toContain('double time');
     expect(r.notes?.join(' ')).toContain('120 BPM');
   });

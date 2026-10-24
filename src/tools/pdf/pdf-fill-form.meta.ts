@@ -7,7 +7,17 @@ export const meta: ToolMeta = {
   summary: 'Fill an AcroForm in a PDF — text, checkboxes, radio and dropdowns — then flatten it.',
   description:
     'Open a PDF that contains an interactive form, type or pick values for its fields, and save a flattened copy with the answers baked into the pages. Only fields that actually exist in the form are offered.',
-  keywords: ['pdf', 'form', 'acroform', 'fill', 'flatten', 'checkbox', 'radio', 'dropdown', 'fields'],
+  keywords: [
+    'pdf',
+    'form',
+    'acroform',
+    'fill',
+    'flatten',
+    'checkbox',
+    'radio',
+    'dropdown',
+    'fields',
+  ],
   privacy: { processing: 'on-device', network: 'none', offline: true },
   input: 'file',
   accept: 'application/pdf',

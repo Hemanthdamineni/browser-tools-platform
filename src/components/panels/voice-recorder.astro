@@ -60,9 +60,7 @@ const { meta } = Astro.props;
     <button type="button" class="btn btn-ghost" data-vr-stop hidden>
       <Icon name="stop" size={14} /> Stop recording
     </button>
-    <button type="button" class="btn btn-ghost" data-vr-discard hidden>
-      Discard
-    </button>
+    <button type="button" class="btn btn-ghost" data-vr-discard hidden> Discard </button>
   </div>
 
   <div class="mt-4 flex flex-wrap items-center gap-4">
@@ -75,8 +73,10 @@ const { meta } = Astro.props;
         hidden
       >
       </span>
-      <span class="font-mono text-lg tabular-nums text-[rgb(var(--text))]" data-vr-timer role="timer"
-        >0:00</span
+      <span
+        class="font-mono text-lg tabular-nums text-[rgb(var(--text))]"
+        data-vr-timer
+        role="timer">0:00</span
       >
       <span class="text-xs text-[rgb(var(--text-muted))]">elapsed</span>
     </span>

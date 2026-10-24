@@ -291,7 +291,7 @@ crashed the session twice — each sub-agent committed in small steps, so no wor
     form labels, landmark structure — as a linter rather than the single-purpose checks that
     exist today.
   - **Burn subtitles into a video** (SRT/VTT → hardcoded or soft): `subtitle-converter` changes
-  the text file, but nothing can put the subtitles on the picture.
+    the text file, but nothing can put the subtitles on the picture.
   - A **font inspector** for WOFF2/WOFF — coverage, variation axes, unicode ranges, licence bits
     — since nothing in the catalogue touches fonts at all.
 
@@ -346,7 +346,7 @@ crashed the session twice — each sub-agent committed in small steps, so no wor
   Dubious-looking but left alone: `code-minify` and `merge-base64` sit at two ⚠️ without a ⛔.
 - Mistakes noticed:
   - **Panel tools and `data-file-workbench`.** `FileWorkbench.astro:152-176` binds the generic
-    workbench behaviour to *every* `[data-file-workbench]` root and skips only the hardcoded
+    workbench behaviour to _every_ `[data-file-workbench]` root and skips only the hardcoded
     `data-signature-workbench`, dereferencing `[data-report]`, `[data-download-all]` and friends with
     `!`. Any custom panel that carries the marker therefore gets a second drop zone and a second Run
     handler and throws as soon as the generic code touches a node the panel does not have. My three
@@ -398,6 +398,7 @@ crashed the session twice — each sub-agent committed in small steps, so no wor
     `workbench/shared.ts` should export `imageToPngBlob`.
 
 ## run-20261023-2031-a3f2 — 2026-10-24T10:35:00Z
+
 - Merged: merge-datauri (0b2222e) — `data-uri` gains four modes (text/image × encode/decode); `image-to-datauri` and `datauri-to-image` stay routable as redirect aliases; deprecated `unescape`/`escape` path replaced with TextEncoder/TextDecoder.
 - Merged: image-ocr (8784cc2) — tesseract.js OCR with 10 self-hosted languages (all traineddata vendored under `/vendor/tesseract/`, no third-party fetch); lazy dynamic import; text report + per-image .txt download.
 - Merged: webcam-recorder (f6cb8ad) — getUserMedia + MediaRecorder recorder panel; VP9→VP8→WebM→MP4 mime fallback; resolution + mic options; camera device picker; shared mockable `webcam-recorder-core` ready for screen-recorder reuse.
@@ -452,7 +453,7 @@ fixture, all four merges verified with the full `verify` gate (check + lint + vi
   - **A panel root with `data-text-workbench` kills the whole page.** The keyboard-tester panel shipped with a
     stray `data-text-workbench` attribute on its root section. The shared TextWorkbench script matches that
     attribute, assumes a `[data-run]` button exists, and throws `Cannot read properties of null (reading
-    'addEventListener')` in the hoisted module — which also prevents the panel's own lazy script from mounting.
+'addEventListener')` in the hoisted module — which also prevents the panel's own lazy script from mounting.
     The page was dead on arrival (fixed in this run by removing the attribute; the e2e workbench sweep only
     needs `[data-panel-workbench]`). Any future panel copying a workbench root's attributes will hit this again;
     the TextWorkbench script should guard its required elements.
@@ -467,7 +468,7 @@ fixture, all four merges verified with the full `verify` gate (check + lint + vi
     (camera, mic, screen recorder) should do the same for their metadata events.
   - **Two items that master had already absorbed were still unticked with stale ⏳ claims** (`code-minify`
     `5c6b600`, `video-compress` `819c44d`), and run-20261023-2100-7541 then burned them with a second `⚠️ run
-    died` apiece (`code-minify` is genuinely shipped; `merge-base64` likewise, `af1467a` — master's `base64`
+died` apiece (`code-minify` is genuinely shipped; `merge-base64` likewise, `af1467a` — master's `base64`
     gained the file mode and `base64-file` is already a routable alias). Those three lines now read "failed
     twice" even though nothing failed and nothing needs doing; the human should tick them in the next review.
   - **`docs/TOOLS.md` on origin/master was stale again** (claimed 404 tools; 389 exist — it lists 5 tools whose

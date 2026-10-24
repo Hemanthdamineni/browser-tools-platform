@@ -4,7 +4,8 @@ export const meta: ToolMeta = {
   id: 'sudoers-auditor',
   name: 'sudoers Auditor',
   category: 'security',
-  summary: 'Audit a sudoers file for NOPASSWD shells, wildcard commands, env_keep leaks and unused aliases.',
+  summary:
+    'Audit a sudoers file for NOPASSWD shells, wildcard commands, env_keep leaks and unused aliases.',
   description:
     'Paste or drop /etc/sudoers (or a drop-in from /etc/sudoers.d) and see what it really grants. The auditor parses Defaults entries and their scopes, aliases, user specs, runas lists, tags and command lists, then reports every grant that is passwordless, that reaches a shell, editor or interpreter (each of which spawns root), that is valid on every host or for every user, that leans on a wildcard, that keeps an environment variable which can load code, or that lists only negated commands and therefore allows everything else. Syntax is checked the way sudo checks it, so the messages it quotes are the ones visudo prints, and includes, unreachable aliases and duplicate specs are reported alongside. Nothing is uploaded, resolved or executed.',
   keywords: [
@@ -84,6 +85,11 @@ export const meta: ToolMeta = {
       a: 'A passwordless grant that reaches a shell, editor or interpreter, because any of those can run arbitrary commands as the target user. Also: a grant covering ALL commands, a wildcard that can be widened, an env_keep variable such as LD_PRELOAD that loads code into the privileged process, a command list of only negated entries (sudoers then allows everything else), and Defaults !authenticate.',
     },
   ],
-  related: ['iptables-ruleset-auditor', 'ssh-config-auditor', 'systemd-unit-inspector', 'docker-compose'],
+  related: [
+    'iptables-ruleset-auditor',
+    'ssh-config-auditor',
+    'systemd-unit-inspector',
+    'docker-compose',
+  ],
   status: 'stable',
 };

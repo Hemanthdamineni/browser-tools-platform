@@ -30,7 +30,10 @@ const headingId = `${p}-heading`;
   aria-labelledby={headingId}
 >
   <div class="flex flex-wrap items-center gap-2">
-    <h2 id={headingId} class="flex items-center gap-2 text-base font-semibold text-[rgb(var(--text))]">
+    <h2
+      id={headingId}
+      class="flex items-center gap-2 text-base font-semibold text-[rgb(var(--text))]"
+    >
       <Icon name="braces" size={18} /> HTML / CSS / JS
     </h2>
     <span class="chip">Stable</span>
@@ -51,7 +54,10 @@ const headingId = `${p}-heading`;
             type="button"
             class="chip hover:text-[rgb(var(--text))]"
             data-example={i}
-            data-example-payload={JSON.stringify({ input: ex.input ?? '', options: ex.options ?? {} })}
+            data-example-payload={JSON.stringify({
+              input: ex.input ?? '',
+              options: ex.options ?? {},
+            })}
           >
             {ex.title}
           </button>
@@ -71,8 +77,8 @@ const headingId = `${p}-heading`;
           spellcheck="false"
           autocapitalize="off"
           autocomplete="off"
-          data-pane="html"
-        >{DEFAULT_PARTS.html}</textarea>
+          data-pane="html">{DEFAULT_PARTS.html}</textarea
+        >
       </div>
       <div>
         <label class="text-xs font-medium" for={`${p}-css`}>CSS</label>
@@ -82,8 +88,8 @@ const headingId = `${p}-heading`;
           spellcheck="false"
           autocapitalize="off"
           autocomplete="off"
-          data-pane="css"
-        >{DEFAULT_PARTS.css}</textarea>
+          data-pane="css">{DEFAULT_PARTS.css}</textarea
+        >
       </div>
       <div>
         <label class="text-xs font-medium" for={`${p}-js`}>JavaScript</label>
@@ -93,8 +99,8 @@ const headingId = `${p}-heading`;
           spellcheck="false"
           autocapitalize="off"
           autocomplete="off"
-          data-pane="js"
-        >{DEFAULT_PARTS.js}</textarea>
+          data-pane="js">{DEFAULT_PARTS.js}</textarea
+        >
       </div>
     </div>
 
@@ -109,8 +115,7 @@ const headingId = `${p}-heading`;
         data-preview
         sandbox="allow-scripts"
         title="Live preview of your HTML, CSS and JavaScript"
-        referrerpolicy="no-referrer"
-      ></iframe>
+        referrerpolicy="no-referrer"></iframe>
     </div>
   </div>
 
@@ -145,8 +150,8 @@ const headingId = `${p}-heading`;
 
   <noscript>
     <p class="mt-3 text-sm text-[rgb(var(--text-muted))]">
-      The live preview needs JavaScript. You can still download the default starter as an .html
-      file if scripting is off — but the editor won’t re-render.
+      The live preview needs JavaScript. You can still download the default starter as an .html file
+      if scripting is off — but the editor won’t re-render.
     </p>
   </noscript>
 </section>

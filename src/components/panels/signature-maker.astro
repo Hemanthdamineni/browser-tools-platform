@@ -51,12 +51,7 @@ const colors = [
     download it as a transparent PNG or SVG. Nothing leaves this tab.
   </p>
 
-  <div
-    role="tablist"
-    aria-label="Signature source"
-    class="mt-4 flex flex-wrap gap-1"
-    data-sm-tabs
-  >
+  <div role="tablist" aria-label="Signature source" class="mt-4 flex flex-wrap gap-1" data-sm-tabs>
     <button
       type="button"
       role="tab"
@@ -173,9 +168,7 @@ const colors = [
 
     <div class="rounded-lg border p-3">
       <h3 class="text-sm font-semibold text-[rgb(var(--text))]">Preview</h3>
-      <div
-        class="mt-2 flex min-h-32 items-center justify-center rounded-lg border bg-white p-3"
-      >
+      <div class="mt-2 flex min-h-32 items-center justify-center rounded-lg border bg-white p-3">
         <img data-sm-preview alt="Preview of your signature" class="max-h-32 w-auto" hidden />
         <p class="text-xs text-[rgb(var(--text-muted))]" data-sm-preview-empty>
           Your signature will appear here.
@@ -191,7 +184,11 @@ const colors = [
         </button>
       </div>
 
-      <p class="mt-2 text-xs leading-relaxed text-[rgb(var(--text-muted))]" data-sm-status role="status">
+      <p
+        class="mt-2 text-xs leading-relaxed text-[rgb(var(--text-muted))]"
+        data-sm-status
+        role="status"
+      >
         Draw your signature on the pad above.
       </p>
     </div>

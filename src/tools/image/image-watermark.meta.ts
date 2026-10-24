@@ -153,7 +153,10 @@ export const meta: ToolMeta = {
       title: 'Tiled diagonal text',
       options: { mode: 'text', text: 'CONFIDENTIAL', tiled: true, tileAngle: -30, opacity: 25 },
     },
-    { title: 'Corner text', options: { mode: 'text', text: '© Your Name', position: 'bottom-right' } },
+    {
+      title: 'Corner text',
+      options: { mode: 'text', text: '© Your Name', position: 'bottom-right' },
+    },
   ],
   faq: [
     {

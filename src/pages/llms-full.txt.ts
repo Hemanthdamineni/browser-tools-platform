@@ -15,9 +15,7 @@ export const GET: APIRoute = () => {
   const optionLine = (o: ToolOption): string => {
     const detail = o.help ? ` (${o.help})` : '';
     const extra =
-      o.type === 'select'
-        ? ` — ${o.choices.map((c) => `${c.value}: ${c.label}`).join(' | ')}`
-        : '';
+      o.type === 'select' ? ` — ${o.choices.map((c) => `${c.value}: ${c.label}`).join(' | ')}` : '';
     return `- \`${o.key}\` (${o.type}, default \`${o.default}\`)${extra}: ${o.label}${detail}`;
   };
 
@@ -51,8 +49,12 @@ export const GET: APIRoute = () => {
       lines.push(`- Summary: ${meta.summary}`);
       lines.push(`- Description: ${meta.description}`);
       lines.push(`- Keywords: ${meta.keywords.join(', ')}`);
-      lines.push(`- Input: ${meta.input}${meta.acceptsText ? ' (+ typed text)' : ''}${meta.panel ? ` (custom panel: ${meta.panel})` : ''}${meta.camera ? ' (camera capture)' : ''}`);
-      lines.push(`- Privacy: ${meta.privacy.processing}; network: ${Array.isArray(meta.privacy.network) ? meta.privacy.network.join(', ') : meta.privacy.network}; offline: ${meta.privacy.offline}`);
+      lines.push(
+        `- Input: ${meta.input}${meta.acceptsText ? ' (+ typed text)' : ''}${meta.panel ? ` (custom panel: ${meta.panel})` : ''}${meta.camera ? ' (camera capture)' : ''}`,
+      );
+      lines.push(
+        `- Privacy: ${meta.privacy.processing}; network: ${Array.isArray(meta.privacy.network) ? meta.privacy.network.join(', ') : meta.privacy.network}; offline: ${meta.privacy.offline}`,
+      );
       if (meta.options?.length) {
         lines.push('- Options:');
         for (const o of meta.options) lines.push(optionLine(o));
@@ -60,7 +62,9 @@ export const GET: APIRoute = () => {
       if (meta.examples?.length) {
         lines.push('- Examples:');
         for (const ex of meta.examples) {
-          lines.push(`  - ${ex.title}${ex.input != null ? ` — input: ${JSON.stringify(ex.input)}` : ''}`);
+          lines.push(
+            `  - ${ex.title}${ex.input != null ? ` — input: ${JSON.stringify(ex.input)}` : ''}`,
+          );
         }
       }
       if (meta.faq?.length) {

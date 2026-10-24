@@ -387,9 +387,10 @@ describe('unsharpMask', () => {
 
 describe('compositeOver', () => {
   it('keeps an opaque pixel and replaces a transparent one with the background', () => {
-    const out = compositeOver(buffer(2, 1, (x) => (x === 0 ? [12, 34, 56, 255] : CLEAR)), [
-      255, 255, 255,
-    ]);
+    const out = compositeOver(
+      buffer(2, 1, (x) => (x === 0 ? [12, 34, 56, 255] : CLEAR)),
+      [255, 255, 255],
+    );
     expect(at(out, 0, 0)).toEqual([12, 34, 56, 255]);
     expect(at(out, 1, 0)).toEqual([255, 255, 255, 255]);
   });

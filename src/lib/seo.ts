@@ -134,7 +134,11 @@ export function howToJsonLd(meta: ToolMeta) {
 }
 
 /** Ordered list of pages, used on /tools and /categories/[category]. */
-export function itemListJsonLd(items: { id: string; name: string; url: string }[], name: string, url: string) {
+export function itemListJsonLd(
+  items: { id: string; name: string; url: string }[],
+  name: string,
+  url: string,
+) {
   return {
     '@context': 'https://schema.org',
     '@id': `${absoluteUrl(url)}#item-list`,

@@ -267,8 +267,14 @@ function formatIp(bytes: Uint8Array): string {
       }
     });
     if (bestLength < 2) return groups.map((group) => group.toString(16)).join(':');
-    const before = groups.slice(0, bestStart).map((group) => group.toString(16)).join(':');
-    const after = groups.slice(bestStart + bestLength).map((group) => group.toString(16)).join(':');
+    const before = groups
+      .slice(0, bestStart)
+      .map((group) => group.toString(16))
+      .join(':');
+    const after = groups
+      .slice(bestStart + bestLength)
+      .map((group) => group.toString(16))
+      .join(':');
     return before + '::' + after;
   }
   return '0x' + hex(bytes);
@@ -293,12 +299,14 @@ function decodeGeneralName(node: Tlv): GeneralName {
     case 8:
       return { kind: 'OID', value: decodeOid(node.value) };
     case 4: {
-      const parts = childList(node).flatMap((rdn) => childList(rdn)).map((atv) => {
-        const list = childList(atv);
-        const oid = list[0] === undefined ? '' : decodeOid(list[0].value);
-        const value = list[1] === undefined ? '' : decodeText(list[1]);
-        return (DN_ATTRIBUTES.get(oid)?.short ?? oid) + '=' + value;
-      });
+      const parts = childList(node)
+        .flatMap((rdn) => childList(rdn))
+        .map((atv) => {
+          const list = childList(atv);
+          const oid = list[0] === undefined ? '' : decodeOid(list[0].value);
+          const value = list[1] === undefined ? '' : decodeText(list[1]);
+          return (DN_ATTRIBUTES.get(oid)?.short ?? oid) + '=' + value;
+        });
       return { kind: 'dirName', value: parts.join(', ') };
     }
     default:
@@ -328,7 +336,7 @@ function decodeExtensionValue(oid: string, inner: Uint8Array): string {
     if (oid === '2.5.29.15') {
       const bits = bitStringBits(readTlv(inner, 0, inner.length).value);
       return bits
-        .map((set, index) => (set ? KEY_USAGE_BITS[index] ?? 'bit' + index : null))
+        .map((set, index) => (set ? (KEY_USAGE_BITS[index] ?? 'bit' + index) : null))
         .filter((name): name is string => name !== null)
         .join(', ');
     }
@@ -350,7 +358,9 @@ function decodeExtensionValue(oid: string, inner: Uint8Array): string {
     }
     if (oid === '2.5.29.14' || oid === '2.5.29.35') {
       const inner2 = readTlv(inner, 0, inner.length);
-      return hex(inner2.value).replace(/(..)(?=.)/gu, '$1:').toLowerCase();
+      return hex(inner2.value)
+        .replace(/(..)(?=.)/gu, '$1:')
+        .toLowerCase();
     }
     if (oid === '2.5.29.32') {
       const outer = readTlv(inner, 0, inner.length);
@@ -369,7 +379,15 @@ function decodeExtensionValue(oid: string, inner: Uint8Array): string {
           const parts = childList(description);
           const method = parts[0] === undefined ? '' : decodeOid(parts[0].value);
           const location = parts[1] === undefined ? null : decodeGeneralName(parts[1]);
-          return (method === '1.3.6.1.5.5.7.48.1' ? 'OCSP' : method === '1.3.6.1.5.5.7.48.2' ? 'CA Issuers' : method) + ': ' + (location?.value ?? '');
+          return (
+            (method === '1.3.6.1.5.5.7.48.1'
+              ? 'OCSP'
+              : method === '1.3.6.1.5.5.7.48.2'
+                ? 'CA Issuers'
+                : method) +
+            ': ' +
+            (location?.value ?? '')
+          );
         })
         .join(', ');
     }
@@ -409,7 +427,9 @@ interface CsrInfo {
 function parseCsr(der: Uint8Array): CsrInfo {
   const root = readTlv(der, 0, der.length);
   if (root.tag !== 0x30) {
-    throw new DerError('The outermost element is not a SEQUENCE, so this is not a PKCS#10 request.');
+    throw new DerError(
+      'The outermost element is not a SEQUENCE, so this is not a PKCS#10 request.',
+    );
   }
   const rootParts = childList(root);
   const info = expectTag(rootParts[0], 0x30, 'the request information');
@@ -442,9 +462,12 @@ function parseCsr(der: Uint8Array): CsrInfo {
   const keyAlgorithmNode = expectTag(spkiParts[0], 0x30, 'the key algorithm');
   const keyBitsNode = expectTag(spkiParts[1], 0x03, 'the public key');
   const keyAlgorithmParts = childList(keyAlgorithmNode);
-  const keyAlgorithmOid = decodeOid(expectTag(keyAlgorithmParts[0], 0x06, 'the key algorithm OID').value);
+  const keyAlgorithmOid = decodeOid(
+    expectTag(keyAlgorithmParts[0], 0x06, 'the key algorithm OID').value,
+  );
   const paramsNode = keyAlgorithmParts[1];
-  const curveOid = paramsNode !== undefined && paramsNode.tag === 0x06 ? decodeOid(paramsNode.value) : '';
+  const curveOid =
+    paramsNode !== undefined && paramsNode.tag === 0x06 ? decodeOid(paramsNode.value) : '';
   const curveInfo = CURVES.get(curveOid);
 
   let keyBits = 0;
@@ -466,7 +489,9 @@ function parseCsr(der: Uint8Array): CsrInfo {
   }
 
   const sigAlgParts = childList(signatureAlgorithm);
-  const signatureAlgorithmOid = decodeOid(expectTag(sigAlgParts[0], 0x06, 'the signature algorithm OID').value);
+  const signatureAlgorithmOid = decodeOid(
+    expectTag(sigAlgParts[0], 0x06, 'the signature algorithm OID').value,
+  );
   const signature = signatureNode.value.subarray(1);
 
   const extensions: Extension[] = [];
@@ -482,7 +507,9 @@ function parseCsr(der: Uint8Array): CsrInfo {
         for (const request of values) {
           for (const extension of childList(request)) {
             const extensionParts = childList(extension);
-            const extensionOid = decodeOid(expectTag(extensionParts[0], 0x06, 'an extension OID').value);
+            const extensionOid = decodeOid(
+              expectTag(extensionParts[0], 0x06, 'an extension OID').value,
+            );
             let index = 1;
             let critical = false;
             const maybeCritical = extensionParts[index];
@@ -491,7 +518,8 @@ function parseCsr(der: Uint8Array): CsrInfo {
               index += 1;
             }
             const extValue = extensionParts[index];
-            const inner = extValue !== undefined && extValue.tag === 0x04 ? extValue.value : new Uint8Array(0);
+            const inner =
+              extValue !== undefined && extValue.tag === 0x04 ? extValue.value : new Uint8Array(0);
             extensions.push({
               oid: extensionOid,
               name: EXTENSIONS.get(extensionOid) ?? 'Unknown extension',
@@ -532,7 +560,8 @@ function parseCsr(der: Uint8Array): CsrInfo {
     curve: curveInfo?.name ?? (curveOid === '' ? '' : 'Unknown curve (' + curveOid + ')'),
     keyBits,
     signatureAlgorithmOid,
-    signatureAlgorithm: SIGNATURE_ALGORITHMS.get(signatureAlgorithmOid) ?? 'Unknown (' + signatureAlgorithmOid + ')',
+    signatureAlgorithm:
+      SIGNATURE_ALGORITHMS.get(signatureAlgorithmOid) ?? 'Unknown (' + signatureAlgorithmOid + ')',
     signatureHex: hex(signature).slice(0, 64),
     extensions,
     attributes,
@@ -559,7 +588,8 @@ function extensionsRaw(der: Uint8Array, extensions: Extension[], targetOid: stri
     for (const request of childList(setNode)) {
       for (const extension of childList(request)) {
         const extensionParts = childList(extension);
-        const extensionOid = extensionParts[0] === undefined ? '' : decodeOid(extensionParts[0].value);
+        const extensionOid =
+          extensionParts[0] === undefined ? '' : decodeOid(extensionParts[0].value);
         if (extensionOid !== targetOid) continue;
         const valueNode = extensionParts.find((node) => node.tag === 0x04);
         if (valueNode !== undefined) return valueNode.value;
@@ -575,7 +605,9 @@ async function sha256Fingerprint(bytes: Uint8Array): Promise<string> {
   if (subtle === undefined) return '';
   try {
     const digest = await subtle.digest('SHA-256', new Uint8Array(bytes));
-    return hex(new Uint8Array(digest)).replace(/(..)(?=.)/gu, '$1:').toUpperCase();
+    return hex(new Uint8Array(digest))
+      .replace(/(..)(?=.)/gu, '$1:')
+      .toUpperCase();
   } catch {
     return '';
   }
@@ -587,7 +619,8 @@ async function sha256Fingerprint(bytes: Uint8Array): Promise<string> {
  */
 function ecdsaSignatureToRaw(signature: Uint8Array, width: number): Uint8Array<ArrayBuffer> | null {
   if (width === 0) return null;
-  if ((signature[0] ?? 0) !== 0x30) return signature.length === width * 2 ? new Uint8Array(signature) : null;
+  if ((signature[0] ?? 0) !== 0x30)
+    return signature.length === width * 2 ? new Uint8Array(signature) : null;
   try {
     const parts = childList(readTlv(signature, 0, signature.length));
     const r = parts[0];
@@ -672,7 +705,8 @@ function decodeInput(text: string): { der: Uint8Array; source: string } {
     if (/^[0-9a-f]+$/iu.test(compact) && compact.length % 2 === 0) {
       source = 'hex';
       const bytes = new Uint8Array(compact.length / 2);
-      for (let i = 0; i < bytes.length; i += 1) bytes[i] = Number.parseInt(compact.slice(i * 2, i * 2 + 2), 16);
+      for (let i = 0; i < bytes.length; i += 1)
+        bytes[i] = Number.parseInt(compact.slice(i * 2, i * 2 + 2), 16);
       return { der: bytes, source };
     }
     base64 = compact;
@@ -705,7 +739,8 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   } else {
     text = String(input.text ?? '');
   }
-  if (text.trim() === '') throw new ToolError('No certificate request was provided.', 'Paste a CSR in PEM or DER form.');
+  if (text.trim() === '')
+    throw new ToolError('No certificate request was provided.', 'Paste a CSR in PEM or DER form.');
   if (text.length > MAX_BYTES) throw new ToolError('That is more than 1 MB of input.');
 
   const { der, source: sourceLabel } = decodeInput(text);
@@ -732,14 +767,16 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
     findings.push({
       level: 'error',
       problem: 'The signature does not match the key',
-      detail: 'The request was altered or corrupted after it was signed, so it must not be signed by a CA.',
+      detail:
+        'The request was altered or corrupted after it was signed, so it must not be signed by a CA.',
     });
   }
   if (info.version !== 0) {
     findings.push({
       level: 'error',
       problem: 'Unsupported version ' + info.version,
-      detail: 'PKCS#10 defines only version 0; anything else is malformed or a different structure.',
+      detail:
+        'PKCS#10 defines only version 0; anything else is malformed or a different structure.',
     });
   }
   if (info.keyAlgorithm === 'RSA' && info.keyBits > 0 && info.keyBits < 2048) {
@@ -760,16 +797,21 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
     findings.push({
       level: 'warning',
       problem: 'No subjectAltName extension',
-      detail: 'Clients ignore the Common Name for hostname checks, so a request with only CN=' + clip(commonName, 40) + ' cannot be used for TLS.',
+      detail:
+        'Clients ignore the Common Name for hostname checks, so a request with only CN=' +
+        clip(commonName, 40) +
+        ' cannot be used for TLS.',
     });
   }
   if (sanExtension !== undefined) {
-    const asDns = info.generalNames.filter((name) => name.kind === 'DNS' && /^\d{1,3}(?:\.\d{1,3}){3}$/u.test(name.value));
+    const asDns = info.generalNames.filter(
+      (name) => name.kind === 'DNS' && /^\d{1,3}(?:\.\d{1,3}){3}$/u.test(name.value),
+    );
     for (const name of asDns) {
       if (findings.length >= MAX_FINDINGS) {
-      findingsTruncated = true;
-      break;
-    }
+        findingsTruncated = true;
+        break;
+      }
       findings.push({
         level: 'warning',
         problem: 'IP address stored as a dNSName',
@@ -841,7 +883,8 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
       findings.push({
         level: 'note',
         problem: 'Critical extension is not recognised',
-        detail: extension.oid + ' is marked critical, so a CA must understand it or reject the request.',
+        detail:
+          extension.oid + ' is marked critical, so a CA must understand it or reject the request.',
       });
     }
   }
@@ -862,7 +905,10 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
     findings.push({
       level: 'note',
       problem: 'The signature could not be checked here',
-      detail: 'WebCrypto does not support ' + info.signatureAlgorithm + ' in this browser; the request may still be valid.',
+      detail:
+        'WebCrypto does not support ' +
+        info.signatureAlgorithm +
+        ' in this browser; the request may still be valid.',
     });
   }
   if (verifyResult === 'unavailable') {
@@ -889,12 +935,21 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   const resultNotes: string[] = [];
   const resultWarnings: string[] = [];
   if (!verifySignature) resultNotes.push('Signature verification was switched off.');
-  if (fingerprint === '') resultNotes.push('A SHA-256 fingerprint needs WebCrypto, which is unavailable here.');
+  if (fingerprint === '')
+    resultNotes.push('A SHA-256 fingerprint needs WebCrypto, which is unavailable here.');
   if (errors > 0) resultWarnings.push(errors + ' problem(s) must be fixed before signing.');
   if (findingsTruncated) {
-    resultNotes.push('The findings list stops at ' + MAX_FINDINGS + ' entries; more problems were found.');
+    resultNotes.push(
+      'The findings list stops at ' + MAX_FINDINGS + ' entries; more problems were found.',
+    );
   } else if (droppedFindings > 0) {
-    resultNotes.push('The findings list stops at ' + MAX_FINDINGS + ' entries; ' + droppedFindings + ' more were found.');
+    resultNotes.push(
+      'The findings list stops at ' +
+        MAX_FINDINGS +
+        ' entries; ' +
+        droppedFindings +
+        ' more were found.',
+    );
   }
 
   const verifyLabel =
@@ -918,8 +973,10 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
     warnings,
   };
 
-  if (info.subject.length > MAX_ROWS) resultNotes.push('Only the first ' + MAX_ROWS + ' subject fields are listed.');
-  if (info.extensions.length > MAX_ROWS) resultNotes.push('Only the first ' + MAX_ROWS + ' extensions are listed.');
+  if (info.subject.length > MAX_ROWS)
+    resultNotes.push('Only the first ' + MAX_ROWS + ' subject fields are listed.');
+  if (info.extensions.length > MAX_ROWS)
+    resultNotes.push('Only the first ' + MAX_ROWS + ' extensions are listed.');
 
   if (format === 'subject') {
     return {
@@ -930,7 +987,9 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
           rows:
             info.subject.length === 0
               ? [['-', '-', 'The subject is empty.']]
-              : info.subject.slice(0, MAX_ROWS).map((field) => [field.name, field.short, clip(field.value, 80)]),
+              : info.subject
+                  .slice(0, MAX_ROWS)
+                  .map((field) => [field.name, field.short, clip(field.value, 80)]),
         }),
         render: 'table',
       },
@@ -949,11 +1008,14 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
           rows:
             info.extensions.length === 0
               ? [['-', '-', 'This request asks for no extensions.']]
-              : info.extensions.slice(0, MAX_ROWS).map((extension) => [
-                  extension.name + (extension.name === 'Unknown extension' ? ' (' + extension.oid + ')' : ''),
-                  extension.critical ? 'yes' : 'no',
-                  clip(extension.decoded, 120) || '(empty)',
-                ]),
+              : info.extensions
+                  .slice(0, MAX_ROWS)
+                  .map((extension) => [
+                    extension.name +
+                      (extension.name === 'Unknown extension' ? ' (' + extension.oid + ')' : ''),
+                    extension.critical ? 'yes' : 'no',
+                    clip(extension.decoded, 120) || '(empty)',
+                  ]),
         }),
         render: 'table',
       },
@@ -971,7 +1033,13 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
           headers: ['Level', 'Problem', 'Detail'],
           rows:
             findings.length === 0
-              ? [['ok', 'Nothing to flag', 'The request looks consistent and no common pitfalls were found.']]
+              ? [
+                  [
+                    'ok',
+                    'Nothing to flag',
+                    'The request looks consistent and no common pitfalls were found.',
+                  ],
+                ]
               : shownFindings.map((finding) => [finding.level, finding.problem, finding.detail]),
         }),
         render: 'table',
@@ -984,7 +1052,11 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
 
   const summaryRows: string[][] = [
     ['Source', sourceLabel],
-    ['Subject', clip(info.subject.map((field) => field.short + '=' + field.value).join(', '), 200) || '(empty)'],
+    [
+      'Subject',
+      clip(info.subject.map((field) => field.short + '=' + field.value).join(', '), 200) ||
+        '(empty)',
+    ],
     ['Common Name', commonName || 'n/a'],
     [
       'Subject alt names',
@@ -1000,7 +1072,12 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
     ['Signature algorithm', info.signatureAlgorithm],
     ['Signature check', verifyLabel],
     ['Requested extensions', String(info.extensions.length)],
-    ['Attributes', info.attributes.length === 0 ? 'none' : info.attributes.map((attribute) => attribute.name).join(', ')],
+    [
+      'Attributes',
+      info.attributes.length === 0
+        ? 'none'
+        : info.attributes.map((attribute) => attribute.name).join(', '),
+    ],
     ['Version', String(info.version)],
     ['DER size', der.length + ' bytes'],
     ['SHA-256 fingerprint', fingerprint === '' ? 'n/a' : fingerprint],

@@ -13,11 +13,19 @@ function decodeSvg(output: string): string {
 
 describe('signature-maker', () => {
   it('serialises drawn strokes into a transparent SVG image', () => {
-    const out = run(JSON.stringify([[{ x: 0, y: 0 }, { x: 20, y: 10 }]]), {
-      mode: 'draw',
-      color: '#111827',
-      strokeWidth: 3,
-    });
+    const out = run(
+      JSON.stringify([
+        [
+          { x: 0, y: 0 },
+          { x: 20, y: 10 },
+        ],
+      ]),
+      {
+        mode: 'draw',
+        color: '#111827',
+        strokeWidth: 3,
+      },
+    );
     expect(out.output.startsWith('data:image/svg+xml;base64,')).toBe(true);
     const svg = decodeSvg(out.output);
     expect(svg.startsWith('<svg ')).toBe(true);
@@ -51,7 +59,12 @@ describe('signature-maker', () => {
   });
 
   it('applies the stroke-width and ink-colour options', () => {
-    const strokes = JSON.stringify([[{ x: 0, y: 0 }, { x: 20, y: 10 }]]);
+    const strokes = JSON.stringify([
+      [
+        { x: 0, y: 0 },
+        { x: 20, y: 10 },
+      ],
+    ]);
     const thin = decodeSvg(run(strokes, { mode: 'draw', strokeWidth: 1, color: '#b91c1c' }).output);
     const thick = decodeSvg(
       run(strokes, { mode: 'draw', strokeWidth: 9, color: '#047857' }).output,

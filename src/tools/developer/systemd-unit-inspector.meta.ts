@@ -4,7 +4,8 @@ export const meta: ToolMeta = {
   id: 'systemd-unit-inspector',
   name: 'systemd Unit Inspector',
   category: 'developer',
-  summary: 'Inspect and validate systemd unit files: directives, dependencies, ExecStart and hardening.',
+  summary:
+    'Inspect and validate systemd unit files: directives, dependencies, ExecStart and hardening.',
   description:
     'Paste or drop a systemd unit file and see what systemd would make of it. The inspector parses sections, comments and backslash continuations, lists every directive with its line number, resolves the ordering and requirement dependencies plus the install targets, tokenises ExecStart the way systemd does, and reports the mistakes systemd refuses to load — a line without an equals sign, a directive outside any section, an unknown key, a service with nothing to run, more than one ExecStart without Type=oneshot, and Restart=always on a oneshot service. It also audits hardening directives and explains the traps that systemd silently tolerates, such as repeated single-value keys and shell syntax that no shell will interpret.',
   keywords: [
@@ -70,7 +71,7 @@ export const meta: ToolMeta = {
     },
     {
       q: 'What counts as an unknown key?',
-      a: 'A key in [Unit], [Service], [Socket], [Timer], [Path] or [Install] that is not in the inspector\'s table of systemd directives. Keys beginning with X- are your own and are never flagged. Because new systemd versions add directives, these are reported as notes rather than errors.',
+      a: "A key in [Unit], [Service], [Socket], [Timer], [Path] or [Install] that is not in the inspector's table of systemd directives. Keys beginning with X- are your own and are never flagged. Because new systemd versions add directives, these are reported as notes rather than errors.",
     },
     {
       q: 'Can it follow dependencies into other unit files?',

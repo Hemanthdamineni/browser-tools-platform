@@ -4,7 +4,8 @@ export const meta: ToolMeta = {
   id: 'font-inspector',
   name: 'Font Inspector',
   category: 'developer',
-  summary: 'Inspect TTF, OTF, TTC, WOFF and WOFF2 fonts: tables, names, embedding rights and glyph coverage.',
+  summary:
+    'Inspect TTF, OTF, TTC, WOFF and WOFF2 fonts: tables, names, embedding rights and glyph coverage.',
   description:
     'Drop a font file and read its insides without installing it: the sfnt table directory (or the WOFF/WOFF2 wrapper around it), family and licence names, OpenType version, glyph count, units per em, weight and width class, variable-font axes, colour-font tables, hinting tables and the fsType embedding rights the foundry set. Coverage shows which Unicode blocks the font really maps, and if you paste some text the inspector lists exactly which characters the font cannot render, which is what font subsetting decisions hinge on. Table checksums are recomputed so a truncated or edited font is spotted, and every finding is written as a sentence with the table it came from.',
   keywords: [
@@ -24,7 +25,8 @@ export const meta: ToolMeta = {
   ],
   privacy: { processing: 'on-device', network: 'none', offline: true },
   input: 'file',
-  accept: '.ttf,.otf,.ttc,.otc,.woff,.woff2,font/ttf,font/otf,font/woff,font/woff2,application/font-sfnt',
+  accept:
+    '.ttf,.otf,.ttc,.otc,.woff,.woff2,font/ttf,font/otf,font/woff,font/woff2,application/font-sfnt',
   options: [
     {
       key: 'format',

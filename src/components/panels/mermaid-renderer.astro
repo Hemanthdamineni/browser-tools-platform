@@ -68,7 +68,13 @@ const opening = examples[0]?.input ?? '';
         data-source
         set:text={opening}
       />
-      <p class="mt-1 text-xs text-[rgb(var(--text-muted))]" data-status role="status" aria-live="polite"></p>
+      <p
+        class="mt-1 text-xs text-[rgb(var(--text-muted))]"
+        data-status
+        role="status"
+        aria-live="polite"
+      >
+      </p>
     </div>
 
     <div class="flex min-w-0 flex-col">
@@ -147,13 +153,16 @@ const opening = examples[0]?.input ?? '';
       <span class="text-sm font-semibold text-[rgb(var(--text))]">Result</span>
     </div>
     <p class="mb-1 text-xs text-[rgb(var(--text-muted))]">
-      The serialised SVG below is exactly what Export SVG saves, and what the PNG export
-      rasterises onto a canvas. The preview above is the same markup inside a sandboxed iframe.
+      The serialised SVG below is exactly what Export SVG saves, and what the PNG export rasterises
+      onto a canvas. The preview above is the same markup inside a sandboxed iframe.
     </p>
     <details class="mt-2 rounded-lg border">
       <summary class="cursor-pointer select-none px-3 py-2 text-sm font-medium">SVG source</summary>
       <div class="border-t p-3">
-        <pre class="max-h-64 overflow-auto rounded-lg border p-3 text-xs leading-relaxed" data-output></pre>
+        <pre
+          class="max-h-64 overflow-auto rounded-lg border p-3 text-xs leading-relaxed"
+          data-output>
+        </pre>
       </div>
     </details>
   </div>

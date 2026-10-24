@@ -44,7 +44,15 @@ export const meta: ToolMeta = {
       default: 'transparent',
       help: '“transparent”, or a hex colour such as #ffffff, fills the space between the photos.',
     },
-    { key: 'radius', label: 'Rounded corners (px)', type: 'range', default: 0, min: 0, max: 64, step: 1 },
+    {
+      key: 'radius',
+      label: 'Rounded corners (px)',
+      type: 'range',
+      default: 0,
+      min: 0,
+      max: 64,
+      step: 1,
+    },
     { key: 'border', label: 'Cell border', type: 'boolean', default: false },
     {
       key: 'borderColor',

@@ -37,8 +37,10 @@ async function outPixels(result: { outputs: { blob: Blob }[] }): Promise<Uint8Cl
   return blobPixels(result.outputs[0]!.blob);
 }
 
-const run = (options: Record<string, string | number | boolean> = {}, file = makeFile('photo.png')) =>
-  tool.run({ files: [file], options });
+const run = (
+  options: Record<string, string | number | boolean> = {},
+  file = makeFile('photo.png'),
+) => tool.run({ files: [file], options });
 
 /* -------------------------------------------------------------------------- */
 /*  Metadata                                                                   */
@@ -148,7 +150,13 @@ describe('image-upscale run', () => {
 
   it('keeps the four quadrants of a 2×2 image intact under nearest at 2×', async () => {
     useSource(2, 2, (x, y) =>
-      y === 0 ? (x === 0 ? [255, 0, 0, 255] : [0, 255, 0, 255]) : x === 0 ? [0, 0, 255, 255] : [255, 255, 255, 255],
+      y === 0
+        ? x === 0
+          ? [255, 0, 0, 255]
+          : [0, 255, 0, 255]
+        : x === 0
+          ? [0, 0, 255, 255]
+          : [255, 255, 255, 255],
     );
     const result = await run({ scale: '2', interpolation: 'nearest', sharpen: 0 });
     const pixels = await outPixels(result);
@@ -183,7 +191,12 @@ describe('image-upscale run', () => {
 
   it('reports the shape of the work in stats and notes', async () => {
     useSource(4, 2);
-    const result = await run({ scale: '4', interpolation: 'lanczos3', sharpen: 80, format: 'webp' });
+    const result = await run({
+      scale: '4',
+      interpolation: 'lanczos3',
+      sharpen: 80,
+      format: 'webp',
+    });
     expect(result.stats).toMatchObject({
       size: '16 × 8',
       factor: '4×',

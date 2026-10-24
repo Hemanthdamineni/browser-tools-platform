@@ -120,8 +120,16 @@ const p = meta.id;
         </div>
         <div>
           <label class="text-xs font-medium" for={`${p}-logo`}>Logo (optional)</label>
-          <input class="field mt-1" id={`${p}-logo`} data-logo type="file" accept="image/png,image/jpeg" />
-          <p class="mt-1 text-xs text-[rgb(var(--text-muted))]" data-logo-preview>No logo selected.</p>
+          <input
+            class="field mt-1"
+            id={`${p}-logo`}
+            data-logo
+            type="file"
+            accept="image/png,image/jpeg"
+          />
+          <p class="mt-1 text-xs text-[rgb(var(--text-muted))]" data-logo-preview>
+            No logo selected.
+          </p>
         </div>
       </div>
 
@@ -149,7 +157,12 @@ const p = meta.id;
           <button type="button" class="btn btn-subtle flex-1" data-load-draft>Load draft</button>
           <button type="button" class="btn btn-ghost" data-clear-draft>Clear</button>
         </div>
-        <p class="text-xs text-[rgb(var(--text-muted))]" data-draft-status role="status" aria-live="polite">
+        <p
+          class="text-xs text-[rgb(var(--text-muted))]"
+          data-draft-status
+          role="status"
+          aria-live="polite"
+        >
           Drafts stay on this device.
         </p>
       </div>

@@ -261,7 +261,10 @@ export function mountWebcamTestPanel(root: HTMLElement): void {
 
   function updateReadout(): void {
     const settings = trackSettings();
-    resolutionValue.textContent = formatResolution(settings?.width ?? null, settings?.height ?? null);
+    resolutionValue.textContent = formatResolution(
+      settings?.width ?? null,
+      settings?.height ?? null,
+    );
     fpsValue.textContent = frameRateText();
     audioValue.textContent = live
       ? stream && stream.getAudioTracks().length > 0
@@ -329,16 +332,13 @@ export function mountWebcamTestPanel(root: HTMLElement): void {
   async function refreshReport(state: WebcamState, errorMessage: string | null): Promise<void> {
     const facts = collectFacts(state, errorMessage);
     try {
-      const result = await runToolById<TextRunResult>(
-        toolId,
-        {
-          text: JSON.stringify(facts),
-          options: {
-            resolution: resolutionSelect.value,
-            includeSettings: settingsToggle.checked,
-          },
+      const result = await runToolById<TextRunResult>(toolId, {
+        text: JSON.stringify(facts),
+        options: {
+          resolution: resolutionSelect.value,
+          includeSettings: settingsToggle.checked,
         },
-      );
+      });
       renderTextResult(reportEl, result);
       renderStats(result.stats);
       renderNotes(result.notes, result.warnings);
@@ -506,7 +506,8 @@ export function mountWebcamTestPanel(root: HTMLElement): void {
         // A refused microphone must not cost us the camera test.
         if (!wantsAudio) throw error;
         media = await openStream(false);
-        audioWarning = 'The microphone could not be opened — the preview continues with video only.';
+        audioWarning =
+          'The microphone could not be opened — the preview continues with video only.';
       }
 
       stream = media;

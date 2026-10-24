@@ -35,7 +35,7 @@ async function wavSamples(blob: Blob): Promise<DataView> {
 }
 
 /** Install a fake denoiser built from a per-frame function. */
-function installSeam(process: (frame: Float32Array) => Float32Array): void {
+function installSeam(process: (frame: Float32Array) => Float32Array<ArrayBuffer>): void {
   setDenoiserFactory(() => Promise.resolve(() => ({ process, close: () => {} })));
 }
 

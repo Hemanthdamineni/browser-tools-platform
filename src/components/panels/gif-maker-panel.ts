@@ -600,8 +600,7 @@ export function mountGifMakerPanel(root: HTMLElement): void {
     frames = frames.slice();
     frames[index] = { ...frames[index]!, delayCs: next };
     input.value = String(next);
-    const unit =
-      input.parentElement?.querySelector<HTMLSpanElement>('span:last-of-type') ?? null;
+    const unit = input.parentElement?.querySelector<HTMLSpanElement>('span:last-of-type') ?? null;
     if (unit) unit.textContent = `cs · ${centisecondsToFps(next)} fps`;
     updateDuration();
     announceCurrent(timelineSummary());
@@ -784,7 +783,8 @@ export function mountGifMakerPanel(root: HTMLElement): void {
     outputsEl.innerHTML = '';
     for (const output of result.outputs) {
       const li = document.createElement('li');
-      li.className = 'flex flex-wrap items-center justify-between gap-3 rounded-lg border px-3 py-2';
+      li.className =
+        'flex flex-wrap items-center justify-between gap-3 rounded-lg border px-3 py-2';
       const preview = document.createElement('img');
       const url = URL.createObjectURL(output.blob);
       resultUrls.add(url);

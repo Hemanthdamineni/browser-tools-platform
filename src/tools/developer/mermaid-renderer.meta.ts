@@ -4,8 +4,7 @@ export const meta: ToolMeta = {
   id: 'mermaid-renderer',
   name: 'Mermaid Renderer',
   category: 'developer',
-  summary:
-    'Edit Mermaid diagram source and watch a live SVG render, then export the SVG or a PNG.',
+  summary: 'Edit Mermaid diagram source and watch a live SVG render, then export the SVG or a PNG.',
   description:
     'A live Mermaid editor: type a Mermaid diagram on the left and the SVG render updates on the right as you type, with syntax errors shown inline. Switch between light and dark themes, zoom the preview, and export the finished diagram as an SVG or as a raster PNG. Everything runs in this tab — your diagram never leaves the browser.',
   keywords: [
@@ -74,9 +73,21 @@ export const meta: ToolMeta = {
     },
   ],
   examples: [
-    { title: 'Flowchart', input: 'flowchart TD\n  A[Start] --> B{Is it working?}\n  B -- Yes --> C[Great!]\n  B -- No --> D[Fix it]\n  D --> B' },
-    { title: 'Sequence', input: 'sequenceDiagram\n  participant Alice\n  participant Bob\n  Alice->>John: Hello John, how are you?\n  loop Healthcheck\n    John->>John: Fight against hypochondria\n  end\n  Note right of John: Rational thoughts prevail!\n  John-->>Alice: Great!\n  John->>Bob: How about you?\n  Bob-->>John: Jolly good!' },
-    { title: 'Gantt', input: 'gantt\n  title A Gantt Diagram\n  dateFormat YYYY-MM-DD\n  section Section\n    A task :a1, 2023-01-01, 30d\n    Another task :after a1, 20d\n  section Another\n    Task in sec :2023-01-12, 12d\n    another task :24d' },
+    {
+      title: 'Flowchart',
+      input:
+        'flowchart TD\n  A[Start] --> B{Is it working?}\n  B -- Yes --> C[Great!]\n  B -- No --> D[Fix it]\n  D --> B',
+    },
+    {
+      title: 'Sequence',
+      input:
+        'sequenceDiagram\n  participant Alice\n  participant Bob\n  Alice->>John: Hello John, how are you?\n  loop Healthcheck\n    John->>John: Fight against hypochondria\n  end\n  Note right of John: Rational thoughts prevail!\n  John-->>Alice: Great!\n  John->>Bob: How about you?\n  Bob-->>John: Jolly good!',
+    },
+    {
+      title: 'Gantt',
+      input:
+        'gantt\n  title A Gantt Diagram\n  dateFormat YYYY-MM-DD\n  section Section\n    A task :a1, 2023-01-01, 30d\n    Another task :after a1, 20d\n  section Another\n    Task in sec :2023-01-12, 12d\n    another task :24d',
+    },
   ],
   faq: [
     {

@@ -144,16 +144,10 @@ export function applyFieldValue(
       // A dropdown and a list are both choice fields, but pdf-lib exposes them
       // through different accessors.
       const choice =
-        field.kind === 'list'
-          ? form.getOptionList(field.name)
-          : form.getDropdown(field.name);
+        field.kind === 'list' ? form.getOptionList(field.name) : form.getDropdown(field.name);
       const allowed = choice.getOptions();
       const selected = (
-        Array.isArray(value)
-          ? value
-          : typeof value === 'string' && value !== ''
-            ? [value]
-            : []
+        Array.isArray(value) ? value : typeof value === 'string' && value !== '' ? [value] : []
       ).filter(
         (option): option is string => typeof option === 'string' && allowed.includes(option),
       );

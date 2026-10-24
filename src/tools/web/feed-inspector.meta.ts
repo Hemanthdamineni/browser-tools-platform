@@ -4,7 +4,8 @@ export const meta: ToolMeta = {
   id: 'feed-inspector',
   name: 'Feed Inspector',
   category: 'web',
-  summary: 'Inspect an RSS, Atom or RDF feed: channel details, items, enclosures and spec problems.',
+  summary:
+    'Inspect an RSS, Atom or RDF feed: channel details, items, enclosures and spec problems.',
   description:
     'Paste or drop a feed and see what it actually contains: the dialect and version, channel title, link, language and generator, every item with its date, identifier, author and enclosure, and a list of problems — missing required elements, malformed or zone-less dates, duplicate identifiers, broken links and enclosure details that podcast directories reject.',
   keywords: [

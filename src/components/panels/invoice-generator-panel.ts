@@ -166,7 +166,11 @@ export function validateModel(model: InvoiceDraft): string[] {
   if (!model.to.name.trim()) errors.push('Enter a recipient (to) name.');
   if (!model.currency.trim()) errors.push('Enter a currency code.');
 
-  if (!Number.isFinite(model.discountPercent) || model.discountPercent < 0 || model.discountPercent > 100) {
+  if (
+    !Number.isFinite(model.discountPercent) ||
+    model.discountPercent < 0 ||
+    model.discountPercent > 100
+  ) {
     errors.push('Discount must be between 0 and 100%.');
   }
 
@@ -231,7 +235,16 @@ export function serializeDraft(model: InvoiceDraft): string {
   return JSON.stringify(model);
 }
 
-const PARTY_KEYS = ['name', 'line1', 'line2', 'city', 'postal', 'country', 'email', 'phone'] as const;
+const PARTY_KEYS = [
+  'name',
+  'line1',
+  'line2',
+  'city',
+  'postal',
+  'country',
+  'email',
+  'phone',
+] as const;
 
 function isParty(v: unknown): v is PartyDetails {
   if (!v || typeof v !== 'object') return false;
@@ -363,7 +376,20 @@ function formatDate(iso: string): string {
   const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
   if (!m) return iso;
   const [, y, mo, d] = m;
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const months = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
   const month = months[Number(mo) - 1] ?? mo;
   return `${month} ${Number(d)} ${y}`;
 }
@@ -404,7 +430,10 @@ async function embedLogo(
  * with the output of `computeTotals` so the drawing never does arithmetic.
  * Returns the raw PDF bytes.
  */
-export async function buildPdfBytes(model: InvoiceDraft, totals: InvoiceTotals): Promise<Uint8Array> {
+export async function buildPdfBytes(
+  model: InvoiceDraft,
+  totals: InvoiceTotals,
+): Promise<Uint8Array> {
   const doc = await PDFDocument.create();
   doc.setTitle(model.invoiceNumber || 'Invoice');
   doc.setProducer('Invoice Generator');
@@ -458,9 +487,7 @@ export async function buildPdfBytes(model: InvoiceDraft, totals: InvoiceTotals):
 
   const toX = MARGIN + colW + 24;
   drawMultiline(page, bold, 'Bill To', toX, blockTop, 10, colW, GREY);
-  const toText = [model.to.name, model.to.line1, model.to.line2]
-    .filter((s) => s.trim())
-    .join('\n');
+  const toText = [model.to.name, model.to.line1, model.to.line2].filter((s) => s.trim()).join('\n');
   drawMultiline(page, font, toText || '—', toX, blockTop - 16, 10, colW);
   if (model.to.email || model.to.phone) {
     const contact = [model.to.email, model.to.phone].filter(Boolean).join(' · ');
@@ -474,7 +501,12 @@ export async function buildPdfBytes(model: InvoiceDraft, totals: InvoiceTotals):
   const cols = [
     { label: 'Description', align: 'left' as const, x: MARGIN, w: CONTENT_W * 0.38 },
     { label: 'Qty', align: 'right' as const, x: MARGIN + CONTENT_W * 0.38, w: CONTENT_W * 0.08 },
-    { label: 'Unit Price', align: 'right' as const, x: MARGIN + CONTENT_W * 0.46, w: CONTENT_W * 0.18 },
+    {
+      label: 'Unit Price',
+      align: 'right' as const,
+      x: MARGIN + CONTENT_W * 0.46,
+      w: CONTENT_W * 0.18,
+    },
     { label: 'Tax', align: 'right' as const, x: MARGIN + CONTENT_W * 0.64, w: CONTENT_W * 0.1 },
     { label: 'Amount', align: 'right' as const, x: MARGIN + CONTENT_W * 0.74, w: CONTENT_W * 0.26 },
   ];
@@ -495,7 +527,13 @@ export async function buildPdfBytes(model: InvoiceDraft, totals: InvoiceTotals):
     const blockH = Math.max(rowH, descLines.length * 11 + 6);
     // stripe every other row
     if (i % 2 === 1) {
-      page.drawRectangle({ x: MARGIN, y: y - blockH, width: CONTENT_W, height: blockH, color: LIGHT });
+      page.drawRectangle({
+        x: MARGIN,
+        y: y - blockH,
+        width: CONTENT_W,
+        height: blockH,
+        color: LIGHT,
+      });
     }
     drawMultiline(page, font, line.description || '—', MARGIN + 4, y - 3, 9, cols[0]!.w - 8);
     const cells: Array<{ text: string; col: (typeof cols)[number] }> = [
@@ -528,15 +566,31 @@ export async function buildPdfBytes(model: InvoiceDraft, totals: InvoiceTotals):
     ['Total tax', formatMoney(totals.taxTotalCents, currency), false],
   ];
   if (model.discountPercent > 0) {
-    rows.push([`Discount (${model.discountPercent}%)`, `−${formatMoney(totals.discountCents, currency)}`, false]);
+    rows.push([
+      `Discount (${model.discountPercent}%)`,
+      `−${formatMoney(totals.discountCents, currency)}`,
+      false,
+    ]);
   }
   rows.push(['Grand total', formatMoney(totals.grandTotalCents, currency), true]);
   rows.forEach(([label, value, strong], i) => {
     const ry = y - 10 - i * rowHeight;
     if (strong) {
-      page.drawRectangle({ x: totalsX, y: ry - 4, width: totalsW, height: rowHeight, color: LIGHT });
+      page.drawRectangle({
+        x: totalsX,
+        y: ry - 4,
+        width: totalsW,
+        height: rowHeight,
+        color: LIGHT,
+      });
     }
-    page.drawText(label, { x: totalsX + 6, y: ry, size: 10, font: strong ? bold : font, color: DARK });
+    page.drawText(label, {
+      x: totalsX + 6,
+      y: ry,
+      size: 10,
+      font: strong ? bold : font,
+      color: DARK,
+    });
     page.drawText(value, {
       x: totalsX + totalsW - 6 - (strong ? bold : font).widthOfTextAtSize(value, 10),
       y: ry,
@@ -566,7 +620,9 @@ export async function buildPdfBytes(model: InvoiceDraft, totals: InvoiceTotals):
 /* -------------------------------------------------------------------------- */
 
 function val(root: ParentNode, selector: string): string {
-  const el = root.querySelector<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>(selector);
+  const el = root.querySelector<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>(
+    selector,
+  );
   return el ? el.value : '';
 }
 
@@ -591,7 +647,8 @@ export function mountInvoiceGeneratorPanel(root: HTMLElement): void {
   const resultWrap = root.querySelector<HTMLElement>('[data-result-wrap]')!;
   const reportEl = root.querySelector<HTMLElement>('[data-report]')!;
 
-  if (!linesBody || !addLineBtn || !logoInput || !logoPreview || !totalsHost || !generateBtn) return;
+  if (!linesBody || !addLineBtn || !logoInput || !logoPreview || !totalsHost || !generateBtn)
+    return;
 
   let logoDataUrl = '';
 
@@ -665,12 +722,15 @@ export function mountInvoiceGeneratorPanel(root: HTMLElement): void {
     const model = collectModel();
     const totals = computeTotals(model);
     const currency = model.currency || 'USD';
-    const lines = [
+    const lines: [string, string][] = [
       ['Subtotal', formatMoney(totals.subtotalCents, currency)],
       ['Total tax', formatMoney(totals.taxTotalCents, currency)],
     ];
     if (model.discountPercent > 0) {
-      lines.push([`Discount (${model.discountPercent}%)`, `−${formatMoney(totals.discountCents, currency)}`]);
+      lines.push([
+        `Discount (${model.discountPercent}%)`,
+        `−${formatMoney(totals.discountCents, currency)}`,
+      ]);
     }
     lines.push(['Grand total', formatMoney(totals.grandTotalCents, currency)]);
     totalsHost.innerHTML = '';
@@ -698,7 +758,9 @@ export function mountInvoiceGeneratorPanel(root: HTMLElement): void {
   function applyModel(model: InvoiceDraft): void {
     logoDataUrl = model.logoDataUrl || '';
     const set = (selector: string, value: string) => {
-      const el = root.querySelector<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>(selector);
+      const el = root.querySelector<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>(
+        selector,
+      );
       if (el) el.value = value;
     };
     set('[data-from-name]', model.from.name);
@@ -777,7 +839,10 @@ export function mountInvoiceGeneratorPanel(root: HTMLElement): void {
       try {
         const result = await runToolById<TextRunResult>(toolId, {
           text: '',
-          options: { model: serializeDraft(model), outputName: `${model.invoiceNumber || 'invoice'}.pdf` },
+          options: {
+            model: serializeDraft(model),
+            outputName: `${model.invoiceNumber || 'invoice'}.pdf`,
+          },
         });
         // The tool returns a data URL; turn it into a blob and download it.
         const match = /^data:([^;]+);base64,(.*)$/s.exec(result.output);
@@ -785,10 +850,16 @@ export function mountInvoiceGeneratorPanel(root: HTMLElement): void {
         const binary = atob(match[2]!);
         const bytes = new Uint8Array(binary.length);
         for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-        downloadBlob(new Blob([bytes.buffer], { type: 'application/pdf' }), result.filename ?? 'invoice.pdf');
+        downloadBlob(
+          new Blob([bytes.buffer], { type: 'application/pdf' }),
+          result.filename ?? 'invoice.pdf',
+        );
         if (resultWrap) resultWrap.hidden = false;
         if (reportEl) {
-          renderTextResult(reportEl, { output: `${result.notes?.join('\n') ?? ''}`, render: 'text' });
+          renderTextResult(reportEl, {
+            output: `${result.notes?.join('\n') ?? ''}`,
+            render: 'text',
+          });
         }
         clearError(errorBox);
       } catch (err) {

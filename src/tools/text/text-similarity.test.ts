@@ -125,7 +125,9 @@ describe('text-similarity', () => {
   });
 
   it('folds case for non-ASCII scripts', async () => {
-    const { parsed } = await table('\u041f\u0440\u0438\u0432\u0435\u0442\n\u043f\u0440\u0438\u0432\u0435\u0442');
+    const { parsed } = await table(
+      '\u041f\u0440\u0438\u0432\u0435\u0442\n\u043f\u0440\u0438\u0432\u0435\u0442',
+    );
     expect(parsed.rows[0]?.[2]).toBe('0');
   });
 
@@ -147,7 +149,10 @@ describe('text-similarity', () => {
 
   it('handles a few hundred lines in one batch', async () => {
     const ref = 'a'.repeat(20);
-    const lines = Array.from({ length: 300 }, (_, i) => ref.slice(0, 17) + String(i).padStart(3, '0'));
+    const lines = Array.from(
+      { length: 300 },
+      (_, i) => ref.slice(0, 17) + String(i).padStart(3, '0'),
+    );
     const { parsed } = await table(ref + '\n' + lines.join('\n'), { limit: 5000 });
     expect(parsed.rows).toHaveLength(300);
   });

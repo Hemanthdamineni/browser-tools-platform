@@ -27,7 +27,10 @@ import { meta } from './pomodoro-timer.meta';
 export function parseSnapshot(text: string): TimerSnapshot {
   const raw = (text ?? '').trim();
   if (!raw) {
-    throw new ToolError('No timer session has been recorded yet.', 'Press Start on the timer above.');
+    throw new ToolError(
+      'No timer session has been recorded yet.',
+      'Press Start on the timer above.',
+    );
   }
   let parsed: unknown;
   try {
@@ -36,12 +39,18 @@ export function parseSnapshot(text: string): TimerSnapshot {
     throw new ToolError('The timer session could not be read.', 'Reload the page and try again.');
   }
   if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
-    throw new ToolError('The timer session is not in the expected shape.', 'Reload the page and try again.');
+    throw new ToolError(
+      'The timer session is not in the expected shape.',
+      'Reload the page and try again.',
+    );
   }
   const snapshot = parsed as Partial<TimerSnapshot>;
   const phase = snapshot.state?.phase;
   if (phase !== 'working' && phase !== 'shortBreak' && phase !== 'longBreak' && phase !== 'idle') {
-    throw new ToolError('The timer session holds no valid phase.', 'Reload the page and try again.');
+    throw new ToolError(
+      'The timer session holds no valid phase.',
+      'Reload the page and try again.',
+    );
   }
   return snapshot as TimerSnapshot;
 }
@@ -58,10 +67,7 @@ export function buildReport(
     ['Phase', phaseLabel(state.phase)],
     ['Time left', formatClock(remaining)],
     ['Completed work phases', String(state.completedSessions)],
-    [
-      'Work phases this cycle',
-      `${state.completedWork} / ${settings.cyclesBeforeLongBreak}`,
-    ],
+    ['Work phases this cycle', `${state.completedWork} / ${settings.cyclesBeforeLongBreak}`],
     ['Work', `${settings.workMinutes} min`],
     ['Short break', `${settings.shortBreakMinutes} min`],
     ['Long break', `${settings.longBreakMinutes} min`],

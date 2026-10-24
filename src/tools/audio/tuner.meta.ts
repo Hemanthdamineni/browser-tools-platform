@@ -4,7 +4,8 @@ export const meta: ToolMeta = {
   id: 'tuner',
   name: 'Tuner',
   category: 'audio',
-  summary: 'Tune an instrument from your microphone: see the note, the cents deviation and a needle.',
+  summary:
+    'Tune an instrument from your microphone: see the note, the cents deviation and a needle.',
   description:
     'Open your microphone and the tuner detects the pitch of what you play or sing — equal temperament with A4 = 440 Hz. It shows the nearest note, how many cents sharp or flat it is on a live needle, and the reference frequency for every note. You can recalibrate A4 (e.g. 442 or the baroque 415) and capture a session to review several readings as a table. Everything happens in this tab — no audio ever leaves your device.',
   keywords: [

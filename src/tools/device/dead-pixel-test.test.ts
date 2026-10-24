@@ -86,8 +86,12 @@ describe('dead-pixel-test palette output', () => {
   });
 
   it('clamps a silly interval back into range', () => {
-    expect((run('', { intervalMs: 1, autoCycle: true }).notes ?? []).join(' ')).toMatch(/every 0.5s/);
-    expect((run('', { intervalMs: 999999, autoCycle: true }).notes ?? []).join(' ')).toMatch(/every 60s/);
+    expect((run('', { intervalMs: 1, autoCycle: true }).notes ?? []).join(' ')).toMatch(
+      /every 0.5s/,
+    );
+    expect((run('', { intervalMs: 999999, autoCycle: true }).notes ?? []).join(' ')).toMatch(
+      /every 60s/,
+    );
   });
 });
 

@@ -79,7 +79,10 @@ export const meta: ToolMeta = {
   ],
   examples: [
     { title: 'Make a scanned English PDF searchable', options: { language: 'eng', scale: 2 } },
-    { title: 'Read a German letter at a finer render scale', options: { language: 'deu', scale: 3 } },
+    {
+      title: 'Read a German letter at a finer render scale',
+      options: { language: 'deu', scale: 3 },
+    },
     { title: 'OCR only the first three pages', options: { language: 'eng', pages: '1-3' } },
   ],
   article: [

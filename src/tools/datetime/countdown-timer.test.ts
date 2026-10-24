@@ -25,8 +25,7 @@ const finishedAt = (id: string, label: string, durationMs: number, endAt: number
 
 const NOW = 1_000_000;
 
-const parse = (output: string) =>
-  JSON.parse(output) as { headers: string[]; rows: string[][] };
+const parse = (output: string) => JSON.parse(output) as { headers: string[]; rows: string[][] };
 
 describe('countdown-timer tool', () => {
   it('is a stable datetime panel tool that runs entirely on-device', () => {

@@ -25,7 +25,8 @@ export const meta: ToolMeta = {
   ],
   privacy: { processing: 'on-device', network: 'none', offline: true },
   input: 'file',
-  accept: '.xlsx,.xlsm,.xlsb,.xls,.ods,.csv,.tsv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,application/vnd.oasis.opendocument.spreadsheet,text/csv,text/tab-separated-values,text/plain',
+  accept:
+    '.xlsx,.xlsm,.xlsb,.xls,.ods,.csv,.tsv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,application/vnd.oasis.opendocument.spreadsheet,text/csv,text/tab-separated-values,text/plain',
   // The interactive flow — a live sheet switcher and grid preview — cannot be
   // expressed by the generic option form, so the tool opts into its own panel.
   // The options below are the conversion parameters the panel drives; they are

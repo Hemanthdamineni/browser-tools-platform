@@ -131,7 +131,8 @@ export function buildOcrPlan(values: OptionValues, totalPages: number): OcrPlan 
 /** A plain-language summary of a plan, for the panel's live region. */
 export function describePlan(plan: OcrPlan, totalPages: number): string {
   const count = plan.pages.length;
-  const pages = count === totalPages ? `all ${totalPages} pages` : `${count} of ${totalPages} pages`;
+  const pages =
+    count === totalPages ? `all ${totalPages} pages` : `${count} of ${totalPages} pages`;
   return `${pages} · ${ocrLanguageLabel(plan.language)} · ${plan.scale}× render scale`;
 }
 
@@ -569,7 +570,8 @@ export async function mountPdfOcrPanel(root: HTMLElement): Promise<void> {
     } catch (error) {
       if (generation !== runGeneration) return;
       const err = error as Error & { hint?: string };
-      if (err.name !== 'AbortError') showError(errorBox, err.message || 'Making the PDF failed', err.hint);
+      if (err.name !== 'AbortError')
+        showError(errorBox, err.message || 'Making the PDF failed', err.hint);
       else progressMsg.textContent = 'Cancelled';
     } finally {
       if (generation === runGeneration) {

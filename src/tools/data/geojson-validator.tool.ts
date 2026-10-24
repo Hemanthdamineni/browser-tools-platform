@@ -69,16 +69,27 @@ function checkBbox(state: State, value: unknown, path: string): void {
     const low = numbers[i] ?? 0;
     const high = numbers[i + half] ?? 0;
     if (low > high) {
-      report(state, path, 'warning', 'bbox minimum exceeds maximum', 'Element ' + i + ' is ' + low + ' but element ' + (i + half) + ' is ' + high + '.');
+      report(
+        state,
+        path,
+        'warning',
+        'bbox minimum exceeds maximum',
+        'Element ' + i + ' is ' + low + ' but element ' + (i + half) + ' is ' + high + '.',
+      );
     }
   }
 }
 
 function checkPosition(state: State, value: unknown, path: string): void {
-  const valid =
-    Array.isArray(value) && value.length >= 2 && value.every(isFiniteNumber);
+  const valid = Array.isArray(value) && value.length >= 2 && value.every(isFiniteNumber);
   if (!valid) {
-    report(state, path, 'error', 'Invalid position', 'A position must be an array of at least two numbers.');
+    report(
+      state,
+      path,
+      'error',
+      'Invalid position',
+      'A position must be an array of at least two numbers.',
+    );
     return;
   }
   const numbers = value as number[];
@@ -88,13 +99,31 @@ function checkPosition(state: State, value: unknown, path: string): void {
   const lon = numbers[0] ?? 0;
   const lat = numbers[1] ?? 0;
   if (numbers.length > 3) {
-    report(state, path, 'warning', 'Extra position values', 'RFC 7946 positions hold two or three numbers; this one has ' + numbers.length + '.');
+    report(
+      state,
+      path,
+      'warning',
+      'Extra position values',
+      'RFC 7946 positions hold two or three numbers; this one has ' + numbers.length + '.',
+    );
   }
   if (lon < -180 || lon > 180) {
-    report(state, path, 'warning', 'Longitude out of range', 'Longitude ' + lon + ' is outside -180 to 180.');
+    report(
+      state,
+      path,
+      'warning',
+      'Longitude out of range',
+      'Longitude ' + lon + ' is outside -180 to 180.',
+    );
   }
   if (lat < -90 || lat > 90) {
-    report(state, path, 'warning', 'Latitude out of range', 'Latitude ' + lat + ' is outside -90 to 90.');
+    report(
+      state,
+      path,
+      'warning',
+      'Latitude out of range',
+      'Latitude ' + lat + ' is outside -90 to 90.',
+    );
   }
 }
 
@@ -123,19 +152,37 @@ function eachIn(
 
 function checkLine(state: State, value: unknown, path: string): void {
   if (!Array.isArray(value)) {
-    report(state, path, 'error', 'Expected an array', 'A LineString must be an array of positions.');
+    report(
+      state,
+      path,
+      'error',
+      'Expected an array',
+      'A LineString must be an array of positions.',
+    );
     return;
   }
   const list = value as unknown[];
   for (let i = 0; i < list.length; i += 1) checkPosition(state, list[i], path + '[' + i + ']');
   if (state.strict && list.length < 2) {
-    report(state, path, 'error', 'LineString is too short', 'A LineString needs at least two positions; this has ' + list.length + '.');
+    report(
+      state,
+      path,
+      'error',
+      'LineString is too short',
+      'A LineString needs at least two positions; this has ' + list.length + '.',
+    );
   }
 }
 
 function checkRing(state: State, value: unknown, path: string): void {
   if (!Array.isArray(value)) {
-    report(state, path, 'error', 'Expected an array', 'A polygon ring must be an array of positions.');
+    report(
+      state,
+      path,
+      'error',
+      'Expected an array',
+      'A polygon ring must be an array of positions.',
+    );
     return;
   }
   const ring = value as unknown[];
@@ -143,7 +190,15 @@ function checkRing(state: State, value: unknown, path: string): void {
   if (!state.strict) return;
 
   if (ring.length < 4) {
-    report(state, path, 'error', 'Ring has too few positions', 'A linear ring needs at least four positions, counting the repeated first one; this has ' + ring.length + '.');
+    report(
+      state,
+      path,
+      'error',
+      'Ring has too few positions',
+      'A linear ring needs at least four positions, counting the repeated first one; this has ' +
+        ring.length +
+        '.',
+    );
   }
   const first = ring[0];
   const last = ring[ring.length - 1];
@@ -154,7 +209,13 @@ function checkRing(state: State, value: unknown, path: string): void {
     last.every(isFiniteNumber) &&
     !samePosition(first as number[], last as number[])
   ) {
-    report(state, path, 'error', 'Ring is not closed', 'The first and last positions of a linear ring must be identical.');
+    report(
+      state,
+      path,
+      'error',
+      'Ring is not closed',
+      'The first and last positions of a linear ring must be identical.',
+    );
   }
 }
 
@@ -162,7 +223,13 @@ function checkCoordinates(state: State, value: Record<string, unknown>, path: st
   const type = String(value.type);
   const coordinatesPath = path + '.coordinates';
   if (!('coordinates' in value)) {
-    report(state, path, 'error', 'Missing coordinates member', 'A ' + type + ' geometry needs a coordinates member.');
+    report(
+      state,
+      path,
+      'error',
+      'Missing coordinates member',
+      'A ' + type + ' geometry needs a coordinates member.',
+    );
     return;
   }
   const coordinates = value.coordinates;
@@ -189,7 +256,13 @@ function checkCoordinates(state: State, value: Record<string, unknown>, path: st
   }
   if (type === 'Polygon') {
     if (Array.isArray(coordinates) && coordinates.length === 0) {
-      report(state, coordinatesPath, 'warning', 'Polygon has no rings', 'A Polygon should have at least one ring.');
+      report(
+        state,
+        coordinatesPath,
+        'warning',
+        'Polygon has no rings',
+        'A Polygon should have at least one ring.',
+      );
     }
     eachIn(state, coordinates, coordinatesPath, 'Polygon', (child, childPath) => {
       checkRing(state, child, childPath);
@@ -206,7 +279,13 @@ function checkCoordinates(state: State, value: Record<string, unknown>, path: st
 
 function checkFeature(state: State, value: Record<string, unknown>, path: string): void {
   if (!('geometry' in value)) {
-    report(state, path, 'error', 'Missing geometry member', 'A Feature must have a geometry member, which may be null.');
+    report(
+      state,
+      path,
+      'error',
+      'Missing geometry member',
+      'A Feature must have a geometry member, which may be null.',
+    );
   } else if (value.geometry !== null) {
     state.depth += 1;
     checkValue(state, value.geometry, path + '.geometry');
@@ -214,36 +293,94 @@ function checkFeature(state: State, value: Record<string, unknown>, path: string
   }
 
   if (!('properties' in value)) {
-    report(state, path, 'warning', 'Missing properties member', 'RFC 7946 expects a properties member; use null when there is nothing to store.');
+    report(
+      state,
+      path,
+      'warning',
+      'Missing properties member',
+      'RFC 7946 expects a properties member; use null when there is nothing to store.',
+    );
   } else if (value.properties !== null && !isObject(value.properties)) {
-    report(state, path, 'error', 'Invalid properties member', 'Feature properties must be an object or null.');
+    report(
+      state,
+      path,
+      'error',
+      'Invalid properties member',
+      'Feature properties must be an object or null.',
+    );
   }
 
-  if ('id' in value && value.id !== null && typeof value.id !== 'string' && typeof value.id !== 'number') {
-    report(state, path, 'warning', 'Unusual Feature id', 'A Feature id should be a string or a number.');
+  if (
+    'id' in value &&
+    value.id !== null &&
+    typeof value.id !== 'string' &&
+    typeof value.id !== 'number'
+  ) {
+    report(
+      state,
+      path,
+      'warning',
+      'Unusual Feature id',
+      'A Feature id should be a string or a number.',
+    );
   }
 }
 
 function checkValue(state: State, value: unknown, path: string): void {
   if (state.depth > MAX_DEPTH) {
-    report(state, path, 'error', 'Too deeply nested', 'Nesting deeper than ' + MAX_DEPTH + ' levels was not checked.');
+    report(
+      state,
+      path,
+      'error',
+      'Too deeply nested',
+      'Nesting deeper than ' + MAX_DEPTH + ' levels was not checked.',
+    );
     return;
   }
   if (!isObject(value)) {
-    report(state, path, 'error', 'Not a JSON object', 'Every GeoJSON object must be a JSON object.');
+    report(
+      state,
+      path,
+      'error',
+      'Not a JSON object',
+      'Every GeoJSON object must be a JSON object.',
+    );
     return;
   }
   const type = value.type;
   if (typeof type !== 'string') {
-    report(state, path, 'error', 'Missing type member', 'A GeoJSON object needs a string type member.');
+    report(
+      state,
+      path,
+      'error',
+      'Missing type member',
+      'A GeoJSON object needs a string type member.',
+    );
     return;
   }
-  if (type !== 'Feature' && type !== 'FeatureCollection' && type !== 'GeometryCollection' && !GEOMETRY_TYPES.has(type)) {
-    report(state, path, 'error', 'Unknown GeoJSON type', '"' + type + '" is not one of the GeoJSON types.');
+  if (
+    type !== 'Feature' &&
+    type !== 'FeatureCollection' &&
+    type !== 'GeometryCollection' &&
+    !GEOMETRY_TYPES.has(type)
+  ) {
+    report(
+      state,
+      path,
+      'error',
+      'Unknown GeoJSON type',
+      '"' + type + '" is not one of the GeoJSON types.',
+    );
     return;
   }
   if (state.strict && 'crs' in value) {
-    report(state, path, 'warning', 'Deprecated crs member', 'RFC 7946 removed the crs member; positions are always WGS84 longitude then latitude.');
+    report(
+      state,
+      path,
+      'warning',
+      'Deprecated crs member',
+      'RFC 7946 removed the crs member; positions are always WGS84 longitude then latitude.',
+    );
   }
   if ('bbox' in value) checkBbox(state, value.bbox, path + '.bbox');
 
@@ -254,7 +391,13 @@ function checkValue(state: State, value: unknown, path: string): void {
 
   if (type === 'FeatureCollection') {
     if (!Array.isArray(value.features)) {
-      report(state, path, 'error', 'Missing features array', 'A FeatureCollection needs a features member that is an array.');
+      report(
+        state,
+        path,
+        'error',
+        'Missing features array',
+        'A FeatureCollection needs a features member that is an array.',
+      );
       return;
     }
     const list = value.features as unknown[];
@@ -262,7 +405,13 @@ function checkValue(state: State, value: unknown, path: string): void {
       const child = list[i];
       const childPath = path + '.features[' + i + ']';
       if (!isObject(child) || child.type !== 'Feature') {
-        report(state, childPath, 'error', 'Not a Feature', 'Every entry of a FeatureCollection must be a Feature object.');
+        report(
+          state,
+          childPath,
+          'error',
+          'Not a Feature',
+          'Every entry of a FeatureCollection must be a Feature object.',
+        );
         continue;
       }
       state.depth += 1;
@@ -274,10 +423,22 @@ function checkValue(state: State, value: unknown, path: string): void {
 
   if (type === 'GeometryCollection') {
     if ('coordinates' in value) {
-      report(state, path, 'error', 'Unexpected coordinates member', 'A GeometryCollection uses geometries, not coordinates.');
+      report(
+        state,
+        path,
+        'error',
+        'Unexpected coordinates member',
+        'A GeometryCollection uses geometries, not coordinates.',
+      );
     }
     if (!Array.isArray(value.geometries)) {
-      report(state, path, 'error', 'Missing geometries array', 'A GeometryCollection needs a geometries member that is an array.');
+      report(
+        state,
+        path,
+        'error',
+        'Missing geometries array',
+        'A GeometryCollection needs a geometries member that is an array.',
+      );
       return;
     }
     const list = value.geometries as unknown[];
@@ -290,7 +451,13 @@ function checkValue(state: State, value: unknown, path: string): void {
   }
 
   if ('geometries' in value) {
-    report(state, path, 'warning', 'Unexpected geometries member', 'Only a GeometryCollection uses a geometries member.');
+    report(
+      state,
+      path,
+      'warning',
+      'Unexpected geometries member',
+      'Only a GeometryCollection uses a geometries member.',
+    );
   }
   checkCoordinates(state, value, path);
 }
@@ -444,13 +611,17 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   let text: string;
   if (file !== undefined) {
     if (file.size === 0) throw new ToolError('That file is empty.');
-    if (file.size > MAX_BYTES) throw new ToolError('That file is larger than 20 MB.', 'Validate a smaller document.');
+    if (file.size > MAX_BYTES)
+      throw new ToolError('That file is larger than 20 MB.', 'Validate a smaller document.');
     text = await file.text();
   } else {
     text = String(input.text ?? '').trim();
   }
   if (text === '') {
-    throw new ToolError('Choose a GeoJSON file or paste a document.', 'Both a file and pasted JSON work.');
+    throw new ToolError(
+      'Choose a GeoJSON file or paste a document.',
+      'Both a file and pasted JSON work.',
+    );
   }
   if (text.length > MAX_BYTES) {
     throw new ToolError('That is more than 20 MB of JSON.', 'Validate a smaller document.');
@@ -499,7 +670,9 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
       (strict ? ' against RFC 7946.' : ' structurally, without the RFC 7946 requirement checks.'),
   );
   if (state.truncated > 0) {
-    notes.push('Issue list capped at ' + MAX_ISSUES + '; ' + state.truncated + ' more were not listed.');
+    notes.push(
+      'Issue list capped at ' + MAX_ISSUES + '; ' + state.truncated + ' more were not listed.',
+    );
   }
   if (!valid) {
     resultWarnings.push(totalErrors + ' RFC 7946 requirement(s) failed.');
@@ -564,7 +737,10 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
     ['Positions', String(state.positions.length)],
   ];
   if (isObject(parsed) && 'bbox' in parsed) {
-    rows.push(['Declared bbox', Array.isArray(parsed.bbox) ? parsed.bbox.join(', ') : String(parsed.bbox)]);
+    rows.push([
+      'Declared bbox',
+      Array.isArray(parsed.bbox) ? parsed.bbox.join(', ') : String(parsed.bbox),
+    ]);
   }
   rows.push(['Computed bbox', formatBbox(computed)]);
   rows.push(['Errors', String(totalErrors)]);

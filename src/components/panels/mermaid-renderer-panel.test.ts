@@ -214,8 +214,8 @@ describe('buildPreviewDocument', () => {
   it('embeds the SVG inside a sandbox-safe document', () => {
     const doc = buildPreviewDocument(svg, 'light', 1);
     expect(doc).toContain(svg);
-    expect(doc).toContain('default-src \'none\'');
-    expect(doc).toContain('script-src \'none\'');
+    expect(doc).toContain("default-src 'none'");
+    expect(doc).toContain("script-src 'none'");
     expect(doc).toContain(PREVIEW_CSP);
   });
 

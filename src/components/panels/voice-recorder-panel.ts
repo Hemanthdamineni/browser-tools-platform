@@ -230,7 +230,7 @@ export class ChunkAccumulator {
   }
 
   /** The full take as one byte array — the WAV header is still to be written. */
-  bytes(): Uint8Array {
+  bytes(): Uint8Array<ArrayBuffer> {
     const total = this.size;
     const out = new Uint8Array(total);
     let offset = 0;
@@ -858,7 +858,7 @@ export function mountVoiceRecorderPanel(root: HTMLElement): void {
     paused = false;
     startedAt = Date.now();
     takeFormat = formatSelect.value === 'webm' ? 'webm' : 'wav';
-    takeMime = takeFormat === 'wav' ? WAV_MIME : pickMimeType(isTypeSupported) ?? 'audio/webm';
+    takeMime = takeFormat === 'wav' ? WAV_MIME : (pickMimeType(isTypeSupported) ?? 'audio/webm');
 
     if (takeFormat === 'wav') startPcmCapture();
     else startWebmCapture();

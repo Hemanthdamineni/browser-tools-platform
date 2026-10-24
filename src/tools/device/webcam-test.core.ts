@@ -290,8 +290,16 @@ export function parseWebcamFacts(text: string): WebcamFacts {
 
   const width = readNumber(source, 'width', { min: 1, max: MAX_DIMENSION, label: 'width' });
   const height = readNumber(source, 'height', { min: 1, max: MAX_DIMENSION, label: 'height' });
-  const reportedFps = readNumber(source, 'reportedFps', { min: 0, max: MAX_FPS, label: 'frame rate' });
-  const measuredFps = readNumber(source, 'measuredFps', { min: 0, max: MAX_FPS, label: 'frame rate' });
+  const reportedFps = readNumber(source, 'reportedFps', {
+    min: 0,
+    max: MAX_FPS,
+    label: 'frame rate',
+  });
+  const measuredFps = readNumber(source, 'measuredFps', {
+    min: 0,
+    max: MAX_FPS,
+    label: 'frame rate',
+  });
 
   if (state === 'live' && (width === null || height === null)) {
     throw new ToolError(

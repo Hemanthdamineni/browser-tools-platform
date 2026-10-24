@@ -13,17 +13,33 @@ type Table = { headers: string[]; rows: string[][] };
 // Fixtures are written by Python's plistlib (3.14) and, for the damaged cases, by a
 // hand-written byte builder. Expected values come from plistlib.load and from reading
 // the trailer directly, so they are an independent oracle rather than this tool's output.
-const RICH_BINARY = "YnBsaXN0MDDfEA8BAgMEBQYHCAkKCwwNDg8QERITFBUWFxgfICEiIyRTQmlnVEJsb2JVQ291bnRYRGlzYWJsZWRaRW1wdHlBcnJheVlFbXB0eURpY3RXRW5hYmxlZFRIdWdlVUl0ZW1zVExvbmdUTmFtZVhOZWdhdGl2ZVVSYXRpb1dVbmljb2RlVFdoZW4S/////0QAAQL/ECoIoNAJEwAgAAAAAAABpBkaGxwQAVN0d28jQAgAAAAAAADRHR5WbmVzdGVkU3llc18RASx4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHhmAEMAYQBmAOkAICYVE//////////5I0AMAAAAAAAAZ2XlZyyKnjDGMK0wuTDIM0HCOLN4AAAAAAgAKQAtADIAOABBAEwAVgBeAGMAaQBuAHMAfACCAIoAjwCUAJkAmwCcAJ0AngCfAKgArQCvALMAvAC/AMYAygH6AgcCEAIZAigAAAAAAAACAQAAAAAAAAAlAAAAAAAAAAAAAAAAAAACMQ==";
-const RICH_XML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n<plist version=\"1.0\">\n<dict>\n\t<key>Big</key>\n\t<integer>4294967295</integer>\n\t<key>Blob</key>\n\t<data>\n\tAAEC/w==\n\t</data>\n\t<key>Count</key>\n\t<integer>42</integer>\n\t<key>Disabled</key>\n\t<false/>\n\t<key>EmptyArray</key>\n\t<array/>\n\t<key>EmptyDict</key>\n\t<dict/>\n\t<key>Enabled</key>\n\t<true/>\n\t<key>Huge</key>\n\t<integer>9007199254740993</integer>\n\t<key>Items</key>\n\t<array>\n\t\t<integer>1</integer>\n\t\t<string>two</string>\n\t\t<real>3.0</real>\n\t\t<dict>\n\t\t\t<key>nested</key>\n\t\t\t<string>yes</string>\n\t\t</dict>\n\t</array>\n\t<key>Long</key>\n\t<string>xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</string>\n\t<key>Name</key>\n\t<string>Caf\u00e9 \u2615</string>\n\t<key>Negative</key>\n\t<integer>-7</integer>\n\t<key>Ratio</key>\n\t<real>3.5</real>\n\t<key>Unicode</key>\n\t<string>\u65e5\u672c\u8a9e\u30c6\u30ad\u30b9\u30c8</string>\n\t<key>When</key>\n\t<date>2020-05-17T12:34:56Z</date>\n</dict>\n</plist>\n";
-const DEEP_BINARY = "YnBsaXN0MDDRAQJRa9EBA9EBBNEBBdEBBtEBB9EBCNEBCdEBCtEBC9EBDNEBDdEBDtEBD9EBENEBEdEBEtEBE9EBFNEBFdEBFtEBF9EBGNEBGdEBGtEBG9EBHNEBHdEBHtEBH9EBINEBIdEBItEBI9EBJNEBJdEBJtEBJ9EBKNEBKdEBKtEBK9EBLNEBLdEBLtEBL9EBMNEBMdEBMtEBM9EBNNEBNdEBNtEBN9EBONEBOdEBOtEBO9EBPNEBPdEBPtEBP9EBQNEBQdEBQtEBQ9EBRNEBRdEBRtEBR9EBSNEBSdEBStEBS9EBTNEBTdEBTtEBT9EBUNEBUdAICw0QExYZHB8iJSgrLjE0Nzo9QENGSUxPUlVYW15hZGdqbXBzdnl8f4KFiIuOkZSXmp2go6aprK+ytbi7vsHEx8rN0NPW2dzf4uXo6+7x9Pf6AAAAAAAAAQEAAAAAAAAAUgAAAAAAAAAAAAAAAAAAAPs=";
-const UID_BINARY = "YnBsaXN0MDDRAQJTUmVmgAcICw8AAAAAAAABAQAAAAAAAAADAAAAAAAAAAAAAAAAAAAAEQ==";
-const UNREACHABLE = "YnBsaXN0MDBRYVFiCAoAAAAAAAABAQAAAAAAAAACAAAAAAAAAAAAAAAAAAAADA==";
-const TRAILING = "YnBsaXN0MDBRYQgAAAAAAAAAAAAAAQEAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAo=";
-const DUPLICATE = "YnBsaXN0MDBRaxABEALSAAABAggKDA4AAAAAAAABAQAAAAAAAAAEAAAAAAAAAAMAAAAAAAAAEw==";
-const CYCLIC = "YnBsaXN0MDChAAgAAAAAAAABAQAAAAAAAAABAAAAAAAAAAAAAAAAAAAACg==";
-const BLOWUP = "YnBsaXN0MDCiAQGiAgKiAwOiBASiBQWiBgaiBweiCAiiCQmiCgqiCwuiDAyiDQ2iDg6iDw+iEBCiERGiEhKiExOiFBSiFRWiFhaiFxeiGBiiGRmiGhqiGxuiHByiHR2iHh6iHx8QAQgLDhEUFxodICMmKSwvMjU4Oz5BREdKTVBTVllcX2JlAAAAAAAAAQEAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAGc=";
-const BADMAGIC = "YnBsaXN0OTlRYVFiCAoAAAAAAAABAQAAAAAAAAACAAAAAAAAAAAAAAAAAAAADA==";
-const EXPECTED_SCALARS = {"Big": "4294967295", "Blob": "4 bytes", "Count": "42", "Disabled": "false", "Enabled": "true", "Huge": "9007199254740993", "Name": "Café ☕", "Negative": "-7", "Ratio": "3.5", "Unicode": "日本語テキスト", "When": "2020-05-17T12:34:56.000Z"} as Record<string, string>;
+const RICH_BINARY =
+  'YnBsaXN0MDDfEA8BAgMEBQYHCAkKCwwNDg8QERITFBUWFxgfICEiIyRTQmlnVEJsb2JVQ291bnRYRGlzYWJsZWRaRW1wdHlBcnJheVlFbXB0eURpY3RXRW5hYmxlZFRIdWdlVUl0ZW1zVExvbmdUTmFtZVhOZWdhdGl2ZVVSYXRpb1dVbmljb2RlVFdoZW4S/////0QAAQL/ECoIoNAJEwAgAAAAAAABpBkaGxwQAVN0d28jQAgAAAAAAADRHR5WbmVzdGVkU3llc18RASx4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHhmAEMAYQBmAOkAICYVE//////////5I0AMAAAAAAAAZ2XlZyyKnjDGMK0wuTDIM0HCOLN4AAAAAAgAKQAtADIAOABBAEwAVgBeAGMAaQBuAHMAfACCAIoAjwCUAJkAmwCcAJ0AngCfAKgArQCvALMAvAC/AMYAygH6AgcCEAIZAigAAAAAAAACAQAAAAAAAAAlAAAAAAAAAAAAAAAAAAACMQ==';
+const RICH_XML =
+  '<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n<plist version="1.0">\n<dict>\n\t<key>Big</key>\n\t<integer>4294967295</integer>\n\t<key>Blob</key>\n\t<data>\n\tAAEC/w==\n\t</data>\n\t<key>Count</key>\n\t<integer>42</integer>\n\t<key>Disabled</key>\n\t<false/>\n\t<key>EmptyArray</key>\n\t<array/>\n\t<key>EmptyDict</key>\n\t<dict/>\n\t<key>Enabled</key>\n\t<true/>\n\t<key>Huge</key>\n\t<integer>9007199254740993</integer>\n\t<key>Items</key>\n\t<array>\n\t\t<integer>1</integer>\n\t\t<string>two</string>\n\t\t<real>3.0</real>\n\t\t<dict>\n\t\t\t<key>nested</key>\n\t\t\t<string>yes</string>\n\t\t</dict>\n\t</array>\n\t<key>Long</key>\n\t<string>xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</string>\n\t<key>Name</key>\n\t<string>Caf\u00e9 \u2615</string>\n\t<key>Negative</key>\n\t<integer>-7</integer>\n\t<key>Ratio</key>\n\t<real>3.5</real>\n\t<key>Unicode</key>\n\t<string>\u65e5\u672c\u8a9e\u30c6\u30ad\u30b9\u30c8</string>\n\t<key>When</key>\n\t<date>2020-05-17T12:34:56Z</date>\n</dict>\n</plist>\n';
+const DEEP_BINARY =
+  'YnBsaXN0MDDRAQJRa9EBA9EBBNEBBdEBBtEBB9EBCNEBCdEBCtEBC9EBDNEBDdEBDtEBD9EBENEBEdEBEtEBE9EBFNEBFdEBFtEBF9EBGNEBGdEBGtEBG9EBHNEBHdEBHtEBH9EBINEBIdEBItEBI9EBJNEBJdEBJtEBJ9EBKNEBKdEBKtEBK9EBLNEBLdEBLtEBL9EBMNEBMdEBMtEBM9EBNNEBNdEBNtEBN9EBONEBOdEBOtEBO9EBPNEBPdEBPtEBP9EBQNEBQdEBQtEBQ9EBRNEBRdEBRtEBR9EBSNEBSdEBStEBS9EBTNEBTdEBTtEBT9EBUNEBUdAICw0QExYZHB8iJSgrLjE0Nzo9QENGSUxPUlVYW15hZGdqbXBzdnl8f4KFiIuOkZSXmp2go6aprK+ytbi7vsHEx8rN0NPW2dzf4uXo6+7x9Pf6AAAAAAAAAQEAAAAAAAAAUgAAAAAAAAAAAAAAAAAAAPs=';
+const UID_BINARY = 'YnBsaXN0MDDRAQJTUmVmgAcICw8AAAAAAAABAQAAAAAAAAADAAAAAAAAAAAAAAAAAAAAEQ==';
+const UNREACHABLE = 'YnBsaXN0MDBRYVFiCAoAAAAAAAABAQAAAAAAAAACAAAAAAAAAAAAAAAAAAAADA==';
+const TRAILING = 'YnBsaXN0MDBRYQgAAAAAAAAAAAAAAQEAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAo=';
+const DUPLICATE = 'YnBsaXN0MDBRaxABEALSAAABAggKDA4AAAAAAAABAQAAAAAAAAAEAAAAAAAAAAMAAAAAAAAAEw==';
+const CYCLIC = 'YnBsaXN0MDChAAgAAAAAAAABAQAAAAAAAAABAAAAAAAAAAAAAAAAAAAACg==';
+const BLOWUP =
+  'YnBsaXN0MDCiAQGiAgKiAwOiBASiBQWiBgaiBweiCAiiCQmiCgqiCwuiDAyiDQ2iDg6iDw+iEBCiERGiEhKiExOiFBSiFRWiFhaiFxeiGBiiGRmiGhqiGxuiHByiHR2iHh6iHx8QAQgLDhEUFxodICMmKSwvMjU4Oz5BREdKTVBTVllcX2JlAAAAAAAAAQEAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAGc=';
+const BADMAGIC = 'YnBsaXN0OTlRYVFiCAoAAAAAAAABAQAAAAAAAAACAAAAAAAAAAAAAAAAAAAADA==';
+const EXPECTED_SCALARS = {
+  Big: '4294967295',
+  Blob: '4 bytes',
+  Count: '42',
+  Disabled: 'false',
+  Enabled: 'true',
+  Huge: '9007199254740993',
+  Name: 'Café ☕',
+  Negative: '-7',
+  Ratio: '3.5',
+  Unicode: '日本語テキスト',
+  When: '2020-05-17T12:34:56.000Z',
+} as Record<string, string>;
 const EXPECTED_OBJECTS = 37 as number;
 
 const fromBase64 = (base64: string): Uint8Array<ArrayBuffer> => {
@@ -33,7 +49,11 @@ const fromBase64 = (base64: string): Uint8Array<ArrayBuffer> => {
   return bytes;
 };
 
-const runBinary = async (base64: string, options: Record<string, string | number | boolean> = {}, name = 'sample.plist') =>
+const runBinary = async (
+  base64: string,
+  options: Record<string, string | number | boolean> = {},
+  name = 'sample.plist',
+) =>
   (await tool.run({
     files: [new File([fromBase64(base64)], name, { type: 'application/x-plist' })],
     options,
@@ -44,13 +64,20 @@ const runText = async (text: string, options: Record<string, string | number | b
 
 const table = (result: Result): Table => JSON.parse(result.report?.output ?? '{}') as Table;
 
-const view = async (base64: string, format: string, options: Record<string, string | number | boolean> = {}) =>
-  table(await runBinary(base64, { ...options, format }));
+const view = async (
+  base64: string,
+  format: string,
+  options: Record<string, string | number | boolean> = {},
+) => table(await runBinary(base64, { ...options, format }));
 
-const viewText = async (text: string, format: string, options: Record<string, string | number | boolean> = {}) =>
-  table(await runText(text, { ...options, format }));
+const viewText = async (
+  text: string,
+  format: string,
+  options: Record<string, string | number | boolean> = {},
+) => table(await runText(text, { ...options, format }));
 
-const treeMap = (rows: string[][]): Map<string, string> => new Map(rows.map((row) => [row[0] ?? '', row[2] ?? '']));
+const treeMap = (rows: string[][]): Map<string, string> =>
+  new Map(rows.map((row) => [row[0] ?? '', row[2] ?? '']));
 
 const problems = (rows: string[][]): string[] => rows.map((row) => row[1] ?? '');
 
@@ -76,8 +103,14 @@ describe('plist-decoder', () => {
   });
 
   it('decodes a binary plist and its XML twin to the same tree', async () => {
-    const binary = (await view(RICH_BINARY, 'tree')).rows.map((row) => [row[0] ?? '', row[2] ?? '']);
-    const xml = table(await runText(RICH_XML, { format: 'tree' })).rows.map((row) => [row[0] ?? '', row[2] ?? '']);
+    const binary = (await view(RICH_BINARY, 'tree')).rows.map((row) => [
+      row[0] ?? '',
+      row[2] ?? '',
+    ]);
+    const xml = table(await runText(RICH_XML, { format: 'tree' })).rows.map((row) => [
+      row[0] ?? '',
+      row[2] ?? '',
+    ]);
     expect(xml.length).toBeGreaterThan(10);
     expect(xml).toEqual(binary);
   });
@@ -97,12 +130,16 @@ describe('plist-decoder', () => {
 
   it('keeps a 64-bit integer exact instead of rounding it', async () => {
     const result = await runBinary(RICH_BINARY, { format: 'findings' });
-    expect(treeMap((await view(RICH_BINARY, 'tree')).rows).get('root.Huge')).toBe('9007199254740993');
+    expect(treeMap((await view(RICH_BINARY, 'tree')).rows).get('root.Huge')).toBe(
+      '9007199254740993',
+    );
     expect(problems(table(result).rows)).toContain('Integer needs more than 53 bits');
   });
 
   it('summarizes the binary structure using the trailer', async () => {
-    const map = new Map((await view(RICH_BINARY, 'summary')).rows.map((row) => [row[0] ?? '', row[1] ?? '']));
+    const map = new Map(
+      (await view(RICH_BINARY, 'summary')).rows.map((row) => [row[0] ?? '', row[1] ?? '']),
+    );
     expect(map.get('Format')).toBe('binary property list (bplist00)');
     expect(map.get('Top-level type')).toBe('dictionary');
     expect(map.get('Objects in offset table')).toBe(String(EXPECTED_OBJECTS));
@@ -125,7 +162,13 @@ describe('plist-decoder', () => {
   it('says the object table does not exist for XML', async () => {
     const rows = table(await runText(RICH_XML, { format: 'objects' })).rows;
     expect(rows).toEqual([
-      ['-', '-', 'not applicable', '-', 'The offset table is part of the binary format; this is an XML plist.'],
+      [
+        '-',
+        '-',
+        'not applicable',
+        '-',
+        'The offset table is part of the binary format; this is an XML plist.',
+      ],
     ]);
   });
 
@@ -148,7 +191,9 @@ describe('plist-decoder', () => {
   });
 
   it('notes objects that nothing references', async () => {
-    expect(problems((await view(UNREACHABLE, 'findings')).rows)).toContain('1 object(s) are never referenced');
+    expect(problems((await view(UNREACHABLE, 'findings')).rows)).toContain(
+      '1 object(s) are never referenced',
+    );
   });
 
   it('notes bytes sitting between the offset table and the trailer', async () => {
@@ -197,15 +242,21 @@ describe('plist-decoder', () => {
   });
 
   it('rejects XML that is not a property list', async () => {
-    await expect(runText('<?xml version="1.0"?><foo><bar/></foo>')).rejects.toThrow(/not a property list/u);
+    await expect(runText('<?xml version="1.0"?><foo><bar/></foo>')).rejects.toThrow(
+      /not a property list/u,
+    );
   });
 
   it('rejects malformed XML', async () => {
-    await expect(runText('<?xml version="1.0"?><plist><dict><key>x</key>')).rejects.toThrow(/could not be parsed/u);
+    await expect(runText('<?xml version="1.0"?><plist><dict><key>x</key>')).rejects.toThrow(
+      /could not be parsed/u,
+    );
   });
 
   it('rejects an empty plist', async () => {
-    await expect(runText('<?xml version="1.0"?><plist version="1.0"></plist>')).rejects.toThrow(/no value/u);
+    await expect(runText('<?xml version="1.0"?><plist version="1.0"></plist>')).rejects.toThrow(
+      /no value/u,
+    );
   });
 
   it('rejects empty input', async () => {
@@ -221,7 +272,8 @@ describe('plist-decoder', () => {
   });
 
   it('notes an unexpected plist version in XML', async () => {
-    const xml = '<?xml version="1.0"?><plist version="2.0"><dict><key>a</key><true/></dict></plist>';
+    const xml =
+      '<?xml version="1.0"?><plist version="2.0"><dict><key>a</key><true/></dict></plist>';
     const result = await runText(xml, { format: 'findings' });
     expect(problems(table(result).rows)).toContain('Unexpected plist version');
   });
@@ -253,7 +305,8 @@ describe('plist-decoder', () => {
   });
 
   it('reports unreadable XML values', async () => {
-    const xml = '<?xml version="1.0"?><plist version="1.0"><dict><key>bad</key><integer>abc</integer></dict></plist>';
+    const xml =
+      '<?xml version="1.0"?><plist version="1.0"><dict><key>bad</key><integer>abc</integer></dict></plist>';
     const result = await runText(xml, { format: 'findings' });
     expect(problems(table(result).rows)).toContain('An <integer> is not a number');
     expect(result.warnings?.join(' ')).toMatch(/structural error/u);

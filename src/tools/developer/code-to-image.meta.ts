@@ -4,8 +4,7 @@ export const meta: ToolMeta = {
   id: 'code-to-image',
   name: 'Code to Image',
   category: 'developer',
-  summary:
-    'Turn a code snippet into a polished PNG or SVG with Shiki syntax highlighting.',
+  summary: 'Turn a code snippet into a polished PNG or SVG with Shiki syntax highlighting.',
   description:
     'Paste code, pick a language and a colour theme, then export it as a clean PNG or SVG image — complete with a window chrome (traffic-light dots and a title bar), configurable padding, background and line height. Highlighting is done by Shiki, which runs in this tab and loads the grammar and highlighting engine from this site, so nothing leaves your device.',
   keywords: [
@@ -155,12 +154,14 @@ export const meta: ToolMeta = {
     },
     {
       title: 'Python',
-      input: 'def fib(n):\n    a, b = 0, 1\n    for _ in range(n):\n        a, b = b, a + b\n    return a',
+      input:
+        'def fib(n):\n    a, b = 0, 1\n    for _ in range(n):\n        a, b = b, a + b\n    return a',
       options: { language: 'python', theme: 'dracula' },
     },
     {
       title: 'CSS',
-      input: '.card {\n  display: flex;\n  gap: 1rem;\n  padding: 1.5rem;\n  border-radius: 0.75rem;\n}',
+      input:
+        '.card {\n  display: flex;\n  gap: 1rem;\n  padding: 1.5rem;\n  border-radius: 0.75rem;\n}',
       options: { language: 'css', theme: 'nord' },
     },
   ],

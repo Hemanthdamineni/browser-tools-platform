@@ -38,9 +38,8 @@ const examples = meta.examples ?? [];
   <p class="mt-1.5 max-w-prose text-sm leading-relaxed text-[rgb(var(--text-muted))]">
     Add a duration such as <span class="font-mono text-xs">90s</span>,{' '}
     <span class="font-mono text-xs">2m30s</span> or{' '}
-    <span class="font-mono text-xs">5:00</span> — put a name first (Tea 3m) to
-    label the timer. It starts counting down immediately and stays correct
-    even if the tab is in the background.
+    <span class="font-mono text-xs">5:00</span> — put a name first (Tea 3m) to label the timer. It starts
+    counting down immediately and stays correct even if the tab is in the background.
   </p>
 
   <!-- Add a timer -->
@@ -66,15 +65,13 @@ const examples = meta.examples ?? [];
 
   <div class="mt-3 flex flex-wrap items-center gap-1.5" data-preset-row>
     <span class="text-xs text-[rgb(var(--text-muted))]">Presets:</span>
-    {presets.map((minutes) => (
-      <button
-        type="button"
-        class="btn btn-subtle btn-sm"
-        data-preset={String(minutes * 60)}
-      >
-        {minutes} min
-      </button>
-    ))}
+    {
+      presets.map((minutes) => (
+        <button type="button" class="btn btn-subtle btn-sm" data-preset={String(minutes * 60)}>
+          {minutes} min
+        </button>
+      ))
+    }
   </div>
 
   {
@@ -82,12 +79,7 @@ const examples = meta.examples ?? [];
       <div class="mt-2 flex flex-wrap items-center gap-1.5" data-example-row>
         <span class="text-xs text-[rgb(var(--text-muted))]">Examples:</span>
         {examples.map((example) => (
-          <button
-            type="button"
-            class="chip"
-            data-example
-            data-example-entry={example.input ?? ''}
-          >
+          <button type="button" class="chip" data-example data-example-entry={example.input ?? ''}>
             {example.title}
           </button>
         ))}

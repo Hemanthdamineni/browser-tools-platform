@@ -56,14 +56,21 @@ const gridOptions = (meta.options ?? []).filter((option) => !hiddenKeys.includes
     </p>
   </div>
   <ul class="mt-3 space-y-1.5 text-sm" data-file-list></ul>
-  <p class="mt-2 text-xs text-[rgb(var(--text-muted))]" data-status role="status" aria-live="polite">
+  <p
+    class="mt-2 text-xs text-[rgb(var(--text-muted))]"
+    data-status
+    role="status"
+    aria-live="polite"
+  >
     Choose two or more images to build an animation.
   </p>
 
-  <h2 class="mt-6 text-base font-semibold text-[rgb(var(--text))]">2 · Order, trim and time the frames</h2>
+  <h2 class="mt-6 text-base font-semibold text-[rgb(var(--text))]">
+    2 · Order, trim and time the frames
+  </h2>
   <p class="mt-1 text-xs text-[rgb(var(--text-muted))]" id={`${p}-grid-hint`}>
-    Drag a frame to move it, or focus it and use the left and right arrow keys. Every frame also
-    has Move and Remove buttons and its own delay, in hundredths of a second.
+    Drag a frame to move it, or focus it and use the left and right arrow keys. Every frame also has
+    Move and Remove buttons and its own delay, in hundredths of a second.
   </p>
 
   <div class="mt-3 flex flex-wrap items-end gap-3">
@@ -85,7 +92,12 @@ const gridOptions = (meta.options ?? []).filter((option) => !hiddenKeys.includes
       <button type="button" class="btn btn-ghost" data-reset-order disabled>Reset order</button>
       <button type="button" class="btn btn-subtle" data-play disabled>Play</button>
     </div>
-    <p class="ml-auto text-xs text-[rgb(var(--text-muted))]" data-timeline-status role="status" aria-live="polite">
+    <p
+      class="ml-auto text-xs text-[rgb(var(--text-muted))]"
+      data-timeline-status
+      role="status"
+      aria-live="polite"
+    >
       Choose images to build an animation.
     </p>
   </div>
@@ -116,8 +128,8 @@ const gridOptions = (meta.options ?? []).filter((option) => !hiddenKeys.includes
     </div>
     <div class="min-w-0 flex-1">
       <p class="text-sm text-[rgb(var(--text-muted))]">
-        This plays the frames at the delays you set. Press Play to watch it, then save the real
-        GIF below.
+        This plays the frames at the delays you set. Press Play to watch it, then save the real GIF
+        below.
       </p>
     </div>
   </div>

@@ -19,7 +19,8 @@ export const meta: ToolMeta = {
   ],
   privacy: { processing: 'on-device', network: 'none', offline: true },
   input: 'file',
-  accept: '.plist,.xml,.strings,.txt,application/x-plist,application/xml,text/xml,text/plain,application/octet-stream',
+  accept:
+    '.plist,.xml,.strings,.txt,application/x-plist,application/xml,text/xml,text/plain,application/octet-stream',
   acceptsText: true,
   options: [
     {

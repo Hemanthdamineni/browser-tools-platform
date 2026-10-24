@@ -4,7 +4,8 @@ export const meta: ToolMeta = {
   id: 'svg-sanitizer',
   name: 'SVG Sanitizer',
   category: 'security',
-  summary: 'Strip scripts, event handlers and external references from an SVG, and report what changed.',
+  summary:
+    'Strip scripts, event handlers and external references from an SVG, and report what changed.',
   description:
     'Paste or drop an SVG and get a hardened copy with active content removed: script elements, on* event handlers, javascript: URLs, foreignObject and embedded frames, unsafe CSS in style elements or attributes, XML processing instructions, the DOCTYPE and external or data: references. Every change is listed so you can review it, and audit mode reports the changes without producing a file.',
   keywords: [

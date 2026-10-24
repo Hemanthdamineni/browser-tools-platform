@@ -24,7 +24,13 @@ import { copyText } from '@/lib/clipboard';
 import { downloadText } from '@/lib/files';
 import { formatDuration, formatNumber, slugify } from '@/lib/format';
 import type { TextRunResult } from '@/lib/types';
-import { applyShowWhen, bindRangeOutputs, clearError, readOptions, showError } from '../workbench/shared';
+import {
+  applyShowWhen,
+  bindRangeOutputs,
+  clearError,
+  readOptions,
+  showError,
+} from '../workbench/shared';
 import {
   applyCodeHighlighting,
   buildExportDocument,
@@ -115,7 +121,7 @@ export function mountMarkdownPanel(root: HTMLElement): void {
   async function highlightBlocks(
     html: string,
     highlighter: CodeHighlighter,
-    theme: ThemeName,
+    _theme: ThemeName,
   ): Promise<string> {
     for (const language of usedLanguages(input!.value)) {
       await highlighter.prepare(language);
@@ -210,7 +216,8 @@ export function mountMarkdownPanel(root: HTMLElement): void {
         }
       }
       await updatePreview(result.output);
-      if (seq === runSeq && timing) timing.textContent = formatDuration(performance.now() - started);
+      if (seq === runSeq && timing)
+        timing.textContent = formatDuration(performance.now() - started);
     } catch (err) {
       if (seq !== runSeq) return;
       const e = err as Error & { hint?: string };
@@ -325,7 +332,8 @@ export function mountMarkdownPanel(root: HTMLElement): void {
             `[data-opt-key="${k}"]`,
           );
           if (!el) continue;
-          if ((el as HTMLInputElement).type === 'checkbox') (el as HTMLInputElement).checked = Boolean(v);
+          if ((el as HTMLInputElement).type === 'checkbox')
+            (el as HTMLInputElement).checked = Boolean(v);
           else el.value = String(v);
         }
         applyShowWhen(optionsRoot);
