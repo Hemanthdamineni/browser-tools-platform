@@ -64,6 +64,20 @@ const related = relatedTools(meta);
   </div>
 
   {
+    meta.article && meta.article.length > 0 && (
+      <section class="prose-tool mt-14 max-w-prose" aria-labelledby="how-it-works-heading">
+        <h2 id="how-it-works-heading">How it works</h2>
+        {meta.article.map((entry) => (
+          <div>
+            <h3>{entry.heading}</h3>
+            <p>{entry.body}</p>
+          </div>
+        ))}
+      </section>
+    )
+  }
+
+  {
     meta.faq && meta.faq.length > 0 && (
       <section class="mt-14" aria-labelledby="questions-heading">
         <h2 id="questions-heading" class="text-lg font-bold text-[rgb(var(--text))]">
@@ -90,42 +104,44 @@ const related = relatedTools(meta);
     )
   }
 
-  <section class="prose-tool mt-14 max-w-prose">
-    <h2>How it works</h2>
-    <p>
-      {meta.name} runs entirely in your browser tab. Your input is processed by JavaScript
-      {meta.input === 'file' ? ' and, for large files, a background Web Worker' : ''} on this device.
-      Nothing is uploaded, and the page works offline once it has loaded.
-    </p>
-    {
-      meta.privacy.network !== 'none' && (
-        <p>
-          Network use: this tool may contact{' '}
-          {(meta.privacy.network as string[]).map((n) => (
-            <code>{n}</code>
-          ))}
-          . See the <a href="/privacy">privacy model</a>.
-        </p>
-      )
-    }
-    {
-      meta.credits && meta.credits.length > 0 && (
-        <>
-          <h3>Built with</h3>
-          <ul>
-            {meta.credits.map((c) => (
-              <li>
-                <a href={c.url} rel="noopener">
-                  {c.name}
-                </a>{' '}
-                · {c.license}
-              </li>
+  {meta.article == null && (
+    <section class="prose-tool mt-14 max-w-prose">
+      <h2>How it works</h2>
+      <p>
+        {meta.name} runs entirely in your browser tab. Your input is processed by JavaScript
+        {meta.input === 'file' ? ' and, for large files, a background Web Worker' : ''} on this device.
+        Nothing is uploaded, and the page works offline once it has loaded.
+      </p>
+      {
+        meta.privacy.network !== 'none' && (
+          <p>
+            Network use: this tool may contact{' '}
+            {(meta.privacy.network as string[]).map((n) => (
+              <code>{n}</code>
             ))}
-          </ul>
-        </>
-      )
-    }
-  </section>
+            . See the <a href="/privacy">privacy model</a>.
+          </p>
+        )
+      }
+      {
+        meta.credits && meta.credits.length > 0 && (
+          <>
+            <h3>Built with</h3>
+            <ul>
+              {meta.credits.map((c) => (
+                <li>
+                  <a href={c.url} rel="noopener">
+                    {c.name}
+                  </a>{' '}
+                  · {c.license}
+                </li>
+              ))}
+            </ul>
+          </>
+        )
+      }
+    </section>
+  )}
 
   {
     related.length > 0 && (
