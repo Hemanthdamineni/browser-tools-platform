@@ -1,0 +1,155 @@
+---
+/**
+ * Webcam Test panel — a live camera preview plus a resolution / frame-rate
+ * readout and a snapshot button. It replaces the generic file workbench
+ * (`meta.panel = 'webcam-test'`) because none of that fits an option form.
+ *
+ * The behaviour lives in `./webcam-test.ts`, imported lazily by the script at
+ * the bottom, so no camera code ships to pages that do not open this tool.
+ */
+import type { ToolMeta } from '@/lib/types';
+import Icon from '@/components/Icon.astro';
+
+interface Props {
+  meta: ToolMeta;
+}
+const { meta } = Astro.props;
+const headingId = `${meta.id}-heading`;
+const statusId = `${meta.id}-status`;
+const helpId = `${meta.id}-help`;
+const deviceId = `${meta.id}-device`;
+---
+
+<!--
+  The tool page wraps this panel in [data-panel-workbench], which is the marker
+  the shared e2e workbench sweep accepts. It deliberately does not carry
+  [data-file-workbench] (the generic workbench's script would wire a drop zone
+  into it) or [data-signature-workbench] (the signing panel's script would mount
+  itself here).
+-->
+<section
+  class="surface mb-4 rounded-lg p-4 sm:p-6"
+  data-webcam-test-panel
+  data-tool-id={meta.id}
+  aria-labelledby={headingId}
+>
+  <div class="flex flex-wrap items-center gap-2">
+    <h2
+      id={headingId}
+      class="flex items-center gap-2 text-base font-semibold text-[rgb(var(--text))]"
+    >
+      <Icon name="camera" size={18} /> Test your camera
+    </h2>
+    <span class="chip">Beta</span>
+  </div>
+  <p id={helpId} class="mt-1.5 max-w-prose text-sm leading-relaxed text-[rgb(var(--text-muted))]">
+    Preview a camera and read the resolution, aspect ratio and frame rate of the live stream, then
+    take a snapshot to download. The feed is drawn in this tab only — nothing is recorded, stored or
+    uploaded. Camera access needs an https:// page, and your browser will ask for permission the
+    first time.
+  </p>
+
+  <div class="mt-4 flex flex-wrap items-center gap-2.5">
+    <button type="button" class="btn btn-primary" data-webcam-start>
+      <Icon name="camera" size={16} /> Start camera
+    </button>
+    <button type="button" class="btn btn-ghost" data-webcam-stop hidden>
+      <Icon name="stop" size={14} /> Stop camera
+    </button>
+    <button type="button" class="btn btn-subtle" data-webcam-snapshot hidden disabled>
+      <Icon name="download" size={14} /> Take snapshot
+    </button>
+  </div>
+
+  <div class="mt-3 flex flex-wrap items-center gap-2" data-webcam-device-wrap hidden>
+    <label for={deviceId} class="text-xs font-medium text-[rgb(var(--text-muted))]">Camera</label>
+    <select id={deviceId} class="field !w-auto !py-1 text-sm" data-webcam-device></select>
+  </div>
+
+  <p
+    id={statusId}
+    class="mt-3 text-sm text-[rgb(var(--text-muted))]"
+    data-webcam-status
+    role="status"
+    aria-live="polite"
+  >
+    Camera off.
+  </p>
+
+  <div
+    class="mt-3 rounded-lg border px-3 py-2 text-sm"
+    style="background-color: rgb(var(--danger-soft)); border-color: rgb(var(--danger)); color: rgb(var(--danger))"
+    role="alert"
+    data-webcam-error
+    hidden
+  >
+  </div>
+
+  <div class="mt-3" hidden data-webcam-stage>
+    <video
+      class="w-full max-w-sm rounded-lg border bg-black"
+      data-webcam-video
+      playsinline
+      muted
+      autoplay
+      aria-label="Live camera preview"
+      aria-describedby={helpId}></video>
+  </div>
+
+  <dl
+    class="mt-4 grid gap-x-6 gap-y-2 text-sm sm:grid-cols-2"
+    data-webcam-readout
+    hidden
+    aria-label="Live stream readout"
+  >
+    <div class="flex items-baseline justify-between gap-3 border-b pb-1">
+      <dt class="text-[rgb(var(--text-muted))]">Resolution</dt>
+      <dd class="font-mono text-xs" data-webcam-value="resolution">—</dd>
+    </div>
+    <div class="flex items-baseline justify-between gap-3 border-b pb-1">
+      <dt class="text-[rgb(var(--text-muted))]">Aspect ratio</dt>
+      <dd class="font-mono text-xs" data-webcam-value="aspect">—</dd>
+    </div>
+    <div class="flex items-baseline justify-between gap-3 border-b pb-1">
+      <dt class="text-[rgb(var(--text-muted))]">Measured frame rate</dt>
+      <dd class="font-mono text-xs" data-webcam-value="fps">—</dd>
+    </div>
+    <div class="flex items-baseline justify-between gap-3 border-b pb-1">
+      <dt class="text-[rgb(var(--text-muted))]">Frame rate reported by the camera</dt>
+      <dd class="font-mono text-xs" data-webcam-value="track-fps">—</dd>
+    </div>
+    <div class="flex items-baseline justify-between gap-3 border-b pb-1">
+      <dt class="text-[rgb(var(--text-muted))]">Frames sampled</dt>
+      <dd class="font-mono text-xs" data-webcam-value="frames">—</dd>
+    </div>
+  </dl>
+
+  <div class="mt-4 space-y-3">
+    <div class="min-w-0" data-webcam-report hidden></div>
+    <ul class="space-y-2" data-webcam-outputs></ul>
+    <ul class="space-y-1 text-xs" data-webcam-notes></ul>
+  </div>
+
+  <noscript>
+    <p class="mt-3 text-sm text-[rgb(var(--text-muted))]">
+      Testing a camera needs JavaScript: the browser exposes no other way to read a live video
+      stream.
+    </p>
+  </noscript>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-webcam-test-panel]').forEach((panel) => {
+    // The panel's logic is loaded on demand so no camera code ships to pages
+    // that don't test a camera.
+    void import('./webcam-test')
+      .then(({ mountWebcamTestPanel }) => mountWebcamTestPanel(panel))
+      .catch(() => {
+        const error = panel.querySelector<HTMLElement>('[data-webcam-error]');
+        if (error) {
+          error.hidden = false;
+          error.textContent = 'The camera panel could not be loaded in this browser.';
+        }
+      });
+  });
+</script>
