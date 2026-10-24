@@ -6,7 +6,7 @@ export const meta: ToolMeta = {
   category: 'image',
   summary: 'Cut a subject out of a photo with an on-device AI matting model (MODNet).',
   description:
-    'Isolate the subject of a portrait or photo with MODNet, an on-device portrait-matting model. The model downloads from the Hugging Face Hub on first use and is cached in your browser, so repeat runs are instant. Your images never leave your device.',
+    'Isolate the subject of a portrait or photo with MODNet, an on-device portrait-matting model. On the first run two files are fetched and cached in your browser: the model weights from the Hugging Face Hub and the ONNX runtime binary from jsDelivr. Your images never leave your device.',
   keywords: [
     'remove background',
     'background remover',
@@ -16,7 +16,18 @@ export const meta: ToolMeta = {
     'subject extraction',
     'ai background removal',
   ],
-  privacy: { processing: 'on-device', network: ['huggingface.co'], offline: false },
+  // Every host this tool contacts. huggingface.co serves the MODNet weights
+  // (its LFS files land via the Hub's own CDN, us.aws.cdn.hf.co);
+  // cdn.jsdelivr.net serves the ONNX runtime WebAssembly binary, because
+  // transformers.js defaults `env.backends.onnx.wasm.wasmPaths` to the jsDelivr
+  // CDN and onnxruntime-web fetches that binary itself, outside the ML
+  // runtime's model fetch. Self-hosting it is a foundation follow-up; until
+  // then it must be disclosed here.
+  privacy: {
+    processing: 'on-device',
+    network: ['huggingface.co', 'cdn.jsdelivr.net'],
+    offline: false,
+  },
   input: 'file',
   accept: 'image/*',
   multiple: true,
@@ -77,15 +88,25 @@ export const meta: ToolMeta = {
       url: 'https://huggingface.co/Xenova/modnet',
       license: 'Apache-2.0',
     },
+    {
+      name: '@huggingface/transformers',
+      url: 'https://github.com/huggingface/transformers.js',
+      license: 'Apache-2.0',
+    },
+    {
+      name: 'onnxruntime-web',
+      url: 'https://github.com/microsoft/onnxruntime',
+      license: 'MIT',
+    },
   ],
   faq: [
     {
-      q: 'How does the model get downloaded?',
-      a: 'The MODNet weights are pulled from the Hugging Face Hub the first time you run the tool and kept in the browser’s Cache Storage, so later runs work offline. Your images are never uploaded — everything happens in your browser.',
+      q: 'What gets downloaded?',
+      a: 'Two things, once: the MODNet model weights from the Hugging Face Hub, and the ONNX runtime binary (WebAssembly) from the jsDelivr CDN, which is where the runtime loads it from by default. Both are kept in your browser’s Cache Storage, so later runs work offline. Your images are never uploaded.',
     },
     {
       q: 'Is my photo sent anywhere?',
-      a: 'No. The only network request is the model download from huggingface.co on first use; the photo itself is processed entirely on your device.',
+      a: 'No. The only requests are for the model weights (huggingface.co) and the ONNX runtime binary (cdn.jsdelivr.net) on first use; the photo itself is processed entirely on your device.',
     },
     {
       q: 'Which images work best?',

@@ -2,9 +2,11 @@
  * Remove Background — on-device portrait matting with MODNet.
  *
  * The heavy work happens in the model: `Xenova/modnet` (Apache-2.0) predicts a
- * single-channel alpha matte for the subject, and this tool composites it. Only
- * the model weights touch the network (fetched once from the Hugging Face Hub
- * and cached by `@/lib/ml`); the images stay in the tab.
+ * single-channel alpha matte for the subject, and this tool composites it. Two
+ * files reach the network on the first run — the model weights from the Hugging
+ * Face Hub, and the ONNX runtime WebAssembly binary from the jsDelivr CDN (the
+ * transformers.js default `wasmPaths`, fetched by onnxruntime-web itself); both
+ * are cached by `@/lib/ml`, and the images never leave the tab.
  *
  * The matte maths below is pure — unit-tested without a browser or a model.
  * Only `run()` (plus the preview encoder) touches canvas and model APIs.
@@ -35,6 +37,18 @@ const PREVIEW_PANEL_MAX = 260;
 const PREVIEW_GAP = 6;
 /** Backdrop painted behind the preview so transparent pixels stay visible. */
 const PREVIEW_BACKDROP = '#e2e8f0';
+
+/**
+ * Tool-specific pixel ceiling.
+ *
+ * A cut-out holds the source `ImageData`, the composited RGBA buffer and the
+ * output `ImageData` size-by-size (~12 bytes per pixel) on top of the decoded
+ * bitmap and the two canvases. The shared 100-megapixel canvas budget
+ * (`MAX_CANVAS_PIXELS`) would therefore mean well over a gigabyte of typed
+ * arrays and can kill the tab, so this tool refuses anything above 24 MP
+ * (e.g. 4000×6000, ~500 MB peak) with a clear message instead.
+ */
+export const MAX_CUTOUT_PIXELS = 24_000_000;
 
 /* -------------------------------------------------------------------------- */
 /*  Model shapes                                                              */
@@ -132,6 +146,31 @@ export function outputFilename(name: string, background: Background, mime: strin
 /* -------------------------------------------------------------------------- */
 
 /**
+ * Enforce the shared canvas limits, then this tool's tighter ceiling. Runs on
+ * the decoded dimensions, before any full-resolution buffer is allocated.
+ */
+export function assertCutoutBudget(width: number, height: number): void {
+  assertCanvasBudget(width, height, 'source image');
+  const pixels = Math.round(width) * Math.round(height);
+  if (pixels > MAX_CUTOUT_PIXELS) {
+    throw new ToolError(
+      `That image is too large to cut a background out of safely (${Math.round(width)}×${Math.round(height)} pixels).`,
+      `Cutting a subject out keeps several full-size copies of the image in memory at once, so this tool is capped at ${MAX_CUTOUT_PIXELS.toLocaleString()} pixels (about 24 megapixels). Resize the image first, then try again.`,
+    );
+  }
+}
+
+/**
+ * Effective coverage of one pixel. A matte can only ever remove coverage, so an
+ * already-transparent source pixel (alpha 0) stays transparent even where the
+ * model says "subject" (1.0).
+ */
+function effectiveAlpha(matte: number, sourceAlpha: number, threshold: number): number {
+  const snapped = threshold > 0 ? (matte >= threshold ? 255 : 0) : matte;
+  return (snapped * sourceAlpha) / 255;
+}
+
+/**
  * Collapse a pipeline mask (1–4 channels) into a single-channel alpha map of
  * `width × height`, nearest-neighbour sampling when the matte was predicted at
  * a different resolution than the source image.
@@ -183,6 +222,10 @@ export function matteToAlpha(mask: MattingMask, width: number, height: number): 
  * - `solid`: flatten the subject onto the colour (`src·a + bg·(1−a)`) and mark
  *   every pixel opaque, so the result is a normal photo on a flat backdrop.
  *
+ * The blend uses the *effective* alpha — `matte × source alpha / 255` — so an
+ * input that is already transparent (a PNG cut-out, a sprite) is never made
+ * opaque by the model, and never painted over the replacement colour.
+ *
  * `threshold` (0 = off) snaps the matte to fully transparent/opaque, which
  * turns the model's soft feathered edges into a hard cut-out.
  */
@@ -194,8 +237,7 @@ export function compositePixels(
 ): Uint8ClampedArray {
   const out = new Uint8ClampedArray(alpha.length * 4);
   for (let p = 0, i = 0; i < alpha.length; i++, p += 4) {
-    let a = alpha[i]!;
-    if (threshold > 0) a = a >= threshold ? 255 : 0;
+    const coverage = effectiveAlpha(alpha[i]!, source[p + 3] ?? 255, threshold);
     const r = source[p] ?? 0;
     const g = source[p + 1] ?? 0;
     const b = source[p + 2] ?? 0;
@@ -203,9 +245,9 @@ export function compositePixels(
       out[p] = r;
       out[p + 1] = g;
       out[p + 2] = b;
-      out[p + 3] = a;
+      out[p + 3] = coverage;
     } else {
-      const f = a / 255;
+      const f = coverage / 255;
       const rest = 1 - f;
       out[p] = r * f + background.r * rest;
       out[p + 1] = g * f + background.g * rest;
@@ -416,7 +458,9 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
         warnings.push('WebGPU could not start, so the model was retried on the CPU.');
       }
     }
-    notes.push('Only the model weights are fetched — your images never leave this device.');
+    notes.push(
+      'The only requests are the model weights (huggingface.co) and the ONNX runtime binary (cdn.jsdelivr.net) — your images never leave this device.',
+    );
 
     const averageCoverage = outputs.length ? coverage / outputs.length : 0;
 

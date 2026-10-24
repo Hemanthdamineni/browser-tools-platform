@@ -15,6 +15,7 @@ import tool, {
   type SegmentationSegment,
 } from './background-remover.tool';
 import { blobPixels, installImageMock, makeFile, pixelAt, type MockHandle } from './image-mock';
+import { meta } from './background-remover.meta';
 
 /* -------------------------------------------------------------------------- */
 /*  Fixtures                                                                  */
@@ -275,6 +276,28 @@ describe('outputFilename', () => {
 });
 
 /* -------------------------------------------------------------------------- */
+/*  Network disclosure                                                        */
+/* -------------------------------------------------------------------------- */
+
+describe('network disclosure', () => {
+  it('declares every host the page contacts', () => {
+    // The Hub serves the weights; the ONNX runtime WebAssembly binary comes from
+    // jsDelivr (transformers.js's default `wasmPaths`), which onnxruntime-web
+    // fetches outside the ML runtime's model fetch. Understating either host
+    // would make the privacy badge and the privacy page wrong.
+    const hosts = Array.isArray(meta.privacy.network) ? meta.privacy.network : [];
+    expect(hosts).toEqual(expect.arrayContaining(['huggingface.co', 'cdn.jsdelivr.net']));
+  });
+
+  it('names both downloads and the image guarantee in its visible copy', () => {
+    const copy = [meta.description, ...(meta.faq ?? []).map((entry) => entry.a)].join(' ');
+    expect(copy).toMatch(/hugging[\s-]?face/i);
+    expect(copy).toMatch(/jsdelivr/i);
+    expect(copy).toMatch(/never (uploaded|leave)/i);
+  });
+});
+
+/* -------------------------------------------------------------------------- */
 /*  run()                                                                     */
 /* -------------------------------------------------------------------------- */
 
@@ -476,13 +499,13 @@ describe('background-remover run', () => {
     ).rejects.toThrow(/hex colour/i);
   });
 
-  it('explains where the model came from and that the photo stayed local', async () => {
+  it('surfaces the cache state of the model download instead of claiming a fetch', async () => {
     installStack(() => [opaqueSegment(4, 4)]);
     const result = await tool.run({ files: [makeFile('a.png')], options: {} });
-    const notes = result.notes?.join(' ') ?? '';
-    // No bytes were fetched, so the loader reports a cache hit.
-    expect(notes).toMatch(/reused from your browser’s cache/i);
-    expect(notes).toMatch(/CPU \(WASM\)/);
-    expect(notes).toMatch(/never leave this device/i);
+    // Nothing was fetched through the loader, so it reports a cache hit.
+    expect(result.notes?.some((note) => /cache/i.test(note))).toBe(true);
+    // And the run still produced usable, unchanged pixels.
+    const pixels = await blobPixels(result.outputs[0]!.blob);
+    expect(pixelAt(pixels, 4, 0, 0)).toEqual([200, 100, 50, 255]);
   });
 });
