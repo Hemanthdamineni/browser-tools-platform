@@ -421,3 +421,67 @@ crashed the session twice — each sub-agent committed in small steps, so no wor
   - The image-annotator panel kernel idea from the previous report gains another consumer: `pdf-organize`'s thumbnail grid and `image-blur-redact` both needed draggable-region canvases this round.
   - `pdf-unlock`/`pdf-fill-form` can reuse the vendored qpdf wasm from `pdf-protect` (same engine, `--decrypt` path).
   - `image-ocr` + `pdf-ocr` (after: image-ocr) can now share the vendored tesseract stack as-is; no extra vendoring needed for pdf-ocr.
+
+## run-20261023-2024-f777 — 2026-10-24T09:00:00Z
+
+Batch: `keyboard-tester`, `video-trim`, `video-extract-audio`, `video-convert` (claimed as `9ba63e6`). No merge
+items, no new dependencies anywhere. All four were smoke-tested in a real browser against a real VP8+Opus
+fixture, all four merges verified with the full `verify` gate (check + lint + vitest + build) after each rebase.
+
+- Merged: `keyboard-tester` (`c25e5c6`) — on-screen US-QWERTY layout that lights up per key, key/code/char/
+  modifier readout, and a rollover/ghosting test with presets and a custom-combination parser. Verified live:
+  single key lights the right key, a 4-key chord registers 4 keys, a Shift+A+S+D challenge reports PASS with a
+  report table; zero console errors.
+- Merged: `video-trim` (`abf7188` + race fix `138c2bf`) — scrubber panel with draggable/keyboard-operable
+  handles, stream copy when the cut allows it and re-encode otherwise. Verified live: a 6 s VP8+Opus fixture
+  trimmed from 0:02 produced a valid 4.02 s WebM (ffprobe-confirmed) via the re-encode path.
+- Merged: `video-extract-audio` (`a9067f7`) — WAV (self-written 16-bit PCM), MP3 and AAC via the browser's
+  WebCodecs audio encoder with an explicit "your browser lacks this encoder" message. Verified live: the fixture
+  extracted to a valid 6.01 s 48 kHz mono PCM WAV (ffprobe-confirmed); zero console errors.
+- Merged: `video-convert` (`5936034`) — MP4/WebM/MOV/MKV with a remux-first decision matrix and honest
+  remux-vs-transcode reporting. Verified live: webm→mp4 transcoded to a valid h264+opus MP4 (ffprobe-confirmed).
+- Failed: none. Blocked: none.
+- New dependencies: none.
+- Limitations: `video-trim` — stream copy can only cut on keyframes; input capped at 2 GiB (output buffered in
+  memory). `video-extract-audio` — MP3/AAC depend on the browser's WebCodecs audio encoder (Firefox has
+  neither; the tool says so instead of silently substituting); primary audio track only; WAV is 16-bit PCM.
+  `video-convert` — transcode keeps the source bitrate (presets are video-compress's job); primary tracks only;
+  output capped at 512 MB. `keyboard-tester` — numpad/media keys show in the readout but light nothing;
+  browser-reserved chords (Ctrl+T/W/N) are untestable and the FAQ says so.
+- Mistakes noticed:
+  - **A panel root with `data-text-workbench` kills the whole page.** The keyboard-tester panel shipped with a
+    stray `data-text-workbench` attribute on its root section. The shared TextWorkbench script matches that
+    attribute, assumes a `[data-run]` button exists, and throws `Cannot read properties of null (reading
+    'addEventListener')` in the hoisted module — which also prevents the panel's own lazy script from mounting.
+    The page was dead on arrival (fixed in this run by removing the attribute; the e2e workbench sweep only
+    needs `[data-panel-workbench]`). Any future panel copying a workbench root's attributes will hit this again;
+    the TextWorkbench script should guard its required elements.
+  - **`mediabunny`'s `AudioBufferSink` cannot be used in a worker.** Its buffers call `sample.toAudioBuffer()`,
+    which constructs `new AudioBuffer(...)` — a Web Audio DOM object that does not exist in a worker global
+    scope. `video-extract-audio` shipped with it and failed with `AudioBuffer is not defined` in the real
+    worker; fixed by reading planar f32 directly off `AudioSample`s (`allocationSize`/`copyTo`/`close`).
+    Anything else that decodes audio inside the generic tool worker must use `AudioSampleSink`.
+  - **Panel pages can race their own preview.** If a video's `loadedmetadata` fires before the lazily imported
+    panel module attaches its listener, the panel never learns the clip length and the run button stays
+    disabled. Fixed in `video-trim` by re-checking `videoEl.readyState >= 1` after mount; other media panels
+    (camera, mic, screen recorder) should do the same for their metadata events.
+  - **Two items that master had already absorbed were still unticked with stale ⏳ claims** (`code-minify`
+    `5c6b600`, `video-compress` `819c44d`), and run-20261023-2100-7541 then burned them with a second `⚠️ run
+    died` apiece (`code-minify` is genuinely shipped; `merge-base64` likewise, `af1467a` — master's `base64`
+    gained the file mode and `base64-file` is already a routable alias). Those three lines now read "failed
+    twice" even though nothing failed and nothing needs doing; the human should tick them in the next review.
+  - **`docs/TOOLS.md` on origin/master was stale again** (claimed 404 tools; 389 exist — it lists 5 tools whose
+    metas were never committed, e.g. `id3-tag-reader`, `gpx-track-stats`). Regenerated here: 389 tools. Anything
+    that lands metas without committing the doc will keep tripping CI's doc-check.
+  - **Disk pressure is the recurring killer of runs on this machine.** This run started with the volume at 99%
+    (1.5 GB free) purely because four dead runs from 2026-10-21 had left 7.5 GB of worktrees behind. They were
+    pruned (committed-but-unmerged work was first rescued to `rescue/*-w777` branches and
+    `origin/tool/*` branches; `markdown-preview`, `keyboard-tester` and `video-trim` uncommitted work was
+    pushed to `rescue/markdown-preview-w777`, `rescue/keyboard-tester-w777`, `rescue/video-trim-w777`).
+- Ideas:
+  - `audio-info`-style probe reports already exist; a shared **media-probe panel** (drag any media file →
+    ffprobe-like table: containers, codecs, bitrates, durations) would replace the per-tool "Property/Value"
+    tables four video tools now each render, and would make `video-convert`/`video-trim` input diagnosis
+    trivial.
+  - `subtitle-converter` exists, but nothing converts audio→text; `speech-to-text` (already in TODOS) plus the
+    now-proven worker-safe audio decode path (AudioSampleSink) makes the audio half of that tool mostly plumbing.

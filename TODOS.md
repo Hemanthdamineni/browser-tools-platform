@@ -42,10 +42,10 @@ Line order is priority: top first. This file is written by a human (via review) 
 - [x] **compound-interest** · misc — Compounding frequency, periodic contributions, and a yearly schedule table. ✅ already exists as compound-interest-calculator
 - [ ] **webcam-test** · device — Registers the `device` category. Device picker, resolution and fps readout, snapshot. Nothing leaves the device. ⚠️ run died ⏳ run-20261023-2100-7541 @ 2026-10-23T21:16:07Z
 - [ ] **mic-test** · device — Level meter, waveform, record and play back. ⚠️ run died ⏳ run-20261023-2100-7541 @ 2026-10-23T21:16:07Z
-- [ ] **keyboard-tester** · device — On-screen layout that lights up per key; key/code readout; ghosting test. ⏳ run-20261023-2024-f777 @ 2026-10-23T21:35:19Z
-- [ ] **video-trim** · video · after: video-foundation — Stream copy when cut points allow, re-encode otherwise. Scrubber preview. ⏳ run-20261023-2024-f777 @ 2026-10-23T21:35:19Z
-- [ ] **video-extract-audio** · video · after: video-foundation — MP3, AAC, and WAV output. ⏳ run-20261023-2024-f777 @ 2026-10-23T21:35:19Z
-- [ ] **video-convert** · video · after: video-foundation — MP4, WebM, MOV, and MKV. Remux when possible, transcode when needed. ⏳ run-20261023-2024-f777 @ 2026-10-23T21:35:19Z
+- [x] **keyboard-tester** · device — On-screen layout that lights up per key; key/code readout; ghosting test. ✅ c25e5c6
+- [x] **video-trim** · video · after: video-foundation — Stream copy when cut points allow, re-encode otherwise. Scrubber preview. ✅ 138c2bf
+- [x] **video-extract-audio** · video · after: video-foundation — MP3, AAC, and WAV output. ✅ a9067f7
+- [x] **video-convert** · video · after: video-foundation — MP4, WebM, MOV, and MKV. Remux when possible, transcode when needed. ✅ 5936034
 - [x] **image-watermark** · image — Text or logo watermark; opacity, position, or tiled. Batch mode. ✅ 3110270
 - [x] **image-add-text** · image — Captions and meme-style text: fonts, stroke, shadow, drag to position. ✅ 906dd6a
 - [x] **image-blur-redact** · image — Draw regions to blur, pixelate, or black out. Strip metadata on export. ✅ 8cb89f1
