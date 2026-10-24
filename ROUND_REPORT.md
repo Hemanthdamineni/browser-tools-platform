@@ -396,3 +396,28 @@ crashed the session twice — each sub-agent committed in small steps, so no wor
   - `FileWorkbench` should skip any root that declares itself panel-owned (e.g. a
     `data-workbench-owned` attribute) instead of the hardcoded `data-signature-workbench` check, and
     `workbench/shared.ts` should export `imageToPngBlob`.
+
+## run-20261023-2031-a3f2 — 2026-10-24T10:35:00Z
+- Merged: merge-datauri (0b2222e) — `data-uri` gains four modes (text/image × encode/decode); `image-to-datauri` and `datauri-to-image` stay routable as redirect aliases; deprecated `unescape`/`escape` path replaced with TextEncoder/TextDecoder.
+- Merged: image-ocr (8784cc2) — tesseract.js OCR with 10 self-hosted languages (all traineddata vendored under `/vendor/tesseract/`, no third-party fetch); lazy dynamic import; text report + per-image .txt download.
+- Merged: webcam-recorder (f6cb8ad) — getUserMedia + MediaRecorder recorder panel; VP9→VP8→WebM→MP4 mime fallback; resolution + mic options; camera device picker; shared mockable `webcam-recorder-core` ready for screen-recorder reuse.
+- Merged: pdf-organize (a0f7e7e) — reorder/rotate/delete/insert-blank-page planner with thumbnail grid panel; pure core in `pdf-organize.core.ts` (84 tests).
+- New dependencies: tesseract.js@^7.0.0 (Apache-2.0, ~5.4 KB gzipped wrapper, lazy dynamic import); @tesseract.js-data/{eng,deu,fra,spa,hin,chi_sim,ita,nld,por,rus}@^1.0.0 (models Apache-2.0, npm packages MIT; 0.9–1.7 MB each, vendored static assets served from this origin, fetched only when a language is first used).
+- Limitations:
+  - image-ocr — LSTM "best int" models only (no legacy engine data); first use of a language downloads its model from this origin (~1–2 MB).
+  - webcam-recorder — device labels are blank until permission is granted (browser behaviour); resolution uses ideal constraints, so a fixed-720p camera stays 720p; WebM playback lacks header duration (seek workaround in the player).
+  - pdf-organize — a source page cannot appear twice in one plan (friendly ToolError); rotation adds to the page's existing /Rotate; blank pages are Letter/A4 only.
+  - data-uri — `image-decode` returns the decoded file without an inline image preview (same as the old tool); alias pages are static meta-refresh redirects.
+  - e2e specs for image-ocr/webcam-recorder were authored but not executed in this run (browser-run out of scope of the green gates); unit + build + a manual Playwright-driven smoke pass on each tool page were done instead.
+- Mistakes noticed:
+  - `FileWorkbench`'s generic script attached to panel-owned roots that reuse the `data-file-workbench` marker: on `/tools/data-uri` both handlers bound to the same Run button and the generic one crashed (`TypeError: reading 'length' of undefined`) before the panel's handler could run. Fixed by skipping roots without a `[data-download-all]` button (merge-datauri branch). The hardcoded guard list (`data-signature-workbench`, now download-all) keeps growing — a `data-workbench-owned` attribute convention would stop this recurring for the next panel.
+  - `data-uri.tool.ts` and `proxy-authorization.tool.ts` use deprecated `unescape()` (TS 6387 hints on master); the data-uri merge fixed its own path, `proxy-authorization` still needs it.
+  - An earlier dead run's `image-ocr` branch shipped a `^[a-z]{3}$` language-code regex that rejects every region-suffixed tesseract code (`chi_sim`); fixed in the rebase.
+  - `pdf-to-images.tool.ts` sets `GlobalWorkerOptions.workerSrc` at module top level unconditionally — importing that module outside a browser crashes (pdf-extract-text guards this correctly); worth a cleanup.
+  - `pdf/shared.ts loadPdfBytes` reports every load failure (including empty files) as "not a valid PDF" — acceptable but could distinguish empty input.
+  - The Tailwind `[hidden]`-vs-`.btn` visibility bug from the previous report is still live on the new panels (Cancel/Reset visible before they should be).
+- Ideas:
+  - `screen-recorder` should reuse `webcam-recorder-core` (`startRecording` already takes an injected recorder factory; only the `getDisplayMedia` source differs).
+  - The image-annotator panel kernel idea from the previous report gains another consumer: `pdf-organize`'s thumbnail grid and `image-blur-redact` both needed draggable-region canvases this round.
+  - `pdf-unlock`/`pdf-fill-form` can reuse the vendored qpdf wasm from `pdf-protect` (same engine, `--decrypt` path).
+  - `image-ocr` + `pdf-ocr` (after: image-ocr) can now share the vendored tesseract stack as-is; no extra vendoring needed for pdf-ocr.

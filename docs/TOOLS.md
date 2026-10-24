@@ -1,6 +1,6 @@
 # Complete Tool List
 
-Total: **382** tools across **19** categories.
+Total: **404** tools across **20** categories.
 
 Generated from `src/tools/**/*.meta.ts` (source of truth).
 
@@ -21,7 +21,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `file-join` | Join File Chunks | file | stable | Join numbered file chunks into one file and verify an optional manifest. |
 | `file-split` | Split File into Chunks | file | stable | Split a large file into numbered part chunks plus a JSON manifest. |
 
-## audio (10)
+## audio (11)
 
 | id | name | input | status | summary |
 | --- | --- | --- | --- | --- |
@@ -32,6 +32,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `audio-to-wav` | Convert Audio to WAV | file | stable | Convert browser-supported audio files to uncompressed 16-bit PCM WAV. |
 | `audio-fade` | Fade Audio In / Out | file | stable | Apply a linear, exponential or logarithmic fade in and fade out to audio. |
 | `audio-merge` | Merge / Concatenate Audio | file | stable | Join audio files end-to-end or mix them together into one WAV. |
+| `id3-tag-reader` | MP3 Tag (ID3) Reader | file | stable | Read ID3v2 and ID3v1 tags from an MP3: title, artist, album, year, track and cover art. |
 | `audio-normalize` | Normalise Audio | file | stable | Scale audio to a target peak or RMS level (in dBFS) without changing the length. |
 | `audio-reverse` | Reverse Audio | file | stable | Reverse an audio clip sample-for-sample and save the result as WAV. |
 | `audio-trim` | Trim / Clip Audio | file | stable | Cut an audio file to a range and apply click-free fade in/out edges. |
@@ -55,12 +56,13 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `docx-to-markdown` | DOCX to Markdown | file | stable | Turn a Word .docx into Markdown or plain text locally — headings, lists and tables. |
 | `subtitle-converter` | Subtitle Converter | text | stable | Convert subtitle files between SRT and WebVTT, and shift cue timings, entirely on-device. |
 
-## crypto (8)
+## crypto (9)
 
 | id | name | input | status | summary |
 | --- | --- | --- | --- | --- |
 | `crc32` | CRC-32 / Adler-32 Checksum | text | stable | Compute CRC-32, CRC-32C or Adler-32 checksums of text, as hex or decimal. |
 | `keypair-generator` | Cryptographic Keypair Generator | text | stable | Generate RSA, ECDSA or Ed25519 key pairs in the browser and export them as PEM, with an optional sign-and-verify check. |
+| `csr-decoder` | CSR Decoder | file | stable | Decode a PKCS#10 certificate request: subject, SANs, key details and a signature check. |
 | `file-hash` | File Hash / Checksum | file | stable | Compute SHA-256/384/512 and SHA-1 checksums for one or more files. |
 | `hmac` | HMAC Generator | text | stable | Compute an HMAC of text with a secret key using SHA-1, SHA-256, SHA-384 or SHA-512. |
 | `pbkdf2-key-derivation` | PBKDF2 Key Derivation | text | stable | Derive a key from a passphrase with PBKDF2-HMAC, or verify a stored PBKDF2 password hash. |
@@ -68,7 +70,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `hash` | Text Hash Generator | text | stable | Hash text with MD5, SHA-1, SHA-256, SHA-384 or SHA-512 and output hex, Base64 or base64url. |
 | `x509-certificate-inspector` | X.509 Certificate Inspector | text | stable | Parse an X.509 certificate: subject, issuer, validity, key details, SANs and fingerprints. |
 
-## data (39)
+## data (43)
 
 | id | name | input | status | summary |
 | --- | --- | --- | --- | --- |
@@ -84,6 +86,8 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `csv-to-yaml` | CSV to YAML | text | stable | Convert a CSV table into block-style YAML with automatic type detection and quoting. |
 | `csv-transpose` | CSV Transpose | text | stable | Swap CSV rows and columns while preserving quoted fields. |
 | `json-flatten` | Flatten JSON | text | stable | Flatten nested JSON to dotted keys (users.0.name) or collapse dotted keys back into nested JSON. |
+| `geojson-validator` | GeoJSON Validator | file | stable | Validate GeoJSON against RFC 7946 and inspect features, rings and bounds. |
+| `gpx-track-stats` | GPX Track Stats | file | stable | Summarize a GPX track: distance, elevation gain and loss, duration, speed and splits. |
 | `html-to-csv` | HTML Table to CSV | text | stable | Extract <table> elements from pasted HTML and output clean, RFC-4180 CSV. |
 | `ini-convert` | INI Converter | text | stable | Convert INI config files to JSON or serialize JSON back to INI, on device. |
 | `json-diff` | JSON Diff | text | stable | Structural diff of two JSON documents, showing added, removed and changed values by path. |
@@ -101,8 +105,10 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `json-to-python` | JSON to Python Dataclasses | text | stable | Generate Python dataclass or TypedDict definitions from a JSON sample, with nested models. |
 | `json-to-typescript` | JSON to TypeScript | text | stable | Generate TypeScript interfaces or type aliases from a JSON sample, with nested named types. |
 | `json-to-yaml` | JSON to YAML | text | stable | Convert JSON to YAML on your device, with a 2- or 4-space indent. |
+| `mbox-archive-analyzer` | mbox Archive Analyzer | file | stable | Analyze an mbox mail archive: messages, senders, attachments, flags and archive problems. |
 | `ndjson` | NDJSON <-> JSON Array | text | stable | Convert newline-delimited JSON to a JSON array and back, one compact value per line. |
 | `properties-convert` | Properties Converter | text | stable | Convert Java .properties config to JSON or serialize JSON back to .properties. |
+| `plist-decoder` | Property List Decoder | file | stable | Read binary and XML property lists (.plist): tree, types, object table and warnings. |
 | `querystring` | Query String <-> JSON | text | stable | Parse a URL query string into JSON, or build a query string from a JSON object. Local only. |
 | `toml-convert` | TOML ⇄ JSON Converter | text | stable | Parse TOML into JSON, or serialize JSON back to TOML. |
 | `xml-json-convert` | XML ⇄ JSON Converter | text | stable | Convert XML documents into JSON and JSON back into XML. |
@@ -129,7 +135,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `workday-calculator` | Workday Calculator | text | stable | Add business days to a date or count the working days between two dates, skipping weekends and holidays. |
 | `world-clock` | World Clock | text | stable | Current time, date and UTC offset for any IANA time zones, instantly and on your device. |
 
-## developer (49)
+## developer (51)
 
 | id | name | input | status | summary |
 | --- | --- | --- | --- | --- |
@@ -157,6 +163,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `html-to-text` | HTML to Plain Text | text | stable | Strip HTML tags to clean, readable plain text — entities decoded, block layout preserved. |
 | `html-to-pug` | HTML to Pug | text | stable | Convert HTML into Pug (formerly Jade) template syntax with shorthand selectors, attributes and indentation. |
 | `http-request-builder` | HTTP Request Builder | text | stable | Compose a raw HTTP/1.1 request — method, URL, headers and body — with Host and Content-Length filled in. |
+| `ieee754-inspector` | IEEE 754 Float Inspector | text | stable | Decode and encode 32/64-bit floats: sign, exponent, mantissa, hex and bytes. |
 | `jsdoc-generator` | JSDoc Generator | text | stable | Generate a JSDoc comment block from a function signature, with @param and @returns lines. |
 | `json-to-csharp` | JSON to C# Class | text | stable | Generate C# classes and record types from a JSON sample for System.Text.Json deserialization. |
 | `json-to-java` | JSON to Java | text | stable | Generate Java POJO, Lombok or record classes from JSON with nested types and getters. |
@@ -179,11 +186,18 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `sql-format` | SQL Formatter (basic) | text | stable | Pretty-print a SQL query: keyword casing, clause line breaks, indented joins and columns. |
 | `string-escape` | String Escaper | text | stable | Escape or unescape text for JS, JSON, C, Java, Python, shell, SQL, CSV, HTML, XML, URL, backslash or Unicode. |
 | `svg-to-jsx` | SVG to JSX / React Component | text | stable | Convert SVG or XML markup into JSX — camelCased attributes, style objects, optional component. |
+| `systemd-unit-inspector` | systemd Unit Inspector | text | stable | Inspect and validate systemd unit files: directives, dependencies, ExecStart and hardening. |
 | `diff-text` | Text Diff | text | stable | Compare two blocks of text and see the differences as a unified diff or an inline word/character diff. |
 | `text-inspector` | Text Encoding & Character Inspector | text | stable | Inspect BOMs, line endings, control characters, and Unicode code points in text. |
 | `ua-parser` | User-Agent Parser | text | stable | Decode any User-Agent string into browser, version, engine, OS, OS version and device class — on your device. |
 
-## encoding (13)
+## device (1)
+
+| id | name | input | status | summary |
+| --- | --- | --- | --- | --- |
+| `keyboard-tester` | Keyboard Tester | text | beta | Watch every key you press light up on screen, read the key and code the browser receives, and test for ghosting. |
+
+## encoding (14)
 
 | id | name | input | status | summary |
 | --- | --- | --- | --- | --- |
@@ -191,6 +205,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `base32` | Base32 Encode / Decode | text | stable | RFC 4648 Base32 and Crockford Base32 encoding and decoding of text. |
 | `base58` | Base58 Encode / Decode | text | stable | Convert text to and from Base58 using the Bitcoin and IPFS alphabet. |
 | `base64` | Base64 Encode / Decode | file | stable | Convert text or a file to and from Base64, with URL-safe and MIME line-wrap options. |
+| `cbor-decoder` | CBOR Decoder | file | stable | Decode CBOR into readable JSON, with a structure outline and tag interpretation. |
 | `hex` | Hex Encode / Decode | text | stable | Convert text to and from hexadecimal (UTF-8), with configurable separators. |
 | `html-entity` | HTML Entity Converter | text | stable | Encode text to HTML entities (safe for &<>) and decode &amp;, &eacute;, &#123; back to text. |
 | `html-entities` | HTML Entity Encode / Decode | text | stable | Escape text for safe insertion into HTML, or decode named and numeric entities. |
@@ -222,7 +237,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `uuid` | UUID Generator | text | stable | Generate RFC 4122 UUIDs (v4 random or v7 time-ordered) in bulk. |
 | `vcard` | vCard Generator | text | stable | Build vCard 3.0 contact files, or parse a pasted vCard back into fields. |
 
-## image (18)
+## image (19)
 
 | id | name | input | status | summary |
 | --- | --- | --- | --- | --- |
@@ -237,6 +252,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `heic-to-jpg` | HEIC to JPG | file | beta | Convert HEIC photos from iPhone and Android to JPG, PNG or WebP — right in your browser. |
 | `image-diff` | Image Difference | file | stable | Compare two images and visualize their pixel differences. |
 | `image-metadata` | Image Metadata & EXIF Viewer | file | stable | Inspect image dimensions, file details, and common JPEG EXIF tags. |
+| `image-ocr` | Image OCR | file | beta | Read text out of images with on-device OCR — nothing is uploaded, nothing leaves your browser. |
 | `image-to-datauri` | Image to Data URI | file | beta | Encode an image as a data URI for HTML, CSS, or source code. |
 | `image-resize` | Resize Image | file | stable | Resize images by percentage or to exact dimensions, entirely in your browser. |
 | `image-rotate` | Rotate / Flip Image | file | stable | Rotate images by 90-degree steps or flip them horizontally and vertically. |
@@ -270,7 +286,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `ipv6-expander` | IPv6 Address Expander | text | stable | Expand and validate IPv6 addresses (:: shorthand). |
 | `mac-address` | MAC Address Analyzer | text | stable | Validate, normalize and decode MAC addresses, incl. EUI-64. |
 
-## numbers (11)
+## numbers (12)
 
 | id | name | input | status | summary |
 | --- | --- | --- | --- | --- |
@@ -280,13 +296,14 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `number-to-words` | Number to Words | text | stable | Spell out numbers in cardinal or ordinal English words with flexible casing. |
 | `prime-factorization` | Prime Factorization Calculator | text | stable | Factor any integer into its prime powers and compute its divisors, totient and sigma. |
 | `roman-numeral` | Roman Numeral Converter | text | stable | Convert numbers to Roman numerals and back, with optional vinculum notation. |
+| `significant-figures` | Significant Figures & Notation | text | stable | Count significant figures, see scientific and engineering notation, and round. |
 | `statistics-calculator` | Statistics Calculator | text | stable | Mean, median, mode, variance, standard deviation, quartiles, IQR and outliers from any list of numbers. |
 | `unit-convert` | Unit Converter | text | stable | Convert between units of length, mass, temperature, data and more. |
 | `barcode-validator` | UPC / EAN Barcode Validator | text | stable | Validate GS1 GTIN barcodes — UPC-A, UPC-E, EAN-13 and EAN-8 — and compute their check digit. |
 | `vin-validator` | VIN Validator & Decoder | text | stable | Validate and decode 17-character VINs with check digit. |
 | `words-to-number` | Words to Number | text | stable | Parse English number words like "two hundred thirty-four" into 234, with decimals and negatives. |
 
-## pdf (14)
+## pdf (15)
 
 | id | name | input | status | summary |
 | --- | --- | --- | --- | --- |
@@ -298,6 +315,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `pdf-extract-text` | Extract PDF Text | file | stable | Extract selectable text from every page of a PDF. |
 | `images-to-pdf` | Images to PDF | file | stable | Combine image files into a PDF, with one image per page. |
 | `pdf-merge` | Merge PDFs | file | stable | Combine several PDF files into one document, page by page. |
+| `pdf-organize` | Organize PDF Pages | file | beta | Reorder, rotate, delete and add blank pages to a PDF, then save the new order as a PDF. |
 | `pdf-to-images` | PDF to Images | file | stable | Render selected PDF pages as PNG, JPEG, or WebP images. |
 | `pdf-rotate` | Rotate Pages | file | stable | Rotate every page — or a selection — of a PDF by 90, 180, or 270 degrees. |
 | `pdf-sign` | Sign PDF | file | beta | Draw, type or upload a signature, place it on a page and flatten it into the PDF. |
@@ -305,24 +323,28 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `pdf-metadata` | View / Edit PDF Metadata | file | stable | Inspect document properties or update PDF title, author, subject, keywords and more. |
 | `pdf-watermark` | Watermark PDF | file | stable | Overlay translucent text on selected PDF pages as a centered or tiled watermark. |
 
-## security (12)
+## security (16)
 
 | id | name | input | status | summary |
 | --- | --- | --- | --- | --- |
 | `credit-card-validator` | Credit Card Validator | text | stable | Check a card number with the Luhn algorithm and detect the card brand from its prefix. |
+| `email-header-analyzer` | Email Header Analyzer | file | stable | Analyze email headers: delivery hops and delays, SPF, DKIM and DMARC results, addresses. |
 | `email-validator` | Email Validator | text | stable | Validate an email address: structure, local-part rules, domain labels, TLD and length limits. |
 | `security-headers` | HTTP Security Headers Analyzer | text | stable | Review pasted HTTP response headers for common browser security protections. |
 | `checksum-validator` | Identifier Checksum Validator | text | stable | Check Luhn, IBAN MOD-97, ISBN-10, and ISBN-13 checksums locally. |
+| `iptables-ruleset-auditor` | iptables Ruleset Auditor | file | stable | Audit an iptables-save ruleset: chains, policies, reachable ports, shadowed rules and open ports. |
 | `passphrase` | Passphrase Generator | text | stable | Diceware-style passphrases from an embedded word list — memorable and high-entropy. |
 | `password` | Password Generator | text | stable | Generate strong random passwords with your browser CSPRNG — no bias, nothing uploaded. |
 | `password-strength` | Password Strength Analyzer | text | stable | Estimate password entropy and score strength with feedback. |
 | `random-string` | Random String Generator | text | stable | Generate random strings from a chosen character set with an unbiased browser CSPRNG. |
 | `secret-scanner` | Secret & Credential Scanner | text | stable | Find and optionally redact likely credentials in pasted text or configuration. |
+| `ssh-config-auditor` | SSH Config Auditor | file | stable | Audit an SSH client config: resolve host options, flag risky settings and ordering mistakes. |
 | `ssh-key-fingerprint` | SSH Key Fingerprint | text | stable | Compute the SHA256 and MD5 fingerprints of an SSH public key, with key type and size. |
+| `svg-sanitizer` | SVG Sanitizer | file | stable | Strip scripts, event handlers and external references from an SVG, and report what changed. |
 | `text-encrypt` | Text Encryption (AES-GCM) | text | stable | Encrypt or decrypt text with a passphrase using AES-256-GCM and PBKDF2, entirely on your device. |
 | `totp-authenticator` | TOTP Authenticator Code Generator | text | stable | Generate and verify RFC 6238 TOTP codes from a base32 secret. |
 
-## text (28)
+## text (29)
 
 | id | name | input | status | summary |
 | --- | --- | --- | --- | --- |
@@ -345,6 +367,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `rot13` | ROT13 / Caesar Cipher | text | stable | Apply ROT13, ROT5, ROT18, ROT47 or an arbitrary Caesar shift to text. |
 | `slugify` | Slugify | text | stable | Turn a title into a clean URL slug — lowercase, hyphenated, accent-folded. |
 | `sort-lines` | Sort Lines | text | stable | Sort lines alphabetically, numerically, by length, naturally, or shuffle them. |
+| `text-similarity` | Text Similarity & Edit Distance | text | stable | Compare strings with edit distance and similarity scores to find near-duplicates. |
 | `text-stats` | Text Statistics | text | stable | Count characters, words, sentences, paragraphs and lines, with reading and speaking time estimates. |
 | `text-summarizer` | Text Summarizer | text | stable | Extract the most important sentences from a long document to make a quick summary. |
 | `text-to-slug` | Text to Slug | text | stable | Convert text into URL-friendly slugs: lowercase, separator, trim, stopword and unicode options. |
@@ -355,15 +378,17 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `word-frequency` | Word Frequency Counter | text | stable | Count how often each word appears, with case folding, a minimum length, stop-word removal and a top-N limit. |
 | `wrap-text` | Wrap / Unwrap Text | text | stable | Hard-wrap text to a fixed column width with greedy word wrap, or unwrap wrapped lines back into paragraphs. |
 
-## video (3)
+## video (5)
 
 | id | name | input | status | summary |
 | --- | --- | --- | --- | --- |
+| `video-trim` | Trim Video | file | beta | Cut a video to a start and end time — stream copy when the container allows it, re-encode when it does not. |
 | `video-compress` | Video Compressor | file | beta | Shrink a video in your browser: aim at a target file size or at a quality level. Nothing is uploaded. |
 | `video-info` | Video File Info | file | beta | Inspect a video: container, duration, resolution, codecs, frame rate and bitrate. |
 | `video-to-gif` | Video to GIF | file | beta | Turn a clip into an animated GIF: trim it, pick the frame rate, width and palette quality. |
+| `webcam-recorder` | Webcam Recorder | file | beta | Record your webcam in the browser and download the clip — the video never leaves your device. |
 
-## web (113)
+## web (115)
 
 | id | name | input | status | summary |
 | --- | --- | --- | --- | --- |
@@ -373,6 +398,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `accept-language` | Accept-Language Header Analyzer | text | stable | Analyze and build Accept-Language values |
 | `accept-patch` | Accept-Patch Builder & Analyzer | text | stable | Build or inspect HTTP Accept-Patch media-type capabilities. |
 | `accept-post` | Accept-Post Builder & Analyzer | text | stable | Build or inspect HTTP Accept-Post media-type capabilities. |
+| `access-log-analyzer` | Access Log Analyzer | file | stable | Analyze Apache and nginx access logs: traffic, top lists, status codes, errors and probes. |
 | `access-control-allow-credentials` | Access-Control-Allow-Credentials Builder & Analyzer | text | stable | Build or inspect the CORS credentials flag. |
 | `access-control-allow-methods-headers` | Access-Control-Allow-Methods & Headers Builder | text | stable | Build or inspect CORS preflight grant lists. |
 | `access-control-allow-origin` | Access-Control-Allow-Origin Builder & Analyzer | text | stable | Build or inspect CORS origin grants. |
@@ -419,6 +445,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `etag` | ETag Builder & Analyzer | text | stable | Build and compare HTTP entity tags for conditional requests. |
 | `expect-header` | Expect Header Builder & Analyzer | text | stable | Build or inspect HTTP Expect request expectations. |
 | `expires-header` | Expires Header Builder & Analyzer | text | stable | Build or inspect HTTP Expires cache timestamps. |
+| `feed-inspector` | Feed Inspector | file | stable | Inspect an RSS, Atom or RDF feed: channel details, items, enclosures and spec problems. |
 | `fluid-clamp` | Fluid CSS Clamp Generator | text | stable | Generate responsive CSS clamp() values between viewport breakpoints. |
 | `forwarded-header` | Forwarded Header Builder & Parser | text | stable | Build or inspect standardized proxy Forwarded headers. |
 | `meta-tags` | HTML Meta Tag Generator | text | stable | Generate SEO, Open Graph and Twitter card meta tags from page details. |
