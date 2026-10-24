@@ -60,7 +60,9 @@ describe('fitRect', () => {
 
   it('letterboxes a tall image inside a wide cell', () => {
     const fit = fitRect({ x: 10, y: 10, w: 100, h: 50 }, 50, 200);
-    expect(fit).toEqual({ x: 31.25, y: 10, w: 25, h: 100 });
+    // Contain-fit: scale = min(100/50, 50/200) = 0.25 → 12.5 × 50, centred in
+    // the cell. The fit must stay inside the cell on both axes.
+    expect(fit).toEqual({ x: 53.75, y: 10, w: 12.5, h: 50 });
   });
 });
 
@@ -122,8 +124,9 @@ describe('image-collage run', () => {
     const result = await tool.run({ files: [makeFile('a.png'), makeFile('b.png')], options: {} });
     expect(result.outputs[0]!.filename).toBe('collage.png');
     expect(result.outputs[0]!.blob.type).toBe('image/png');
-    // cellSize = 20 (largest edge), auto columns = 2 → 2×1 grid.
-    expect(result.stats).toMatchObject({ images: 2, columns: 2, width: 40, height: 20 });
+    // cellSize = 20 (largest edge), auto columns = 2, default spacing 8
+    // → 2×1 grid, width = 2·20 + 1·8 = 48.
+    expect(result.stats).toMatchObject({ images: 2, columns: 2, width: 48, height: 20 });
   });
 
   it('honours an explicit column count', async () => {

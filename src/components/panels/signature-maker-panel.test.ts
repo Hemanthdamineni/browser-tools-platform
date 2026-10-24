@@ -27,8 +27,8 @@ describe('smoothStroke', () => {
     const out = smoothStroke(samples);
     expect(out).toEqual([
       { x: 0, y: 0 },
-      { x: 15, y: 0 },
       { x: 5, y: 0 },
+      { x: 15, y: 0 },
       { x: 20, y: 5 },
       { x: 20, y: 15 },
       { x: 20, y: 20 },

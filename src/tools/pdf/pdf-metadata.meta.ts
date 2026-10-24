@@ -38,6 +38,14 @@ export const meta: ToolMeta = {
       q: 'What does the saved file contain?',
       a: 'The output is metadata-updated.pdf, a copy of your document with the document information dictionary replaced. Page content, images and form fields are copied through unchanged, so the result opens exactly like the original.',
     },
+    {
+      q: 'Does this strip hidden XMP metadata too?',
+      a: 'No. It reads and rewrites the standard document-information dictionary — title, author, subject, keywords, creator and producer. Embedded XMP metadata, annotations and outline titles are left untouched, so use a dedicated XMP tool if you need those removed.',
+    },
+    {
+      q: 'Why does the download still include my old metadata?',
+      a: 'Clearing a field writes an empty value; a viewer that shows nothing back is behaving correctly. If a property reappears, the file was encrypted or the edit did not commit — check for the load error message rather than a silent partial result.',
+    },
   ],
   article: [
     {
@@ -59,20 +67,6 @@ export const meta: ToolMeta = {
     {
       heading: 'Your PDF never leaves the browser',
       body: 'The document is parsed and rewritten entirely on your device, and the edited file you download is built inside the page. Nothing is uploaded, so document properties and the rest of the PDF stay private and the tool works offline.',
-    },
-  ],
-  faq: [
-    {
-      q: 'Does this strip hidden XMP metadata too?',
-      a: 'No. It reads and rewrites the standard document-information dictionary — title, author, subject, keywords, creator and producer. Embedded XMP metadata, annotations and outline titles are left untouched, so use a dedicated XMP tool if you need those removed.',
-    },
-    {
-      q: 'Why does the download still include my old metadata?',
-      a: 'Clearing a field writes an empty value; a viewer that shows nothing back is behaving correctly. If a property reappears, the file was encrypted or the edit did not commit — check for the load error message rather than a silent partial result.',
-    },
-    {
-      q: 'Is my document uploaded anywhere?',
-      a: 'No. The PDF is parsed and rewritten in your browser and the edited file is assembled on your device. Nothing is sent over the network, so the document and its properties stay private and the tool works offline once loaded.',
     },
   ],
   related: ['pdf-page-numbers', 'pdf-watermark', 'image-metadata'],

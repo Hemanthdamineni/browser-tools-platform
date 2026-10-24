@@ -68,6 +68,14 @@ export const meta: ToolMeta = {
       q: 'How does layered mode scale the shadows?',
       a: 'Layer i of N uses offset/blur/spread multiplied by i/N and the colour alpha divided by i. It mimics the multi-shadow "elevation" technique popularised by Material Design.',
     },
+    {
+      q: 'What does a negative spread do?',
+      a: 'Spread grows the shadow before it is blurred, so a negative value shrinks it — the shadow hugs the element more tightly and reads as a crisper edge. It is the trick behind thin, precise borders of shadow.',
+    },
+    {
+      q: 'Can I use any CSS colour format?',
+      a: 'Yes, the colour field accepts hex, rgb(), hsl() and named colours, but a value with partial alpha such as rgba(0, 0, 0, 0.15) is what makes a shadow look like light instead of a grey band. Fully opaque colours tend to look heavy.',
+    },
   ],
   related: ['gradient-css', 'color-blend'],
   status: 'stable',

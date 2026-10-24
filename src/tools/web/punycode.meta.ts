@@ -49,7 +49,7 @@ export const meta: ToolMeta = {
       a: 'No. It converts code points with the RFC 3492 algorithm but does not perform the IDNA case folding, NFC normalisation or script-mixing checks that browsers run before a lookup. Treat the result as the raw Punycode form, not as a validated registrable domain.',
     },
   ],
-article: [
+  article: [
     {
       heading: 'What the Punycode converter does',
       body: 'Type a domain and the tool converts it in the direction you choose: Unicode labels such as münchen become the ASCII-compatible form münchen with an xn-- prefix for DNS, and xn-- labels decode back to their Unicode form. Labels that are already plain ASCII pass through unchanged, so mixed domains work.',

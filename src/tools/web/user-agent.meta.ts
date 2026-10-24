@@ -45,7 +45,7 @@ export const meta: ToolMeta = {
       a: 'The browser rules are tried most specific first: Edge, Opera, Samsung Internet, Chrome, Firefox, cURL, wget, Internet Explorer, Safari and Python requests. A string that matches none of them is reported as Unknown with the remaining fields still filled in where the OS is identifiable.',
     },
   ],
-article: [
+  article: [
     {
       heading: 'What the User-Agent parser reports',
       body: 'Paste any User-Agent string and the tool returns a table of browser and version, operating system and OS version, rendering engine, device type and whether the string looks like a bot. Device type is one of desktop, mobile, tablet or bot, and unknown parts are shown as a dash rather than left blank.',

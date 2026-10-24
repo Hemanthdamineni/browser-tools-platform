@@ -122,7 +122,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 <ShortcutsDialog />
 
 <script>
-  import { isTypingTarget } from '@/components/keyboard';
+  import { isTypingTarget, isModalOpen } from '@/components/keyboard';
 
   const btn = document.getElementById('menu-toggle');
   const nav = document.getElementById('mobile-nav');
@@ -175,6 +175,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     // Ctrl/Cmd+Enter runs the current tool. A modifier chord types no
     // characters, so it is honoured even with focus in the input field.
     if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+      if (isModalOpen(document)) return;
       e.preventDefault();
       window.dispatchEvent(new CustomEvent('toolbench:run'));
       return;

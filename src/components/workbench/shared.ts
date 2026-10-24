@@ -23,7 +23,17 @@ export function applyShowWhen(root: ParentNode): void {
   root.querySelectorAll<HTMLElement>('[data-show-when]').forEach((wrap) => {
     try {
       const cond = JSON.parse(wrap.dataset.showWhen!) as { key: string; value: unknown };
-      wrap.hidden = values[cond.key] !== cond.value;
+      const shouldShow = values[cond.key] === cond.value;
+      if (wrap.hidden === shouldShow) {
+        // Visibility actually changed — replay a subtle, reduced-motion-aware
+        // fade so an option appearing/disappearing is signposted (E7-T4).
+        if (!shouldShow && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches !== true) {
+          wrap.classList.remove('tb-reveal');
+          void wrap.offsetWidth;
+          wrap.classList.add('tb-reveal');
+        }
+        wrap.hidden = !shouldShow;
+      }
     } catch {
       /* ignore malformed condition */
     }

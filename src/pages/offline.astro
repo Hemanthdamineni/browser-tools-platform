@@ -1,8 +1,5 @@
 ---
 import Layout from '@/components/Layout.astro';
-
-// Link paths must honour the deploy base (e.g. /browser-tools-platform on GitHub Pages).
-const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 
 <Layout
@@ -15,16 +12,100 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   <div class="py-16 text-center">
     <h1 class="text-xl font-bold text-[rgb(var(--text))]">You're offline</h1>
     <p class="mx-auto mt-2 max-w-md text-[rgb(var(--text-muted))]">
-      This page hasn't been cached yet. Tools you've already opened still work. Try one of those, or
-      reconnect and try again.
+      Tools you've opened recently are cached and work without a connection.
     </p>
+
+    <div class="mx-auto mt-6 max-w-md text-left" data-cached-list hidden>
+      <p class="text-sm font-semibold text-[rgb(var(--text))]">Available offline:</p>
+      <ul class="mt-2 space-y-1.5 text-sm"></ul>
+    </div>
+
+    <p class="mx-auto mt-4 max-w-md text-sm text-[rgb(var(--text-muted))]" data-cached-empty>
+      You haven't opened any tools here yet. Reconnect and open a tool to cache it, then this
+      page lists it.
+    </p>
+
     <div class="mt-6 flex justify-center gap-3">
-      <a href={`${base}/`} class="btn btn-primary">Go home</a>
+      <a href="/" class="btn btn-primary">Go home</a>
       <button type="button" class="btn btn-ghost" data-retry>Retry</button>
     </div>
   </div>
 </Layout>
 
 <script>
-  document.querySelector('[data-retry]')?.addEventListener('click', () => window.location.reload());
+  // E7-T3 — list the tools the service worker has actually cached.
+  // Read straight from the Cache Storage API so the list is real, not a guess.
+  // When the Cache API (or an active worker) is unavailable we degrade to the
+  // static copy above, which needs nothing.
+  const listHost = document.querySelector('[data-cached-list]') as HTMLElement | null;
+  const list = listHost?.querySelector('ul') ?? null;
+  const empty = document.querySelector('[data-cached-empty]') as HTMLElement | null;
+
+  document.querySelector('[data-retry]')?.addEventListener('click', () => {
+    window.location.reload();
+  });
+
+  function escapeHtml(s: string): string {
+    return s.replace(
+      /[&<>"']/g,
+      (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!,
+    );
+  }
+
+  /** Absolute URL of the tool index, honouring a subpath deploy. */
+  async function indexUrl(): Promise<string> {
+    const reg = await navigator.serviceWorker?.getRegistration?.();
+    const base = new URL(reg?.scope ?? document.baseURI);
+    return new URL('tools-index.json', base).href;
+  }
+
+  interface CachedTool {
+    name: string;
+    href: string;
+  }
+
+  async function collect(): Promise<void> {
+    if (typeof caches === 'undefined' || typeof caches.keys !== 'function') return;
+
+    // id -> display name, from the (cached) build-time index.
+    const nameById: Record<string, string> = {};
+    try {
+      const indexRes = await caches.match(await indexUrl());
+      if (indexRes) {
+        const entries = (await indexRes.json()) as { id: string; name: string }[];
+        for (const t of entries) nameById[t.id] = t.name;
+      }
+    } catch {
+      /* names are a nicety — the id is a fine fallback */
+    }
+
+    const found = new Map<string, CachedTool>();
+    for (const cacheName of await caches.keys()) {
+      const cache = await caches.open(cacheName);
+      for (const request of await cache.keys()) {
+        const url = new URL(request.url);
+        const match = /\/tools\/([a-z0-9-]+)$/.exec(url.pathname.replace(/\/$/, ''));
+        const id = match?.[1];
+        if (!id || found.has(id)) continue;
+        // Reuse the cached (absolute) URL so subpath deploys keep working.
+        found.set(id, { name: nameById[id] ?? id, href: url.href });
+      }
+    }
+    render([...found.entries()].sort((a, b) => a[0].localeCompare(b[0])));
+  }
+
+  function render(tools: [string, CachedTool][]): void {
+    if (!listHost || !list) return;
+    if (tools.length === 0) return; // keep the static copy
+    empty?.setAttribute('hidden', '');
+    listHost.removeAttribute('hidden');
+    list.innerHTML = tools
+      .map(
+        ([, tool]) =>
+          `<li><a class="link" href="${escapeHtml(tool.href)}">${escapeHtml(tool.name)}</a></li>`,
+      )
+      .join('');
+  }
+
+  if (listHost) void collect();
 </script>

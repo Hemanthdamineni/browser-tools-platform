@@ -49,7 +49,7 @@ export const meta: ToolMeta = {
     },
     {
       heading: 'What counts as valid',
-      body: 'The checker rejects values that carry whitespace or control characters)Skip since HTTP header field values cannot contain them,Skip and treats the scheme of an absolute URI by attempting to construct it. A fragment is flagged with a warning because a #fragment is client-side and is not sent in a request, so it rarely describes a real representation.',
+      body: 'The checker rejects values that carry whitespace or control characters, since HTTP header field values cannot contain them, and treats the scheme of an absolute URI by attempting to construct it. A fragment is flagged with a warning because a #fragment is client-side and is not sent in a request, so it rarely describes a real representation.',
     },
     {
       heading: 'Not a redirect',
@@ -57,7 +57,7 @@ export const meta: ToolMeta = {
     },
     {
       heading: 'Nothing is fetched',
-      body: 'Validation is purely syntactic and runs in this page. The reference is never fetched,Skip the tool makes no network request,Skip and your pasted values are not uploaded or stored.',
+      body: 'Validation is purely syntactic and runs in this page. The reference is never fetched, the tool makes no network request, and your pasted values are not uploaded or stored.',
     },
   ],
   faq: [
