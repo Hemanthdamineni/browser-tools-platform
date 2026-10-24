@@ -1,6 +1,6 @@
 # Complete Tool List
 
-Total: **378** tools across **19** categories.
+Total: **382** tools across **19** categories.
 
 Generated from `src/tools/**/*.meta.ts` (source of truth).
 
@@ -222,10 +222,12 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `uuid` | UUID Generator | text | stable | Generate RFC 4122 UUIDs (v4 random or v7 time-ordered) in bulk. |
 | `vcard` | vCard Generator | text | stable | Build vCard 3.0 contact files, or parse a pasted vCard back into fields. |
 
-## image (15)
+## image (18)
 
 | id | name | input | status | summary |
 | --- | --- | --- | --- | --- |
+| `image-add-text` | Add Text to Image | file | beta | Write captions and meme text on an image: fonts, outline, shadow, drag to place. |
+| `image-blur-redact` | Blur & Redact Image | file | beta | Blur, pixelate or black out parts of an image and export a clean copy with no metadata. |
 | `image-compress` | Compress Image | file | stable | Reduce image file size by re-encoding locally in your browser. |
 | `image-convert` | Convert Image Format | file | stable | Convert images between PNG, JPEG, WebP and AVIF in your browser. |
 | `image-crop` | Crop Image | file | stable | Crop an image to an aspect ratio or explicit pixel rectangle. |
@@ -241,6 +243,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `image-spritesheet` | Sprite Sheet Builder | file | stable | Combine multiple images into one sprite sheet with a position map. |
 | `image-strip-metadata` | Strip Image Metadata | file | beta | Remove EXIF, GPS, XMP and IPTC metadata from JPEG, PNG and WebP images losslessly. |
 | `svg-to-png` | SVG to PNG | file | stable | Rasterize an SVG image to a downloadable PNG. |
+| `image-watermark` | Watermark Image | file | beta | Stamp text or a logo onto one or many images — opacity, position or tiled. |
 
 ## misc (10)
 
@@ -283,10 +286,11 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `vin-validator` | VIN Validator & Decoder | text | stable | Validate and decode 17-character VINs with check digit. |
 | `words-to-number` | Words to Number | text | stable | Parse English number words like "two hundred thirty-four" into 234, with decimals and negatives. |
 
-## pdf (13)
+## pdf (14)
 
 | id | name | input | status | summary |
 | --- | --- | --- | --- | --- |
+| `pdf-protect` | @jspawn/qpdf-wasm | file | beta | Add a password to a PDF with AES-256 encryption and optional printing limits. |
 | `pdf-page-numbers` | Add Page Numbers | file | stable | Stamp page numbers onto a PDF in the position and format you choose. |
 | `pdf-compress` | Compress PDF | file | beta | Shrink a PDF by re-encoding its images and rebuilding the file, with before/after size. |
 | `pdf-delete-pages` | Delete Pages | file | stable | Remove selected pages from a PDF and download the trimmed document. |

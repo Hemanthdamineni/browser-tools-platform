@@ -294,3 +294,105 @@ crashed the session twice — each sub-agent committed in small steps, so no wor
   the text file, but nothing can put the subtitles on the picture.
   - A **font inspector** for WOFF2/WOFF — coverage, variation axes, unicode ranges, licence bits
     — since nothing in the catalogue touches fonts at all.
+
+## run-20261023-2148-a5dd — 2026-10-24T03:12:09Z
+
+- Merged: `image-watermark` (`3110270`) — text or logo watermark on one or many images: opacity, 9
+  positions with margin, or tiled at any angle, plus a live preview panel; batch mode, PNG/JPEG/WebP
+  output. Verified in a browser as a batch of two (76% of the changed pixels sat in the configured
+  quadrant, tiled mode covered all four quadrants, logo mode landed at exactly 40% width with the 4%
+  margin).
+- Merged: `image-add-text` (`906dd6a`) — caption/meme text on an image: system font stacks, size,
+  colour, alignment, outline, shadow, uppercase, wrapping, opacity, drag or arrow-key placement in a
+  panel. Dragged text landed at 28.7%/74.3% against a requested 28.68%/75%, with white glyph pixels
+  where expected.
+- Merged: `image-blur-redact` (`8cb89f1`) — draw rectangles, then blur, pixelate or black them out;
+  per-region effect, generated report table, re-encode drops EXIF/GPS/XMP/IPTC/ICC/comments. Verified:
+  0 non-black pixels inside a blacked-out region, 0 changed pixels outside it, and pixelation cut the
+  unique colours in the region from 35,536 to 560.
+- Merged: `pdf-protect` (`777c090`) — password protection with AES-256 via qpdf wasm plus print /
+  copy / modify permissions. Verified with the system `qpdf` CLI: `R = 6`, all three encryption
+  methods `AESv3`, the requested permissions recorded, decrypt with the password succeeds, without it
+  fails with "invalid password" (exit 2), and a password containing quotes, a backslash and an emoji
+  round-trips byte-for-byte.
+- Failed: none.
+- Blocked: none.
+- New dependencies: `@jspawn/qpdf-wasm@0.0.2` (Apache-2.0; `qpdf.wasm` 1,274,647 B ≈ 422 KB gzip +
+  52,796 B ≈ 18.9 KB gzip glue, **lazy** — dynamic `import()` inside the tool worker, fetched on the
+  first run only: a page load makes 9 requests with no wasm, the first run fetches the engine chunk
+  and the wasm from this origin). The package named in the ticket, `qpdf-wasm@0.1.0`, cannot work
+  here: it is a pthread build that pre-spawns one worker per core and needs `SharedArrayBuffer`, i.e.
+  cross-origin isolation, which a static site cannot provide without COOP/COEP headers. Both are
+  Apache-2.0; the replacement is documented in `pdf-protect.qpdf.ts`, `NOTICE` and the report below.
+- Limitations: `image-watermark` — a logo is rasterised to a PNG data URL capped at 1024 px on its
+  long edge, an SVG passed to `run()` by hand fails in Chromium's `createImageBitmap` (the panel
+  always converts), tiling is capped at 20,000 marks. `image-add-text` — the preview canvas is capped
+  at 2 MP (same geometry, sub-pixel wrap differences only), line height is fixed at 1.2×, system
+  fonts only. `image-blur-redact` — the effect is per region but radius/cell size/opacity are global,
+  blur is clamped to the rectangle, alpha is blurred along with RGB, regions are 1%-granular in the
+  UI. `pdf-protect` — blocking extraction keeps accessibility extraction allowed, permission
+  granularity is print/copy/modify only, the wasm cannot be driven under vitest/jsdom (the golden
+  test uses the system CLI instead), and `dist` contains the wasm twice (client + worker graphs);
+  only the worker copy is ever fetched.
+- Process notes (decisions taken without a human, for review): the settings say `MAIN_BRANCH = main`
+  but this repo's main branch is `master` — I used `master`. No `BACKLOG.md` item was claimable
+  (`merge-base64` already carried two ⚠️, `merge-datauri` is held by a live run), so the batch came
+  from the top of `TODOS.md`; the batch is `image-watermark`, `image-add-text`, `image-blur-redact`,
+  `pdf-protect` (no merge items, no shared existing tool, no intra-batch dependency). The stale
+  claims on `screen-recorder`, `markdown-preview`, `gst-calculator` and `sip-calculator` were
+  rewritten to `⚠️ run died`, which puts each at the two-attempt limit — they are now blocked and
+  need a human to decide whether to retry. `image-ocr`, `webcam-recorder`, `pdf-organize` and
+  `merge-datauri` each carry a dead run's ⏳ next to a live run's ⏳; I left those lines alone.
+  Dubious-looking but left alone: `code-minify` and `merge-base64` sit at two ⚠️ without a ⛔.
+- Mistakes noticed:
+  - **Panel tools and `data-file-workbench`.** `FileWorkbench.astro:152-176` binds the generic
+    workbench behaviour to *every* `[data-file-workbench]` root and skips only the hardcoded
+    `data-signature-workbench`, dereferencing `[data-report]`, `[data-download-all]` and friends with
+    `!`. Any custom panel that carries the marker therefore gets a second drop zone and a second Run
+    handler and throws as soon as the generic code touches a node the panel does not have. My three
+    panels dropped the marker; `8cf4580` (a human fix that landed mid-run) wraps panels in
+    `[data-panel-workbench]` and widens the sweep, which is what makes that safe. `SignatureWorkbench`'s
+    "the shared e2e checks look for it" comment is now stale, and a generic "this root is owned by a
+    panel" skip would be better than the signature special case.
+  - **The shared volume hit 100% during this run** (1.7 GB free at the start, 300 MB at the worst
+    point). One agent, trying to unblock its own build, deleted other runs' `dist` directories —
+    including a live run's — and my own scratch directory `/tmp/smoke` was wiped by something outside
+    this run and had to be rebuilt mid-flight. Four parallel runs each installing a ~1 GB
+    `node_modules` is the cause; the next round needs a plan for it (one shared install, a hardlink
+    recipe, or a documented `--outDir` outside the volume).
+  - **Hardlinked `node_modules` and a merged dependency.** Because every worktree shares one
+    hardlinked `node_modules`, merging `pdf-protect` (which adds a package) breaks `check`, `test`
+    and `build` in every sibling worktree: `registry.test.ts` and the build failed in `image-add-text`
+    with "Rollup failed to resolve import @jspawn/qpdf-wasm/qpdf.wasm?url" until the package was
+    copied into that worktree. Not a code fault, but it will bite every run that adds a dependency.
+  - Pre-existing and still failing the sweep: `jsonpath` ("JSONPath Extractor") — its first example
+    raises instead of producing a result, so `e2e/smoke.spec.ts` aborts there; the other three
+    known breakages (`csv-sanitize`, `rsa-encrypt-decrypt`, `x509-certificate-inspector`) were not
+    reached. All four new tool pages pass the same criteria (correct `<h1>`, a workbench marker —
+    `data-panel-workbench` for the three panels, the file workbench for `pdf-protect`).
+  - `src/components/workbench/shared.ts:imageToPngBlob()` awaits `image.decode()`, which never
+    settles in the repo's Chromium (reproduced: `onload` fires and `createImageBitmap` resolves, but
+    `decode()` hangs) — so an SVG result's "Download PNG" can hang silently. `createImageBitmap`
+    (what `image-batch.ts` uses) is the safe path.
+  - `imageToPngBlob` is also module-private, so `image-watermark` duplicated ~15 lines of it for
+    logo rasterisation — exporting it would remove a copy-paste magnet across panels.
+  - `pdf-to-images` is the only PDF tool without a `.test.ts` (its `.js` helper is uncovered too).
+  - `src/tools/pdf/shared.ts` `output()` copies the whole output buffer (`copy.set(bytes)`) only to
+    satisfy `ArrayBufferLike`/`BlobPart` typing; typing the source as `Uint8Array<ArrayBuffer>`
+    removes an avoidable full copy of every large output.
+  - The Tailwind `[hidden]`-vs-`.btn` bug from the last report is still live and shows on the new
+    panels: the Cancel and Reset buttons are visible before they should be.
+- Ideas:
+  - A shared **image-annotator panel kernel** — a canvas stage with draggable/resizable regions that
+    mirror into percentage option values. Three tools in this run (`image-watermark`'s logo
+    placement, `image-add-text`'s drag-to-position, `image-blur-redact`'s region boxes) each built
+    one from scratch, and the catalogue lists more (`image-collage`, `pdf-organize`,
+    `image-watermark` on video, `pdf-redact`).
+  - `pdf-unlock` and `pdf-fill-form` should reuse this run's qpdf engine (`pdf-protect.qpdf.ts`):
+    the wasm is already vendored and lazy, and "remove a password the user knows" is the same
+    `qpdf --decrypt` call the golden tests already exercise.
+  - A **batch-runner panel**, still unbuilt from the last report: pick N files once, run them through
+    the same tool, get one progress table and one zip.
+  - `FileWorkbench` should skip any root that declares itself panel-owned (e.g. a
+    `data-workbench-owned` attribute) instead of the hardcoded `data-signature-workbench` check, and
+    `workbench/shared.ts` should export `imageToPngBlob`.

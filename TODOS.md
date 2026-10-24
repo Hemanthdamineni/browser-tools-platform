@@ -46,10 +46,10 @@ Line order is priority: top first. This file is written by a human (via review) 
 - [ ] **video-trim** · video · after: video-foundation — Stream copy when cut points allow, re-encode otherwise. Scrubber preview. ⏳ run-20261023-2024-f777 @ 2026-10-23T21:35:19Z
 - [ ] **video-extract-audio** · video · after: video-foundation — MP3, AAC, and WAV output. ⏳ run-20261023-2024-f777 @ 2026-10-23T21:35:19Z
 - [ ] **video-convert** · video · after: video-foundation — MP4, WebM, MOV, and MKV. Remux when possible, transcode when needed. ⏳ run-20261023-2024-f777 @ 2026-10-23T21:35:19Z
-- [ ] **image-watermark** · image — Text or logo watermark; opacity, position, or tiled. Batch mode. ⏳ run-20261023-2148-a5dd @ 2026-10-23T22:08:30Z
-- [ ] **image-add-text** · image — Captions and meme-style text: fonts, stroke, shadow, drag to position. ⏳ run-20261023-2148-a5dd @ 2026-10-23T22:08:30Z
-- [ ] **image-blur-redact** · image — Draw regions to blur, pixelate, or black out. Strip metadata on export. ⏳ run-20261023-2148-a5dd @ 2026-10-23T22:08:30Z
-- [ ] **pdf-protect** · pdf — Add a password via qpdf-wasm (Apache-2.0). AES-256. ⏳ run-20261023-2148-a5dd @ 2026-10-23T22:08:30Z
+- [x] **image-watermark** · image — Text or logo watermark; opacity, position, or tiled. Batch mode. ✅ 3110270
+- [x] **image-add-text** · image — Captions and meme-style text: fonts, stroke, shadow, drag to position. ✅ 906dd6a
+- [x] **image-blur-redact** · image — Draw regions to blur, pixelate, or black out. Strip metadata on export. ✅ 8cb89f1
+- [x] **pdf-protect** · pdf — Add a password via qpdf-wasm (Apache-2.0). AES-256. ✅ 777c090
 - [ ] **pdf-unlock** · pdf — Remove a password the user already knows (qpdf-wasm). No cracking.
 - [ ] **pdf-fill-form** · pdf — Fill AcroForm fields with pdf-lib; option to flatten.
 - [ ] **speech-to-text** · audio · after: ml-runtime-foundation — Whisper tiny/base. Timestamps; export TXT, SRT, and VTT. File input and mic input.
