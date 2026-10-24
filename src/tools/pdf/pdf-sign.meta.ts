@@ -67,7 +67,7 @@ export const meta: ToolMeta = {
   article: [
     {
       heading: 'Draw, type or upload your mark',
-      body: 'The sign flow gives you three ways to make a signature: draw it with a mouse, finger or stylus, type a name in one of four built-in styles, or upload a PNG of a signature you already have. The typed styles use fonts already on your device, so nothing is fetched from the web. Once the mark exists, drag it into place on a page preview.',
+      body: 'The sign flow gives you three ways to make a signature: draw it with a mouse, finger or stylus, type a name in one of four built-in styles, or upload a PNG of a signature you already have. The typed styles use fonts already on your device, so nothing is fetched from the web, and the preview shows the placement.',
     },
     {
       heading: 'What flattened really means',
@@ -75,7 +75,7 @@ export const meta: ToolMeta = {
     },
     {
       heading: 'Placement and rotation',
-      body: 'Position is given as an x/y point in the browser’s display space (origin top-left, y growing down) and the height always follows the signature’s own aspect ratio, so nothing is stretched. If a placed mark would end up off the page or need to be shrunk to fit, the tool clamps it back inside and says so. On a rotated page the placement stays in step with the preview.',
+      body: 'Position is given as an x/y point in the browser’s display space (origin top-left, y growing down) and the height always follows the signature’s own aspect ratio, so nothing is stretched. If a mark would end up off the page or need to be shrunk to fit, the tool clamps it back inside and says so.',
     },
     {
       heading: 'What you cannot do here',

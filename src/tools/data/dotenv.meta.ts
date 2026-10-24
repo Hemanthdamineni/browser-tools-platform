@@ -73,6 +73,10 @@ export const meta: ToolMeta = {
       q: 'How does ${VAR} expansion work?',
       a: 'With expansion on, ${NAME} in an unquoted or double-quoted value is replaced by the value of an earlier key. Single-quoted values are left literal.',
     },
+    {
+      q: 'Does build mode need a JSON object?',
+      a: 'Yes. The top level must be a JSON object of key/value pairs, so an array or a bare scalar is rejected with an error. Nested objects become JSON text in the value rather than being flattened, which is what the JSON to .env tool is for.',
+    },
   ],
   article: [
     {

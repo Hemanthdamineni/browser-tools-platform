@@ -136,9 +136,11 @@ export function createMemoryStore(): NoteStore {
       return map.get(id) ?? null;
     },
     async put(note) {
+      await Promise.resolve();
       map.set(note.id, { ...note });
     },
     async delete(id) {
+      await Promise.resolve();
       map.delete(id);
     },
     async clear() {

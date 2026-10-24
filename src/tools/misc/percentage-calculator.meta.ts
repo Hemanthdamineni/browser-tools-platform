@@ -44,11 +44,11 @@ export const meta: ToolMeta = {
   article: [
     {
       heading: 'The four everyday problems in one place',
-      body: 'Choose a mode and type two numbers. X% of Y multiplies Y by X over 100. Percent change finds how much B moved relative to A. Increase by % and Decrease by % apply a percentage to a base, the arithmetic behind a markup, a sale or a tip split. Every result comes back with the working shown.',
+      body: 'Choose a mode and type two numbers. X% of Y multiplies Y by X over 100. Percent change finds how much B moved relative to A. Increase by % and Decrease by % apply a percentage to a base — the arithmetic behind a markup, a sale or a tip split.',
     },
     {
       heading: 'The order of the two numbers',
-      body: 'The mode sets the meaning of each slot. For X% of Y the first number is the percentage and the second the base, so "20 150" means 20% of 150. For percent change the first is the from value and the second the to value, so "80 100" is the change from 80 to 100. For increase and decrease the first is the base and the second the percentage to move it, so "50 15" is 50 increased by 15%.',
+      body: 'For X% of Y the first number is the percentage and the second the base, so "20 150" means 20% of 150. For percent change the first is the from value and the second the to value. For increase and decrease the first is the base and the second the percentage, so "50 15" is 50 increased by 15%.',
     },
     {
       heading: 'Reading the result table',
@@ -56,11 +56,11 @@ export const meta: ToolMeta = {
     },
     {
       heading: 'Percentages over one hundred',
-      body: 'There is no artificial cap. 150% of 40 is 60, a change from 50 to 200 is +300%, and decreasing by 110% pushes a value below zero. The only undefined case is percent change from zero, which is rejected. Results are shown at full precision unless a rounded figure is asked for.',
+      body: 'There is no artificial cap. 150% of 40 is 60, a change from 50 to 200 is +300%, and decreasing by 110% pushes a value below zero. The only undefined case is percent change from zero, which is rejected.',
     },
     {
       heading: 'Done on your device',
-      body: 'The arithmetic is plain number handling in this tab with no request to a calculator service. Nothing you type is sent anywhere, so a markup or a tip you are still deciding is not transmitted.',
+      body: 'The arithmetic is plain number handling in this tab with no request to a calculator service. Nothing you type is sent anywhere.',
     },
   ],
   faq: [

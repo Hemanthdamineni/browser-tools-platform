@@ -48,7 +48,7 @@ export const meta: ToolMeta = {
   article: [
     {
       heading: 'A passphrase instead of a password',
-      body: 'The tool draws a random set of words from a built-in list of short, common English words and joins them with the separator you choose, so you get something like "wren-veil-glint-amber-plot" rather than a 12-character password you cannot pronounce. The word count, from 3 to 12, sets how long the phrase is.',
+      body: 'The tool draws a random set of words from a built-in list of short, common English words and joins them with the separator you choose, so you get something like "wren-veil-glint-amber-plot" rather than a 12-character password you cannot pronounce. The word count, from 3 to 12, sets the length.',
     },
     {
       heading: 'The entropy numbers',
@@ -61,10 +61,6 @@ export const meta: ToolMeta = {
     {
       heading: 'When to rely on it',
       body: 'This is for accounts where you can paste a long phrase — a password manager, an email, a machine login. The short embedded word list stays inoffensive and pronounceable, which is the point of Diceware-style phrases: memorable enough to type by hand and strong enough that a dictionary attack on the words has no leverage.',
-    },
-    {
-      heading: 'The selection never leaves the tab',
-      body: 'Words are drawn from the embedded list with the browser’s crypto API — no word service is queried and nothing is stored, so the generated phrase is not echoed anywhere it should not be. The tool runs fully offline.',
     },
   ],
   faq: [

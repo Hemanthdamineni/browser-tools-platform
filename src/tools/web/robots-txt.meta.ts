@@ -62,7 +62,14 @@ export const meta: ToolMeta = {
       max: 60,
     },
   ],
-  examples: [{ title: 'Block AI crawlers' }],
+  examples: [
+    { title: 'Block AI crawlers' },
+    { title: 'Allow everything' },
+    {
+      title: 'Block everything but point at a sitemap',
+      options: { preset: 'block-all', sitemapUrl: 'https://example.com/sitemap.xml' },
+    },
+  ],
   article: [
     {
       heading: 'Pick a preset or write your own',

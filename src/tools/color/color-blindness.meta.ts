@@ -61,7 +61,7 @@ export const meta: ToolMeta = {
     },
     {
       heading: 'Parsed and simulated locally',
-      body: "Colour parsing and the matrix arithmetic run entirely in this tab; your palette is never sent anywhere and the page works offline. That matters when the colours come from an unreleased brand or a private design system.",
+      body: 'Colour parsing and the matrix arithmetic run entirely in this tab; your palette is never sent anywhere and the page works offline. That matters when the colours come from an unreleased brand or a private design system.',
     },
   ],
   examples: [

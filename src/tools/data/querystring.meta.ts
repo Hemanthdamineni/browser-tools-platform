@@ -77,6 +77,10 @@ export const meta: ToolMeta = {
       q: 'Is the input URL-decoded?',
       a: 'Yes. Keys and values are percent-decoded and + is treated as a space when parsing, and re-encoded when building.',
     },
+    {
+      q: 'Can I paste a whole URL?',
+      a: 'Only the query part is parsed. Paste everything from the ? onwards, or strip the scheme, host and path first, because the tool looks for & and = pairs rather than splitting a full URL.',
+    },
   ],
   article: [
     {

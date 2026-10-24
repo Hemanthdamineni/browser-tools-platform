@@ -67,7 +67,7 @@ export const meta: ToolMeta = {
   article: [
     {
       heading: 'Why a spelling alphabet exists',
-      body: 'Over a noisy radio link, or a bad phone line, "B" and "D" and "P" are indistinguishable. The NATO phonetic alphabet replaces every letter with a distinct word — Alpha for A, Bravo for B, Charlie for C through Zulu for Z — so a code read aloud is unambiguous. This tool turns text into those words, or the words back into text.',
+      body: 'Over a noisy radio link, or a bad phone line, "B" and "D" and "P" are indistinguishable. The NATO phonetic alphabet replaces every letter with a distinct word — Alpha for A, Bravo for B through Zulu for Z — so a code read aloud is unambiguous. This tool converts both ways.',
     },
     {
       heading: 'What happens to digits and punctuation',
@@ -83,7 +83,7 @@ export const meta: ToolMeta = {
     },
     {
       heading: 'Computed in your browser',
-      body: 'Encoding and decoding are a table lookup in this tab, with a 100,000-character ceiling so a huge paste cannot stall the page. A customer name or a tracking number is never sent anywhere, and the tool works offline.',
+      body: 'Encoding and decoding are a table lookup in this tab, with a 100,000-character ceiling so a huge paste cannot stall the page. A customer name or a tracking number is never sent anywhere — the tool works offline.',
     },
   ],
   faq: [

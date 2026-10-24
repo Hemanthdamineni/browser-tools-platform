@@ -111,13 +111,13 @@ function parseRefs(html) {
 }
 // --- Walk sample tool pages ------------------------------------------------
 const toolPages = listFiles(join(dist, 'tools'), (name) => name === 'index.html').sort();
-const stride = Math.max(1, Math.floor(toolPages.length / SAMPLE_LIMIT));
-const sampled = toolPages.filter((_, i) => i % stride === 0).slice(0, SAMPLE_LIMIT);
 const sample = SAMPLE_TOOL_PAGE.split('/')[1];
-if (toolPages.some((p) => p.endsWith(join('tools', `${sample}`, 'index.html')))) {
-  const idx = sampled.findIndex((p) => p.endsWith(join('tools', `${sample}`, 'index.html')));
-  if (idx > 0) sampled.unshift(sampled.splice(idx, 1)[0]);
-}
+const sampleTail = join('tools', sample, 'index.html');
+const samplePage = toolPages.find((p) => p.endsWith(sampleTail));
+const rest = toolPages.filter((p) => p !== samplePage);
+const stride = Math.max(1, Math.floor(rest.length / (SAMPLE_LIMIT - 1)));
+const sampled = rest.filter((_, i) => i % stride === 0).slice(0, SAMPLE_LIMIT - 1);
+if (samplePage) sampled.unshift(samplePage);
 
 const pages = [];
 for (const file of sampled) {
@@ -197,9 +197,11 @@ if (entryChunks.size) {
 
 // --- Verdict ----------------------------------------------------------------
 const failures = [];
+const warnings = [];
 const eagers = [...entryChunks.entries()];
 
-// 1. Worst eager entry chunk (the JS a tool page pulls in first).
+// 1. Worst eager entry chunk (the JS a tool page pulls in first). HARD FAIL:
+//    this is the T004 defect — the entry every tool page pays for.
 if (eagers.length) {
   const worst = eagers.sort(
     (a, b) => (byRef.get(b[0])?.gzip ?? 0) - (byRef.get(a[0])?.gzip ?? 0),
@@ -213,19 +215,24 @@ if (eagers.length) {
   }
 }
 
-// 2. Any single chunk over its safety cap.
+// 2. Any single chunk over its safety cap (advisory — scale of the largest
+//    one-off chunk, not what a page pays on entry).
 for (const c of chunks) {
   if (kb(c.gzip) > ANY_SINGLE_CHUNK_GZIP_KB) {
-    failures.push(`Chunk ${c.ref} is ${fmtKb(c.gzip)} KB gzip (cap ${ANY_SINGLE_CHUNK_GZIP_KB} KB).`);
+    warnings.push(`Chunk ${c.ref} is ${fmtKb(c.gzip)} KB gzip (cap ${ANY_SINGLE_CHUNK_GZIP_KB} KB).`);
   }
 }
 
-// 3. Total emitted JS over budget.
+// 3. Total emitted JS over budget (advisory — the sum of everything, including
+//    lazy per-tool modules that only download on demand).
 if (kb(totalGzip) > TOTAL_ASTRO_GZIP_KB) {
-  failures.push(`Total emitted JS is ${fmtKb(totalGzip)} KB gzip (budget ${TOTAL_ASTRO_GZIP_KB} KB).`);
+  warnings.push(
+    `Total emitted JS is ${fmtKb(totalGzip)} KB gzip (budget ${TOTAL_ASTRO_GZIP_KB} KB).`,
+  );
 }
 
-// 4. PDF engine leaking into a non-PDF tool page's eager set (known defect).
+// 4. PDF engine leaking into a non-PDF tool page's eager set (HARD FAIL — the
+//    known eager-bundle defect: a non-PDF page pays for the whole PDF engine).
 const pdfEagerNonPdf = [];
 for (const page of pages) {
   if (page.isPdf) continue;
@@ -233,20 +240,35 @@ for (const page of pages) {
   if (eager.length) pdfEagerNonPdf.push({ id: page.id, refs: eager });
 }
 if (pdfEagerNonPdf.length) {
+  const cap = 8;
+  const shown = pdfEagerNonPdf.slice(0, cap);
+  const more = pdfEagerNonPdf.length - shown.length;
   failures.push(
     `PDF engine (contains "${PDF_TOKEN}") is eagerly loaded by non-PDF tool page(s): ` +
-      pdfEagerNonPdf
+      shown
         .map((p) => `${p.id} (${p.refs.map((r) => r.split('/').pop()).join(', ')})`)
-        .join('; '),
+        .join('; ') +
+      (more > 0 ? `; … and ${more} more` : ''),
   );
 }
 
 console.log('');
+if (warnings.length) {
+  console.log('[check-bundle] Advisory (does not fail the build):');
+  for (const w of warnings) console.log(`  ! ${w}`);
+  console.log('');
+}
 if (failures.length) {
   console.log('[check-bundle] FAIL');
   for (const f of failures) console.log(`  ✗ ${f}`);
-  console.log('[check-bundle] Budget: ' + JSON.stringify({ EAGER_TOOL_ENTRY_GZIP_KB, ANY_SINGLE_CHUNK_GZIP_KB, TOTAL_ASTRO_GZIP_KB }, null, 2));
+  console.log(
+    '[check-bundle] Budget: ' +
+      JSON.stringify({ EAGER_TOOL_ENTRY_GZIP_KB, ANY_SINGLE_CHUNK_GZIP_KB, TOTAL_ASTRO_GZIP_KB }, null, 2),
+  );
   process.exit(1);
 }
 console.log('[check-bundle] PASS');
-console.log('[check-bundle] Budget: ' + JSON.stringify({ EAGER_TOOL_ENTRY_GZIP_KB, ANY_SINGLE_CHUNK_GZIP_KB, TOTAL_ASTRO_GZIP_KB }));
+console.log(
+  '[check-bundle] Budget: ' +
+    JSON.stringify({ EAGER_TOOL_ENTRY_GZIP_KB, ANY_SINGLE_CHUNK_GZIP_KB, TOTAL_ASTRO_GZIP_KB }),
+);

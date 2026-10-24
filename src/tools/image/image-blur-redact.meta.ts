@@ -124,7 +124,7 @@ export const meta: ToolMeta = {
     },
     {
       heading: 'Metadata goes with it',
-      body: 'The export is redrawn through a canvas and encoded from scratch, so EXIF, GPS, XMP, IPTC, the ICC profile and comments are all gone, and there is no option to keep them. The stored EXIF orientation is applied while decoding, so a phone photo comes out the right way up with the rotation baked in.',
+      body: 'The export is redrawn through a canvas and encoded from scratch, so EXIF, GPS, XMP, IPTC, the ICC profile and comments are all gone, and there is no option to keep them. The stored EXIF orientation is applied while decoding, so a phone photo comes out the right way up.',
     },
     {
       heading: 'The pixels stay on your device',

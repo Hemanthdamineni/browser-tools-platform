@@ -37,7 +37,7 @@ export const meta: ToolMeta = {
     },
     {
       heading: 'The Age at date option',
-      body: "Leave it blank to use today, or fill it in to ask the question as of another date — the age at a wedding or at an exam cut-off. Both dates are parsed the same way, and a birth date later than the reference date is rejected.",
+      body: 'Leave it blank to use today, or fill it in to ask the question as of another date — the age at a wedding or at an exam cut-off. Both dates are parsed the same way, and a birth date later than the reference date is rejected.',
     },
     {
       heading: 'Conventions and caveats',

@@ -55,6 +55,10 @@ export const meta: ToolMeta = {
       title: 'Ballad (slow, 80 BPM)',
       options: { minBpm: 60, maxBpm: 120 },
     },
+    {
+      title: 'Hip-hop (90 BPM)',
+      options: { minBpm: 75, maxBpm: 110 },
+    },
   ],
   article: [
     {

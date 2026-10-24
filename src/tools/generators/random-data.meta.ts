@@ -76,7 +76,7 @@ export const meta: ToolMeta = {
     },
     {
       heading: 'A practical use',
-      body: 'Filling a table view or a dashboard layout with realistic-looking rows is the usual reason. Ten companies in JSON drop straight into a component story; twenty contacts in SQL give you rows to seed a local database for a migration dry run. The output is deterministic in shape, so a snapshot test can check the schema while the values stay random.',
+      body: 'Filling a table view or a dashboard layout with realistic rows is the usual reason. Ten companies in JSON drop into a component story; twenty contacts in SQL seed a local database for a migration dry run. The output is deterministic in shape, so a snapshot test can check the schema while the values stay random.',
     },
     {
       heading: 'Randomness and correctness caveats',

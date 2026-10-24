@@ -107,7 +107,10 @@ export function normalizeSettings(raw: Partial<TtsSettings> | OptionValues): Tts
 export function languageLabel(lang: string): string {
   if (!lang) return lang;
   try {
-    const names = new Intl.DisplayNames(['en'], { type: 'language' });
+    const names = new Intl.DisplayNames(['en'], {
+      type: 'language',
+      languageDisplay: 'standard',
+    });
     return names.of(lang) ?? lang;
   } catch {
     return lang;

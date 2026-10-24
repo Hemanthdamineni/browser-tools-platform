@@ -70,7 +70,7 @@ export const meta: ToolMeta = {
     },
     {
       heading: 'Accuracy, size and caveats',
-      body: 'Accuracy depends on the image: low contrast, skew and small type all hurt, so check the numbers rather than trusting them. The first run downloads the engine (about 3.8 MB) and a language model (0.7–2.9 MB), then caches both. A file that cannot be read is reported on its own.',
+      body: 'Accuracy depends on the image: low contrast, skew and small type all hurt, so check the numbers. The first run downloads the engine (about 3.8 MB) and a language model (0.7–2.9 MB), then caches both. A file that cannot be read is reported on its own.',
     },
     {
       heading: 'The engine runs in your browser',

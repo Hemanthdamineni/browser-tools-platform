@@ -30,7 +30,7 @@ export const meta: ToolMeta = {
     },
     {
       heading: 'Limits worth knowing',
-      body: "Entry names are clipped to 99 bytes, so deep paths are truncated, and only regular files are stored — empty directories get no entry. Paths that are absolute, carry a drive letter, or contain empty, dot or traversal segments are refused, so no entry can escape the archive root.",
+      body: 'Entry names are clipped to 99 bytes, so deep paths are truncated, and only regular files are stored — empty directories get no entry. Paths that are absolute, carry a drive letter, or contain empty, dot or traversal segments are refused, so no entry can escape the archive root.',
     },
     {
       heading: 'Built in your browser',

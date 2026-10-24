@@ -1,9 +1,10 @@
 ---
 /**
- * Keyboard-shortcuts help dialog. Opened with `?` (or via the header help
- * button). Lists every supported chord; each is ignored while typing in an
- * input/textarea/select or an element marked contenteditable.
+ * Keyboard-shortcuts help dialog. Opened with `?` or the header help button.
+ * The chord list is the single source of truth in `./keyboard.ts` so the help
+ * never drifts from what the page actually wires.
  */
+import { SHORTCUTS } from './keyboard';
 ---
 
 <dialog id="shortcuts-dialog" class="shortcuts-dialog" aria-labelledby="shortcuts-title">
@@ -16,24 +17,26 @@
     </form>
   </div>
   <dl class="max-h-[60vh] space-y-2.5 overflow-y-auto p-4">
-    <div class="flex items-center justify-between gap-6">
-      <dt class="text-sm text-[rgb(var(--text-muted))]">Focus search</dt>
-      <dd><kbd class="kbd">/</kbd></dd>
-    </div>
-    <div class="flex items-center justify-between gap-6">
-      <dt class="text-sm text-[rgb(var(--text-muted))]">This help dialog</dt>
-      <dd><kbd class="kbd">?</kbd></dd>
-    </div>
-    <div class="flex items-center justify-between gap-6">
-      <dt class="text-sm text-[rgb(var(--text-muted))]">Run the current tool</dt>
-      <dd><kbd class="kbd">Ctrl</kbd>+<kbd class="kbd">Enter</kbd></dd>
-    </div>
-    <div class="flex items-center justify-between gap-6">
-      <dt class="text-sm text-[rgb(var(--text-muted))]">
-        Copy the output <span class="text-xs text-[rgb(var(--text-faint))]">(when focused)</span>
-      </dt>
-      <dd><kbd class="kbd">Ctrl</kbd>+<kbd class="kbd">C</kbd></dd>
-    </div>
+    {
+      SHORTCUTS.map((s) => (
+        <div class="flex items-center justify-between gap-6">
+          <dt class="text-sm text-[rgb(var(--text-muted))]">
+            {s.label}
+            {s.note && (
+              <span class="block text-xs text-[rgb(var(--text-faint))]">({s.note})</span>
+            )}
+          </dt>
+          <dd class="shrink-0">
+            {s.tokens.map((token, i) => (
+              <>
+                {i > 0 && <span class="mx-0.5 text-xs text-[rgb(var(--text-faint))]">+</span>}
+                <kbd class="kbd">{token}</kbd>
+              </>
+            ))}
+          </dd>
+        </div>
+      ))
+    }
     <p class="border-t pt-3 text-xs leading-relaxed text-[rgb(var(--text-muted))]">
       Shortcuts are ignored while you are typing in an input, a textarea or a select.
     </p>
@@ -76,8 +79,5 @@
     background-color: rgb(29 29 27 / 0.45);
     -webkit-backdrop-filter: blur(2px);
     backdrop-filter: blur(2px);
-  }
-  .shortcuts-dialog kbd + kbd {
-    margin-left: 0.25rem;
   }
 </style>

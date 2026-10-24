@@ -43,7 +43,7 @@ export const meta: ToolMeta = {
   article: [
     {
       heading: 'What the Luhn check proves',
-      body: 'Luhn, also called modulus 10, is the checksum behind credit card numbers, IMEIs and many national identifiers. The tool takes a number, strips spaces and dashes, and reports whether the weighted digit sum is a multiple of ten. A pass means the digits are internally consistent — it says nothing about whether the account exists, is funded or was ever issued.',
+      body: 'Luhn, also called modulus 10, is the checksum behind credit card numbers, IMEIs and many national identifiers. The tool takes a number, strips spaces and dashes, and reports whether the weighted digit sum is a multiple of ten. A pass means the digits are internally consistent — it says nothing about whether the account exists or was ever issued.',
     },
     {
       heading: 'Three modes',
@@ -51,7 +51,7 @@ export const meta: ToolMeta = {
     },
     {
       heading: 'The right way to make test numbers',
-      body: 'Payment sandboxes often reject a number that fails Luhn before it reaches the mock. Paste any prefix in generate mode and the tool appends the correct check digit, so you get a number a front-end validator accepts without copying a real card. It is still not a real account — a well-formed string and nothing more.',
+      body: 'Payment sandboxes often reject a number that fails Luhn before it reaches the mock. Paste any prefix in generate mode and the tool appends the correct check digit, so you get a number a front-end validator accepts without copying a real card. It is still not a real account.',
     },
     {
       heading: 'Limits and separators',

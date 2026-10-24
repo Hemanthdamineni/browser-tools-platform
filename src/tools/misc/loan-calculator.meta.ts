@@ -76,6 +76,14 @@ export const meta: ToolMeta = {
       q: 'How is the monthly payment calculated?',
       a: 'With the standard amortisation formula: P · r / (1 − (1+r)^−n), where r is the monthly rate and n is the number of monthly payments. When the rate is zero the payment is simply the principal divided by the number of payments.',
     },
+    {
+      q: 'Does an extra payment shorten the term or lower the instalment?',
+      a: 'It shortens the term. The simulation keeps the contractual instalment and adds your overpayment on top, so the balance clears sooner and you pay less interest; it does not recalculate a smaller monthly payment.',
+    },
+    {
+      q: 'Does the result include fees or insurance?',
+      a: 'No. Only principal and interest are modelled, so a mortgage quote with escrow, insurance or origination fees will be lower than what you actually pay each month. Add those charges to the payment yourself.',
+    },
   ],
   related: ['tip-calculator', 'unit-convert'],
   status: 'stable',

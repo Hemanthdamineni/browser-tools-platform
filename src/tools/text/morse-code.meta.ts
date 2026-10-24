@@ -73,6 +73,10 @@ export const meta: ToolMeta = {
       q: 'How forgiving is decoding?',
       a: 'Runs of whitespace are collapsed, and both "/" and "|" (with or without surrounding spaces) are treated as word separators. An unrecognised dot/dash group raises an error rather than being dropped silently.',
     },
+    {
+      q: 'What happens to characters Morse cannot represent?',
+      a: 'On encoding, an accented letter, a symbol or an emoji is written as a literal "?" in the output and named in a warning, so nothing is silently discarded. That question mark is not a Morse code and cannot be decoded back \u2014 check the warning and replace it before converting the result.',
+    },
   ],
   related: ['nato-phonetic', 'rot13', 'text-to-binary', 'case-convert'],
   status: 'stable',

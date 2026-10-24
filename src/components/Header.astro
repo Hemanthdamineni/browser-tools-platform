@@ -2,6 +2,7 @@
 import { site } from '@/lib/site';
 import Icon from './Icon.astro';
 import InstallButton from './InstallButton.astro';
+import ShortcutsDialog from './ShortcutsDialog.astro';
 import ThemeToggle from './ThemeToggle.astro';
 
 const path = Astro.url.pathname;
@@ -118,7 +119,11 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   </nav>
 </header>
 
+<ShortcutsDialog />
+
 <script>
+  import { isTypingTarget } from '@/components/keyboard';
+
   const btn = document.getElementById('menu-toggle');
   const nav = document.getElementById('mobile-nav');
 
@@ -158,16 +163,11 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     window.dispatchEvent(new CustomEvent('toolbench:search'));
   });
 
-  // Shared helper: is the user typing in a field? Shortcuts are ignored there.
-  function typingInField(e: KeyboardEvent): boolean {
-    const t = e.target as HTMLElement | null;
-    if (!t) return false;
-    return /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) || t.isContentEditable;
-  }
-
+  // Page-wide chords. Character chords are ignored while typing; modifier
+  // chords never produce characters, so they are honoured everywhere.
   window.addEventListener('keydown', (e) => {
-    // '?' opens the shortcuts help dialog. (Not while typing.)
-    if (e.key === '?' && !e.ctrlKey && !e.metaKey && !e.altKey && !typingInField(e)) {
+    // '?' opens the shortcuts help dialog.
+    if (e.key === '?' && !e.ctrlKey && !e.metaKey && !e.altKey && !isTypingTarget(e.target)) {
       e.preventDefault();
       window.dispatchEvent(new CustomEvent('toolbench:shortcuts'));
       return;
@@ -189,4 +189,63 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
       window.dispatchEvent(new CustomEvent('toolbench:search'));
     }
   });
+
+  // A new service worker finished installing while an older one is still in
+  // charge of this page. Ask it to take over (`skip-waiting`) and offer a
+  // reload — the page's own assets are still the old ones until it does.
+  if ('serviceWorker' in navigator) {
+    let announced = false;
+    const announce = () => {
+      if (announced) return;
+      announced = true;
+      showUpdateToast();
+    };
+    const watch = (registration: ServiceWorkerRegistration) => {
+      registration.addEventListener('updatefound', () => {
+        const installing = registration.installing;
+        if (!installing) return;
+        installing.addEventListener('statechange', () => {
+          // `controller` non-null means an older worker owns this page, so the
+          // freshly installed one is a genuine update rather than first install.
+          if (installing.state === 'installed' && navigator.serviceWorker.controller) {
+            registration.waiting?.postMessage('skip-waiting');
+            announce();
+          }
+        });
+      });
+    };
+    navigator.serviceWorker.ready.then(watch).catch(() => {
+      /* offline support is a progressive enhancement */
+    });
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      // A reload already happened (or another tab activated the update); keep
+      // the toast from lingering with a stale message.
+      document.querySelector('[data-update-toast]')?.remove();
+    });
+  }
+
+  function showUpdateToast() {
+    const host = document.getElementById('toast');
+    if (!host || document.querySelector('[data-update-toast]')) return;
+    const box = document.createElement('div');
+    box.setAttribute('data-update-toast', '');
+    box.className =
+      'pointer-events-auto flex items-center gap-3 rounded-lg border px-4 py-2 text-sm shadow-lg animate-slide-up';
+    box.style.backgroundColor = 'rgb(var(--bg))';
+    const message = document.createElement('span');
+    message.textContent = 'A new version is available.';
+    const reload = document.createElement('button');
+    reload.type = 'button';
+    reload.className = 'btn btn-primary btn-sm';
+    reload.textContent = 'Reload';
+    reload.addEventListener('click', () => window.location.reload());
+    const later = document.createElement('button');
+    later.type = 'button';
+    later.className = 'btn btn-subtle btn-sm';
+    later.textContent = 'Later';
+    later.setAttribute('aria-label', 'Dismiss the update notice');
+    later.addEventListener('click', () => box.remove());
+    box.append(message, reload, later);
+    host.appendChild(box);
+  }
 </script>

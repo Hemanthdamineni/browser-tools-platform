@@ -55,6 +55,11 @@ export const meta: ToolMeta = {
       title: 'Values that need quoting',
       input: '{\n  "title": "A Site",\n  "note": "line\\nbreak",\n  "empty": null\n}',
     },
+    {
+      title: 'Dot separator for a Spring-style config',
+      input: '{\n  "db": { "url": "postgres://localhost/app", "pool": 10 }\n}',
+      options: { separator: '.', uppercase: false },
+    },
   ],
   article: [
     {

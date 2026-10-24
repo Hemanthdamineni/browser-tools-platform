@@ -71,7 +71,7 @@ export const meta: ToolMeta = {
   article: [
     {
       heading: 'The secret is the input',
-      body: 'TOTP works from a shared secret, not an account name. Paste the base32 string that sits after secret= in an otpauth:// URI — something like JBSWY3DPEHPK3PXP — and the tool computes the codes for the current, previous and next time window, with the seconds left in the current one. Spaces in the secret are ignored.',
+      body: 'TOTP works from a shared secret, not an account name. Paste the base32 string that sits after secret= in an otpauth:// URI — something like JBSWY3DPEHPK3PXP — and the tool computes the codes for the current, previous and next time window, with the seconds left in the current one.',
     },
     {
       heading: 'Generating versus verifying',
@@ -79,7 +79,7 @@ export const meta: ToolMeta = {
     },
     {
       heading: 'Digits and period',
-      body: 'Standard TOTP is six digits on a 30-second period, which is what most services issue; eight digits and a 60-second period are less common but supported. Both must match whatever the issuer used — a six-digit code checked as eight will never match, and a service on a 60-second step will appear to reject a 30-second code.',
+      body: 'Standard TOTP is six digits on a 30-second period, which is what most services issue; eight digits and a 60-second period are less common but supported. Both must match whatever the issuer used — a six-digit code checked as eight will never match.',
     },
     {
       heading: 'Clock drift and the base32 format',

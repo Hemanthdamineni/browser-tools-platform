@@ -91,10 +91,35 @@ const p = meta.id;
       <input type="checkbox" class="h-4 w-4 rounded" data-live checked />
       Run as I type
     </label>
+    <label
+      class="flex cursor-pointer items-center gap-2 text-sm text-[rgb(var(--text-muted))]"
+      title="Keep your last input and options for this tool, in this browser only."
+    >
+      <input type="checkbox" class="h-4 w-4 rounded" data-remember />
+      Remember input
+    </label>
+    <button type="button" class="btn btn-subtle btn-sm" data-copy-link title="Share this input and options via a link">
+      <Icon name="copy" size={14} /> Copy link
+    </button>
     <span
       class="ml-auto text-xs tabular-nums text-[rgb(var(--text-muted))]"
       data-timing
       aria-live="polite"></span>
+  </div>
+
+  <div class="mt-4 rounded-lg border border-dashed px-4 py-8 text-center" data-empty>
+    <p class="text-sm font-medium text-[rgb(var(--text))]">Your result will appear here</p>
+    <p class="mt-1.5 text-xs leading-relaxed text-[rgb(var(--text-muted))]" data-first-run>
+      Type or paste your input above, adjust the options, then press Run. Tip: press
+      <kbd class="kbd">Ctrl</kbd>+<kbd class="kbd">Enter</kbd> to run, and
+      <kbd class="kbd">?</kbd> for every shortcut.
+    </p>
+  </div>
+
+  <div class="mt-4 space-y-2" hidden data-skeleton aria-hidden="true">
+    <div class="tb-skeleton h-4 w-1/3"></div>
+    <div class="tb-skeleton h-24 w-full"></div>
+    <div class="tb-skeleton h-4 w-2/3"></div>
   </div>
 
   <div

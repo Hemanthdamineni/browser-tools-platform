@@ -70,7 +70,7 @@ export const meta: ToolMeta = {
     },
     {
       heading: 'What it will flag',
-      body: "Forbidden request headers such as Cookie, Host, Origin and Content-Length cannot be listed in a preflight and are reported as errors, along with malformed tokens and duplicate Access-Control-Request-Headers lines. Safelisted methods such as GET and POST are noted as needing no preflight. The tool reads request headers only, so a clean analysis is not a promise the real request will succeed.",
+      body: 'Forbidden request headers such as Cookie, Host, Origin and Content-Length cannot be listed in a preflight and are reported as errors, along with malformed tokens and duplicate Access-Control-Request-Headers lines. Safelisted methods such as GET and POST are noted as needing no preflight. The tool reads request headers only, so a clean analysis is not a promise the real request will succeed.',
     },
     {
       heading: 'Analysed offline',

@@ -15,7 +15,7 @@ export const meta: ToolMeta = {
   article: [
     {
       heading: 'Sample-for-sample reversal',
-      body: "Choose any audio file your browser can decode and this tool plays it backwards. The file is decoded to floating-point channels with the Web Audio API, each channel is flipped, and the result is written back as an uncompressed 16-bit PCM WAV with a -reversed suffix.",
+      body: 'Choose any audio file your browser can decode and this tool plays it backwards. The file is decoded to floating-point channels with the Web Audio API, each channel is flipped, and the result is written back as an uncompressed 16-bit PCM WAV with a -reversed suffix.',
     },
     {
       heading: 'When reversed audio is the point',
