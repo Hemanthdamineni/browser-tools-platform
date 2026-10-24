@@ -179,7 +179,7 @@ const p = meta.id;
     decodeHash,
     isMeaningful,
   } from './state';
-  import { onRunShortcutClick } from '../keyboard';
+  import { onRunShortcutClick, isCopyShortcut } from '../keyboard';
   import type { TextRunResult } from '@/lib/types';
 
   const DEBOUNCE = 180;
@@ -262,6 +262,7 @@ const p = meta.id;
       controller = new AbortController();
       clearError(errorBox);
       skeleton?.removeAttribute('hidden');
+      emptyState?.setAttribute('hidden', '');
       runBtn.disabled = true;
       runBtn.setAttribute('aria-busy', 'true');
       if (runLabel) runLabel.textContent = 'Running…';
@@ -407,8 +408,7 @@ const p = meta.id;
       const t = e.target as HTMLElement | null;
       const focusedInside = t && resultWrap.contains(t);
       if (!focusedInside || !last) return;
-      if (e.key !== 'c' && e.key !== 'C') return;
-      if (!e.ctrlKey && !e.metaKey) return;
+      if (!isCopyShortcut(e)) return;
       // The output is a read-only textarea: copying selects it all so the
       // whole result goes to the clipboard (native copy of a focused
       // textarea only copies a selection, which is usually empty).

@@ -1,16 +1,18 @@
 import type { APIRoute } from 'astro';
 import { site } from '@/lib/site';
 import { VISIBLE_TOOLS, categoriesWithCounts } from '@/lib/registry';
+import { GUIDES } from '@/lib/guides';
 
 /** Only a real ISO `YYYY-MM-DD` `updated` date earns a `<lastmod>`; never invent one. */
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 export const GET: APIRoute = () => {
-  const staticPaths = ['/', '/tools', '/categories', '/privacy', '/about'];
+  const staticPaths = ['/', '/tools', '/categories', '/privacy', '/about', '/guides'];
   const categoryPaths = categoriesWithCounts().map((c) => `/categories/${c.id}`);
+  const guidePaths = GUIDES.map((g) => g.path);
 
   const entries: { path: string; lastmod?: string }[] = [
-    ...[...staticPaths, ...categoryPaths].map((path) => ({ path })),
+    ...[...staticPaths, ...categoryPaths, ...guidePaths].map((path) => ({ path })),
     ...VISIBLE_TOOLS.map((t) => ({ path: `/tools/${t.meta.id}`, lastmod: t.meta.updated })),
   ];
 

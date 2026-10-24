@@ -39,6 +39,7 @@ export const site = {
   nav: [
     { label: 'All tools', href: link('/tools') },
     { label: 'Categories', href: link('/categories') },
+    { label: 'Guides', href: link('/guides') },
     { label: 'Privacy', href: link('/privacy') },
     { label: 'About', href: link('/about') },
   ],
@@ -46,6 +47,7 @@ export const site = {
     Product: [
       { label: 'All tools', href: link('/tools') },
       { label: 'Categories', href: link('/categories') },
+      { label: 'Guides', href: link('/guides') },
       { label: 'Install as an app', href: link('/about#install') },
     ],
     Trust: [

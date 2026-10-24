@@ -319,8 +319,16 @@ describe('video-trim meta', () => {
     });
   });
 
-  it('declares no examples, because the panel replaces the generic workbench', () => {
-    expect(tool.meta.examples ?? []).toHaveLength(0);
+  it('declares at least three examples, each valid for this tool\u2019s input', () => {
+    const examples = tool.meta.examples ?? [];
+    expect(examples.length).toBeGreaterThanOrEqual(3);
+    const knownKeys = new Set((tool.meta.options ?? []).map((option) => option.key));
+    for (const example of examples) {
+      expect(example.title.length).toBeGreaterThan(0);
+      for (const key of Object.keys(example.options ?? {})) {
+        expect(knownKeys.has(key)).toBe(true);
+      }
+    }
   });
 
   it('offers a start time, an end time, a container and a copy mode', () => {

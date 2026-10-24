@@ -12,18 +12,14 @@ import Layout from '@/components/Layout.astro';
   <div class="py-16 text-center">
     <h1 class="text-xl font-bold text-[rgb(var(--text))]">You're offline</h1>
     <p class="mx-auto mt-2 max-w-md text-[rgb(var(--text-muted))]">
-      Tools you've opened recently are cached and work without a connection.
+      This page hasn't been cached yet. Tools you've already opened still work. Try one of those, or
+      reconnect and try again.
     </p>
 
     <div class="mx-auto mt-6 max-w-md text-left" data-cached-list hidden>
-      <p class="text-sm font-semibold text-[rgb(var(--text))]">Available offline:</p>
+      <p class="text-sm font-semibold text-[rgb(var(--text))]">Available offline right now:</p>
       <ul class="mt-2 space-y-1.5 text-sm"></ul>
     </div>
-
-    <p class="mx-auto mt-4 max-w-md text-sm text-[rgb(var(--text-muted))]" data-cached-empty>
-      You haven't opened any tools here yet. Reconnect and open a tool to cache it, then this
-      page lists it.
-    </p>
 
     <div class="mt-6 flex justify-center gap-3">
       <a href="/" class="btn btn-primary">Go home</a>
@@ -39,7 +35,6 @@ import Layout from '@/components/Layout.astro';
   // static copy above, which needs nothing.
   const listHost = document.querySelector('[data-cached-list]') as HTMLElement | null;
   const list = listHost?.querySelector('ul') ?? null;
-  const empty = document.querySelector('[data-cached-empty]') as HTMLElement | null;
 
   document.querySelector('[data-retry]')?.addEventListener('click', () => {
     window.location.reload();
@@ -97,7 +92,6 @@ import Layout from '@/components/Layout.astro';
   function render(tools: [string, CachedTool][]): void {
     if (!listHost || !list) return;
     if (tools.length === 0) return; // keep the static copy
-    empty?.setAttribute('hidden', '');
     listHost.removeAttribute('hidden');
     list.innerHTML = tools
       .map(

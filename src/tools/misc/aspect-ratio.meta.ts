@@ -66,6 +66,11 @@ export const meta: ToolMeta = {
       input: '',
       options: { mode: 'solve', ratioW: 16, ratioH: 9, knownWidth: 1280 },
     },
+    {
+      title: 'Browse common resolutions',
+      input: '',
+      options: { mode: 'presets' },
+    },
   ],
   article: [
     {

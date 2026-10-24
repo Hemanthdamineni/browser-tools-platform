@@ -544,7 +544,7 @@ const p = meta.id;
     const shared = decodeHash(location.hash);
     if (isMeaningful(shared)) {
       restore(shared);
-    } else if (rememberBox.checked) {
+    } else if (rememberBox?.checked) {
       const draft = loadDraft(toolId);
       if (draft) restore(draft);
     }

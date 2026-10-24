@@ -142,22 +142,29 @@ describe('image-collage run', () => {
   });
 
   it('reordering permutes placements, never the pixels', async () => {
-    mock = installImageMock({
-      dimensions: [
-        { width: 2, height: 2 },
-        { width: 2, height: 2 },
-      ],
-      colors: [
-        [255, 0, 0, 255],
-        [0, 0, 255, 255],
-      ],
-      pixelOutput: true,
-    });
-    const run = (order: string) =>
-      tool.run({
+    // A fresh mock per run: the fake decoder consumes its `dimensions`/`colors`
+    // list in order, so a second `run()` on the same mock would decode
+    // fallback 100×200 images instead of the two 2×2 photos.
+    const install = () =>
+      installImageMock({
+        dimensions: [
+          { width: 2, height: 2 },
+          { width: 2, height: 2 },
+        ],
+        colors: [
+          [255, 0, 0, 255],
+          [0, 0, 255, 255],
+        ],
+        pixelOutput: true,
+      });
+    const run = async (order: string) => {
+      mock?.restore();
+      mock = install();
+      return tool.run({
         files: [makeFile('a.png'), makeFile('b.png')],
         options: { columns: '1', spacing: 0, order },
       });
+    };
 
     const ordered = await run('0,1');
     const orderedPixels = await blobPixels(ordered.outputs[0]!.blob);

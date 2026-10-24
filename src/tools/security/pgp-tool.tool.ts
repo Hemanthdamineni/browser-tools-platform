@@ -22,9 +22,14 @@ import {
  * orchestration in `pgp-tool-panel.ts` needs; all behaviour lives there and is
  * unit-tested against a fake.
  */
-import * as openpgp from 'openpgp';
 
-const api = openpgp as unknown as OpenPgpApi;
+/** Lazily-loaded openpgp module, fetched only when `run()` first needs it. */
+let apiPromise: Promise<OpenPgpApi> | undefined;
+
+async function loadApi(): Promise<OpenPgpApi> {
+  apiPromise ??= import('openpgp').then((m) => m as unknown as OpenPgpApi);
+  return apiPromise;
+}
 
 /** Mode dispatch is driven by the panel, mirrored by the generic workbench. */
 type Mode = 'generate' | 'encrypt' | 'decrypt' | 'sign' | 'verify' | 'import';
@@ -61,6 +66,8 @@ export async function run(input: FileRunInput): Promise<FileRunResult> {
 
   const mode = normalizeMode(String(o.mode));
   input.signal?.throwIfAborted?.();
+
+  const api = await loadApi();
 
   switch (mode) {
     case 'generate': {

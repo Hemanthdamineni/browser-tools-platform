@@ -227,7 +227,11 @@ describe('writeNoiseReductionWav', () => {
 describe('computePeaks', () => {
   it('finds the loudest absolute sample per column', () => {
     const pcm = Float32Array.of(0.1, -0.4, 0.2, 0.9);
-    expect(computePeaks(pcm, 2)).toEqual([0.4, 0.9]);
+    const peaks = computePeaks(pcm, 2);
+    // Peak values are stored in Float32, so compare with a tolerance.
+    expect(peaks.length).toBe(2);
+    expect(peaks[0]).toBeCloseTo(0.4, 5);
+    expect(peaks[1]).toBeCloseTo(0.9, 5);
   });
 
   it('fills every column for short input and returns zeros for empty input', () => {

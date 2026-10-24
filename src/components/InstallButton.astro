@@ -2,26 +2,38 @@
 import Icon from './Icon.astro';
 
 /**
- * Install-as-an-app prompt.
+ * Install-as-an-app prompt (E7-T1).
  *
  * The browser fires `beforeinstallprompt` when the page is installable
- * (served over HTTPS, has a manifest + service worker). We keep the event so
- * we can trigger the native prompt on demand from the header button, and
- * remember a dismissal in localStorage so we don't nag on every visit. On
- * Firefox / iOS Safari there is no such event, so the button stays hidden.
+ * (served over HTTPS, has a manifest + service worker). We hold the event so
+ * the header button can trigger the native prompt on demand, and we let the
+ * visitor dismiss the button outright — that choice is remembered in
+ * `localStorage`, so it never nags again. Browsers without the event
+ * (Firefox, iOS Safari) simply never see the button.
  */
 ---
 
-<button
-  type="button"
-  id="install-button"
-  class="btn btn-ghost !px-2.5 hidden"
-  aria-label="Install as an app"
-  title="Install as an app"
->
-  <Icon name="download" size={16} />
-  <span class="hidden text-[13px] font-medium sm:inline">Install app</span>
-</button>
+<div id="install-prompt" class="hidden items-center gap-0.5">
+  <button
+    type="button"
+    id="install-button"
+    class="btn btn-ghost !px-2.5"
+    aria-label="Install as an app"
+    title="Install as an app"
+  >
+    <Icon name="download" size={16} />
+    <span class="hidden text-[13px] font-medium sm:inline">Install app</span>
+  </button>
+  <button
+    type="button"
+    id="install-dismiss"
+    class="btn btn-subtle btn-sm !px-1.5"
+    aria-label="Dismiss the install prompt"
+    title="Don't show this again"
+  >
+    <Icon name="x" size={14} />
+  </button>
+</div>
 
 <script>
   interface BeforeInstallPromptEvent extends Event {
@@ -30,7 +42,9 @@ import Icon from './Icon.astro';
   }
 
   const DISMISS_KEY = 'tb-install-dismissed';
-  const btn = document.getElementById('install-button') as HTMLButtonElement | null;
+  const wrap = document.getElementById('install-prompt');
+  const installBtn = document.getElementById('install-button') as HTMLButtonElement | null;
+  const dismissBtn = document.getElementById('install-dismiss');
 
   function dismissed(): boolean {
     try {
@@ -53,35 +67,44 @@ import Icon from './Icon.astro';
     );
   }
 
-  let deferred: BeforeInstallPromptEvent | null = null;
-
-  function hide() {
-    btn?.classList.add('hidden');
+  /** Show/hide the whole install affordance (button + dismiss). */
+  function showPrompt(show: boolean): void {
+    if (!wrap) return;
+    wrap.classList.toggle('hidden', !show);
+    wrap.classList.toggle('flex', show);
   }
+
+  let deferred: BeforeInstallPromptEvent | null = null;
 
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferred = e as BeforeInstallPromptEvent;
-    if (!dismissed() && !isStandalone()) btn?.classList.remove('hidden');
+    if (!dismissed() && !isStandalone()) showPrompt(true);
   });
 
-  // Installed already — either earlier this session or in a previous one.
+  // Installed — earlier this session, or by another tab. Stop offering it.
   window.addEventListener('appinstalled', () => {
     deferred = null;
-    hide();
+    showPrompt(false);
     rememberDismissal();
   });
 
-  // Do not offer "Install app" while the site is already running as an app.
-  if (isStandalone()) hide();
+  // Never offer "Install app" while the site already runs as an app.
+  if (isStandalone() || dismissed()) showPrompt(false);
 
-  btn?.addEventListener('click', async () => {
+  installBtn?.addEventListener('click', async () => {
     if (!deferred) return;
     const promptEvent = deferred;
     deferred = null;
     await promptEvent.prompt();
     const choice = await promptEvent.userChoice;
-    hide();
+    showPrompt(false);
     if (choice.outcome === 'dismissed') rememberDismissal();
+  });
+
+  dismissBtn?.addEventListener('click', () => {
+    deferred = null;
+    showPrompt(false);
+    rememberDismissal();
   });
 </script>
