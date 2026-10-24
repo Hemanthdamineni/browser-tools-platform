@@ -20,10 +20,20 @@ const helpId = `${meta.id}-help`;
 const deviceId = `${meta.id}-device`;
 ---
 
+<!--
+  `data-file-workbench` is the marker the shared end-to-end checks look for on
+  every tool page; this panel replaces the generic file workbench, so it carries
+  the marker itself. `data-signature-workbench` is the opt-out the generic file
+  workbench's own script checks before it mounts (the signing panel uses the same
+  pair) — without it that script would look for a drop zone in this section, find
+  none and throw while the page's hoisted bundle is evaluating, which stops every
+  later workbench script on the page, this panel included, from ever running.
+-->
 <section
   class="surface mb-4 rounded-lg p-4 sm:p-6"
   data-webcam-test-panel
   data-file-workbench
+  data-signature-workbench
   data-tool-id={meta.id}
   aria-labelledby={headingId}
 >

@@ -15,6 +15,11 @@ export const MAX_SNAPSHOT_EDGE = 16_384;
 export const MAX_SNAPSHOT_PIXELS = 40_000_000;
 /** Rolling window the live frame rate is measured over. */
 export const FRAME_WINDOW_MS = 2_000;
+/**
+ * A stream that has presented nothing for this long counts as stopped, so its
+ * last rate is never shown — or reported in a snapshot — as current.
+ */
+export const FRAME_STALE_MS = 1_000;
 
 /* -------------------------------------------------------------------------- */
 /*  Probe shape                                                               */
@@ -194,6 +199,21 @@ export function fpsFromTimestamps(timestamps: readonly number[]): number | null 
   if (!Number.isFinite(span) || span <= 0) return null;
   const fps = ((timestamps.length - 1) * 1000) / span;
   return Number.isFinite(fps) && fps > 0 ? round1(fps) : null;
+}
+
+/**
+ * True when the newest timestamp is too old to describe the stream right now —
+ * a stalled camera, or a tab the browser has stopped painting. Callers treat a
+ * stale measurement as "no rate" rather than reporting the last good number.
+ */
+export function measurementStale(
+  timestamps: readonly number[],
+  now: number,
+  staleAfterMs = FRAME_STALE_MS,
+): boolean {
+  if (timestamps.length === 0) return true;
+  const newest = timestamps[timestamps.length - 1]!;
+  return !Number.isFinite(newest) || now - newest > staleAfterMs;
 }
 
 /**
@@ -462,14 +482,19 @@ export function buildReportRows(probe: CaptureProbe, snapshot: SnapshotInfo): st
 }
 
 /** The notes and warnings that go with a report. */
-export function buildReportNotes(probe: CaptureProbe, snapshot: SnapshotInfo): {
+export function buildReportNotes(
+  probe: CaptureProbe,
+  snapshot: SnapshotInfo,
+): {
   notes: string[];
   warnings: string[];
 } {
   const notes: string[] = [];
   const warnings: string[] = [];
 
-  if (!sameResolution(probe.settings.width, probe.settings.height, snapshot.width, snapshot.height)) {
+  if (
+    !sameResolution(probe.settings.width, probe.settings.height, snapshot.width, snapshot.height)
+  ) {
     warnings.push(
       `The live stream reported ${formatResolution(
         probe.settings.width,
@@ -477,8 +502,10 @@ export function buildReportNotes(probe: CaptureProbe, snapshot: SnapshotInfo): {
       )} but the captured frame is ${formatResolution(snapshot.width, snapshot.height)}.`,
     );
   }
-  if (probe.frames >= 1 && probe.frames < 2) {
-    notes.push('The frame rate could not be measured — fewer than two frames were seen.');
+  if (probe.deviceId && probe.frames < 2) {
+    notes.push(
+      'The frame rate could not be measured — fewer than two frames were observed in the sampling window.',
+    );
   }
   if (probe.fpsSource === 'raf') {
     notes.push(
@@ -486,7 +513,9 @@ export function buildReportNotes(probe: CaptureProbe, snapshot: SnapshotInfo): {
     );
   }
   if (!probe.deviceId && probe.devices === null) {
-    notes.push('No live camera readings were supplied, so this report only describes the snapshot.');
+    notes.push(
+      'No live camera readings were supplied, so this report only describes the snapshot.',
+    );
   }
   notes.push('The frame was captured and measured in this tab — nothing was recorded or uploaded.');
   return { notes, warnings };
@@ -543,12 +572,16 @@ export function describeCameraError(err: unknown): ToolError {
   }
 }
 
-/** Guard the “press Start with no camera attached” case with a clear message. */
-export function assertHasDevices(devices: readonly CameraDevice[]): void {
+/**
+ * Guard the “press Start with no camera attached” case with a clear message.
+ * Returns the list it was given, so the caller can adopt it directly.
+ */
+export function assertHasDevices(devices: CameraDevice[]): CameraDevice[] {
   if (devices.length === 0) {
     throw new ToolError(
       'No camera was found on this device.',
       'Connect a webcam, then reload this page. If one is already attached, check that the browser is allowed to use it in your system settings.',
     );
   }
+  return devices;
 }

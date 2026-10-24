@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { ToolError } from '@/lib/types';
 import tool from './webcam-test.tool';
 import {
+  MAX_SNAPSHOT_EDGE,
+  MAX_SNAPSHOT_PIXELS,
   assertHasDevices,
   assertSnapshotDimensions,
   buildReportNotes,
@@ -12,6 +14,7 @@ import {
   formatFps,
   formatResolution,
   fpsFromTimestamps,
+  measurementStale,
   parseCaptureProbe,
   readImageDimensions,
   sameResolution,
@@ -184,6 +187,25 @@ describe('trimFrameWindow', () => {
   });
 });
 
+describe('measurementStale', () => {
+  it('is stale with no frames at all', () => {
+    expect(measurementStale([], 1000)).toBe(true);
+  });
+
+  it('is fresh while frames keep arriving', () => {
+    expect(measurementStale([0, 500, 980], 1000)).toBe(false);
+  });
+
+  it('expires exactly after the stall window', () => {
+    expect(measurementStale([0, 500], 1500, 1000)).toBe(false);
+    expect(measurementStale([0, 500], 1501, 1000)).toBe(true);
+  });
+
+  it('treats a non-finite timestamp as stale', () => {
+    expect(measurementStale([0, NaN], 10)).toBe(true);
+  });
+});
+
 /* -------------------------------------------------------------------------- */
 /*  Probe parsing                                                             */
 /* -------------------------------------------------------------------------- */
@@ -291,23 +313,29 @@ describe('readImageDimensions', () => {
 });
 
 describe('assertSnapshotDimensions', () => {
-  it('accepts a sane frame', () => {
-    expect(() => assertSnapshotDimensions(1920, 1080)).not.toThrow();
+  it('accepts a frame exactly at the per-side edge limit', () => {
+    expect(() => assertSnapshotDimensions(MAX_SNAPSHOT_EDGE, 1)).not.toThrow();
+  });
+
+  it('rejects a frame one pixel past the per-side edge limit', () => {
+    expect(() => assertSnapshotDimensions(MAX_SNAPSHOT_EDGE + 1, 1)).toThrow(
+      /larger than this tool supports/i,
+    );
+  });
+
+  it('accepts a frame exactly at the pixel budget and rejects one row more', () => {
+    // 8000 stays under the per-side cap, so only the pixel budget is exercised.
+    const width = 8000;
+    const height = MAX_SNAPSHOT_PIXELS / width;
+    expect(Number.isInteger(height)).toBe(true);
+    expect(() => assertSnapshotDimensions(width, height)).not.toThrow();
+    expect(() => assertSnapshotDimensions(width, height + 1)).toThrow(/pixels/i);
   });
 
   it('rejects non-positive sizes', () => {
     expect(() => assertSnapshotDimensions(0, 720)).toThrow(/no readable size/i);
     expect(() => assertSnapshotDimensions(-1, 720)).toThrow(/no readable size/i);
     expect(() => assertSnapshotDimensions(1.5, 720)).toThrow(/no readable size/i);
-  });
-
-  it('rejects a frame with an absurd edge', () => {
-    expect(() => assertSnapshotDimensions(20_000, 10)).toThrow(/larger than this tool supports/i);
-  });
-
-  it('rejects a frame that exceeds the pixel budget', () => {
-    // 8k x 8k = 67M pixels > 40M budget, but each edge is under the per-side cap.
-    expect(() => assertSnapshotDimensions(8192, 8192)).toThrow(/67108864 pixels/i);
   });
 });
 
@@ -380,7 +408,10 @@ describe('buildReportRows', () => {
 
 describe('buildReportNotes', () => {
   it('warns when the stream and snapshot resolutions differ', () => {
-    const { warnings } = buildReportNotes(sampleCapture(), sampleSnapshot({ width: 1920, height: 1080 }));
+    const { warnings } = buildReportNotes(
+      sampleCapture(),
+      sampleSnapshot({ width: 1920, height: 1080 }),
+    );
     expect(warnings.join(' ')).toMatch(/captured frame is 1920 × 1080/i);
   });
 
@@ -401,18 +432,20 @@ describe('buildReportNotes', () => {
     expect(notes.join(' ')).toMatch(/only describes the snapshot/i);
   });
 
-  it('always notes that nothing was uploaded', () => {
-    expect(buildReportNotes(sampleCapture(), sampleSnapshot()).notes.join(' ')).toMatch(
-      /nothing was recorded or uploaded/i,
+  it('explains an unmeasurable frame rate when a camera was in use', () => {
+    const { notes } = buildReportNotes(
+      sampleCapture({ fps: null, frames: 0, sampleMs: 0 }),
+      sampleSnapshot(),
     );
+    expect(notes.join(' ')).toMatch(/fewer than two frames/i);
   });
 });
 
 describe('assertHasDevices', () => {
-  it('passes when at least one camera exists', () => {
-    expect(() =>
-      assertHasDevices([{ deviceId: 'a', label: 'Cam', active: true }] satisfies CameraDevice[]),
-    ).not.toThrow();
+  it('returns the camera list it was given', () => {
+    const cameras: CameraDevice[] = [{ deviceId: 'a', label: 'Cam', active: true }];
+    expect(assertHasDevices(cameras)).toBe(cameras);
+    expect(assertHasDevices(cameras)).toHaveLength(1);
   });
 
   it('throws a friendly ToolError when no camera exists', () => {
@@ -529,6 +562,30 @@ describe('webcam-test run()', () => {
     const snapshotBytes = result.stats?.snapshotBytes as number;
     const outBytes = new Uint8Array(await result.outputs[0]!.blob.arrayBuffer());
     expect(snapshotBytes).toBe(outBytes.length);
+  });
+
+  it('names the output after the camera and matches its MIME type', async () => {
+    const result = await tool.run({
+      files: [makePngFile('cam.png', 64, 48)],
+      options: { capture: probeJson() },
+    });
+    const output = result.outputs[0]!;
+    expect(output.filename).toMatch(/^hd-webcam-webcam-snapshot-\d{8}-\d{6}\.png$/);
+    expect(output.blob.type).toBe('image/png');
+    // The file the user saves really is the frame that was captured.
+    expect(readImageDimensions(new Uint8Array(await output.blob.arrayBuffer()))).toEqual({
+      width: 64,
+      height: 48,
+      format: 'png',
+    });
+
+    const table = JSON.parse(result.report!.output) as { rows: string[][] };
+    const detail = (key: string) => table.rows.find(([k]) => k === key)?.[1];
+    expect(detail('Camera')).toBe('HD Webcam');
+    expect(detail('Device ID')).toBe('camera-1');
+    expect(detail('Cameras detected')).toBe('2');
+    expect(detail('Camera 1')).toMatch(/HD Webcam — in use/);
+    expect(detail('Camera 2')).toBe('IR Camera');
   });
 
   it('reports a mismatch between the stream and the captured frame', async () => {

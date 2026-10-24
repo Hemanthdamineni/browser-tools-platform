@@ -20,11 +20,13 @@ import { clearError, renderTextResult, showError } from '../workbench/shared';
 import {
   FRAME_WINDOW_MS,
   assertHasDevices,
+  assertSnapshotDimensions,
   describeCameraError,
   formatAspectRatio,
   formatFps,
   formatResolution,
   fpsFromTimestamps,
+  measurementStale,
   trimFrameWindow,
   type CameraDevice,
   type CaptureProbe,
@@ -88,8 +90,15 @@ export function mountWebcamTestPanel(panel: HTMLElement): void {
   let devices: CameraDevice[] = [];
   let frameTimes: number[] = [];
   let frameHandle: number | null = null;
+  let readoutTimer: number | null = null;
   let fpsSource: FpsSource = 'video-frame';
   let lastReadoutAt = 0;
+  /**
+   * Bumped by every start and every stop. A camera request that resolves after
+   * the user switched device or left the page is no longer the current one: its
+   * stream is released instead of being turned on late.
+   */
+  let startGeneration = 0;
 
   const announce = (message: string): void => {
     status.textContent = message;
@@ -120,6 +129,8 @@ export function mountWebcamTestPanel(panel: HTMLElement): void {
   }
 
   function onFrame(now: number): void {
+    // A cancelled frame callback may still fire once — never restart the loop.
+    if (!live || frameHandle === null) return;
     frameTimes.push(now);
     const trimmed = trimFrameWindow(frameTimes, now, FRAME_WINDOW_MS);
     if (trimmed !== frameTimes) frameTimes = trimmed;
@@ -138,9 +149,16 @@ export function mountWebcamTestPanel(panel: HTMLElement): void {
     // the honest number. Without it, fall back to the display refresh loop.
     fpsSource = typeof video!.requestVideoFrameCallback === 'function' ? 'video-frame' : 'raf';
     scheduleFrame();
+    // Repaint on a timer as well as on frames, so a stream that stalls shows its
+    // rate as unavailable instead of leaving the last good number on screen.
+    readoutTimer = window.setInterval(updateReadout, READOUT_MS);
   }
 
   function stopMeter(): void {
+    if (readoutTimer !== null) {
+      window.clearInterval(readoutTimer);
+      readoutTimer = null;
+    }
     if (frameHandle === null) return;
     if (fpsSource === 'video-frame') video!.cancelVideoFrameCallback(frameHandle);
     else window.cancelAnimationFrame(frameHandle);
@@ -151,11 +169,12 @@ export function mountWebcamTestPanel(panel: HTMLElement): void {
     const settings = trackSettings();
     const width = video!.videoWidth || settings?.width || null;
     const height = video!.videoHeight || settings?.height || null;
+    const stale = measurementStale(frameTimes, performance.now());
     setValue('resolution', formatResolution(width, height));
     setValue('aspect', formatAspectRatio(width, height) ?? 'unknown');
-    setValue('fps', formatFps(fpsFromTimestamps(frameTimes)));
+    setValue('fps', formatFps(stale ? null : fpsFromTimestamps(frameTimes)));
     setValue('track-fps', formatFps(settings?.frameRate ?? null));
-    setValue('frames', String(frameTimes.length));
+    setValue('frames', stale ? '—' : String(frameTimes.length));
   }
 
   /* ---------------------------------------------------------------------- */
@@ -212,6 +231,8 @@ export function mountWebcamTestPanel(panel: HTMLElement): void {
   }
 
   function stopCamera(message = 'Camera off.'): void {
+    // A camera request still in flight belongs to the session we are ending.
+    startGeneration += 1;
     releaseStream();
     frameTimes = [];
     stage!.hidden = true;
@@ -233,6 +254,7 @@ export function mountWebcamTestPanel(panel: HTMLElement): void {
 
   async function start(): Promise<void> {
     if (live) return;
+    const generation = ++startGeneration;
     clearError(errorBox!);
     startBtn!.disabled = true;
     announce('Requesting camera permission…');
@@ -245,15 +267,28 @@ export function mountWebcamTestPanel(panel: HTMLElement): void {
       }
       // Once access has been granted the device list is complete, so an empty
       // one means the camera really is gone (unplugged, disabled, removed).
-      if (granted) assertHasDevices(await refreshDevices());
+      if (granted) {
+        devices = assertHasDevices(await refreshDevices());
+        if (generation !== startGeneration) return;
+      }
 
       const media = await navigator.mediaDevices.getUserMedia(constraints());
+      if (generation !== startGeneration) {
+        // The device was switched, or the page was left, while the request was
+        // pending: release the grant instead of turning a camera on late.
+        for (const track of media.getTracks()) track.stop();
+        return;
+      }
+      // Adopting a stream always releases the one it replaces.
+      releaseStream();
       stream = media;
       const track = media.getVideoTracks()[0];
       const trackDeviceId = track?.getSettings?.().deviceId;
       if (trackDeviceId) deviceId = trackDeviceId;
       video!.srcObject = media;
       await video!.play().catch(() => undefined);
+      // Stopped while `play()` was settling — `releaseStream` already stopped it.
+      if (generation !== startGeneration) return;
 
       live = true;
       granted = true;
@@ -268,6 +303,7 @@ export function mountWebcamTestPanel(panel: HTMLElement): void {
       startMeter();
 
       await refreshDevices();
+      if (generation !== startGeneration) return;
       if (!devices.length && track) {
         devices = [{ deviceId, label: track.label || 'Camera', active: true }];
       }
@@ -284,6 +320,8 @@ export function mountWebcamTestPanel(panel: HTMLElement): void {
       };
       waitForFirstFrame();
     } catch (err) {
+      // Superseded by a newer start or by a stop: that session reports instead.
+      if (generation !== startGeneration) return;
       stopCamera('Camera could not start.');
       const toolError = err instanceof ToolError ? err : describeCameraError(err);
       showError(errorBox!, toolError.message, toolError.hint);
@@ -309,7 +347,10 @@ export function mountWebcamTestPanel(panel: HTMLElement): void {
   /** Everything the panel measured, in the shape the tool's `run()` expects. */
   function buildProbe(): CaptureProbe {
     const settings = trackSettings();
-    const frames = frameTimes.length;
+    // A stale window (stalled camera, or a tab that was hidden) is reported as
+    // "not measured" rather than as the rate the stream had minutes ago.
+    const stale = measurementStale(frameTimes, performance.now());
+    const frames = stale ? 0 : frameTimes.length;
     return {
       deviceId,
       deviceLabel: stream?.getVideoTracks()[0]?.label ?? '',
@@ -320,7 +361,7 @@ export function mountWebcamTestPanel(panel: HTMLElement): void {
         aspectRatio: settings?.aspectRatio ?? null,
         facingMode: settings?.facingMode ?? null,
       },
-      fps: fpsFromTimestamps(frameTimes),
+      fps: stale ? null : fpsFromTimestamps(frameTimes),
       frames,
       sampleMs: frames >= 2 ? frameTimes[frames - 1]! - frameTimes[0]! : 0,
       fpsSource,
@@ -343,9 +384,16 @@ export function mountWebcamTestPanel(panel: HTMLElement): void {
 
     outputsHost!.replaceChildren();
     for (const output of result.outputs) {
-      const row = element('li', 'flex items-center justify-between gap-3 rounded-lg border px-3 py-2');
+      const row = element(
+        'li',
+        'flex items-center justify-between gap-3 rounded-lg border px-3 py-2',
+      );
       row.appendChild(
-        element('span', 'truncate text-sm', `${output.filename} · ${formatBytes(output.blob.size)}`),
+        element(
+          'span',
+          'truncate text-sm',
+          `${output.filename} · ${formatBytes(output.blob.size)}`,
+        ),
       );
       const save = element('button', 'btn btn-subtle btn-sm shrink-0', 'Save');
       save.type = 'button';
@@ -374,9 +422,15 @@ export function mountWebcamTestPanel(panel: HTMLElement): void {
     snapshotBtn!.disabled = true;
     announce('Capturing the current frame…');
     try {
+      const width = video!.videoWidth;
+      const height = video!.videoHeight;
+      // The tool's own budget is applied *before* a canvas is allocated, so an
+      // oversized frame is refused with a clear message instead of exhausting
+      // memory (and crashing the tab) only to be rejected later.
+      assertSnapshotDimensions(width, height);
       const canvas = document.createElement('canvas');
-      canvas.width = video!.videoWidth;
-      canvas.height = video!.videoHeight;
+      canvas.width = width;
+      canvas.height = height;
       const context = canvas.getContext('2d');
       if (!context) {
         throw new ToolError(
@@ -417,7 +471,14 @@ export function mountWebcamTestPanel(panel: HTMLElement): void {
   });
 
   window.addEventListener('pagehide', () => stopCamera('Camera off.'));
-  window.addEventListener('beforeunload', () => releaseStream());
+  window.addEventListener('beforeunload', () => stopCamera('Camera off.'));
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden || !live) return;
+    // A hidden tab stops presenting frames, so the measurement would otherwise
+    // go stale and be reported as current on the next snapshot.
+    frameTimes = [];
+    updateReadout();
+  });
 
   void refreshDevices().then(() => {
     if (devices.length) announce('Camera found — press “Start camera” to request access.');
