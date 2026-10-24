@@ -1,0 +1,87 @@
+---
+import Icon from './Icon.astro';
+
+/**
+ * Install-as-an-app prompt.
+ *
+ * The browser fires `beforeinstallprompt` when the page is installable
+ * (served over HTTPS, has a manifest + service worker). We keep the event so
+ * we can trigger the native prompt on demand from the header button, and
+ * remember a dismissal in localStorage so we don't nag on every visit. On
+ * Firefox / iOS Safari there is no such event, so the button stays hidden.
+ */
+---
+
+<button
+  type="button"
+  id="install-button"
+  class="btn btn-ghost !px-2.5 hidden"
+  aria-label="Install as an app"
+  title="Install as an app"
+>
+  <Icon name="download" size={16} />
+  <span class="hidden text-[13px] font-medium sm:inline">Install app</span>
+</button>
+
+<script>
+  interface BeforeInstallPromptEvent extends Event {
+    prompt(): Promise<void>;
+    userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+  }
+
+  const DISMISS_KEY = 'tb-install-dismissed';
+  const btn = document.getElementById('install-button') as HTMLButtonElement | null;
+
+  function dismissed(): boolean {
+    try {
+      return localStorage.getItem(DISMISS_KEY) === '1';
+    } catch {
+      return false;
+    }
+  }
+  function rememberDismissal(): void {
+    try {
+      localStorage.setItem(DISMISS_KEY, '1');
+    } catch {
+      /* private mode — the button simply reappears next visit */
+    }
+  }
+  function isStandalone(): boolean {
+    return (
+      window.matchMedia?.('(display-mode: standalone)').matches === true ||
+      (navigator as unknown as { standalone?: boolean }).standalone === true
+    );
+  }
+
+  let deferred: BeforeInstallPromptEvent | null = null;
+
+  function hide() {
+    btn?.classList.add('hidden');
+  }
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferred = e as BeforeInstallPromptEvent;
+    if (!dismissed() && !isStandalone()) btn?.classList.remove('hidden');
+  });
+
+  // Installed already — either earlier this session or in a previous one.
+  window.addEventListener('appinstalled', () => {
+    deferred = null;
+    hide();
+    rememberDismissal();
+  });
+
+  // Do not offer "Install app" while the site is already running as an app.
+  if (isStandalone()) hide();
+
+  btn?.addEventListener('click', async () => {
+    if (!deferred) return;
+    const promptEvent = deferred;
+    deferred = null;
+    await promptEvent.prompt();
+    const choice = await promptEvent.userChoice;
+    hide();
+    if (choice.outcome === 'dismissed') rememberDismissal();
+  });
+</script>

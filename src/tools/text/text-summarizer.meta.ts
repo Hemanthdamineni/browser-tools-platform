@@ -58,19 +58,19 @@ export const meta: ToolMeta = {
   article: [
     {
       heading: 'Extractive, not generative',
-      body: 'The tool picks whole sentences out of your text; it does not rewrite them. That distinction matters: nothing is paraphrased and nothing is invented, so a summary can be checked against the source and no fact can be fabricated. The output is a set of the most representative sentences, in the order they originally appeared.',
+      body: 'The tool picks whole sentences out of your text; it does not rewrite them. That distinction matters: nothing is paraphrased and nothing is invented, so a summary can be checked against the source and no fact can be fabricated. The output is the most representative sentences, in the order they originally appeared.',
     },
     {
       heading: 'How a sentence earns its place',
-      body: 'Each sentence is scored by how often its content words appear across the whole document — a simple term-frequency measure. Words shorter than three characters and a long stop-word list are ignored so that "the" and "and" carry no weight. A smoothing step accounts for how many clauses a sentence contains, which stops one enormous run-on sentence from crowding out the shorter, denser ones.',
+      body: 'Each sentence is scored by how often its content words appear across the document — a simple term-frequency measure. Words shorter than three characters and a long stop-word list are ignored so "the" and "and" carry no weight. A smoothing step accounts for how many clauses a sentence contains, which stops one huge run-on sentence from crowding out shorter, denser ones.',
     },
     {
       heading: 'Choosing a length',
-      body: 'Short takes roughly 15% of the sentences, medium about 30% and long about 45%. Documents of two sentences or fewer always yield a single summary sentence. Custom lets you name an exact count from 1 to 25, which is the option to use when you need, say, a three-sentence abstract for a fixed slot rather than a proportion.',
+      body: 'Short takes roughly 15% of the sentences, medium about 30% and long about 45%. Documents of two sentences or fewer always yield a single summary sentence. Custom lets you name an exact count from 1 to 25, for when you need a fixed three-sentence abstract rather than a proportion.',
     },
     {
       heading: 'Where it will not help',
-      body: 'Text under ten words is refused, because there is nothing to rank. A single short paragraph comes back essentially unchanged — an extractive summarizer has no way to compress below one sentence without rewriting. Multi-paragraph prose, transcripts and long documentation are where the frequency scoring has enough signal to separate the central points from the detail.',
+      body: 'Text under ten words is refused, because there is nothing to rank. A single short paragraph comes back essentially unchanged — an extractive summarizer cannot compress below one sentence without rewriting. Multi-paragraph prose, transcripts and long documentation are where the frequency scoring has enough signal to separate central points from detail.',
     },
     {
       heading: 'Your document is not uploaded',

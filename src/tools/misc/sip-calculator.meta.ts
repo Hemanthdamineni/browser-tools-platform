@@ -194,19 +194,19 @@ export const meta: ToolMeta = {
   article: [
     {
       heading: 'What the projection shows',
-      body: 'The calculator simulates a monthly mutual-fund style plan and reports three headline figures: the total you paid in, the estimated end value, and the estimated gain between them. Alongside those you get a breakdown for every completed year of the plan, listing the instalment in force and the balance at that point. The chart view draws that same data as an SVG image you can download for a goal-planning document, and the table view prints it as rows — the two are the same numbers in different clothing, so pick whichever your audience reads more easily.',
+      body: 'The calculator simulates a monthly mutual-fund style plan and reports the total paid in, the estimated end value, and the estimated gain between them. A breakdown for every completed year lists the instalment in force and the balance at that point. The chart view draws that same data as a downloadable SVG image; the table view prints it as rows — the same numbers in different clothing, so pick whichever your audience reads more easily.',
     },
     {
       heading: 'How the month-by-month maths works',
-      body: 'The engine steps through every month rather than applying a closed-form annuity formula, so a step-up or a part-year duration is handled without special cases. Each month the balance is multiplied by the monthly rate — the annual return divided by twelve — and the instalment for that month is added. Whether the instalment is added before or after that month’s growth is the timing setting: at the start of the month it also earns that month’s return, while at the end it only earns from the next month. The difference between the two is exactly one month of interest on the running total.',
+      body: 'The engine steps through every month rather than applying a closed-form annuity formula, so a step-up or a part-year duration needs no special case. Each month the balance is multiplied by the monthly rate — the annual return divided by twelve — and the instalment for that month is added. The timing setting decides whether the instalment lands before or after that month’s growth: at the start it earns that month’s return, at the end it only earns from the next. The two plans differ by exactly one month of interest on the running total.',
     },
     {
       heading: 'Step-ups, lumpsum and part years',
-      body: 'An annual step-up raises the instalment once a year on the plan’s anniversary, so year one runs at the base amount, year two at the base times one plus the step-up, and so on; a step-up of zero keeps it flat throughout. A one-time lumpsum is invested before the first instalment, so it compounds for the entire term, and it runs happily alongside the SIP. A duration can include extra months in addition to whole years, and the table labels that final row as a part-year milestone such as 10y 3m instead of a whole year.',
+      body: 'An annual step-up raises the instalment once a year on the plan’s anniversary, so year one runs at the base amount and year two at the base times one plus the step-up; zero keeps it flat. A one-time lumpsum is invested before the first instalment, so it compounds for the whole term alongside the SIP. A duration can include extra months, and the table labels the final row as a part-year milestone such as 10y 3m.',
     },
     {
       heading: 'Limits, assumptions and privacy',
-      body: 'This is an illustration, not a forecast and not financial advice. A single constant annual return is assumed and it ignores tax, exit loads, expense ratios, fund switching and the way real markets move; returns are not guaranteed and can be negative. The input guards reject a duration under a month, a plan with neither a SIP nor a lumpsum, and projections running past an unrealistic ceiling, in each case with a message telling you which field to change. Everything is computed in your browser — no amount you enter is uploaded and no request is made.',
+      body: 'This is an illustration, not a forecast and not financial advice. A single constant annual return is assumed, and tax, exit loads, expense ratios and real market moves are ignored. The guards reject a duration under a month, a plan with neither a SIP nor a lumpsum, and projections past an unrealistic ceiling, each with a message naming the field to change. Everything is computed in your browser — no amount you enter is uploaded and no request is made.',
     },
   ],
   related: [

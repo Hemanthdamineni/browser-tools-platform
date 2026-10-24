@@ -35,7 +35,7 @@ export const meta: ToolMeta = {
     },
     {
       heading: 'Rules and caveats',
-      body: 'CSS constrains x1 and x2 to between 0 and 1 because they parametrise time, while y1 and y2 may leave that range to produce overshoot and bounce — the tool rejects out-of-range x values exactly as a browser would. The input must be four finite numbers separated by spaces or commas. Progress values are solved numerically, so a very steep curve can show tiny rounding at the sample points, and the keyword match is a plain distance between control points rather than a perceptual comparison.',
+      body: 'CSS constrains x1 and x2 to between 0 and 1 because they parametrise time, while y1 and y2 may leave that range to produce overshoot and bounce — out-of-range x values are rejected exactly as a browser would. The input must be four finite numbers separated by spaces or commas, and the keyword match is a plain distance between control points.',
     },
     {
       heading: 'Curve maths in your browser',

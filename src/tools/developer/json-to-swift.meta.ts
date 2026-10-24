@@ -52,7 +52,7 @@ export const meta: ToolMeta = {
   article: [
     {
       heading: 'A JSON sample becomes Codable structs',
-      body: 'Paste a JSON object, or an array of objects, and get Swift structs that decode it: inferred property types, a nested struct for every nested object, array element types, and optionally a CodingKeys enum that maps snake_case keys to camelCase properties. The output closes with a comment showing how to call JSONDecoder.',
+      body: 'Paste a JSON object, or an array of objects, and get Swift structs that decode it: inferred property types, a nested struct for every nested object, array element types, and optionally a CodingKeys enum that maps snake_case keys to camelCase properties.',
     },
     {
       heading: 'The iOS API-model chore',
@@ -60,11 +60,11 @@ export const meta: ToolMeta = {
     },
     {
       heading: 'Options that shape the model',
-      body: 'Root struct name sets the top-level type and also prefixes the names of nested structs. Emit CodingKeys enum for non-matching keys adds a case for precisely those keys whose spelling differs from the Swift property name and leaves matching keys out. Property declaration switches between let and var, deciding whether the decoded values can be mutated afterwards.',
+      body: 'Root struct name sets the top-level type and prefixes the names of nested structs. Emit CodingKeys enum adds a case for exactly those keys whose spelling differs from the Swift property name. Property declaration switches between let and var, deciding whether decoded values can be mutated.',
     },
     {
       heading: 'Inference rules and limits',
-      body: 'Strings become String, booleans Bool, whole numbers Int, fractional numbers Double, and arrays become typed arrays such as [String] or [NestedStruct]. A null in the sample maps to String? so it decodes to nil rather than throwing, but values that were present are never optional — mark sometimes-missing fields optional yourself. Decimals are not modelled, an empty array cannot be typed and raises an error, and a primitive root is refused. Swift keywords are backticked and colliding names are suffixed.',
+      body: 'Strings become String, booleans Bool, whole numbers Int, fractional numbers Double, and arrays become typed arrays such as [String] or [NestedStruct]. A null in the sample maps to String? so it decodes to nil; present values are never optional, so mark sometimes-missing fields optional yourself. Empty arrays cannot be typed and raise an error, and primitive roots are refused. Swift keywords are backticked and colliding names are suffixed.',
     },
     {
       heading: 'Generated locally',

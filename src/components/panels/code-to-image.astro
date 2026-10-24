@@ -283,12 +283,12 @@ const opening = examples[0]?.input ?? '';
 
     function refreshPreview(): void {
       if (!lastSvg) return;
-      frame.srcdoc = previewDocument(lastSvg, currentZoom());
+      frame!.srcdoc = previewDocument(lastSvg, currentZoom());
     }
 
     function clearResult(): void {
       lastSvg = '';
-      frame.srcdoc = '';
+      frame!.srcdoc = '';
       if (resultWrap) resultWrap.hidden = true;
       if (outputHost) outputHost.textContent = '';
       if (statusEl) statusEl.textContent = '';
@@ -313,7 +313,7 @@ const opening = examples[0]?.input ?? '';
       }
       if (runLabel) runLabel.textContent = 'Rendering…';
       if (statusEl) statusEl.textContent = 'Highlighting…';
-      clearError(errorBox);
+      if (errorBox) clearError(errorBox);
 
       try {
         // The tool owns the Shiki highlighter, the layout and the SVG
@@ -337,10 +337,10 @@ const opening = examples[0]?.input ?? '';
         const e = err as Error & { hint?: string };
         if (e.name === 'AbortError') return;
         lastSvg = '';
-        frame.srcdoc = '';
+        frame!.srcdoc = '';
         if (resultWrap) resultWrap.hidden = true;
         if (statusEl) statusEl.textContent = '';
-        showError(errorBox, e.message || 'Something went wrong.', e.hint);
+        if (errorBox) showError(errorBox, e.message || 'Something went wrong.', e.hint);
       } finally {
         if (seq === renderSeq && runBtn) {
           runBtn.disabled = false;
@@ -398,7 +398,9 @@ const opening = examples[0]?.input ?? '';
       exportPngBtn!.disabled = true;
       void rasterisePng(svgDataUrl(lastSvg))
         .then((blob) => downloadBlob(blob, 'code-snippet.png'))
-        .catch((err: Error) => showError(errorBox!, err.message || 'PNG export failed.'))
+        .catch((err: Error) => {
+          if (errorBox) showError(errorBox, err.message || 'PNG export failed.');
+        })
         .finally(() => {
           exportPngBtn!.disabled = false;
           if (exportPngBtn!.textContent !== null) exportPngBtn!.textContent = label;

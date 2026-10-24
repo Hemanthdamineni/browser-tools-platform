@@ -1,8 +1,34 @@
-import { test, expect, request as pwRequest } from '@playwright/test';
+import { test, expect, request as pwRequest, type Page } from '@playwright/test';
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
 const AXE_PATH = require.resolve('axe-core/axe.min.js');
+
+interface AxeViolation {
+  id: string;
+  description: string;
+  impact: string;
+}
+
+/**
+ * Serious + critical axe violations on the page the caller already navigated to.
+ * Axe is injected after every navigation (the previous document is gone), and a
+ * full wcag2a/wcag2aa pass over the catalogue-heavy pages is expensive, so each
+ * caller budgets its own timeout rather than relying on the 30 s default.
+ */
+async function axeSeriousViolations(page: Page): Promise<AxeViolation[]> {
+  await page.addScriptTag({ path: AXE_PATH });
+  const results = await page.evaluate(async () => {
+    // @ts-expect-error axe is injected above
+    return await window.axe.run(document, {
+      runOnly: ['wcag2a', 'wcag2aa'],
+      resultTypes: ['violations'],
+    });
+  });
+  return (results.violations as AxeViolation[]).filter(
+    (v) => v.impact === 'serious' || v.impact === 'critical',
+  );
+}
 
 interface ToolEntry {
   id: string;
@@ -22,25 +48,19 @@ test.beforeAll(async ({ baseURL }) => {
 });
 
 test('core pages render and are accessible', async ({ page, baseURL }) => {
+  // Six pages, each with a full wcag2a/wcag2aa axe pass; the catalogue-heavy
+  // shell (tool grid, categories) makes axe slow enough to blow the 30 s
+  // default, so this test budgets its own generous timeout.
+  test.setTimeout(Math.max(120_000, 6 * 20_000));
   for (const path of ['/', '/tools', '/categories', '/privacy', '/about', '/404']) {
     const res = await page.goto(`${baseURL}${path}`);
     // 404 is served as a page; every other path is 200.
     expect(res, path).toBeTruthy();
     await expect(page.locator('h1')).toBeVisible();
-    await page.addScriptTag({ path: AXE_PATH });
-    const results = await page.evaluate(async () => {
-      // @ts-expect-error injected
-      return await window.axe.run(document, {
-        runOnly: ['wcag2a', 'wcag2aa'],
-        resultTypes: ['violations'],
-      });
-    });
-    const serious = results.violations.filter(
-      (v: { impact: string }) => v.impact === 'serious' || v.impact === 'critical',
-    );
+    const serious = await axeSeriousViolations(page);
     expect(
       serious,
-      `${path}: ${serious.map((v: { id: string; description: string }) => `${v.id} — ${v.description}`).join('; ')}`,
+      `${path}: ${serious.map((v) => `${v.id} — ${v.description}`).join('; ')}`,
     ).toEqual([]);
   }
 });
@@ -85,6 +105,9 @@ test('option fields are accessible (axe on tools with select/boolean/range/numbe
   page,
   baseURL,
 }) => {
+  // Two pages, each with its own axe pass; budget generously (see the core
+  // pages test above for why the 30 s default is too tight for axe).
+  test.setTimeout(Math.max(60_000, 2 * 20_000));
   // password: select + boolean options; hex: select options
   for (const path of ['/tools/password', '/tools/hex']) {
     await page.goto(`${baseURL}${path}`);
@@ -116,18 +139,8 @@ test('option fields are accessible (axe on tools with select/boolean/range/numbe
       return bad;
     });
     expect(brokenDesc, path).toEqual([]);
-    // Axe passes on the page.
-    await page.addScriptTag({ path: AXE_PATH });
-    const results = await page.evaluate(async () => {
-      // @ts-expect-error injected
-      return await window.axe.run(document, {
-        runOnly: ['wcag2a', 'wcag2aa'],
-        resultTypes: ['violations'],
-      });
-    });
-    const serious = results.violations.filter(
-      (v: { impact: string }) => v.impact === 'serious' || v.impact === 'critical',
-    );
+    // Axe passes on the page (serious + critical violations only).
+    const serious = await axeSeriousViolations(page);
     expect(serious, path).toEqual([]);
   }
 });

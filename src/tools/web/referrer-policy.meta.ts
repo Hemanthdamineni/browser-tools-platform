@@ -49,7 +49,7 @@ export const meta: ToolMeta = {
   article: [
     {
       heading: 'Building or dissecting the header',
-      body: 'Build mode turns the chosen policy token into a usable Referrer-Policy value and reports how many tokens it contains and which one is effective. Analyze mode takes a pasted value — including a comma-separated fallback list — and returns a table of Policy, Status (Valid or Invalid) and Behaviour for each token, with its issues listed in the notes.',
+      body: 'Build mode turns the chosen policy token into a usable Referrer-Policy value and reports how many tokens it contains and which one is effective. Analyze mode takes a pasted value — including a comma-separated fallback list — and returns a table of Policy, Status (Valid or Invalid) and Behaviour for each token, with its issues in the notes.',
     },
     {
       heading: 'Auditing how much URL you leak',
@@ -61,7 +61,7 @@ export const meta: ToolMeta = {
     },
     {
       heading: 'What the checks look for',
-      body: 'Unknown tokens are marked Invalid, duplicate tokens are called out, unsafe-url is flagged because it sends full URLs cross-origin, and no-referrer-when-downgrade is flagged as the legacy browser default that leaks more than modern policies. The effective token is the last one a browser recognises, which is why a list is useful for expressing a preference with fallbacks. The tool explains the header but never fetches your site, so the policy actually served may differ.',
+      body: 'Unknown tokens are marked Invalid, duplicates are called out, unsafe-url is flagged because it sends full URLs cross-origin, and no-referrer-when-downgrade is flagged as the legacy default that leaks more than modern policies. The effective token is the last one a browser recognises. The tool explains the header but never fetches your site.',
     },
     {
       heading: 'Analysed in your tab',

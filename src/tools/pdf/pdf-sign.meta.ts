@@ -71,19 +71,19 @@ export const meta: ToolMeta = {
     },
     {
       heading: 'What flattened really means',
-      body: 'The signature is painted into the page content itself with pdf-lib — it is not a form field, a button or a clickable annotation. The result is an ordinary PDF whose page simply contains the signature pixels, so a viewer sees it as part of the page and it cannot be toggled off. That is what makes it a real signed copy rather than an overlay a reader could hide.',
+      body: 'The signature is painted into the page content itself with pdf-lib — it is not a form field, a button or a clickable annotation. The result is an ordinary PDF whose page simply contains the signature pixels, so a viewer sees it as part of the page and cannot toggle it off.',
     },
     {
       heading: 'Placement and rotation',
-      body: 'Position is given as an x/y point in the browser’s display space (origin top-left, y growing down) and the height always follows the signature’s own aspect ratio, so nothing is stretched. If a placed mark would end up off the page or need to be shrunk to fit, the tool clamps it back inside and says so. On a rotated page the preview and the placement stay in step, so the mark lands where you drop it even when the page is landscape.',
+      body: 'Position is given as an x/y point in the browser’s display space (origin top-left, y growing down) and the height always follows the signature’s own aspect ratio, so nothing is stretched. If a placed mark would end up off the page or need to be shrunk to fit, the tool clamps it back inside and says so. On a rotated page the placement stays in step with the preview.',
     },
     {
       heading: 'What you cannot do here',
-      body: 'An encrypted, password-protected PDF cannot be read until it is unlocked, so this tool refuses it rather than guessing. The signature is a bitmap of your mark, not a certificate-based digital signature — there is no PKI chain, no signing certificate and no tamper-evident digest. If you need cryptographic signing for compliance, use a dedicated signing service.',
+      body: 'An encrypted, password-protected PDF cannot be read until it is unlocked, so the tool refuses it rather than guessing. The signature is a bitmap of your mark, not a certificate-based digital signature — there is no PKI chain or tamper-evident digest. For cryptographic signing for compliance, use a dedicated signing service.',
     },
     {
       heading: 'Your mark stays on your device',
-      body: 'The signature is drawn in this tab and embedded into the PDF on this machine — nothing is uploaded. Because a signature is not a credential to be synced, it is safest that it never leaves the browser, and the tool keeps working offline.',
+      body: 'The signature is drawn in this tab and embedded into the PDF on this machine — nothing is uploaded. Because a signature is not a credential to be synced, it is safest that it never leaves the browser, and the tool works offline.',
     },
   ],
   faq: [

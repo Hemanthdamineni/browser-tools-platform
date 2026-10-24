@@ -38,11 +38,11 @@ export const meta: ToolMeta = {
   article: [
     {
       heading: 'Splitting a token into readable JSON',
-      body: 'Paste a JWT and the tool splits it on its two dots, base64url-decodes the header and payload, and pretty-prints each as JSON under // header and // payload comments. NumericDate claims such as exp, iat and nbf are spelled out as UTC dates in the notes, and the stats report the alg, typ and kid taken from the header.',
+      body: 'Paste a JWT and the tool splits it on its two dots, base64url-decodes the header and payload, and pretty-prints each as JSON. NumericDate claims such as exp, iat and nbf are spelled out as UTC dates in the notes, and the stats report the alg, typ and kid from the header.',
     },
     {
       heading: 'Reading what a token actually claims',
-      body: 'Reach for it when an API returns 401 and you need to know whether the token has expired, when you want to confirm which scopes or roles were issued, or when a front-end problem is being blamed on the wrong claim. Because it is pure decoding, you can inspect a token without holding the signing key, which never leaves the issuer.',
+      body: 'Reach for it when an API returns 401 and you need to know whether the token has expired, or when you want to confirm which scopes or roles were issued. Because it is pure decoding, you can inspect a token without holding the signing key, which never leaves the issuer.',
     },
     {
       heading: 'The Show switch',
@@ -50,7 +50,7 @@ export const meta: ToolMeta = {
     },
     {
       heading: 'What it cannot tell you',
-      body: "It does not verify the signature, so a decoded token is not evidence that the token is authentic — anybody can craft one containing the claims you see. A token must have exactly three segments and the header and payload must be valid JSON, or the position is rejected rather than silently padded. Treat exp as advisory too, because the clock that decides validity is the server's.",
+      body: "It does not verify the signature, so a decoded token is not evidence that the token is authentic — anybody can craft one containing the claims you see. A token must have exactly three segments and valid JSON in its header and payload. Treat exp as advisory, because the clock that decides validity is the server's.",
     },
     {
       heading: 'Decoded without a network call',

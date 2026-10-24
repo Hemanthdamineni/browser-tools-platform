@@ -46,7 +46,7 @@ export const meta: ToolMeta = {
     },
     {
       heading: 'Caveats',
-      body: 'MD5 is collision-weak, so the header proves nothing about authenticity, and Content-MD5 is deprecated by RFC 7231. The tool hashes the UTF-8 encoding of the text you enter, which must match the representation bytes the sender hashed — a server that hashed a compressed body, or a different charset, will disagree. It is a per-message checksum, not a signature, so only someone who hashed the same bytes can verify it.',
+      body: 'MD5 is collision-weak, so the header proves nothing about authenticity, and it is deprecated by RFC 7231. The tool hashes the UTF-8 encoding of the text you enter, which must match the representation bytes the sender hashed — a server that hashed a compressed body will disagree. It is a per-message checksum, not a signature.',
     },
     {
       heading: 'Digested in the tab',

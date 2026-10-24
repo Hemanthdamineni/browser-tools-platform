@@ -1,0 +1,83 @@
+---
+/**
+ * Keyboard-shortcuts help dialog. Opened with `?` (or via the header help
+ * button). Lists every supported chord; each is ignored while typing in an
+ * input/textarea/select or an element marked contenteditable.
+ */
+---
+
+<dialog id="shortcuts-dialog" class="shortcuts-dialog" aria-labelledby="shortcuts-title">
+  <div class="flex items-center justify-between border-b px-4 py-3">
+    <h2 id="shortcuts-title" class="text-sm font-semibold text-[rgb(var(--text))]">
+      Keyboard shortcuts
+    </h2>
+    <form method="dialog">
+      <button type="submit" value="close" class="kbd" aria-label="Close shortcuts">Esc</button>
+    </form>
+  </div>
+  <dl class="max-h-[60vh] space-y-2.5 overflow-y-auto p-4">
+    <div class="flex items-center justify-between gap-6">
+      <dt class="text-sm text-[rgb(var(--text-muted))]">Focus search</dt>
+      <dd><kbd class="kbd">/</kbd></dd>
+    </div>
+    <div class="flex items-center justify-between gap-6">
+      <dt class="text-sm text-[rgb(var(--text-muted))]">This help dialog</dt>
+      <dd><kbd class="kbd">?</kbd></dd>
+    </div>
+    <div class="flex items-center justify-between gap-6">
+      <dt class="text-sm text-[rgb(var(--text-muted))]">Run the current tool</dt>
+      <dd><kbd class="kbd">Ctrl</kbd>+<kbd class="kbd">Enter</kbd></dd>
+    </div>
+    <div class="flex items-center justify-between gap-6">
+      <dt class="text-sm text-[rgb(var(--text-muted))]">
+        Copy the output <span class="text-xs text-[rgb(var(--text-faint))]">(when focused)</span>
+      </dt>
+      <dd><kbd class="kbd">Ctrl</kbd>+<kbd class="kbd">C</kbd></dd>
+    </div>
+    <p class="border-t pt-3 text-xs leading-relaxed text-[rgb(var(--text-muted))]">
+      Shortcuts are ignored while you are typing in an input, a textarea or a select.
+    </p>
+  </dl>
+</dialog>
+
+<script>
+  const dialog = document.getElementById('shortcuts-dialog') as HTMLDialogElement | null;
+  const trigger = document.getElementById('shortcuts-open');
+
+  let lastTrigger: Element | null = null;
+
+  function open() {
+    if (!dialog || dialog.open) return;
+    lastTrigger = document.activeElement;
+    dialog.showModal();
+  }
+
+  window.addEventListener('toolbench:shortcuts', open);
+  trigger?.addEventListener('click', open);
+  dialog?.addEventListener('close', () => {
+    if (lastTrigger instanceof HTMLElement) lastTrigger.focus();
+    lastTrigger = null;
+  });
+</script>
+
+<style>
+  .shortcuts-dialog {
+    margin: auto;
+    padding: 0;
+    width: 100%;
+    max-width: 24rem;
+    border-radius: 0.75rem;
+    border: 1px solid rgb(var(--border));
+    background-color: rgb(var(--surface-raised));
+    color: rgb(var(--text));
+    box-shadow: var(--shadow-lg);
+  }
+  .shortcuts-dialog::backdrop {
+    background-color: rgb(29 29 27 / 0.45);
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
+  }
+  .shortcuts-dialog kbd + kbd {
+    margin-left: 0.25rem;
+  }
+</style>

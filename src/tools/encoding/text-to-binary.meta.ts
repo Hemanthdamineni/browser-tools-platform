@@ -100,6 +100,6 @@ export const meta: ToolMeta = {
       a: 'Yes — spaces, tabs and newlines between blocks of 0s and 1s are ignored, so you can paste formatted output directly.',
     },
   ],
-  related: ['hex', 'base64', 'ascii85', 'unicode-escape'],
+  related: ['hex', 'base64', 'ascii85', 'unicode-normalize'],
   status: 'stable',
 };

@@ -74,23 +74,19 @@ export const meta: ToolMeta = {
   article: [
     {
       heading: 'What the generator emits',
-      body: 'Fill in a title and a description and you get a head block: a <title>, a meta description, an optional canonical link, a set of Open Graph meta properties and a set of Twitter card meta tags. Empty fields are simply omitted, so you can start with just a title and add the social details later. The output is a block of HTML lines ready to paste between <head> and </head>.',
+      body: 'Fill in a title and a description and you get a head block: a <title>, a meta description, an optional canonical link, a set of Open Graph properties and a set of Twitter card tags. Empty fields are simply omitted, so you can start with a title and add the social details later, and the output is ready to paste between <head> and </head>.',
     },
     {
       heading: 'The two fields that are always written',
-      body: 'Open Graph type and the Twitter card type always appear, because both protocols require a value: og:type defaults to website and can be switched to article, while twitter:card defaults to summary_large_image with a plain summary alternative. Everything conditional \u2014 og:title, og:description, og:url, og:image, og:site_name and the matching twitter: fields \u2014 is included only when you supplied the value it needs.',
+      body: 'Open Graph type and the Twitter card type always appear, because both protocols require a value: og:type defaults to website and can be switched to article, while twitter:card defaults to summary_large_image with a plain summary alternative. Everything conditional \u2014 og:title, og:description, og:url, og:image, og:site_name and the matching twitter: fields \u2014 appears only when you supply it.',
     },
     {
       heading: 'Escaping and safe pasting',
-      body: 'Every value is HTML-escaped before it goes in an attribute, so an ampersand becomes &amp; and a double quote becomes &quot;. That means a title containing quotes or angle brackets cannot break out of the attribute and corrupt your head section, which is exactly the kind of bug a hand-written tag block tends to hide until a page title contains a stray character.',
+      body: 'Every value is HTML-escaped before it goes in an attribute, so an ampersand becomes &amp; and a double quote becomes &quot;. A title containing quotes or angle brackets therefore cannot break out of the attribute and corrupt your head section \u2014 the kind of bug a hand-written tag block hides until a page title contains a stray character.',
     },
     {
       heading: 'What it does not do',
-      body: 'The tool writes tags; it does not validate them. It does not check that your canonical URL matches the page you are on, that the social image is the right size or reachable, or that the description lands in the 50 to 160 character band search engines prefer. It also does not emit structured data such as JSON-LD, or favicon and viewport tags, which belong alongside it rather than inside it.',
-    },
-    {
-      heading: 'Ready offline, private by default',
-      body: 'There is no URL fetching and no image inspection \u2014 the tags are assembled from the strings you type. Nothing is uploaded, so you can draft metadata for an unreleased page without leaking anything about it.',
+      body: 'The tool writes tags but does not validate them. It does not check that your canonical URL matches the page you are on, that the social image is reachable or the right size, or that the description lands in the length search engines prefer, and it emits no JSON-LD, favicon or viewport tags. There is no fetching or image inspection, and nothing is uploaded.',
     },
   ],
   faq: [

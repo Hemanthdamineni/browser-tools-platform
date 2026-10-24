@@ -68,6 +68,6 @@ export const meta: ToolMeta = {
       body: 'This is a line-level tool, so it will not merge lines that differ only in a trailing comma or a timestamp — clean those up first if they should count as equal. Because order is preserved, pair it with the sort tool when you want a sorted unique list rather than an as-found one. Everything is a pure text pass in your browser: the list you paste is deduplicated locally and never uploaded, and no request is made while it runs.',
     },
   ],
-  related: ['sort-lines', 'whitespace-cleanup', 'unique-words'],
+  related: ['sort-lines', 'whitespace-visualizer', 'word-frequency'],
   status: 'stable',
 };

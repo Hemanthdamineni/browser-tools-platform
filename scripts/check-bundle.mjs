@@ -137,7 +137,7 @@ for (const file of sampled) {
 
 // --- Report -----------------------------------------------------------------
 console.log('[check-bundle] Emitted JS (sorted by gzip size):');
-console.log('  #  ref                                     raw     gzip    pdf   eagerly-loaded-by');
+console.log('  #  ref(relative)                             raw(KB)  gzip(KB)  pdf   eagerly-loaded-by');
 for (const [i, c] of chunks.slice(0, TABLE_LIMIT).entries()) {
   const where = c.eagerOn.size
     ? c.eagerOn.size > 3

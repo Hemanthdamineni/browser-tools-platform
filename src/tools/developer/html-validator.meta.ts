@@ -49,11 +49,11 @@ export const meta: ToolMeta = {
     },
     {
       heading: 'Why tag balance is the check worth having',
-      body: 'A single unclosed div is the classic reason a whole page suddenly lays out wrong, and it is easy to introduce and hard to spot in a long template. This validator pinpoints the line in seconds and deliberately avoids attribute-level nitpicking, so the one error that breaks rendering stands out.',
+      body: 'A single unclosed div is the classic reason a whole page suddenly lays out wrong, and it is easy to introduce and hard to spot in a long template. This validator pinpoints the line in seconds and avoids attribute-level nitpicking, so the one error that breaks rendering stands out.',
     },
     {
       heading: 'The rules it knows',
-      body: 'The HTML void elements — area, br, col, embed, hr, img, input, link, meta, param, source, track, wbr — are treated as self-closing and need no separate close tag. Script, style, textarea and title contents are treated as raw text, so a "<" inside a script string is not mistaken for a tag. Comments and doctypes are recognised.',
+      body: 'The HTML void elements — area, br, col, embed, hr, img, input, link, meta, param, source, track, wbr — need no separate close tag. Script, style, textarea and title contents are treated as raw text, so a "<" inside a script string is not mistaken for a tag. Comments and doctypes are recognised.',
     },
     {
       heading: 'What a passing result does not promise',

@@ -59,7 +59,7 @@ export const meta: ToolMeta = {
   article: [
     {
       heading: 'Watch the keys the browser receives',
-      body: 'Press any key and the on-screen keyboard lights its physical position, while a readout shows the key value, the physical code and the modifier state. The report tabulates your recent rollover attempts with the set of keys that were physically held, so you can see which key of a combination never joined the others.',
+      body: 'Press any key and the on-screen keyboard lights its physical position, while a readout shows the key value, the physical code and the modifier state. The report tabulates your recent rollover attempts with the set of keys that were physically held.',
     },
     {
       heading: 'Deciding whether it is the keyboard or the browser',
@@ -67,7 +67,7 @@ export const meta: ToolMeta = {
     },
     {
       heading: 'Options behind the report',
-      body: 'Rollover attempts kept in the report (1–50, default 10) sets how much history the table keeps. Show the time of each attempt adds a clock column so a failure can be tied to something you changed. Rollover wait window (200–5000 ms, default 1200) is how long the tester waits for the rest of a combination before scoring it — raise it for slow wireless keyboards.',
+      body: 'Rollover attempts kept in the report (1–50, default 10) sets how much history the table keeps. Show the time of each attempt adds a clock column. Rollover wait window (200–5000 ms, default 1200) is how long the tester waits for the rest of a combination before scoring it — raise it for slow wireless keyboards.',
     },
     {
       heading: 'What a failure does and does not prove',

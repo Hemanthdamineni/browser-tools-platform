@@ -68,19 +68,19 @@ export const meta: ToolMeta = {
     },
     {
       heading: 'The problems it finds',
-      body: 'With spec checking on, every item is held against its dialect’s requirements: RSS 2.0 needs a channel title, link and description and each item a title or a description; Atom needs id, title and updated on both feed and entry, and an author unless every entry carries one, and links need an href. Dates must carry a timezone, identifiers must not repeat, and an enclosure needs its url, type and length — the three fields a podcast host requires or the listing is rejected.',
+      body: 'With spec checking on, every item is held against its dialect’s requirements: RSS 2.0 needs a channel title, link and description and each item a title or a description; Atom needs id, title and updated on both feed and entry, and an author unless every entry carries one. Dates must carry a timezone, identifiers must not repeat, and an enclosure needs its url, type and length.',
     },
     {
       heading: 'The timezone trap',
-      body: 'RSS dates are RFC 822 date-times, where a zone is mandatory. A bare "23 Sep 2024 09:00:00" is ambiguous — a reader in another timezone will shift it — so the tool warns on a missing zone and suggests adding +0000 or GMT. That single warning catches more broken feeds than any other rule and is a quick fix that keeps podcast apps from misdating every episode.',
+      body: 'RSS dates are RFC 822 date-times, where a zone is mandatory. A bare "23 Sep 2024 09:00:00" is ambiguous — a reader in another timezone will shift it — so the tool warns and suggests adding +0000 or GMT. That warning catches more broken feeds than any other rule.',
     },
     {
       heading: 'Formats and limits',
-      body: 'RSS 2.0 and the 0.9x shapes, RSS 1.0 / RDF, and Atom 1.0 are recognised; Atom 0.3 is parsed but flagged as legacy, and an unknown root element is reported rather than guessed at. The output views — summary, items, enclosures and problems — let you jump straight to the table that matters. An unknown dialect does not stop you reading the items; it only means no spec-level checklist is applied.',
+      body: 'RSS 2.0 and the 0.9x shapes, RSS 1.0 / RDF, and Atom 1.0 are recognised; Atom 0.3 is parsed but flagged as legacy, and an unknown root element is reported rather than guessed at. The views — summary, items, enclosures and problems — let you jump to the table that matters. An unknown dialect still lets you read the items, just without a spec checklist.',
     },
     {
       heading: 'The feed is read, never fetched',
-      body: 'Only the bytes you provide are parsed, in this tab. No URL is requested and no enclosure is downloaded, so enclosure sizes come from the length attribute rather than the network. That keeps the tool instant, private and fully offline.',
+      body: 'Only the bytes you provide are parsed, in this tab. No URL is requested and no enclosure is downloaded, so enclosure sizes come from the length attribute rather than the network. That keeps the tool private and fully offline.',
     },
   ],
   faq: [

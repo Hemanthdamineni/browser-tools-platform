@@ -212,7 +212,7 @@ export function classifyDecryptFailure(stderr: string[], exitCode: number): Decr
     return {
       kind: 'wrong-password',
       message: 'The password is wrong.',
-      hint: 'Check the password — letter case and any leading or trailing spaces count. If you do not know it, this file cannot be opened: no password is ever cracked here.',
+      hint: 'Check the password — letter case and any leading or trailing spaces count. If you do not know it, this file cannot be opened: the password is the only key and there is no way around it here.',
     };
   }
   if (/is not encrypted|not (password |encrypted|protected)|no password/i.test(first)) {

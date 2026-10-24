@@ -39,11 +39,11 @@ export const meta: ToolMeta = {
   article: [
     {
       heading: 'Rotation that adds to what is there',
-      body: 'Pick a page range \u2014 the word all, a single number like 4, or a list such as 1,3-5 \u2014 and an angle of 90, 180 or 270, and the tool spins those pages. The turn is added to any rotation the pages already carry, so a page already 90 degrees clockwise becomes 180 after another 90, and the stored rotation is always reduced to under 360. The report lists the total page count and how many were actually rotated.',
+      body: 'Pick a page range \u2014 all, a single number like 4, or a list such as 1,3-5 \u2014 and an angle of 90, 180 or 270. The turn is added to any rotation the pages already carry, so a page already 90 degrees clockwise becomes 180 after another 90, and the stored rotation stays under 360. The report lists the total page count and how many were actually rotated.',
     },
     {
       heading: 'When you would use it',
-      body: 'The classic case is a scanned contract or phone-captured document where some sheets came in sideways or upside down while the rest are upright. Instead of re-scanning, you select just the wrong pages and bring them into line. It is also how you force a portrait document to landscape for a wide screen, by rotating every page 90 or 270.',
+      body: 'The classic case is a scanned contract or phone-captured document where some sheets came in sideways or upside down while the rest are upright. Instead of re-scanning, select just the wrong pages and bring them into line. It is also how you force a portrait document to landscape for a wide screen.',
     },
     {
       heading: 'The page selection syntax',
@@ -51,7 +51,7 @@ export const meta: ToolMeta = {
     },
     {
       heading: 'A structural, not a pixel, operation',
-      body: 'Unlike image rotation, this never re-renders the page. It rewrites the PDF\u2019s page rotation entry with pdf-lib, which is fast and keeps text, links, annotations and form fields intact because the content stream is not touched. The rotated copy is handed back as rotated.pdf. The file is read and written in this browser tab, so nothing is uploaded and a confidential document stays on your device.',
+      body: 'Unlike image rotation, this never re-renders the page: it rewrites the PDF\u2019s page rotation entry with pdf-lib, keeping text, links, annotations and form fields intact because the content stream is not touched. The rotated copy comes back as rotated.pdf. The file is read and written in this browser tab, so nothing is uploaded and a confidential document stays on your device.',
     },
   ],
   faq: [

@@ -16,8 +16,8 @@ describe('signature-maker', () => {
     const out = run(
       JSON.stringify([
         [
-          { x: 0, y: 0 },
-          { x: 20, y: 10 },
+          [0, 0],
+          [20, 10],
         ],
       ]),
       {
@@ -61,8 +61,8 @@ describe('signature-maker', () => {
   it('applies the stroke-width and ink-colour options', () => {
     const strokes = JSON.stringify([
       [
-        { x: 0, y: 0 },
-        { x: 20, y: 10 },
+        [0, 0],
+        [20, 10],
       ],
     ]);
     const thin = decodeSvg(run(strokes, { mode: 'draw', strokeWidth: 1, color: '#b91c1c' }).output);

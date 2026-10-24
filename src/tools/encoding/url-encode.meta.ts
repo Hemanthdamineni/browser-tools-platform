@@ -64,11 +64,11 @@ export const meta: ToolMeta = {
   article: [
     {
       heading: 'Two scopes for two jobs',
-      body: 'In component scope the whole string is percent-encoded, so every reserved character — colon, slash, question mark, hash, brackets and at-sign — is escaped along with spaces and anything non-ASCII. In whole-URL scope those structural characters stay intact and only genuinely unsafe bytes are escaped, which is what you want when the input is already a complete URL you need to repair.',
+      body: 'In component scope the whole string is percent-encoded, so every reserved character — colon, slash, question mark, hash, brackets and at-sign — is escaped along with spaces and anything non-ASCII. In whole-URL scope those structural characters stay intact and only genuinely unsafe bytes are escaped.',
     },
     {
       heading: 'Encoding versus decoding',
-      body: 'Encoding escapes bytes that are not URL-safe; decoding turns percent escapes back into readable text. Decoding is strict: a lone % or an incomplete %XX sequence raises an error naming the problem rather than passing bad data through, because malformed escapes are a common cause of a server rejecting a request.',
+      body: 'Encoding escapes bytes that are not URL-safe; decoding turns percent escapes back into readable text. Decoding is strict: a lone % or an incomplete %XX sequence raises an error rather than passing bad data through, because malformed escapes are a common cause of a rejected request.',
     },
     {
       heading: 'The plus-as-space switch',
@@ -76,7 +76,7 @@ export const meta: ToolMeta = {
     },
     {
       heading: 'A concrete case',
-      body: 'A search box submits "blue shoes & sandals" and the request fails with a 400 because of the raw space and ampersand. Paste just the value in component mode to get the escaped query parameter, or paste the whole URL in full mode to escape only the unsafe parts while keeping scheme, host and query separators.',
+      body: 'A search box submits "blue shoes & sandals" and the request fails with a 400 because of the raw space and ampersand. Paste the value in component mode to get the escaped query parameter, or the whole URL in full mode to escape only the unsafe parts.',
     },
     {
       heading: 'Handled in your browser',

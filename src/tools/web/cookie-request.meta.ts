@@ -67,23 +67,19 @@ export const meta: ToolMeta = {
   article: [
     {
       heading: 'Parse a request header into pairs',
-      body: 'Paste a Cookie request header, with or without the "Cookie:" prefix, and the tool splits it on semicolons into name/value pairs, showing each name, its value and a status of Valid, Duplicate or Invalid. Values are percent-decoded for display, so %20 becomes a space, and the stats report how many pairs, how many duplicates and whether any percent-encoding was present. An empty input produces an empty table with a nudge to paste something rather than an error.',
+      body: 'Paste a Cookie request header, with or without the "Cookie:" prefix, and the tool splits it on semicolons into name/value pairs, each with a status of Valid, Duplicate or Invalid. Values are percent-decoded for display, so %20 becomes a space, and the stats report how many pairs, how many duplicates and whether any percent-encoding was present.',
     },
     {
       heading: 'The semicolon rule and quoted values',
-      body: 'The delimiter is the semicolon, but the splitter honours double-quoted strings, so a value like theme="a;b" is kept whole rather than broken in two, which matters because some cookies deliberately carry semicolons or spaces inside quotes. A pair with no equals sign gets an empty name and is marked Invalid with a message saying a cookie pair needs the name=value form. Decoding is a best-effort percent-decode: each %XX becomes the byte it names, while literal text that was never encoded is left alone.',
+      body: 'The delimiter is the semicolon, but double-quoted strings are honoured, so a value like theme="a;b" stays whole. A pair with no equals sign gets an empty name and is marked Invalid with a message saying a cookie pair needs the name=value form. Decoding turns each %XX into the byte it names and leaves plainly written text alone.',
     },
     {
       heading: 'Build mode goes the other way',
-      body: 'The build option takes name=value pairs separated by commas or semicolons and reassembles them into a single Cookie header joined with "; ". It flags an empty name, detects duplicate names case-insensitively, and reports how many pairs were built alongside how many issues were found, so a pair typed without an equals sign produces a warning instead of a silently malformed header.',
-    },
-    {
-      heading: 'Why duplicates matter',
-      body: 'A Cookie header naming the same cookie twice is broken in practice: a server or proxy normally keeps only the last occurrence, and many intermediaries reject the header outright. The analyzer flags every repeat and says so in its notes, which is how you catch a template bug or a client that double-sends a session cookie before it turns into a confusing sign-out.',
+      body: 'Build takes name=value pairs separated by commas or semicolons and reassembles a single Cookie header joined with "; ". It flags an empty name and detects duplicate names case-insensitively, since a header naming the same cookie twice is broken in practice: a server or proxy normally keeps only the last occurrence.',
     },
     {
       heading: 'Local and unread',
-      body: 'Parsing and building run entirely in this tab. Cookies often carry session tokens, so it matters that nothing here is uploaded, logged or sent to any server, and the page makes no request while you work.',
+      body: 'Parsing and building run entirely in this tab. Cookies often carry session tokens, so it matters that nothing here is uploaded, logged or sent to a server, and the page makes no request while you work.',
     },
   ],
   related: ['set-cookie', 'secret-scanner', 'url-encode'],

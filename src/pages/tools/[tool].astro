@@ -14,11 +14,13 @@ export const getStaticPaths = (() => {
 }) satisfies GetStaticPaths;
 
 const { meta } = Astro.props;
+// Link paths must honour the deploy base (e.g. /browser-tools-platform on GitHub Pages).
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 // Alias ids (merged/renamed tools) stay routable but redirect to their
 // replacement so old links and bookmarks keep working.
 const target = redirectTarget(meta);
-const targetPath = target ? `/tools/${target.meta.id}` : '';
+const targetPath = target ? `${base}/tools/${target.meta.id}` : '';
 const targetUrl = target ? new URL(targetPath, site.url).toString() : '';
 ---
 

@@ -88,7 +88,7 @@ export const meta: ToolMeta = {
   article: [
     {
       heading: 'Building the URI an authenticator scans',
-      body: 'This generates an otpauth:// provisioning URI for TOTP or HOTP. It either produces a fresh secret with crypto.getRandomValues and encodes it as unpadded RFC 4648 base32, or validates and normalises a base32 secret you paste. The output is the URI itself plus a "Secret (base32)" line for apps that cannot scan a QR code.',
+      body: 'This generates an otpauth:// provisioning URI for TOTP or HOTP. It produces a fresh base32 secret with crypto.getRandomValues, or validates and normalises a base32 secret you paste. The output is the URI plus a "Secret (base32)" line for apps that cannot scan a QR code.',
     },
     {
       heading: 'Enrolment for a service you are building',
@@ -100,7 +100,7 @@ export const meta: ToolMeta = {
     },
     {
       heading: 'Caveats',
-      body: 'The tool builds the URI only — it never computes a live code, so a 6-digit value from anywhere else is not from here. Issuer and account are percent-encoded in the path and the parameters are URL-encoded, as the Key URI Format requires. A pasted secret must use only A–Z and 2–7 with optional padding, and any padding is stripped before use.',
+      body: 'The tool builds the URI only — it never computes a live code. Issuer and account are percent-encoded in the path and the parameters URL-encoded, as the Key URI Format requires. A pasted secret must use only A–Z and 2–7, and padding is stripped before use.',
     },
     {
       heading: 'Generated on your device',

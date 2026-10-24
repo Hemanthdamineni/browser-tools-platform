@@ -1,6 +1,7 @@
 ---
 import { site } from '@/lib/site';
 import Icon from './Icon.astro';
+import InstallButton from './InstallButton.astro';
 import ThemeToggle from './ThemeToggle.astro';
 
 const path = Astro.url.pathname;
@@ -72,7 +73,18 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
         <span class="hidden text-[13px] font-medium sm:inline">Search</span>
         <kbd class="kbd hidden sm:inline-flex">/</kbd>
       </button>
+      <InstallButton />
       <ThemeToggle />
+      <button
+        type="button"
+        id="shortcuts-open"
+        class="btn btn-subtle btn-sm !px-2"
+        aria-label="Keyboard shortcuts"
+        aria-keyshortcuts="?"
+        title="Keyboard shortcuts (?)"
+      >
+        <Icon name="info" size={16} />
+      </button>
       <button
         type="button"
         id="menu-toggle"
@@ -145,6 +157,31 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   document.getElementById('search-open')?.addEventListener('click', () => {
     window.dispatchEvent(new CustomEvent('toolbench:search'));
   });
+
+  // Shared helper: is the user typing in a field? Shortcuts are ignored there.
+  function typingInField(e: KeyboardEvent): boolean {
+    const t = e.target as HTMLElement | null;
+    if (!t) return false;
+    return /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) || t.isContentEditable;
+  }
+
+  window.addEventListener('keydown', (e) => {
+    // '?' opens the shortcuts help dialog. (Not while typing.)
+    if (e.key === '?' && !e.ctrlKey && !e.metaKey && !e.altKey && !typingInField(e)) {
+      e.preventDefault();
+      window.dispatchEvent(new CustomEvent('toolbench:shortcuts'));
+      return;
+    }
+    // Ctrl/Cmd+Enter runs the current tool. A modifier chord types no
+    // characters, so it is honoured even with focus in the input field.
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      window.dispatchEvent(new CustomEvent('toolbench:run'));
+      return;
+    }
+  });
+
+  // The original '/' handler — kept for the header-scoped behaviour above.
   window.addEventListener('keydown', (e) => {
     const t = e.target as HTMLElement;
     if (e.key === '/' && !/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) && !t.isContentEditable) {

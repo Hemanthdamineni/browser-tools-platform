@@ -71,7 +71,7 @@ export const meta: ToolMeta = {
   article: [
     {
       heading: 'The secret is the input',
-      body: 'TOTP works from a shared secret, not from an account name. Paste the base32 string that sits after secret= in an otpauth:// URI — something like JBSWY3DPEHPK3PXP — and the tool computes the codes for the current, previous and next time window, with the seconds left in the current one. Spaces in the secret are ignored, so a grouped or pasted-with-gaps string still works.',
+      body: 'TOTP works from a shared secret, not an account name. Paste the base32 string that sits after secret= in an otpauth:// URI — something like JBSWY3DPEHPK3PXP — and the tool computes the codes for the current, previous and next time window, with the seconds left in the current one. Spaces in the secret are ignored.',
     },
     {
       heading: 'Generating versus verifying',
@@ -83,11 +83,11 @@ export const meta: ToolMeta = {
     },
     {
       heading: 'Clock drift and the base32 format',
-      body: 'TOTP depends on the clock. If every code you generate is rejected, check the device time first — the ±1 step tolerance covers a few seconds, not minutes. The secret must be valid base32 (A–Z and 2–7 only); padding and spaces are tolerated, but any other character is refused with a message rather than producing a wrong code.',
+      body: 'TOTP depends on the clock. If every code is rejected, check the device time first — the ±1 step tolerance covers a few seconds, not minutes. The secret must be valid base32 (A–Z and 2–7 only); padding and spaces are tolerated, but any other character is refused rather than producing a wrong code.',
     },
     {
       heading: 'Nothing is stored or sent',
-      body: 'The HMAC-SHA-1 is computed with the browser WebCrypto API entirely in this tab. No request is made, and the secret is not saved between visits — which is what you want for a second factor, since a caching authenticator is a liability. Keep a real authenticator app or a secure backup of the secret as well.',
+      body: 'The HMAC-SHA-1 is computed with the browser WebCrypto API entirely in this tab. No request is made and the secret is not saved between visits. Keep a real authenticator app or a secure backup of the secret as well.',
     },
   ],
   faq: [

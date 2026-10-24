@@ -55,11 +55,11 @@ export const meta: ToolMeta = {
   article: [
     {
       heading: 'A running number in front of every line',
-      body: 'Paste a block of text and each line comes back prefixed with a number. Start number sets the first value, Separator picks the style — "1. ", "1 | ", a tab, "1) " or "1: " — and Zero-pad to equal width pads the prefix with leading zeros so every number takes the width of the largest one printed.',
+      body: 'Paste a block of text and each line comes back prefixed with a number. Start number sets the first value, Separator picks the style — "1. ", "1 | ", a tab, "1) " or "1: " — and Zero-pad to equal width pads the prefix with zeros so every number takes the width of the largest one printed.',
     },
     {
       heading: 'Quoting lines back to someone',
-      body: 'It is the tool for turning a pasted log, a config file or a stack trace into something you can refer to line by line in a code review, a support ticket or a bug report, and for preparing a numbered procedure in prose. It also makes a diff easier to discuss when only one person can see the file.',
+      body: 'It is the tool for turning a pasted log, a config file or a stack trace into something you can refer to line by line in a code review, a support ticket or a bug report, and for preparing a numbered procedure in prose.',
     },
     {
       heading: 'The two switches',
@@ -67,7 +67,7 @@ export const meta: ToolMeta = {
     },
     {
       heading: 'Caveats',
-      body: 'Lines are split on newline only, so a file with old Mac-style CR-only line endings will be treated as one long line. A file that ends with a newline has a final empty line, which is numbered or skipped according to the blank-line setting. The counter never restarts inside a block, and a fractional or negative Start number is used as typed rather than being normalised.',
+      body: 'Lines are split on newline only, so a file with old Mac-style CR-only endings is treated as one long line. A file ending in a newline has a final empty line, numbered or skipped per the blank-line setting. The counter never restarts inside a block.',
     },
     {
       heading: 'Numbered in the page',

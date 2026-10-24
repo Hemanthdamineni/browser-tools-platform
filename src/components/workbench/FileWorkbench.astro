@@ -131,6 +131,10 @@ const p = meta.id;
       </button>
     </div>
     <div data-report hidden class="mb-3 min-w-0"></div>
+    <div
+      class="mb-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-[rgb(var(--text-muted))]"
+      data-stats
+    ></div>
     <ul class="space-y-2" data-outputs></ul>
     <ul class="mt-2 space-y-1 text-xs" data-notes></ul>
   </div>
@@ -173,6 +177,7 @@ const p = meta.id;
     const progressMsg = root.querySelector<HTMLElement>('[data-progress-msg]')!;
     const resultWrap = root.querySelector<HTMLElement>('[data-result-wrap]')!;
     const reportEl = root.querySelector<HTMLElement>('[data-report]')!;
+    const statsEl = root.querySelector<HTMLElement>('[data-stats]')!;
     const outputsEl = root.querySelector<HTMLUListElement>('[data-outputs]')!;
     const notesEl = root.querySelector<HTMLUListElement>('[data-notes]')!;
     const downloadAllBtn = root.querySelector<HTMLButtonElement>('[data-download-all]')!;
@@ -327,6 +332,16 @@ const p = meta.id;
         reportEl.hidden = true;
         reportEl.innerHTML = '';
       }
+      statsEl.innerHTML = '';
+      const statsEntries = Object.entries(result.stats ?? {});
+      statsEl.hidden = statsEntries.length === 0;
+      for (const [key, value] of statsEntries) {
+        const span = document.createElement('span');
+        // Keys and values are tool output, so both are escaped before being
+        // turned into HTML — a hostile value can never inject elements.
+        span.innerHTML = `<span class="font-medium text-[rgb(var(--text))]">${escapeHtml(key)}:</span> ${escapeHtml(String(value))}`;
+        statsEl.appendChild(span);
+      }
       outputsEl.innerHTML = '';
       result.outputs.forEach((o, i) => {
         const li = document.createElement('li');
@@ -385,6 +400,7 @@ const p = meta.id;
       renderList();
       resultWrap.hidden = true;
       outputsEl.innerHTML = '';
+      statsEl.innerHTML = '';
       notesEl.innerHTML = '';
       reportEl.hidden = true;
       reportEl.innerHTML = '';

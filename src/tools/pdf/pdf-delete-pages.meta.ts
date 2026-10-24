@@ -32,19 +32,19 @@ export const meta: ToolMeta = {
     },
     {
       heading: 'How to name the pages',
-      body: 'The page option takes a comma-separated list of numbers and ranges: "2,4" removes two pages, "3-6" removes a run, and "5-" removes from page five to the end. Ranges outside the document are rejected with the real page count in the message rather than being silently clamped, so a typo cannot quietly delete the wrong section.',
+      body: 'The page option takes a comma-separated list of numbers and ranges: "2,4" removes two pages, "3-6" removes a run, and "5-" removes from page five to the end. Ranges outside the document are rejected with the real page count rather than silently clamped, so a typo cannot quietly delete the wrong section.',
     },
     {
       heading: 'The one thing it will not do',
-      body: 'It refuses to delete every page, because a PDF must contain at least one. If the selection you entered covers the whole document the run stops with a clear message instead of producing a broken file. Duplicate page numbers in the list are collapsed first, so "2,2,4" is treated as "2,4".',
+      body: 'It refuses to delete every page, because a PDF must contain at least one. If the selection covers the whole document the run stops with a clear message instead of producing a broken file. Duplicate page numbers are collapsed first, so "2,2,4" is treated as "2,4".',
     },
     {
       heading: 'A typical use',
-      body: 'A signed contract arrives as one PDF with a cover sheet and a trailing appendix you must not forward. Enter the cover page and the appendix range, and the download is the middle section alone, with the original pages untouched on your disk because the tool never writes back to the file you opened.',
+      body: 'A signed contract arrives as one PDF with a cover sheet and a trailing appendix you must not forward. Enter the cover page and the appendix range, and the download is the middle section alone. The original file on your disk is never touched, because the tool does not write back to it.',
     },
     {
       heading: 'The document stays local',
-      body: 'The PDF is parsed and rewritten in this tab with pdf-lib, and no page data is uploaded. That matters for contracts, invoices and anything with a name or an account number on it — the file never leaves your machine, and the tool works offline after loading.',
+      body: 'The PDF is parsed and rewritten in this tab with pdf-lib, and no page data is uploaded. That matters for contracts, invoices and anything with a name or an account number on it — the file never leaves your machine.',
     },
   ],
   faq: [

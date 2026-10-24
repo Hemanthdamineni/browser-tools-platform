@@ -172,9 +172,14 @@ export function buildUtteranceConfig(
   voice?: VoiceLike,
 ): UtteranceConfig {
   const guarded = guardTextLength(text ?? '');
+  // A resolved voice wins; otherwise the requested voice id itself is the
+  // voice URI (that is what the meta `voice` option holds — the panel fills
+  // it from `getVoices()`, and the pure tool `run()` has no voice list to
+  // resolve against). Blank means the browser default.
+  const voiceURI = voice?.voiceURI ?? (settings.voiceId.trim() || null);
   return {
     text: guarded.text,
-    voiceURI: voice?.voiceURI ? voice.voiceURI : null,
+    voiceURI,
     lang: voice?.lang ? voice.lang : null,
     rate: settings.rate,
     pitch: settings.pitch,

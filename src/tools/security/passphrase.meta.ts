@@ -48,19 +48,19 @@ export const meta: ToolMeta = {
   article: [
     {
       heading: 'A passphrase instead of a password',
-      body: 'The tool draws a random set of words from a built-in list of short, common English words and joins them with the separator you choose, so you get something like "wren-veil-glint-amber-plot" rather than a 12-character password you cannot pronounce. The word count, from 3 to 12, sets how many words and therefore how long the phrase is.',
+      body: 'The tool draws a random set of words from a built-in list of short, common English words and joins them with the separator you choose, so you get something like "wren-veil-glint-amber-plot" rather than a 12-character password you cannot pronounce. The word count, from 3 to 12, sets how long the phrase is.',
     },
     {
       heading: 'The entropy numbers',
-      body: 'The embedded list holds 1110 words, about 10.1 bits of entropy per word, so the default five words come to roughly 51 bits and the maximum twelve reach about 121 bits. Every word is picked with crypto.getRandomValues and rejection sampling, so there is no modulo bias pulling the selection toward any word. The reported bit count in the result lets you judge whether a phrase is strong enough for the account it protects.',
+      body: 'The embedded list holds 1110 words, about 10.1 bits of entropy per word, so the default five words come to roughly 51 bits and the maximum twelve reach about 121 bits. Every word is picked with crypto.getRandomValues and rejection sampling, so there is no modulo bias. The reported bit count lets you judge whether a phrase is strong enough for the account.',
     },
     {
       heading: 'Tuning the shape',
-      body: 'Choose hyphens, spaces, dots, underscores or no separator at all to match the site’s rules — some forms reject spaces or special characters. Capitalising every word and appending a random 0–999 number each add a little strength, but as the FAQ notes a number only adds about ten bits and hurts memorability, so adding one more word is the better way to raise entropy.',
+      body: 'Choose hyphens, spaces, dots, underscores or no separator at all to match the site’s rules — some forms reject spaces or special characters. Capitalising every word and appending a random 0–999 number each add a little strength, but a number only adds about ten bits and hurts memorability, so adding one more word is the better way to raise entropy.',
     },
     {
       heading: 'When to rely on it',
-      body: 'This is for the accounts where you can paste a long phrase — a password manager, an email, a machine login. The short embedded word list stays inoffensive and pronounceable, which is the point of Diceware-style phrases: memorable enough to type by hand and strong enough that a dictionary attack on the words has no leverage.',
+      body: 'This is for accounts where you can paste a long phrase — a password manager, an email, a machine login. The short embedded word list stays inoffensive and pronounceable, which is the point of Diceware-style phrases: memorable enough to type by hand and strong enough that a dictionary attack on the words has no leverage.',
     },
     {
       heading: 'The selection never leaves the tab',

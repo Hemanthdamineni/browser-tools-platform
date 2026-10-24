@@ -61,23 +61,19 @@ export const meta: ToolMeta = {
   article: [
     {
       heading: 'What Basic auth actually sends',
-      body: 'RFC 7617 defines a simple scheme: the username and password are joined with a colon and the whole string is base64-encoded, then sent in a header as Authorization: Basic <token>. Build mode does that for you and hands back the finished header line, ready to paste into curl, a fetch call or an API client. Decode mode goes the other way, splitting the recovered string at the first colon back into a username and a password.',
+      body: 'RFC 7617 joins the username and password with a colon, base64-encodes the result and sends it as Authorization: Basic <token>. Build mode hands back that finished header line, ready to paste into curl, a fetch call or an API client; decode mode splits the recovered string at the first colon back into a username and a password.',
     },
     {
       heading: 'Why UTF-8 matters here',
-      body: 'Base64 works on bytes, not characters, and older implementations encoded whatever the local code page happened to be. This tool encodes the credential string as UTF-8 first, so an accented username or a password containing a non-Latin script produces the same token every browser agrees on, and decoding reverses it to readable text. Entering nothing raises a warning that the token encodes an empty pair, rather than silently producing a valid header for nobody.',
+      body: 'Base64 works on bytes, not characters, and older implementations encoded whatever the local code page happened to be. This tool encodes the credential string as UTF-8 first, so an accented username or a password in another script produces the token every browser agrees on. Entering nothing raises a warning that the token encodes an empty pair.',
     },
     {
       heading: 'Decoding real headers',
-      body: 'Paste the whole header line or just the token: a leading "Authorization:" and the "Basic " prefix are stripped case-insensitively, and surrounding whitespace is ignored. The token must be valid base64 and, once decoded, must contain a colon \u2014 a missing colon gets its own error explaining that Basic tokens are "username:password" before encoding. That makes the tool useful for inspecting a header captured from a proxy or a browser devtools session.',
+      body: 'Paste the whole header line or just the token: a leading "Authorization:" and the "Basic " prefix are stripped case-insensitively and surrounding whitespace is ignored. The token must be valid base64, and once decoded must contain a colon; a missing colon gets its own error explaining the username:password form.',
     },
     {
-      heading: 'The security caveat you should know',
-      body: 'Basic auth does not encrypt anything: the token is only base64, which anyone can reverse in a second, and it is sent on every request by the client that holds it. It is safe only over HTTPS and only for credentials you are willing to expose to that connection. Treat this tool as a way to build and inspect headers, not as protection for a secret.',
-    },
-    {
-      heading: 'Local, and not transmitted',
-      body: 'The encoding and decoding are done with the browser\u2019s own functions in this tab. Nothing is uploaded and no request is made, so a password you type to build a header stays on your device.',
+      heading: 'The security caveat, and where this runs',
+      body: 'Basic auth encrypts nothing: the token is only base64, which anyone can reverse, and it is sent on every request by the client that holds it, so it is safe only over HTTPS and only for credentials you accept exposing. The encoding and decoding use the browser\u2019s own functions in this tab, so a password you type to build a header stays on your device.',
     },
   ],
   faq: [

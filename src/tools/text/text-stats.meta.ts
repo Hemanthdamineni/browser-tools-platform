@@ -69,23 +69,19 @@ export const meta: ToolMeta = {
   article: [
     {
       heading: 'The counts, and what they count',
-      body: 'Characters are counted as Unicode code points with spaces included, and a separate row strips every whitespace character, tabs and newlines too, for the "no spaces" figure. Words are whitespace-separated tokens, sentences are split on runs of ., ! and ?, and paragraphs are separated by blank lines. Lines are also reported, which is why a poem or a list reads differently from prose with the same word count.',
+      body: 'Characters are counted as Unicode code points with spaces included, and a separate row strips every whitespace character, tabs and newlines too. Words are whitespace-separated tokens, sentences split on runs of ., ! and ?, and paragraphs are separated by blank lines. Lines are reported as well, which is why a poem or a list reads differently from prose with the same word count.',
     },
     {
       heading: 'Reading and speaking time',
-      body: 'Two time estimates are given: reading time divides the word count by 238 words per minute, a common figure for adult silent reading, and speaking time uses 130 words per minute, closer to a measured presentation pace. Both are rounded to the nearest second and are estimates \u2014 a technical document with dense notation takes longer than the number suggests, while a light listicle is quicker.',
+      body: 'Reading time divides the word count by 238 words per minute, a common figure for adult silent reading, and speaking time uses 130, closer to a measured presentation pace. Both are rounded to the nearest second and are estimates: dense technical text takes longer than the number suggests, while a light listicle is quicker.',
     },
     {
       heading: 'Checking against platform limits',
-      body: 'The same character count shown at the top is compared against the limits of X/Twitter, LinkedIn, Instagram, meta descriptions and SMS. Each row shows the count, the limit and whether you are under it, exactly at it or over it, so you can trim a post without guessing. Meta descriptions are judged against the usual 155 to 160 character band rather than a single number, and an SMS segment is set at 160 characters.',
+      body: 'The character count shown at the top is compared against the limits of X/Twitter, LinkedIn, Instagram, meta descriptions and SMS. Each row shows the count, the limit and whether you are under it, exactly at it or over it. Meta descriptions are judged against the usual 155 to 160 character band, and an SMS segment is set at 160 characters.',
     },
     {
-      heading: 'Readability scores and their weakness',
-      body: 'Six scores are computed: Flesch Reading Ease, Flesch-Kincaid grade, Gunning Fog, SMOG, the Automated Readability Index and Coleman-Liau. They all lean on syllable counts, which are estimated here from vowel groups \u2014 every run of a, e, i, o, u and y counts as one syllable, a final silent "e" is dropped, and each word gets a floor of one \u2014 so proper nouns and unusual spellings can shift a score by a point or two. Treat them as a way to compare drafts against each other, not as a verdict on a reader.',
-    },
-    {
-      heading: 'Nothing leaves the tab',
-      body: 'Every count and score is computed locally as you type, with no request and no storage. You can paste a draft, a contract or a private note and it never leaves your device.',
+      heading: 'Readability scores, and privacy',
+      body: 'Six scores are computed: Flesch Reading Ease, Flesch-Kincaid grade, Gunning Fog, SMOG, the Automated Readability Index and Coleman-Liau. All of them lean on syllable counts estimated from vowel groups, with a final silent "e" dropped and a floor of one syllable per word, so unusual spellings can shift a score by a point or two. Every count is computed locally as you type, with nothing sent anywhere.',
     },
   ],
   related: ['readability-score', 'word-frequency', 'char-frequency', 'case-convert'],

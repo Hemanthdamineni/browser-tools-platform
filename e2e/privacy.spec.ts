@@ -15,11 +15,13 @@ interface ToolEntry {
 }
 
 // Requests the app legitimately makes to its own origin / the browser itself.
-const ALLOWED_ORIGINS = new Set(['http://localhost:4321']);
+// Derived from `baseURL` so the suite is not pinned to a hard-coded host/port.
+let allowedOrigins: Set<string>;
 
 let tools: ToolEntry[] = [];
 
 test.beforeAll(async ({ baseURL }) => {
+  allowedOrigins = new Set([new URL(baseURL).origin]);
   const ctx = await pwRequest.newContext();
   const res = await ctx.get(`${baseURL}/tools-index.json`);
   expect(res.ok()).toBeTruthy();
@@ -43,7 +45,7 @@ test('every declared no-network tool makes zero cross-origin requests', async ({
     const handler = (req: import('@playwright/test').Request) => {
       const origin = new URL(req.url()).origin;
       if (
-        !ALLOWED_ORIGINS.has(origin) &&
+        !allowedOrigins.has(origin) &&
         !req.url().startsWith('data:') &&
         !req.url().startsWith('blob:')
       ) {
@@ -89,7 +91,7 @@ test('the site loads no third-party scripts, fonts or stylesheets anywhere', asy
   page.on('request', (req) => {
     const origin = new URL(req.url()).origin;
     if (
-      !ALLOWED_ORIGINS.has(origin) &&
+      !allowedOrigins.has(origin) &&
       ['script', 'stylesheet', 'font', 'image', 'xhr', 'fetch'].includes(req.resourceType())
     ) {
       external.push(`${req.resourceType()} ${req.url()}`);

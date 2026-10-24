@@ -115,23 +115,23 @@ export const meta: ToolMeta = {
   article: [
     {
       heading: 'A split-pane editor, not a converter',
-      body: 'Type Markdown on the left and the rendered document updates on the right as you go — headings, tables, task lists, links and fenced code all appear live. It is a workbench rather than a one-shot converter: keep a README open while you edit, then copy the HTML or print to PDF.',
+      body: 'Type Markdown on the left and the rendered document updates on the right as you go — headings, tables, task lists, links and fenced code all appear live. It is a workbench: keep a README open while you edit, then copy the HTML or print to PDF.',
     },
     {
       heading: 'The switches that change the render',
-      body: 'GitHub Flavored Markdown adds tables, strikethrough, task lists and autolinks; turn it off for strict CommonMark. “Convert single line breaks to <br>” makes every newline a hard break, matching chat and issue comments. Heading ids are slugged so anchors work, and highlighting can be switched off to keep the page light. The code theme and preview theme are independent.',
+      body: 'GitHub Flavored Markdown adds tables, strikethrough, task lists and autolinks; turn it off for strict CommonMark. “Convert single line breaks to <br>” makes every newline a hard break. Heading ids are slugged so anchors work, and highlighting can be switched off. The code theme and preview theme are independent.',
     },
     {
       heading: 'Export and print',
-      body: 'The HTML export writes a self-contained document styled to match the preview theme, and the Print / Save as PDF button opens your browser’s own print dialog, where “Save as PDF” is a destination. The printed page is the rendered document, not the editor. The export carries the same content-security policy as the preview, so remote images stay out.',
+      body: 'The HTML export writes a self-contained document styled to match the preview theme, and the Print / Save as PDF button opens your browser’s own print dialog. The printed page is the rendered document, not the editor. The export carries the same content-security policy as the preview, so remote images stay out.',
     },
     {
       heading: 'Sanitisation and raw HTML',
-      body: 'Raw HTML is filtered before it is written anywhere: scripts, frames, embedded objects, form tags, event-handler attributes and javascript: and data: URLs are stripped, and the live preview renders inside a sandboxed frame that cannot run scripts or reach this page. The exported file, copied HTML and printed page all go through the same filter.',
+      body: 'Raw HTML is filtered before it is written anywhere: scripts, frames, embedded objects, form tags, event-handler attributes and javascript: and data: URLs are stripped, and the preview renders inside a sandboxed frame that cannot run scripts or reach this page.',
     },
     {
       heading: 'Everything happens in this tab',
-      body: 'The document is parsed locally with marked, highlighted with shiki, and never sent anywhere. The preview runs under a Content-Security-Policy that blocks remote requests, so a pasted document cannot load a tracking pixel either. Nothing is stored between visits.',
+      body: 'The document is parsed locally with marked, highlighted with shiki, and never sent anywhere. The preview runs under a Content-Security-Policy that blocks remote requests, so a pasted document cannot load a tracking pixel. Nothing is stored between visits.',
     },
   ],
   faq: [

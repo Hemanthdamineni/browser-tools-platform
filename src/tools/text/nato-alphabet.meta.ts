@@ -67,19 +67,19 @@ export const meta: ToolMeta = {
   article: [
     {
       heading: 'Why a spelling alphabet exists',
-      body: 'Over a noisy radio link, or a bad phone line, "B" and "D" and "P" are indistinguishable. The NATO phonetic alphabet replaces every letter with a distinct word — Alpha for A, Bravo for B, Charlie for C through Zulu for Z — so a code read aloud is unambiguous. This tool turns text into those words, or turns the words back into text.',
+      body: 'Over a noisy radio link, or a bad phone line, "B" and "D" and "P" are indistinguishable. The NATO phonetic alphabet replaces every letter with a distinct word — Alpha for A, Bravo for B, Charlie for C through Zulu for Z — so a code read aloud is unambiguous. This tool turns text into those words, or the words back into text.',
     },
     {
       heading: 'What happens to digits and punctuation',
-      body: 'Digits map to their English names as separate tokens, so N73 becomes November Seven Three. Characters outside A–Z and 0–9 are passed through as their own token rather than dropped, which keeps hyphens, slashes and other punctuation visible in the output so nothing is silently lost. Text is read one character at a time, so the case of the source does not matter.',
+      body: 'Digits map to their English names as separate tokens, so N73 becomes November Seven Three. Characters outside A–Z and 0–9 are passed through as their own token rather than dropped, which keeps hyphens and slashes visible so nothing is silently lost. Text is read one character at a time, so the source case does not matter.',
     },
     {
       heading: 'Decoding and unknown words',
-      body: 'In decode mode the input is split on spaces, commas and semicolons, and each recognised word maps back to its letter or digit. A single-character token is kept as itself, since it is meaningful punctuation. A word that is not in the alphabet is preserved in square brackets, so a typo or an unrecognised word shows up in the result instead of vanishing.',
+      body: 'In decode mode the input is split on spaces, commas and semicolons, and each recognised word maps back to its letter or digit. A single-character token is kept as itself, since it is meaningful punctuation. A word that is not in the alphabet is preserved in square brackets, so a typo shows up instead of vanishing.',
     },
     {
       heading: 'Separation and case options',
-      body: 'The separator option — space, new line or comma plus space — controls how the encoded words are laid out, which is useful when you want one word per line to read down a list. The uppercase toggle renders the phonetic words in block capitals. Both options apply to encoding only; decoding always splits on the same set of separators.',
+      body: 'The separator option — space, new line or comma plus space — controls how the encoded words are laid out, useful when you want one word per line to read down a list. The uppercase toggle renders the phonetic words in block capitals. Both options apply to encoding only; decoding always splits on the same separators.',
     },
     {
       heading: 'Computed in your browser',

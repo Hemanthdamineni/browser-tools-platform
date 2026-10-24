@@ -26,19 +26,19 @@ export const meta: ToolMeta = {
   article: [
     {
       heading: 'Two fingerprints for one key',
-      body: 'Paste a public key — a .pub file, a line from authorized_keys, or the ssh-rsa AAAA... block from a provider — and the tool parses the OpenSSH blob and reports the modern SHA256 base64 fingerprint (SHA256:...) alongside the classic MD5 colon-hex form, plus the key type, bit size and any trailing comment.',
+      body: 'Paste a public key — a .pub file, a line from authorized_keys, or the ssh-rsa AAAA... block — and the tool parses the OpenSSH blob and reports the modern SHA256 base64 fingerprint alongside the classic MD5 colon-hex form, plus the key type, bit size and any trailing comment.',
     },
     {
       heading: 'Confirming the key you installed is the key you meant',
-      body: 'After copying a key to a server, compare the fingerprint shown here with the one the server or service reports: identical fingerprints mean it is the same key. It is the same check when verifying a host key against a fingerprint printed in a runbook, or when comparing a deploy key stored in two places.',
+      body: 'After copying a key to a server, compare the fingerprint shown here with the one the server reports: identical fingerprints mean it is the same key. It is the same check when verifying a host key against a printed fingerprint, or comparing a deploy key stored in two places.',
     },
     {
       heading: 'Why there is nothing to configure',
-      body: 'A fingerprint is a function of the key, so there are no options. The base64 blob is decoded, the internal key-type string and modulus are read to derive the bit size, and the whole blob is hashed with SHA-256 for the modern form and MD5 for the legacy one. For RSA keys the size comes from the modulus; for Ed25519 the key type itself fixes it.',
+      body: 'A fingerprint is a function of the key, so there are no options. The base64 blob is decoded, the internal key type and modulus are read to derive the bit size, and the blob is hashed with SHA-256 for the modern form and MD5 for the legacy one. For RSA keys the size comes from the modulus; for Ed25519 the type fixes it.',
     },
     {
       heading: 'Caveats',
-      body: 'Only the public key is needed, and a private key will not work — never paste one. Supported types are ssh-rsa, ssh-ed25519, the ecdsa-sha2-nistp256/384/521 family, ssh-dss and the sk- security-key variants. Surrounding whitespace is trimmed, and a line that is not a recognisable public key is rejected rather than hashed into a meaningless value.',
+      body: 'Only the public key is needed; a private key will not work. Supported types are ssh-rsa, ssh-ed25519, the ecdsa-sha2-nistp256/384/521 family, ssh-dss and the sk- variants. Surrounding whitespace is trimmed, and a line that is not a recognisable public key is rejected.',
     },
     {
       heading: 'Computed locally',

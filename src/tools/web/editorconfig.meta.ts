@@ -77,23 +77,19 @@ export const meta: ToolMeta = {
   article: [
     {
       heading: 'What the generated file contains',
-      body: 'The output starts with root = true, which tells editors to stop searching parent directories for another .editorconfig, then a [*] section that applies to every file: indent style, indent size, end of line, charset, trailing-whitespace trimming and final-newline insertion. If you set a maximum line length above zero, a max_line_length line is added too. A final [*.md] section is appended for reasons the Markdown question below explains.',
+      body: 'The output starts with root = true, which tells editors to stop searching parent directories, then a [*] section that applies to every file: indent style, indent size, end of line, charset, trailing-whitespace trimming and final-newline insertion. Setting a maximum line length above zero adds a max_line_length line, and a final [*.md] section is appended.',
     },
     {
       heading: 'Indentation: spaces versus tabs',
-      body: 'With spaces selected the file sets both indent_style = space and indent_size = the number you chose (1 to 8). With tabs selected only indent_style = tab is written, because indent_size has no agreed meaning for tabs and editors interpret it differently. That single difference is why the generator does not simply always emit both keys.',
+      body: 'With spaces selected the file sets indent_style = space and indent_size = your chosen number (1 to 8). With tabs selected only indent_style = tab is written, because indent_size has no agreed meaning for tabs and editors interpret it differently \u2014 which is why the generator does not simply always emit both keys.',
     },
     {
       heading: 'Line endings, charset and whitespace',
-      body: 'End of line chooses between lf (the Unix and modern default) and crlf (Windows). Charset offers utf-8 and latin1; UTF-8 is what almost every project wants today. Trailing-whitespace trimming and final-newline insertion are each a plain true/false, and the two together are the most common source of noisy diffs when they are inconsistent across a team.',
+      body: 'End of line is lf, the Unix and modern default, or crlf for Windows, and charset is utf-8 or latin1. Trailing-whitespace trimming and final-newline insertion are each a plain true or false, and those two settings together are the most common source of noisy diffs when a team disagrees about them.',
     },
     {
       heading: 'The Markdown override, and what to watch for',
-      body: 'Markdown treats two trailing spaces as a hard line break, so a global trim rule would silently change how a document renders. The generator therefore always writes a [*.md] section with trim_trailing_whitespace = false. One caveat: .editorconfig is honoured by plugins, not by every editor out of the box, so a colleague may need to enable support before the rules take effect for them.',
-    },
-    {
-      heading: 'Generated locally, ready to commit',
-      body: 'Nothing is uploaded and no repository is contacted; the file is assembled from your choices in this tab. Copy it into your project root as .editorconfig and it applies to every file in the tree beneath it.',
+      body: 'Markdown treats two trailing spaces as a hard line break, so a global trim rule would silently change rendering, which is why a [*.md] section always sets trim_trailing_whitespace = false. The file is assembled from your choices in this tab with nothing uploaded; note that .editorconfig needs editor or plugin support before the rules take effect.',
     },
   ],
   faq: [

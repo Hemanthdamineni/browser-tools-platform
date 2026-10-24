@@ -112,11 +112,11 @@ export const meta: ToolMeta = {
   article: [
     {
       heading: 'Draw, choose an effect, export',
-      body: 'Open a PNG, JPEG or WebP, draw one or more rectangles over the areas you want gone, then export. Each region can take its own effect — blur, pixelate or a solid black box — and the tool-wide setting covers any region that does not override it. The result is a re-encoded copy of the image with the effect applied to the real pixels.',
+      body: 'Open a PNG, JPEG or WebP, draw one or more rectangles over the areas you want gone, then export. Each region can take its own effect — blur, pixelate or a solid black box — and the tool-wide setting covers any region that does not override it. The result is a re-encoded copy with the effect applied to the real pixels.',
     },
     {
       heading: 'The regions are percentages, not pixels',
-      body: 'The rectangles live in the “Redaction regions” field as an array of { x, y, w, h } values in percent of the image, each with an optional effect. That means changing the blur radius, switching the export format or re-running the tool reuses the same regions, and you can edit the JSON by hand if you are scripting the workflow.',
+      body: 'The rectangles live in the “Redaction regions” field as an array of { x, y, w, h } values in percent of the image, each with an optional effect. That means changing the blur radius or export format reuses the same regions, and you can edit the JSON by hand if you are scripting the workflow.',
     },
     {
       heading: 'Why a real redaction beats an overlay',
@@ -128,7 +128,7 @@ export const meta: ToolMeta = {
     },
     {
       heading: 'The pixels stay on your device',
-      body: 'Drawing, the box blur, the pixelation averaging and the final encode all happen in this tab. And at 0% effect opacity nothing is redacted at all — the region blends fully with the original — so check the exported file before you send it.',
+      body: 'Drawing, the box blur, the pixelation averaging and the final encode all happen in this tab. At 0% effect opacity nothing is redacted at all, so check the exported file before you send it.',
     },
   ],
   faq: [

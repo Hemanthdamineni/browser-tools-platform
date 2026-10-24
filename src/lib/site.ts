@@ -5,6 +5,19 @@
 
 const DEFAULT_URL = 'https://toolbench.app';
 
+/**
+ * Deploy base path (e.g. `/browser-tools-platform` on GitHub Pages), without a
+ * trailing slash. Internal navigation must go through `link()` so the site
+ * works at any base — Astro does not rewrite hardcoded absolute hrefs.
+ */
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+/** Prefix a site-relative path with the deploy base. */
+const link = (path: string): string => `${BASE}${path}`;
+
+/** The canonical repository for this project. */
+const REPOSITORY = 'https://github.com/Hemanthdamineni/browser-tools-platform';
+
 export const site = {
   name: 'Toolbench',
   /** Shown in the header next to the logo. */
@@ -18,27 +31,27 @@ export const site = {
   locale: 'en',
   themeColor: '#1d1d1b',
   backgroundColor: '#faf9f7',
-  repository: 'https://github.com/toolbench/toolbench',
+  repository: REPOSITORY,
   /** Optional: leave empty to hide social links. */
   social: {
-    github: 'https://github.com/toolbench/toolbench',
+    github: REPOSITORY,
   },
   nav: [
-    { label: 'All tools', href: '/tools' },
-    { label: 'Categories', href: '/categories' },
-    { label: 'Privacy', href: '/privacy' },
-    { label: 'About', href: '/about' },
+    { label: 'All tools', href: link('/tools') },
+    { label: 'Categories', href: link('/categories') },
+    { label: 'Privacy', href: link('/privacy') },
+    { label: 'About', href: link('/about') },
   ],
   footer: {
     Product: [
-      { label: 'All tools', href: '/tools' },
-      { label: 'Categories', href: '/categories' },
-      { label: 'Install as an app', href: '/about#install' },
+      { label: 'All tools', href: link('/tools') },
+      { label: 'Categories', href: link('/categories') },
+      { label: 'Install as an app', href: link('/about#install') },
     ],
     Trust: [
-      { label: 'Privacy model', href: '/privacy' },
-      { label: 'How it works', href: '/about#how' },
-      { label: 'Open source', href: 'https://github.com/toolbench/toolbench' },
+      { label: 'Privacy model', href: link('/privacy') },
+      { label: 'How it works', href: link('/about#how') },
+      { label: 'Open source', href: REPOSITORY },
     ],
   },
 } as const;

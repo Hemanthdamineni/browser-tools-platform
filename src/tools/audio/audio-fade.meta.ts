@@ -27,6 +27,20 @@ export const meta: ToolMeta = {
       ],
     },
   ],
+  examples: [
+    {
+      title: 'One-second fades on both edges',
+      options: { fadeInMs: 1000, fadeOutMs: 1000, curve: 'linear' },
+    },
+    {
+      title: 'Long soft fade in for a music bed',
+      options: { fadeInMs: 3000, fadeOutMs: 0, curve: 'exponential' },
+    },
+    {
+      title: 'Quick fade out on a voice note',
+      options: { fadeInMs: 0, fadeOutMs: 400, curve: 'logarithmic' },
+    },
+  ],
   faq: [
     {
       q: 'Which audio formats are accepted?',
@@ -38,7 +52,7 @@ export const meta: ToolMeta = {
     },
     {
       q: 'How are the durations applied?',
-      a: 'The values are in milliseconds, converted to samples using the file's sample rate and clamped so they never exceed the clip length. If both fades are longer than the audio combined they still fit — each is trimmed to the available frames.',
+      a: 'The values are in milliseconds, converted to samples using the file sample rate and clamped so they never exceed the clip length. If both fades are longer than the audio combined they still fit — each is trimmed to the available frames.',
     },
   ],
   article: [

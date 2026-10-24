@@ -33,11 +33,11 @@ export const meta: ToolMeta = {
   article: [
     {
       heading: 'One image in, the whole icon set out',
-      body: 'Drop a logo — PNG, JPEG, WebP or a safe SVG — and the tool renders the icons a site needs: favicons at 16, 32, 48, 180 and 192 pixels, an optional 512-pixel favicon, an Apple touch icon, a 512-pixel Android maskable icon with a safe-zone border, and a multi-image favicon.ico that bundles the 16, 32 and 48 pixel PNGs. Everything arrives as one favicons.zip.',
+      body: 'Drop a logo — PNG, JPEG, WebP or a safe SVG — and the tool renders the icons a site needs: favicons at 16, 32, 48, 180 and 192 pixels, an optional 512-pixel favicon, an Apple touch icon, an Android maskable icon with a safe-zone border, and a multi-image favicon.ico. Everything arrives as one favicons.zip.',
     },
     {
       heading: 'What to do with the download',
-      body: 'Unzip it into your site root and paste the link tags the tool prints next to it: favicon.ico, the 192-pixel PNG, the Apple touch icon and a reference to a web manifest. The generated manifest JSON lists every icon with its pixel size and marks the maskable asset with purpose "maskable", so it can be dropped in as site.webmanifest.',
+      body: 'Unzip it into your site root and paste the link tags the tool prints next to it: favicon.ico, the 192-pixel PNG, the Apple touch icon and a web manifest reference. The generated manifest JSON lists every icon with its pixel size and marks the maskable asset with purpose "maskable".',
     },
     {
       heading: 'Options that change the art',
@@ -45,7 +45,7 @@ export const meta: ToolMeta = {
     },
     {
       heading: 'Caveats',
-      body: 'Every icon fits the image into a square canvas while preserving the aspect ratio, so nothing is stretched — but a tall logo ends up small inside a square. The maskable padding applies only to that one 512-pixel Android asset, never to the regular favicons. SVG input is accepted only after its external references have been checked, and the ICO keeps PNG payloads, which every current browser reads.',
+      body: 'Every icon fits the image into a square canvas while preserving the aspect ratio, so nothing is stretched — a tall logo simply ends up small inside the square. The maskable padding applies only to the 512-pixel Android asset. SVG input is accepted only after its external references are checked.',
     },
     {
       heading: 'Rendered on your device',

@@ -72,15 +72,15 @@ export const meta: ToolMeta = {
     },
     {
       heading: 'The datasets',
-      body: 'Person covers names, age and gender; Contact adds an email and phone; Address gives a street, city, state, zip and country; Network produces IPv4, IPv6, MAC, domain, URL and user-agent values; Commerce gives products with category, price, currency and SKU; Company gives a name, catch phrase, industry and domain; Lorem returns a sentence; and IDs returns a UUID, ObjectId, nanoid and ULID per row.',
+      body: 'Person covers names, age and gender; Contact adds an email and phone; Address gives a street, city, state, zip and country; Network produces IPv4, IPv6, MAC, domain, URL and user-agent values; Commerce gives products with category, price, currency and SKU; Company gives a name, catch phrase, industry and domain; Lorem returns a sentence; and IDs returns a UUID, ObjectId, nanoid and ULID.',
     },
     {
       heading: 'A practical use',
-      body: 'Filling a table view or a dashboard layout with realistic-looking rows is the usual reason. Ten companies in JSON drop straight into a component story; twenty contacts in SQL give you rows to seed a local database for a migration dry run. Because the output is deterministic in shape, a snapshot test can check the schema while the values stay random.',
+      body: 'Filling a table view or a dashboard layout with realistic-looking rows is the usual reason. Ten companies in JSON drop straight into a component story; twenty contacts in SQL give you rows to seed a local database for a migration dry run. The output is deterministic in shape, so a snapshot test can check the schema while the values stay random.',
     },
     {
       heading: 'Randomness and correctness caveats',
-      body: 'Values come from the browser CSPRNG with rejection sampling, so there is no modulo bias, but the name, city and street lists are finite — a few thousand rows will repeat. Generated emails sit under an example.* domain and phone numbers are synthetic, so nothing points at a real address. ULIDs and ObjectIds embed the current time.',
+      body: 'Values come from the browser CSPRNG with rejection sampling, so there is no modulo bias, but the name, city and street lists are finite — a few thousand rows will repeat. Generated emails sit under an example.* domain and phone numbers are synthetic. ULIDs and ObjectIds embed the current time.',
     },
     {
       heading: 'Nothing leaves your machine',

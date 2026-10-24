@@ -50,13 +50,13 @@ export const meta: ToolMeta = {
     },
     {
       heading: 'Why the note when nothing matches',
-      body: 'A port number with no entry does not mean the port is unused — applications can bind any number, and thousands are in use that are neither registered nor well known. So a number-only miss returns an empty table with a note explaining that the port may still be active, rather than implying it is free. The same is true of a name search that finds nothing: no registered service from the list matches,Skip click and that is the whole of the answer.',
+      body: 'A port number with no entry does not mean the port is unused — applications can bind any number, and thousands are in use that are neither registered nor well known. So a number-only miss returns an empty table with a note explaining that the port may still be active, rather than implying it is free. The same is true of a name search that finds nothing: no registered service from the list matches, and that is the whole of the answer.',
     },
     {
       heading: 'Where the data lives',
       body: 'The table ships with the page, so a lookup runs entirely in the tab with no request and works offline — handy when you are debugging a firewall or a container and want an answer without a network call. Nothing you type is uploaded, and the tool never probes a live system, so it answers the documentation question "what usually runs here?" rather than "what is running right now?".',
     },
   ],
-  related: ['ip-info', 'http-status', 'cidr-calculator'],
+  related: ['ip-address-inspector', 'http-status', 'cidr-calculator'],
   status: 'stable',
 };

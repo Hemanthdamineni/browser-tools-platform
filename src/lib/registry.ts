@@ -7,6 +7,11 @@
  *     SEO and `getStaticPaths()` work at build time.
  *   - `.tool.ts` modules are left as lazy import factories, so a tool's code (and
  *     any heavy dependency it pulls in) only downloads when someone runs it.
+ *
+ * Hidden redirect aliases (a merged tool's old id, kept routable via
+ * `redirectTo`) need only their `.meta.ts`: the registry rewrites the route to
+ * the replacement before any implementation is imported. A visible tool still
+ * must ship a real `.tool.ts`.
  */
 
 import type { CategoryId, RegisteredTool, ToolMeta } from './types';
@@ -147,6 +152,9 @@ export interface SearchEntry {
   href: string;
 }
 
+/** Deploy base path, without a trailing slash (the site must work at any base). */
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
+
 export const SEARCH_INDEX: SearchEntry[] = VISIBLE_TOOLS.map((t) => ({
   id: t.meta.id,
   name: t.meta.name,
@@ -154,7 +162,7 @@ export const SEARCH_INDEX: SearchEntry[] = VISIBLE_TOOLS.map((t) => ({
   category: t.meta.category,
   categoryName: CATEGORIES[t.meta.category].name,
   keywords: t.meta.keywords,
-  href: `/tools/${t.meta.id}`,
+  href: `${BASE}/tools/${t.meta.id}`,
 }));
 
 export const TOOL_COUNT = VISIBLE_TOOLS.length;

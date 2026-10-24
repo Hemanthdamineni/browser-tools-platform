@@ -108,7 +108,7 @@ export const meta: ToolMeta = {
       body: 'Your recording never leaves the device — Whisper runs locally. The tool enforces a 10-minute or 64 MB cap before any heavy work starts, so you cannot accidentally queue an hour-long podcast. Everything is processed in your own tab.',
     },
   ],
-  related: ['audio-info', 'audio-trim', 'audio-to-wav'],
+  related: ['audio-info', 'audio-trim', 'audio-convert'],
   credits: [
     {
       name: 'Whisper (OpenAI) via Xenova/whisper-tiny.en & Xenova/whisper-base',

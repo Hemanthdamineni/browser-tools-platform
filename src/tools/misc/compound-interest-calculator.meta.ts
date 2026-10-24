@@ -75,11 +75,11 @@ export const meta: ToolMeta = {
   article: [
     {
       heading: 'A year-by-year growth table',
-      body: 'The text box is ignored — the projection is driven entirely by the options. The result is a table with one row per year: the starting balance, what was contributed during that year, the interest earned in the year and the closing balance. The notes add total invested, total interest across the whole run and a growth multiplier.',
+      body: 'The text box is ignored — the projection is driven by the options. The result is a table with one row per year: the starting balance, what was contributed, the interest earned and the closing balance. The notes add total invested, total interest and a growth multiplier.',
     },
     {
       heading: 'Projecting a savings plan',
-      body: 'Use it to see what a monthly deposit into an index fund might look like in twenty years, to compare monthly against annual compounding on the same pot, or to show someone why starting five years earlier matters. Because the breakdown is per year rather than one final value, you can watch interest overtake contributions.',
+      body: 'Use it to see what a monthly deposit into an index fund might look like in twenty years, to compare monthly against annual compounding, or to show someone why starting five years earlier matters. Because the breakdown is per year, you can watch interest overtake contributions.',
     },
     {
       heading: 'Options that change the projection',
@@ -87,7 +87,7 @@ export const meta: ToolMeta = {
     },
     {
       heading: 'Caveats',
-      body: 'Continuous compounding uses e^rt and has no periods, so a period contribution is not supported there and the tool says so rather than silently ignoring the deposit. The model uses a nominal annual rate and a 365-day year rather than the 360-day convention some banks use, so figures can differ slightly from a statement. Values are clamped to sensible ranges and shown to two decimals, and no tax, fee or inflation adjustment is applied.',
+      body: 'Continuous compounding uses e^rt and has no periods, so a period contribution is not supported there and the tool says so. The model uses a nominal annual rate and a 365-day year rather than the 360-day convention some banks use, so figures can differ slightly from a statement. No tax, fee or inflation adjustment is applied.',
     },
     {
       heading: 'Your numbers stay in the tab',

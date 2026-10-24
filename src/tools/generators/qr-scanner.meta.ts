@@ -70,12 +70,8 @@ export const meta: ToolMeta = {
       body: 'A URL, Wi-Fi join string, vCard, mailto, telephone number, SMS, geo position, otpauth setup URI or plain text is recognised and shown as fields you can copy. Opening a link is a button you press deliberately, and unsafe schemes such as javascript: and data: are refused as links outright, so a malicious code cannot act on its own.',
     },
     {
-      heading: 'Why a scan can fail',
-      body: 'Codes fail for practical reasons: too far away, glare or shadow over the pattern, motion blur, or a stylised design that breaks the module grid. Getting closer so the code fills more of the frame fixes most cases, as does cropping tightly in a photo. Without a built-in detector, 1D barcodes are not attempted, so only the QR path is guaranteed everywhere.',
-    },
-    {
-      heading: 'Frames stay in the tab',
-      body: 'Camera frames and image files are decoded inside this browser tab and are never recorded, stored or uploaded. The only thing the page fetches is its own fallback script, requested from the same site and only when a scan needs it.',
+      heading: 'Failing scans, and where frames go',
+      body: 'Codes fail for practical reasons: too far away, glare or shadow over the pattern, motion blur, or a stylised design that breaks the module grid; getting closer so the code fills the frame fixes most cases, as does cropping in a photo. Camera frames and images are decoded in this browser tab, never recorded or uploaded; the only fetch is the fallback script itself, and only when a scan needs it.',
     },
   ],
   faq: [

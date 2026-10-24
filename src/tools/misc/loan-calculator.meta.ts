@@ -56,19 +56,19 @@ export const meta: ToolMeta = {
   article: [
     {
       heading: 'The four numbers you supply',
-      body: 'The principal is what you borrow, the annual interest rate is a percentage, the term is the loan length in years, and the extra monthly payment starts at zero. The monthly payment comes from the standard amortisation formula \u2014 principal times the monthly rate, divided by one minus (one plus the monthly rate) to the power of minus the number of payments \u2014 which simplifies to principal divided by payments when the rate is zero. The report is a table with the payment amount, the number of payments, the total repaid and the total interest.',
+      body: 'The principal is what you borrow, the annual interest rate is a percentage, the term is the loan length in years, and the extra monthly payment starts at zero. The monthly payment uses the standard amortisation formula \u2014 principal times the monthly rate over one minus (one plus the rate) to the power of minus the number of payments \u2014 which simplifies to principal divided by payments at zero interest. The report lists the payment, the number of payments, the total repaid and the total interest.',
     },
     {
       heading: 'What an extra payment changes',
-      body: 'Adding a regular overpayment shows the payoff moving forward: the new number of payments, the payoff time in years and months, the interest actually paid against the base total, the interest saved and how many instalments were removed. The simulation pays the normal instalment plus your extra each month and clears the balance sooner, so the interest-saved figure is an exact comparison against the schedule without the overpayment.',
+      body: 'Adding a regular overpayment shows the payoff moving forward: the new payment count, the payoff time in years and months, the interest paid against the base total, the interest saved and the instalments removed. The simulation pays the normal instalment plus your extra each month, so the interest-saved figure is exact.',
     },
     {
       heading: 'Validation and awkward inputs',
-      body: 'The principal and the term must be greater than zero and the annual rate must sit between 0 and 100; anything outside that is rejected rather than turned into a meaningless number. An overpayment so small that the instalment never covers the monthly interest is also refused, with an explanation, instead of looping forever. Results are shown to two decimal places and the monthly payment is echoed in the stats line.',
+      body: 'The principal and term must be greater than zero and the rate must sit between 0 and 100; anything outside is rejected rather than turned into a meaningless number. An overpayment too small to cover the monthly interest is also refused, with an explanation, instead of looping forever. Results show two decimals, with the monthly payment echoed in the stats.',
     },
     {
       heading: 'What the model leaves out',
-      body: 'This is a plain fixed-rate, fixed-term amortisation model. It does not model a variable rate, escrow or insurance, origination and closing fees, early lump-sum payments, or interest-only periods, and it assumes payments are made on time every month. Treat the output as the mathematical core of a repayment plan, then add your actual fees and charges from the lender\u2019s own schedule. Every figure is computed in this tab with nothing uploaded.',
+      body: 'This is a plain fixed-rate, fixed-term amortisation model: no variable rate, escrow, fees, early lump sums or interest-only periods, and on-time payments assumed. Treat the output as the mathematical core of a plan, then add your actual lender charges. Every figure is computed in this tab with nothing uploaded.',
     },
   ],
   faq: [

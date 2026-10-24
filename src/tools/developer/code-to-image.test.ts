@@ -350,11 +350,11 @@ describe('buildSvg', () => {
   it('applies token colours and font-style flags via tspan attributes', () => {
     const laid = layout(
       [
-        lineToSpans([
+        [
           { content: 'const ', color: '#ff7b72', fontStyle: 2 },
           { content: 'x', color: '#79c0ff', fontStyle: 1 },
           { content: ' plain', fontStyle: 0 },
-        ]),
+        ],
       ],
       baseOpts,
     );

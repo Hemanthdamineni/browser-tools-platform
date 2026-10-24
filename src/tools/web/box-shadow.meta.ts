@@ -44,19 +44,19 @@ export const meta: ToolMeta = {
   article: [
     {
       heading: 'A rule you can paste',
-      body: 'Set the horizontal and vertical offset, the blur radius, the spread and a colour, and the tool writes a complete box-shadow declaration you can drop straight into a stylesheet. The result panel shows the finished rule in CSS syntax, so there is nothing to assemble by hand and no chance of transposing the offset and blur values.',
+      body: 'Set the horizontal and vertical offset, the blur radius, the spread and a colour, and the tool writes a complete box-shadow declaration you can drop straight into a stylesheet. The result is the finished rule in CSS syntax, so there is nothing to assemble by hand and no chance of transposing the offset and blur values.',
     },
     {
       heading: 'What each value does',
-      body: 'Offset X and Y move the shadow relative to the element — a positive Y pushes it down, which is the usual "light from above" look. Blur softens the edge; 0 gives a hard copy of the box and larger values spread it out. Spread grows or shrinks the shadow before it is blurred, so a negative spread tightens it and a positive one makes it read as a larger shape. Inset draws the shadow inside the element, which is how pressed and recessed surfaces are made.',
+      body: 'Offset X and Y move the shadow relative to the element — a positive Y pushes it down, the usual "light from above" look. Blur softens the edge; 0 gives a hard copy of the box. Spread grows or shrinks the shadow before blurring, so a negative spread tightens it. Inset draws the shadow inside the element, which is how pressed and recessed surfaces are made.',
     },
     {
       heading: 'Layered shadows for believable depth',
-      body: 'A single shadow with a big blur looks flat and artificial. Raise the Layers option to 2–6 and the tool emits several shadows in one declaration, each with a fraction of the offset, blur and spread and a proportionally smaller alpha, so the stack builds up a soft, natural elevation rather than a grey halo. The final layer uses the exact values you entered, and the earlier ones are progressively tighter and fainter.',
+      body: 'A single shadow with a big blur looks flat and artificial. Raise Layers to 2–6 and the tool emits several shadows in one declaration, each with a fraction of the offset, blur and spread and a proportionally smaller alpha, so the stack builds a soft, natural elevation rather than a grey halo. The final layer uses the exact values you entered.',
     },
     {
       heading: 'Colour and comma syntax',
-      body: 'The colour accepts any CSS colour, but an rgba() value with partial alpha is what makes a shadow feel like light rather than paint — the default is a 15% black. Multiple layers are joined with commas inside the single declaration, which is legal CSS and supported everywhere; the rule stays one declaration, so it copies as a single line.',
+      body: 'The colour accepts any CSS colour, but an rgba() value with partial alpha is what makes a shadow feel like light rather than paint — the default is a 15% black. Multiple layers are joined with commas inside the single declaration, which is legal CSS and supported everywhere, so the rule copies as one line.',
     },
     {
       heading: 'Built locally',
