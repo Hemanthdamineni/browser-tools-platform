@@ -439,7 +439,7 @@ function paintStrokes(
  * local to the tab.
  */
 export function mountSignatureMakerPanel(root: HTMLElement): void {
-  const canvas = root.querySelector<HTMLCanvasElement>('[data-sm-canvas]');
+  const canvas = root.querySelector<HTMLCanvasElement>('[data-sm-canvas]')!;
   const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-sm-tab]'));
   const panels = Array.from(root.querySelectorAll<HTMLElement>('[data-sm-panel]'));
   const clearBtn = root.querySelector<HTMLButtonElement>('[data-sm-clear]');
@@ -456,8 +456,6 @@ export function mountSignatureMakerPanel(root: HTMLElement): void {
   const downloadPngBtn = root.querySelector<HTMLButtonElement>('[data-sm-download-png]');
   const status = root.querySelector<HTMLElement>('[data-sm-status]');
   const errorBox = root.querySelector<HTMLElement>('[data-sm-error]');
-
-  if (!canvas) return;
 
   if (canvas.width !== PAD_WIDTH) canvas.width = PAD_WIDTH;
   if (canvas.height !== PAD_HEIGHT) canvas.height = PAD_HEIGHT;

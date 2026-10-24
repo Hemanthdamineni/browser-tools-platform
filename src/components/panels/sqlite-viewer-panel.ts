@@ -150,10 +150,13 @@ export function mountSqliteViewerPanel(root: HTMLElement): void {
       browse.className = 'text-left text-sm font-medium text-[rgb(var(--accent))] hover:underline';
       browse.textContent = name;
       browse.addEventListener('click', () => {
-        // Show the statement in the editor, then run exactly that.
+        // Show the statement in the editor, then run exactly that — with the
+        // export choice the user has already made.
         const sql = browseSql(name, rowLimit());
+        const format =
+          exportEl.value === 'csv' || exportEl.value === 'json' ? exportEl.value : 'none';
         queryEl.value = sql;
-        void run({ action: 'query', query: sql });
+        void run({ action: 'query', query: sql, exportFormat: format });
       });
 
       const meta = document.createElement('span');
@@ -382,7 +385,11 @@ export function mountSqliteViewerPanel(root: HTMLElement): void {
     syncControls();
   });
 
-  runBtn.addEventListener('click', () => void run({ action: 'query' }));
+  runBtn.addEventListener('click', () => {
+    // The statement in the editor is what runs, together with the export choice.
+    const format = exportEl.value === 'csv' || exportEl.value === 'json' ? exportEl.value : 'none';
+    void run({ action: 'query', query: queryEl.value, exportFormat: format });
+  });
 
   cancelBtn.addEventListener('click', () => controller?.abort());
 

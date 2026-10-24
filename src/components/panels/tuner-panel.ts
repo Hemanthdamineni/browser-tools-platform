@@ -466,26 +466,26 @@ function themeColor(name: string, fallback: string): string {
 
 /** Mount the tuner UI into a `[data-tuner-panel]` element. */
 export function mountTunerPanel(root: HTMLElement): void {
-  const startBtn = root.querySelector<HTMLButtonElement>('[data-tuner-start]');
-  const stopBtn = root.querySelector<HTMLButtonElement>('[data-tuner-stop]');
-  const statusEl = root.querySelector<HTMLElement>('[data-tuner-status]');
-  const errorBox = root.querySelector<HTMLElement>('[data-tuner-error]');
-  const stage = root.querySelector<HTMLElement>('[data-tuner-stage]');
-  const noteEl = root.querySelector<HTMLElement>('[data-tuner-note]');
-  const freqEl = root.querySelector<HTMLElement>('[data-tuner-freq]');
-  const centsEl = root.querySelector<HTMLElement>('[data-tuner-cents]');
-  const verdictEl = root.querySelector<HTMLElement>('[data-tuner-verdict]');
-  const needle = root.querySelector<HTMLElement>('[data-tuner-needle]');
-  const scaleEl = root.querySelector<HTMLElement>('[data-tuner-scale]');
-  const liveEl = root.querySelector<HTMLElement>('[data-tuner-live]');
-  const refEl = root.querySelector<HTMLElement>('[data-tuner-ref]');
+  const startBtn = root.querySelector<HTMLButtonElement>('[data-tuner-start]')!;
+  const stopBtn = root.querySelector<HTMLButtonElement>('[data-tuner-stop]')!;
+  const statusEl = root.querySelector<HTMLElement>('[data-tuner-status]')!;
+  const errorBox = root.querySelector<HTMLElement>('[data-tuner-error]')!;
+  const stage = root.querySelector<HTMLElement>('[data-tuner-stage]')!;
+  const noteEl = root.querySelector<HTMLElement>('[data-tuner-note]')!;
+  const freqEl = root.querySelector<HTMLElement>('[data-tuner-freq]')!;
+  const centsEl = root.querySelector<HTMLElement>('[data-tuner-cents]')!;
+  const verdictEl = root.querySelector<HTMLElement>('[data-tuner-verdict]')!;
+  const needle = root.querySelector<HTMLElement>('[data-tuner-needle]')!;
+  const scaleEl = root.querySelector<HTMLElement>('[data-tuner-scale]')!;
+  const liveEl = root.querySelector<HTMLElement>('[data-tuner-live]')!;
+  const refEl = root.querySelector<HTMLElement>('[data-tuner-ref]')!;
   const optionsRoot = root.querySelector<HTMLElement>('[data-tuner-options]') ?? root;
-  const captureBtn = root.querySelector<HTMLButtonElement>('[data-tuner-capture]');
-  const reportBtn = root.querySelector<HTMLButtonElement>('[data-tuner-report]');
-  const clearBtn = root.querySelector<HTMLButtonElement>('[data-tuner-clear]');
-  const sessionEl = root.querySelector<HTMLElement>('[data-tuner-session]');
-  const resultWrap = root.querySelector<HTMLElement>('[data-result-wrap]');
-  const reportEl = root.querySelector<HTMLElement>('[data-tuner-report-host]');
+  const captureBtn = root.querySelector<HTMLButtonElement>('[data-tuner-capture]')!;
+  const reportBtn = root.querySelector<HTMLButtonElement>('[data-tuner-report]')!;
+  const clearBtn = root.querySelector<HTMLButtonElement>('[data-tuner-clear]')!;
+  const sessionEl = root.querySelector<HTMLElement>('[data-tuner-session]')!;
+  const resultWrap = root.querySelector<HTMLElement>('[data-result-wrap]')!;
+  const reportEl = root.querySelector<HTMLElement>('[data-tuner-report-host]')!;
 
   if (
     !startBtn || !stopBtn || !statusEl || !errorBox || !stage ||

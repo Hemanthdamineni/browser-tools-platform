@@ -505,30 +505,30 @@ function readTakeMeta(metaKey: string): TakeMeta | null {
 /** Mount the recorder panel into a `[data-voice-recorder]` element. */
 export function mountVoiceRecorderPanel(root: HTMLElement): void {
   const toolId = root.dataset.toolId || 'voice-recorder';
-  const micBtn = root.querySelector<HTMLButtonElement>('[data-vr-mic]');
-  const recordBtn = root.querySelector<HTMLButtonElement>('[data-vr-record]');
-  const pauseBtn = root.querySelector<HTMLButtonElement>('[data-vr-pause]');
-  const resumeBtn = root.querySelector<HTMLButtonElement>('[data-vr-resume]');
-  const stopBtn = root.querySelector<HTMLButtonElement>('[data-vr-stop]');
-  const discardBtn = root.querySelector<HTMLButtonElement>('[data-vr-discard]');
-  const formatSelect = root.querySelector<HTMLSelectElement>('[data-vr-format]');
-  const timerEl = root.querySelector<HTMLElement>('[data-vr-timer]');
-  const recBadge = root.querySelector<HTMLElement>('[data-vr-rec-badge]');
-  const meterFill = root.querySelector<HTMLElement>('[data-vr-meter-fill]');
-  const meterPeak = root.querySelector<HTMLElement>('[data-vr-meter-peak]');
-  const levelReadout = root.querySelector<HTMLElement>('[data-vr-level-readout]');
-  const levelWordEl = root.querySelector<HTMLElement>('[data-vr-level-word]');
-  const liveEl = root.querySelector<HTMLElement>('[data-vr-live]');
-  const statusEl = root.querySelector<HTMLElement>('[data-vr-status]');
-  const errorBox = root.querySelector<HTMLElement>('[data-vr-error]');
-  const clipWrap = root.querySelector<HTMLElement>('[data-vr-clip-wrap]');
-  const audioEl = root.querySelector<HTMLAudioElement>('[data-vr-audio]');
-  const downloadEl = root.querySelector<HTMLAnchorElement>('[data-vr-download]');
-  const clipMeta = root.querySelector<HTMLElement>('[data-vr-clip-meta]');
-  const resultWrap = root.querySelector<HTMLElement>('[data-vr-result-wrap]');
-  const reportEl = root.querySelector<HTMLElement>('[data-vr-report]');
-  const outputsEl = root.querySelector<HTMLUListElement>('[data-vr-outputs]');
-  const notesEl = root.querySelector<HTMLUListElement>('[data-vr-notes]');
+  const micBtn = root.querySelector<HTMLButtonElement>('[data-vr-mic]')!;
+  const recordBtn = root.querySelector<HTMLButtonElement>('[data-vr-record]')!;
+  const pauseBtn = root.querySelector<HTMLButtonElement>('[data-vr-pause]')!;
+  const resumeBtn = root.querySelector<HTMLButtonElement>('[data-vr-resume]')!;
+  const stopBtn = root.querySelector<HTMLButtonElement>('[data-vr-stop]')!;
+  const discardBtn = root.querySelector<HTMLButtonElement>('[data-vr-discard]')!;
+  const formatSelect = root.querySelector<HTMLSelectElement>('[data-vr-format]')!;
+  const timerEl = root.querySelector<HTMLElement>('[data-vr-timer]')!;
+  const recBadge = root.querySelector<HTMLElement>('[data-vr-rec-badge]')!;
+  const meterFill = root.querySelector<HTMLElement>('[data-vr-meter-fill]')!;
+  const meterPeak = root.querySelector<HTMLElement>('[data-vr-meter-peak]')!;
+  const levelReadout = root.querySelector<HTMLElement>('[data-vr-level-readout]')!;
+  const levelWordEl = root.querySelector<HTMLElement>('[data-vr-level-word]')!;
+  const liveEl = root.querySelector<HTMLElement>('[data-vr-live]')!;
+  const statusEl = root.querySelector<HTMLElement>('[data-vr-status]')!;
+  const errorBox = root.querySelector<HTMLElement>('[data-vr-error]')!;
+  const clipWrap = root.querySelector<HTMLElement>('[data-vr-clip-wrap]')!;
+  const audioEl = root.querySelector<HTMLAudioElement>('[data-vr-audio]')!;
+  const downloadEl = root.querySelector<HTMLAnchorElement>('[data-vr-download]')!;
+  const clipMeta = root.querySelector<HTMLElement>('[data-vr-clip-meta]')!;
+  const resultWrap = root.querySelector<HTMLElement>('[data-vr-result-wrap]')!;
+  const reportEl = root.querySelector<HTMLElement>('[data-vr-report]')!;
+  const outputsEl = root.querySelector<HTMLUListElement>('[data-vr-outputs]')!;
+  const notesEl = root.querySelector<HTMLUListElement>('[data-vr-notes]')!;
 
   // Astro always renders these; the guard keeps a markup change from crashing.
   if (
@@ -1251,12 +1251,12 @@ export function mountVoiceRecorderPanel(root: HTMLElement): void {
 
   // Offer only the formats this browser can really produce.
   if (!AudioCtor) {
-    const wavOption = formatSelect.querySelector<HTMLOptionElement>('option[value="wav"]');
+    const wavOption = formatSelect.querySelector<HTMLOptionElement>('option[value="wav"]')!;
     if (wavOption) wavOption.disabled = true;
     if (formatSelect.value === 'wav') formatSelect.value = 'webm';
   }
   if (!hasRecorder || !supportsWebm(isTypeSupported)) {
-    const webmOption = formatSelect.querySelector<HTMLOptionElement>('option[value="webm"]');
+    const webmOption = formatSelect.querySelector<HTMLOptionElement>('option[value="webm"]')!;
     if (webmOption) webmOption.disabled = true;
     if (formatSelect.value === 'webm' && AudioCtor) formatSelect.value = 'wav';
   }

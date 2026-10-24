@@ -685,32 +685,32 @@ export const LIVE_COLUMNS = MAX_COLUMNS;
  * code path serves the file and the microphone.
  */
 export function mountSpectrogramPanel(panel: HTMLElement): void {
-  const errorBox = panel.querySelector<HTMLElement>('[data-spec-error]');
-  const input = panel.querySelector<HTMLInputElement>('[data-spec-input]');
-  const drop = panel.querySelector<HTMLElement>('[data-spec-drop]');
-  const fileList = panel.querySelector<HTMLElement>('[data-spec-files]');
-  const runBtn = panel.querySelector<HTMLButtonElement>('[data-spec-run]');
-  const progressWrap = panel.querySelector<HTMLElement>('[data-spec-progress]');
-  const progressBar = panel.querySelector<HTMLElement>('[data-spec-progress-bar]');
-  const progressLabel = panel.querySelector<HTMLElement>('[data-spec-progress-label]');
-  const canvas = panel.querySelector<HTMLCanvasElement>('[data-spec-canvas]');
-  const canvasAlt = panel.querySelector<HTMLElement>('[data-spec-canvas-alt]');
-  const micStart = panel.querySelector<HTMLButtonElement>('[data-spec-mic-start]');
-  const micStop = panel.querySelector<HTMLButtonElement>('[data-spec-mic-stop]');
-  const micExport = panel.querySelector<HTMLButtonElement>('[data-spec-mic-export]');
-  const statusEl = panel.querySelector<HTMLElement>('[data-spec-status]');
-  const legend = panel.querySelector<HTMLElement>('[data-spec-legend]');
-  const legendFloor = panel.querySelector<HTMLElement>('[data-spec-legend-floor]');
-  const legendCeiling = panel.querySelector<HTMLElement>('[data-spec-legend-ceiling]');
-  const axisFreq = panel.querySelector<HTMLElement>('[data-spec-axis-freq]');
-  const axisTime = panel.querySelector<HTMLElement>('[data-spec-axis-time]');
-  const summary = panel.querySelector<HTMLElement>('[data-spec-summary]');
-  const resultWrap = panel.querySelector<HTMLElement>('[data-spec-result]');
-  const imageEl = panel.querySelector<HTMLImageElement>('[data-spec-image]');
-  const downloadEl = panel.querySelector<HTMLAnchorElement>('[data-spec-download]');
-  const statsEl = panel.querySelector<HTMLElement>('[data-spec-stats]');
-  const notesEl = panel.querySelector<HTMLElement>('[data-spec-notes]');
-  const optionsRoot = panel.querySelector<HTMLElement>('[data-spec-options]');
+  const errorBox = panel.querySelector<HTMLElement>('[data-spec-error]')!;
+  const input = panel.querySelector<HTMLInputElement>('[data-spec-input]')!;
+  const drop = panel.querySelector<HTMLElement>('[data-spec-drop]')!;
+  const fileList = panel.querySelector<HTMLElement>('[data-spec-files]')!;
+  const runBtn = panel.querySelector<HTMLButtonElement>('[data-spec-run]')!;
+  const progressWrap = panel.querySelector<HTMLElement>('[data-spec-progress]')!;
+  const progressBar = panel.querySelector<HTMLElement>('[data-spec-progress-bar]')!;
+  const progressLabel = panel.querySelector<HTMLElement>('[data-spec-progress-label]')!;
+  const canvas = panel.querySelector<HTMLCanvasElement>('[data-spec-canvas]')!;
+  const canvasAlt = panel.querySelector<HTMLElement>('[data-spec-canvas-alt]')!;
+  const micStart = panel.querySelector<HTMLButtonElement>('[data-spec-mic-start]')!;
+  const micStop = panel.querySelector<HTMLButtonElement>('[data-spec-mic-stop]')!;
+  const micExport = panel.querySelector<HTMLButtonElement>('[data-spec-mic-export]')!;
+  const statusEl = panel.querySelector<HTMLElement>('[data-spec-status]')!;
+  const legend = panel.querySelector<HTMLElement>('[data-spec-legend]')!;
+  const legendFloor = panel.querySelector<HTMLElement>('[data-spec-legend-floor]')!;
+  const legendCeiling = panel.querySelector<HTMLElement>('[data-spec-legend-ceiling]')!;
+  const axisFreq = panel.querySelector<HTMLElement>('[data-spec-axis-freq]')!;
+  const axisTime = panel.querySelector<HTMLElement>('[data-spec-axis-time]')!;
+  const summary = panel.querySelector<HTMLElement>('[data-spec-summary]')!;
+  const resultWrap = panel.querySelector<HTMLElement>('[data-spec-result]')!;
+  const imageEl = panel.querySelector<HTMLImageElement>('[data-spec-image]')!;
+  const downloadEl = panel.querySelector<HTMLAnchorElement>('[data-spec-download]')!;
+  const statsEl = panel.querySelector<HTMLElement>('[data-spec-stats]')!;
+  const notesEl = panel.querySelector<HTMLElement>('[data-spec-notes]')!;
+  const optionsRoot = panel.querySelector<HTMLElement>('[data-spec-options]')!;
 
   if (
     !errorBox ||
@@ -1045,7 +1045,7 @@ export function mountSpectrogramPanel(panel: HTMLElement): void {
   });
 
   // A "Capture" toggle is described by the astro; wire it here if present.
-  const captureBtn = panel.querySelector<HTMLButtonElement>('[data-spec-capture]');
+  const captureBtn = panel.querySelector<HTMLButtonElement>('[data-spec-capture]')!;
   if (captureBtn) {
     captureBtn.addEventListener('click', () => {
       if (!audioCtx || !analyser) {

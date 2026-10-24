@@ -176,17 +176,17 @@ export interface Debounced<T extends unknown[]> {
  * Exported so the preview's re-render cadence can be tested directly.
  */
 export function debounce<T extends unknown[]>(fn: (...args: T) => void, wait: number): Debounced<T> {
-  let timer: ReturnType<typeof setTimeout> | null = null;
+  let timer: ReturnType<typeof setTimeout> | undefined;
   const schedule = (...args: T): void => {
     clearTimeout(timer);
     timer = setTimeout(() => {
-      timer = null;
+      timer = undefined;
       fn(...args);
     }, wait);
   };
   const cancel = (): void => {
     clearTimeout(timer);
-    timer = null;
+    timer = undefined;
   };
   return { schedule, cancel };
 }
@@ -204,16 +204,14 @@ export const PREVIEW_DEBOUNCE_MS = 250;
  * sandboxed iframe, and connect the example chips, Download and Reset.
  */
 export function mountHtmlPlaygroundPanel(root: HTMLElement): void {
-  const htmlInput = root.querySelector<HTMLTextAreaElement>('[data-pane="html"]');
-  const cssInput = root.querySelector<HTMLTextAreaElement>('[data-pane="css"]');
-  const jsInput = root.querySelector<HTMLTextAreaElement>('[data-pane="js"]');
-  const preview = root.querySelector<HTMLIFrameElement>('[data-preview]');
-  const downloadBtn = root.querySelector<HTMLButtonElement>('[data-download]');
-  const resetBtn = root.querySelector<HTMLButtonElement>('[data-reset]');
-  const errorBox = root.querySelector<HTMLElement>('[data-error]');
+  const htmlInput = root.querySelector<HTMLTextAreaElement>('[data-pane="html"]')!;
+  const cssInput = root.querySelector<HTMLTextAreaElement>('[data-pane="css"]')!;
+  const jsInput = root.querySelector<HTMLTextAreaElement>('[data-pane="js"]')!;
+  const preview = root.querySelector<HTMLIFrameElement>('[data-preview]')!;
+  const downloadBtn = root.querySelector<HTMLButtonElement>('[data-download]')!;
+  const resetBtn = root.querySelector<HTMLButtonElement>('[data-reset]')!;
+  const errorBox = root.querySelector<HTMLElement>('[data-error]')!;
   const optionsRoot = root.querySelector<HTMLElement>('[data-options]') ?? root;
-
-  if (!htmlInput || !cssInput || !jsInput || !preview || !downloadBtn || !resetBtn) return;
 
   /** The three source panes read as one `PlaygroundParts`. */
   function currentParts(): PlaygroundParts {
@@ -226,12 +224,10 @@ export function mountHtmlPlaygroundPanel(root: HTMLElement): void {
       // `srcdoc` rebuilds the whole document, so the preview always reflects
       // exactly what is in the three panes.
       preview.srcdoc = buildDocument(currentParts());
-      if (errorBox) errorBox.hidden = true;
+      errorBox.hidden = true;
     } catch {
-      if (errorBox) {
-        errorBox.hidden = false;
-        errorBox.textContent = 'The preview could not be rendered in this browser.';
-      }
+      errorBox.hidden = false;
+      errorBox.textContent = 'The preview could not be rendered in this browser.';
     }
   }
 

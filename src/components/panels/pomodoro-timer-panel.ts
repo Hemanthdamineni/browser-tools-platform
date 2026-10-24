@@ -77,44 +77,22 @@ function writeStorage(key: string, value: string): void {
 /** Mount the Pomodoro timer into a `[data-pomodoro-timer-panel]` element. */
 export function mountPomodoroTimerPanel(root: HTMLElement): void {
   const toolId = root.dataset.toolId || 'pomodoro-timer';
-  const clock = root.querySelector<HTMLElement>('[data-clock]');
-  const phaseEl = root.querySelector<HTMLElement>('[data-phase]');
-  const sessionEl = root.querySelector<HTMLElement>('[data-sessions]');
-  const cycleEl = root.querySelector<HTMLElement>('[data-cycle]');
-  const progress = root.querySelector<HTMLElement>('[data-progress]');
-  const startBtn = root.querySelector<HTMLButtonElement>('[data-start]');
-  const pauseBtn = root.querySelector<HTMLButtonElement>('[data-pause]');
-  const resetBtn = root.querySelector<HTMLButtonElement>('[data-reset]');
-  const skipBtn = root.querySelector<HTMLButtonElement>('[data-skip]');
-  const notifyInput = root.querySelector<HTMLInputElement>('[data-opt-key="notifyOnPhase"]');
-  const statusEl = root.querySelector<HTMLElement>('[data-status]');
-  const errorBox = root.querySelector<HTMLElement>('[data-error]');
-  const resultWrap = root.querySelector<HTMLElement>('[data-result-wrap]');
-  const reportEl = root.querySelector<HTMLElement>('[data-report]');
-  const statsEl = root.querySelector<HTMLElement>('[data-stats]');
-  const notesEl = root.querySelector<HTMLElement>('[data-notes]');
-
-  // Astro always renders these; the guard keeps a markup change from crashing.
-  if (
-    !clock ||
-    !phaseEl ||
-    !sessionEl ||
-    !cycleEl ||
-    !progress ||
-    !startBtn ||
-    !pauseBtn ||
-    !resetBtn ||
-    !skipBtn ||
-    !notifyInput ||
-    !statusEl ||
-    !errorBox ||
-    !resultWrap ||
-    !reportEl ||
-    !statsEl ||
-    !notesEl
-  ) {
-    return;
-  }
+  const clock = root.querySelector<HTMLElement>('[data-clock]')!;
+  const phaseEl = root.querySelector<HTMLElement>('[data-phase]')!;
+  const sessionEl = root.querySelector<HTMLElement>('[data-sessions]')!;
+  const cycleEl = root.querySelector<HTMLElement>('[data-cycle]')!;
+  const progress = root.querySelector<HTMLElement>('[data-progress]')!;
+  const startBtn = root.querySelector<HTMLButtonElement>('[data-start]')!;
+  const pauseBtn = root.querySelector<HTMLButtonElement>('[data-pause]')!;
+  const resetBtn = root.querySelector<HTMLButtonElement>('[data-reset]')!;
+  const skipBtn = root.querySelector<HTMLButtonElement>('[data-skip]')!;
+  const notifyInput = root.querySelector<HTMLInputElement>('[data-opt-key="notifyOnPhase"]')!;
+  const statusEl = root.querySelector<HTMLElement>('[data-status]')!;
+  const errorBox = root.querySelector<HTMLElement>('[data-error]')!;
+  const resultWrap = root.querySelector<HTMLElement>('[data-result-wrap]')!;
+  const reportEl = root.querySelector<HTMLElement>('[data-report]')!;
+  const statsEl = root.querySelector<HTMLElement>('[data-stats]')!;
+  const notesEl = root.querySelector<HTMLElement>('[data-notes]')!;
 
   let settings = parseSettings(readStorage(SETTINGS_KEY));
   let session =

@@ -18,6 +18,7 @@ import {
   remainingMs,
   secondsLeft,
   type PomodoroSettings,
+  type PomodoroState,
   type StoredSession,
 } from './pomodoro-timer-panel';
 import { runToolById } from '@/lib/worker/client';
@@ -98,7 +99,7 @@ describe('pomodoro-timer state machine', () => {
   });
 
   it('goes working to short break and counts the completed session', () => {
-    const state = { phase: 'working', completedWork: 1, completedSessions: 4 };
+    const state: PomodoroState = { phase: 'working', completedWork: 1, completedSessions: 4 };
     expect(nextPhase(SETTINGS, state)).toEqual({
       phase: 'shortBreak',
       completedWork: 2,
@@ -108,7 +109,7 @@ describe('pomodoro-timer state machine', () => {
 
   it('goes working to long break at the threshold, then resets the cycle', () => {
     // cyclesBeforeLongBreak is 3, so the third work phase earns the long break.
-    const state = { phase: 'working', completedWork: 2, completedSessions: 2 };
+    const state: PomodoroState = { phase: 'working', completedWork: 2, completedSessions: 2 };
     expect(nextPhase(SETTINGS, state)).toEqual({
       phase: 'longBreak',
       completedWork: 0,
@@ -117,9 +118,9 @@ describe('pomodoro-timer state machine', () => {
   });
 
   it('rolls a break back into working without touching the counters', () => {
-    const short = { phase: 'shortBreak', completedWork: 1, completedSessions: 3 };
+    const short: PomodoroState = { phase: 'shortBreak', completedWork: 1, completedSessions: 3 };
     expect(nextPhase(SETTINGS, short)).toEqual({ phase: 'working', completedWork: 1, completedSessions: 3 });
-    const long = { phase: 'longBreak', completedWork: 0, completedSessions: 3 };
+    const long: PomodoroState = { phase: 'longBreak', completedWork: 0, completedSessions: 3 };
     expect(nextPhase(SETTINGS, long)).toEqual({ phase: 'working', completedWork: 0, completedSessions: 3 });
   });
 

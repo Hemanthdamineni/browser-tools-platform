@@ -232,17 +232,17 @@ function isInteractiveTarget(target: EventTarget | null): boolean {
 export function mountStopwatchPanel(root: HTMLElement): void {
   const toolId = root.dataset.toolId || 'stopwatch';
 
-  const readout = root.querySelector<HTMLElement>('[data-sw-readout]');
-  const startBtn = root.querySelector<HTMLButtonElement>('[data-sw-start]');
-  const lapBtn = root.querySelector<HTMLButtonElement>('[data-sw-lap]');
-  const resetBtn = root.querySelector<HTMLButtonElement>('[data-sw-reset]');
-  const copyBtn = root.querySelector<HTMLButtonElement>('[data-sw-copy]');
-  const viewReportBtn = root.querySelector<HTMLButtonElement>('[data-sw-view]');
-  const lapsHost = root.querySelector<HTMLElement>('[data-sw-laps]');
-  const status = root.querySelector<HTMLElement>('[data-sw-status]');
-  const errorBox = root.querySelector<HTMLElement>('[data-sw-error]');
-  const resultWrap = root.querySelector<HTMLElement>('[data-sw-result-wrap]');
-  const reportHost = root.querySelector<HTMLElement>('[data-sw-report]');
+  const readout = root.querySelector<HTMLElement>('[data-sw-readout]')!;
+  const startBtn = root.querySelector<HTMLButtonElement>('[data-sw-start]')!;
+  const lapBtn = root.querySelector<HTMLButtonElement>('[data-sw-lap]')!;
+  const resetBtn = root.querySelector<HTMLButtonElement>('[data-sw-reset]')!;
+  const copyBtn = root.querySelector<HTMLButtonElement>('[data-sw-copy]')!;
+  const viewReportBtn = root.querySelector<HTMLButtonElement>('[data-sw-view]')!;
+  const lapsHost = root.querySelector<HTMLElement>('[data-sw-laps]')!;
+  const status = root.querySelector<HTMLElement>('[data-sw-status]')!;
+  const errorBox = root.querySelector<HTMLElement>('[data-sw-error]')!;
+  const resultWrap = root.querySelector<HTMLElement>('[data-sw-result-wrap]')!;
+  const reportHost = root.querySelector<HTMLElement>('[data-sw-report]')!;
 
   if (
     !readout ||

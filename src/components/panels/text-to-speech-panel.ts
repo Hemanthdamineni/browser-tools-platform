@@ -246,17 +246,17 @@ export function planToResult(config: UtteranceConfig): TextRunResult {
  * honest message and never throws.
  */
 export function mountTextToSpeechPanel(panel: HTMLElement): void {
-  const textEl = panel.querySelector<HTMLTextAreaElement>('[data-tts-text]');
-  const voiceSelect = panel.querySelector<HTMLSelectElement>('[data-tts-voice]');
-  const voiceStatus = panel.querySelector<HTMLElement>('[data-tts-voice-status]');
+  const textEl = panel.querySelector<HTMLTextAreaElement>('[data-tts-text]')!;
+  const voiceSelect = panel.querySelector<HTMLSelectElement>('[data-tts-voice]')!;
+  const voiceStatus = panel.querySelector<HTMLElement>('[data-tts-voice-status]')!;
   const optionsRoot = panel.querySelector<HTMLElement>('[data-options]') ?? panel;
-  const playBtn = panel.querySelector<HTMLButtonElement>('[data-tts-play]');
-  const pauseBtn = panel.querySelector<HTMLButtonElement>('[data-tts-pause]');
-  const stopBtn = panel.querySelector<HTMLButtonElement>('[data-tts-stop]');
-  const downloadBtn = panel.querySelector<HTMLButtonElement>('[data-tts-download]');
-  const status = panel.querySelector<HTMLElement>('[data-tts-status]');
-  const errorBox = panel.querySelector<HTMLElement>('[data-tts-error]');
-  const resultWrap = panel.querySelector<HTMLElement>('[data-tts-result]');
+  const playBtn = panel.querySelector<HTMLButtonElement>('[data-tts-play]')!;
+  const pauseBtn = panel.querySelector<HTMLButtonElement>('[data-tts-pause]')!;
+  const stopBtn = panel.querySelector<HTMLButtonElement>('[data-tts-stop]')!;
+  const downloadBtn = panel.querySelector<HTMLButtonElement>('[data-tts-download]')!;
+  const status = panel.querySelector<HTMLElement>('[data-tts-status]')!;
+  const errorBox = panel.querySelector<HTMLElement>('[data-tts-error]')!;
+  const resultWrap = panel.querySelector<HTMLElement>('[data-tts-result]')!;
 
   if (!textEl || !voiceSelect || !voiceStatus || !playBtn || !pauseBtn || !stopBtn) return;
 
@@ -338,7 +338,7 @@ export function mountTextToSpeechPanel(panel: HTMLElement): void {
   function renderResult(): void {
     const text = textEl.value;
     if (!text.trim() || !resultWrap) return;
-    const host = resultWrap.querySelector<HTMLElement>('[data-tts-report]');
+    const host = resultWrap.querySelector<HTMLElement>('[data-tts-report]')!;
     if (!host) return;
     const voice = findVoice(voices, voiceSelect.value);
     const config = buildUtteranceConfig(text, settings(), voice);
@@ -451,14 +451,14 @@ export function mountTextToSpeechPanel(panel: HTMLElement): void {
     }
   });
 
-  const clearBtn = panel.querySelector<HTMLButtonElement>('[data-tts-clear]');
+  const clearBtn = panel.querySelector<HTMLButtonElement>('[data-tts-clear]')!;
   clearBtn?.addEventListener('click', () => {
     textEl.value = '';
     if (status) status.textContent = '';
     clearError(errorBox);
   });
 
-  const pasteBtn = panel.querySelector<HTMLButtonElement>('[data-tts-paste]');
+  const pasteBtn = panel.querySelector<HTMLButtonElement>('[data-tts-paste]')!;
   pasteBtn?.addEventListener('click', () => {
     void navigator.clipboard
       ?.readText()

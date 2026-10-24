@@ -163,7 +163,7 @@ afterEach(() => {
       configurable: true,
     });
   } else {
-    delete (HTMLElement.prototype as Record<string, unknown>)['requestFullscreen'];
+    delete (HTMLElement.prototype as unknown as Record<string, unknown>)['requestFullscreen'];
   }
   if (originalFullscreen.exitFullscreen) {
     Object.defineProperty(document, 'exitFullscreen', {

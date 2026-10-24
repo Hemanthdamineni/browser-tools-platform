@@ -458,16 +458,16 @@ export async function analyzeFile(file: File, options: TempoOptions): Promise<Fi
 export function mountBpmDetectorPanel(root: HTMLElement): void {
   const toolId = root.dataset.toolId || 'bpm-detector';
 
-  const fileInput = root.querySelector<HTMLInputElement>('[data-bpm-file]');
-  const micBtn = root.querySelector<HTMLButtonElement>('[data-bpm-mic]');
-  const micStopBtn = root.querySelector<HTMLButtonElement>('[data-bpm-mic-stop]');
-  const tapBtn = root.querySelector<HTMLButtonElement>('[data-bpm-tap]');
-  const resetTapBtn = root.querySelector<HTMLButtonElement>('[data-bpm-tap-reset]');
-  const status = root.querySelector<HTMLElement>('[data-bpm-status]');
-  const errorBox = root.querySelector<HTMLElement>('[data-bpm-error]');
-  const resultWrap = root.querySelector<HTMLElement>('[data-bpm-result-wrap]');
-  const reportEl = root.querySelector<HTMLElement>('[data-bpm-report]');
-  const notesEl = root.querySelector<HTMLElement>('[data-bpm-notes]');
+  const fileInput = root.querySelector<HTMLInputElement>('[data-bpm-file]')!;
+  const micBtn = root.querySelector<HTMLButtonElement>('[data-bpm-mic]')!;
+  const micStopBtn = root.querySelector<HTMLButtonElement>('[data-bpm-mic-stop]')!;
+  const tapBtn = root.querySelector<HTMLButtonElement>('[data-bpm-tap]')!;
+  const resetTapBtn = root.querySelector<HTMLButtonElement>('[data-bpm-tap-reset]')!;
+  const status = root.querySelector<HTMLElement>('[data-bpm-status]')!;
+  const errorBox = root.querySelector<HTMLElement>('[data-bpm-error]')!;
+  const resultWrap = root.querySelector<HTMLElement>('[data-bpm-result-wrap]')!;
+  const reportEl = root.querySelector<HTMLElement>('[data-bpm-report]')!;
+  const notesEl = root.querySelector<HTMLElement>('[data-bpm-notes]')!;
   const optionsRoot = root.querySelector<HTMLElement>('[data-bpm-options]') ?? root;
 
   if (
