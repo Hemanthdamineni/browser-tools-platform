@@ -28,10 +28,10 @@ import { SHORTCUTS } from './keyboard';
           </dt>
           <dd class="shrink-0">
             {s.tokens.map((token, i) => (
-              <>
+              <Fragment>
                 {i > 0 && <span class="mx-0.5 text-xs text-[rgb(var(--text-faint))]">+</span>}
                 <kbd class="kbd">{token}</kbd>
-              </>
+              </Fragment>
             ))}
           </dd>
         </div>
