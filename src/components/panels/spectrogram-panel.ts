@@ -890,13 +890,12 @@ export function mountSpectrogramPanel(panel: HTMLElement): void {
   let rafId: number | null = null;
   let recording = false;
 
-  const CtxCtor = (window as unknown as {
-    AudioContext?: typeof AudioContext;
-    webkitAudioContext?: typeof AudioContext;
-  }).AudioContext ?? (window as unknown as {
-    AudioContext?: typeof AudioContext;
-    webkitAudioContext?: typeof AudioContext;
-  }).webkitAudioContext;
+  const win = window as unknown as Record<string, unknown>;
+  const CtxCtor = (typeof win.AudioContext === 'function'
+    ? win.AudioContext
+    : typeof win.webkitAudioContext === 'function'
+      ? win.webkitAudioContext
+      : null) as typeof AudioContext | null;
 
   function sizeCanvas(): void {
     const rect = canvas.getBoundingClientRect();
@@ -908,46 +907,7 @@ export function mountSpectrogramPanel(panel: HTMLElement): void {
     canvas.getContext('2d')?.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 
-  function drawLive(): void {
-    const ctx = canvas.getContext('2d');
-    const layout = liveLayout;
-    if (!ctx || !layout) return;
-    const w = Math.max(1, canvas.clientWidth);
-    const h = Math.max(1, canvas.clientHeight);
-    const image = columnsToGrid(liveColumns.slice(-LIVE_COLUMNS), layout.height);
-    const rgba = gridToRgba(image, liveLut, layout.floorDb, layout.ceilingDb.toLowerCase ? layout.floorDb : layout.ceilingDb);
-    ctx.clearRect(0, 0, w, h);
-    const imgData = ctx.createImageData(w, h);
-    const out = imgData.data;
-    for (let y = 0; y < h; y++) {
-      const srcY = Math.min(layout.height - 1, Math.floor((y / h) * layout.height));
-      for (let x = 0; x < w; x++) {
-        const srcX = Math.min(image.width - 1, Math.floor((x / w) * image.width));
-        const si = (srcY * image.width + srcX) * 4;
-        const di = (y * w + x) * 4;
-        out[di] = rgba[si] ?? 0;
-        out[di + 1] = rgba[si + 1] ?? 0;
-        out[di + 2] = rgba[si + 2] ?? 0;
-        out[di + 3] = 255;
-      }
-    }
-    ctx.putImageData(imgData, 0, 0);
-  }
-
-  function tick(): void {
-    if (!analyser || !liveLayout) return;
-    const layout = liveLayout;
-    if (!liveReal || !liveImag || !liveColumn) return;
-    analyser.getFloatTimeDomainData(liveReal);
-    analyseFrame(layout, liveReal, liveReal, liveImag, liveColumn);
-    liveColumns.push(liveColumn.slice());
-    if (liveColumns.length > LIVE_COLUMNS) liveColumns.splice(0, liveColumns.length - LIVE_COLUMNS);
-    if (recording) recordedColumns.push(liveColumn.slice());
-    drawLive();
-    rafId = window.requestAnimationFrame(tick);
-  }
-
-  let recordedColumns: Float32Array[] = [];
+  /** The live view renders at most this many columns, to keep redraws cheap. */
 
   function optionsChanged(): void {
     const parsed = readSpec();

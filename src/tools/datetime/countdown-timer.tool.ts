@@ -40,13 +40,13 @@ function run(input: TextRunInput): TextRunResult {
   const running = timers.filter((t) => t.running).length;
   const paused = timers.filter((t) => !t.fired && !t.running).length;
   const finished = timers.filter((t) => t.fired).length;
+  // The note follows the table's order, so the two always agree.
+  const finishedLabels = ordered.filter((timer) => timer.fired).map((timer) => timer.label);
 
   const notes: string[] = [
     'Remaining times are read from each timer’s own deadline, so they stay right even if the tab slept.',
   ];
-  if (finished) {
-    notes.push(`Finished: ${timers.filter((t) => t.fired).map((t) => t.label).join(', ')}.`);
-  }
+  if (finishedLabels.length) notes.push(`Finished: ${finishedLabels.join(', ')}.`);
   if (o.sound !== false) notes.push('Sound alerts are on.');
   if (o.notify === true) notes.push('Desktop notifications are on.');
 

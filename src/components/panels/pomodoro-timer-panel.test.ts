@@ -72,8 +72,8 @@ function fixture(): HTMLElement {
     <input data-opt-key="cyclesBeforeLongBreak">
     <div data-status></div>
     <div data-error></div>
-    <div data-result-wrap></div>
-    <div data-report></div>
+    <div data-result-wrap hidden></div>
+    <div data-report hidden></div>
     <div data-stats></div>
     <ul data-notes></ul>
   `;
@@ -157,24 +157,22 @@ describe('pomodoro-timer cycle rollover', () => {
 
 describe('pomodoro-timer config changes mid-cycle', () => {
   it('leaves a running phase on its original deadline', () => {
-    const now = 1_000_000;
-    const session = runningWork(now);
-    const changed = applySettings(session, SETTINGS, now);
+    const session = runningWork(1_000_000);
+    const changed = applySettings(session, SETTINGS);
     expect(changed).toBe(session);
-    expect(changed.endAt).toBe(now + 60_000);
+    expect(changed.endAt).toBe(1_000_000 + 60_000);
   });
 
   it('keeps what is left of a paused phase, capped at the new length', () => {
-    const now = 1_000_000;
     const paused: StoredSession = {
       state: { phase: 'working', completedWork: 0, completedSessions: 0 },
       remaining: 30_000,
       endAt: null,
       running: false,
     };
-    const changed = applySettings(paused, SETTINGS, now);
+    const changed = applySettings(paused, SETTINGS);
     expect(changed.remaining).toBe(30_000);
-    expect(changed.endAt).toBe(now + 30_000);
+    expect(changed.endAt).toBeNull();
   });
 
   it('adopts the new work length straight away when idle', () => {
@@ -184,7 +182,7 @@ describe('pomodoro-timer config changes mid-cycle', () => {
       endAt: null,
       running: false,
     };
-    const changed = applySettings(idle, SETTINGS, 0);
+    const changed = applySettings(idle, SETTINGS);
     expect(changed.remaining).toBe(120_000);
     expect(changed.endAt).toBeNull();
   });
@@ -304,14 +302,31 @@ describe('mountPomodoroTimerPanel', () => {
     expect(clock.textContent).toMatch(/:/);
   });
 
-  it('starts a fresh idle timer on Start', () => {
-    runToolByIdMock.mockResolvedValue({ output: '{}', stats: {}, notes: [] } as never);
+  it('starts a fresh idle timer on Start and shows the summary', async () => {
+    runToolByIdMock.mockResolvedValue({
+      output: JSON.stringify({ headers: ['Setting', 'Value'], rows: [] }),
+      render: 'table',
+      stats: { phase: 'Work' },
+      notes: ['The timer is deadline-based.'],
+    } as never);
     const root = fixture();
     const start = root.querySelector<HTMLButtonElement>('[data-start]')!;
     const phase = root.querySelector<HTMLElement>('[data-phase]')!;
+    const report = root.querySelector<HTMLElement>('[data-report]')!;
+    const wrap = root.querySelector<HTMLElement>('[data-result-wrap]')!;
 
     mountPomodoroTimerPanel(root);
+    expect(report.hidden).toBe(true);
     start.click();
     expect(phase.textContent).toBe('Work');
+
+    // The report is fetched asynchronously; flush the microtask queue.
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(report.hidden).toBe(false);
+    expect(wrap.hidden).toBe(false);
+    expect(root.querySelector<HTMLElement>('[data-stats]')!.textContent).toContain('phase');
+    expect(root.querySelector<HTMLElement>('[data-notes]')!.textContent).toContain('deadline-based');
   });
 });

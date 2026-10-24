@@ -4,12 +4,10 @@ import {
   renderSignature,
   signatureBounds,
   smoothStroke,
-  strokePath,
   strokesToSvg,
   svgDataUrl,
   typedLayout,
   typedToSvg,
-  type Point,
   type Stroke,
 } from './signature-maker-panel';
 import { decodeDataUrl } from '@/lib/signature/pixels';
@@ -84,7 +82,7 @@ describe('strokesToSvg', () => {
 
   it('emits a dot for a single-point stroke', () => {
     const svg = strokesToSvg([[{ x: 5, y: 6 }]], { padding: 0 });
-    expect(svg).toContain('M 0 1 L 0 1');
+    expect(svg).toContain('M 0 0 L 0 0');
   });
 
   it('keeps the background transparent and free of external references', () => {
@@ -167,7 +165,7 @@ describe('svgDataUrl and parseStrokes', () => {
   it('rejects malformed payloads with a clear error', () => {
     expect(() => parseStrokes('not json')).toThrow(/not valid JSON/);
     expect(() => parseStrokes('{"a":1}')).toThrow(/not a list of strokes/);
-    expect(() => parseStrokes('[[1,2]]')).toThrow(/must be a list of points/);
+    expect(() => parseStrokes('[[1,2]]')).toThrow(/must have x and y coordinates/);
     expect(() => parseStrokes('[[["x","y"]]]')).toThrow(/must be numbers/);
   });
 });
@@ -195,6 +193,3 @@ describe('renderSignature', () => {
     expect(result.stats).toMatchObject({ source: 'typed' });
   });
 });
-
-// Referenced so the type import is exercised (and kept for reuse by callers).
-export type { Point, Stroke };

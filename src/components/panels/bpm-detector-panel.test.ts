@@ -1,4 +1,9 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+
+// The pure DSP below must not depend on the whole tool registry, so the panel's
+// worker client is stubbed — the same seam the screen-recorder panel test uses.
+vi.mock('@/lib/worker/client', () => ({ runToolById: vi.fn() }));
+
 import {
   addTap,
   autocorrelate,

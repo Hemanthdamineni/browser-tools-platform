@@ -114,21 +114,8 @@ beforeEach(() => {
     configurable: true,
   });
 
-  // jsdom has no requestFullscreen; give the panel a stub that grants it.
-  const stage = document.createElement('div');
-  Object.defineProperty(stage, 'requestFullscreen', {
-    value: () => {
-      Object.defineProperty(document, 'fullscreenElement', {
-        value: stage,
-        configurable: true,
-      });
-      return Promise.resolve();
-    },
-    configurable: true,
-  });
-
-  // The panel queries the stage inside the fixture, so install a generic stub
-  // on every element via the prototype.
+  // jsdom has no requestFullscreen; install a stub on every element that
+  // grants fullscreen to the element it was called on.
   Object.defineProperty(HTMLElement.prototype, 'requestFullscreen', {
     value: function requestFullscreen() {
       const el = this as HTMLElement;

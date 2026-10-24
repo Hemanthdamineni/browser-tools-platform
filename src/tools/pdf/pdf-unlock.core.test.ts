@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest';
-import { PDFDocument } from 'pdf-lib';
 import { ToolError } from '@/lib/types';
 import {
   assertPdfHeader,
@@ -228,7 +227,7 @@ describe('createQpdfEngine', () => {
   });
 
   it('hands the engine the bytes and returns the decrypted output', () => {
-    const output = new Uint8Array([9, 8, 7]).buffer as Uint8Array<ArrayBuffer>;
+    const output = new Uint8Array([9, 8, 7]);
     const module = fakeModule({ output });
     const result = createQpdfEngine(module, log).decrypt(new Uint8Array([1, 2]), 'pw');
     expect(Array.from(result)).toEqual([9, 8, 7]);
@@ -246,7 +245,12 @@ describe('createQpdfEngine', () => {
   });
 
   it('redacts the password from any error message', () => {
-    const module = fakeModule({ exitCode: 2, stderr: ['qpdf: invalid password "hunter2"'] });
+    // A damaged-file line is surfaced verbatim as the hint, so this is where a
+    // leaked password would end up on screen.
+    const module = fakeModule({
+      exitCode: 2,
+      stderr: ['qpdf: file is damaged (password "hunter2")'],
+    });
     let message = '';
     try {
       createQpdfEngine(module, log).decrypt(new Uint8Array(), 'hunter2');
@@ -258,8 +262,10 @@ describe('createQpdfEngine', () => {
   });
 
   it('reports an empty output as a failure', () => {
-    const module = fakeModule({ output: new Uint8Array().buffer as Uint8Array<ArrayBuffer> });
-    expect(() => createQpdfEngine(module, log).decrypt(new Uint8Array(), 'pw')).toThrow(/empty file/);
+    const module = fakeModule({ output: new Uint8Array() });
+    expect(() => createQpdfEngine(module, log).decrypt(new Uint8Array(), 'pw')).toThrow(
+      /empty file/,
+    );
   });
 });
 

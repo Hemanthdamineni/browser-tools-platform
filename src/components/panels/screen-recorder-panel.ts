@@ -34,7 +34,7 @@ import {
   supportsWebm,
   type RecordingFormat,
 } from '@/tools/video/screen-recorder.core';
-import { clearError, renderTextResult, showError } from './shared';
+import { clearError, renderTextResult, showError } from '@/components/workbench/shared';
 
 /** How often the recorder hands over a chunk of the recording (ms). */
 const CHUNK_MS = 1000;

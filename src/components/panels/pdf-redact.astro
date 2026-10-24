@@ -1,0 +1,176 @@
+---
+/**
+ * The PDF redaction workbench: choose a PDF, pick a page, draw black rectangles
+ * over the content that must be destroyed, then export a new PDF.
+ *
+ * A black box drawn over text is **not** redaction — the text layer underneath
+ * is still selectable and copyable. So the covered pages are rasterised to
+ * images and the boxes burned in (in `pdf-redact.tool.ts`), which destroys the
+ * underlying content for good. Pages left untouched keep their text.
+ *
+ * The generic file workbench cannot express "draw rectangles on a page
+ * preview", so the tool opts into this panel via `meta.panel = 'pdf-redact'`.
+ *
+ * The root carries no `data-file-workbench` on purpose: `FileWorkbench.astro`'s
+ * script binds to every `[data-file-workbench]` root and would attach a second
+ * drop zone and run handler this panel does not have. Panel tools are marked by
+ * `PanelWorkbench` with `data-panel-workbench` instead.
+ */
+import type { ToolMeta } from '@/lib/types';
+import OptionsFields from '../workbench/OptionsFields.astro';
+import Icon from '@/components/Icon.astro';
+
+interface Props {
+  meta: ToolMeta;
+}
+const { meta } = Astro.props;
+const p = meta.id;
+const options = meta.options ?? [];
+---
+
+<section
+  class="surface rounded-lg p-4 sm:p-6"
+  data-pdf-redact-panel
+  data-tool-id={meta.id}
+  data-accept={meta.accept ?? ''}
+  data-multiple="false"
+  aria-label={`${meta.name} workbench`}
+>
+  <div
+    class="rounded-lg border px-3 py-2 text-sm"
+    style="background-color: rgb(var(--warning-soft)); border-color: rgb(var(--warning))"
+    role="note"
+  >
+    <strong class="font-semibold">A black box over the text is not redaction.</strong>
+    A viewer can still select and copy the words underneath unless the page is flattened.
+    This tool rasterises every page you mark and burns the boxes into the pixels, so the hidden
+    content is destroyed — those pages lose their text layer and are no longer searchable. Pages
+    you leave alone keep their text. Keep a copy of the original file.
+  </div>
+
+  <h2 class="mt-6 text-base font-semibold text-[rgb(var(--text))]">1 · Choose the PDF</h2>
+  <div
+    class="drop-zone mt-3 flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed px-4 py-8 text-center transition-colors"
+    data-drop
+    role="button"
+    tabindex="0"
+    aria-label="Choose a PDF file or drop it here"
+  >
+    <Icon name="file-text" size={26} class="opacity-60" />
+    <p class="text-sm font-medium">Drop a PDF here, or <span class="link">browse</span></p>
+    <p class="text-xs text-[rgb(var(--text-muted))]">The file never leaves your device.</p>
+  </div>
+  <ul class="mt-3 space-y-1.5 text-sm" data-file-list></ul>
+
+  <h2 class="mt-6 text-base font-semibold text-[rgb(var(--text))]">2 · Mark what to hide</h2>
+  <p class="mt-1.5 max-w-prose text-sm leading-relaxed text-[rgb(var(--text-muted))]">
+    Pick a page, then drag on the preview to draw a rectangle over the content that must be
+    destroyed. Tab to a rectangle and use the arrow keys to move it (hold Shift for bigger steps),
+    <kbd>+</kbd> / <kbd>-</kbd> to resize it and Delete to remove it. Every rectangle is listed
+    below with number fields, so it can be placed without a mouse.
+  </p>
+
+  <div class="mt-3 flex flex-wrap gap-1.5" data-page-tabs aria-label="PDF pages"></div>
+
+  <div class="mt-3" hidden data-stage-wrap>
+    <div
+      class="relative inline-block max-w-full touch-none select-none rounded-lg border"
+      data-stage
+    >
+      <canvas class="block h-auto max-w-full rounded-lg" data-preview role="img"
+        aria-label="Preview of the page being redacted"></canvas>
+      <div class="absolute inset-0" data-overlay>
+        <div
+          class="pointer-events-none absolute hidden border-2 border-dashed border-[rgb(var(--accent))] bg-[rgb(var(--accent))]/20"
+          data-marquee
+        >
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-3 flex flex-wrap items-center gap-2">
+      <button type="button" class="btn btn-subtle btn-sm" data-add-region>Add a region</button>
+      <button type="button" class="btn btn-subtle btn-sm" data-clear-regions>Clear this page</button>
+    </div>
+
+    <ul class="mt-3 space-y-2" data-region-list></ul>
+  </div>
+
+  <p
+    class="mt-3 text-sm text-[rgb(var(--text-muted))]"
+    data-page-status
+    role="status"
+    aria-live="polite"
+  >
+    Choose a PDF to start redacting.
+  </p>
+
+  <h2 class="mt-6 text-base font-semibold text-[rgb(var(--text))]">3 · Options</h2>
+  <div class="mt-3">
+    <OptionsFields options={options} idPrefix={p} />
+  </div>
+
+  <div class="mt-4 flex flex-wrap items-center gap-2.5">
+    <button type="button" class="btn btn-primary" data-run disabled>
+      <Icon name="shield-check" size={16} /> Redact &amp; export
+    </button>
+    <button type="button" class="btn btn-ghost" data-cancel hidden>Cancel</button>
+    <button type="button" class="btn btn-ghost" data-reset hidden>Reset</button>
+  </div>
+
+  <div class="mt-3" hidden data-progress-wrap>
+    <div class="h-2 overflow-hidden rounded-full" style="background-color: rgb(var(--bg-inset))">
+      <div
+        class="h-full transition-[width] duration-200 ease-out motion-reduce:transition-none"
+        style="width:0%; background-color: rgb(var(--accent))"
+        data-progress-bar
+      >
+      </div>
+    </div>
+    <p
+      class="mt-1 text-xs tabular-nums text-[rgb(var(--text-muted))]"
+      data-progress-msg
+      aria-live="polite"
+    >
+    </p>
+  </div>
+
+  <div
+    class="mt-4 rounded-lg border px-3 py-2 text-sm"
+    style="background-color: rgb(var(--danger-soft)); border-color: rgb(var(--danger)); color: rgb(var(--danger))"
+    role="alert"
+    data-error
+    hidden
+  >
+  </div>
+
+  <div class="mt-4" hidden data-result-wrap>
+    <div class="mb-2 flex items-center justify-between">
+      <span class="text-sm font-semibold text-[rgb(var(--text))]">Results</span>
+    </div>
+    <ul class="space-y-2" data-outputs></ul>
+    <ul class="mt-2 space-y-1 text-xs" data-notes></ul>
+  </div>
+
+  <noscript>
+    <p class="mt-4 text-sm">
+      Redacting a PDF needs JavaScript: the pages are rendered and rebuilt in your browser, so it
+      cannot run without it.
+    </p>
+  </noscript>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-pdf-redact-panel]').forEach((root) => {
+    // Loaded on demand: only this tool's page downloads the drawing code.
+    void import('./pdf-redact-panel')
+      .then(({ mountPdfRedactPanel }) => mountPdfRedactPanel(root))
+      .catch(() => {
+        const error = root.querySelector<HTMLElement>('[data-error]');
+        if (error) {
+          error.hidden = false;
+          error.textContent = 'The redaction panel could not be loaded. Reload the page to retry.';
+        }
+      });
+  });
+</script>

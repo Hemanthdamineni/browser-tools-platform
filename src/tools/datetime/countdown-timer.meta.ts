@@ -4,7 +4,8 @@ export const meta: ToolMeta = {
   id: 'countdown-timer',
   name: 'Countdown Timer',
   category: 'datetime',
-  summary: 'Run several countdown timers at once, each with a sound and an optional notification when it ends.',
+  summary:
+    'Run several countdown timers at once, each with a sound and an optional notification when it ends.',
   description:
     'Keep more than one countdown going at the same time — a tea timer, a pasta timer, a meeting timer — and see the remaining time for each at a glance. Every timer runs from an absolute deadline, so it still finishes at the right moment even if the tab is in the background, and you can pause, resume, restart or remove any of them. Nothing is uploaded and nothing is stored.',
   keywords: [
@@ -16,8 +17,8 @@ export const meta: ToolMeta = {
     'timer with alarm',
     'kitchen timer',
     'egg timer',
-    'stopwatch alternative',
     'timer sound',
+    'timer notification',
   ],
   privacy: { processing: 'on-device', network: 'none', offline: true },
   input: 'text',
@@ -34,14 +35,14 @@ export const meta: ToolMeta = {
         { value: 'clock', label: 'Clock — 02:30' },
         { value: 'words', label: 'Words — 2 minutes 30 seconds' },
       ],
-      help: 'How the summary table below the timers writes each duration.',
+      help: 'How the summary table under the timers writes each duration.',
     },
     {
       key: 'sound',
       label: 'Beep when a timer finishes',
       type: 'boolean',
       default: true,
-      help: 'Plays a short synthesised chime. It is generated in the browser, so nothing is downloaded.',
+      help: 'Plays a short chime. It is generated in the browser, so nothing is downloaded.',
     },
     {
       key: 'notify',
@@ -51,8 +52,8 @@ export const meta: ToolMeta = {
       help: 'The browser asks for permission the first time you switch this on, and only then.',
     },
   ],
-  // A panel tool's examples are one-click panel actions: each adds a timer with
-  // that duration (a name may come first, as in `Tea 3m`).
+  // Each example adds a timer straight away; a name may come first, as in
+  // `Tea 3m`. The presets are the other one-click starting points.
   examples: [
     { title: 'Tea — 3 minutes', input: 'Tea 3m' },
     { title: 'Eggs — 90 seconds', input: 'Eggs 90s' },
@@ -61,7 +62,7 @@ export const meta: ToolMeta = {
   faq: [
     {
       q: 'Does a countdown keep running when I switch tabs?',
-      a: 'Yes. Each timer stores the moment it should finish, and the remaining time is worked out from the clock again on every tick. Background tabs are slowed down by the browser, but the timer still ends at the right second — and it catches up the instant you come back to the tab.',
+      a: 'Yes. Each timer stores the moment it should finish, and the remaining time is worked out from the clock on every tick. Background tabs are slowed down by the browser, but the timer still ends at the right second — and it catches up the instant you come back to the tab.',
     },
     {
       q: 'Can I run more than one timer at a time?',
@@ -69,11 +70,11 @@ export const meta: ToolMeta = {
     },
     {
       q: 'How does the sound work, and is anything downloaded?',
-      a: 'The chime is synthesised in the browser with the Web Audio API, so there is no audio file to download and no network request. If your browser blocks audio until you interact with the page, add a timer once and the sound is unlocked for the rest of the visit.',
+      a: 'The chime is generated in the browser with the Web Audio API, so there is no audio file to download and no network request. If your browser blocks audio until you interact with the page, add a timer once and the sound is unlocked for the rest of the visit.',
     },
     {
       q: 'Will I get a notification when a timer finishes?',
-      a: 'Only if you switch notifications on. The permission prompt appears the moment you tick the box, never before, and you can turn it off again at any time. If you leave it off, the timer still beeps and still shows the finished state on screen.',
+      a: 'Only if you switch notifications on. The permission prompt appears the moment you tick the box, never before, and you can turn it off again at any time. With it off, the timer still beeps and still shows the finished state on screen.',
     },
     {
       q: 'Are my timers saved?',
@@ -83,23 +84,23 @@ export const meta: ToolMeta = {
   article: [
     {
       heading: 'What this timer does',
-      body: 'Add a duration in seconds, minutes and hours — 90s, 2m30s, 1h5m or 5:00 all work — and it starts counting down immediately. Name a timer by putting the name first ("Tea 3m"), or use the presets for one, three, five and ten minutes. Each running timer shows its remaining time in large figures, and can be paused, resumed, restarted or removed on its own; several timers can run side by side without interfering with each other.',
+      body: 'Add a duration — 90s, 2m30s, 1h5m and 5:00 all work — and it starts counting down at once. Name a timer by writing the name first (Tea 3m), or use the one, three, five and ten minute presets. Several timers run side by side, each with its own Pause, Resume, Restart and Remove controls.',
     },
     {
       heading: 'Why the deadline matters',
-      body: 'The timer does not count ticks; it records the exact moment it should finish and works out what is left from the clock every quarter of a second. That is what makes it trustworthy in a background tab: browsers deliberately slow timers in tabs you are not looking at, so a counter that simply added up its own ticks would drift. Here a sleeping tab wakes up already expired, and the chime and notification fire as soon as the page runs again.',
+      body: 'The timer records the exact moment each countdown should end and derives what is left from the clock, rather than counting its own ticks. Browsers slow down timers in tabs you are not watching, so a tick-counting timer would drift; here a sleeping tab wakes up already expired and the alerts fire immediately.',
     },
     {
       heading: 'Sound and notifications',
-      body: 'When a timer reaches zero the panel beeps — a short two-tone chime built with the Web Audio API, so there is no asset file and nothing to download. Tick the notification box and the browser will also raise a desktop notification, but only after you ask for it: the permission prompt appears on that click alone. Both alerts can be switched off, and the finished timer stays on screen until you restart or remove it.',
+      body: 'When a timer reaches zero the panel beeps — a short two-tone chime built with the Web Audio API, so there is no asset file and nothing to download. Tick the notification box and your browser also raises a desktop notification, but only after you ask: the permission prompt appears on that click alone.',
     },
     {
       heading: 'Reading the summary',
-      body: 'Below the timers, a summary table lists each one with the duration you set, what is left and whether it is running, paused or finished, in either clock form (02:30) or words (2 minutes 30 seconds). It is handy when several timers are going at once and you want to check the whole picture in one place, and it is plain text you can copy out.',
+      body: 'A summary table lists every timer with the duration you set, what is left, and whether it is running, paused or finished — in clock form (02:30) or in words (2 minutes 30 seconds).',
     },
     {
       heading: 'Privacy',
-      body: 'Everything happens in this tab. Durations, names and remaining times are held in memory only, never written to storage and never sent anywhere. The chime is generated locally, notifications are issued by your own browser, and the page keeps working with no network connection at all.',
+      body: 'Everything happens in this tab. Durations, names and remaining times are held in memory only, never written to storage and never sent anywhere. The chime is generated locally and notifications are issued by your own browser, so the page keeps working offline.',
     },
   ],
   related: ['duration-convert', 'timestamp', 'date-add', 'world-clock'],

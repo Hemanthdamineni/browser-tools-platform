@@ -82,7 +82,7 @@ const p = meta.id;
           min="0"
           max="100"
           step="0.1"
-          value="46.9"
+          value="44.8"
           data-sp-frequency-slider
           aria-label="Frequency, logarithmic"
         />
@@ -229,6 +229,18 @@ const p = meta.id;
     </p>
   </noscript>
 </section>
+
+<style>
+  /*
+   * `.btn` sets `display: inline-flex` in the components layer, which beats
+   * Tailwind's base-layer `[hidden] { display: none }` — so the hidden Stop
+   * button would still be on screen. This panel toggles `hidden` on buttons, so
+   * the attribute has to win here.
+   */
+  [hidden] {
+    display: none !important;
+  }
+</style>
 
 <script>
   document.querySelectorAll<HTMLElement>('[data-speaker-panel]').forEach((panel) => {

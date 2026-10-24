@@ -91,7 +91,21 @@ export const meta: ToolMeta = {
       help: 'One centisecond delay per frame, in order — e.g. [10, 5, 20]. Empty uses the default delay.',
     },
   ],
-  examples: [{ title: 'Assemble frames into an animation' }],
+  examples: [
+    { title: 'Assemble frames into an animation' },
+    {
+      title: 'Small, fast-loading clip',
+      options: { width: 320, sizeLimit: 2, palette: 'small', loop: 0 },
+    },
+    {
+      title: 'High-quality seamless loop',
+      options: { width: 640, sizeLimit: 8, palette: 'high', loop: 0 },
+    },
+    {
+      title: 'Play exactly five times',
+      options: { loop: 5, palette: 'balanced' },
+    },
+  ],
   article: [
     {
       heading: 'What the GIF maker does',

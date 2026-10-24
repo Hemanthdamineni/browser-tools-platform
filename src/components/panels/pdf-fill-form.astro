@@ -1,0 +1,119 @@
+---
+/**
+ * The fill-form workbench.
+ *
+ * Filling a form is a per-field interaction — type into the boxes, tick the
+ * checkboxes, pick the radio options — so the generic option form cannot
+ * express it. This panel reads the chosen PDF with pdf-lib, enumerates the
+ * editable AcroForm fields and renders one input per field; the values are then
+ * handed to `pdf-fill-form.tool.ts` in a Web Worker, which flattens the form
+ * and returns the filled PDF.
+ *
+ * The root carries its own `data-pdf-fill-form-panel` marker plus the
+ * `data-tool-id` / `data-accept` markers the workbench convention uses. It
+ * deliberately does NOT carry `data-file-workbench`: `FileWorkbench.astro`
+ * binds the generic file behaviour to every `[data-file-workbench]` root and
+ * would attach a second runner to the same buttons. Panel pages are covered by
+ * `PanelWorkbench`'s `data-panel-workbench` wrapper instead.
+ */
+import type { ToolMeta } from '@/lib/types';
+import Icon from '@/components/Icon.astro';
+
+interface Props {
+  meta: ToolMeta;
+}
+const { meta } = Astro.props;
+---
+
+<section
+  class="surface rounded-lg p-4 sm:p-6"
+  data-pdf-fill-form-panel
+  data-tool-id={meta.id}
+  data-accept={meta.accept ?? ''}
+  data-multiple="false"
+  aria-label={`${meta.name} workbench`}
+>
+  <h2 class="text-base font-semibold text-[rgb(var(--text))]">1 · Choose the PDF</h2>
+  <div
+    class="drop-zone mt-3 flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed px-4 py-8 text-center transition-colors"
+    data-drop
+    role="button"
+    tabindex="0"
+    aria-label="Choose a PDF file or drop it here"
+  >
+    <Icon name="file-text" size={26} class="opacity-60" />
+    <p class="text-sm font-medium">Drop a PDF here, or <span class="link">browse</span></p>
+    <p class="text-xs text-[rgb(var(--text-muted))]">The file never leaves your device.</p>
+  </div>
+  <ul class="mt-3 space-y-1.5 text-sm" data-file-list></ul>
+
+  <h2 class="mt-6 text-base font-semibold text-[rgb(var(--text))]">2 · Fill the fields</h2>
+  <p
+    class="mt-1 text-xs text-[rgb(var(--text-muted))]"
+    data-field-status
+    role="status"
+    aria-live="polite"
+  >
+  </p>
+  <div class="mt-3 grid gap-4 sm:grid-cols-2" data-fields></div>
+
+  <div class="mt-5 flex flex-wrap items-center gap-2.5">
+    <button type="button" class="btn btn-primary" data-run disabled>
+      <Icon name="zap" size={16} /> Fill and flatten form
+    </button>
+    <button type="button" class="btn btn-ghost" data-cancel hidden>Cancel</button>
+    <button type="button" class="btn btn-ghost" data-reset hidden>Reset</button>
+  </div>
+
+  <div class="mt-3" hidden data-progress-wrap>
+    <div class="h-2 overflow-hidden rounded-full" style="background-color: rgb(var(--bg-inset))">
+      <div
+        class="h-full transition-[width] duration-200 ease-out"
+        style="width:0%; background-color: rgb(var(--accent))"
+        data-progress-bar
+      >
+      </div>
+    </div>
+    <p
+      class="mt-1 text-xs tabular-nums text-[rgb(var(--text-muted))]"
+      data-progress-msg
+      aria-live="polite"
+    >
+    </p>
+  </div>
+
+  <div
+    class="mt-4 rounded-lg border px-3 py-2 text-sm"
+    style="background-color: rgb(var(--danger-soft)); border-color: rgb(var(--danger)); color: rgb(var(--danger))"
+    role="alert"
+    data-error
+    hidden
+  >
+  </div>
+
+  <div class="mt-4" hidden data-result-wrap>
+    <ul class="space-y-2" data-outputs></ul>
+    <ul class="mt-2 space-y-1 text-xs" data-notes></ul>
+  </div>
+
+  <noscript>
+    <p class="mt-3 text-sm text-[rgb(var(--text-muted))]">
+      Filling the form needs JavaScript. You can still fill the PDF in a desktop
+      application instead.
+    </p>
+  </noscript>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-pdf-fill-form-panel]').forEach((root) => {
+    void import('./pdf-fill-form-panel')
+      .then(({ mountPdfFillFormPanel }) => mountPdfFillFormPanel(root))
+      .catch(() => {
+        const error = root.querySelector<HTMLElement>('[data-error]');
+        if (error) {
+          error.hidden = false;
+          error.textContent = 'The fill-form panel could not be loaded in this browser.';
+        }
+      });
+  });
+</script>

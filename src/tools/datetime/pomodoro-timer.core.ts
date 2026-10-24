@@ -242,11 +242,7 @@ export function catchUp(
  * phase), a paused phase keeps what is left of it, and an idle timer adopts the
  * new work length straight away.
  */
-export function applySettings(
-  session: StoredSession,
-  settings: PomodoroSettings,
-  now: number,
-): StoredSession {
+export function applySettings(session: StoredSession, settings: PomodoroSettings): StoredSession {
   if (session.state.phase === 'idle') {
     return {
       state: session.state,
@@ -257,7 +253,7 @@ export function applySettings(
   }
   if (session.running) return session;
   const left = Math.min(session.remaining, phaseDurationMs(settings, session.state.phase));
-  return { ...session, remaining: left, endAt: now + left, running: false };
+  return { ...session, remaining: left, endAt: null, running: false };
 }
 
 /** A readable label for a phase. */

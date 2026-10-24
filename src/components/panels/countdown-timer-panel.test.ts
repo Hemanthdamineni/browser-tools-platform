@@ -33,7 +33,10 @@ function fixture(): HTMLElement {
     <div data-preset-row><button data-preset="60">1 min</button></div>
     <div data-example-row><button data-example data-example-entry="Tea 3m">Tea</button></div>
     <div data-timer-status></div>
-    <div data-result-wrap hidden><div data-timer-summary></div><ul data-timer-notes></ul></div>
+    <div data-result-wrap>
+      <p data-timer-empty>No timers yet</p>
+      <div data-timer-summary-wrap hidden><div data-timer-summary></div><ul data-timer-notes></ul></div>
+    </div>
     <input type="checkbox" data-sound checked>
     <input type="checkbox" data-notify>
     <select data-format>
@@ -95,7 +98,10 @@ describe('parseTimerEntry', () => {
   });
 
   it('treats a spaced multi-unit duration as one duration, not a name', () => {
-    expect(parseTimerEntry('1h 30m', 'Timer 1')).toEqual({ label: 'Timer 1', durationMs: 5_400_000 });
+    expect(parseTimerEntry('1h 30m', 'Timer 1')).toEqual({
+      label: 'Timer 1',
+      durationMs: 5_400_000,
+    });
   });
 
   it('rejects a name with no usable duration', () => {
@@ -250,7 +256,8 @@ describe('panel mounting', () => {
       text: expect.stringContaining('"label":"Tea"'),
       options: { format: 'clock', sound: true, notify: false },
     });
-    expect(root.querySelector<HTMLElement>('[data-result-wrap]')!.hidden).toBe(false);
+    expect(root.querySelector<HTMLElement>('[data-timer-summary-wrap]')!.hidden).toBe(false);
+    expect(root.querySelector<HTMLElement>('[data-timer-empty]')!.hidden).toBe(true);
     root.remove();
   });
 
@@ -263,6 +270,19 @@ describe('panel mounting', () => {
     const rows = root.querySelectorAll<HTMLElement>('[data-timer-list] li');
     expect(rows.length).toBe(1);
     expect(rows[0]!.textContent).toContain('01:00');
+    root.remove();
+  });
+
+  it('adds a timer from an example chip', () => {
+    const root = fixture();
+    document.body.append(root);
+    mountCountdownTimerPanel(root);
+
+    root.querySelector<HTMLButtonElement>('[data-example]')!.click();
+    const rows = root.querySelectorAll<HTMLElement>('[data-timer-list] li');
+    expect(rows.length).toBe(1);
+    expect(rows[0]!.textContent).toContain('Tea');
+    expect(rows[0]!.textContent).toContain('03:00');
     root.remove();
   });
 
@@ -282,7 +302,7 @@ describe('panel mounting', () => {
     root.remove();
   });
 
-  it('pauses and resumes a timer without losing its remaining time', () => {
+  it('pauses and resumes a timer without losing its remaining time', async () => {
     const root = fixture();
     document.body.append(root);
     mountCountdownTimerPanel(root);
@@ -296,12 +316,14 @@ describe('panel mounting', () => {
     expect(root.querySelector<HTMLElement>('[data-timer-remaining]')!.textContent).toBe('00:50');
     expect(root.querySelector<HTMLElement>('[data-timer-status]')!.textContent).toMatch(/paused/);
 
-    // Time keeps passing, but a paused timer does not move.
-    vi.setSystemTime(Date.now() + 30_000);
+    // Time keeps passing and the panel keeps repainting, but a paused timer
+    // must not lose a second of what it had left.
+    await vi.advanceTimersByTimeAsync(30_000);
     expect(root.querySelector<HTMLElement>('[data-timer-remaining]')!.textContent).toBe('00:50');
 
     root.querySelector<HTMLButtonElement>('[data-timer-list] li button')!.click();
     expect(root.querySelector<HTMLElement>('[data-timer-status]')!.textContent).toMatch(/resumed/);
+    expect(root.querySelector<HTMLElement>('[data-timer-remaining]')!.textContent).toBe('00:50');
     root.remove();
   });
 

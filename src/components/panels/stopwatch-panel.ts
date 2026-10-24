@@ -279,7 +279,15 @@ export function mountStopwatchPanel(root: HTMLElement): void {
     }
     for (const row of rows) {
       const li = document.createElement('li');
-      li.className = 'flex items-baseline gap-3 rounded-md border px-3 py-1.5 text-sm';
+      let liClass = 'flex items-baseline gap-3 rounded-md border px-3 py-1.5 text-sm';
+      if (row.fastest || row.slowest) {
+        liClass +=
+          ' border-[rgb(var(--accent))] bg-[rgb(var(--accent-soft))]';
+      }
+      if (row.slowest) {
+        liClass += ' border-[rgb(var(--danger))] bg-[rgb(var(--danger-soft))]';
+      }
+      li.className = liClass;
       li.dataset.fastest = String(row.fastest);
       li.dataset.slowest = String(row.slowest);
       const num = document.createElement('span');
@@ -288,10 +296,14 @@ export function mountStopwatchPanel(root: HTMLElement): void {
       li.append(num);
       if (row.fastest || row.slowest) {
         const tag = document.createElement('span');
-        tag.className = 'text-[0.65rem] font-semibold uppercase tracking-wide';
-        tag.dataset.tag = row.fastest && row.slowest ? 'both' : row.fastest ? 'fastest' : 'slowest';
-        tag.textContent =
-          row.fastest && row.slowest ? 'fastest · slowest' : row.fastest ? 'fastest' : 'slowest';
+        const both = row.fastest && row.slowest;
+        const label = both ? 'fastest · slowest' : row.fastest ? 'fastest' : 'slowest';
+        tag.className = [
+          'text-[0.65rem] font-semibold uppercase tracking-wide',
+          both || row.fastest ? 'text-[rgb(var(--accent-strong))]' : 'text-[rgb(var(--danger))]',
+        ].join(' ');
+        tag.dataset.tag = both ? 'both' : row.fastest ? 'fastest' : 'slowest';
+        tag.textContent = label;
         li.append(tag);
       }
       const val = document.createElement('span');

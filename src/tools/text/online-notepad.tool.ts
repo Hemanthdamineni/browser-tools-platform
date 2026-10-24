@@ -1,4 +1,4 @@
-import type { OptionValues, TextRunInput, TextRunResult, TextToolModule } from '@/lib/types';
+import type { TextRunInput, TextRunResult, TextToolModule } from '@/lib/types';
 import { resolveOptions } from '@/lib/options';
 import { slugify } from '@/lib/format';
 import { meta } from './online-notepad.meta';

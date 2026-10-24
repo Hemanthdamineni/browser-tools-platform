@@ -86,9 +86,8 @@ export async function runVoiceRecorder(input: FileRunInput): Promise<FileRunResu
 
   input.onProgress?.(0.4, 'Reading the take');
 
-  const format = (formatForMimeType(file.type) ??
-    formatFromFileName(file.name) ??
-    requestedFormat(o.format)) as RecordingFormat;
+  const detected = formatForMimeType(file.type) ?? formatFromFileName(file.name);
+  const format: RecordingFormat = detected ?? requestedFormat(o.format);
   const duration = Number(o.duration);
   const durationSeconds = Number.isFinite(duration) && duration > 0 ? duration : 0;
 

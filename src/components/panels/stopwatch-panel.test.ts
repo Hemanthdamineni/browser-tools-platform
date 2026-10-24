@@ -154,10 +154,27 @@ describe('copyAllText', () => {
 });
 
 describe('mountStopwatchPanel', () => {
+  let clock = 0;
+  let frames: Array<(time: number) => void> = [];
+
+  /** Run the pending animation frame(s) with the current clock. */
+  function fireFrame(): void {
+    const pending = frames;
+    frames = [];
+    for (const cb of pending) cb(clock);
+  }
+
   beforeEach(() => {
-    vi.spyOn(performance, 'now').mockReturnValue(0);
-    // Drive the panel's readout synchronously; the real rAF would use the real clock.
-    vi.stubGlobal('requestAnimationFrame', () => 0);
+    clock = 0;
+    frames = [];
+    // Timers are faked so the debounced report refresh never fires mid-test;
+    // `performance` and rAF are stubbed because vitest does not fake those.
+    vi.useFakeTimers();
+    vi.stubGlobal('performance', Object.create(performance, { now: { value: () => clock } }));
+    vi.stubGlobal('requestAnimationFrame', (cb: (time: number) => void) => {
+      frames.push(cb);
+      return frames.length;
+    });
     vi.stubGlobal('cancelAnimationFrame', () => undefined);
     runToolByIdMock.mockReset();
     runToolByIdMock.mockResolvedValue({
@@ -169,6 +186,8 @@ describe('mountStopwatchPanel', () => {
   });
 
   afterEach(() => {
+    vi.clearAllTimers();
+    vi.useRealTimers();
     vi.unstubAllGlobals();
     vi.restoreAllMocks();
   });
@@ -184,7 +203,7 @@ describe('mountStopwatchPanel', () => {
     expect(readout.textContent).toBe('00:00:00.000');
     expect(lap.disabled).toBe(true);
 
-    vi.spyOn(performance, 'now').mockReturnValue(5000);
+    clock = 5000;
     start.click();
     expect(start.textContent).toBe('Pause');
     expect(lap.disabled).toBe(false);
@@ -192,7 +211,7 @@ describe('mountStopwatchPanel', () => {
     expect(readout.textContent).toBe('00:00:00.000');
 
     // Three seconds later, take a lap: split and total both read 3s.
-    vi.spyOn(performance, 'now').mockReturnValue(8000);
+    clock = 8000;
     lap.click();
     const rows = root.querySelectorAll('[data-sw-laps] li');
     expect(rows).toHaveLength(1);
@@ -200,7 +219,7 @@ describe('mountStopwatchPanel', () => {
     expect(readout.textContent).toBe('00:00:03.000');
 
     // Pause one second later: the run has banked 4s.
-    vi.spyOn(performance, 'now').mockReturnValue(9000);
+    clock = 9000;
     start.click();
     expect(start.textContent).toBe('Start');
     expect(readout.textContent).toBe('00:00:04.000');
@@ -213,7 +232,7 @@ describe('mountStopwatchPanel', () => {
     const start = root.querySelector<HTMLButtonElement>('[data-sw-start]')!;
     const reset = root.querySelector<HTMLButtonElement>('[data-sw-reset]')!;
 
-    vi.spyOn(performance, 'now').mockReturnValue(4000);
+    clock = 4000;
     start.click();
     reset.click();
     expect(readout.textContent).toBe('00:00:00.000');
@@ -226,18 +245,35 @@ describe('mountStopwatchPanel', () => {
     const readout = root.querySelector<HTMLElement>('[data-sw-readout]')!;
     const start = root.querySelector<HTMLButtonElement>('[data-sw-start]')!;
 
-    vi.spyOn(performance, 'now').mockReturnValue(3000);
+    clock = 3000;
     document.dispatchEvent(new KeyboardEvent('keydown', { code: 'Space', key: ' ' }));
     expect(start.textContent).toBe('Pause');
-    expect(readout.textContent).toBe('00:00:03.000');
 
+    // Three seconds later, L records a lap with a 3s split.
+    clock = 6000;
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'l' }));
     expect(root.querySelectorAll('[data-sw-laps] li')).toHaveLength(1);
 
-    vi.spyOn(performance, 'now').mockReturnValue(7000);
+    // Space again one second later pauses with 4s banked.
+    clock = 7000;
     document.dispatchEvent(new KeyboardEvent('keydown', { code: 'Space', key: ' ' }));
     expect(start.textContent).toBe('Start');
-    expect(readout.textContent).toBe('00:00:07.000');
+    expect(readout.textContent).toBe('00:00:04.000');
+  });
+
+  it('keeps the readout live on each animation frame while running', () => {
+    const root = fixture();
+    mountStopwatchPanel(root);
+    const readout = root.querySelector<HTMLElement>('[data-sw-readout]')!;
+    const start = root.querySelector<HTMLButtonElement>('[data-sw-start]')!;
+
+    clock = 1000;
+    start.click();
+    // Two seconds pass between frames (a sleeping tab would jump much further);
+    // the frame recomputes from the timestamps rather than counting ticks.
+    clock = 900_000;
+    fireFrame();
+    expect(readout.textContent).toBe('00:14:59.000');
   });
 
   it('ignores shortcuts while typing in a field', () => {

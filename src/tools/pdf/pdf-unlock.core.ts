@@ -193,10 +193,7 @@ export function buildDecryptArgs(
  * versus a corrupt or unsupported file (say so, with qpdf's own line as the
  * hint). Every other refusal falls back to a neutral message.
  */
-export function classifyDecryptFailure(
-  stderr: string[],
-  exitCode: number,
-): DecryptFailure {
+export function classifyDecryptFailure(stderr: string[], exitCode: number): DecryptFailure {
   const lines = stderr
     .map((line) =>
       line
@@ -207,7 +204,11 @@ export function classifyDecryptFailure(
     .filter(Boolean);
   const first = lines[0] ?? '';
 
-  if (/invalid password|incorrect password|password (is )?wrong|wrong password|password.*does not match|authentication/i.test(first)) {
+  if (
+    /invalid password|incorrect password|password (is )?wrong|wrong password|password.*does not match|authentication/i.test(
+      first,
+    )
+  ) {
     return {
       kind: 'wrong-password',
       message: 'The password is wrong.',
@@ -228,7 +229,11 @@ export function classifyDecryptFailure(
       hint: 'The engine could not find a PDF header in it.',
     };
   }
-  if (/can't find startxref|unable to find trailer|xref|damaged|damage|corrupt|unsupported|encryption dictionary/i.test(first)) {
+  if (
+    /can't find startxref|unable to find trailer|xref|damaged|damage|corrupt|unsupported|encryption dictionary/i.test(
+      first,
+    )
+  ) {
     return {
       kind: 'corrupt',
       message: 'This PDF is damaged or uses an encryption scheme this engine cannot read.',

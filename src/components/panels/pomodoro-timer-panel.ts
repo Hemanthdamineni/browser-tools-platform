@@ -123,9 +123,24 @@ export function mountPomodoroTimerPanel(root: HTMLElement): void {
 
   const settingsFromForm = (): PomodoroSettings => normalizeSettings(readOptions(root));
 
+  /** Write the persisted settings back into the form the first time we mount. */
+  function populateForm(): void {
+    for (const input of root.querySelectorAll<HTMLElement>('[data-opt-key]')) {
+      const key = input.dataset.optKey;
+      if (!key || !(key in settings)) continue;
+      const value = settings[key as keyof PomodoroSettings];
+      if (typeof value === 'boolean') {
+        (input as HTMLInputElement).checked = value;
+      } else if (typeof value === 'number') {
+        (input as HTMLInputElement).value = String(value);
+      }
+    }
+  }
+
   function render(): void {
-    const total = phaseDurationMs(settings, session.state.phase);
-    const remaining = remainingFor(session, Date.now());
+    const idle = session.state.phase === 'idle';
+    const total = idle ? phaseDurationMs(settings, 'working') : phaseDurationMs(settings, session.state.phase);
+    const remaining = idle ? total : remainingFor(session, Date.now());
     clock.textContent = formatClock(remaining);
     phaseEl.textContent = phaseLabel(session.state.phase);
 
@@ -138,7 +153,7 @@ export function mountPomodoroTimerPanel(root: HTMLElement): void {
     startBtn.disabled = session.running;
     pauseBtn.disabled = !session.running;
     pauseBtn.textContent = session.running ? 'Pause' : 'Resume';
-    resetBtn.disabled = session.state.phase === 'idle' && !session.running;
+    resetBtn.disabled = idle && !session.running;
 
     if (session.state.phase === 'idle') {
       statusEl.textContent = 'Ready — press Start to begin a work phase.';
@@ -175,6 +190,7 @@ export function mountPomodoroTimerPanel(root: HTMLElement): void {
         options: { ...settings },
       });
       renderTextResult(reportEl, result);
+      reportEl.hidden = false;
       resultWrap.hidden = false;
       statsEl.replaceChildren();
       for (const [key, value] of Object.entries(result.stats ?? {})) {
@@ -233,6 +249,7 @@ export function mountPomodoroTimerPanel(root: HTMLElement): void {
     if (session.state.phase !== previous) announce(previous, session.state.phase);
     persist();
     render();
+    void refreshReport();
   }
 
   function pause(): void {
@@ -288,7 +305,7 @@ export function mountPomodoroTimerPanel(root: HTMLElement): void {
   for (const input of root.querySelectorAll<HTMLElement>('[data-opt-key]')) {
     input.addEventListener('change', () => {
       settings = settingsFromForm();
-      session = applySettings(session, settings, Date.now());
+      session = applySettings(session, settings);
       writeStorage(SETTINGS_KEY, JSON.stringify(settings));
       persist();
       render();
@@ -310,5 +327,6 @@ export function mountPomodoroTimerPanel(root: HTMLElement): void {
   }
 
   render();
+  populateForm();
   window.setInterval(tick, TICK_MS);
 }

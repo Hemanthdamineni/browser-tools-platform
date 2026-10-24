@@ -240,19 +240,53 @@ export function resolveSheetName(wb: WorkBook, sheetOption: unknown): string {
 }
 
 /* -------------------------------------------------------------------------- */
+/*  File kinds                                                                 */
+/* -------------------------------------------------------------------------- */
+
+/** Extensions SheetJS can read as a workbook. */
+export const SPREADSHEET_EXTENSIONS = ['xlsx', 'xlsm', 'xlsb', 'xls', 'ods', 'csv', 'tsv'];
+
+/**
+ * Whether a file name looks like a spreadsheet this tool can open.
+ *
+ * SheetJS parses almost any bytes as CSV rather than failing, so a text file
+ * with the wrong extension would silently become a one-cell workbook. Checking
+ * the name keeps that from happening.
+ */
+export function isSpreadsheetName(name: string): boolean {
+  const match = /\.([A-Za-z0-9]+)$/.exec(name ?? '');
+  return match ? SPREADSHEET_EXTENSIONS.includes(match[1]!.toLowerCase()) : false;
+}
+
+/* -------------------------------------------------------------------------- */
 /*  SheetJS                                                                    */
 /* -------------------------------------------------------------------------- */
 
-let xlsxPromise: Promise<typeof import('xlsx')> | null = null;
+/** The slice of SheetJS this panel calls — `read` — loaded on demand. */
+interface XlsxModule {
+  read(data: Uint8Array, options: { type: 'array' }): WorkBook;
+}
 
-/** Load SheetJS once. It is a bundled local module — nothing is fetched. */
-function loadXlsx(): Promise<typeof import('xlsx')> {
+let xlsxPromise: Promise<XlsxModule> | null = null;
+
+/**
+ * Load SheetJS once, lazily.
+ *
+ * A static import would put the ~1 MB parser in the panel chunk, which loads
+ * the moment the tool page opens; the module is only fetched when a file is
+ * actually chosen. It is bundled from `node_modules` by the build, so it is
+ * served from this origin — there is no CDN request.
+ */
+function loadXlsx(): Promise<XlsxModule> {
   xlsxPromise ??= import('xlsx');
   return xlsxPromise;
 }
 
 /** Parse a workbook from a file, or throw a message the user can act on. */
 export async function parseWorkbook(file: File): Promise<WorkBook> {
+  if (!isSpreadsheetName(file.name)) {
+    throw new Error('This file is not a spreadsheet this tool can read (XLSX, XLS, ODS or CSV).');
+  }
   const XLSX = await loadXlsx();
   const bytes = new Uint8Array(await file.arrayBuffer());
   let wb: WorkBook;
@@ -317,26 +351,26 @@ export function describeSheet(view: GridViewModel): string {
 /** Mount the spreadsheet panel into a `[data-spreadsheet-viewer-panel]` element. */
 export function mountSpreadsheetViewerPanel(root: HTMLElement): void {
   const toolId = root.dataset.toolId || 'spreadsheet-viewer';
-  const dropEl = root.querySelector<HTMLElement>('[data-drop]');
-  const listEl = root.querySelector<HTMLUListElement>('[data-file-list]');
-  const statusEl = root.querySelector<HTMLElement>('[data-status]');
-  const tabsEl = root.querySelector<HTMLElement>('[data-tabs]');
-  const gridEl = root.querySelector<HTMLElement>('[data-grid]');
-  const summaryEl = root.querySelector<HTMLElement>('[data-summary]');
-  const headerHintEl = root.querySelector<HTMLElement>('[data-header-hint]');
-  const rowsSel = root.querySelector<HTMLSelectElement>('[data-max-rows]');
-  const formatSel = root.querySelector<HTMLSelectElement>('[data-format]');
-  const runBtn = root.querySelector<HTMLButtonElement>('[data-run]');
-  const cancelBtn = root.querySelector<HTMLButtonElement>('[data-cancel]');
-  const resetBtn = root.querySelector<HTMLButtonElement>('[data-reset]');
-  const errorBox = root.querySelector<HTMLElement>('[data-error]');
-  const progressWrap = root.querySelector<HTMLElement>('[data-progress-wrap]');
-  const progressBar = root.querySelector<HTMLElement>('[data-progress-bar]');
-  const progressMsg = root.querySelector<HTMLElement>('[data-progress-msg]');
-  const resultWrap = root.querySelector<HTMLElement>('[data-result-wrap]');
-  const reportEl = root.querySelector<HTMLElement>('[data-report]');
-  const outputsEl = root.querySelector<HTMLUListElement>('[data-outputs]');
-  const notesEl = root.querySelector<HTMLUListElement>('[data-notes]');
+  const dropEl = root.querySelector<HTMLElement>('[data-drop]')!;
+  const listEl = root.querySelector<HTMLUListElement>('[data-file-list]')!;
+  const statusEl = root.querySelector<HTMLElement>('[data-status]')!;
+  const tabsEl = root.querySelector<HTMLElement>('[data-tabs]')!;
+  const gridEl = root.querySelector<HTMLElement>('[data-grid]')!;
+  const summaryEl = root.querySelector<HTMLElement>('[data-summary]')!;
+  const headerHintEl = root.querySelector<HTMLElement>('[data-header-hint]')!;
+  const rowsSel = root.querySelector<HTMLSelectElement>('[data-max-rows]')!;
+  const formatSel = root.querySelector<HTMLSelectElement>('[data-format]')!;
+  const runBtn = root.querySelector<HTMLButtonElement>('[data-run]')!;
+  const cancelBtn = root.querySelector<HTMLButtonElement>('[data-cancel]')!;
+  const resetBtn = root.querySelector<HTMLButtonElement>('[data-reset]')!;
+  const errorBox = root.querySelector<HTMLElement>('[data-error]')!;
+  const progressWrap = root.querySelector<HTMLElement>('[data-progress-wrap]')!;
+  const progressBar = root.querySelector<HTMLElement>('[data-progress-bar]')!;
+  const progressMsg = root.querySelector<HTMLElement>('[data-progress-msg]')!;
+  const resultWrap = root.querySelector<HTMLElement>('[data-result-wrap]')!;
+  const reportEl = root.querySelector<HTMLElement>('[data-report]')!;
+  const outputsEl = root.querySelector<HTMLUListElement>('[data-outputs]')!;
+  const notesEl = root.querySelector<HTMLUListElement>('[data-notes]')!;
 
   if (
     !dropEl ||

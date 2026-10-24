@@ -105,7 +105,7 @@ export const meta: ToolMeta = {
       label: 'Frame width (pixels)',
       type: 'number',
       default: 0,
-      min: 16,
+      min: 0,
       max: 2560,
       step: 10,
       help: 'Width of each still; the height follows the aspect ratio. 0 uses the default (480 for single images, 320 for a contact sheet).',
@@ -164,6 +164,10 @@ export const meta: ToolMeta = {
     {
       heading: 'The frame cap',
       body: 'Every still is a full decode plus a PNG encode, so a long clip at a tiny interval could otherwise wedge the tab. The tool caps the count at 200 and tells you the actual number up front, suggesting a longer interval, fewer frames or a shorter range — it never silently drops frames from the middle of a clip.',
+    },
+    {
+      heading: 'Privacy',
+      body: 'The clip is demuxed, decoded and re-encoded entirely in your browser. Nothing is uploaded, nothing is stored between visits, and the page keeps working offline once it has loaded.',
     },
   ],
   credits: [{ name: 'mediabunny', url: 'https://mediabunny.dev', license: 'MPL-2.0' }],

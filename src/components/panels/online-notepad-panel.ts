@@ -501,10 +501,6 @@ export function mountOnlineNotepadPanel(
     }
   }
 
-  async function saveAndRender(): Promise<void> {
-    await controller.flush();
-  }
-
   titleInput.addEventListener('change', () => {
     const note = controller.current();
     if (!note) return;
@@ -529,7 +525,7 @@ export function mountOnlineNotepadPanel(
   }
 
   // Never lose the last edit: flush before the tab is hidden or closed.
-  const flushPending = (): void => void saveAndRender();
+  const flushPending = (): void => void controller.flush();
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden') flushPending();
   });

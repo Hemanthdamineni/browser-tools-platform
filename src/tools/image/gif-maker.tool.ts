@@ -17,8 +17,12 @@ import { ToolError } from '@/lib/types';
 import { resolveOptions } from '@/lib/options';
 import { assertCanvasBudget, context2d, createCanvas, decodeOriented } from './image-batch';
 import {
-  MIN_DELAY_CS,
+  DEFAULT_OUTPUT_WIDTH,
+  DEFAULT_SIZE_LIMIT_BYTES,
   MAX_DELAY_CS,
+  MAX_SIZE_LIMIT_BYTES,
+  MIN_DELAY_CS,
+  MIN_SIZE_LIMIT_BYTES,
   normalizeDelayCs,
   sizeForLimit,
 } from '@/components/panels/gif-maker-panel';
@@ -206,7 +210,8 @@ export function encodeFrames(
       ? ditherToIndices(frame.rgba, settings.width, settings.height, palette)
       : applyPaletteIndices(frame.rgba, palette);
     encoder.writeFrame(indices, settings.width, settings.height, {
-      delay: Math.max(MIN_DELAY_CS, Math.min(MAX_DELAY_CS, settings.delaysCs[index] ?? 0)),
+      // gifenc takes milliseconds and stores hundredths of a second itself.
+      delay: Math.max(MIN_DELAY_CS, Math.min(MAX_DELAY_CS, settings.delaysCs[index] ?? 0)) * 10,
       palette:
         settings.paletteScope === 'local' || index === 0
           ? palette.map((color) => [color.r, color.g, color.b])
@@ -309,15 +314,28 @@ export async function runGifMaker(
   signal?.throwIfAborted?.();
 
   const preset = palettePreset(o.palette);
-  const targetWidth = Math.max(1, Math.round(readNumber(o.width, 480, 'The output width')));
-  const limitMb = readNumber(o.sizeLimit, 4, 'The size limit');
+  const targetWidth = Math.max(
+    1,
+    Math.round(readNumber(o.width, DEFAULT_OUTPUT_WIDTH, 'The output width')),
+  );
+  const limitMb = readNumber(
+    o.sizeLimit,
+    DEFAULT_SIZE_LIMIT_BYTES / (1024 * 1024),
+    'The size limit',
+  );
   if (limitMb < 0) {
     throw new ToolError(
       'The size limit cannot be negative.',
       'Set a limit in megabytes, or 0 for no limit.',
     );
   }
-  const limitBytes = Math.round(limitMb * 1024 * 1024);
+  const limitBytes =
+    limitMb <= 0
+      ? 0
+      : Math.min(
+          Math.max(Math.round(limitMb * 1024 * 1024), MIN_SIZE_LIMIT_BYTES),
+          MAX_SIZE_LIMIT_BYTES,
+        );
   const loop = readLoop(o.loop);
   const uniformCs = normalizeDelayCs(o.delayCs, 10);
 
@@ -332,7 +350,7 @@ export async function runGifMaker(
   onProgress?.(0.62, 'Loading the GIF encoder');
   const api = await loadGifEncoder();
   const bytes = encode(
-    frames.map((frame, index) => ({ rgba: frame.rgba, delayCs: delaysCs[index]! })),
+    frames,
     { width, height, colors: preset.colors, paletteScope: preset.scope, dither: preset.dither, loop, delaysCs },
     api,
   );

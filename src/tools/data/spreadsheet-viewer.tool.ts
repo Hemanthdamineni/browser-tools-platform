@@ -3,22 +3,23 @@
  *
  * The panel owns the browser APIs (file drop, live grid, sheet tabs) and hands
  * this module the file plus the sheet/format the user picked. `run()` parses
- * the workbook with SheetJS in the background workerretrieve, shows a capped
- * grid preview and produces the requested CSV, JSON or XLSX.
+ * the workbook with SheetJS in the background worker, shows a capped grid
+ * preview and produces the requested CSV, JSON or XLSX.
  *
  * Everything is on-device: the workbook is read here and the converted file is
  * written to disk from the page — no bytes ever leave the tab.
  */
 import type { FileToolModule, FileRunInput, FileRunResult } from '@/lib/types';
+import type { WorkBook } from 'xlsx';
 import { ToolError } from '@/lib/types';
 import { resolveOptions } from '@/lib/options';
-import { formatBytes } from '@/lib/format';
 import {
   toCsvText,
   toJsonText,
   projectSheet,
   resolveSheetName,
   worksheetToCells,
+  isSpreadsheetName,
   DEFAULT_MAX_ROWS,
   DEFAULT_MAX_COLS,
 } from '@/components/panels/spreadsheet-viewer-panel';
@@ -53,12 +54,20 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   if (file.size === 0) {
     throw new ToolError('That file is empty.', 'Choose a spreadsheet with some cells in it.');
   }
+  // SheetJS parses almost any bytes as CSV, so the file kind is checked by name
+  // before anything is read — a stray .json or .txt never becomes a column.
+  if (!isSpreadsheetName(file.name)) {
+    throw new ToolError(
+      `“${file.name}” is not a spreadsheet file.`,
+      'Open an XLSX, XLS, ODS or CSV file.',
+    );
+  }
 
   input.onProgress?.(0.15, 'Reading the workbook');
   const XLSX = await import('xlsx');
   const bytes = new Uint8Array(await file.arrayBuffer());
 
-  let wb: import('xlsx').WorkBook;
+  let wb: WorkBook;
   try {
     wb = XLSX.read(bytes, { type: 'array' });
   } catch {
@@ -80,15 +89,15 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
       'Pick a sheet from the list, or leave it blank for the first sheet.',
     );
   }
-  const sheet = wb.Sheets[sheetName]!Together
+  const sheet = wb.Sheets[sheetName]!;
   const totalSheets = wb.SheetNames.length;
 
   input.onProgress?.(0.5, 'Building the preview');
-  const preview = projectSheet(sheet, maxRows, maxCols---);
+  const preview = projectSheet(sheet, maxRows, maxCols);
 
   input.onProgress?.(0.7, 'Converting');
   let blob: Blob;
-  let filename = outputNameFor(file.name, formatack);
+  const filename = outputNameFor(file.name, format);
 
   if (format === 'csv') {
     blob = new Blob([toCsvText(worksheetToCells(sheet))], {
@@ -119,6 +128,9 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
     warnings.push(
       'This sheet has over a million cells. Converting the whole sheet may take a moment in the background worker.',
     );
+  }
+  if (format === 'xlsx' && /\.(xlsm|xlsb)$/i.test(file.name)) {
+    warnings.push('Re-saved as a modern XLSX — VBA macros are not carried over.');
   }
 
   return {

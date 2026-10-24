@@ -11,11 +11,11 @@
  * through `runToolById`, surfacing the loader's download-size + progress events
  * on the workbench bar.
  */
-import type { FileRunResult } from '@/lib/types';
+import type { FileRunResult, OptionValues } from '@/lib/types';
 import { createDropZone, downloadBlob } from '@/lib/files';
 import { formatBytes, formatDuration } from '@/lib/format';
 import { runToolById } from '@/lib/worker/client';
-import { clearError, readOptions, showError } from '../workbench/shared';
+import { applyShowWhen, clearError, readOptions, showError } from '../workbench/shared';
 import {
   checkMicEnvironment,
   chooseRecorderMimeType,
@@ -51,33 +51,15 @@ export const MODEL_CHOICES = {
 
 export type ModelChoice = keyof typeof MODEL_CHOICES;
 
-/** Approximate first-run download sizes, so the UI can warn before it downloads. */
+/**
+ * Approximate first-run download sizes on the CPU (q8) path, so the UI can warn
+ * before it downloads. WebGPU uses fp16 and downloads roughly twice as much;
+ * the exact figure is always shown live from the loader's progress events.
+ */
 export const MODEL_DOWNLOAD_BYTES: Record<ModelChoice, number> = {
-  'tiny.en': 39 * 1024 * 1024,
-  base: 142 * 1024 * 1024,
+  'tiny.en': 40 * 1024 * 1024,
+  base: 80 * 1024 * 1024,
 };
-
-/** Language codes Whisper understands, for the multilingual model. */
-export const LANGUAGE_CHOICES = [
-  { value: 'auto', label: 'Auto-detect' },
-  { value: 'en', label: 'English' },
-  { value: 'es', label: 'Spanish' },
-  { value: 'fr', label: 'French' },
-  { value: 'de', label: 'German' },
-  { value: 'it', label: 'Italian' },
-  { value: 'pt', label: 'Portuguese' },
-  { value: 'nl', label: 'Dutch' },
-  { value: 'ru', label: 'Russian' },
-  { value: 'uk', label: 'Ukrainian' },
-  { value: 'ja', label: 'Japanese' },
-  { value: 'zh', label: 'Chinese' },
-  { value: 'ko', label: 'Korean' },
-  { value: 'ar', label: 'Arabic' },
-  { value: 'hi', label: 'Hindi' },
-  { value: 'tr', label: 'Turkish' },
-  { value: 'pl', label: 'Polish' },
-  { value: 'sv', label: 'Swedish' },
-] as const;
 
 /** The largest file the tool will decode, in bytes. */
 export const MAX_INPUT_BYTES = 64 * 1024 * 1024; // 64 MB
@@ -221,22 +203,17 @@ export function checkDurationCap(
 /*  Panel                                                                       */
 /* -------------------------------------------------------------------------- */
 
-/** The output file stem derived from the source name. */
-function outputStem(name: string): string {
-  const base = name.replace(/\.[^.]*$/, '').trim();
-  return base || 'transcript';
-}
-
 /** The three export files the tool always returns, in display order. */
 const OUTPUT_ORDER = ['txt', 'srt', 'vtt'] as const;
 
 /** Mount the speech-to-text panel into a `[data-file-workbench]` element. */
-export function mountSpeechToTextPanel(panel: HTMLElement): { destroy(): void } {
+export function mountSpeechToTextPanel(panel: HTMLElement): void {
   const toolId = panel.dataset.toolId || 'speech-to-text';
   const dropEl = panel.querySelector<HTMLElement>('[data-drop]')!;
   const listEl = panel.querySelector<HTMLUListElement>('[data-file-list]')!;
   const micRecordBtn = panel.querySelector<HTMLButtonElement>('[data-mic-record]')!;
   const micStopBtn = panel.querySelector<HTMLButtonElement>('[data-mic-stop]')!;
+  const micIndicator = panel.querySelector<HTMLElement>('[data-mic-indicator]')!;
   const micTimerEl = panel.querySelector<HTMLElement>('[data-mic-timer]')!;
   const englishNote = panel.querySelector<HTMLElement>('[data-english-note]');
   const runBtn = panel.querySelector<HTMLButtonElement>('[data-run]')!;
@@ -255,6 +232,7 @@ export function mountSpeechToTextPanel(panel: HTMLElement): { destroy(): void } 
     !listEl ||
     !micRecordBtn ||
     !micStopBtn ||
+    !micIndicator ||
     !micTimerEl ||
     !runBtn ||
     !cancelBtn ||
@@ -276,6 +254,7 @@ export function mountSpeechToTextPanel(panel: HTMLElement): { destroy(): void } 
   let stream: MediaStream | null = null;
   let recorder: MediaRecorder | null = null;
   let micChunks: Blob[] = [];
+  let recordingType = 'audio/webm';
   let timerId: number | null = null;
   let recordingStartedAt = 0;
 
@@ -334,14 +313,43 @@ export function mountSpeechToTextPanel(panel: HTMLElement): { destroy(): void } 
     const choice = (modelSelect?.value ?? 'tiny.en') as ModelChoice;
     if (englishNote) englishNote.hidden = modelSupportsLanguage(choice);
     if (downloadHint) {
-      downloadHint.textContent = `First run downloads the model (~${formatBytes(MODEL_DOWNLOAD_BYTES[choice])}). It is then cached.`;
+      downloadHint.textContent = `First run downloads the model (about ${formatBytes(MODEL_DOWNLOAD_BYTES[choice])}, or more on WebGPU). The exact size is shown while it loads, and it is cached afterwards.`;
     }
   }
 
-  modelSelect?.addEventListener('change', refreshModelHints);
+  panel.addEventListener('change', () => {
+    applyShowWhen(panel);
+    refreshModelHints();
+  });
   refreshModelHints();
+  applyShowWhen(panel);
 
-  const drop = createDropZone(dropEl, {
+  /** Fill the option controls from an example's option bag. */
+  function applyValues(values: OptionValues): void {
+    for (const [key, value] of Object.entries(values)) {
+      const field = panel.querySelector<
+        HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+      >(`[data-opt-key="${key}"]`);
+      if (!field) continue;
+      if (field.dataset.optType === 'boolean') {
+        (field as HTMLInputElement).checked = value === true || value === 'true';
+      } else {
+        field.value = String(value);
+      }
+    }
+    applyShowWhen(panel);
+    refreshModelHints();
+  }
+
+  for (const button of panel.querySelectorAll<HTMLButtonElement>('[data-example]')) {
+    button.addEventListener('click', () => {
+      const parsed: unknown = JSON.parse(button.dataset.exampleOptions ?? '{}');
+      if (!parsed || typeof parsed !== 'object') return;
+      applyValues(parsed as OptionValues);
+    });
+  }
+
+  createDropZone(dropEl, {
     accept: 'audio/*',
     multiple: false,
     onFiles: (files) => chooseFile(files[0] ?? null),
@@ -359,13 +367,14 @@ export function mountSpeechToTextPanel(panel: HTMLElement): { destroy(): void } 
   function setMicUi(recording: boolean): void {
     micRecordBtn.hidden = recording;
     micStopBtn.hidden = !recording;
+    micIndicator.hidden = !recording;
+    if (recording) micTimerEl.textContent = '0:00';
   }
 
   function finishMicRecording(): void {
-    const type = recorder?.mimeType ?? 'audio/webm';
-    const blob = new Blob(micChunks, { type });
+    const blob = new Blob(micChunks, { type: recordingType });
     micChunks = [];
-    chooseFile(new File([blob], recordingFilename('recording', type), { type }));
+    chooseFile(new File([blob], recordingFilename('recording', recordingType), { type: recordingType }));
   }
 
   micRecordBtn.addEventListener('click', async () => {
@@ -407,6 +416,7 @@ export function mountSpeechToTextPanel(panel: HTMLElement): { destroy(): void } 
       return;
     }
     recorder = next;
+    recordingType = format.mimeType;
     micChunks = [];
     next.ondataavailable = (event) => {
       if (event.data && event.data.size > 0) micChunks.push(event.data);
@@ -419,7 +429,8 @@ export function mountSpeechToTextPanel(panel: HTMLElement): { destroy(): void } 
     setMicUi(true);
     recordingStartedAt = performance.now();
     timerId = window.setInterval(() => {
-      micTimerEl.textContent = formatElapsedMs(performance.now() - recordingStartedAt);
+      const totalSec = Math.floor(Math.max(0, performance.now() - recordingStartedAt) / 1000);
+      micTimerEl.textContent = `${Math.floor(totalSec / 60)}:${String(totalSec % 60).padStart(2, '0')}`;
     }, 100);
   });
 
@@ -522,19 +533,4 @@ export function mountSpeechToTextPanel(panel: HTMLElement): { destroy(): void } 
   });
 
   updateRunState();
-
-  return {
-    destroy(): void {
-      drop.destroy();
-      stopMicStream();
-    },
-  };
-}
-
-/** `1:23` — a compact elapsed-time readout for the record button. */
-function formatElapsedMs(ms: number): string {
-  const total = Math.floor(Math.max(0, ms) / 1000);
-  const m = Math.floor(total / 60);
-  const s = total % 60;
-  return `${m}:${String(s).padStart(2, '0')}`;
 }

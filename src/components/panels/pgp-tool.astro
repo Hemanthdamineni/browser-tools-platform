@@ -1,0 +1,244 @@
+---
+/**
+ * The PGP panel: a full OpenPGP workbench.
+ *
+ * The PGP flow is too multi-step for the generic workbench (key generation,
+ * key import/export, encrypt/decrypt, sign/verify), so the tool opts into this
+ * panel via `meta.panel = 'pgp-tool'`. Behaviour lives in
+ * `./pgp-tool-panel.ts` (pure orchestration + mount), loaded on demand.
+ */
+import type { ToolMeta } from '@/lib/types';
+import OptionsFields from '../workbench/OptionsFields.astro';
+import Icon from '@/components/Icon.astro';
+
+interface Props {
+  meta: ToolMeta;
+}
+const { meta } = Astro.props;
+const options = meta.options ?? [];
+const examples = meta.examples ?? [];
+const p = meta.id;
+---
+
+<section
+  class="surface rounded-lg p-4 sm:p-6"
+  data-pgp-panel
+  data-panel-workbench
+  data-tool-id={meta.id}
+  aria-label={`${meta.name} workbench`}
+>
+  {
+    examples.length > 0 && (
+      <div class="mb-4 flex flex-wrap items-center gap-2">
+        <span class="text-xs font-medium text-[rgb(var(--text-muted))]">Try:</span>
+        {examples.map((ex, i) => (
+          <button
+            type="button"
+            class="chip hover:text-[rgb(var(--text))]"
+            data-example
+            data-example-payload={JSON.stringify({ input: ex.input ?? '', options: ex.options ?? {} })}
+          >
+            {ex.title}
+          </button>
+        ))}
+      </div>
+    )
+  }
+
+  <details class="mb-4 rounded-lg border" open>
+    <summary class="cursor-pointer select-none px-3 py-2 text-sm font-medium">Action &amp; options</summary>
+    <div class="border-t p-3">
+      <OptionsFields options={options} idPrefix={p} />
+    </div>
+  </details>
+
+  <!-- The per-mode panels. Exactly one is visible at a time. -->
+  <div class="space-y-4">
+    <!-- GENERATE -->
+    <section class="rounded-lg border p-4" data-gen hidden>
+      <h3 class="mb-2 text-sm font-semibold text-[rgb(var(--text))]">Key pair</h3>
+      <div class="grid gap-3 sm:grid-cols-2">
+        <div class="flex flex-col gap-1.5">
+          <label for={`${p}-gen-pass`} class="text-sm font-medium text-[rgb(var(--text))]">Passphrase (optional but recommended)</label>
+          <input id={`${p}-gen-pass`} type="password" class="field" data-gen-pass autocomplete="new-password" spellcheck="false" />
+          <p class="text-xs text-[rgb(var(--text-muted))]" data-gen-hint></p>
+        </div>
+        <label class="flex items-center gap-2.5 rounded-lg border px-3 py-2 text-sm transition-colors hover:bg-[rgb(var(--bg-subtle))]">
+          <input type="checkbox" class="h-4 w-4" data-gen-save />
+          Save this key pair to this browser (localStorage)
+        </label>
+      </div>
+      <p class="mt-2 text-xs leading-relaxed text-[rgb(var(--text-muted))]">
+        The private key never leaves this tab. Saving it locally is optional and
+        on-by-nothing — leave the box unchecked to keep it only in your hands.
+      </p>
+      <button type="button" class="btn btn-primary mt-3" data-gen-run>
+        <Icon name="zap" size={16} /> Generate key pair
+      </button>
+    </section>
+
+    <!-- ENCRYPT -->
+    <section class="rounded-lg border p-4" data-enc hidden>
+      <h3 class="mb-2 text-sm font-semibold text-[rgb(var(--text))]">Encrypt</h3>
+      <div class="mb-2 flex items-center justify-between">
+        <label for={`${p}-enc-key`} class="text-sm font-medium text-[rgb(var(--text))]">Recipient public key</label>
+        <button type="button" class="btn btn-subtle btn-sm" data-load-pub>Load saved</button>
+      </div>
+      <textarea id={`${p}-enc-key`} class="field mb-3 !min-h-[6rem] font-mono text-xs" data-enc-key spellcheck="false" placeholder="-----BEGIN PGP PUBLIC KEY BLOCK-----&#10;…"></textarea>
+      <label for={`${p}-enc-msg`} class="text-sm font-medium text-[rgb(var(--text))]">Message</label>
+      <textarea id={`${p}-enc-msg`} class="field mb-2 !min-h-[7rem]" data-enc-msg spellcheck="false" placeholder="Type a message, or drop a file below."></textarea>
+      <div
+        class="drop-zone mt-1 flex cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed px-4 py-5 text-center transition-colors"
+        data-drop
+        data-drop-enc
+        role="button"
+        tabindex="0"
+        aria-label="Choose a file to encrypt"
+      >
+        <Icon name="file-text" size={22} class="opacity-60" />
+        <p class="text-sm"><span data-file-label>Choose a file</span>, or <span class="link">browse</span></p>
+        <p class="text-xs text-[rgb(var(--text-muted))]">Optional — attach a file to encrypt it as binary.</p>
+      </div>
+      <p class="mt-1 text-xs text-[rgb(var(--text-muted))]" data-file-name></p>
+      <button type="button" class="btn btn-primary mt-3" data-enc-run>
+        <Icon name="lock" size={16} /> Encrypt
+      </button>
+    </section>
+
+    <!-- DECRYPT -->
+    <section class="rounded-lg border p-4" data-dec hidden>
+      <h3 class="mb-2 text-sm font-semibold text-[rgb(var(--text))]">Decrypt</h3>
+      <div class="mb-2 flex items-center justify-between">
+        <label for={`${p}-dec-key`} class="text-sm font-medium text-[rgb(var(--text))]">Your private key</label>
+        <button type="button" class="btn btn-subtle btn-sm" data-load-priv>Load saved</button>
+      </div>
+      <textarea id={`${p}-dec-key`} class="field mb-3 !min-h-[6rem] font-mono text-xs" data-dec-key spellcheck="false" placeholder="-----BEGIN PGP PRIVATE KEY BLOCK-----&#10;…"></textarea>
+      <label for={`${p}-dec-pass`} class="text-sm font-medium text-[rgb(var(--text))]">Private key passphrase</label>
+      <input id={`${p}-dec-pass`} type="password" class="field mb-3" data-dec-pass autocomplete="current-password" spellcheck="false" />
+      <label for={`${p}-dec-msg`} class="text-sm font-medium text-[rgb(var(--text))]">Ciphertext</label>
+      <textarea id={`${p}-dec-msg`} class="field mb-2 !min-h-[7rem] font-mono text-xs" data-dec-msg spellcheck="false" placeholder="-----BEGIN PGP MESSAGE-----&#10;…&#10;or drop a .pgp file below."></textarea>
+      <div
+        class="drop-zone mt-1 flex cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed px-4 py-5 text-center transition-colors"
+        data-drop
+        data-drop-dec
+        role="button"
+        tabindex="0"
+        aria-label="Choose an encrypted file to decrypt"
+      >
+        <Icon name="file-text" size={22} class="opacity-60" />
+        <p class="text-sm"><span data-file-label>Choose a file</span>, or <span class="link">browse</span></p>
+        <p class="text-xs text-[rgb(var(--text-muted))]">Optional — drop a binary .pgp/.gpg file.</p>
+      </div>
+      <p class="mt-1 text-xs text-[rgb(var(--text-muted))]" data-file-name></p>
+      <button type="button" class="btn btn-primary mt-3" data-dec-run>
+        <Icon name="shield-check" size={16} /> Decrypt
+      </button>
+    </section>
+
+    <!-- SIGN -->
+    <section class="rounded-lg border p-4" data-sig hidden>
+      <h3 class="mb-2 text-sm font-semibold text-[rgb(var(--text))]">Sign</h3>
+      <div class="mb-2 flex items-center justify-between">
+        <label for={`${p}-sig-key`} class="text-sm font-medium text-[rgb(var(--text))]">Your private key</label>
+        <button type="button" class="btn btn-subtle btn-sm" data-load-priv>Load saved</button>
+      </div>
+      <textarea id={`${p}-sig-key`} class="field mb-3 !min-h-[6rem] font-mono text-xs" data-sig-key spellcheck="false" placeholder="-----BEGIN PGP PRIVATE KEY BLOCK-----&#10;…"></textarea>
+      <label for={`${p}-sig-pass`} class="text-sm font-medium text-[rgb(var(--text))]">Private key passphrase</label>
+      <input id={`${p}-sig-pass`} type="password" class="field mb-3" data-sig-pass autocomplete="current-password" spellcheck="false" />
+      <label for={`${p}-sig-msg`} class="text-sm font-medium text-[rgb(var(--text))]">Text to sign</label>
+      <textarea id={`${p}-sig-msg`} class="field mb-2 !min-h-[7rem]" data-sig-msg spellcheck="false" placeholder="Message to sign…"></textarea>
+      <button type="button" class="btn btn-primary mt-3" data-sig-run>
+        <Icon name="zap" size={16} /> Sign
+      </button>
+    </section>
+
+    <!-- VERIFY -->
+    <section class="rounded-lg border p-4" data-ver hidden>
+      <h3 class="mb-2 text-sm font-semibold text-[rgb(var(--text))]">Verify</h3>
+      <div class="mb-2 flex items-center justify-between">
+        <label for={`${p}-ver-key`} class="text-sm font-medium text-[rgb(var(--text))]">Signer public key</label>
+        <button type="button" class="btn btn-subtle btn-sm" data-load-pub>Load saved</button>
+      </div>
+      <textarea id={`${p}-ver-key`} class="field mb-3 !min-h-[6rem] font-mono text-xs" data-ver-key spellcheck="false" placeholder="-----BEGIN PGP PUBLIC KEY BLOCK-----&#10;…"></textarea>
+      <label for={`${p}-ver-msg`} class="text-sm font-medium text-[rgb(var(--text))]">Signed message</label>
+      <textarea id={`${p}-ver-msg`} class="field mb-3 !min-h-[7rem]" data-ver-msg spellcheck="false" placeholder="The message that was signed, or the clearsigned block."></textarea>
+      <label for={`${p}-ver-sig`} class="text-sm font-medium text-[rgb(var(--text))]">Detached signature</label>
+      <textarea id={`${p}-ver-sig`} class="field !min-h-[5rem] font-mono text-xs" data-ver-sig spellcheck="false" placeholder="-----BEGIN PGP SIGNATURE-----&#10;…&#10;(leave empty for a clearsigned message)"></textarea>
+      <button type="button" class="btn btn-primary mt-3" data-ver-run>
+        <Icon name="shield-check" size={16} /> Verify
+      </button>
+    </section>
+
+    <!-- IMPORT / EXPORT -->
+    <section class="rounded-lg border p-4" data-imp hidden>
+      <h3 class="mb-2 text-sm font-semibold text-[rgb(var(--text))]">Import / export</h3>
+      <div class="mb-2 flex items-center justify-between">
+        <label for={`${p}-imp-key`} class="text-sm font-medium text-[rgb(var(--text))]">Private key</label>
+        <button type="button" class="btn btn-subtle btn-sm" data-load-priv>Load saved</button>
+      </div>
+      <textarea id={`${p}-imp-key`} class="field mb-3 !min-h-[6rem] font-mono text-xs" data-imp-key spellcheck="false" placeholder="-----BEGIN PGP PRIVATE KEY BLOCK-----&#10;…"></textarea>
+      <label for={`${p}-imp-pass`} class="text-sm font-medium text-[rgb(var(--text))]">Private key passphrase</label>
+      <input id={`${p}-imp-pass`} type="password" class="field mb-3" data-imp-pass autocomplete="current-password" spellcheck="false" />
+      <button type="button" class="btn btn-primary mt-3" data-imp-run>
+        <Icon name="arrow-right" size={16} /> Export public key
+      </button>
+    </section>
+  </div>
+
+  <div class="mt-4 flex flex-wrap items-center gap-2.5">
+    <button type="button" class="btn btn-subtle btn-sm" data-cancel hidden>Cancel</button>
+    <button type="button" class="btn btn-subtle btn-sm" data-reset>Reset</button>
+    <span
+      class="ml-auto text-xs tabular-nums text-[rgb(var(--text-muted))]"
+      data-progress-msg
+      role="status"
+      aria-live="polite"
+    ></span>
+  </div>
+
+  <div class="mt-4" hidden data-progress-wrap>
+    <div class="h-1.5 w-full overflow-hidden rounded-full bg-[rgb(var(--bg-inset))]">
+      <div class="h-full w-0 bg-[rgb(var(--accent))] transition-[width]" data-progress-bar></div>
+    </div>
+  </div>
+
+  <div
+    class="mt-4 rounded-lg border px-3 py-2 text-sm"
+    style="background-color: rgb(var(--danger-soft)); border-color: rgb(var(--danger)); color: rgb(var(--danger))"
+    role="alert"
+    data-error
+    hidden
+  ></div>
+
+  <div class="mt-4" hidden data-result-wrap>
+    <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
+      <span class="text-sm font-semibold text-[rgb(var(--text))]">Output</span>
+      <div class="flex flex-wrap gap-1.5">
+        <button type="button" class="btn btn-subtle btn-sm" data-copy>
+          <Icon name="copy" size={14} /> Copy
+        </button>
+      </div>
+    </div>
+    <div data-output></div>
+    <ul class="mt-3 space-y-2" data-outputs></ul>
+    <div
+      class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-[rgb(var(--text-muted))]"
+      data-stats
+    ></div>
+    <ul class="mt-2 space-y-1 text-xs" data-notes></ul>
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-pgp-panel]').forEach((root) => {
+    void import('./pgp-tool-panel')
+      .then(({ mountPgpPanel }) => mountPgpPanel(root))
+      .catch(() => {
+        const error = root.querySelector<HTMLElement>('[data-error]');
+        if (error) {
+          error.hidden = false;
+          error.textContent = 'The PGP panel could not be loaded in this browser.';
+        }
+      });
+  });
+</script>

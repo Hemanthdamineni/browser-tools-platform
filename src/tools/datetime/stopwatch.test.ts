@@ -1,8 +1,9 @@
 import { describe, it, expect } from 'vitest';
+import type { OptionValues } from '@/lib/types';
 import tool from './stopwatch.tool';
 
-type Result = { output: string; render?: string; stats?: Record<string, number>; notes?: string[] };
-const run = async (text: string, options: Record<string, unknown> = {}) =>
+type Result = { output: string; render?: string; stats?: Record<string, string | number>; notes?: string[] };
+const run = async (text: string, options: OptionValues = {}) =>
   (await tool.run({ text, options })) as Result;
 const table = (r: Result): { headers: string[]; rows: string[][] } =>
   JSON.parse(r.output) as { headers: string[]; rows: string[][] };
@@ -57,7 +58,7 @@ describe('stopwatch run', () => {
     const { headers, rows } = table(r);
     expect(headers).toEqual(['Lap', 'Split', 'Total']);
     expect(rows).toEqual([]);
-    expect(r.stats).toEqual({ elapsed: '00:00.000', laps: 0 });
+    expect(r.stats).toEqual({ elapsed: '00:00:00.000', laps: 0 });
     expect((r.notes ?? []).join(' ')).toMatch(/no laps/i);
   });
 
@@ -89,7 +90,7 @@ describe('stopwatch run', () => {
   it('tolerates malformed snapshots and falls back to a fresh watch', async () => {
     for (const bad of ['not json', '[]', 'null', '{"laps":5}']) {
       const r = await run(bad);
-      expect(r.stats).toEqual({ elapsed: '00:00.000', laps: 0 });
+      expect(r.stats).toEqual({ elapsed: '00:00:00.000', laps: 0 });
     }
   });
 });

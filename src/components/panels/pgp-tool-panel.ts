@@ -12,6 +12,7 @@
  */
 
 import { ToolError } from '@/lib/types';
+import type { OptionValues } from '@/lib/types';
 
 /* -------------------------------------------------------------------------- */
 /*  The openpgp surface the orchestration needs (structural subset of v6).    */
@@ -135,6 +136,33 @@ export function fingerprintOf(key: PgpKeyLike): string {
   } catch {
     throw new ToolError('Could not read the fingerprint from that key.');
   }
+}
+
+/**
+ * Whether decrypted bytes are safe to show as text: valid UTF-8 with no NUL
+ * bytes and no control characters other than tab, newline and carriage return.
+ * Used to decide between an inline result and a download.
+ */
+export function looksLikeText(bytes: Uint8Array): boolean {
+  if (bytes.length === 0) return true;
+  try {
+    const text = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+    for (let i = 0; i < text.length; i++) {
+      const code = text.charCodeAt(i);
+      if (code === 9 || code === 10 || code === 13) continue;
+      if (code < 32 || code === 0x7f) return false;
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** Reduce a sender-supplied filename to a safe basename for the download link. */
+export function safeFilename(name: string | undefined, fallback: string): string {
+  const base = (name ?? '').split(/[\\/]/).pop() ?? '';
+  const cleaned = base.replace(/[\u0000-\u001f\u007f]/g, '').trim();
+  return cleaned && cleaned !== '.' && cleaned !== '..' ? cleaned : fallback;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -466,7 +494,6 @@ export interface DecryptResult {
   /** Verified signatures (empty when the message was not signed). */
   signatures: PgpVerification[];
 }
-
 /** Decrypt a message with the supplied private key. */
 export async function decryptData(api: OpenPgpApi, o: DecryptInput): Promise<DecryptResult> {
   if (!o.armored && !o.binary) {
@@ -644,4 +671,160 @@ export async function exportPublicKey(
   );
   const publicKey = (await privateKey.toPublic()).armor();
   return { publicKey, fingerprint, formattedFingerprint, keyID, userIDs };
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Panel state → payload (pure)                                               */
+/* -------------------------------------------------------------------------- */
+
+/** The six actions the panel drives. */
+export type PgpMode = 'generate' | 'encrypt' | 'decrypt' | 'sign' | 'verify' | 'import';
+
+/** Everything the panel's per-mode fields currently hold. */
+export interface PgpPanelValues {
+  publicKey: string;
+  privateKey: string;
+  passphrase: string;
+  signature: string;
+  /** The message / signed text / ciphertext typed into the active section. */
+  text: string;
+  file: File | null;
+  options: OptionValues;
+}
+
+/** What the panel hands to the tool. */
+export interface PgpPayload {
+  text: string;
+  files: File[];
+  options: OptionValues;
+}
+
+/** Which per-mode section the panel shows. */
+export type PgpSection = 'gen' | 'enc' | 'dec' | 'sig' | 'ver' | 'imp';
+
+/** Section shown for a mode (the panel renders exactly one at a time). */
+export function visibleSection(mode: PgpMode): PgpSection {
+  switch (mode) {
+    case 'encrypt':
+      return 'enc';
+    case 'decrypt':
+      return 'dec';
+    case 'sign':
+      return 'sig';
+    case 'verify':
+      return 'ver';
+    case 'import':
+      return 'imp';
+    default:
+      return 'gen';
+  }
+}
+
+/**
+ * The friendly message for a missing required field, or `undefined` when the
+ * mode's inputs are complete. Keeping this pure lets the panel show the hint
+ * before spawning the worker.
+ */
+export function missingField(mode: PgpMode, v: PgpPanelValues): string | undefined {
+  switch (mode) {
+    case 'encrypt':
+      if (!v.publicKey.trim()) return 'Paste the recipient\u2019s public key.';
+      if (!v.text.trim() && !v.file) return 'Type a message, or choose a file to encrypt.';
+      return undefined;
+    case 'decrypt':
+      if (!v.privateKey.trim()) return 'Paste the private key that matches this message.';
+      if (!v.text.trim() && !v.file) return 'Paste the encrypted message, or choose a .pgp file.';
+      return undefined;
+    case 'sign':
+      if (!v.privateKey.trim()) return 'Paste the private key to sign with.';
+      if (!v.text.trim()) return 'Type the text to sign.';
+      return undefined;
+    case 'verify':
+      if (!v.publicKey.trim()) return 'Paste the signer\u2019s public key.';
+      if (!v.text.trim()) return 'Paste the signed message.';
+      return undefined;
+    case 'import':
+      if (!v.privateKey.trim()) return 'Paste the private key to export from.';
+      return undefined;
+    default:
+      return undefined;
+  }
+}
+
+/**
+ * Build the tool payload for a run. Pure: panel state in, `run()` input out.
+ * Keys and passphrases travel as option values; the tool reads them through
+ * `resolveOptions` and never persists them.
+ */
+export function buildPgpPayload(mode: PgpMode, v: PgpPanelValues): PgpPayload {
+  const base: OptionValues = { ...v.options, mode };
+  switch (mode) {
+    case 'encrypt':
+      return {
+        text: v.text,
+        files: v.file ? [v.file] : [],
+        options: { ...base, publicKey: v.publicKey },
+      };
+    case 'decrypt':
+      return {
+        text: v.file ? '' : v.text,
+        files: v.file ? [v.file] : [],
+        options: { ...base, privateKey: v.privateKey, passphrase: v.passphrase },
+      };
+    case 'sign':
+      return {
+        text: v.text,
+        files: [],
+        options: { ...base, privateKey: v.privateKey, passphrase: v.passphrase },
+      };
+    case 'verify':
+      return {
+        text: v.text,
+        files: [],
+        options: { ...base, publicKey: v.publicKey, signature: v.signature },
+      };
+    case 'import':
+      return {
+        text: '',
+        files: [],
+        options: { ...base, privateKey: v.privateKey, passphrase: v.passphrase },
+      };
+    default:
+      return {
+        text: '',
+        files: [],
+        options: { ...base, passphrase: v.passphrase },
+      };
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Optional key storage (opt-in, localStorage, panel-side only)               */
+/* -------------------------------------------------------------------------- */
+
+export const STORAGE_PUBLIC_KEY = 'pgp-tool:public-key';
+export const STORAGE_PRIVATE_KEY = 'pgp-tool:private-key';
+
+/** The slice of `Storage` these helpers need, so tests can pass a fake. */
+export interface KeyStorage {
+  getItem(key: string): string | null;
+  setItem(key: string, value: string): void;
+  removeItem(key: string): void;
+}
+
+/** Save both halves of a pair. Only ever called from the opt-in checkbox. */
+export function saveKeys(storage: KeyStorage, publicKey: string, privateKey: string): void {
+  storage.setItem(STORAGE_PUBLIC_KEY, publicKey);
+  storage.setItem(STORAGE_PRIVATE_KEY, privateKey);
+}
+
+/** Forget anything this tool stored. */
+export function forgetKeys(storage: KeyStorage): void {
+  storage.removeItem(STORAGE_PUBLIC_KEY);
+  storage.removeItem(STORAGE_PRIVATE_KEY);
+}
+
+/** Whether a saved pair exists. */
+export function hasSavedKeys(storage: KeyStorage): boolean {
+  return !!storage.getItem(STORAGE_PUBLIC_KEY) || !!storage.getItem(STORAGE_PRIVATE_KEY);
 }

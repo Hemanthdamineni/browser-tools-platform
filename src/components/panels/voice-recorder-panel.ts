@@ -38,21 +38,20 @@ export const WAV_MIME = 'audio/wav';
 /** MIME types tried for a WebM recording, best first. */
 export const WEBM_MIME_CANDIDATES: readonly string[] = ['audio/webm;codecs=opus', 'audio/webm'];
 
-/** Largest recording the tool will hand back (held in memory while written). */
-export const MAX_RECORDING_BYTES = 1024 * 1024 * 1024; // 1 GB
-
 /** The file extension used for a container. */
 export function extensionForFormat(format: RecordingFormat): 'wav' | 'webm' {
   return format === 'wav' ? 'wav' : 'webm';
 }
 
-/** The MIME type to record with, or `null` when the browser cannot record it. */
-export function pickMimeType(
-  supported: (type: string) => boolean,
-  format: RecordingFormat = 'wav',
-): string | null {
-  const candidates = format === 'wav' ? [WAV_MIME] : WEBM_MIME_CANDIDATES;
-  for (const candidate of candidates) {
+/**
+ * Pick the WebM MIME type to record with, or `null` when the browser cannot
+ * record WebM at all.
+ *
+ * WAV is not chosen here: it is built from raw PCM with the Web Audio API, so
+ * it never goes through `MediaRecorder`. Use `WAV_MIME` for it.
+ */
+export function pickMimeType(supported: (type: string) => boolean): string | null {
+  for (const candidate of WEBM_MIME_CANDIDATES) {
     let ok = false;
     try {
       ok = supported(candidate);
@@ -64,14 +63,9 @@ export function pickMimeType(
   return null;
 }
 
-/** Whether this browser can record a WAV container at all. */
-export function supportsWav(supported: (type: string) => boolean): boolean {
-  return pickMimeType(supported, 'wav') === WAV_MIME;
-}
-
 /** Whether this browser can record a WebM container at all. */
 export function supportsWebm(supported: (type: string) => boolean): boolean {
-  return pickMimeType(supported, 'webm')?.startsWith('audio/webm') === true;
+  return pickMimeType(supported)?.startsWith('audio/webm') === true;
 }
 
 /** The container a MIME type belongs to, or `null` when it is not audio we know. */
@@ -86,19 +80,8 @@ export function formatForMimeType(mime: string): RecordingFormat | null {
   return null;
 }
 
-/** The container a file name suggests, or `null` when the name says nothing. */
-export function formatFromFileName(name: string): RecordingFormat | null {
-  const value = String(name ?? '').toLowerCase();
-  if (/\.wav$/.test(value)) return 'wav';
-  if (/\.webm$/.test(value)) return 'webm';
-  return null;
-}
-
 /** A timestamped name for a fresh take, e.g. `voice-recording-2026-10-24-09-05-03.wav`. */
-export function recordingFileName(
-  format: RecordingFormat,
-  when: Date = new Date(),
-): string {
+export function recordingFileName(format: RecordingFormat, when: Date = new Date()): string {
   const d = when instanceof Date && !Number.isNaN(when.getTime()) ? when : new Date();
   const pad = (n: number) => String(n).padStart(2, '0');
   const stamp = [
@@ -215,50 +198,15 @@ export function updateLevelMeter(
 }
 
 /* ------------------------------------------------------------------------ */
-/*  Chunk accumulation + crash checkpoints                                   */
+/*  Chunk accumulation                                                       */
 /* ------------------------------------------------------------------------ */
-
-/**
- * The serialisable checkpoint of a take in progress.
- *
- * Storing the bytes lets a page crash and reload continue from the last full
- * second instead of losing the whole take. `data` is a base64 of the
- * concatenated parts; keep it small by checkpointing no more often than once
- * a second.
- */
-export interface Checkpoint {
-  format: RecordingFormat;
-  mimeType: string;
-  count: number;
-  totalBytes: number;
-  recordedMs: number;
-  data: string;
-}
-
-/** Convert a chunk of bytes to its base64 form without touching the DOM. */
-function toBase64(bytes: Uint8Array): string {
-  let binary = '';
-  const chunk = 0x8000;
-  for (let i = 0; i < bytes.length; i += chunk) {
-    binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
-  }
-  return btoa(binary);
-}
-
-/** Decode a base64 string back into bytes without touching the DOM. */
-function fromBase64(value: string): Uint8Array {
-  const binary = atob(value);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-  return bytes;
-}
 
 /**
  * Accumulates the parts of a recording.
  *
  * The panel adds a chunk every second and always appends the final chunk when
- * the take stops, so the last moment of audio is never lost. A checkpoint can
- * be taken at any point and restored later.
+ * the take stops, so the last moment of audio is never lost. The same
+ * accumulator rebuilds a take recovered from the IndexedDB checkpoint.
  */
 export class ChunkAccumulator {
   private parts: Uint8Array[] = [];
@@ -276,12 +224,12 @@ export class ChunkAccumulator {
   }
 
   /** Append one chunk of the recording. Order is preserved. */
-  add(part: Uint8Array | ArrayBuffer): void {
+  add(part: Uint8Array | ArrayBufferLike): void {
     if (!part || part.byteLength === 0) return;
     this.parts.push(part instanceof Uint8Array ? part : new Uint8Array(part));
   }
 
-  /** The full take as one byte array — header still to be written for WAV. */
+  /** The full take as one byte array — the WAV header is still to be written. */
   bytes(): Uint8Array {
     const total = this.size;
     const out = new Uint8Array(total);
@@ -291,30 +239,6 @@ export class ChunkAccumulator {
       offset += part.byteLength;
     }
     return out;
-  }
-
-  /**
-   * Serialise a checkpoint. `recordedMs` is the length of the take so far, so
-   * the restored take can report where it was interrupted.
-   */
-  checkpoint(format: RecordingFormat, mimeType: string, recordedMs: number): Checkpoint {
-    return {
-      format,
-      mimeType,
-      count: this.count,
-      totalBytes: this.size,
-      recordedMs: Math.max(0, Math.round(recordedMs)),
-      data: toBase64(this.bytes()),
-    };
-  }
-
-  /** Rebuild an accumulator from a checkpoint, so a crash can resume. */
-  static fromCheckpoint(checkpoint: Checkpoint): ChunkAccumulator {
-    const acc = new ChunkAccumulator();
-    if (checkpoint && typeof checkpoint.data === 'string' && checkpoint.data) {
-      acc.add(fromBase64(checkpoint.data));
-    }
-    return acc;
   }
 
   /** Drop everything — used when a take is discarded. */
@@ -419,10 +343,7 @@ export function floatToPcm16(channels: Float32Array[], frames: number): Uint8Arr
 /**
  * Build a complete WAV blob: a 44-byte header followed by the PCM bytes.
  */
-export function buildWavBlob(
-  pcmBytes: Uint8Array,
-  params: Omit<WavParams, 'dataBytes'>,
-): Blob {
+export function buildWavBlob(pcmBytes: Uint8Array, params: Omit<WavParams, 'dataBytes'>): Blob {
   const header = buildWavHeader({ ...params, dataBytes: pcmBytes.byteLength });
   const combined = new Uint8Array(header.byteLength + pcmBytes.byteLength);
   combined.set(header, 0);
@@ -434,7 +355,7 @@ export function buildWavBlob(
 /*  The panel — browser APIs only from here down                               */
 /* ======================================================================== */
 
-/** How often a take is checkpointed and how often WebM hands over a chunk (ms). */
+/** How often WebM hands over a chunk (ms) — each chunk is also checkpointed. */
 const CHECKPOINT_MS = 1000;
 /** How often the elapsed timer is refreshed (ms). */
 const TIMER_MS = 200;
@@ -499,6 +420,88 @@ function describeMicError(err: unknown): { message: string; hint?: string } {
   }
 }
 
+/* ------------------------------------------------------------------------ */
+/*  Crash checkpoints — the take is kept in IndexedDB between seconds        */
+/* ------------------------------------------------------------------------ */
+
+/** The IndexedDB database that holds a take while it is being recorded. */
+const CHECKPOINT_DB = 'browser-tools-voice-recorder';
+/** The object store inside it. */
+const CHECKPOINT_STORE = 'takes';
+
+/** The small record kept beside the chunks so a crash can restore the take. */
+interface TakeMeta {
+  format: RecordingFormat;
+  mimeType: string;
+  recordedMs: number;
+}
+
+/** Wrap an IndexedDB request in a promise. */
+function idbRequest<T>(request: IDBRequest<T>): Promise<T> {
+  const { promise, resolve, reject } = Promise.withResolvers<T>();
+  request.onsuccess = () => resolve(request.result);
+  request.onerror = () => reject(request.error);
+  return promise;
+}
+
+/**
+ * Open the checkpoint database, or resolve `null` when IndexedDB is missing
+ * (a hardened browser, or a jsdom test). Checkpointing is a safety net, never
+ * a requirement, so every failure resolves instead of throwing.
+ */
+function openCheckpointDb(): Promise<IDBDatabase | null> {
+  const { promise, resolve } = Promise.withResolvers<IDBDatabase | null>();
+  let factory: IDBFactory | undefined;
+  try {
+    factory = globalThis.indexedDB;
+  } catch {
+    factory = undefined;
+  }
+  if (!factory) {
+    resolve(null);
+    return promise;
+  }
+  let request: IDBOpenDBRequest;
+  try {
+    request = factory.open(CHECKPOINT_DB, 1);
+  } catch {
+    resolve(null);
+    return promise;
+  }
+  request.onupgradeneeded = () => {
+    const database = request.result;
+    if (!database.objectStoreNames.contains(CHECKPOINT_STORE)) {
+      database.createObjectStore(CHECKPOINT_STORE);
+    }
+  };
+  request.onsuccess = () => resolve(request.result);
+  request.onerror = () => resolve(null);
+  request.onblocked = () => resolve(null);
+  return promise;
+}
+
+/** The scope of one tool's take. */
+function checkpointKeys(scope: string): { chunkPrefix: string; metaKey: string } {
+  return { chunkPrefix: `${scope}#`, metaKey: `${scope}.meta` };
+}
+
+/** Read the small metadata record, or `null` when there is none. */
+function readTakeMeta(metaKey: string): TakeMeta | null {
+  try {
+    const raw = globalThis.localStorage?.getItem(metaKey);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as TakeMeta;
+    if (!parsed || typeof parsed !== 'object') return null;
+    return {
+      format: parsed.format === 'webm' ? 'webm' : 'wav',
+      mimeType: typeof parsed.mimeType === 'string' ? parsed.mimeType : '',
+      recordedMs: Number.isFinite(parsed.recordedMs) ? Math.max(0, parsed.recordedMs) : 0,
+    };
+  } catch {
+    return null;
+  }
+}
+
 /** Mount the recorder panel into a `[data-voice-recorder]` element. */
 export function mountVoiceRecorderPanel(root: HTMLElement): void {
   const toolId = root.dataset.toolId || 'voice-recorder';
@@ -559,6 +562,8 @@ export function mountVoiceRecorderPanel(root: HTMLElement): void {
 
   const AudioCtor = audioContextConstructor();
   const hasRecorder = typeof MediaRecorder !== 'undefined';
+  /** Whether at least one output format can actually be produced here. */
+  const formatsUsable = !!AudioCtor || (hasRecorder && supportsWebm(isTypeSupported));
 
   let micStream: MediaStream | null = null;
   let audioCtx: AudioContext | null = null;
@@ -582,32 +587,98 @@ export function mountVoiceRecorderPanel(root: HTMLElement): void {
   let startedAt = 0;
   let paused = false;
   let takeFormat: RecordingFormat = 'wav';
-  let takeMime = WAV_MIME;
+  let takeMime: string = WAV_MIME;
   let timerId: number | null = null;
-  let checkpointId: number | null = null;
   let clipUrl: string | null = null;
   let controller: AbortController | null = null;
   let runGeneration = 0;
+  /** True while a take is being discarded, so its stop handler stays quiet. */
+  let discarding = false;
 
-  const CHECKPOINT_KEY = `voice-recorder.${toolId}`;
+  const { chunkPrefix, metaKey } = checkpointKeys(`voice-recorder.${toolId}`);
+  /** The memoised connection to IndexedDB, or null when unavailable. */
+  let dbPromise: Promise<IDBDatabase | null> | null = null;
+  /** The next chunk sequence number written, so a crash resumes cleanly. */
+  let chunkSequence = 0;
+  /** Serialises every IndexedDB write, so a clear can never race a late chunk. */
+  let idbChain: Promise<void> = Promise.resolve();
 
-  /** Write a checkpoint. Guarded — sessionStorage can be blocked. */
-  const saveCheckpoint = (): void => {
+  const getDb = (): Promise<IDBDatabase | null> => (dbPromise ??= openCheckpointDb());
+
+  /** Queue an IndexedDB task behind the ones already running. */
+  const enqueue = (task: () => Promise<void>): Promise<void> => {
+    idbChain = idbChain.then(task, task).catch(() => {});
+    return idbChain;
+  };
+
+  /** Write the take metadata where a reload can find it. */
+  const saveMeta = (): void => {
     try {
-      globalThis.sessionStorage?.setItem(
-        CHECKPOINT_KEY,
-        JSON.stringify(accumulator.checkpoint(takeFormat, takeMime, recordedMs)),
+      globalThis.localStorage?.setItem(
+        metaKey,
+        JSON.stringify({ format: takeFormat, mimeType: takeMime, recordedMs }),
       );
     } catch {
-      /* storage full or unavailable — the in-memory take still works */
+      /* storage unavailable — checkpointing is a nicety */
     }
   };
 
-  const clearCheckpoint = (): void => {
+  /** Append one chunk to IndexedDB so a crash cannot lose more than a second. */
+  const saveChunk = (bytes: Uint8Array): Promise<void> =>
+    enqueue(async () => {
+      const database = await getDb();
+      if (!database) return;
+      const tx = database.transaction(CHECKPOINT_STORE, 'readwrite');
+      tx.objectStore(CHECKPOINT_STORE).put(bytes, `${chunkPrefix}${chunkSequence++}`);
+    });
+
+  /** Persist a checkpoint: the metadata plus the latest full chunk. */
+  const saveCheckpoint = (bytes?: Uint8Array): Promise<void> => {
+    const write = bytes && bytes.byteLength > 0 ? saveChunk(bytes) : Promise.resolve();
+    saveMeta();
+    return write;
+  };
+
+  /** Remove every chunk and the metadata for this tool's take. */
+  const clearCheckpoint = (): Promise<void> =>
+    enqueue(async () => {
+      try {
+        globalThis.localStorage?.removeItem(metaKey);
+      } catch {
+        /* ignore */
+      }
+      const database = await getDb();
+      if (!database) return;
+      const tx = database.transaction(CHECKPOINT_STORE, 'readwrite');
+      tx.objectStore(CHECKPOINT_STORE).delete(
+        IDBKeyRange.bound(chunkPrefix, `${chunkPrefix}\uffff`),
+      );
+    });
+
+  /** Read back a take a previous session checkpointed, or `null` for none. */
+  const readCheckpoint = async (): Promise<ChunkAccumulator | null> => {
+    const database = await getDb();
+    if (!database) return null;
     try {
-      globalThis.sessionStorage?.removeItem(CHECKPOINT_KEY);
+      const store = database
+        .transaction(CHECKPOINT_STORE, 'readonly')
+        .objectStore(CHECKPOINT_STORE);
+      const [keys, values] = await Promise.all([
+        idbRequest(store.getAllKeys()),
+        idbRequest(store.getAll()),
+      ]);
+      const acc = new ChunkAccumulator();
+      for (let i = 0; i < keys.length; i++) {
+        const key = keys[i];
+        if (typeof key === 'string' && key.startsWith(chunkPrefix)) {
+          const value = values[i];
+          if (value instanceof Uint8Array) acc.add(value);
+          else if (value instanceof ArrayBuffer) acc.add(new Uint8Array(value));
+        }
+      }
+      return acc.size > 0 ? acc : null;
     } catch {
-      /* ignore */
+      return null;
     }
   };
 
@@ -629,10 +700,11 @@ export function mountVoiceRecorderPanel(root: HTMLElement): void {
   function updateControls(): void {
     const micOpen = !!micStream;
     const active = isActive();
-    const canRecord = hasRecorder || !!AudioCtor;
 
     micBtn.disabled = active;
-    recordBtn.disabled = !micOpen || active || !canRecord;
+    recordBtn.disabled = !micOpen || active || !formatsUsable;
+    // The container cannot change mid-take, so lock the choice while recording.
+    formatSelect.disabled = active || !formatsUsable;
     pauseBtn.hidden = !(active && !paused);
     resumeBtn.hidden = !(active && paused);
     stopBtn.hidden = !active;
@@ -747,8 +819,12 @@ export function mountVoiceRecorderPanel(root: HTMLElement): void {
         analyser.smoothingTimeConstant = 0;
         source.connect(analyser);
         // Keep the graph pulled by the audio thread — an analyser that connects
-        // nowhere is collected and reports silence.
-        analyser.connect(audioCtx.destination);
+        // nowhere is collected and reports silence. A muted gain keeps the
+        // microphone off the speakers so nothing feeds back.
+        const sink = audioCtx.createGain();
+        sink.gain.value = 0;
+        analyser.connect(sink);
+        sink.connect(audioCtx.destination);
         startMeter();
       }
       announce('Microphone on — press Record when you are ready.');
@@ -765,19 +841,6 @@ export function mountVoiceRecorderPanel(root: HTMLElement): void {
   /*  Recording — session management                                         */
   /* ---------------------------------------------------------------------- */
 
-  function stopCheckpointing(): void {
-    if (checkpointId !== null) {
-      window.clearInterval(checkpointId);
-      checkpointId = null;
-    }
-  }
-
-  function startCheckpointing(): void {
-    stopCheckpointing();
-    saveCheckpoint();
-    checkpointId = window.setInterval(saveCheckpoint, CHECKPOINT_MS);
-  }
-
   /** Freeze the clock into `recordedMs`. Called on pause and on stop. */
   function accumulateElapsed(): void {
     if (!paused) recordedMs += Math.max(0, Date.now() - startedAt);
@@ -786,7 +849,8 @@ export function mountVoiceRecorderPanel(root: HTMLElement): void {
   function startRecording(): void {
     if (!micStream || isActive()) return;
     clearError(errorBox);
-    clearCheckpoint();
+    chunkSequence = 0;
+    void clearCheckpoint();
     accumulator = new ChunkAccumulator();
     pcmPending = [];
     pendingChunks = [];
@@ -794,14 +858,13 @@ export function mountVoiceRecorderPanel(root: HTMLElement): void {
     paused = false;
     startedAt = Date.now();
     takeFormat = formatSelect.value === 'webm' ? 'webm' : 'wav';
-    takeMime = takeFormat === 'wav' ? WAV_MIME : pickMimeType(isTypeSupported, 'webm') ?? 'audio/webm';
+    takeMime = takeFormat === 'wav' ? WAV_MIME : pickMimeType(isTypeSupported) ?? 'audio/webm';
 
     if (takeFormat === 'wav') startPcmCapture();
     else startWebmCapture();
 
     if (isActive()) {
       startTimer();
-      startCheckpointing();
       announce('Recording started.');
       updateControls();
     }
@@ -825,7 +888,7 @@ export function mountVoiceRecorderPanel(root: HTMLElement): void {
       let pendingFrames = 0;
 
       node.onaudioprocess = (event) => {
-        if (paused) return;
+        if (paused || pcmNode !== node) return;
         const input = event.inputBuffer.getChannelData(0);
         const frame = new Float32Array(input);
         pcmPending.push(frame);
@@ -835,8 +898,9 @@ export function mountVoiceRecorderPanel(root: HTMLElement): void {
           // checkpoint it so a crash cannot lose more than a second.
           const block = drainPendingFrames();
           pendingFrames = 0;
-          accumulator.add(floatToPcm16([block], block.length));
-          saveCheckpoint();
+          const pcm = floatToPcm16([block], block.length);
+          accumulator.add(pcm);
+          void saveCheckpoint(pcm);
         }
       };
       // A script processor is only pulled when it reaches a destination. Route
@@ -895,10 +959,13 @@ export function mountVoiceRecorderPanel(root: HTMLElement): void {
     }
     recorder = instance;
     instance.ondataavailable = (event) => {
+      // Ignore a straggler that arrives after the take was stopped or discarded.
+      if (discarding || recorder !== instance) return;
       if (!event.data || event.data.size === 0) return;
-      const read = event.data.arrayBuffer().then((buffer) => {
-        accumulator.add(buffer);
-        saveCheckpoint();
+      const read = event.data.arrayBuffer().then(async (buffer) => {
+        const bytes = new Uint8Array(buffer);
+        accumulator.add(bytes);
+        await saveCheckpoint(bytes);
       });
       pendingChunks.push(read);
     };
@@ -924,7 +991,7 @@ export function mountVoiceRecorderPanel(root: HTMLElement): void {
     accumulateElapsed();
     paused = true;
     recorder?.pause();
-    saveCheckpoint();
+    void saveCheckpoint();
     stopTimer();
     timerEl.textContent = formatElapsed(recordedMs);
     announce('Recording paused.');
@@ -946,7 +1013,6 @@ export function mountVoiceRecorderPanel(root: HTMLElement): void {
     accumulateElapsed();
     paused = false;
     stopTimer();
-    stopCheckpointing();
     announce('Stopping the recording…');
 
     if (pcmNode) {
@@ -964,6 +1030,10 @@ export function mountVoiceRecorderPanel(root: HTMLElement): void {
       try {
         // Ask for the buffered data first, so nothing is left behind.
         recorder.requestData();
+      } catch {
+        /* some browsers refuse this while paused — the stop still flushes */
+      }
+      try {
         recorder.stop();
       } catch {
         /* the stop handler cleans up */
@@ -975,7 +1045,7 @@ export function mountVoiceRecorderPanel(root: HTMLElement): void {
 
   async function finishRecording(): Promise<void> {
     stopTimer();
-    stopCheckpointing();
+    if (discarding) return;
     // Wait for any chunk still being read so the last one is never missed.
     await Promise.all(pendingChunks);
     pendingChunks = [];
@@ -985,7 +1055,7 @@ export function mountVoiceRecorderPanel(root: HTMLElement): void {
 
     const blob = buildTakeBlob();
     if (blob.size === 0) {
-      clearCheckpoint();
+      void clearCheckpoint();
       fail(
         'The recording came out empty.',
         'Nothing was captured — record again and speak near the microphone.',
@@ -999,7 +1069,7 @@ export function mountVoiceRecorderPanel(root: HTMLElement): void {
     showClip(blob, name);
     const file = new File([blob], name, { type: blob.type });
     await handToTool(file);
-    clearCheckpoint();
+    void clearCheckpoint();
   }
 
   /** The final take as a blob: a WAV with a real header, or the WebM bytes. */
@@ -1022,7 +1092,7 @@ export function mountVoiceRecorderPanel(root: HTMLElement): void {
       audioEl.src = clipUrl;
       downloadEl.href = clipUrl;
       downloadEl.download = filename;
-      clipMeta.textContent = `${formatBytes(blob.size)} · ${
+      clipMeta.textContent = `${formatDuration(recordedMs / 1000)} · ${formatBytes(blob.size)} · ${
         takeFormat === 'wav' ? 'WAV (PCM)' : 'WebM (Opus)'
       }`;
       clipWrap.hidden = false;
@@ -1032,9 +1102,9 @@ export function mountVoiceRecorderPanel(root: HTMLElement): void {
   }
 
   function discardRecording(): void {
+    discarding = true;
     stopTimer();
-    stopCheckpointing();
-    clearCheckpoint();
+    void clearCheckpoint();
     try {
       recorder?.stop();
     } catch {
@@ -1047,8 +1117,10 @@ export function mountVoiceRecorderPanel(root: HTMLElement): void {
     }
     accumulator = new ChunkAccumulator();
     pcmPending = [];
+    pendingChunks = [];
     recordedMs = 0;
     paused = false;
+    discarding = false;
     timerEl.textContent = formatElapsed(0);
     clipWrap.hidden = true;
     resultWrap.hidden = true;
@@ -1140,34 +1212,20 @@ export function mountVoiceRecorderPanel(root: HTMLElement): void {
   /*  Recover a take that survived a page reload                             */
   /* ---------------------------------------------------------------------- */
 
-  function recoverCheckpoint(): void {
-    let raw: string | null = null;
-    try {
-      raw = globalThis.sessionStorage?.getItem(CHECKPOINT_KEY) ?? null;
-    } catch {
-      return;
-    }
-    if (!raw) return;
-    let saved: Checkpoint;
-    try {
-      saved = JSON.parse(raw) as Checkpoint;
-    } catch {
-      clearCheckpoint();
-      return;
-    }
-    if (!saved || typeof saved.data !== 'string' || !saved.totalBytes) {
-      clearCheckpoint();
-      return;
-    }
-    accumulator = ChunkAccumulator.fromCheckpoint(saved);
-    recordedMs = saved.recordedMs;
-    takeFormat = saved.format === 'webm' ? 'webm' : 'wav';
-    takeMime = saved.mimeType || (takeFormat === 'wav' ? WAV_MIME : 'audio/webm');
+  async function recoverCheckpoint(): Promise<void> {
+    const recovered = await readCheckpoint();
+    if (!recovered) return;
+    accumulator = recovered;
+    const meta = readTakeMeta(metaKey);
+    takeFormat =
+      formatForMimeType(meta?.mimeType ?? '') ?? (meta?.format === 'webm' ? 'webm' : 'wav');
+    takeMime = meta?.mimeType || (takeFormat === 'wav' ? WAV_MIME : 'audio/webm');
+    recordedMs = meta?.recordedMs ?? 0;
     formatSelect.value = takeFormat;
     timerEl.textContent = formatElapsed(recordedMs);
     const blob = buildTakeBlob();
     if (blob.size === 0) {
-      clearCheckpoint();
+      void clearCheckpoint();
       return;
     }
     showClip(blob, recordingFileName(takeFormat));
@@ -1192,29 +1250,22 @@ export function mountVoiceRecorderPanel(root: HTMLElement): void {
   });
 
   // Offer only the formats this browser can really produce.
-  let formatsDisabled = false;
   if (!AudioCtor) {
     const wavOption = formatSelect.querySelector<HTMLOptionElement>('option[value="wav"]');
     if (wavOption) wavOption.disabled = true;
-    formatsDisabled = true;
+    if (formatSelect.value === 'wav') formatSelect.value = 'webm';
   }
-  if (!hasRecorder) {
+  if (!hasRecorder || !supportsWebm(isTypeSupported)) {
     const webmOption = formatSelect.querySelector<HTMLOptionElement>('option[value="webm"]');
     if (webmOption) webmOption.disabled = true;
+    if (formatSelect.value === 'webm' && AudioCtor) formatSelect.value = 'wav';
   }
-  if (formatsDisabled && formatSelect.value === 'wav') {
-    const webmOption = formatSelect.querySelector<HTMLOptionElement>('option[value="webm"]');
-    if (webmOption && !webmOption.disabled) {
-      formatSelect.value = 'webm';
-      takeFormat = 'webm';
-    }
-  }
+  takeFormat = formatSelect.value === 'webm' ? 'webm' : 'wav';
 
   const cleanup = (): void => {
     controller?.abort();
     controller = null;
     stopTimer();
-    stopCheckpointing();
     closeMic();
     if (clipUrl) {
       try {
@@ -1230,9 +1281,9 @@ export function mountVoiceRecorderPanel(root: HTMLElement): void {
   window.addEventListener('beforeunload', cleanup, { once: true });
 
   updateControls();
-  recoverCheckpoint();
+  void recoverCheckpoint();
 
-  if (!hasRecorder && !AudioCtor) {
+  if (!formatsUsable) {
     fail(
       'This browser cannot record audio.',
       'It has neither MediaRecorder nor the Web Audio API — try a recent Chrome, Edge or Firefox.',

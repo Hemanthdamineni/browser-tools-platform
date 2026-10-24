@@ -643,7 +643,7 @@ export function mountSignatureMakerPanel(root: HTMLElement): void {
     showError(null);
     announce(format === 'png' ? 'Rendering the PNG…' : 'Preparing the SVG…');
     void downloadSignature(svg, format)
-      .then(() => announce(`Downloaded signature.${format}`))
+      .then(() => announce(`Downloaded your signature (${format.toUpperCase()}).`))
       .catch(() => {
         showError('The signature could not be exported in this browser.');
         announce('Export failed.');

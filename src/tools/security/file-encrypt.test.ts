@@ -114,18 +114,29 @@ describe('file-encrypt', () => {
     const cipher = await encrypt(pattern(150_000));
     const firstRecord = HEADER + 5 + CHUNK + 16; // header + first (non-final) record
     const withoutFinal = cipher.slice(0, firstRecord);
-    await expect(
-      run([file(withoutFinal, 'x.tbenc')], { mode: 'decrypt', password: PW }),
-    ).rejects.toThrow(/no final chunk marker/i);
+    const err = await run([file(withoutFinal, 'x.tbenc')], {
+      mode: 'decrypt',
+      password: PW,
+    }).then(
+      () => null,
+      (e: unknown) => e as Error & { hint?: string },
+    );
+    expect(err).toBeInstanceOf(ToolError);
+    expect(err!.message).toMatch(/wrong password or corrupted file/i);
+    expect(err!.hint).toMatch(/no final chunk marker/i);
   });
 
   it('rejects trailing data appended after the final record', async () => {
     const cipher = await encrypt(pattern(100));
     const padded = new Uint8Array(cipher.length + 4);
     padded.set(cipher);
-    await expect(run([file(padded, 'x.tbenc')], { mode: 'decrypt', password: PW })).rejects.toThrow(
-      /data after the final chunk/i,
+    const err = await run([file(padded, 'x.tbenc')], { mode: 'decrypt', password: PW }).then(
+      () => null,
+      (e: unknown) => e as Error & { hint?: string },
     );
+    expect(err).toBeInstanceOf(ToolError);
+    expect(err!.message).toMatch(/wrong password or corrupted file/i);
+    expect(err!.hint).toMatch(/data after the final chunk/i);
   });
 
   it('rejects a file shorter than the header', async () => {

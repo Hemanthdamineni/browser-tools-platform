@@ -25,7 +25,7 @@ export const meta: ToolMeta = {
   ],
   privacy: { processing: 'on-device', network: 'none', offline: true },
   input: 'file',
-  accept: '.xlsx,.xls,.ods,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,application/vnd.oasis.opendocument.spreadsheet,text/csv,text/plain',
+  accept: '.xlsx,.xlsm,.xlsb,.xls,.ods,.csv,.tsv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,application/vnd.oasis.opendocument.spreadsheet,text/csv,text/tab-separated-values,text/plain',
   // The interactive flow — a live sheet switcher and grid preview — cannot be
   // expressed by the generic option form, so the tool opts into its own panel.
   // The options below are the conversion parameters the panel drives; they are
@@ -70,7 +70,37 @@ export const meta: ToolMeta = {
       step: 1,
     },
   ],
-  examples: [{ title: 'Preview a spreadsheet' }],
+  examples: [
+    { title: 'Open a workbook and switch between its sheets' },
+    { title: 'Convert the active sheet to JSON objects', options: { format: 'json' } },
+    { title: 'Re-save the whole book as a modern XLSX', options: { format: 'xlsx' } },
+    {
+      title: 'Export sheet 2 as CSV with a 500-row preview',
+      options: { sheet: '2', format: 'csv', maxRows: 500 },
+    },
+  ],
+  article: [
+    {
+      heading: 'What it opens',
+      body: 'SheetJS detects the format from the file contents, so XLSX, the legacy XLS binary, LibreOffice ODS and plain CSV all open the same way. A workbook with several tabs shows them as a tab bar, and the size beside each name tells you how big it is.',
+    },
+    {
+      heading: 'A preview window, not a smaller export',
+      body: 'A sheet can hold a million rows, and drawing them all would lock up the tab, so the grid shows the first 200 rows and 30 columns by default — pick a larger window from the row menu if you need more. The summary line reports the sheet’s real size, and the exports use every row.',
+    },
+    {
+      heading: 'Dates and numbers read as they do in the app',
+      body: 'Each cell is shown using the text the spreadsheet itself computed, so a currency cell stays “£1,250.00” and a date keeps the file’s own format instead of turning into a serial number. The exports carry that same text, so a downloaded CSV matches your spreadsheet app.',
+    },
+    {
+      heading: 'Converting a sheet',
+      body: 'CSV is written to RFC 4180: fields are quoted only when they hold a comma, a quote or a line break, and inner quotes are doubled. JSON becomes an array of objects keyed by the first row, which is what most APIs want. Choosing XLSX re-saves the whole workbook; VBA macros are not carried over.',
+    },
+    {
+      heading: 'Nothing leaves the tab',
+      body: 'The workbook is parsed and the converted file built entirely in your browser — the parser, the grid and the worker all come from this page. Nothing reaches a server, and the tool works offline once loaded.',
+    },
+  ],
   faq: [
     {
       q: 'Which file types can I open?',

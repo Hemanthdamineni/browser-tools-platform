@@ -1,0 +1,63 @@
+import type { ToolMeta } from '@/lib/types';
+import { pdfCredit } from './shared';
+export const meta: ToolMeta = {
+  id: 'pdf-fill-form',
+  name: 'Fill PDF Form',
+  category: 'pdf',
+  summary: 'Fill an AcroForm in a PDF — text, checkboxes, radio and dropdowns — then flatten it.',
+  description:
+    'Open a PDF that contains an interactive form, type or pick values for its fields, and save a flattened copy with the answers baked into the pages. Only fields that actually exist in the form are offered.',
+  keywords: ['pdf', 'form', 'acroform', 'fill', 'flatten', 'checkbox', 'radio', 'dropdown', 'fields'],
+  privacy: { processing: 'on-device', network: 'none', offline: true },
+  input: 'file',
+  accept: 'application/pdf',
+  // Filling a form is an interactive, per-field flow the generic option form
+  // cannot express, so the tool opts into the dedicated fill-form panel
+  // (src/components/panels/pdf-fill-form.astro). The options below are what
+  // that panel drives — they are read by `run()` through `resolveOptions` and
+  // keep the tool usable without the UI.
+  panel: 'pdf-fill-form',
+  options: [
+    {
+      // Filled in by the panel with a JSON object mapping each field name to
+      // the value the user chose: strings for text/radio/dropdown, booleans
+      // for checkboxes, arrays for multi-select dropdowns and lists.
+      key: 'values',
+      label: 'Field values (JSON)',
+      type: 'textarea',
+      default: '{}',
+    },
+    {
+      key: 'outputName',
+      label: 'Output file name',
+      type: 'text',
+      default: 'filled.pdf',
+    },
+  ],
+  examples: [
+    { title: 'Fill a job application form' },
+    { title: 'Complete a tax or registration form' },
+    { title: 'Fill and flatten a contract for signing' },
+  ],
+  faq: [
+    {
+      q: 'Which fields can I fill?',
+      a: 'Text fields, checkboxes, radio groups and dropdowns (and multi-select lists). Read-only fields and buttons are skipped because they are not meant to be filled.',
+    },
+    {
+      q: 'What does "flatten" mean?',
+      a: 'The answers are painted into the page content and the form fields are removed, so the result is an ordinary PDF — nothing left to type into.',
+    },
+    {
+      q: 'Is the form uploaded anywhere?',
+      a: 'No. The form is read and filled on this device and the filled PDF is produced in a background worker, so your answers never leave the tab.',
+    },
+    {
+      q: 'Why can I not fill a field?',
+      a: 'The PDF may have no interactive fields at all, or the field may be marked read-only by the document. Only editable fields are offered.',
+    },
+  ],
+  related: ['pdf-sign', 'pdf-watermark', 'pdf-page-numbers', 'pdf-metadata'],
+  credits: [pdfCredit],
+  status: 'beta',
+};

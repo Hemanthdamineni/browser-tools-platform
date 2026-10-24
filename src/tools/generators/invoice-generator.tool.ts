@@ -20,6 +20,7 @@ import { resolveOptions } from '@/lib/options';
 import {
   buildPdfBytes,
   computeTotals,
+  formatCents,
   parseDraft,
   validateModel,
 } from '@/components/panels/invoice-generator-panel';
@@ -35,7 +36,7 @@ function bytesToBase64(bytes: Uint8Array): string {
   return btoa(binary);
 }
 
-function run(input: TextRunInput): TextRunResult {
+async function run(input: TextRunInput): Promise<TextRunResult> {
   const o = resolveOptions(meta, input.options);
   const modelJson = String(o.model ?? '').trim();
   const model = parseDraft(modelJson || null);
@@ -48,22 +49,23 @@ function run(input: TextRunInput): TextRunResult {
   if (errors.length) throw new ToolError(errors[0]!);
 
   const totals = computeTotals(model);
-  const outputName = String(o.outputName ?? 'invoice.pdf').trim() || 'invoice.pdf';
+  const outputName =
+    String(o.outputName ?? '').trim() || `${model.invoiceNumber.trim() || 'invoice'}.pdf`;
+  const bytes = await buildPdfBytes(model, totals);
+  const dataUrl = `data:application/pdf;base64,${bytesToBase64(bytes)}`;
 
   return {
-    output: 'pending', // replaced below once the async PDF bytes are ready
+    output: dataUrl,
     render: 'text',
     filename: outputName,
     notes: [
-      `Subtotal ${centsToString(totals.subtotalCents)} — tax ${centsToString(totals.taxTotalCents)}` +
-        (totals.discountCents > 0 ? ` — discount ${centsToString(totals.discountCents)}` : '') +
-        ` — grand total ${centsToString(totals.grandTotalCents)}`,
+      `${model.lines.length} line item${model.lines.length === 1 ? '' : 's'} · subtotal ${formatCents(
+        totals.subtotalCents,
+      )} · tax ${formatCents(totals.taxTotalCents)}${
+        totals.discountCents > 0 ? ` · discount ${formatCents(totals.discountCents)}` : ''
+      } · grand total ${formatCents(totals.grandTotalCents)}`,
     ],
   };
-}
-
-function centsToString(cents: number): string {
-  return `${(cents / 100).toFixed(2)}`;
 }
 
 const tool: TextToolModule = { meta, run };

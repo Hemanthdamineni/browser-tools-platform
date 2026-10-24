@@ -27,6 +27,14 @@ visitor's browser.
 - css-tree            — MIT      — https://github.com/csstree/csstree
 - html-minifier-terser — MIT     — https://github.com/kangax/html-minifier
 - clean-css           — MIT      — https://github.com/clean-css/clean-css
+- sql.js              — MIT      — https://github.com/sql-js/sql.js
+- xlsx (SheetJS)      — Apache-2.0 — https://sheetjs.com
+- mermaid             — MIT      — https://github.com/mermaid-js/mermaid
+- shiki               — MIT      — https://github.com/shikijs/shiki
+- bcryptjs            — MIT      — https://github.com/dcodeIO/bcrypt.js
+- openpgp             — LGPL-3.0 — https://github.com/openpgpjs/openpgpjs
+- @breezystack/lamejs — LGPL-3.0 — https://github.com/zhuker/lamejs
+- @jitsi/rnnoise-wasm — BSD-2-Clause — https://github.com/jitsi/rnnoise-wasm
 
 terser, sucrase, csso, css-tree, html-minifier-terser and clean-css are used
 by the code-minify tool only. Each one is loaded as a separate chunk on demand

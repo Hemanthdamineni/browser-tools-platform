@@ -34,7 +34,7 @@ export interface SqlDatabase {
 }
 
 /** What the viewer is asked to show. */
-export type ViewerAction = 'tables' | 'schema' | 'query';
+export type ViewerAction = 'browse' | 'schema' | 'query';
 
 /** How a result is exported. */
 export type ExportFormat = 'none' | 'csv' | 'json';
@@ -168,106 +168,117 @@ export const READ_ONLY_PRAGMAS = new Set([
 interface Scan {
   /** The statement slices, split on the top-level `;` separators. */
   statements: string[];
-  /** The uppercased bare words of the first statement (outside strings/comments). */
-  tokens: string[];
-  /** The first statement with strings, quoted identifiers and comments blanked. */
-  masked: string;
+  /**
+   * One masked string per statement — the same slice with string literals,
+   * quoted identifiers and comments blanked (newlines kept). `masked[i]` is the
+   * masked copy of `statements[i]`.
+   */
+  masked: string[];
 }
 
 /**
- * Walk SQL once, splitting statements at `;` and collecting the bare words of
- * the first statement. Everything inside a string literal, a quoted identifier
- * or a comment is blanked, so `SELECT 'drop table t'` is not mistaken for a
- * DROP and `DELETE` inside a comment is not a statement.
+ * Walk SQL once, splitting statements at `;` and blanking everything inside a
+ * string literal, a quoted identifier or a comment. `SELECT 'drop table t'` is
+ * then not mistaken for a DROP, and a `DELETE` that only appears in a comment
+ * is not a statement.
  */
 export function scanSql(sql: string): Scan {
+  const chars = sql.split('');
   const boundaries: number[] = [];
-  const masked: string[] = [];
   let i = 0;
 
-  const blank = (from: number, to: number): void => {
-    for (let k = from; k < to && k < sql.length; k++) masked[k] = sql[k] === '\n' ? '\n' : ' ';
-  };
-
-  while (i < sql.length) {
-    const ch = sql[i]!;
-    const next = sql[i + 1];
+  while (i < chars.length) {
+    const ch = chars[i]!;
+    const next = chars[i + 1];
 
     if (ch === '-' && next === '-') {
-      const end = sql.indexOf('\n', i);
-      const stop = end < 0 ? sql.length : end;
-      blank(i, stop);
-      i = stop;
+      // Line comment: blank to the end of the line, keeping the newline.
+      let j = i;
+      while (j < chars.length && chars[j] !== '\n') {
+        chars[j] = ' ';
+        j += 1;
+      }
+      i = j;
       continue;
     }
+
     if (ch === '/' && next === '*') {
-      const end = sql.indexOf('*/', i + 2);
-      const stop = end < 0 ? sql.length : end + 2;
-      blank(i, stop);
-      i = stop;
+      // Block comment: blank up to and including the closing `*/`.
+      let j = i + 2;
+      while (j < chars.length && !(chars[j] === '*' && chars[j + 1] === '/')) {
+        if (chars[j] !== '\n') chars[j] = ' ';
+        j += 1;
+      }
+      chars[i] = ' ';
+      chars[i + 1] = ' ';
+      if (j < chars.length) {
+        chars[j] = ' ';
+        chars[j + 1] = ' ';
+        j += 2;
+      }
+      i = j;
       continue;
     }
+
     if (ch === "'" || ch === '"' || ch === '`') {
-      // A string literal or a quoted identifier; both are skipped. The quote
-      // character doubled inside is the SQL escape (`'it''s'`).
+      // A string literal or a quoted identifier: blank it, honouring the
+      // doubled-quote escape (`'it''s'`).
       let j = i + 1;
-      while (j < sql.length) {
-        if (sql[j] === ch) {
-          if (sql[j + 1] === ch) {
+      while (j < chars.length) {
+        if (chars[j] === ch) {
+          chars[j] = ' ';
+          if (chars[j + 1] === ch) {
+            chars[j + 1] = ' ';
             j += 2;
             continue;
           }
           j += 1;
           break;
         }
+        if (chars[j] !== '\n') chars[j] = ' ';
         j += 1;
       }
-      blank(i, j);
+      chars[i] = ' ';
       i = j;
       continue;
     }
+
     if (ch === '[') {
-      const end = sql.indexOf(']', i + 1);
-      const stop = end < 0 ? sql.length : end + 1;
-      blank(i, stop);
-      i = stop;
+      // Bracket-quoted identifier.
+      let j = i + 1;
+      while (j < chars.length && chars[j] !== ']') {
+        if (chars[j] !== '\n') chars[j] = ' ';
+        j += 1;
+      }
+      chars[i] = ' ';
+      if (j < chars.length) {
+        chars[j] = ' ';
+        j += 1;
+      }
+      i = j;
       continue;
     }
-    masked[i] = ch;
+
     if (ch === ';') boundaries.push(i);
     i += 1;
   }
 
-  const text = masked.join('');
+  // The masked text has the same length as the input, so a boundary offset
+  // found in one slices the other — a `;` inside a quoted region was blanked
+  // in the masked copy and never became a boundary.
+  const maskedText = chars.join('');
   const statements: string[] = [];
+  const masked: string[] = [];
   let start = 0;
   for (const boundary of boundaries) {
     statements.push(sql.slice(start, boundary));
+    masked.push(maskedText.slice(start, boundary));
     start = boundary + 1;
   }
   statements.push(sql.slice(start));
+  masked.push(maskedText.slice(start));
 
-  const tokens = (statements.find((s, index) => text.slice(0, index).length >= 0 && isBlank(text, index))
-    ? []
-    : []
-  ).concat(
-    (text.replace(/;/g, ' ').match(/[A-Za-z_][A-Za-z0-9_$]*/g) ?? []).map((token) =>
-      token.toUpperCase(),
-    ),
-  );
-
-  return { statements, tokens, masked: text };
-}
-
-/** True when the masked slice that produced statement `index` holds no code. */
-function isBlank(_text: string, _index: number): boolean {
-  return true;
-}
-
-/** The first bare word of the masked text (or an empty string). */
-function leadingWord(masked: string): string {
-  const match = /^\s*([A-Za-z_][A-Za-z0-9_$]*)/.exec(masked);
-  return match?.[1] ? match[1].toUpperCase() : '';
+  return { statements, masked };
 }
 
 /**
@@ -278,36 +289,41 @@ function leadingWord(masked: string): string {
  */
 export function classifyStatement(sql: string): StatementKind {
   const scan = scanSql(sql);
-  const kept = scan.statements.filter((statement, index) => {
-    const offset = scan.statements.slice(0, index).reduce((sum, s) => sum + s.length + 1, 0);
-    return scan.masked.slice(offset, offset + statement.length).trim().length > 0;
-  });
+  const parts = scan.statements
+    .map((statement, index) => ({ statement, masked: scan.masked[index] ?? '' }))
+    .filter((part) => part.masked.trim().length > 0);
 
-  if (!kept.length) return { kind: 'empty' };
-  if (kept.length > 1) return { kind: 'multiple', count: kept.length };
+  if (!parts.length) return { kind: 'empty' };
+  if (parts.length > 1) return { kind: 'multiple', count: parts.length };
 
-  const statement = kept[0]!.trim();
-  const offset = sql.indexOf(statement);
-  const masked = scan.masked.slice(offset, offset + statement.length);
+  const { statement: raw, masked } = parts[0]!;
+  const statement = raw.trim();
+  const text = masked.trim();
 
-  // sqlite3 shell dot commands: `.tables` and `.schema [table]` only.
-  if (masked.trimStart().startsWith('.')) {
-    const match = /^\.([A-Za-z]+)\s*(.*)$/.exec(masked.trimStart());
+  // sqlite3 shell dot commands. A viewer has no shell, so only the two that
+  // map onto a `sqlite_master` query are understood. The `.schema` argument is
+  // read from the raw statement because a quoted table name is blanked in the
+  // masked copy; these are shell commands, never passed to the engine, so the
+  // raw text is safe to inspect.
+  if (text.startsWith('.')) {
+    const match = /^\.([A-Za-z]+)/.exec(text);
     const name = (match?.[1] ?? '').toLowerCase();
-    const argument = (match?.[2] ?? '').trim().replace(/;\s*$/, '').trim();
     if (name === 'tables') return { kind: 'meta', command: 'tables', table: '' };
-    if (name === 'schema') return { kind: 'meta', command: 'schema', table: unquote(argument) };
+    if (name === 'schema') {
+      const rawMatch = /^\.schema[ \t]+(.+)$/i.exec(statement.trim());
+      const argument = rawMatch?.[1] ? unquote(rawMatch[1].replace(/;\s*$/, '').trim()) : '';
+      return { kind: 'meta', command: 'schema', table: argument };
+    }
     return { kind: 'unsupported', token: `.${name || 'command'}` };
   }
 
-  const verb = leadingWord(masked);
+  const verb = /^([A-Za-z_][A-Za-z0-9_$]*)/.exec(text)?.[1]?.toUpperCase() ?? '';
   if (!verb) return { kind: 'empty' };
 
   if (verb === 'PRAGMA') {
-    const match = /^\s*PRAGMA\s+([A-Za-z_][A-Za-z0-9_]*)/i.exec(masked);
-    const name = (match?.[1] ?? '').toLowerCase();
-    if (!name) return { kind: 'unsupported', token: statement.split(/\s+/)[0] ?? 'PRAGMA' };
-    if (masked.includes('=')) {
+    const name = (/^PRAGMA[ \t]+([A-Za-z_][A-Za-z0-9_]*)/i.exec(text)?.[1] ?? '').toLowerCase();
+    if (!name) return { kind: 'unsupported', token: raw.trim().split(/\s+/)[0] ?? 'PRAGMA' };
+    if (text.includes('=')) {
       return { kind: 'forbidden', verb: `PRAGMA ${name}`, reason: 'it assigns a setting' };
     }
     if (!READ_ONLY_PRAGMAS.has(name)) {
@@ -317,10 +333,11 @@ export function classifyStatement(sql: string): StatementKind {
   }
 
   if (READ_VERBS.has(verb)) {
-    // A read can still be a write: `WITH x AS (…) INSERT INTO t …` is a single
-    // valid SQLite statement, and so is a `SELECT` that calls a writing
-    // function. Refuse any statement that names a writing verb.
-    const write = scan.tokens.find((token) => MUTATING_VERBS.has(token));
+    // A read can still write: `WITH x AS (…) INSERT INTO t …` is one valid
+    // SQLite statement. Refuse anything that names a writing verb.
+    const write = (text.match(/[A-Za-z_][A-Za-z0-9_$]*/g) ?? [])
+      .map((token) => token.toUpperCase())
+      .find((token) => MUTATING_VERBS.has(token));
     if (write) {
       return { kind: 'forbidden', verb: write, reason: 'it appears in a statement that writes' };
     }
@@ -330,7 +347,29 @@ export function classifyStatement(sql: string): StatementKind {
   if (MUTATING_VERBS.has(verb)) {
     return { kind: 'forbidden', verb, reason: 'it changes the database' };
   }
-  return { kind: 'unsupported', token: statement.split(/\s+/)[0] ?? verb };
+  return { kind: 'unsupported', token: raw.trim().split(/\s+/)[0] ?? verb };
+}
+
+/** The hint shown with every refusal, so the message is worded once. */
+export const READ_ONLY_HINT =
+  'The viewer only runs SELECT, WITH, VALUES, TABLE, EXPLAIN and metadata PRAGMAs, plus the .tables and .schema shortcuts.';
+
+/**
+ * Why a statement cannot run, or `null` when it can. `collectViewerResult`
+ * and the tool's request planner both use this, so a refusal is worded the
+ * same way wherever it is raised.
+ */
+export function refusalMessage(classified: StatementKind): string | null {
+  switch (classified.kind) {
+    case 'forbidden':
+      return `"${classified.verb}" cannot run here because ${classified.reason}.`;
+    case 'multiple':
+      return `Run one statement at a time: ${classified.count} were given.`;
+    case 'unsupported':
+      return `"${classified.token}" is not something the viewer can run.`;
+    default:
+      return null;
+  }
 }
 
 /** Strip one layer of `"…"`, `'…'`, `` `…` `` or `[…]` around a name. */
@@ -396,7 +435,9 @@ export function quoteCsvField(field: string): string {
 export function toCsv(columns: string[], values: SqlCell[][]): string {
   const lines = [columns.map(quoteCsvField).join(',')];
   for (const row of values) {
-    lines.push(columns.map((_column, index) => quoteCsvField(csvField(row[index] ?? null))).join(','));
+    lines.push(
+      columns.map((_column, index) => quoteCsvField(csvField(row[index] ?? null))).join(','),
+    );
   }
   return `${lines.join('\r\n')}\r\n`;
 }
@@ -413,7 +454,9 @@ export function toJson(columns: string[], values: SqlCell[][]): string {
       : toBase64(cell);
 
   if (new Set(columns).size !== columns.length) {
-    const rows = values.map((row) => columns.map((_column, index) => jsonValue(row[index] ?? null)));
+    const rows = values.map((row) =>
+      columns.map((_column, index) => jsonValue(row[index] ?? null)),
+    );
     return JSON.stringify({ columns, rows }, null, 2);
   }
 
@@ -562,15 +605,16 @@ export function collectViewerResult(
   const notes: string[] = [];
   const warnings: string[] = [];
 
-  if (request.action === 'tables') {
+  if (request.action === 'browse') {
     return tablesResult(db, tables, context, version, notes, warnings);
   }
 
   if (request.action === 'schema') {
-    if (request.table && !tables.some((table) => table.name === request.table)) {
-      warnings.push(`No table or view named "${request.table}" — showing the whole schema.`);
+    let table = request.table;
+    if (table && !tables.some((entry) => entry.name === table)) {
+      warnings.push(`No table or view named "${table}", so the whole schema is shown.`);
+      table = '';
     }
-    const table = request.table && !warnings.length ? request.table : '';
     const [result] = db.exec(schemaSql(table));
     const entries = (result?.values ?? []).map((row) => ({
       name: String(row[0] ?? ''),
@@ -586,21 +630,11 @@ export function collectViewerResult(
         stats: summaryStats({ ...context, tableCount: tables.length, sqliteVersion: version }),
       };
     }
-    if (!table) notes.push(`Schema for ${formatNumber(tables.length)} objects.`);
     return {
-      report: {
-        output: `${text}\n`,
-        render: 'code',
-        language: 'sql',
-      },
+      report: { output: `${text}\n`, render: 'code', language: 'sql' },
       notes,
       warnings,
-      stats: summaryStats({
-        ...context,
-        tableCount: tables.length,
-        sqliteVersion: version,
-        rowCount: entries.length,
-      }),
+      stats: summaryStats({ ...context, tableCount: tables.length, sqliteVersion: version }),
     };
   }
 
@@ -612,12 +646,8 @@ export function collectViewerResult(
 
   const classified = classifyStatement(sql);
   if (classified.kind !== 'read') {
-    throw new ToolError(
-      classified.kind === 'forbidden'
-        ? `"${classified.verb}" cannot run here because ${classified.reason}.`
-        : 'That is not a readable SQL statement.',
-      'The viewer only runs SELECT, WITH, VALUES, TABLE, EXPLAIN and metadata PRAGMAs.',
-    );
+    const message = refusalMessage(classified);
+    throw new ToolError(message ?? 'That is not a readable SQL statement.', READ_ONLY_HINT);
   }
 
   const [result] = db.exec(classified.sql);
@@ -631,7 +661,12 @@ export function collectViewerResult(
       report: { output: 'The statement returned no result set.', render: 'text' },
       notes,
       warnings,
-      stats: summaryStats({ ...context, tableCount: tables.length, sqliteVersion: version, rowCount: 0 }),
+      stats: summaryStats({
+        ...context,
+        tableCount: tables.length,
+        sqliteVersion: version,
+        rowCount: 0,
+      }),
     };
   }
 

@@ -311,9 +311,7 @@ async function decryptFile(
   return {
     outputs: [
       {
-        filename: /\.tbenc$/i.test(file.name)
-          ? file.name.slice(0, -'.tbenc'.length)
-          : file.name,
+        filename: /\.tbenc$/i.test(file.name) ? file.name.slice(0, -'.tbenc'.length) : file.name,
         blob,
       },
     ],

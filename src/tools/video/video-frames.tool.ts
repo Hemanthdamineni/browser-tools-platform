@@ -140,13 +140,43 @@ export async function openMediabunnySource(
       sourceHeight,
       samples(timestamps: number[], ctx2: FramesRunContext): AsyncIterable<unknown> {
         const sink = new resolved.VideoSampleSink(track);
-        return sink.samplesAtTimestamps(timestamps);
+        return decodeAtTimestamps(sink, timestamps, ctx2);
       },
       dispose: () => opened.dispose(),
     };
   } catch (error) {
     opened.dispose();
     throw error;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Decode-at-timestamps                                                        */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Decode the requested timestamps in one pass, honouring cancellation and
+ * turning a decoder failure into a message a person can act on. A `null` sample
+ * means no frame was available at that instant — the caller draws a solid cell.
+ */
+async function* decodeAtTimestamps(
+  sink: InstanceType<VideoEngine['VideoSampleSink']>,
+  timestamps: number[],
+  ctx: FramesRunContext,
+): AsyncGenerator<unknown, void, undefined> {
+  try {
+    for await (const sample of sink.samplesAtTimestamps(timestamps)) {
+      ctx.signal?.throwIfAborted?.();
+      yield sample;
+    }
+  } catch (error) {
+    // A cancellation must stay a cancellation; the workbench shows it as such.
+    if ((error as { name?: string })?.name === 'AbortError') throw error;
+    if (error instanceof ToolError) throw error;
+    throw new ToolError(
+      'This video could not be decoded.',
+      'The file may be damaged, or it may use a codec this browser cannot handle. Try another clip, or re-export it as H.264 (MP4).',
+    );
   }
 }
 

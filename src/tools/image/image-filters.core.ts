@@ -107,10 +107,122 @@ export function describeParams(params: FilterParams): string {
 /* -------------------------------------------------------------------------- */
 
 /**
+ * A 4×5 colour matrix in row-major order (4 rows × 5 columns: RGBA + a
+ * translation column). Applies affine transforms like brightness, contrast,
+ * saturation and sepia to a pixel in one multiply-add each. `alpha` is the
+ * identity row so it is preserved.
+ */
+type ColourMatrix = readonly number[];
+
+const IDENTITY: ColourMatrix = [
+  1, 0, 0, 0, 0, //
+  0, 1, 0, 0, 0, //
+  0, 0, 1, 0, 0, //
+  0, 0, 0, 1, 0,
+];
+
+/** The standard pivot-at-128 contrast factor from the well-known formula
+ * `(259 × (C + 255)) / (255 × (259 − C))`. The slider is −100..100, so `C` is
+ * scaled to the formula's −255..255 range: −100 flattens everything to mid-grey
+ * (factor 0) and +100 is near-threshold; 0 is exactly 1 (no change). */
+function contrastFactor(contrast: number): number {
+  const c = clamp(contrast, -100, 100) * 2.55;
+  if (c === 0) return 1;
+  return (259 * (c + 255)) / (255 * (259 - c));
+}
+
+/** Brightness matrix: a linear offset of `value × 2.55` on every channel. */
+function brightnessMatrix(value: number): ColourMatrix {
+  const offset = clamp(value, -100, 100) * 2.55;
+  return [
+    1, 0, 0, 0, offset, //
+    0, 1, 0, 0, offset, //
+    0, 0, 1, 0, offset, //
+    0, 0, 0, 1, 0,
+  ];
+}
+
+/** Contrast matrix: scale around 128, identity at 0. */
+function contrastMatrix(value: number): ColourMatrix {
+  const factor = contrastFactor(value);
+  const offset = 128 * (1 - factor);
+  return [
+    factor, 0, 0, 0, offset, //
+    0, factor, 0, 0, offset, //
+    0, 0, factor, 0, offset, //
+    0, 0, 0, 1, 0,
+  ];
+}
+
+/** Saturation matrix: scale each channel's distance from the luma axis. */
+function saturationMatrix(value: number): ColourMatrix {
+  const s = 1 + clamp(value, -100, 100) / 100;
+  const inv = 1 - s;
+  return [
+    LR * inv + s, LG * inv, LB * inv, 0, 0, //
+    LR * inv, LG * inv + s, LB * inv, 0, 0, //
+    LR * inv, LG * inv, LB * inv + s, 0, 0, //
+    0, 0, 0, 1, 0,
+  ];
+}
+
+/** Grayscale matrix: full desaturation (saturation −100) to Rec. 709 luma. */
+const GRAYSCALE: ColourMatrix = saturationMatrix(-100);
+
+/** Sepia matrix, the classic photographic mix. */
+const SEPIA: ColourMatrix = [
+  0.393, 0.769, 0.189, 0, 0, //
+  0.349, 0.686, 0.168, 0, 0, //
+  0.272, 0.534, 0.131, 0, 0, //
+  0, 0, 0, 1, 0,
+];
+
+/** Multiply `left ∘ right` (apply `right` first, then `left`). */
+function multiplyColour(left: ColourMatrix, right: ColourMatrix): ColourMatrix {
+  const out = new Array(20).fill(0);
+  for (let row = 0; row < 4; row++) {
+    for (let col = 0; col < 5; col++) {
+      let sum = 0;
+      for (let k = 0; k < 4; k++) sum += left[row * 5 + k]! * right[k * 5 + col]!;
+      if (col === 4) sum += left[row * 5 + 4]!;
+      out[row * 5 + col] = sum;
+    }
+  }
+  return out;
+}
+
+/**
+ * Compose every active adjustment into one matrix, in the order brightness →
+ * contrast → saturation → grayscale → sepia. When nothing is active the result
+ * is exactly the identity matrix, so `applyFilters` can early-return and leave
+ * the pixels untouched.
+ */
+function buildColourMatrix(params: FilterParams): ColourMatrix {
+  let matrix = IDENTITY;
+  matrix = multiplyColour(contrastMatrix(params.contrast), matrix);
+  matrix = multiplyColour(brightnessMatrix(params.brightness), matrix);
+  matrix = multiplyColour(saturationMatrix(params.saturation), matrix);
+  if (params.grayscale) matrix = multiplyColour(GRAYSCALE, matrix);
+  if (params.sepia) matrix = multiplyColour(SEPIA, matrix);
+  return matrix;
+}
+
+/** Apply a colour matrix to one pixel; the last element of each row is added. */
+function applyColour(r: number, g: number, b: number, m: ColourMatrix): [number, number, number] {
+  return [
+    m[0]! * r + m[1]! * g + m[2]! * b + m[4]!,
+    m[5]! * r + m[6]! * g + m[7]! * b + m[9]!,
+    m[10]! * r + m[11]! * g + m[12]! * b + m[14]!,
+  ];
+}
+
+/**
  * Apply the full pipeline to `pixels` in place. `pixels` is an RGBA
  * `Uint8ClampedArray` of length `width * height * 4`. Alpha is preserved
- * untouched. The order is brightness → contrast → saturation → grayscale →
- * sepia → sharpen, matching the order most editors apply colour adjustments.
+ * untouched. Colour adjustments are folded into a single 4×5 matrix (brightness
+ * → contrast → saturation → grayscale → sepia), then the unsharp-mask kernel
+ * is applied when sharpening is on. The pipeline is the exact one the panel
+ * preview and the worker export share.
  */
 export function applyFilters(
   pixels: Uint8ClampedArray,
@@ -118,51 +230,12 @@ export function applyFilters(
   height: number,
   params: FilterParams,
 ): void {
-  if (isNeutral(params)) return     ;
-  const brightness = params.brightness * 2.55;
-  const contrastFactor = contrastCurve(params.contrast);
-  const sat = 1 + params.saturation / 100;
+  if (isNeutral(params)) return;
+  const matrix = buildColourMatrix(params);
   const n = width * height;
   for (let i = 0; i < n; i++) {
     const j = i * 4;
-    let r = pixels[j]!;
-    let g = pixels[j + 1]!;
-    let b = pixels[j + 2]!;
-
-    // Brightness: linear offset in 8-bit units.
-    r += brightness;
-    g += brightness;
-    b += brightness;
-
-    // Contrast: pivot at 128, identity at 0.
-    r = contrastFactor * (r - 128) + 128;
-    g = contrastFactor * (g - 128) + 128;
-    b = contrastFactor * (b - 128) + 128;
-
-    // Saturation: scale around the luma axis.
-    const luma = LR * r + LG * g + LB * b;
-    r = luma + (r - luma) * sat;
-    g = luma + (g - luma) * sat;
-    b = luma + (b - luma) * sat;
-
-    // Grayscale: collapse to luma.
-    if (params.grayscale) {
-      const gray = LR * r + LG * g + LB * b;
-      r = gray;
-      g = gray;
-      b = gray;
-    }
-
-    // Sepia: classic photographic matrix.
-    if (params.sepia) {
-      const sr = r * 0.393 + g * 0.769 + b * 0.189;
-      const sg = r * 0.349 + g * 0.686 + b * 0.168;
-      const sb = r * 0.272 + g * 0.534 + b * 0.131;
-      r = sr;
-      g = sg;
-      b = sb;
-    }
-
+    const [r, g, b] = applyColour(pixels[j]!, pixels[j + 1]!, pixels[j + 2]!, matrix);
     pixels[j] = channel(r);
     pixels[j + 1] = channel(g);
     pixels[j + 2] = channel(b);
@@ -170,18 +243,6 @@ export function applyFilters(
   }
 
   if (params.sharpen > 0) unsharpMask(pixels, width, height, params.sharpen);
-}
-
-/**
- * The standard pivot-at-128 contrast factor from the well-known formula
- * `(259 × (C + 255)) / (255 × (259 − C))`. The slider is −100..100, so `C` is
- * scaled to the formula's −255..255 range: −100 flattens everything to mid-grey
- * (factor 0) and +100 is near-threshold; 0 is exactly 1 (no change).
- */
-function contrastCurve(contrast: number): number {
-  const c = clamp(contrast, -100, 100) * 2.55;
-  if (c === 0) return 1;
-  return (259 * (c + 255)) / (255 * (259 - c));
 }
 
 /**

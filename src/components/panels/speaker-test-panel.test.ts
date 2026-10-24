@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import {
   channelLabel,
   clampFrequency,
@@ -11,6 +11,12 @@ import {
   sliderToFrequency,
 } from './speaker-test-panel';
 
+// The panel module talks to the worker client (which builds the whole registry)
+// at import time; these tests only exercise the exported pure maths, so mock it.
+vi.mock('@/lib/worker/client', () => ({
+  runToolById: vi.fn(),
+}));
+
 describe('speaker-test channel mapping', () => {
   it('left pans hard left at unity gain', () => {
     expect(gainAndPanForChannel('left')).toEqual({ gain: 1, pan: -1 });
@@ -20,7 +26,7 @@ describe('speaker-test channel mapping', () => {
     expect(gainAndPanForChannel('right')).toEqual({ gain: 1, pan: 1 });
   });
 
-  it('both sits at centre with the equal-power boost so it is as loud as either side', () => {
+  it('both sits at center with the equal-power boost so it is as loud as either side', () => {
     const { gain, pan } = gainAndPanForChannel('both');
     expect(pan).toBe(0);
     expect(gain).toBeCloseTo(Math.SQRT2, 10);

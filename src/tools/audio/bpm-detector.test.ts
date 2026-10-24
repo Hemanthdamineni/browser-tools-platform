@@ -1,4 +1,10 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+
+// The tool module pulls in the panel (its DSP lives there), and the panel
+// imports the worker client. Stub it so this metadata test does not load the
+// whole tool registry.
+vi.mock('@/lib/worker/client', () => ({ runToolById: vi.fn() }));
+
 import tool from './bpm-detector.tool';
 import { ToolError } from '@/lib/types';
 

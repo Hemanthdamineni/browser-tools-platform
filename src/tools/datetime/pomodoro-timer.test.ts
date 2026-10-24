@@ -42,13 +42,15 @@ describe('pomodoro-timer tool', () => {
     expect(tool.meta.status).toBe('stable');
   });
 
-  it('reports a running work session as a table', () => {
-    const session = openPhase(
-      SETTINGS,
-      { phase: 'working', completedWork: 2, completedSessions: 7 },
-      Date.now(),
-      true,
-    );
+  it('reports a paused work session as a table, with the exact time left', () => {
+    // A paused session carries its own remaining time, so the report is
+    // independent of the wall clock.
+    const session: StoredSession = {
+      state: { phase: 'working', completedWork: 2, completedSessions: 7 },
+      remaining: 1_500_000,
+      endAt: null,
+      running: false,
+    };
     const result = run(snapshot(session, SETTINGS));
     expect(result.render).toBe('table');
     const table = JSON.parse(result.output) as { headers: string[]; rows: string[][] };
@@ -59,7 +61,19 @@ describe('pomodoro-timer tool', () => {
     expect(valueOf(result, 'Work phases this cycle')).toBe('2 / 4');
     expect(valueOf(result, 'Work')).toBe('25 min');
     expect(result.stats?.sessionsCompleted).toBe(7);
+    expect((result.notes ?? []).join(' ')).toMatch(/paused/i);
+  });
+
+  it('notes that a running session is deadline-based', () => {
+    const session: StoredSession = {
+      state: { phase: 'working', completedWork: 0, completedSessions: 1 },
+      remaining: 0,
+      endAt: Date.now() + 1_500_000,
+      running: true,
+    };
+    const result = run(snapshot(session, SETTINGS));
     expect((result.notes ?? []).join(' ')).toMatch(/deadline-based/i);
+    expect(result.stats?.timeLeft).toMatch(/^25:00$/);
   });
 
   it('reports a fresh idle timer with the ready note', () => {
@@ -80,7 +94,7 @@ describe('pomodoro-timer tool', () => {
     expect(() => run('{"state":{"phase":"nope"}}')).toThrow(/no valid phase/i);
   });
 
-  it('honours every option branch, clamped into range', () => {
+  it('honours every option branch', () => {
     const session = openPhase(
       SETTINGS,
       { phase: 'shortBreak', completedWork: 0, completedSessions: 3 },

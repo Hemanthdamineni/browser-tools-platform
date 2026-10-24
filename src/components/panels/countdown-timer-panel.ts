@@ -107,7 +107,7 @@ export function parseTimerEntry(
     }
   }
 
-  // Nothing recognisable — let `parseDuration` raise the friendly error.
+  // Nothing recognizable — let `parseDuration` raise the friendly error.
   return { label: fallbackLabel, durationMs: parseDuration(raw) };
 }
 
@@ -116,25 +116,36 @@ function durationSeconds(raw: string): number {
   // A bare number of seconds: `90`, `300`.
   if (/^\d+$/.test(raw)) return Number(raw);
 
-  // Colon form: `5:00` (mm:ss) or `1:05:30` (hh:mm:ss).
+  // Colon form: `5:00` is mm:ss, `1:05:30` is hh:mm:ss.
   const colon = /^(\d{1,3}):(\d{1,2})(?::(\d{1,2}))?$/.exec(raw);
   if (colon) {
-    const hours = colon[1] ? Number(colon[1]) : 0;
-    const minutes = colon[2] ? Number(colon[2]) : 0;
-    const seconds = colon[3] ? Number(colon[3]) : 0;
-    if (minutes > 59 || seconds > 59) return Number.NaN;
-    return hours * 3600 + minutes * 60 + seconds;
+    const first = Number(colon[1]);
+    const second = Number(colon[2]);
+    const third = colon[3] ? Number(colon[3]) : null;
+    if (third === null) {
+      if (second > 59) return Number.NaN;
+      return first * 60 + second;
+    }
+    if (second > 59 || third > 59) return Number.NaN;
+    return first * 3600 + second * 60 + third;
   }
 
   // Compact letters: `90s`, `2m30s`, `1h5m30s`.
   const match = DURATION_RE.exec(raw);
   if (!match) return Number.NaN;
-  const hours = match[1] ? Number(match[1]) : 0;
-  const minutes = match[2] ? Number(match[2]) : 0;
-  const seconds = match[3] ? Number(match[3]) : 0;
-  if (hours === 0 && minutes === 0 && seconds === 0) return Number.NaN;
-  if (minutes > 59 || seconds > 59) return Number.NaN;
-  return hours * 3600 + minutes * 60 + seconds;
+  const hours = match[1] ? Number(match[1]) : null;
+  const minutes = match[2] ? Number(match[2]) : null;
+  const seconds = match[3] ? Number(match[3]) : null;
+  if (hours === null && minutes === null && seconds === null) return Number.NaN;
+  // A smaller unit may only pass 59 when it stands on its own, so `90s` and
+  // `90m` are fine while `2h90m` is a typo.
+  if (minutes !== null && minutes > 59 && (hours !== null || seconds !== null)) {
+    return Number.NaN;
+  }
+  if (seconds !== null && seconds > 59 && (hours !== null || minutes !== null)) {
+    return Number.NaN;
+  }
+  return (hours ?? 0) * 3600 + (minutes ?? 0) * 60 + (seconds ?? 0);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -206,12 +217,17 @@ export function startTimer(timer: Timer, now: number): Timer {
 }
 
 /**
- * Freeze a running timer: its remaining time is stored and its deadline
- * dropped, so no time leaks away while it is paused.
+ * Freeze a running timer: its remaining time is stored and the deadline is
+ * ignored while paused, so no time leaks away.
  */
 export function pauseTimer(timer: Timer, now: number): Timer {
   if (!timer.running) return timer;
-  return { ...timer, running: false, endAt: timer.endAt, pausedRemainingMs: remainingMs(timer, now) };
+  return {
+    ...timer,
+    running: false,
+    endAt: timer.endAt,
+    pausedRemainingMs: remainingMs(timer, now),
+  };
 }
 
 /** Resume a paused timer by turning its frozen remaining time into a deadline. */
@@ -350,7 +366,10 @@ export function parseSnapshot(text: string): TimerSnapshot {
   }
   for (const timer of snapshot.timers) {
     if (!timer || typeof timer !== 'object') {
-      throw new ToolError('A timer in the snapshot is malformed.', 'Reload the page and try again.');
+      throw new ToolError(
+        'A timer in the snapshot is malformed.',
+        'Reload the page and try again.',
+      );
     }
   }
   return { now: snapshot.now, timers: snapshot.timers as TimerSnapshot['timers'] };
@@ -399,7 +418,8 @@ export function mountCountdownTimerPanel(panel: HTMLElement): void {
   const presetRow = panel.querySelector<HTMLElement>('[data-preset-row]')!;
   const exampleRow = panel.querySelector<HTMLElement>('[data-example-row]')!;
   const status = panel.querySelector<HTMLElement>('[data-timer-status]')!;
-  const resultWrap = panel.querySelector<HTMLElement>('[data-result-wrap]')!;
+  const emptyEl = panel.querySelector<HTMLElement>('[data-timer-empty]')!;
+  const summaryWrap = panel.querySelector<HTMLElement>('[data-timer-summary-wrap]')!;
   const summaryHost = panel.querySelector<HTMLElement>('[data-timer-summary]')!;
   const notesHost = panel.querySelector<HTMLUListElement>('[data-timer-notes]')!;
   const soundInput = panel.querySelector<HTMLInputElement>('[data-sound]')!;
@@ -413,7 +433,8 @@ export function mountCountdownTimerPanel(panel: HTMLElement): void {
     !addBtn ||
     !presetRow ||
     !status ||
-    !resultWrap ||
+    !emptyEl ||
+    !summaryWrap ||
     !summaryHost ||
     !notesHost ||
     !soundInput ||
@@ -476,6 +497,8 @@ export function mountCountdownTimerPanel(panel: HTMLElement): void {
           );
           announce(timer.running ? 'Timer paused.' : 'Timer resumed.');
           refresh();
+          // A resumed timer must start ticking again; a paused one is a no-op.
+          startTicking();
         });
         actions.append(toggle);
       }
@@ -499,7 +522,6 @@ export function mountCountdownTimerPanel(panel: HTMLElement): void {
       remove.setAttribute('aria-label', `Remove ${timer.label}`);
       remove.addEventListener('click', () => {
         timers = timers.filter((t) => t.id !== timer.id);
-        if (!timers.length) resultWrap.hidden = true;
         announce('Timer removed.');
         refresh();
       });
@@ -510,13 +532,27 @@ export function mountCountdownTimerPanel(panel: HTMLElement): void {
     }
   }
 
-  function tick(): void {
+  /**
+   * Reconcile the timers against the clock: settle whatever has expired, raise
+   * the alerts for the timers that just finished, repaint and refresh the
+   * report. Used by both the tick loop and by the wake-up on focus.
+   */
+  function sync(): void {
     const before = timers;
     timers = settleTimers(timers, Date.now());
-    for (const timer of newlyFinished(before, timers)) raiseAlert(timer);
+    const fired = newlyFinished(before, timers);
+    if (fired.length) {
+      // A finished timer loses its Pause button, so repaint its row.
+      renderList();
+      raiseAlert(fired);
+    }
     updateReadouts();
     void refreshReport();
-    if (timers.some((t) => t.running)) {
+  }
+
+  function tick(): void {
+    sync();
+    if (timers.some((timer) => timer.running)) {
       tickHandle = window.setTimeout(tick, 250);
     } else {
       stopTicking();
@@ -549,10 +585,17 @@ export function mountCountdownTimerPanel(panel: HTMLElement): void {
     status.textContent = message;
   }
 
-  function raiseAlert(timer: Timer): void {
-    announce(`“${timer.label}” finished.`);
+  function raiseAlert(fired: Timer[]): void {
+    if (!fired.length) return;
+    announce(
+      fired.length === 1
+        ? `“${fired[0]!.label}” finished.`
+        : `${fired.length} timers finished: ${fired.map((timer) => timer.label).join(', ')}.`,
+    );
     if (soundInput.checked) playBeep();
-    if (notifyInput.checked) sendNotification(timer.label);
+    if (notifyInput.checked) {
+      for (const timer of fired) sendNotification(timer.label);
+    }
   }
 
   function playBeep(): void {
@@ -567,19 +610,12 @@ export function mountCountdownTimerPanel(panel: HTMLElement): void {
   }
 
   function sendNotification(label: string): void {
-    if (!('Notification' in globalThis)) return;
-    const NotificationCtor = (globalThis as typeof globalThis & {
-      Notification?: typeof Notification;
-    }).Notification;
-    if (!NotificationCtor) return;
-    if (NotificationCtor.permission === 'granted') {
-      try {
-        new NotificationCtor(`${label} finished`, {
-          body: 'Your countdown timer has run out.',
-        });
-      } catch {
-        // Some browsers throw when a notification is created outside a gesture.
-      }
+    if (typeof Notification === 'undefined') return;
+    if (Notification.permission !== 'granted') return;
+    try {
+      new Notification(`${label} finished`, { body: 'Your countdown timer has run out.' });
+    } catch {
+      // Some browsers throw when a notification is created outside a gesture.
     }
   }
 
@@ -595,12 +631,18 @@ export function mountCountdownTimerPanel(panel: HTMLElement): void {
     };
   }
 
+  function showEmpty(): void {
+    emptyEl.hidden = false;
+    summaryWrap.hidden = true;
+  }
+
   async function refreshReport(): Promise<void> {
     if (!timers.length) {
-      resultWrap.hidden = true;
+      showEmpty();
       return;
     }
-    resultWrap.hidden = false;
+    emptyEl.hidden = true;
+    summaryWrap.hidden = false;
     const generation = ++reportGeneration;
     try {
       const result = await runToolById<TextRunResult>(toolId, {
@@ -672,10 +714,16 @@ export function mountCountdownTimerPanel(panel: HTMLElement): void {
     try {
       parsed = parseTimerEntry(entry, fallbackLabel);
     } catch (error) {
-      showError(errorBox, (error as Error).message, (error as { hint?: string }).hint);
+      const err = error as Error & { hint?: string };
+      showError(errorBox, err.message, err.hint);
       return;
     }
-    const timer = createTimer(`timer-${nextTimerId++}`, parsed.label, parsed.durationMs, Date.now());
+    const timer = createTimer(
+      `timer-${nextTimerId++}`,
+      parsed.label,
+      parsed.durationMs,
+      Date.now(),
+    );
     timers.push(timer);
     refresh();
     startTicking();
@@ -706,7 +754,8 @@ export function mountCountdownTimerPanel(panel: HTMLElement): void {
     });
   });
 
-  exampleRow.querySelectorAll<HTMLButtonElement>('[data-example]').forEach((example) => {
+  // One-click examples, when the tool declares any.
+  exampleRow?.querySelectorAll<HTMLButtonElement>('[data-example]').forEach((example) => {
     example.addEventListener('click', () => {
       const entry = example.dataset.exampleEntry ?? '';
       if (!entry) return;
@@ -730,37 +779,23 @@ export function mountCountdownTimerPanel(panel: HTMLElement): void {
   // Permission is only ever asked for on this direct user action.
   notifyInput.addEventListener('change', () => {
     if (!notifyInput.checked) return;
-    if (!('Notification' in globalThis)) {
+    if (typeof Notification === 'undefined') {
       notifyInput.checked = false;
       announce('This browser does not support desktop notifications.');
       return;
     }
-    const NotificationCtor = (globalThis as typeof globalThis & {
-      Notification?: typeof Notification;
-    }).Notification;
-    if (!NotificationCtor) {
-      notifyInput.checked = false;
-      announce('This browser does not support desktop notifications.');
-      return;
-    }
-    if (NotificationCtor.permission === 'default') {
-      void NotificationCtor.requestPermission().then((permission) => {
+    if (Notification.permission === 'default') {
+      void Notification.requestPermission().then((permission) => {
         if (permission !== 'granted') notifyInput.checked = false;
       });
-    } else if (NotificationCtor.permission !== 'granted') {
+    } else if (Notification.permission !== 'granted') {
       notifyInput.checked = false;
     }
   });
 
   // A backgrounded tab is throttled; when it wakes, settle against the clock
-  // instead of waiting for the next tick.
-  window.addEventListener('focus', () => {
-    const before = timers;
-    timers = settleTimers(timers, Date.now());
-    for (const timer of newlyFinished(before, timers)) raiseAlert(timer);
-    updateReadouts();
-    void refreshReport();
-  });
+  // straight away instead of waiting for the next tick.
+  window.addEventListener('focus', sync);
 
   window.addEventListener('beforeunload', () => stopTicking(), { once: true });
 

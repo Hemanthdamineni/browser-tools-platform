@@ -4,7 +4,8 @@ export const meta: ToolMeta = {
   id: 'file-encrypt',
   name: 'File Encryption (AES-GCM)',
   category: 'security',
-  summary: 'Encrypt or decrypt any file with a password using AES-256-GCM — chunked, with a versioned header.',
+  summary:
+    'Encrypt or decrypt any file with a password using AES-256-GCM — chunked, with a versioned header.',
   description:
     'Lock a file with a password, or open a file this tool encrypted earlier. A 256-bit key is derived from your password with PBKDF2-SHA256, then the file is sealed chunk by chunk with AES-256-GCM behind a versioned header so large files never need to fit in memory twice. Nothing is uploaded and there is no key escrow.',
   keywords: [

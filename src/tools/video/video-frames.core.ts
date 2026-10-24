@@ -16,8 +16,6 @@ import { ToolError } from '@/lib/types';
 
 /** Slowest useful interval between frames (0.1 s). */
 export const FRAMES_MIN_INTERVAL = 0.1;
-/** Shortest useful extractable slice. */
-export const FRAMES_MIN_RANGE = FRAMES_MIN_INTERVAL;
 /**
  * Hard ceiling on the number of frames we will decode. Each one is a full
  * decode + a PNG encode, so beyond this a long clip would wedge the tab.

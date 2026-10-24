@@ -36,7 +36,7 @@ declare module 'sql.js/dist/sql-wasm-browser.js' {
 
   export interface SqlJsModule {
     /** Open an in-memory database, optionally seeded from the given bytes. */
-    Database(data?: ArrayBuffer | Uint8Array | null): SqlJsDatabase;
+    Database: new (data?: ArrayBuffer | Uint8Array | null) => SqlJsDatabase;
   }
 
   /** `initSqlJs(config)` resolves to the loaded sql.js module. */

@@ -17,6 +17,7 @@ interface Props {
 }
 const { meta } = Astro.props;
 const p = meta.id;
+const examples = meta.examples ?? [];
 ---
 
 <section
@@ -27,6 +28,24 @@ const p = meta.id;
   data-accept={meta.accept ?? ''}
   aria-label={`${meta.name} workbench`}
 >
+  {
+    examples.length > 0 && (
+      <div class="mb-4 flex flex-wrap items-center gap-2">
+        <span class="text-xs font-medium text-[rgb(var(--text-muted))]">Try:</span>
+        {examples.map((example, index) => (
+          <button
+            type="button"
+            class="chip hover:text-[rgb(var(--text))]"
+            data-example={index}
+            data-example-options={JSON.stringify(example.options ?? {})}
+          >
+            {example.title}
+          </button>
+        ))}
+      </div>
+    )
+  }
+
   <h2 class="text-base font-semibold text-[rgb(var(--text))]">1 · Add audio</h2>
   <div
     class="drop-zone mt-3 flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed px-4 py-8 text-center transition-colors"
@@ -50,7 +69,7 @@ const p = meta.id;
     </button>
     <span
       class="flex items-center gap-2 text-sm font-medium text-[rgb(var(--text))]"
-      data-mic-timer
+      data-mic-indicator
       hidden
     >
       <span
@@ -59,6 +78,7 @@ const p = meta.id;
         aria-hidden="true"
       ></span>
       <span>Recording</span>
+      <span class="font-mono tabular-nums" data-mic-timer>0:00</span>
     </span>
   </div>
 

@@ -380,11 +380,13 @@ async function embedLogo(
   const mime = m[1]!.toLowerCase();
   const bytes = Uint8Array.from(atob(m[2]!), (c) => c.charCodeAt(0));
   try {
-    let image;
-    if (mime === 'image/png') image = await doc.embedPng(bytes);
-    else if (mime === 'image/jpeg' || mime === 'image/jpg') image = await doc.embedJpg(bytes);
-    else if (mime === 'image/svg+xml') image = await doc.embedSvg(bytes);
-    else return null;
+    const image =
+      mime === 'image/png'
+        ? await doc.embedPng(bytes)
+        : mime === 'image/jpeg' || mime === 'image/jpg'
+          ? await doc.embedJpg(bytes)
+          : null;
+    if (!image) return null;
     const maxW = 110;
     const maxH = 60;
     const scale = Math.min(maxW / image.width, maxH / image.height, 1);
@@ -573,11 +575,6 @@ function num(root: ParentNode, selector: string): number {
   return Number.isFinite(n) ? n : 0;
 }
 
-/** The serialised model JSON the tool's `run()` consumes. */
-export function modelToJson(model: InvoiceDraft): string {
-  return JSON.stringify(model);
-}
-
 /** Mount the invoice generator into a `[data-invoice-generator-workbench]` element. */
 export function mountInvoiceGeneratorPanel(root: HTMLElement): void {
   const toolId = root.dataset.toolId || 'invoice-generator';
@@ -598,15 +595,16 @@ export function mountInvoiceGeneratorPanel(root: HTMLElement): void {
 
   let logoDataUrl = '';
 
-  function lineRow(index: number, line: InvoiceLine): HTMLDivElement {
+  function lineRow(line: InvoiceLine): HTMLDivElement {
     const row = document.createElement('div');
-    row.className = 'invoice-line grid gap-2';
-    row.dataset.lineRow = String(index);
+    row.className = 'grid items-center gap-2';
+    row.style.gridTemplateColumns = '1fr 64px 96px 64px auto';
+    row.dataset.lineRow = '';
     row.innerHTML = `
       <input class="field" data-line-desc placeholder="Description" value="${escapeAttr(line.description)}" />
-      <input class="field" data-line-qty type="number" min="0" step="any" value="${line.quantity}" />
-      <input class="field" data-line-price type="number" min="0" step="0.01" value="${line.unitPrice}" />
-      <input class="field" data-line-tax type="number" min="0" max="100" step="any" value="${line.taxRate}" />
+      <input class="field" data-line-qty type="number" min="0" step="any" value="${line.quantity}" aria-label="Quantity" />
+      <input class="field" data-line-price type="number" min="0" step="0.01" value="${line.unitPrice}" aria-label="Unit price" />
+      <input class="field" data-line-tax type="number" min="0" max="100" step="any" value="${line.taxRate}" aria-label="Tax rate" />
       <button type="button" class="btn btn-ghost" data-line-remove aria-label="Remove line">Remove</button>
     `;
     row.querySelector<HTMLButtonElement>('[data-line-remove]')!.addEventListener('click', () => {
@@ -694,7 +692,7 @@ export function mountInvoiceGeneratorPanel(root: HTMLElement): void {
   function renderLines(lines: InvoiceLine[]): void {
     linesBody.innerHTML = '';
     const rows = lines.length ? lines : [emptyModel().lines[0]!];
-    rows.forEach((line, i) => linesBody.append(lineRow(i, line)));
+    rows.forEach((line) => linesBody.append(lineRow(line)));
   }
 
   function applyModel(model: InvoiceDraft): void {
@@ -745,7 +743,7 @@ export function mountInvoiceGeneratorPanel(root: HTMLElement): void {
   }
 
   addLineBtn.addEventListener('click', () => {
-    linesBody.append(lineRow(linesBody.children.length, { description: '', quantity: 1, unitPrice: 0, taxRate: 0 }));
+    linesBody.append(lineRow({ description: '', quantity: 1, unitPrice: 0, taxRate: 0 }));
     renderTotals();
   });
 
@@ -779,7 +777,7 @@ export function mountInvoiceGeneratorPanel(root: HTMLElement): void {
       try {
         const result = await runToolById<TextRunResult>(toolId, {
           text: '',
-          options: { model: modelToJson(model), outputName: `${model.invoiceNumber || 'invoice'}.pdf`, currency: model.currency },
+          options: { model: serializeDraft(model), outputName: `${model.invoiceNumber || 'invoice'}.pdf` },
         });
         // The tool returns a data URL; turn it into a blob and download it.
         const match = /^data:([^;]+);base64,(.*)$/s.exec(result.output);

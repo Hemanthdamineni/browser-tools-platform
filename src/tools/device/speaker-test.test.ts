@@ -1,6 +1,13 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import tool, { buildReport, parseSession } from './speaker-test.tool';
 import { ToolError } from '@/lib/types';
+
+// The tool's report imports the panel module for the shared maths; that module
+// talks to the worker client, which in turn builds the whole registry. Mock it
+// so these tests run on the pure logic in isolation.
+vi.mock('@/lib/worker/client', () => ({
+  runToolById: vi.fn(),
+}));
 
 /** A session payload as the panel would hand it over. */
 function payload(overrides: Record<string, unknown> = {}): string {

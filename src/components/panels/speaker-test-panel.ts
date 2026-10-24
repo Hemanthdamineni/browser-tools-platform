@@ -14,7 +14,7 @@
  * The tone is synthesized in the tab and played straight to the output device:
  * nothing is recorded, stored or uploaded.
  */
-import type { FileRunResult, OptionValues } from '@/lib/types';
+import type { OptionValues, TextRunResult } from '@/lib/types';
 import { runToolById } from '@/lib/worker/client';
 import { clamp, formatDuration } from '@/lib/format';
 import { clearError, renderTextResult, showError } from '../workbench/shared';
@@ -69,8 +69,8 @@ export interface SpeakerSession {
  * The stereo gain and pan that aim a test at one channel.
  *
  * `left` and `right` pan hard to one side at unity gain; `both` sits in the
- * centre and lifts the gain by √2, which is exactly the amount the equal-power
- * pan law takes away from a centred signal — so every channel choice is as loud
+ * center and lifts the gain by √2, which is exactly the amount the equal-power
+ * pan law takes away from a centerd signal — so every channel choice is as loud
  * as the others.
  */
 export function gainAndPanForChannel(channel: SpeakerChannel): GainPan {
@@ -324,7 +324,7 @@ export function mountSpeakerTestPanel(root: HTMLElement): void {
     stopActive();
 
     if (!context) context = new Ctor();
-    const ctx = context;
+    const ctx = context ?? new Ctor();
     if (ctx.state === 'suspended') void ctx.resume();
 
     const channel = readChannel(root);
@@ -414,15 +414,11 @@ export function mountSpeakerTestPanel(root: HTMLElement): void {
 
   async function refreshReport(): Promise<void> {
     try {
-      const result = await runToolById<FileRunResult>(toolId, {
+      const result = await runToolById<TextRunResult>(toolId, {
         text: JSON.stringify({ plays } satisfies SpeakerSession),
         options: currentOptions(root),
       });
-      renderTextResult(reportEl, {
-        output: result.report?.output ?? '',
-        render: result.report?.render,
-        language: result.report?.language,
-      });
+      renderTextResult(reportEl, result);
       resultWrap.hidden = false;
       notesEl.replaceChildren();
       for (const warning of result.warnings ?? []) {
@@ -460,11 +456,11 @@ export function mountSpeakerTestPanel(root: HTMLElement): void {
     };
     const fromNumber = (): void => {
       const hz = clampFrequency(Number(numberInput.value));
-      slider.value = String(frequencyToSlider(hz));
+      slider.value = String(frequencyToSlider(hz) * 100);
       show(hz);
     };
     const fromSlider = (): void => {
-      const hz = sliderToFrequency(Number(slider.value));
+      const hz = sliderToFrequency(Number(slider.value) / 100);
       numberInput.value = String(hz);
       show(hz);
     };
@@ -492,9 +488,12 @@ export function mountSpeakerTestPanel(root: HTMLElement): void {
 
   const modeSelect = root.querySelector<HTMLSelectElement>('[data-sp-mode]');
   const sweepWrap = root.querySelector<HTMLElement>('[data-sp-sweep]');
-  if (modeSelect && sweepWrap) {
+  const toneWrap = root.querySelector<HTMLElement>('[data-sp-tone-controls]');
+  if (modeSelect) {
     const syncMode = (): void => {
-      sweepWrap.hidden = modeSelect.value !== 'sweep';
+      const sweep = modeSelect.value === 'sweep';
+      if (sweepWrap) sweepWrap.hidden = !sweep;
+      if (toneWrap) toneWrap.hidden = sweep;
     };
     modeSelect.addEventListener('change', syncMode);
     syncMode();

@@ -12,6 +12,7 @@
  * module, which is unit-tested without a canvas.
  */
 import type { FileRunResult, OptionValues } from '@/lib/types';
+import { ToolError } from '@/lib/types';
 import { createDropZone, downloadBlob, validateFileSelection } from '@/lib/files';
 import { escapeHtml, formatBytes } from '@/lib/format';
 import { runToolById } from '@/lib/worker/client';
@@ -178,12 +179,12 @@ export function mountImageFiltersPanel(root: HTMLElement): void {
   /** Coalesce rapid `input` events (a slider drag) into one render per frame. */
   function scheduleRender(): void {
     if (rafId) return;
-    const run = () => {
+    const paint = () => {
       rafId = 0;
       renderPreview();
     };
-    if (typeof requestAnimationFrame === 'function') rafId = requestAnimationFrame(run);
-    else run();
+    if (typeof requestAnimationFrame === 'function') rafId = requestAnimationFrame(paint);
+    else paint();
   }
 
   function setShowOriginal(next: boolean): void {
@@ -254,8 +255,8 @@ export function mountImageFiltersPanel(root: HTMLElement): void {
       clearPreview('That image could not be opened.');
       showError(
         errorBox,
-        error instanceof Error ? error.message : 'That image could not be opened.',
-        'Choose a PNG, JPEG or WebP image.',
+        error instanceof ToolError ? error.message : 'That image could not be opened.',
+        error instanceof ToolError ? error.hint : 'Choose a PNG, JPEG or WebP image.',
       );
       return;
     }

@@ -87,7 +87,8 @@ export function mp3FrameCount(samples: number, perFrame = MP3_SAMPLES_PER_FRAME)
 export class Mp3ByteCounter {
   /** Number of MP3 frames the whole stream is expected to contain. */
   readonly expectedFrames: number;
-  private bytes = 0, frames = 0;
+  private bytes = 0;
+  private frames = 0;
 
   constructor(totalSamples: number, perFrame = MP3_SAMPLES_PER_FRAME) {
     this.expectedFrames = mp3FrameCount(totalSamples, perFrame);

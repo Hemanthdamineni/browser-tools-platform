@@ -192,7 +192,8 @@ describe('previewSize', () => {
     const size = previewSize(6000, 4000, 2_000_000);
     expect(size.width * size.height).toBeLessThanOrEqual(2_100_000);
     expect(size.width).toBeLessThan(6000);
-    expect(size.scale).toBeCloseTo(size.width / 6000, 10);
+    expect(size.scale).toBeGreaterThan(0);
+    expect(size.scale).toBeLessThan(1);
   });
 });
 

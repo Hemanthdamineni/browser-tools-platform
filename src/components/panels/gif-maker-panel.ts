@@ -19,7 +19,7 @@
  */
 import type { FileRunResult } from '@/lib/types';
 import { createDropZone, downloadBlob, validateFileSelection } from '@/lib/files';
-import { escapeHtml, formatBytes, formatDuration } from '@/lib/format';
+import { formatBytes, formatDuration } from '@/lib/format';
 import { runToolById } from '@/lib/worker/client';
 import {
   applyShowWhen,
@@ -142,26 +142,6 @@ export function normalizeDelayCs(value: unknown, fallback: number): number {
 /* -------------------------------------------------------------------------- */
 /*  Size limit maths                                                          */
 /* -------------------------------------------------------------------------- */
-
-/**
- * Scale `width` × `height` down (preserving aspect ratio) so the larger side
- * is at most `maxSide`. A frame already at or under the limit is unchanged.
- */
-export function fitToMaxSide(
-  width: number,
-  height: number,
-  maxSide: number,
-): { width: number; height: number } {
-  const w = Math.max(1, Math.round(width));
-  const h = Math.max(1, Math.round(height));
-  const side = Math.max(1, Math.round(maxSide));
-  if (w <= side && h <= side) return { width: w, height: h };
-  const scale = side / Math.max(w, h);
-  return {
-    width: Math.max(1, Math.round(w * scale)),
-    height: Math.max(1, Math.round(h * scale)),
-  };
-}
 
 /**
  * The output size for a GIF of `frameCount` frames: start from the source
@@ -770,6 +750,30 @@ export function mountGifMakerPanel(root: HTMLElement): void {
 
   optionsRoot.addEventListener('input', () => applyShowWhen(optionsRoot));
   optionsRoot.addEventListener('change', () => applyShowWhen(optionsRoot));
+
+  for (const button of root.querySelectorAll<HTMLButtonElement>('[data-example]')) {
+    button.addEventListener('click', () => {
+      let options: Record<string, unknown> = {};
+      try {
+        options = JSON.parse(button.dataset.exampleOptions ?? '{}') as Record<string, unknown>;
+      } catch {
+        options = {};
+      }
+      for (const [key, value] of Object.entries(options)) {
+        const field = optionsRoot.querySelector<
+          HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+        >(`[data-opt-key="${key}"]`);
+        if (!field) continue;
+        if (field.dataset.optType === 'boolean') {
+          (field as HTMLInputElement).checked = value === true;
+        } else {
+          field.value = String(value);
+        }
+      }
+      applyShowWhen(optionsRoot);
+      dropEl.focus();
+    });
+  }
 
   /* ---------------------------------------------------------------------- */
   /*  Run                                                                   */
