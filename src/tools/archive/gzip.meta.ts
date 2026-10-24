@@ -66,6 +66,20 @@ export const meta: ToolMeta = {
       options: { mode: 'compress', level: 9 },
     },
   ],
+  faq: [
+    {
+      q: 'Why does a plain text file refuse to decompress?',
+      a: 'The gzip magic bytes 1F 8B identify a stream. In explicit decompress mode, a file whose bytes do not start with that signature is refused rather than passed through, because silently treating non-gzip data as compressed would corrupt it.',
+    },
+    {
+      q: 'Is level 9 always better?',
+      a: 'No. Higher levels shrink the output more slowly and can even be larger for tiny or already-incompressible files. The default level 6 is a good speed-versus-size trade-off for most files.',
+    },
+    {
+      q: 'Does compressing in the browser upload anything?',
+      a: 'No. The file is read into memory locally and compressed or decompressed in this tab. Nothing is sent to a server, and a very large file consumes roughly its size in RAM for the duration of the run.',
+    },
+  ],
   related: ['zip-create', 'base64'],
   credits: [{ name: 'fflate', url: 'https://github.com/101arrowz/fflate', license: 'MIT' }],
   status: 'stable',

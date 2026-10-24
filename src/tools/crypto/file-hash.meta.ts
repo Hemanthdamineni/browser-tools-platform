@@ -75,6 +75,10 @@ export const meta: ToolMeta = {
       q: 'How large a file can it handle?',
       a: 'Hashing runs in a Web Worker so the page stays responsive. The browser Web Crypto API needs the whole file in memory at once, so the practical limit is roughly your device’s free RAM (comfortably hundreds of MB). True multi-gigabyte streaming is on the roadmap.',
     },
+    {
+      q: 'Can I compare two files for duplicates?',
+      a: 'Yes. Drop both files and compare their digests — identical bytes always produce the same hash for a given algorithm. Two files that hash the same are duplicates; note that this proves equality only for the algorithm used, so a collision in SHA-256 is not a practical concern.',
+    },
   ],
   related: ['hash', 'hmac', 'crc32'],
   status: 'stable',

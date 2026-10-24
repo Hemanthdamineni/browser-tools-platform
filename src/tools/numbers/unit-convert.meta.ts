@@ -96,6 +96,10 @@ export const meta: ToolMeta = {
       q: 'How is temperature handled?',
       a: 'Temperature is not a simple factor table — values are converted to Kelvin first, then out to Celsius, Fahrenheit, Kelvin or Rankine.',
     },
+    {
+      q: 'What happens if I leave the from or to unit blank?',
+      a: 'Blank fields fall back to the first unit of the selected category, and the result table still shows the value in every unit of that category, so you can find the row you want without naming both units.',
+    },
   ],
   related: ['css-units', 'data-size', 'significant-figures'],
   status: 'stable',

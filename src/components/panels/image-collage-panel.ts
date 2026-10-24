@@ -173,7 +173,6 @@ export function mountImageCollagePanel(root: HTMLElement): void {
   /* ---------------------------------------------------------------------- */
 
   function clearPreview(message: string): void {
-    previewCells = [];
     canvas!.width = 16;
     canvas!.height = 9;
     const ctx = canvas!.getContext('2d');
@@ -205,7 +204,6 @@ export function mountImageCollagePanel(root: HTMLElement): void {
     try {
       options = readCollageOptions(readOptions(optionsRoot), count);
     } catch (error) {
-      previewCells = [];
       announce(
         error instanceof ToolError ? error.message : 'Check the colour options to see a preview.',
       );
@@ -224,7 +222,6 @@ export function mountImageCollagePanel(root: HTMLElement): void {
     }
     const gap = Math.max(0, Math.round(options.spacing * scale));
     const { cells } = gridCells(count, options.columns, gap, preview.width, preview.height);
-    previewCells = cells;
 
     ctx.clearRect(0, 0, preview.width, preview.height);
     if (options.background !== 'transparent') {

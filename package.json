@@ -19,13 +19,14 @@
     "format:check": "prettier --check \"src/**/*.{ts,astro,css,md}\" \"*.{mjs,json,md}\"",
     "docs:tools": "node scripts/gen-tools-doc.mjs",
     "docs:check": "node scripts/gen-tools-doc.mjs && git diff --exit-code -- docs/TOOLS.md docs/TOOLS.md.csv",
+    "bundle:check": "node scripts/check-bundle.mjs",
     "vendor:heif": "node scripts/vendor-heif-wasm.mjs",
     "vendor:tesseract": "node scripts/vendor-tesseract.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
-    "verify": "npm run check && npm run lint && npm run test && npm run build"
+    "verify": "npm run check && npm run lint && npm run format:check && npm run test && npm run build && npm run bundle:check && npm run test:e2e"
   },
   "dependencies": {
     "@astrojs/tailwind": "^5.1.5",

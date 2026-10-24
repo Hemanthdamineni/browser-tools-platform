@@ -41,7 +41,7 @@ function sine(freq: number, n: number, sampleRate = FS, amp = 1): Float32Array {
 }
 
 /** Build options with a full band and the usual dB scale. */
-function opts(over: Partial<SpectrogramOptions> = {}) {
+function opts(over: Partial<SpectrogramOptions> = {}): SpectrogramOptions {
   return { fftSize: 1024, window: 'hann', minFreq: 0, maxFreq: 24000, floorDb: -80, ceilingDb: 0, ...over };
 }
 
@@ -152,7 +152,7 @@ describe('magnitudeToDb', () => {
     expect(magnitudeToDb(1e-9, -80, 0)).toBe(-80); // -180 dB → floor
     expect(magnitudeToDb(10, -80, 0)).toBe(0); // +20 dB → ceiling
     expect(magnitudeToDb(1000, -80, 0)).toBe(0); // +60 dB → ceiling
-    expect(magnitudeToDb(0.5, -40, -6)).toBe(-6); // ≈ -6.02 dB → ceiling
+    expect(magnitudeToDb(0.5, -40, -6)).toBeCloseTo(-6.0206, 3); // ≈ -6.02 dB
   });
 
   it('treats silence, zero and non-finite input as the floor', () => {
@@ -313,8 +313,9 @@ describe('PNG output', () => {
     expect(png[0]).toBe(0x89);
     expect(png[1]).toBe(0x50); // 'P'
     // IHDR: width 1, height 1, depth 8, colour type 6 (RGBA).
-    expect(png[16]).toBe(0);
-    expect(png[20]).toBe(1);
+    const ihdr = new DataView(png.buffer, png.byteOffset, png.byteLength);
+    expect(ihdr.getUint32(16)).toBe(1); // width
+    expect(ihdr.getUint32(20)).toBe(1); // height
     expect(png[24]).toBe(8);
     expect(png[25]).toBe(6);
     // The stored DEFLATE block header + raw row follows the IDAT type.
@@ -392,7 +393,7 @@ describe('resolveSpectrogramOptions', () => {
   it('rejects a floor at or above the ceiling with a ToolError', () => {
     expect(() => resolveSpectrogramOptions({ floorDb: -10, ceilingDb: -10 })).toThrow(ToolError);
     expect(() => resolveSpectrogramOptions({ floorDb: -5, ceilingDb: -20 })).toThrow(
-      /floor must be below the ceiling/,
+      /floor must be below the dB ceiling/,
     );
   });
 

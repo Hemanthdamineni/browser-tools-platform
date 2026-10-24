@@ -35,6 +35,24 @@ export const meta: ToolMeta = {
     { title: 'Analyze localized response', input: 'en-US, Latn, fr-CA' },
     { title: 'Build a language header', options: { mode: 'build', tags: 'en-US, fr-CA' } },
   ],
+  article: [
+    {
+      heading: 'What Content-Language describes',
+      body: 'This response header states the natural language of the representation a client just received, using BCP 47-style tags such as en-US or fr-CA. Analyze mode reads a pasted value and classifies each tag, while build mode assembles a clean header value from a comma-separated list and refuses values that fail validation.',
+    },
+    {
+      heading: 'Reading a language tag',
+      body: 'A tag is checked in its standard order: a primary language subtag, an optional script such as Latn, an optional region such as US or a three-digit code, then variants, extensions and the x private-use tail. The checker accepts the common shapes and flags anything that does not fit, without claiming to know the full IANA registry.',
+    },
+    {
+      heading: 'Wildcards, duplicates and private use',
+      body: 'A lone * is allowed because it can mean all languages are intended, but mixing it with explicit tags is called out. Repeated tags are reported, and a private-use x- subtag is flagged as opaque, since such tags mean different things to different applications and may not interoperate.',
+    },
+    {
+      heading: 'Metadata, not preference',
+      body: 'Content-Language describes the resource; it is not the same as the Accept-Language a client sends. Every tag is parsed and validated inside this page with no network access, so no request detail leaves your device.',
+    },
+  ],
   faq: [
     {
       q: 'Is Content-Language the same as the user preferred language?',

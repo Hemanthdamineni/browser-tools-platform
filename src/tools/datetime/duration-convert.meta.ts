@@ -75,6 +75,14 @@ export const meta: ToolMeta = {
       q: 'Is 01:30 read as 1 hour 30 minutes or 1 minute 30 seconds?',
       a: 'Two-part clock values are read as MM:SS (90 seconds here). Use 1:30:00 or 1h 30m when you mean ninety minutes.',
     },
+    {
+      q: 'How are months and years converted?',
+      a: 'ISO 8601 Y and M components use fixed approximations: a year is 365 days and a month is 30 days. That is the standard, not a calendar calculation, so a span crossing February comes out slightly off while days, hours, minutes and seconds are exact.',
+    },
+    {
+      q: 'Can I convert negative or fractional durations?',
+      a: 'Yes. Negative values keep their sign through every output, and fractional units such as 1.5h or 90.25s are accepted in human and bare-seconds input. Clock components must stay whole numbers below 60.',
+    },
   ],
   related: ['timestamp', 'date-diff'],
   status: 'stable',

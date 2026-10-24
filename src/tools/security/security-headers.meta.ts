@@ -50,6 +50,11 @@ export const meta: ToolMeta = {
       title: 'Review a minimal block',
       input: 'HTTP/1.1 200 OK\nServer: example',
     },
+    {
+      title: 'Missing framing protection',
+      input:
+        "HTTP/1.1 200 OK\nContent-Security-Policy: default-src 'self'\nX-Content-Type-Options: nosniff\nStrict-Transport-Security: max-age=31536000",
+    },
   ],
   faq: [
     {

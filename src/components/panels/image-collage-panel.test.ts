@@ -12,6 +12,8 @@ import {
 import { installImageMock, makeFile, type MockHandle } from '@/tools/image/image-mock';
 import { runToolById } from '@/lib/worker/client';
 
+vi.mock('@/lib/worker/client', () => ({ runToolById: vi.fn() }));
+
 const runToolByIdMock = vi.mocked(runToolById);
 
 let mock: MockHandle | undefined;

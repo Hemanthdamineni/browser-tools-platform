@@ -49,6 +49,53 @@ export function clearError(box: HTMLElement): void {
   box.textContent = '';
 }
 
+/** Show a toast via the layout's `window.toast` helper (no-op without it). */
+export function notify(message: string): void {
+  (window as unknown as { toast?: (m: string) => void }).toast?.(message);
+}
+
+/**
+ * Write a parsed options payload into the form controls (checkbox / select /
+ * range / number / text / textarea). Shared by the example chips, the
+ * remember-this-input restore and the shareable-hash restore.
+ */
+export function setOptions(
+  root: ParentNode,
+  values: Record<string, unknown>,
+): void {
+  for (const [k, v] of Object.entries(values)) {
+    const el = root.querySelector<HTMLInputElement | HTMLSelectElement>(`[data-opt-key="${k}"]`);
+    if (!el) continue;
+    if ((el as HTMLInputElement).type === 'checkbox') {
+      (el as HTMLInputElement).checked = Boolean(v);
+      continue;
+    }
+    if (el instanceof HTMLSelectElement && v != null) {
+      // An option no longer in the choices list must not blow up the select.
+      if ([...el.options].some((o) => o.value === String(v))) el.value = String(v);
+      continue;
+    }
+    el.value = String(v);
+    // Range sliders keep an adjacent <output> label in sync.
+    const out = root.querySelector<HTMLOutputElement>(`[data-range-out="${k}"]`);
+    if (out) out.value = String(v);
+  }
+}
+
+/**
+ * Reduced-motion-aware result reveal: fade + rise the freshly rendered block.
+ * Honours `prefers-reduced-motion` (the transition itself is skipped).
+ */
+export function revealResult(host: HTMLElement): void {
+  const reduce =
+    window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true;
+  if (reduce) return;
+  host.classList.remove('tb-reveal');
+  // Force a reflow so re-running the same tool replays the transition.
+  void host.offsetWidth;
+  host.classList.add('tb-reveal');
+}
+
 /**
  * Rasterise an image data URL to a PNG blob via an offscreen `<img>` + `<canvas>`.
  * SVG must be drawn this way — `createImageBitmap` rejects SVG blobs in Chromium.
