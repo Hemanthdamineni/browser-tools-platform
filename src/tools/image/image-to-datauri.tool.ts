@@ -1,44 +1,26 @@
-import type { FileToolModule, FileRunInput, FileRunResult } from '@/lib/types';
+import type { FileRunInput, FileRunResult, FileToolModule } from '@/lib/types';
 import { resolveOptions } from '@/lib/options';
-import { checkAbort, checkFiles } from './common';
 import { meta } from './image-to-datauri.meta';
-export function wrapDataUri(uri: string, wrap: string, comment = false): string {
-  const value =
-    wrap === 'css-background'
-      ? `background-image: url("${uri}");`
-      : wrap === 'html-img'
-        ? `<img src="${uri}" alt="">`
-        : uri;
-  return comment ? `/* Embedded image data URI */\n${value}` : value;
-}
-async function run(input: FileRunInput): Promise<FileRunResult> {
+import { run as runDataUri } from '../web/data-uri.tool';
+
+export { wrapDataUri } from '../web/data-uri.core';
+
+/**
+ * Legacy route kept for URL stability. This tool is now a thin delegate to the
+ * unified `data-uri` tool with the "image → data: URI" mode preselected; the
+ * original option keys and behaviour are unchanged.
+ */
+function run(input: FileRunInput): Promise<FileRunResult> {
   const o = resolveOptions(meta, input.options);
-  checkFiles(input.files);
-  const f = input.files[0]!;
-  checkAbort(input.signal);
-  input.onProgress?.(0, 'Encoding image');
-  const bytes = new Uint8Array(await f.arrayBuffer());
-  let binary = '';
-  for (let i = 0; i < bytes.length; i += 0x8000)
-    binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
-  const uri = `data:${f.type};base64,${btoa(binary)}`,
-    wrapped = wrapDataUri(uri, String(o.wrap), Boolean(o.mediaQueryComment));
-  input.onProgress?.(1, 'Done');
-  return {
-    outputs: [
-      { filename: `${f.name}.data-uri.txt`, blob: new Blob([uri], { type: 'text/plain' }) },
-    ],
-    report: {
-      output: wrapped,
-      render: 'code',
-      language: o.wrap === 'html-img' ? 'html' : o.wrap === 'css-background' ? 'css' : 'text',
+  return runDataUri({
+    ...input,
+    options: {
+      mode: 'image-encode',
+      wrap: String(o.wrap),
+      mediaQueryComment: Boolean(o.mediaQueryComment),
     },
-    stats: {
-      originalBytes: f.size,
-      encodedBytes: uri.length,
-      overheadPercent: f.size ? Math.round((uri.length / f.size - 1) * 1000) / 10 : 0,
-    },
-  };
+  });
 }
+
 const tool: FileToolModule = { meta, run };
 export default tool;

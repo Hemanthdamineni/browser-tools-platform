@@ -408,7 +408,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `css-to-js` | CSS to JS Object | text | stable | Convert CSS declarations or rule blocks into a JS object with camelCase style keys. |
 | `css-units` | CSS Unit Converter | text | stable | Convert between px, rem, em, pt, pc, in, cm, mm and % for CSS lengths. |
 | `cubic-bezier` | Cubic Bezier Explorer | text | stable | Sample a cubic-bezier() easing curve and find the nearest CSS keyword. |
-| `data-uri` | Data URI Converter | text | stable | Encode text as a data: URI, or decode a data: URI back to text. |
+| `data-uri` | Data URI Converter | file | stable | Encode text or an image as a data: URI, or decode a data: URI back to text or an image file. |
 | `date-header` | Date Header Builder & Analyzer | text | stable | Build or inspect HTTP Date response timestamps. |
 | `document-policy` | Document-Policy Builder & Analyzer | text | stable | Build or inspect Document-Policy behavior controls. |
 | `early-data` | Early-Data Builder & Analyzer | text | stable | Build or inspect HTTP Early-Data replay signals. |
