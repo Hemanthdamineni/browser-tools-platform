@@ -89,6 +89,31 @@ export const meta: ToolMeta = {
         cmd: 'npm start',
       },
     },
+    {
+      title: 'A Python web service',
+      options: {
+        base: 'python:3.12-slim',
+        workdir: '/srv',
+        env: 'PYTHONUNBUFFERED=1',
+        copy: 'requirements.txt ./',
+        run: 'pip install --no-cache-dir -r requirements.txt',
+        ports: '8000',
+        cmd: 'uvicorn main:app --host 0.0.0.0',
+      },
+    },
+    {
+      title: 'Static files served by nginx',
+      options: {
+        base: 'nginx:1.27-alpine',
+        workdir: '/usr/share/nginx/html',
+        env: '',
+        copy: 'dist ./',
+        run: '',
+        ports: '80',
+        entrypoint: '/docker-entrypoint.sh',
+        cmd: 'nginx -g daemon off;',
+      },
+    },
   ],
   faq: [
     {
@@ -102,6 +127,28 @@ export const meta: ToolMeta = {
     {
       q: 'Do I need a base image with a tag?',
       a: 'A tag is recommended but not required — whatever you type in “Base image” is emitted verbatim, so private registries and digests work too.',
+    },
+  ],
+  article: [
+    {
+      heading: 'What the Dockerfile Generator emits',
+      body: 'Fill in fields and the generator returns a complete Dockerfile in caching-friendly order: FROM, WORKDIR, one ENV line per variable, your COPY lines, RUN steps, any ENTRYPOINT, EXPOSE ports and a CMD, with comment separators between the stages. The base image is emitted verbatim, so tags, digests and private registries all work.',
+    },
+    {
+      heading: 'When to sketch a Dockerfile here',
+      body: 'Use it when you are starting an image and would rather fill a form than recall Docker syntax, or when you want a conventional layer order to compare your own file against. It also handles the JSON-array quoting rules for ENTRYPOINT and CMD for you.',
+    },
+    {
+      heading: 'The fields that matter',
+      body: 'Base image defaults to node:20-alpine, WORKDIR must be absolute, and Environment, COPY and RUN are typed one entry per line. Ports are comma-separated. ENTRYPOINT is optional; when it is set, the note reminds you that CMD becomes its default arguments.',
+    },
+    {
+      heading: 'Rules the generator enforces',
+      body: 'A missing base image, a relative WORKDIR, a COPY line without exactly two tokens, a missing CMD and a non-numeric EXPOSE port each raise an error showing the right form. ENTRYPOINT and CMD are always written as JSON arrays so values with spaces and quotes survive.',
+    },
+    {
+      heading: 'Nothing leaves the browser',
+      body: 'The file is assembled on your device from what you type; no image is built and nothing is sent anywhere.',
     },
   ],
   related: ['docker-compose', 'json-to-env', 'dotenv', 'glob-tester'],

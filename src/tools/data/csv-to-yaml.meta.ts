@@ -38,6 +38,28 @@ export const meta: ToolMeta = {
       default: true,
     },
   ],
+  article: [
+    {
+      heading: 'What the converter writes',
+      body: 'Paste a comma, semicolon, tab or pipe separated table and you get back a YAML document made of one list item per row, each item a mapping of keys to values. The first row supplies those keys unless the header option is off, in which case the columns are named column_1, column_2 and so on.',
+    },
+    {
+      heading: 'When a YAML list is the format you want',
+      body: 'Reach for this when a spreadsheet has to become configuration rather than code: test fixtures, seed records for a static site, or a small inventory file. Hand-typing indentation for a hundred rows is where typos live, so paste the source rows and let the generator lay out the block.',
+    },
+    {
+      heading: 'Picking the delimiter and header settings',
+      body: 'Set the delimiter to match the export, comma by default, with semicolon, tab and pipe also available. Keep First row is the header on so the top line names the keys; turn it off for headerless dumps. Blank or repeated header cells are renamed to safe unique keys such as column_3 and price_2 instead of colliding.',
+    },
+    {
+      heading: 'Typing, quoting and the awkward cases',
+      body: 'Unquoted cells that read as integers or decimals become YAML numbers and true or false become booleans, while empty cells become null. Anything you wrapped in quotes in the CSV stays a string, and any value YAML could misread is double-quoted automatically. Cells beyond the last header are kept under _unmapped_ keys rather than dropped.',
+    },
+    {
+      heading: 'Everything happens inside the page',
+      body: 'Parsing, type detection and quoting run on your device only. The table is never uploaded, and the converter keeps working with no network connection at all.',
+    },
+  ],
   examples: [
     {
       title: 'Products table',
@@ -47,6 +69,11 @@ export const meta: ToolMeta = {
       title: 'Two-column list',
       input: 'key,value\nalpha,1\nbeta,true\n',
       options: { delimiter: ',' },
+    },
+    {
+      title: 'Headerless semicolon export',
+      input: 'alpha;1;true\nbeta;2;false',
+      options: { delimiter: ';', header: false },
     },
   ],
   faq: [

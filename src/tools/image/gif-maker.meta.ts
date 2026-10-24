@@ -91,6 +91,28 @@ export const meta: ToolMeta = {
       help: 'One centisecond delay per frame, in order — e.g. [10, 5, 20]. Empty uses the default delay.',
     },
   ],
+  article: [
+    {
+      heading: 'What the GIF maker does',
+      body: 'You choose a set of still images and the panel turns them into a timeline: drag frames into order, drop the ones you do not need, and give each its own delay. The animation is previewed and encoded in a background worker, so a long set never freezes the tab.',
+    },
+    {
+      heading: 'Timing, delays and the GIF format',
+      body: 'A GIF stores each frame delay as hundredths of a second. The panel lets you set a per-frame delay or a uniform frame rate, and the tool rounds your request down to the nearest centisecond, so 30 fps becomes 3 centiseconds and plays back at 33.3 fps.',
+    },
+    {
+      heading: 'Ordering and trimming frames',
+      body: 'Every frame on the timeline can be moved with the arrow keys, the move buttons or a drag, and removed with its delete button. Reset order restores the original upload order. Frames sent to the encoder are exactly the order shown on the grid.',
+    },
+    {
+      heading: 'Sizes and the size limit',
+      body: 'The output width sets the base size and the height follows the first frame’s aspect ratio. A size limit in megabytes guards against enormous GIFs: the tool estimates the encoded size and shrinks the dimensions, never growing them, until the estimate fits, and caps the finished bytes too.',
+    },
+    {
+      heading: 'Privacy and limits',
+      body: 'The images are decoded, drawn and encoded entirely in this tab — no request leaves the device and the page works offline once loaded. At most 20 images of up to 100 MB can be selected, a GIF is capped at 16 MB, and the preview skips sets of more than 300 frames.',
+    },
+  ],
   examples: [
     { title: 'Assemble frames into an animation' },
     {
@@ -104,28 +126,6 @@ export const meta: ToolMeta = {
     {
       title: 'Play exactly five times',
       options: { loop: 5, palette: 'balanced' },
-    },
-  ],
-  article: [
-    {
-      heading: 'What the GIF maker does',
-      body: 'You choose a set of still images and the panel turns them into a timeline: drag the frames into the order you want, drop the ones you do not need, and give each frame its own delay. The finished animation is previewed on the page and encoded in a background worker, so a long or large set of frames never freezes the tab.',
-    },
-    {
-      heading: 'Timing, delays and the GIF format',
-      body: 'A GIF stores each frame delay as hundredths of a second. The panel lets you set a per-frame delay or a uniform frame rate, and the tool rounds whatever you ask for down to the nearest centisecond. The effect is that a requested rate that is not a whole divisor of 100 plays back slightly faster: 30 fps becomes 3 centiseconds, which is 33.3 fps.',
-    },
-    {
-      heading: 'Ordering and trimming frames',
-      body: 'Every frame on the timeline can be moved with the arrow keys, the move buttons or a drag, and removed with its delete button. The panel keeps the original upload order so Reset order can bring it back. The frames sent to the encoder are exactly the order shown on the grid, so what you preview is what you save.',
-    },
-    {
-      heading: 'Sizes and the size limit',
-      body: 'The output width sets the base size, and the height follows the first frame’s aspect ratio. A size limit (in megabytes) guards against enormous GIFs: the tool estimates the encoded size and shrinks the frame dimensions — never growing them — until the estimate fits. The limit is also enforced on the finished bytes, so a GIF that slips past the estimate is still capped.',
-    },
-    {
-      heading: 'Privacy and limits',
-      body: 'The images are decoded, drawn and encoded entirely in this tab — no request ever leaves the device, and the page works offline once it has loaded. At most 20 images of up to 100 MB in total can be selected, and a GIF is capped at 16 MB. The preview skips animations of more than 300 frames to keep the page responsive.',
     },
   ],
   faq: [

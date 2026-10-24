@@ -98,7 +98,39 @@ export const meta: ToolMeta = {
       help: 'Filled in by the canvas above: an array of { x, y, w, h } rectangles in percent of the image, each with an optional effect. You can also edit it by hand — the canvas follows the JSON.',
     },
   ],
-  examples: [{ title: 'Blur a number plate or a face' }],
+  examples: [
+    { title: 'Blur a number plate or a face' },
+    {
+      title: 'Mosaic a whole region',
+      options: { effect: 'pixelate', cellSize: 20 },
+    },
+    {
+      title: 'Black out at full opacity and save as JPEG',
+      options: { effect: 'black', opacity: 100, format: 'jpeg', quality: 90 },
+    },
+  ],
+  article: [
+    {
+      heading: 'Draw, choose an effect, export',
+      body: 'Open a PNG, JPEG or WebP, draw one or more rectangles over the areas you want gone, then export. Each region can take its own effect — blur, pixelate or a solid black box — and the tool-wide setting covers any region that does not override it. The result is a re-encoded copy of the image with the effect applied to the real pixels.',
+    },
+    {
+      heading: 'The regions are percentages, not pixels',
+      body: 'The rectangles live in the “Redaction regions” field as an array of { x, y, w, h } values in percent of the image, each with an optional effect. That means changing the blur radius, switching the export format or re-running the tool reuses the same regions, and you can edit the JSON by hand if you are scripting the workflow.',
+    },
+    {
+      heading: 'Why a real redaction beats an overlay',
+      body: 'The effect is baked into the exported pixels when the file is re-encoded — nothing is kept as a layer, mask or overlay, so a viewer cannot peel it back. Strong pixelation or a black box hides the most; a light blur can still hint at what was underneath, so keep the radius high and the rectangle generous.',
+    },
+    {
+      heading: 'Metadata goes with it',
+      body: 'The export is redrawn through a canvas and encoded from scratch, so EXIF, GPS, XMP, IPTC, the ICC profile and comments are all gone, and there is no option to keep them. The stored EXIF orientation is applied while decoding, so a phone photo comes out the right way up with the rotation baked in.',
+    },
+    {
+      heading: 'The pixels stay on your device',
+      body: 'Drawing, the box blur, the pixelation averaging and the final encode all happen in this tab. And at 0% effect opacity nothing is redacted at all — the region blends fully with the original — so check the exported file before you send it.',
+    },
+  ],
   faq: [
     {
       q: 'Can anyone undo the blur?',

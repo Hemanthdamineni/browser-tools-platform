@@ -85,6 +85,28 @@ export const meta: ToolMeta = {
       showWhen: { key: 'mode', value: 'image-encode' },
     },
   ],
+  article: [
+    {
+      heading: 'The four directions of the converter',
+      body: 'This tool turns text into a data: URL or back, and does the same for images. The four modes are text to a data: URI, a data: URI back to text, an image file into a data: URI, and a data: URI into a downloadable image file. Image encoding also writes a text file of the result.',
+    },
+    {
+      heading: 'When to inline a resource',
+      body: 'Reach for it when you want a page or an email to need no separate request: an SVG sprite, a small logo or a font embedded in a single HTML file, or an image placed in a CSS background rule. Decoding unpacks a pasted data: URI into plain text or an image file.',
+    },
+    {
+      heading: 'MIME type, encoding and wrapper',
+      body: 'Mode sets the direction. For text, mimeType declares the type, charset appends ;charset=utf-8, and encoding picks base64 or percent. For images, wrap chooses a raw URI, a CSS background rule or an HTML img tag, and mediaQueryComment adds an explanatory comment above it.',
+    },
+    {
+      heading: 'The 25 MB image ceiling',
+      body: 'Image encoding is capped at 25 MB, because base64 runs about a third larger than the source file. Base64 needs no escaping while percent-encoding is shorter for mostly-ASCII text. A malformed payload is an error rather than a guess, and the tool requires exactly one image file.',
+    },
+    {
+      heading: 'Where the encoding happens',
+      body: 'Encoding and decoding happen entirely in this tab. Nothing is uploaded, no request is made for the URI or its contents, and the page keeps working offline once it has loaded.',
+    },
+  ],
   examples: [
     {
       title: 'Inline SVG',
@@ -92,6 +114,11 @@ export const meta: ToolMeta = {
       options: { mode: 'text-encode', mimeType: 'image/svg+xml' },
     },
     { title: 'Decode', input: 'data:text/plain,hello%20world', options: { mode: 'text-decode' } },
+    {
+      title: 'Decode an image data URI',
+      input: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=',
+      options: { mode: 'image-decode' },
+    },
   ],
   faq: [
     {
@@ -107,6 +134,6 @@ export const meta: ToolMeta = {
       a: 'No. Encoding and decoding happen in this tab; nothing is uploaded and the URI never leaves your browser.',
     },
   ],
-  related: ['base64', 'url-encode', 'base64-file'],
+  related: ['base64', 'url-encode', 'hex'],
   status: 'stable',
 };

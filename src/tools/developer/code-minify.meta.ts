@@ -109,6 +109,28 @@ export const meta: ToolMeta = {
       a: 'No, it is the raw size of the text in UTF-8 bytes, before and after minifying. Gzip would shrink both numbers further, but by a different amount.',
     },
   ],
+  article: [
+    {
+      heading: 'What the Code Minifier does',
+      body: 'Paste JavaScript, TypeScript, CSS, HTML or JSON and the tool returns the minified text plus input bytes, output bytes, bytes saved and percent saved. JavaScript and CSS go through Terser and csso, HTML through html-minifier-terser, JSON is compacted, and TypeScript is stripped to plain JavaScript first.',
+    },
+    {
+      heading: 'When to reach for it',
+      body: 'Use it when a bundle, stylesheet or page needs to ship smaller and you want to eyeball the result before wiring a build step. It is also handy for checking how much a snippet would shrink, since the byte figures come from the same run.',
+    },
+    {
+      heading: 'Choosing a language and compression level',
+      body: 'Language defaults to Auto-detect, which reads the input and picks a minifier without loading one. Compression defaults to Safe, removing only whitespace, comments and redundancy; Aggressive renames identifiers, drops unused top-level code and assumes a modern browser, so use it for build output rather than code you read by hand. If Auto-detect finds TypeScript while you chose JavaScript, it points at the TypeScript option instead of a syntax error.',
+    },
+    {
+      heading: 'Where minification stops',
+      body: 'JSX and Vue single-file components cannot be minified here, because JSX has to be compiled and a single-file component mixes three languages. Broken HTML tags and CSS with nested selectors or empty declaration values raise readable errors rather than emitting broken output.',
+    },
+    {
+      heading: 'Where your code goes',
+      body: 'Every minifier runs in this tab; the library files are downloaded from this same site on first use, and your pasted code is never uploaded.',
+    },
+  ],
   related: ['code-beautify', 'css-minifier', 'json-format', 'html-validator'],
   credits: [
     { name: 'Terser', url: 'https://github.com/terser/terser', license: 'BSD-2-Clause' },

@@ -63,6 +63,24 @@ export const meta: ToolMeta = {
       options: { outputName: 'public-copy.pdf' },
     },
   ],
+  article: [
+    {
+      heading: 'How a redaction is planned',
+      body: 'Mark rectangles on a page preview, and the panel writes them into the plan as JSON: an array of page entries whose regions are x, y, w and h in percent of the page. Each entry needs a whole page number; regions are clamped into the page and merged per page.',
+    },
+    {
+      heading: 'Why a black box is not enough',
+      body: 'Drawing a dark rectangle in an editor leaves the text layer intact, so anyone can select the words underneath. Flattening the marked pages to images and burning the boxes in opaque black destroys that layer, which is why redacted pages lose searchable text while untouched pages keep theirs.',
+    },
+    {
+      heading: 'Scale and output name',
+      body: 'The scale option sets rendered pixels per PDF point, from 1 to 4, with 2 as the default — higher is sharper but heavier. Output name gives the exported copy a label you choose instead of the default redacted.pdf.',
+    },
+    {
+      heading: 'Caveats and privacy',
+      body: 'The change cannot be undone, so keep the original. At least one rectangle is required, and a plan with no usable regions is rejected. Rasterising needs a browser with OffscreenCanvas, and everything runs on your device with no uploads.',
+    },
+  ],
   faq: [
     {
       q: 'Is a black box over the text enough to redact it?',

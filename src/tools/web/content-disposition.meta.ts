@@ -41,6 +41,24 @@ export const meta: ToolMeta = {
     },
     { key: 'filename', label: 'Filename', type: 'text', default: 'download.bin' },
   ],
+  article: [
+    {
+      heading: 'Building a header, or reading one',
+      body: 'In build mode the tool takes a disposition type and a filename and writes a complete response header: an ASCII fallback such as filename="resume 2025.pdf" plus an RFC 5987 filename*=UTF-8\'\'… parameter carrying the percent-encoded bytes, so accented and non-Latin names survive the trip. In parse mode you paste raw header lines and get a table of the disposition type, every parameter and its value, with problems flagged as separate rows.',
+    },
+    {
+      heading: 'Why filename* exists alongside filename',
+      body: 'A download called résumé.pdf sent with only filename= gets mangled by older clients and can be rejected outright by modern ones. Emitting both parameters is the standard remedy; the ASCII fallback is produced automatically by stripping diacritics, replacing unencodable characters with underscores and dropping quotes, backslashes and semicolons.',
+    },
+    {
+      heading: 'What the parser flags',
+      body: 'Each parsed line warns about uncommon disposition types, repeated filename parameters and filenames containing backslashes or forward slashes — the path-traversal shape a server must sanitize before trusting it. Text that is not a valid header becomes an “Invalid header” row instead of throwing, so a whole paste still reports.',
+    },
+    {
+      heading: 'Header text only, nothing on the wire',
+      body: 'The tool shapes or inspects header strings and never issues an HTTP request or attaches a response, so it cannot by itself trigger a download. Everything is evaluated locally; the filenames you type and the headers you paste stay in the page.',
+    },
+  ],
   examples: [
     {
       title: 'Build a Unicode download header',
@@ -49,6 +67,10 @@ export const meta: ToolMeta = {
     {
       title: 'Parse a response header',
       input: 'attachment; filename="report.pdf"; filename*=UTF-8\'\'report%20final.pdf',
+    },
+    {
+      title: 'Inline display header',
+      options: { mode: 'build', disposition: 'inline', filename: 'invoice-2026.pdf' },
     },
   ],
   faq: [

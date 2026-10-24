@@ -34,6 +34,24 @@ export const meta: ToolMeta = {
       ],
     },
   ],
+  article: [
+    {
+      heading: 'Three checksums in one tool',
+      body: 'Luhn validates payment-card-like numbers (12–19 digits) with the mod-10 algorithm, IBAN uses the MOD-97 scheme on the rearranged alphanumeric string, and ISBN-10 and ISBN-13 check the weighted modulo-11 and modulo-10 check digits. Enter one identifier per line and the tool checks several at once, reporting each result as Valid or Invalid with a short reason, then a count of how many passed.',
+    },
+    {
+      heading: 'The point of a checksum',
+      body: 'A check digit exists to catch transcription errors — a swapped pair, a mistyped digit, a lost space — before a value reaches an account, a card or a book record. Verifying it is a cheap first gate: a failed check means the identifier cannot be right, while a pass only means the digits are internally consistent, nothing more.',
+    },
+    {
+      heading: 'How auto-detection decides',
+      body: 'Auto-detect looks at the characters: values containing letters are tried as IBAN (two letters, two digits, then up to 30 alphanumerics) or as an ISBN; a pure digit string of exactly 13 characters is checked as ISBN-13, otherwise digit-only input goes to Luhn. Spaces and hyphens are stripped before the check, so formatted values like 4111 1111 1111 1111 or 0-306-40615-2 work as pasted.',
+    },
+    {
+      heading: 'What it does not prove, and privacy',
+      body: 'A valid checksum never confirms that an account exists, a card is active or an ISBN is a real publication — the tool contacts nothing and performs no lookups — so use synthetic test data, never live payment credentials. Every check runs locally in the page with no request, so an identifier from a private system is never sent anywhere.',
+    },
+  ],
   examples: [
     {
       title: 'Luhn checksum (test number)',

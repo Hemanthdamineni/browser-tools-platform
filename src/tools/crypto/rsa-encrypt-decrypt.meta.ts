@@ -78,6 +78,29 @@ export const meta: ToolMeta = {
         '-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC4...\n-----END PRIVATE KEY-----',
       options: { operation: 'decrypt', payload: 'm2zNw5q1...' },
     },
+    {
+      title: 'Encrypt as hex ciphertext',
+      input: '-----BEGIN RSA PUBLIC KEY-----\nMIIBCgKCAQEA...\n-----END RSA PUBLIC KEY-----',
+      options: { operation: 'encrypt', payload: 'rotate the shared secret', format: 'hex' },
+    },
+  ],
+  article: [
+    {
+      heading: 'What the tool encrypts and returns',
+      body: 'Paste an RSA key into the text box and the message into the Payload field. Encrypt mode takes plain text and returns RSA-OAEP ciphertext as base64 or hex; decrypt mode takes the ciphertext and gives back the text. Because OAEP seals one block, the output is roughly the key length \u2014 256 bytes from a 2048-bit key.',
+    },
+    {
+      heading: 'When to reach for it',
+      body: 'This seals a small secret for the holder of one specific private key: a passphrase to hand to a colleague, a licence token, or a symmetric key that will encrypt something much larger. You need only the recipient\u2019s public key, with no prior shared secret.',
+    },
+    {
+      heading: 'Options that change the result',
+      body: 'The OAEP hash must match on both sides; SHA-256 is the default, SHA-384 hardens it further, and SHA-1 exists only to interoperate with old systems. The encoding is presentational \u2014 base64 is compact, hex is easier to inspect \u2014 and decrypt reads whichever one you select.',
+    },
+    {
+      heading: 'Keys, sizes and failure modes',
+      body: 'Public keys may be SPKI or PKCS#1 and private keys PKCS#8 or PKCS#1, with PKCS#1 forms re-wrapped so Web Crypto can import them. A 2048-bit key caps the message at 214 bytes, so over-long text fails with an explicit error, as does using a private key to encrypt. Keys are handled by the browser\u2019s Web Crypto in this tab, never uploaded, logged or stored.',
+    },
   ],
   faq: [
     {

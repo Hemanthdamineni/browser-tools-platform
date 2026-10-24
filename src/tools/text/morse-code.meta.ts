@@ -40,6 +40,33 @@ export const meta: ToolMeta = {
       input: '.... . .-.. .-.. --- / .-- --- .-. .-.. -..',
       options: { mode: 'morse-to-text' },
     },
+    {
+      title: 'Decode a punctuated phrase',
+      input: '... --- ...',
+      options: { mode: 'morse-to-text' },
+    },
+  ],
+  article: [
+    {
+      heading: 'Encoding text to International Morse',
+      body: 'Every letter, digit and common punctuation mark in the Morse table is mapped to its dot-and-dash code, with letters joined by a single space and words by the sequence " / ". The box is uppercased first, so a mixed-case sentence encodes cleanly, and an unsupported character \u2014 an accented letter, a symbol, an emoji \u2014 is replaced with "?" and named in a warning rather than dropped silently. The output is emitted as a copy-pasteable code string with a word count in the stats.',
+    },
+    {
+      heading: 'Decoding is deliberately forgiving about spacing',
+      body: 'On the way back, runs of whitespace are collapsed, and either "/" or "|" \u2014 with or without surrounding spaces \u2014 is treated as a word separator. Every other run of whitespace just separates letters, so a string typed with too many spaces decodes the same as one typed neatly. An unrecognised dot-and-dash group, though, raises an error rather than being guessed, because silently mangling one symbol would corrupt the whole message.',
+    },
+    {
+      heading: 'When it is useful',
+      body: 'Morse code is mostly a curiosity today, but the tool is genuinely handy for decoding a Morse snippet from a puzzle, a radio hobbyist\u2019s log or a historical document, and for encoding a short text to test a transmitter or a signal lamp. It handles the full International set, not a US-only or Latin-subset table, so it is the right reference for a genuine message rather than a toy alphabet.',
+    },
+    {
+      heading: 'Limitations',
+      body: 'Only the characters in the International Morse table are covered \u2014 there is no provision for prosigns, K, AR or other procedural abbreviations, and accented letters are not in the set so they come back as "?" with a warning. Only one text value is converted per run; there is no audio or light output, so the flashing or beeping is left to whatever hardware you connect.',
+    },
+    {
+      heading: 'Everything is local',
+      body: 'The Morse table and both directions of conversion live in this page. Nothing is sent to a server and nothing is stored, so a message you would rather not share is handled entirely on your device.',
+    },
   ],
   faq: [
     {
@@ -51,6 +78,6 @@ export const meta: ToolMeta = {
       a: 'Runs of whitespace are collapsed, and both "/" and "|" (with or without surrounding spaces) are treated as word separators. An unrecognised dot/dash group raises an error rather than being dropped silently.',
     },
   ],
-  related: ['nato-phonetic', 'rot13', 'binary-text', 'case-convert'],
+  related: ['nato-phonetic', 'rot13', 'text-to-binary', 'case-convert'],
   status: 'stable',
 };

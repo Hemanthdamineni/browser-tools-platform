@@ -86,6 +86,11 @@ export const meta: ToolMeta = {
       input: '2026-01-01',
       options: { mode: 'monthly-nth', nth: '2', weekday: 'tue', count: 6 },
     },
+    {
+      title: 'Monthly on the 31st, short months clamped',
+      input: '2026-01-31',
+      options: { mode: 'monthly-day', count: 6 },
+    },
   ],
   faq: [
     {
@@ -103,6 +108,28 @@ export const meta: ToolMeta = {
     {
       q: 'Does this build an iCalendar rule?',
       a: 'No — it computes the concrete next dates directly. If you need an RRULE string, use the iCalendar Recurrence Rule Builder instead.',
+    },
+  ],
+  article: [
+    {
+      heading: 'Concrete dates rather than a rule string',
+      body: 'Give a start date as YYYY-MM-DD and the tool lists the upcoming dates the pattern really lands on, each with its weekday, as a numbered table of date and occurrence. Patterns cover a fixed day each month, the Nth or last weekday of a month, chosen weekdays every N weeks, and the same date each year.',
+    },
+    {
+      heading: 'Where upcoming dates are useful',
+      body: 'It is handy for listing paydays on a fortnightly cycle, working out when the second Tuesday meeting falls, or checking that a yearly renewal never lands on a weekend.',
+    },
+    {
+      heading: 'Options that shape the list',
+      body: 'Occurrences sets how many dates are shown and is held between 1 and 50. Interval is the skip count, up to 12, so weekly with interval 2 means every other week. Weekday selects the day, with auto reusing the start date weekday, and Nth is read only by the recurring weekday pattern.',
+    },
+    {
+      heading: 'Short months and leap years',
+      body: 'Clamping short months is on by default, so the 31st in a 30-day month moves to the 30th and a yearly 29 February falls back to the 28th in common years. Turn clamping off and those months are skipped entirely, so the date appears only when it truly exists.',
+    },
+    {
+      heading: 'Computed in the browser, never uploaded',
+      body: 'The schedule is worked out arithmetically in the page from the date you type, so no calendar account, iCalendar file or network request is involved.',
     },
   ],
   related: ['rrule-builder', 'date-add', 'timestamp', 'week-number'],

@@ -64,7 +64,39 @@ export const meta: ToolMeta = {
       default: true,
     },
   ],
-  examples: [{ title: 'Protect a PDF with a password' }],
+  article: [
+    {
+      heading: 'What comes back',
+      body: 'Drop an unprotected PDF and give the password that should open it. The tool returns a copy of the file, named after the original with -protected.pdf appended, encrypted with AES-256 at PDF revision 6. Before handing it over it verifies that the result really carries an /Encrypt dictionary.',
+    },
+    {
+      heading: 'One password or two',
+      body: 'The user password opens the file; the optional owner password lets its holder change the permissions later. Leave the owner field empty and both roles share one secret. Each password may be at most 127 bytes, the longest revision 6 reads — beyond that a reader can never match it.',
+    },
+    {
+      heading: 'The three permission switches',
+      body: 'Allow printing, Allow copying text and images, and Allow editing all start enabled. Turning one off writes the matching restriction into the PDF, and the result card lists exactly what is now blocked. Accessibility extraction is never restricted, so screen readers keep working even when copying is off.',
+    },
+    {
+      heading: 'Read this before you protect anything',
+      body: 'A forgotten password means a file that can never be opened again: it is the only key and it is stored nowhere. An already-protected PDF is refused rather than re-encrypted, files over 100 MB are rejected, and the flags are a request to the reader, not cryptographic enforcement.',
+    },
+    {
+      heading: 'The encryption engine runs in your browser',
+      body: 'qpdf is compiled to WebAssembly and executed in this tab, so the PDF and both passwords stay on your machine. Nothing is uploaded, the page contacts no server, and it works offline once loaded.',
+    },
+  ],
+  examples: [
+    { title: 'Protect a PDF with a password' },
+    {
+      title: 'A separate owner password',
+      options: { userPassword: 'open sesame', ownerPassword: 'change later' },
+    },
+    {
+      title: 'Block printing and copying',
+      options: { userPassword: 'open sesame', allowPrint: false, allowCopy: false },
+    },
+  ],
   faq: [
     {
       q: 'What happens if I forget the password?',

@@ -56,6 +56,24 @@ export const meta: ToolMeta = {
       input: '{\n  "title": "A Site",\n  "note": "line\\nbreak",\n  "empty": null\n}',
     },
   ],
+  article: [
+    {
+      heading: 'What it produces',
+      body: 'Paste a JSON object and get one .env line per leaf value. Top-level keys become variable names; nested objects are flattened by joining the path with a separator, so {"server":{"host":"x"}} becomes SERVER__HOST=x. Arrays and objects at a leaf stay as single-line JSON, numbers and booleans stay bare, and null becomes an empty value.',
+    },
+    {
+      heading: 'The separator and naming options',
+      body: 'The separator changes how a path is joined: __ (SERVER__HOST, the Cloud Run style), . (SERVER.HOST) or _ (SERVER_HOST), so pick whatever your runtime flattens to. Uppercase controls whether the final variable name is capitalised; with it off, keys keep their original case.',
+    },
+    {
+      heading: 'Quoting rules',
+      body: 'Quoting is applied only where a plain value would break in a shell: a string containing a space, #, quote, backslash or newline is wrapped in double quotes and escaped, while simple tokens stay bare. Turning quoting off emits every string exactly as typed.',
+    },
+    {
+      heading: 'Limits, errors and privacy',
+      body: 'Input is capped at one million characters and nesting at 128 levels, each with a clear error rather than a hang, and the top level must be an object. The flattening is pure string work in this tab with no upload, so configuration that holds credentials stays on your device.',
+    },
+  ],
   faq: [
     {
       q: 'How are nested objects flattened?',

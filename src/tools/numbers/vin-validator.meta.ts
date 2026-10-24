@@ -34,9 +34,36 @@ export const meta: ToolMeta = {
       ],
     },
   ],
+  article: [
+    {
+      heading: 'Structure, check digit and meaning',
+      body: 'Paste a 17-character VIN and it is validated against the ISO 3779/NHTSA rules, then broken into a table: the WMI at positions 1–3 with its world region, the vehicle descriptor at 4–8, the check digit at position 9, the model-year code at 10, the assembly plant at 11 and the serial at 12–17. Illegal letters, a wrong length and a check-digit mismatch are each named as an issue.',
+    },
+    {
+      heading: 'The first check on a used car',
+      body: 'Run it on the VIN from a classified ad: a mismatch or an illegal character is a strong sign the number was mistyped or invented, and the model-year and plant rows are quick sanity checks against what the seller claims.',
+    },
+    {
+      heading: 'The three modes',
+      body: 'Decode and validate is the default and shows the structure table plus any issues. Checksum only answers a single valid-or-invalid question. Complete a VIN with check digit takes the body with position 9 treated as 0 and computes the correct digit, writing X when the remainder is 10.',
+    },
+    {
+      heading: 'Caveats',
+      body: 'No manufacturer database is queried, so the model year is derived from the standard year code plus any 30-year interval, and the tool says a chart is needed where the code is ambiguous. Vehicles from markets that put a serial number in position 9 will fail the checksum while still being genuine. The WMI row names a region, not a manufacturer.',
+    },
+    {
+      heading: 'No lookup, no upload',
+      body: 'Everything is computed from the characters you paste, in your browser; the VIN is never sent to a server or to any vehicle-history service. It works with no connection.',
+    },
+  ],
   examples: [
     { title: 'Decode a VIN', input: '1HGCM82633A004352' },
     { title: 'Validate only', options: { mode: 'validate' } },
+    {
+      title: 'Compute a missing check digit',
+      input: '1HGCM82603A004352',
+      options: { mode: 'generate' },
+    },
   ],
   faq: [
     {

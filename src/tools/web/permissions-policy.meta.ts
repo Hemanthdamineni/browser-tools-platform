@@ -41,6 +41,10 @@ export const meta: ToolMeta = {
       title: 'Build a camera policy',
       options: { mode: 'build', feature: 'camera', allowlist: 'self "https://video.example"' },
     },
+    {
+      title: 'Disable a feature outright',
+      options: { mode: 'build', feature: 'geolocation', allowlist: 'none' },
+    },
   ],
   faq: [
     {
@@ -54,6 +58,28 @@ export const meta: ToolMeta = {
     {
       q: 'Is this the old Feature-Policy header?',
       a: 'Permissions-Policy is the current header name. Browser support and feature names evolve, so test the target browsers.',
+    },
+  ],
+  article: [
+    {
+      heading: 'Turning capability policy into a table',
+      body: 'Paste comma-separated directives such as camera=(self "https://video.example"), geolocation=() and the analyser splits them into a table of feature, allowlist and status. Empty parentheses show as (empty) and are counted as disabled. Build mode takes one feature name and a space-separated allowlist and assembles the directive.',
+    },
+    {
+      heading: 'Locking a page down before an embed',
+      body: 'Reach for this when a page embeds third-party frames and you need to be sure only the intended origins may reach the camera, microphone or geolocation, or when a feature should be off for the document entirely.',
+    },
+    {
+      heading: 'Origins, none and the wildcard',
+      body: 'An allowlist accepts self, an explicit https origin in quotes, the * wildcard or none. The analyser flags * as a broad grant worth reviewing, rejects none combined with another origin, and reports duplicate feature directives and malformed allowlist tokens.',
+    },
+    {
+      heading: 'Feature names and browser support',
+      body: 'Feature names use lowercase letters, digits and hyphens, and a directive can be grammatically valid while a browser ignores a feature it does not implement, so test the browsers you actually ship to.',
+    },
+    {
+      heading: 'Analysed without leaving the browser',
+      body: 'Both the parser and the builder are page code, so the policy you paste, internal hostnames included, is never uploaded and the tool keeps working offline.',
     },
   ],
   related: ['security-headers', 'http-header-analyzer', 'content-security-policy'],

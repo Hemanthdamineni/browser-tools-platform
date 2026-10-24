@@ -84,6 +84,47 @@ export const meta: ToolMeta = {
         body: '{"name":"Ada"}',
       },
     },
+    {
+      title: 'A GET with a custom header',
+      input: '',
+      options: {
+        method: 'GET',
+        url: 'https://api.example.com/items?page=1',
+        headers: 'Accept: application/json\nX-API-Key: abc123',
+      },
+    },
+    {
+      title: 'A relative request against HTTP/1.0',
+      input: '',
+      options: {
+        method: 'DELETE',
+        url: '/items/42',
+        version: '1.0',
+        addHost: false,
+      },
+    },
+  ],
+  article: [
+    {
+      heading: 'The wire request, not a client',
+      body: 'Choose a method from the seven supported verbs, type an absolute or relative URL, add optional headers one per line and a body, and the tool returns the raw HTTP/1.1 message — request line, headers, blank line and body — as text to copy. It renders a request; it does not fire anything over the network.',
+    },
+    {
+      heading: 'When hand-rolling a request makes sense',
+      body: 'Use it to reproduce a request for a socket client, netcat, a debugging proxy or a raw TCP repl, or to capture exactly what your server will see on the wire. For building a fetch or curl command you would reach for curl-to-fetch or curl-to-code instead, since those produce code, not bytes.',
+    },
+    {
+      heading: 'How Host and Content-Length get filled',
+      body: 'A Host header is derived from the URL origin when the option is on and you have not supplied one; switching it off drops the header entirely. Content-Length is computed from the encoded body bytes when a body is present, the method is not GET or HEAD, and you have not defined it — both can be overridden with your own header lines.',
+    },
+    {
+      heading: 'Edge cases worth knowing',
+      body: 'URLs are capped at two hundred thousand characters, and only GET, POST, PUT, PATCH, DELETE, HEAD and OPTIONS are accepted. A relative path keeps your own Host header when you supply one. Line endings in the body are normalised to CRLF so the emitted message is byte-accurate for most servers.',
+    },
+    {
+      heading: 'Requests are built, not sent',
+      body: 'Everything happens on this device — no request is transmitted, nothing is logged and the composed text is yours to copy.',
+    },
   ],
   faq: [
     {

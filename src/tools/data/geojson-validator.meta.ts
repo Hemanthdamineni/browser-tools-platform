@@ -50,6 +50,32 @@ export const meta: ToolMeta = {
       title: 'An unclosed polygon ring',
       input: '{"type":"Polygon","coordinates":[[[0,0],[1,0],[1,1],[0,1]]]}',
     },
+    {
+      title: 'A LineString with a single point',
+      input: '{"type":"LineString","coordinates":[[1,1]]}',
+    },
+  ],
+  article: [
+    {
+      heading: 'What it checks and how it reports',
+      body: 'The document is walked structure by structure and every problem is reported with a JSON path. Errors break an RFC 7946 requirement; warnings are advisory, such as a longitude past ±180. A document is valid when it has zero errors, and the summary shows feature and geometry counts plus the computed bounding box.',
+    },
+    {
+      heading: 'The geometry rules that matter most',
+      body: 'A polygon ring must close — first and last positions identical — and hold at least four positions; a LineString needs two or more; coordinates must nest to the right depth for the type. Unclosed rings and single-point lines are the two mistakes that silently corrupt a map, and both are caught.',
+    },
+    {
+      heading: 'The format output options',
+      body: 'Summary gives the verdict and counts. Problems found lists every error and warning with its path. Feature table turns each feature into a row so you can scan properties, geometry type and coordinates. Turning off strict mode keeps the structural checks but drops the RFC requirements some producers bend.',
+    },
+    {
+      heading: 'What it deliberately leaves alone',
+      body: 'Ring closure and minimum positions are checked, but self intersections, overlapping rings and winding order are not — those need a full geometry engine. The declared bbox is validated for shape and order but never trusted over the computed box; both are shown. Foreign members are kept and ignored, as RFC 7946 allows.',
+    },
+    {
+      heading: 'The file never leaves your browser',
+      body: 'Whether you pick a file or paste the JSON, the parse and the checks run in this tab. Up to 20 MB is accepted and the issue list is capped at 200 so a very broken document still finishes quickly. Nothing is uploaded.',
+    },
   ],
   faq: [
     {

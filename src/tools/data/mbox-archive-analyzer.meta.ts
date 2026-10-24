@@ -45,11 +45,39 @@ export const meta: ToolMeta = {
       step: 1,
     },
   ],
+  article: [
+    {
+      heading: 'What it reads from an mbox',
+      body: 'Drop in an mbox file — the plain-text mailbox format used by Thunderbird, mutt, procmail and many mail backups — and this tool splits it on the From_ separator lines that begin each message. For every message it unfolds and decodes the headers, including RFC 2047 encoded words, walks the MIME tree to list attachments with their real decoded sizes, and reads the Status and X-Status flags that track read and replied state.',
+    },
+    {
+      heading: 'The five output views',
+      body: 'The format option switches between an archive summary, a per-message listing, a sender ranking, an attachment list and a findings report. The summary gives counts and totals at a glance; senders ranks who appears most; attachments shows each file with its decoded byte size; and findings lists the problems that make a mailbox hard to trust. The top option limits how many rows the ranked views show, from 3 to 50.',
+    },
+    {
+      heading: 'What the findings check for',
+      body: 'The tool reports messages with no Date or From, dates that will not parse, duplicate Message-IDs, replies whose parent message is missing, escaped From lines left over from mboxrd, base64 payloads with broken padding, and a body that no reader could split because the blank line after the headers is missing. Each finding is the kind of thing that quietly breaks a mailbox export or a migration tool.',
+    },
+    {
+      heading: 'Limits and practical bounds',
+      body: 'A single .eml file has no From_ separator, so it is read as one message. Large archives are capped at 16 MB, 5000 messages and a bounded number of MIME parts, and very long header values are clipped in the display so the report stays readable. Maildir directories are not an archive format this tool reads — concatenate cur/ and new/ into an mbox first.',
+    },
+    {
+      heading: 'Nothing is uploaded or executed',
+      body: 'The file is parsed entirely in your browser. No content is uploaded, no message body is ever executed, and the tool works offline — which matters when the mailbox you are inspecting is private correspondence.',
+    },
+  ],
   examples: [
     {
       title: 'Two messages with an attachment',
       input:
         'From alice@example.com Mon Jan  6 09:12:04 2025\nMessage-ID: <a1@example.com>\nFrom: Alice <alice@example.com>\nTo: bob@example.com\nSubject: Quarterly numbers\nDate: Mon, 6 Jan 2025 09:12:04 +0000\nStatus: RO\n\nHere are the numbers.\n\nFrom bob@example.com Mon Jan  6 11:30:00 2025\nMessage-ID: <b2@example.com>\nFrom: Bob <bob@example.com>\nTo: Alice <alice@example.com>\nSubject: Re: Quarterly numbers\nDate: Mon, 6 Jan 2025 11:30:00 +0000\nIn-Reply-To: <a1@example.com>\nContent-Type: text/plain; charset=utf-8\n\nThanks, got it.\n',
+    },
+    {
+      title: 'Rank senders by volume',
+      input:
+        'From alice@example.com Mon Jan  6 09:12:04 2025\nMessage-ID: <a1@example.com>\nFrom: Alice <alice@example.com>\nDate: Mon, 6 Jan 2025 09:12:04 +0000\n\nOne\n\nFrom bob@example.com Mon Jan  6 11:30:00 2025\nMessage-ID: <b2@example.com>\nFrom: Bob <bob@example.com>\nDate: Mon, 6 Jan 2025 11:30:00 +0000\n\nTwo\n\nFrom alice@example.com Mon Jan  6 13:00:00 2025\nMessage-ID: <a3@example.com>\nFrom: Alice <alice@example.com>\nDate: Mon, 6 Jan 2025 13:00:00 +0000\n\nThree\n',
+      options: { format: 'senders', top: 5 },
     },
   ],
   faq: [

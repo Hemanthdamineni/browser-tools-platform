@@ -33,6 +33,36 @@ export const meta: ToolMeta = {
       input:
         '<html>\n<head><title>T</title></head>\n<body>\n  <p>Hi</p>\n  <img src="x.png">\n</body>\n</html>',
     },
+    {
+      title: 'A forgotten closing tag',
+      input: '<div>\n  <p>Hello\n</div>',
+    },
+    {
+      title: 'Mismatched nesting',
+      input: '<ul>\n  <li>One\n  <li>Two\n</ul>',
+    },
+  ],
+  article: [
+    {
+      heading: 'What it validates',
+      body: 'The tool walks the markup with a tag stack and reports, with a line number, every unclosed tag, every close with no matching open, an unexpected close that ends the wrong element, and a stray "<" that starts something unparseable. The result is a two-column table of line and issue, plus counts of tags and problems.',
+    },
+    {
+      heading: 'Why tag balance is the check worth having',
+      body: 'A single unclosed div is the classic reason a whole page suddenly lays out wrong, and it is easy to introduce and hard to spot in a long template. This validator pinpoints the line in seconds and deliberately avoids attribute-level nitpicking, so the one error that breaks rendering stands out.',
+    },
+    {
+      heading: 'The rules it knows',
+      body: 'The HTML void elements — area, br, col, embed, hr, img, input, link, meta, param, source, track, wbr — are treated as self-closing and need no separate close tag. Script, style, textarea and title contents are treated as raw text, so a "<" inside a script string is not mistaken for a tag. Comments and doctypes are recognised.',
+    },
+    {
+      heading: 'What a passing result does not promise',
+      body: 'This is structural well-formedness only. Attributes, ARIA rules, spec-mandated nesting and link validity are outside its scope, and a tidy document that parses can still be semantically invalid. It is the fast first check that catches the failure mode which breaks an entire page.',
+    },
+    {
+      heading: 'Checked in the tab',
+      body: 'The markup is scanned by a small local parser with no network access, so a draft page or a fragment under NDA can be pasted in safely. There is no upload and the tool works offline.',
+    },
   ],
   faq: [
     {

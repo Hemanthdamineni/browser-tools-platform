@@ -86,6 +86,51 @@ export const meta: ToolMeta = {
         volumes: './data:/data',
       },
     },
+    {
+      title: 'A PostgreSQL database',
+      input: '',
+      options: {
+        serviceName: 'db',
+        image: 'postgres:16',
+        containerName: 'app-db',
+        ports: '5432:5432',
+        env: 'POSTGRES_USER=app\nPOSTGRES_PASSWORD=secret\nPOSTGRES_DB=app',
+        volumes: 'pgdata:/var/lib/postgresql/data',
+        restart: 'always',
+      },
+    },
+    {
+      title: 'A headless worker with no ports',
+      input: '',
+      options: {
+        serviceName: 'worker',
+        image: 'node:20-alpine',
+        env: 'QUEUE_URL=amqp://mq',
+        restart: 'on-failure',
+      },
+    },
+  ],
+  article: [
+    {
+      heading: 'A single-service compose file',
+      body: 'Pick a service name and describe one container: its image, an optional container name, comma-separated published host:container ports, per-line environment KEY=value pairs, per-line bind-mount volumes in host:container form, and one of four restart policies. The output is a version-pinned docker-compose.yml with a services block holding a single service beneath it.',
+    },
+    {
+      heading: 'When a hand-written service block saves time',
+      body: 'Reach for it when spinning up a quick local dependency — a database, a queue, a sidecar — and you want the YAML right the first time. Paste the result into your compose file or docker-compose up -f it directly; the generated restart line, port list and volume mounts are already in valid v3 form.',
+    },
+    {
+      heading: 'Ports, environment and volumes input rules',
+      body: 'Ports are comma-separated host:container pairs, environment and volumes are one entry per line, and each is emitted as a quoted YAML string so colons and spaces never break the parse. An empty container name, empty ports, or empty volumes simply omits that key from the output.',
+    },
+    {
+      heading: 'Validation and YAML quoting',
+      body: 'The service name must be lowercase alphanumeric with dashes, and an image is required or the tool stops with an error. Values are wrapped in double quotes with backslashes and quotes escaped, so a password with a colon or a mount path with a space survives round-tripping.',
+    },
+    {
+      heading: 'Nothing is sent off this device',
+      body: 'The file is assembled entirely in this tab and returned as text you copy; your image names, ports and secrets never leave the browser.',
+    },
   ],
   faq: [
     {

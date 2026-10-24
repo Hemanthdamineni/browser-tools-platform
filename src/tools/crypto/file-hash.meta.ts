@@ -34,6 +34,38 @@ export const meta: ToolMeta = {
       placeholder: 'paste a checksum to verify against',
     },
   ],
+  article: [
+    {
+      heading: 'What a hash proves',
+      body: 'A cryptographic digest is a fixed-length fingerprint of the file’s bytes: change a single bit and the whole hash changes. Comparing a downloaded file’s SHA-256 against the one published on the source site confirms the bytes you got are the bytes they shipped — the classic download-integrity check. Equal hashes across two files also flag likely duplicates.',
+    },
+    {
+      heading: 'One or many files, one or many algorithms',
+      body: 'Drop a single file to get its checksum, or several to hash each in turn. Pick SHA-256 (the default), SHA-384, SHA-512 or the legacy SHA-1. Pasting a value into the Expected hash field turns each result into a pass or fail check, and the output is a summary table plus a downloadable <name>.<algo> or checksums.<algo>.txt text file.',
+    },
+    {
+      heading: 'Verifying a published checksum',
+      body: 'Open the tool, drop the downloaded archive, paste the checksum the author published, and read the verdict. Because hashing runs in a Web Worker, large files keep the page responsive, and the Expected comparison is case-insensitive on the lowercase hex digest.',
+    },
+    {
+      heading: 'Limits and privacy',
+      body: 'The browser Web Crypto API needs the whole file in memory, so the practical ceiling is roughly your free RAM rather than disk space. Hashing happens entirely in this tab with no network request — the bytes are read locally, digested and discarded, so nothing you hash is ever uploaded.',
+    },
+  ],
+  examples: [
+    {
+      title: 'SHA-256 a file',
+      options: { algorithm: 'SHA-256' },
+    },
+    {
+      title: 'Verify against a published checksum',
+      options: { algorithm: 'SHA-256', expected: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855' },
+    },
+    {
+      title: 'Hash with the stronger SHA-512',
+      options: { algorithm: 'SHA-512' },
+    },
+  ],
   faq: [
     {
       q: 'Why is MD5 not offered?',

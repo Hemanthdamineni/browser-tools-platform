@@ -55,7 +55,41 @@ export const meta: ToolMeta = {
       ],
     },
   ],
-  examples: [{ title: 'Generate codes', input: 'JBSWY3DPEHPK3PXP' }],
+  examples: [
+    { title: 'Generate codes', input: 'JBSWY3DPEHPK3PXP' },
+    {
+      title: 'Generate 8-digit codes on a 60-second period',
+      input: 'JBSWY3DPEHPK3PXP',
+      options: { mode: 'codes', digits: '8', period: '60' },
+    },
+    {
+      title: 'Check a code against the secret',
+      input: 'JBSWY3DPEHPK3PXP 123456',
+      options: { mode: 'verify' },
+    },
+  ],
+  article: [
+    {
+      heading: 'The secret is the input',
+      body: 'TOTP works from a shared secret, not from an account name. Paste the base32 string that sits after secret= in an otpauth:// URI — something like JBSWY3DPEHPK3PXP — and the tool computes the codes for the current, previous and next time window, with the seconds left in the current one. Spaces in the secret are ignored, so a grouped or pasted-with-gaps string still works.',
+    },
+    {
+      heading: 'Generating versus verifying',
+      body: 'In codes mode you get a three-row table: the current code with its remaining lifetime, the previous window and the next one. In verify mode the input is the secret followed by the code to check, separated by a space, and the result row says Valid or Invalid and explains which window matched. The tolerance is one step either side of now, so a code typed just as the window rolls over still verifies.',
+    },
+    {
+      heading: 'Digits and period',
+      body: 'Standard TOTP is six digits on a 30-second period, which is what most services issue; eight digits and a 60-second period are less common but supported. Both must match whatever the issuer used — a six-digit code checked as eight will never match, and a service on a 60-second step will appear to reject a 30-second code.',
+    },
+    {
+      heading: 'Clock drift and the base32 format',
+      body: 'TOTP depends on the clock. If every code you generate is rejected, check the device time first — the ±1 step tolerance covers a few seconds, not minutes. The secret must be valid base32 (A–Z and 2–7 only); padding and spaces are tolerated, but any other character is refused with a message rather than producing a wrong code.',
+    },
+    {
+      heading: 'Nothing is stored or sent',
+      body: 'The HMAC-SHA-1 is computed with the browser WebCrypto API entirely in this tab. No request is made, and the secret is not saved between visits — which is what you want for a second factor, since a caching authenticator is a liability. Keep a real authenticator app or a secure backup of the secret as well.',
+    },
+  ],
   faq: [
     {
       q: 'Where do I find the secret?',

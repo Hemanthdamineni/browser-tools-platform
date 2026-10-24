@@ -94,6 +94,28 @@ export const meta: ToolMeta = {
       help: 'Re-encode the sound track as well. Turn it off for a smaller, silent file.',
     },
   ],
+  article: [
+    {
+      heading: 'What the compressor actually writes',
+      body: 'Video Compressor re-encodes a clip to a smaller file in the browser. It decodes the frames, re-encodes them and the audio, and muxes a fresh MP4 or WebM, reading the finished file back before offering it as a download. Source files up to 2 GB are accepted.',
+    },
+    {
+      heading: 'When to shrink a clip',
+      body: 'Reach for it when a clip is too big to email, upload or post: a screen recording against an attachment limit, a phone video headed for a chat app, or a master file you want a smaller copy of.',
+    },
+    {
+      heading: 'Presets, width, frame rate and container',
+      body: 'Preset picks the strategy: size-50 for half the bytes, size-25 for a quarter, size-target for the megabytes you type, or a quality preset that sets the bitrate from resolution and frame rate. Width narrows the video, fps caps the frame rate, container chooses MP4 or WebM, and audio keeps or drops the sound track.',
+    },
+    {
+      heading: 'What the compressor refuses',
+      body: 'The re-encode runs in a worker, streams progress and can be cancelled. Clips up to an hour are handled; longer ones get a warning first, and a clip past the hard limits is refused up front. If the source was already compressed hard, re-encoding cannot beat it and the tool says so.',
+    },
+    {
+      heading: 'The clip never leaves the browser',
+      body: 'The video is read from your device, decoded, re-encoded and muxed entirely in the browser. Nothing is sent over the network, the page works offline once loaded, and your original file is never modified.',
+    },
+  ],
   examples: [
     { title: 'Halve the size of a clip', options: { preset: 'size-50' } },
     { title: 'Compress a clip to 5 MB', options: { preset: 'size-target', targetSize: 5 } },

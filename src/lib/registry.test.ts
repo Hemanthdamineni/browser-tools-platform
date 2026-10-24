@@ -53,7 +53,11 @@ describe('registry', () => {
   });
 
   it('each tool module loads and exposes run()', async () => {
-    for (const t of ALL_TOOLS) {
+    // Redirect aliases have no implementation of their own — they redirect to a
+    // replacement before any load — so they are excluded from the load sweep.
+    const runnable = ALL_TOOLS.filter((t) => !t.meta.redirectTo);
+    expect(runnable.length).toBeGreaterThan(0);
+    for (const t of runnable) {
       const mod = await t.load();
       expect(typeof mod.default.run).toBe('function');
       expect(mod.default.meta.id).toBe(t.meta.id);
@@ -189,5 +193,30 @@ describe('registry aliases', () => {
     expect(redirectTarget(getTool('access-control-allow-origin')!.meta)?.meta.id).toBe(
       'cors-headers',
     );
+  });
+
+  it('keeps any alias tool file a thin delegate to its redirect target', () => {
+    // An alias needs only its meta — `build()` no longer demands a `.tool.ts` and
+    // `load()` is never reached. If one still ships a module, that module must
+    // delegate to the merge target rather than carry a dead standalone
+    // implementation (which would emit an unreachable lazy chunk).
+    const toolSources = import.meta.glob('../tools/**/*.tool.ts', {
+      query: '?raw',
+      import: 'default',
+      eager: true,
+    }) as Record<string, string>;
+    for (const alias of ALIAS_TOOLS) {
+      const target = alias.meta.redirectTo!;
+      const match = Object.entries(toolSources).find(([path]) =>
+        path.endsWith(`/${alias.meta.id}.tool.ts`),
+      );
+      if (!match) continue; // meta-only alias: exactly what we want.
+      const [path, source] = match;
+      const delegates = new RegExp(`['"][^'"]*${target}\\.(?:tool|core)['"]`).test(source);
+      expect(
+        delegates,
+        `${path} must delegate to "${target}" — remove the dead implementation or point it at the target`,
+      ).toBe(true);
+    }
   });
 });

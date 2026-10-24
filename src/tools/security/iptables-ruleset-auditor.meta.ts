@@ -59,6 +59,39 @@ export const meta: ToolMeta = {
       input:
         '*filter\n:INPUT DROP [0:0]\n:FORWARD DROP [0:0]\n:OUTPUT ACCEPT [0:0]\n:LOG_DROP - [0:0]\n-A INPUT -i lo -j ACCEPT\n-A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT\n-A INPUT -p tcp --dport 22 -j ACCEPT\n-A INPUT -p tcp -m multiport --dports 80,443 -j ACCEPT\n-A INPUT -p udp --dport 53 -j ACCEPT\n-A INPUT -j LOG_DROP\n-A LOG_DROP -m limit --limit 5/min -j LOG --log-prefix "iptables denied: "\n-A LOG_DROP -j DROP\nCOMMIT\n*nat\n:PREROUTING ACCEPT [0:0]\n:INPUT ACCEPT [0:0]\n:OUTPUT ACCEPT [0:0]\n:POSTROUTING ACCEPT [0:0]\nCOMMIT\n',
     },
+    {
+      title: 'Shadowed rule under a blanket ACCEPT',
+      input:
+        '*filter\n:INPUT ACCEPT [0:0]\n:FORWARD ACCEPT [0:0]\n:OUTPUT ACCEPT [0:0]\n-A INPUT -j ACCEPT\n-A INPUT -p tcp --dport 22 -j DROP\nCOMMIT\n',
+    },
+    {
+      title: 'A leaky chain with a fail-open policy',
+      input:
+        '*filter\n:INPUT ACCEPT [0:0]\n:FORWARD DROP [0:0]\n:OUTPUT ACCEPT [0:0]\n-A INPUT -p tcp --dport 3306 -j DROP\n-A INPUT -p tcp --dport 22 -j ACCEPT\nCOMMIT\n',
+      options: { format: 'findings' },
+    },
+  ],
+  article: [
+    {
+      heading: 'What the tool reads',
+      body: 'The input is iptables-save output \u2014 *table markers, :CHAIN POLICY [packets:bytes] declarations and -A rules \u2014 or a plain list of iptables commands including -A, -P, -N, -F and -D. nftables syntax is detected and refused with an explanation rather than misparsed, because the two grammars only look similar. Input is capped at 8 MB, and an empty file or one that does not look like a ruleset is rejected before analysis starts.',
+    },
+    {
+      heading: 'Choosing the output view',
+      body: 'The format option selects which table you get: a ruleset summary, a chain-and-policy listing, a rule inventory, the exposed-port report, or the raw findings list. Whichever you pick, the analysis underneath is the same, so switching views re-reads nothing and cannot change the numbers. A note appears if more findings exist than the display cap shows.',
+    },
+    {
+      heading: 'Reading the chain report',
+      body: 'Each chain is shown with its policy, its rule count and the mix of verdicts its rules end in, plus a mark where the combination is dangerous: a chain whose policy is ACCEPT but which ends in DROP rules is flagged as a fail-open policy, because anything that falls off the end of the chain is accepted. A chain nothing jumps to and which is not built in is called out as unreachable, and a jump to a chain that does not exist is an error.',
+    },
+    {
+      heading: 'Shadowed rules and exposed ports',
+      body: 'A rule is shadowed when an earlier unconditional DROP or REJECT in the same chain means it can never be reached; the report names the rule number that shadows it. The exposed-port view lists ports accepted in INPUT or FORWARD from anywhere, meaning the matching rule does not restrict source address or interface, and marks a port as shadowed when an earlier blanket rule has already killed it. Ports on your sensitive list are listed first, and the sensitive field default covers the usual suspects \u2014 SSH, databases, Redis, VNC and friends.',
+    },
+    {
+      heading: 'Nothing is executed or uploaded',
+      body: 'The ruleset is read as text in your browser and every rule is checked against iptables\u2019 own grammar so the errors you see are the ones iptables would print. No command is run, no packet is sent, no file is uploaded, and the page makes no network request \u2014 so you can audit a production firewall from a laptop without touching it.',
+    },
   ],
   faq: [
     {

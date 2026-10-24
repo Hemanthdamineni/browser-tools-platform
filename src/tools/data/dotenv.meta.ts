@@ -74,6 +74,24 @@ export const meta: ToolMeta = {
       a: 'With expansion on, ${NAME} in an unquoted or double-quoted value is replaced by the value of an earlier key. Single-quoted values are left literal.',
     },
   ],
+  article: [
+    {
+      heading: 'Two directions, one paste box',
+      body: 'The mode option picks the direction. In parse mode the box holds .env text and the tool returns the same keys and values as a pretty JSON object; in build mode the box holds a JSON object and the tool returns ready-to-save .env lines. The input is plain text, so a one-line snippet or a whole multi-line config file works.',
+    },
+    {
+      heading: 'How .env text is normalised',
+      body: 'Parsing trims each line, skips blanks and # comments, strips a leading export, and removes a matching pair of quotes. Inside double quotes \\n, \\t, \\r, \\\" and \\\\ are decoded to real characters, and an unquoted value is cut at a space-and-# comment. The JSON output is indented into a stable shape.',
+    },
+    {
+      heading: 'Building .env lines safely',
+      body: 'Each JSON value is flattened to a string: null becomes empty, objects and arrays become JSON text, and numbers and booleans stay plain. With the quote option on (the default), a value containing a space, #, quote or backslash is wrapped in double quotes with its contents escaped.',
+    },
+    {
+      heading: 'Expansion is opt-in and local',
+      body: 'Expansion replaces ${NAME} in unquoted and double-quoted values with the value of an earlier key, leaves single-quoted text literal, and turns unknown references into empty strings, which is why it is off by default. Parsing and building both run in this tab with nothing uploaded, so variables that are often secrets stay on your device.',
+    },
+  ],
   related: ['querystring', 'json-format', 'json-to-yaml', 'yaml-to-json'],
   status: 'stable',
 };

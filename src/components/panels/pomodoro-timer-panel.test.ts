@@ -30,6 +30,38 @@ vi.mock('@/lib/worker/client', () => ({
 
 const runToolByIdMock = vi.mocked(runToolById);
 
+/**
+ * Node's experimental `localStorage` is disabled in this test runner (its getter
+ * returns `undefined` unless the process is started with `--localstorage-file`,
+ * and we cannot add CLI flags to individual files), so install a small
+ * in-memory store that behaves like the browser one. The panel only uses
+ * `getItem`/`setItem`/`clear`, but a complete `Storage` is cheap and keeps the
+ * harness honest.
+ */
+function installMemoryStorage(): void {
+  const store = new Map<string, string>();
+  const storage = {
+    getItem: (key: string): string | null => store.get(key) ?? null,
+    setItem: (key: string, value: string): void => {
+      store.set(key, String(value));
+    },
+    removeItem: (key: string): void => {
+      store.delete(key);
+    },
+    clear: (): void => {
+      store.clear();
+    },
+    key: (index: number): string | null => [...store.keys()][index] ?? null,
+    get length(): number {
+      return store.size;
+    },
+  } as Storage;
+  Object.defineProperty(globalThis, 'localStorage', { value: storage, configurable: true });
+  Object.defineProperty(window, 'localStorage', { value: storage, configurable: true });
+}
+
+installMemoryStorage();
+
 /** Settings with non-default, easy-to-verify lengths (minutes). */
 const SETTINGS: PomodoroSettings = {
   workMinutes: 2,

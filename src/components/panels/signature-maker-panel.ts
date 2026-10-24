@@ -115,8 +115,8 @@ export function smoothStroke(samples: Stroke, passes = 1): Stroke {
     for (let i = 1; i < n; i++) {
       const a = polyline[i - 1]!;
       const b = polyline[i]!;
-      next.push({ x: round(0.75 * a.x + 0.25 * b.x), y: round(0.75 * a.y + 0.25 * b.y) });
-      next.push({ x: round(0.25 * a.x + 0.75 * b.x), y: round(0.25 * a.y + 0.75 * b.y) });
+      next.push({ x: round(0.75 * b.x + 0.25 * a.x), y: round(0.75 * b.y + 0.25 * a.y) });
+      next.push({ x: round(0.25 * b.x + 0.75 * a.x), y: round(0.25 * b.y + 0.75 * a.y) });
     }
     next.push(polyline[n - 1]!);
     polyline = next;

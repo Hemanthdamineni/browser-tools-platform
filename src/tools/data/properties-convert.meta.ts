@@ -45,6 +45,33 @@ export const meta: ToolMeta = {
       input: '{"server.port": 8080, "app": {"name": "demo", "ssl": true}}',
       options: { mode: 'json-to-props' },
     },
+    {
+      title: 'Colons and escaped unicode',
+      input: 'greeting: h\\u00e9llo\npath:C:\\\\tmp',
+      options: {},
+    },
+  ],
+  article: [
+    {
+      heading: 'Properties in, JSON out',
+      body: 'In the default direction the tool reads a Java properties file and returns one flat JSON object. Each value comes back as a string, because properties files carry no types. Comments starting with # or ! and blank lines are dropped, and a key ends at the first unescaped =, : or whitespace.',
+    },
+    {
+      heading: 'JSON out to dotted keys',
+      body: 'Switch the direction box to JSON to Properties and a JSON object is flattened into dotted keys: app.port, items.0, items.1 and so on, with arrays becoming numbered keys and empty objects written as blank values. Key order is preserved as authored.',
+    },
+    {
+      heading: 'Continuing a Spring config file',
+      body: 'A frequent job is turning application.properties into JSON so it can be diffed, checked or fed to a script. Backslash line continuations are joined before parsing, and escapes such as \\n, \\t, \\\\ and \\uXXXX are decoded back into real characters.',
+    },
+    {
+      heading: 'Duplicate keys and escaping outbound',
+      body: 'The parser follows Java semantics: when a key appears more than once the last value wins. Serializing escapes backslashes, newlines, tabs and any non-ASCII character, writing the latter as \\uXXXX so the output stays readable in any editor.',
+    },
+    {
+      heading: 'Config never leaves the page',
+      body: 'Reading and writing properties happen locally in the tab. Nothing is posted to a server and the tool runs offline, which matters when a config file holds credentials or internal host names.',
+    },
   ],
   faq: [
     {

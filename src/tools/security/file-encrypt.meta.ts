@@ -57,6 +57,28 @@ export const meta: ToolMeta = {
       options: { mode: 'encrypt', password: '' },
     },
   ],
+  article: [
+    {
+      heading: 'Encrypting and decrypting a file',
+      body: 'Pick Encrypt to seal a file into a .tbenc container, or Decrypt to open one this tool wrote earlier. A 256-bit key comes from your passphrase through PBKDF2-SHA256 at 600,000 iterations, and the bytes are sealed with AES-256-GCM. The encrypted copy is named after the original with .tbenc appended.',
+    },
+    {
+      heading: 'Inside the .tbenc container',
+      body: 'A 40-byte header carries the magic TBFENC, a version, the KDF id, the iteration count, the 64 KiB chunk size, a random salt and a nonce prefix. Records follow, each with a flag byte, a length and GCM ciphertext plus tag. The header and counter are authenticated, so edits or truncation fail.',
+    },
+    {
+      heading: 'Memory and streamed chunks',
+      body: 'Files are read and sealed 64 KiB at a time, so peak memory tracks the file rather than doubling it, and there is no hard size limit beyond free RAM. Because the final-chunk flag is authenticated, a cut-short file is rejected instead of decrypting to a silent prefix.',
+    },
+    {
+      heading: 'Options and when to use it',
+      body: 'Direction switches between encrypt and decrypt, and the passphrase field is required for both. Reach for it when a file must cross an untrusted channel such as email or a shared drive, or when a backup should rest on disk unreadable by anyone else.',
+    },
+    {
+      heading: 'Privacy and the lost-password rule',
+      body: 'The Web Crypto API does the work in your browser tab or worker, the page makes no network requests, and nothing is stored between visits. There is no escrow, so a forgotten passphrase leaves the file permanently unreadable.',
+    },
+  ],
   faq: [
     {
       q: 'What exactly is inside a .tbenc file?',
@@ -77,28 +99,6 @@ export const meta: ToolMeta = {
     {
       q: 'Does my file or password leave my device?',
       a: 'No. Encryption uses the Web Crypto API in your browser tab or worker, the page makes no network requests, and nothing is stored or remembered between visits.',
-    },
-  ],
-  article: [
-    {
-      heading: 'What this tool does',
-      body: 'AES-256-GCM encryption for any file, keyed by a password you choose. A random 16-byte salt is stretched into a 256-bit key with PBKDF2-SHA256 at 600,000 iterations — the same derivation as the text encryption tool — and the file is sealed chunk by chunk.',
-    },
-    {
-      heading: 'The .tbenc format',
-      body: 'Output begins with a 40-byte header: the ASCII magic "TBFENC", a format version, a KDF identifier, the PBKDF2 iteration count, chunk size, a 16-byte salt and an 8-byte nonce prefix. Each record then holds a flag byte, a 4-byte length, and the ciphertext with its 16-byte GCM tag. A chunk uses the nonce prefix plus a counter as its IV, and the tag covers the header, counter and final-chunk flag.',
-    },
-    {
-      heading: 'Large files',
-      body: 'Files are read and encrypted 64 KiB at a time, so peak memory stays close to the file size rather than several times it. Because the final-chunk flag is authenticated, a file that was cut short is rejected instead of quietly decrypting to a prefix.',
-    },
-    {
-      heading: 'When to use it',
-      body: 'Reach for it when a file must travel through a channel you do not trust — email, a shared drive, a chat app — or when a backup should sit on disk unreadable by anyone else. The password is the only key: lose it and the file is unrecoverable, so keep it in a password manager.',
-    },
-    {
-      heading: 'Privacy',
-      body: 'Everything happens in your browser through the Web Crypto API. The file, the password and the result never touch a network, the page makes no requests, and nothing is stored between visits.',
     },
   ],
   related: ['text-encrypt', 'file-hash', 'checksum-validator'],

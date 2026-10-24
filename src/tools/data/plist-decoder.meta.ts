@@ -42,11 +42,41 @@ export const meta: ToolMeta = {
       default: false,
     },
   ],
+  article: [
+    {
+      heading: 'Two plist formats, one decoded tree',
+      body: 'Choose a .plist file and it decodes either flavour: the compact binary one that starts with the bplist00 magic, or the readable XML markup. Both become the same value tree, so a setting read from a binary file can be compared directly against its XML version.',
+    },
+    {
+      heading: 'Where this saves time',
+      body: 'Useful when you need to see what is actually stored inside an app bundle Info.plist, to check a preferences file against what the application reports, or to spot the difference between a debug and a release build without a Mac-only editor in the way.',
+    },
+    {
+      heading: 'Choosing an output view',
+      body: 'The Output option selects between the Value tree of paths and values, a Summary of format, byte count, version and top-level shape, and the Binary object table with its offsets. Findings collects structural problems such as duplicate keys, cyclic references, unreachable objects, trailing bytes and input that was too large. Show data blobs as base64 turns raw data values into readable base64 text.',
+    },
+    {
+      heading: 'Edge cases worth knowing',
+      body: 'Binary plists permit 64-bit integers JavaScript cannot hold exactly, so those are decoded with BigInt and shown as exact decimal strings. The object table exists only for the binary format. Trees are capped at the first 2000 values, nesting at 64 levels, findings at 300 entries.',
+    },
+    {
+      heading: 'Opened on your own machine',
+      body: 'The file is read and decoded by the page itself, on device. Nothing is uploaded, no external entity is ever fetched, and reference cycles or structures that expand exponentially are cut off, so an untrusted plist cannot lock the page.',
+    },
+  ],
   examples: [
     {
       title: 'A small XML plist',
       input:
         '<?xml version="1.0" encoding="UTF-8"?>\n<plist version="1.0">\n<dict>\n\t<key>Name</key>\n\t<string>Example</string>\n\t<key>Build</key>\n\t<integer>42</integer>\n\t<key>Release</key>\n\t<true/>\n\t<key>Tags</key>\n\t<array>\n\t\t<string>alpha</string>\n\t\t<string>beta</string>\n\t</array>\n</dict>\n</plist>',
+    },
+    {
+      title: 'Inspect the binary object table',
+      options: { format: 'objects' },
+    },
+    {
+      title: 'Read the structural findings',
+      options: { format: 'findings' },
     },
   ],
   faq: [

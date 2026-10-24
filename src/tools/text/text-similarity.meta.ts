@@ -84,6 +84,38 @@ export const meta: ToolMeta = {
       title: 'Find the closest typo',
       input: 'colour\ncolor\ncolur\ncolourful\nflavour',
     },
+    {
+      title: 'Treat a swap as one edit',
+      input: 'recieve\nreceive\nbelieve',
+      options: { metric: 'damerau' },
+    },
+    {
+      title: 'Match names by shared prefix',
+      input: 'martha\nmarhta\nmarcia',
+      options: { metric: 'jaro-winkler' },
+    },
+  ],
+  article: [
+    {
+      heading: 'Scoring lines against a reference',
+      body: 'Paste any number of lines and each one is compared to a reference, which defaults to the first line unless you fill in the reference field. Every row reports the edit distance, a similarity percentage, and how many characters the start and end share. Choosing lines instead of table output gives compact score d= distance rows.',
+    },
+    {
+      heading: 'Picking the right metric',
+      body: 'Levenshtein counts insertions, deletions and substitutions. Damerau-Levenshtein also treats one adjacent swap as a single edit, so teh and the stay close together. Jaro-Winkler returns a score from 0 to 1 that rewards a shared opening, which suits matching personal names and records.',
+    },
+    {
+      heading: 'Options that change the ranking',
+      body: 'Case sensitive is off by default and trim whitespace removes blank lines before comparison. Sort results orders either closest first or in the original input order, and max rows caps the table at 200 lines by default, adjustable up to 5000.',
+    },
+    {
+      heading: 'Size ceilings and code points',
+      body: 'Input is limited to 200000 characters and 5000 lines. The distance metrics fill a quadratic table, so long pairs are refused once the longer string approaches 2000 characters. Text is compared by code point, so an emoji counts as one unit rather than two.',
+    },
+    {
+      heading: 'Comparison stays in the browser',
+      body: 'Everything runs on the text you type, locally. No line is uploaded, no request leaves the page, and the tool keeps working offline.',
+    },
   ],
   faq: [
     {

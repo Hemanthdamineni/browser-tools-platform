@@ -53,6 +53,38 @@ export const meta: ToolMeta = {
       title: 'Spell a callsign',
       input: 'N73AB',
     },
+    {
+      title: 'Decode a spoken sequence',
+      input: 'Foxtrot Oscar X-ray',
+      options: { direction: 'decode' },
+    },
+    {
+      title: 'One word per line',
+      input: 'Hotel Echo Lima Lima Oscar',
+      options: { direction: 'decode', separator: 'newline' },
+    },
+  ],
+  article: [
+    {
+      heading: 'Why a spelling alphabet exists',
+      body: 'Over a noisy radio link, or a bad phone line, "B" and "D" and "P" are indistinguishable. The NATO phonetic alphabet replaces every letter with a distinct word — Alpha for A, Bravo for B, Charlie for C through Zulu for Z — so a code read aloud is unambiguous. This tool turns text into those words, or turns the words back into text.',
+    },
+    {
+      heading: 'What happens to digits and punctuation',
+      body: 'Digits map to their English names as separate tokens, so N73 becomes November Seven Three. Characters outside A–Z and 0–9 are passed through as their own token rather than dropped, which keeps hyphens, slashes and other punctuation visible in the output so nothing is silently lost. Text is read one character at a time, so the case of the source does not matter.',
+    },
+    {
+      heading: 'Decoding and unknown words',
+      body: 'In decode mode the input is split on spaces, commas and semicolons, and each recognised word maps back to its letter or digit. A single-character token is kept as itself, since it is meaningful punctuation. A word that is not in the alphabet is preserved in square brackets, so a typo or an unrecognised word shows up in the result instead of vanishing.',
+    },
+    {
+      heading: 'Separation and case options',
+      body: 'The separator option — space, new line or comma plus space — controls how the encoded words are laid out, which is useful when you want one word per line to read down a list. The uppercase toggle renders the phonetic words in block capitals. Both options apply to encoding only; decoding always splits on the same set of separators.',
+    },
+    {
+      heading: 'Computed in your browser',
+      body: 'Encoding and decoding are a table lookup in this tab, with a 100,000-character ceiling so a huge paste cannot stall the page. A customer name or a tracking number is never sent anywhere, and the tool works offline.',
+    },
   ],
   faq: [
     {

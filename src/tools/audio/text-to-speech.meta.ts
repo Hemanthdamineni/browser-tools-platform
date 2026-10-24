@@ -64,12 +64,35 @@ export const meta: ToolMeta = {
       help: 'Loudness, from 0 (silent) to 1 (full).',
     },
   ],
+  article: [
+    {
+      heading: 'What the run produces',
+      body: 'Speaking cannot happen inside a pure function, so the tool validates the text and settings and returns the exact speech plan as JSON: the trimmed text, the chosen voice URI or null, the clamped rate, pitch and volume, plus character and word counts. The panel, or any caller, speaks that plan through the browser speech synthesis engine, so the report and the audio always agree.',
+    },
+    {
+      heading: 'When to use it',
+      body: 'Reach for this when you want hands-free or assistive reading: an article, a set of notes, anything you would rather hear than scan. Pick a voice from the list your browser reports, which can take a moment to populate, or leave the voice blank and let the engine choose its default.',
+    },
+    {
+      heading: 'What the three sliders change',
+      body: 'Rate runs 0.1 to 10 with 1 as normal speed, pitch runs 0 to 2 with 1 as the natural tone, and volume runs 0 to 1. Every value is clamped before use, so a malformed or out-of-range number silently becomes the nearest valid setting instead of breaking the plan.',
+    },
+    {
+      heading: 'Limits and privacy',
+      body: 'Text is cut to 5,000 characters and the report warns you when that happens, so split very long documents into paragraphs and speak them one at a time. The engine plays through your speakers and cannot be captured into a file, so there is no download. The text stays in the tab: synthesis is on-device and the page works offline.',
+    },
+  ],
   examples: [
     { title: 'Say hello', input: 'Hello! This text is being read aloud by your browser.' },
     {
       title: 'A short quote',
       input:
         '“The only way to do great work is to love what you do.” If you like what you are doing, you will keep working even when it is difficult.',
+    },
+    {
+      title: 'Slow, deep delivery',
+      input: 'This sentence is read slowly and at a lower pitch.',
+      options: { rate: 0.6, pitch: 0.8 },
     },
   ],
   faq: [

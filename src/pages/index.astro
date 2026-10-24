@@ -8,6 +8,8 @@ import { VISIBLE_TOOLS, categoriesWithCounts, TOOL_COUNT, CATEGORY_COUNT } from 
 import { websiteJsonLd, organizationJsonLd } from '@/lib/seo';
 
 const categories = categoriesWithCounts();
+// Link paths must honour the deploy base (e.g. /browser-tools-platform on GitHub Pages).
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const featured = VISIBLE_TOOLS.filter((t) =>
   [
     'base64',
@@ -59,7 +61,7 @@ const pillars = [
       offline.
     </p>
     <div class="mt-8 flex flex-wrap items-center gap-3">
-      <a href="/tools" class="btn btn-primary">
+      <a href={`${base}/tools`} class="btn btn-primary">
         Browse all tools <Icon name="arrow-right" size={16} />
       </a>
       <button type="button" class="btn btn-ghost" data-open-search>
@@ -97,7 +99,7 @@ const pillars = [
           </h2>
           <a
             class="shrink-0 text-sm text-[rgb(var(--text-muted))] underline-offset-4 hover:text-[rgb(var(--accent))] hover:underline"
-            href="/tools"
+            href={`${base}/tools`}
           >
             All {TOOL_COUNT} tools
           </a>

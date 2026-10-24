@@ -38,6 +38,30 @@ export const meta: ToolMeta = {
   examples: [
     { title: '20% of 150', input: '20 150' },
     { title: 'Change from 80 to 100', input: '80 100', options: { mode: 'percent-change' } },
+    { title: 'Increase 50 by 15%', input: '50 15', options: { mode: 'increase' } },
+    { title: 'Apply a 25% discount', input: '40 25', options: { mode: 'decrease' } },
+  ],
+  article: [
+    {
+      heading: 'The four everyday problems in one place',
+      body: 'Choose a mode and type two numbers. X% of Y multiplies Y by X over 100. Percent change finds how much B has moved relative to A. Increase by % and Decrease by % apply a percentage to a base value, which is the arithmetic behind a markup, a sale, or a tip split. Every result comes back with the working shown, not just the answer.',
+    },
+    {
+      heading: 'The order of the two numbers',
+      body: 'The mode sets the meaning of each slot. For X% of Y the first number is the percentage and the second is the base, so "20 150" means 20% of 150. For percent change the first is the from value and the second is the to value, so "80 100" is the change from 80 to 100. For increase and decrease the first is the base and the second is the percentage to move it by, so "50 15" is 50 increased by 15%. The guide line under an empty input reminds you of each order.',
+    },
+    {
+      heading: 'Reading the result table',
+      body: 'The result is a small table with the question, the arithmetic you would do on paper — such as 150 × 20/100 — and the answer. Below it a sentence restates the outcome in words, and when the mode allows a money-style figure, a rounded version is given alongside the full-precision value so you can quote a price rather than eleven decimal places.',
+    },
+    {
+      heading: 'Percentages over one hundred',
+      body: 'There is no artificial cap. 150% of 40 is 60, a change from 50 to 200 is +300%, and decreasing something by 110% pushes it below zero. The only undefined case is percent change from zero, which is rejected because a change relative to nothing has no meaning. Results are shown with full precision unless a rounded figure is asked for.',
+    },
+    {
+      heading: 'Done on your device',
+      body: 'The arithmetic is plain number handling in this tab with no request to a calculator service. Nothing you type is sent anywhere, so a markup or a tip you are still deciding is not transmitted.',
+    },
   ],
   faq: [
     {

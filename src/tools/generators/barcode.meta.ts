@@ -114,6 +114,28 @@ export const meta: ToolMeta = {
       options: { symbology: 'datamatrix' },
     },
   ],
+  article: [
+    {
+      heading: 'From a string to a scannable vector barcode',
+      body: 'Type a string or a product number, choose a symbology, and the generator returns a standalone vector barcode to print or embed. Nine 1D symbologies plus 2D DataMatrix are covered, and because the output is SVG it stays crisp at any size and can be copied out or embedded as a data URI.',
+    },
+    {
+      heading: 'Picking the right symbology',
+      body: 'Code 128 is the general-purpose default — compact and able to hold the full ASCII range. Retail products need EAN-13, EAN-8 or UPC-A, shipping cartons use ITF-14, older industrial systems still read Code 39, and DataMatrix packs a lot of text into a small square for components and medical devices.',
+    },
+    {
+      heading: 'Check digits and quiet zones',
+      body: 'The GTIN symbologies build their own mod-10 check digit: enter the short form and it is appended for you, or supply every digit and it is verified. Code 128 always carries its own checksum. The quiet zone keeps a blank margin of modules on either side of the bars, and leaving it at ten or more is what lets a scanner lock on.',
+    },
+    {
+      heading: 'Options that change the printed result',
+      body: 'Module width is the width of the narrowest bar and should stay at 2 px or more for reliable scans; bar height and the human-readable line are cosmetic. Bar colour and background are hex values, and a background of none gives a transparent SVG. DataMatrix ignores the readable text line because it is machine-read only.',
+    },
+    {
+      heading: 'Encoded in this tab',
+      body: 'Every bar is computed in the page: the payload, colours and layout are never sent anywhere, so nothing is uploaded and the tool keeps working offline.',
+    },
+  ],
   faq: [
     {
       q: 'Which symbology should I use?',

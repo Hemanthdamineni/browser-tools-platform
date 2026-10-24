@@ -72,6 +72,28 @@ export const meta: ToolMeta = {
       step: 1,
     },
   ],
+  article: [
+    {
+      heading: 'A year-by-year growth table',
+      body: 'The text box is ignored — the projection is driven entirely by the options. The result is a table with one row per year: the starting balance, what was contributed during that year, the interest earned in the year and the closing balance. The notes add total invested, total interest across the whole run and a growth multiplier.',
+    },
+    {
+      heading: 'Projecting a savings plan',
+      body: 'Use it to see what a monthly deposit into an index fund might look like in twenty years, to compare monthly against annual compounding on the same pot, or to show someone why starting five years earlier matters. Because the breakdown is per year rather than one final value, you can watch interest overtake contributions.',
+    },
+    {
+      heading: 'Options that change the projection',
+      body: "Starting balance and Annual interest rate set the inputs and Years (1–100) sets the horizon. Compound frequency chooses annually, quarterly, monthly, daily or continuously: the annual rate is divided by the number of periods, so monthly compounding at 12% adds 1% each month. Period contribution is added at the end of every compounding period, after that period's interest.",
+    },
+    {
+      heading: 'Caveats',
+      body: 'Continuous compounding uses e^rt and has no periods, so a period contribution is not supported there and the tool says so rather than silently ignoring the deposit. The model uses a nominal annual rate and a 365-day year rather than the 360-day convention some banks use, so figures can differ slightly from a statement. Values are clamped to sensible ranges and shown to two decimals, and no tax, fee or inflation adjustment is applied.',
+    },
+    {
+      heading: 'Your numbers stay in the tab',
+      body: 'The whole projection is arithmetic in your browser; no balance, rate or contribution is ever sent anywhere. Planning a private financial position here is safe, and it works offline.',
+    },
+  ],
   examples: [
     {
       title: 'Monthly compounding with no deposits',

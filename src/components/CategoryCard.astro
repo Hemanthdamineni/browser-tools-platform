@@ -6,10 +6,12 @@ interface Props {
   category: Category & { count: number };
 }
 const { category } = Astro.props;
+// Link paths must honour the deploy base (e.g. /browser-tools-platform on GitHub Pages).
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 
 <a
-  href={`/categories/${category.id}`}
+  href={`${base}/categories/${category.id}`}
   class="group flex items-baseline gap-3 border-b py-3.5 transition-colors hover:border-[rgb(var(--border-strong))]"
 >
   <span

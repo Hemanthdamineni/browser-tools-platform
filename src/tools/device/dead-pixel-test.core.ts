@@ -98,13 +98,13 @@ export function prevIndex(index: number, length: number): number {
  * How many milliseconds remain before the auto-cycle should advance again.
  *
  * `lastAdvancedAt` is the `Date.now()` time the colour last changed and
- * `now` the current `Date.now()` time. The delay is the remainder after
- * stepping a whole number of intervals since the last change, floored to
- * zero so it never goes negative when the timer is slightly late.
+ * `now` the current `Date.now()` time. When the last change is still within
+ * the interval, the delay is the time that remains; once the interval has
+ * fully elapsed the next advance is due immediately (0), floored so it never
+ * goes negative when the timer is slightly late.
  */
 export function cycleDelayMs(now: number, lastAdvancedAt: number, intervalMs: number): number {
   if (!Number.isFinite(intervalMs) || intervalMs <= 0) return 0;
   const elapsed = Math.max(0, now - lastAdvancedAt);
-  const remainder = elapsed % intervalMs;
-  return Math.max(0, intervalMs - remainder);
+  return Math.max(0, intervalMs - elapsed);
 }

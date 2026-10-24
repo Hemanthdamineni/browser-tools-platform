@@ -214,6 +214,24 @@ export const meta: ToolMeta = {
       },
     },
   ],
+  article: [
+    {
+      heading: 'Placing the text',
+      body: 'Type your caption and it appears live as a draggable block. Drag it, or set the horizontal and vertical position fields, which are percentages of the image \u2014 which is what makes the export look the same at any resolution, with 50/85 slightly above the bottom edge on a phone photo and a 6000-pixel scan alike. With the block focused, the arrow keys nudge it by one percent, or ten with Shift.',
+    },
+    {
+      heading: 'Type, size and wrapping',
+      body: 'The size slider is a percentage of the image\u2019s short edge, so a caption scales with the picture. Line breaks are kept and long lines wrap at the maximum line width; a single word wider than that is split between characters so it cannot run off the edge. Alignment arranges wrapped lines inside the block, and the uppercase switch shouts the caption without retyping it.',
+    },
+    {
+      heading: 'Making text readable on any photo',
+      body: 'The outline and drop-shadow controls exist because plain white text disappears over a bright sky. Outline width is a percentage of the font size, so a thick stroke stays proportional, and its colour is independent of the fill. The shadow has its own blur, offsets and colour, for a soft halo or a crisp sticker look, and opacity fades the block into a watermark.',
+    },
+    {
+      heading: 'Fonts, formats and privacy',
+      body: 'The four fonts are system stacks \u2014 sans, serif, monospace and an Impact-style face \u2014 so no web font is fetched. PNG keeps transparency, JPEG is smaller but flattens it, and WebP gives the best size for the quality. The whole job runs in a Web Worker in your browser, so the image is never uploaded.',
+    },
+  ],
   faq: [
     {
       q: 'Where does the text end up?',

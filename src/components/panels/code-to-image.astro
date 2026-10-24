@@ -5,10 +5,13 @@
  * The generic text workbench cannot express a live preview of a rendered code
  * card, so the tool opts into this panel via `meta.panel = 'code-to-image'`.
  * The panel keeps the `data-panel-workbench` marker (added by PanelWorkbench)
- * so the shared sweep treats it like every other tool, while
- * `code-to-image-panel.ts` — loaded on demand — drives the highlighting, the
- * layout and the SVG/PNG exports. All option names and the render contract
- * come from that panel module; this markup only has to match its selectors.
+ * so the shared sweep treats it like every other tool.
+ *
+ * The layout/measure/SVG maths and the lazily loaded Shiki highlighter live in
+ * `code-to-image-panel.ts` and run inside the tool's own `run()`, which this
+ * script drives through `runToolById` — the same convention the other panels
+ * follow. The tool returns the self-contained SVG as a `data:` URL; the panel
+ * previews it in a sandboxed iframe, shows the source, and exports SVG/PNG.
  */
 import type { ToolMeta } from '@/lib/types';
 import OptionsFields from '../workbench/OptionsFields.astro';
@@ -145,10 +148,9 @@ const opening = examples[0]?.input ?? '';
       <span class="text-sm font-semibold text-[rgb(var(--text))]">Result</span>
     </div>
     <p class="mb-1 text-xs text-[rgb(var(--text-muted))]">
-      The serialised SVG below is exactly what Export SVG saves, and what the PNG export
-      rasterises onto a canvas. The preview above is the same markup inside a sandboxed iframe.
+      The SVG source below is exactly what Export SVG saves, and what the PNG export rasterises
+      onto a canvas. The preview above is the same markup inside a sandboxed iframe.
     </p>
-    <img class="max-h-80 w-auto rounded-lg border" alt="Rendered code image" data-image hidden />
     <details class="mt-2 rounded-lg border">
       <summary class="cursor-pointer select-none px-3 py-2 text-sm font-medium">SVG source</summary>
       <div class="border-t p-3">
@@ -159,8 +161,8 @@ const opening = examples[0]?.input ?? '';
 
   <noscript>
     <p class="mt-3 text-sm text-[rgb(var(--text-muted))]">
-      Turning code into an image needs JavaScript — the highlighting and the PNG/SVG export
-      cannot run without it.
+      Turning code into an image needs JavaScript — the Shiki highlighting and the SVG/PNG
+      export cannot run without it.
     </p>
   </noscript>
 </section>
@@ -178,19 +180,256 @@ const opening = examples[0]?.input ?? '';
 </style>
 
 <script>
+  import { runToolById } from '@/lib/worker/client';
+  import { applyShowWhen, bindRangeOutputs, clearError, readOptions, showError } from '../workbench/shared';
+  import { downloadBlob, downloadText } from '@/lib/files';
+  import type { TextRunResult } from '@/lib/types';
+
+  /** Decode the `data:image/svg+xml;base64,…` the tool returns into SVG text. */
+  function svgFromDataUrl(url: string): string {
+    const comma = url.indexOf(',');
+    const base64 = comma >= 0 ? url.slice(comma + 1) : '';
+    const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+    return new TextDecoder().decode(bytes);
+  }
+
+  /** Base64 `data:image/svg+xml` URL for SVG text that may hold non-ASCII code. */
+  function svgDataUrl(svg: string): string {
+    const bytes = new TextEncoder().encode(svg);
+    let binary = '';
+    for (const byte of bytes) binary += String.fromCharCode(byte);
+    return `data:image/svg+xml;base64,${btoa(binary)}`;
+  }
+
+  /** Rasterise an image data URL to a PNG blob at `scale`× via an offscreen `<img>` + canvas. */
+  async function rasterisePng(url: string, scale = 2): Promise<Blob> {
+    const image = new Image();
+    image.src = url;
+    await image.decode();
+    const w = image.naturalWidth || image.width;
+    const h = image.naturalHeight || image.height;
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.max(1, Math.round(w * scale));
+    canvas.height = Math.max(1, Math.round(h * scale));
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('Canvas 2D context is unavailable.');
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+    return await new Promise<Blob>((resolve, reject) =>
+      canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('PNG encoding failed.'))), 'image/png'),
+    );
+  }
+
+  /**
+   * A preview document for the sandboxed iframe. `sandbox=""` (no
+   * `allow-scripts`, no `allow-same-origin`) plus a strict CSP means the SVG
+   * markup can neither run script nor reach this page nor fetch anything.
+   */
+  function previewDocument(svg: string, zoom: number): string {
+    return [
+      '<!doctype html><html><head><meta charset="utf-8">',
+      '<meta http-equiv="Content-Security-Policy" content="default-src \'none\'; style-src \'unsafe-inline\'">',
+      '<style>html,body{margin:0;padding:12px;background:transparent;overflow:auto}',
+      `svg{transform:scale(${zoom});transform-origin:top left}</style>`,
+      '</head><body>',
+      svg,
+      '</body></html>',
+    ].join('');
+  }
+
+  function debounce(fn: () => void, ms: number): { schedule(): void; cancel(): void } {
+    let timer = 0;
+    return {
+      schedule() {
+        clearTimeout(timer);
+        timer = window.setTimeout(fn, ms);
+      },
+      cancel() {
+        clearTimeout(timer);
+      },
+    };
+  }
+
   document.querySelectorAll<HTMLElement>('[data-code-to-image]').forEach((root) => {
-    // Loaded on demand: the panel is only used by this tool, and Shiki (plus
-    // the WebAssembly engine and the grammars) is pulled in lazily by the
-    // panel module when the first snippet is highlighted.
-    void import('./code-to-image-panel')
-      .then(({ mountCodeToImagePanel }) => mountCodeToImagePanel(root))
-      .catch(() => {
-        const error = root.querySelector<HTMLElement>('[data-error]');
-        if (error) {
-          error.hidden = false;
-          error.textContent =
-            'The Code to Image panel could not be loaded in this browser.';
+    const input = root.querySelector<HTMLTextAreaElement>('[data-source]');
+    const frame = root.querySelector<HTMLIFrameElement>('[data-preview]');
+    const statusEl = root.querySelector<HTMLElement>('[data-status]');
+    const errorBox = root.querySelector<HTMLElement>('[data-error]');
+    const resultWrap = root.querySelector<HTMLElement>('[data-result-wrap]');
+    const outputHost = root.querySelector<HTMLElement>('[data-output]');
+    const runBtn = root.querySelector<HTMLButtonElement>('[data-run]');
+    const runLabel = root.querySelector<HTMLElement>('[data-run-label]');
+    const liveBox = root.querySelector<HTMLInputElement>('[data-live]');
+    const zoomRange = root.querySelector<HTMLInputElement>('[data-zoom]');
+    const zoomReset = root.querySelector<HTMLElement>('[data-zoom-reset]');
+    const exportSvgBtn = root.querySelector<HTMLButtonElement>('[data-export-svg]');
+    const exportPngBtn = root.querySelector<HTMLButtonElement>('[data-export-png]');
+    const clearBtn = root.querySelector<HTMLButtonElement>('[data-clear]');
+    const optionsRoot = root.querySelector<HTMLElement>('[data-options]') ?? root;
+
+    if (!input || !frame || !errorBox) return;
+
+    const toolId = root.dataset.toolId || 'code-to-image';
+
+    /** The last SVG the tool produced (decoded from its data URL). */
+    let lastSvg = '';
+    let renderSeq = 0;
+    let controller: AbortController | null = null;
+
+    function currentZoom(): number {
+      const v = parseFloat(zoomRange?.value ?? '1');
+      return Number.isFinite(v) && v > 0 ? v : 1;
+    }
+
+    function refreshPreview(): void {
+      if (!lastSvg) return;
+      frame.srcdoc = previewDocument(lastSvg, currentZoom());
+    }
+
+    function clearResult(): void {
+      lastSvg = '';
+      frame.srcdoc = '';
+      if (resultWrap) resultWrap.hidden = true;
+      if (outputHost) outputHost.textContent = '';
+      if (statusEl) statusEl.textContent = '';
+      if (errorBox) clearError(errorBox);
+    }
+
+    async function render(): Promise<void> {
+      const seq = ++renderSeq;
+      const source = input!.value;
+
+      // A blank canvas is not an error — clear the preview quietly.
+      if (!source.trim()) {
+        clearResult();
+        return;
+      }
+
+      controller?.abort();
+      controller = new AbortController();
+      if (runBtn) {
+        runBtn.disabled = true;
+        runBtn.setAttribute('aria-busy', 'true');
+      }
+      if (runLabel) runLabel.textContent = 'Rendering…';
+      if (statusEl) statusEl.textContent = 'Highlighting…';
+      clearError(errorBox);
+
+      try {
+        // The tool owns the Shiki highlighter, the layout and the SVG
+        // serialisation (loaded on demand); the panel only feeds it.
+        const result = await runToolById<TextRunResult>(
+          toolId,
+          { text: source, options: readOptions(optionsRoot) },
+          { signal: controller.signal },
+        );
+        if (seq !== renderSeq) return;
+
+        lastSvg = svgFromDataUrl(result.output);
+        refreshPreview();
+        if (resultWrap) resultWrap.hidden = false;
+        if (outputHost) outputHost.textContent = lastSvg;
+        if (statusEl) {
+          statusEl.textContent = `Rendered · ${result.stats?.['size'] ?? ''} · ${result.stats?.['language'] ?? ''}`;
         }
+      } catch (err) {
+        if (seq !== renderSeq) return;
+        const e = err as Error & { hint?: string };
+        if (e.name === 'AbortError') return;
+        lastSvg = '';
+        frame.srcdoc = '';
+        if (resultWrap) resultWrap.hidden = true;
+        if (statusEl) statusEl.textContent = '';
+        showError(errorBox, e.message || 'Something went wrong.', e.hint);
+      } finally {
+        if (seq === renderSeq && runBtn) {
+          runBtn.disabled = false;
+          runBtn.removeAttribute('aria-busy');
+          if (runLabel) runLabel.textContent = 'Render image';
+        }
+      }
+    }
+
+    const rerender = debounce(render, 400);
+
+    /* -------------------------------------------------------------------- */
+    /*  Wiring                                                              */
+    /* -------------------------------------------------------------------- */
+
+    applyShowWhen(optionsRoot);
+    bindRangeOutputs(root);
+
+    runBtn?.addEventListener('click', () => void render());
+    input.addEventListener('input', () => {
+      if (liveBox?.checked) rerender.schedule();
+    });
+    optionsRoot.addEventListener('input', () => {
+      if (liveBox?.checked) rerender.schedule();
+    });
+    optionsRoot.addEventListener('change', () => {
+      if (liveBox?.checked) rerender.schedule();
+    });
+    liveBox?.addEventListener('change', () => {
+      if (liveBox.checked) rerender.schedule();
+    });
+
+    zoomRange?.addEventListener('input', () => refreshPreview());
+    zoomReset?.addEventListener('click', () => {
+      if (!zoomRange) return;
+      zoomRange.value = '1';
+      refreshPreview();
+    });
+
+    clearBtn?.addEventListener('click', () => {
+      input.value = '';
+      rerender.cancel();
+      controller?.abort();
+      clearResult();
+    });
+
+    exportSvgBtn?.addEventListener('click', () => {
+      if (!lastSvg) return;
+      downloadText(lastSvg, 'code-snippet.svg', 'image/svg+xml');
+    });
+
+    exportPngBtn?.addEventListener('click', () => {
+      if (!lastSvg) return;
+      const label = exportPngBtn!.textContent;
+      exportPngBtn!.disabled = true;
+      void rasterisePng(svgDataUrl(lastSvg))
+        .then((blob) => downloadBlob(blob, 'code-snippet.png'))
+        .catch((err: Error) => showError(errorBox!, err.message || 'PNG export failed.'))
+        .finally(() => {
+          exportPngBtn!.disabled = false;
+          if (exportPngBtn!.textContent !== null) exportPngBtn!.textContent = label;
+        });
+    });
+
+    // Example chips carry a JSON payload: `{ input, options }`.
+    root.querySelectorAll<HTMLButtonElement>('[data-example]').forEach((button) => {
+      button.addEventListener('click', () => {
+        let payload: { input?: string; options?: Record<string, unknown> } = {};
+        try {
+          payload = JSON.parse(button.dataset.examplePayload ?? '{}') as typeof payload;
+        } catch {
+          return;
+        }
+        input.value = payload.input ?? '';
+        for (const [k, v] of Object.entries(payload.options ?? {})) {
+          const el = optionsRoot.querySelector<HTMLInputElement | HTMLSelectElement>(
+            `[data-opt-key="${k}"]`,
+          );
+          if (!el) continue;
+          if ((el as HTMLInputElement).type === 'checkbox')
+            (el as HTMLInputElement).checked = Boolean(v);
+          else el.value = String(v);
+        }
+        rerender.cancel();
+        void render();
       });
+    });
+
+    // The panel opens with the first example so the preview is never blank.
+    if (input.value) void render();
   });
 </script>

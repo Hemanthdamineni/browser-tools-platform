@@ -138,7 +138,8 @@ export function axisWeights(
     const weight = kernelValue(kernel, (center - j) / widen);
     if (weight === 0) continue;
     total += weight;
-    taps.push({ source: j, weight });
+    // `first` can be `-0` (e.g. `Math.ceil(-0.25)`); an index is a plain `0`.
+    taps.push({ source: j === 0 ? 0 : j, weight });
   }
   if (total === 0) {
     // Unreachable for a valid centre, but a defined answer beats dividing by zero.

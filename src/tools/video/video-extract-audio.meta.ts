@@ -82,6 +82,28 @@ export const meta: ToolMeta = {
     { title: 'Make a small MP3 of the audio', options: { format: 'mp3', quality: 'medium' } },
     { title: 'Mono WAV for transcription', options: { format: 'wav', channels: 'mono' } },
   ],
+  article: [
+    {
+      heading: 'What comes out',
+      body: 'Pick a video file and the tool decodes its audio and writes it back as a new audio download. Only the sound track is touched \u2014 the picture is never decoded, which keeps the job fast and light compared with a full conversion. The output is a lossless WAV, or an MP3 or AAC when your browser ships an encoder for that format; the channel layout and, for the compressed formats, the bitrate follow the options you set.',
+    },
+    {
+      heading: 'The primary track and its format',
+      body: 'The first, primary audio track is the one extracted; additional tracks such as a director\u2019s commentary are ignored. The sample rate is carried over untouched \u2014 the WAV header writes the source rate verbatim and the compressed encoders are told the same rate \u2014 so nothing is resampled and the pitch and duration stay true to the source.',
+    },
+    {
+      heading: 'Choosing WAV, MP3 or AAC',
+      body: 'WAV is lossless PCM and works in every editor, but a minute of stereo audio takes roughly 10 MB, which is why the compressed choices exist. MP3 at 128 kbps is about a tenth of that size and plays on the widest range of devices, while AAC is the default on Apple platforms. The quality option for each compressed format picks the bitrate \u2014 high at 192, medium at 128, low at 96 \u2014 trading size against fidelity.',
+    },
+    {
+      heading: 'Why an encoder can be missing',
+      body: 'MP3 and AAC come from your browser\u2019s built-in audio encoder, and not every browser ships one for every format: Chrome and Edge can encode both, while Firefox currently cannot encode either. The tool checks before it starts and tells you plainly that the format is unavailable rather than producing a broken or silent file, so on such a browser you still get WAV and can convert it elsewhere.',
+    },
+    {
+      heading: 'The audio stays on your device',
+      body: 'The sound track is decoded and re-encoded in this browser tab through the bundled mediabunny decoder. No part of the video or the extracted audio is uploaded, and the page makes no network request, so you can rip a clip without it leaving your machine.',
+    },
+  ],
   faq: [
     {
       q: 'Which format should I pick?',

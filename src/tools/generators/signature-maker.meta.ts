@@ -99,6 +99,11 @@ export const meta: ToolMeta = {
       input: 'Ada Lovelace',
       options: { mode: 'type' },
     },
+    {
+      title: 'Type in a typewriter style',
+      input: 'Grace Hopper',
+      options: { mode: 'type', style: 'mono' },
+    },
   ],
   faq: [
     {
@@ -134,7 +139,7 @@ export const meta: ToolMeta = {
     },
     {
       heading: 'Privacy and fonts',
-      body: 'Everything is produced in this tab: the strokes are never uploaded, and the typed signature uses generic system fonts — cursive, serif, sans-serif and monospace — so no webfont is fetched and no font licence needs to be carried. The tool works fully offline.',
+      body: 'Everything is produced in this tab: the strokes are never uploaded, and the typed signature uses generic system fonts — cursive, serif, sans-serif and monospace — so no webfont is fetched and no font licence is carried. The tool works fully offline.',
     },
   ],
   status: 'stable',

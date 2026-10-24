@@ -1,5 +1,8 @@
 ---
 import Layout from '@/components/Layout.astro';
+
+// Link paths must honour the deploy base (e.g. /browser-tools-platform on GitHub Pages).
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 
 <Layout
@@ -16,7 +19,7 @@ import Layout from '@/components/Layout.astro';
       reconnect and try again.
     </p>
     <div class="mt-6 flex justify-center gap-3">
-      <a href="/" class="btn btn-primary">Go home</a>
+      <a href={`${base}/`} class="btn btn-primary">Go home</a>
       <button type="button" class="btn btn-ghost" data-retry>Retry</button>
     </div>
   </div>

@@ -8,6 +8,24 @@ export const meta: ToolMeta = {
     'Flatten repeated XML elements into a CSV table, with attributes and nested values as columns.',
   description:
     'Turn an XML document into a CSV table of its records. The tool finds the repeated element that represents a row — or you name it yourself — then flattens each record into columns: attributes become @name columns, nested elements join with dots, and repeated values are written as JSON. Column order follows first appearance and every row is padded, so the output opens cleanly in any spreadsheet. Everything is converted on your device.',
+  article: [
+    {
+      heading: 'How the records are chosen',
+      body: 'Row detection counts same-named children at every depth and takes the element name that occurs most often; with no repetition it falls back to the children of the document element, or to the document element itself. Naming a record path — book, catalog.book or /catalog/book — overrides detection and may be written from the root or relative to the document element.',
+    },
+    {
+      heading: 'How one record becomes one row',
+      body: 'A record is flattened into column names and cells. Attributes become @id-style columns, nested elements join with a dot so author.name is one column, and an element holding both children and text keeps its text under its own column name. Values repeated inside one record are written as compact JSON, since a single CSV cell cannot carry the same column twice.',
+    },
+    {
+      heading: 'Delimiters, headers and attributes',
+      body: 'delimiter switches between comma, semicolon, tab and pipe, and the chosen character is what triggers quoting. Turning header off removes the first line, and turning includeAttributes off discards every @-column before the header is built. Any cell holding a quote, the delimiter or a line break is quoted, with inner quotes doubled.',
+    },
+    {
+      heading: 'Caps, padding and privacy',
+      body: 'Each run accepts up to 2,000,000 characters and 50,000 records; empty input, a document with no tag, or a record path matching nothing is refused instead of emitting an empty file. The header is the union of all columns seen, in first-appearance order, and short rows are padded with empty cells. Comments and processing instructions are skipped rather than validated, so malformed nesting is read as written, and the document is never uploaded.',
+    },
+  ],
   keywords: [
     'xml to csv',
     'convert xml to csv',
@@ -64,6 +82,12 @@ export const meta: ToolMeta = {
       input:
         '<feed><entry><author><name>Ada</name></author><title>Hello</title></entry><entry><author><name>Bob</name></author><title>World</title></entry></feed>',
       options: { recordPath: 'feed.entry' },
+    },
+    {
+      title: 'Attributes and text in one record',
+      input:
+        '<products><product id="A1" price="9.99"><name>Dune</name></product><product id="B2" price="12.50"><name>It</name></product></products>',
+      options: { delimiter: 'semicolon', includeAttributes: true },
     },
   ],
   faq: [

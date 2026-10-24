@@ -91,7 +91,33 @@ export const meta: ToolMeta = {
       showWhen: { key: 'format', value: 'jpeg' },
     },
   ],
-  examples: [{ title: 'Tight 3-column grid', options: { columns: '3', spacing: 4 } }],
+  examples: [
+    { title: 'Tight 3-column grid', options: { columns: '3', spacing: 4 } },
+    { title: 'Auto square grid', options: { columns: 'auto', spacing: 8 } },
+    { title: 'Rounded tiles on a JPEG', options: { radius: 12, format: 'jpeg', quality: 90 } },
+  ],
+  article: [
+    {
+      heading: 'Arranging photos into a grid',
+      body: 'Add two or more images and the collage maker tiles them into a uniform grid you can download as a single PNG or JPEG. Each cell is square and sized to the largest source edge, so the busiest photo sets the resolution and nothing is ever upscaled.',
+    },
+    {
+      heading: 'Choosing a layout',
+      body: 'Columns defaults to Auto, which picks a roughly square grid — four photos become a 2×2. Pin it to 1, 2, 3 or 4 to force a shape; the number of rows follows from how many images you add. Spacing is the gap between cells, and the background fills it with a hex colour or stays transparent.',
+    },
+    {
+      heading: 'Framing and reordering',
+      body: 'Rounded corners and an optional cell border with its own colour and width dress the tiles up. To change the arrangement, drag a thumbnail into a new slot: the order you see on the preview is exactly the order saved, and reordering moves placements rather than re-encoding pixels.',
+    },
+    {
+      heading: 'PNG, JPEG and transparency',
+      body: 'PNG keeps any transparency around and between the photos; JPEG cannot, so a transparent background is flattened onto white. Switching to JPEG also unlocks a quality slider, which trades file size against detail.',
+    },
+    {
+      heading: 'Rendered on your device',
+      body: 'Decoding, layout and export all happen in the page, so your photos never leave the browser and the tool keeps working offline.',
+    },
+  ],
   faq: [
     {
       q: 'Can I change which photo sits where?',

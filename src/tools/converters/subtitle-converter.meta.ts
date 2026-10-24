@@ -58,6 +58,11 @@ export const meta: ToolMeta = {
       input: '1\n00:00:01,500 --> 00:00:04,000\nWelcome back!',
       options: { shift: 2.5 },
     },
+    {
+      title: 'VTT to SRT',
+      input: 'WEBVTT\n\n00:00:01.500 --> 00:00:04.000\nWelcome back!',
+      options: {},
+    },
   ],
   faq: [
     {
@@ -75,6 +80,24 @@ export const meta: ToolMeta = {
     {
       q: 'Is there a way to see the format it detected?',
       a: 'Yes. The notes include the detected input format and the number of cues converted, and the target option can be set explicitly to override auto-detection.',
+    },
+  ],
+  article: [
+    {
+      heading: 'What the Subtitle Converter does',
+      body: 'Paste the text of a subtitle file and it is parsed into individual cues, each a start time, an end time and the caption text. The format is detected from the content rather than a filename: a WEBVTT header means VTT, otherwise SRT, where timestamps use commas. The Target option picks the output — auto converts to the other format, or you can force SRT or VTT. The result is rendered as code you can copy, with notes telling you which format was detected and how many cues came out.',
+    },
+    {
+      heading: 'Shifting out-of-sync captions',
+      body: 'The shift option moves every cue by a fixed number of seconds, positive to push them later and negative to pull them earlier. It works in fractions of a second, so -0.5 shifts half a second back. A cue whose end would land at or before zero is dropped entirely, and a cue whose start would go negative is clamped to zero, so you never get a caption that starts before the clip. The note reports the exact shift applied.',
+    },
+    {
+      heading: 'How conversion normalises the file',
+      body: 'Output is always valid standard SRT or VTT rather than a copy of whatever the source contained. SRT cue numbers are regenerated in order, the WEBVTT header is reproduced for VTT, and anything SRT cannot express is dropped — VTT cue identifiers, cue settings like align:start, and the optional header comment. That trade-off guarantees clean output in the target format, at the cost of not preserving every extension.',
+    },
+    {
+      heading: 'Edge cases and privacy',
+      body: 'Input with no cue at all is rejected with a hint, as is malformed quoting. Both formats share the same timeline grammar, so a comma or dot is accepted either way and the parser tolerates a leading cue number on SRT lines. Everything runs on your device: parsing, shifting and rendering are all done in the tab, and nothing you paste is uploaded.',
     },
   ],
   related: ['markdown-to-html', 'csv-to-markdown', 'docx-to-markdown', 'html-to-text'],

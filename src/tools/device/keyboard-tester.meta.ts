@@ -56,6 +56,36 @@ export const meta: ToolMeta = {
       help: 'How long the tester waits for the rest of the combination before it calls the attempt.',
     },
   ],
+  article: [
+    {
+      heading: 'Watch the keys the browser receives',
+      body: 'Press any key and the on-screen keyboard lights its physical position, while a readout shows the key value, the physical code and the modifier state. The report tabulates your recent rollover attempts with the set of keys that were physically held, so you can see which key of a combination never joined the others.',
+    },
+    {
+      heading: 'Deciding whether it is the keyboard or the browser',
+      body: 'This is the page you open when a key feels dead, when a game refuses to register a three-key combination, or when you suspect the layout does not match the keycaps. Because the lights follow the physical position, a mismatch between the two readouts is a direct clue that the operating system is remapping your keys.',
+    },
+    {
+      heading: 'Options behind the report',
+      body: 'Rollover attempts kept in the report (1–50, default 10) sets how much history the table keeps. Show the time of each attempt adds a clock column so a failure can be tied to something you changed. Rollover wait window (200–5000 ms, default 1200) is how long the tester waits for the rest of a combination before scoring it — raise it for slow wireless keyboards.',
+    },
+    {
+      heading: 'What a failure does and does not prove',
+      body: 'A failed combination can come from the keyboard, an operating system key filter or the browser, because the page only sees what the OS hands it. Avoid combinations the browser reserves — Ctrl+T, Ctrl+W and friends — since the browser acts before the page can. A key you release stays lit for a moment so you can still read its value.',
+    },
+    {
+      heading: 'Keystrokes are not recorded',
+      body: 'Key events are read in this tab only to draw the screen and build the on-screen report; nothing is stored, logged or transmitted, and the page works with no connection. Testing a passphrase-shaped combination is safe.',
+    },
+  ],
+  examples: [
+    { title: 'Check a key I think is dead' },
+    { title: 'Test a ctrl + shift + t rollover', options: { rolloverWindowMs: 2000 } },
+    {
+      title: 'Keep a longer rollover history',
+      options: { historySize: 25, includeTimestamps: false },
+    },
+  ],
   faq: [
     {
       q: 'What is the difference between key and code?',

@@ -26,6 +26,15 @@ export const meta: ToolMeta = {
       input:
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
     },
+    {
+      title: 'An iPhone Safari UA',
+      input:
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Mobile/15E148 Safari/604.1',
+    },
+    {
+      title: 'A search crawler UA',
+      input: 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
+    },
   ],
   faq: [
     {
@@ -39,6 +48,24 @@ export const meta: ToolMeta = {
     {
       q: 'How is my data used?',
       a: 'This parser runs entirely in your browser. The string never leaves your device.',
+    },
+  ],
+  article: [
+    {
+      heading: 'What the decoded row set tells you',
+      body: 'One User-Agent string becomes a six-row table: browser, browser version, rendering engine, operating system, OS version and device class. The device class distinguishes desktop, mobile, tablet and bot, and engine names such as Blink, WebKit, Gecko, Trident and EdgeHTML are reported from the token the string actually carries rather than from the browser name.',
+    },
+    {
+      heading: 'Why the order of checks matters',
+      body: 'Many browsers embed other products names for compatibility, so the parser tests in a deliberate order — Samsung Internet, then Edge variants, then Opera, then Chrome, Firefox, Safari — because a Chrome string also contains "Safari" and an Edge string contains "Chrome". Crawlers are detected first, with keyword matching for bot, spider or crawler tokens, because they rarely carry a browser token at all.',
+    },
+    {
+      heading: 'Where the answer can be wrong',
+      body: 'A User-Agent is self-reported text, not a contract: browsers freeze version numbers for privacy, extensions rewrite strings, and new products appear constantly. Detection is heuristic, so treat the result as a strong hint. Strings the rules do not recognise are shown as Unknown rather than being mapped to a neighbouring browser by guesswork.',
+    },
+    {
+      heading: 'Nothing is looked up online',
+      body: 'All matching happens against built-in rules in this page. The string is analysed locally, no request is sent to a device-detection service, and pasting a log line therefore reveals nothing about your traffic to a third party.',
     },
   ],
   related: ['diff-text', 'http-status', 'regex-tester', 'port-lookup'],

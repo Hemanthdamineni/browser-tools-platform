@@ -52,6 +52,24 @@ export const meta: ToolMeta = {
       default: true,
     },
   ],
+  article: [
+    {
+      heading: 'What minify and pretty really change',
+      body: 'Minify collapses whitespace between tags and emits the whole document on one line; pretty reindents it at two spaces per level. Neither reorders attributes nor rewrites path data — the difference is serialization only, and the reported before/after size shows exactly what the whitespace removal saved you.',
+    },
+    {
+      heading: 'Rounding numbers without touching colours',
+      body: '“Decimal precision” rounds standalone numeric tokens inside attribute values — coordinates in d, x, y, width, plus transform matrices — to between 0 and 6 decimals. Hex colours such as #fff, rgb() triples, identifiers and unit-suffixed values are recognised and skipped, so geometry tidies up without a fill silently shifting.',
+    },
+    {
+      heading: 'Comments and empty groups',
+      body: '“Remove comments” deletes XML comments, the annotations vector editors leave behind, while “Remove empty <g> elements” strips groups with no drawable children. Groups carrying attributes or real content are kept, so structure that affects rendering survives the pass intact.',
+    },
+    {
+      heading: 'Loud failure on broken input',
+      body: 'If the opening <svg> element is missing or the tags are unbalanced the optimizer reports an error instead of emitting a broken file, and anything beyond two million characters is refused. Parsing and re-serialization both happen in the browser, so the artwork you paste is never uploaded.',
+    },
+  ],
   examples: [
     {
       title: 'Minify an editor export',
@@ -63,6 +81,12 @@ export const meta: ToolMeta = {
       input:
         '<svg viewBox="0 0 10 10"><rect x="0.1500000" y="0" width="10" height="10" fill="none"/></svg>',
       options: { mode: 'pretty' },
+    },
+    {
+      title: 'Pretty with comments kept',
+      input:
+        '<svg viewBox="0 0 24 24"><!-- icon --><circle cx="12.12345" cy="12" r="6.500000" fill="#0af"/></svg>',
+      options: { mode: 'pretty', stripComments: false, precision: 1 },
     },
   ],
   faq: [

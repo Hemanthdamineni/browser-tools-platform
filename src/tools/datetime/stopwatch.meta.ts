@@ -52,20 +52,20 @@ export const meta: ToolMeta = {
   ],
   article: [
     {
-      heading: 'What the stopwatch does',
-      body: 'The panel shows a live readout to the millisecond, with Start, Lap, Reset and Copy all controls. Starting and pausing is one button (or the space bar); each lap is stamped with the split since the previous lap and the running total. When two or more laps have been taken, the shortest and longest splits are marked in the lap table.',
+      heading: 'What the panel and the report show',
+      body: 'Start and pause share one button or the space bar, Lap is a button or the L key, and Copy all dumps the run as plain text. The report under the panel renders the same snapshot as a table: one row per lap with its split and total, a running row while the watch is still going, and a note when no lap has been taken yet.',
     },
     {
-      heading: 'Accurate even when the tab sleeps',
-      body: 'The elapsed time is never built by adding up ticks. Each run stores the timestamp it began at, and every frame simply subtracts that from the current timestamp. If the browser throttles the page, or the machine sleeps for an hour, the next frame computes the correct total in one step — there is no accumulated rounding error and no lost interval.',
+      heading: 'Timing that survives a sleeping tab',
+      body: 'Elapsed time is never accumulated tick by tick. Each run stores the timestamp it began at, and every frame subtracts that from the current time, so a throttled background tab or a machine that slept for an hour is accounted for in one step, with no drift and no lost interval.',
     },
     {
-      heading: 'Reading the lap table',
-      body: 'Each row is one lap: the split is the time since the previous lap, and the total is how long the watch had been running when the lap was taken. The fastest split is marked as well as the slowest, and every lap that ties for either record is marked too. A single lap is never labelled: there is nothing to compare it with.',
+      heading: 'Splits, records and the one option',
+      body: 'A lap row carries the split — the time since the previous lap — and the total the watch read when the lap was taken. Once two laps exist, the shortest and longest splits are marked, ties included. The includeSplits option only adds or removes the Split column in the report table — the fastest and slowest marks are unaffected, and the text written by Copy all always keeps its splits.',
     },
     {
-      heading: 'Privacy and limits',
-      body: 'The watch is a plain timestamp loop in this tab — no request, no storage, no account. Laps live only in memory, so a reload clears them; use Copy all to keep the run. Timing is as accurate as the operating system clock and the browser frame rate, which suits training, cooking and billable hours but not scientific measurement.',
+      heading: 'Nothing stored, nothing sent',
+      body: 'The watch is a timestamp loop in this tab: laps live in memory, there is no storage, no account and no request, and a reload clears the run unless you copied it first. Accuracy follows the system clock and the frame rate — fine for training or billable hours, not a measurement instrument.',
     },
   ],
   faq: [

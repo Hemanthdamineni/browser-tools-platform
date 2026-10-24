@@ -45,6 +45,29 @@ export const meta: ToolMeta = {
   examples: [
     { title: 'Analyze strict embedding policy', input: 'require-corp' },
     { title: 'Build a credentialless policy', options: { mode: 'build', value: 'credentialless' } },
+    { title: 'Analyze a value the header does not allow', input: 'same-origin' },
+  ],
+  article: [
+    {
+      heading: 'Four accepted values, one of them the default non-policy',
+      body: 'Cross-Origin-Embedder-Policy accepts only unsafe-none, require-corp, credentialless and credentialless=*. Analyze matches your text case-insensitively and returns one row with the value, a Valid or Invalid verdict and an assessment; build normalises the selected token to lower case and prints the response line. A plausibly spelled token such as same-origin is reported invalid rather than guessed at.',
+    },
+    {
+      heading: 'The moment you want it: an asset that stopped loading',
+      body: 'The header usually appears when someone enables cross-origin isolation for SharedArrayBuffer, timers or WebAssembly threads, and a font, image or embed from another origin stops rendering. Pasting require-corp into analyze confirms what the document asks for and spells out the consequence: each cross-origin subresource must opt in with Cross-Origin-Resource-Policy or a CORS response.',
+    },
+    {
+      heading: 'Choosing between require-corp and credentialless',
+      body: 'require-corp is the strictest value and the likeliest to break a widget that has not opted in. The two credentialless forms keep no-CORS requests working without credentials, a compatibility compromise rather than a guarantee: the tool accepts both spellings and labels them as credentialless embedding, but cannot predict browser support or whether a vendor asset will load. unsafe-none is the absence of a restriction, not a recommendation.',
+    },
+    {
+      heading: 'A header is a request, never an isolation guarantee',
+      body: 'Nothing here verifies that isolation took effect: COEP only works alongside Cross-Origin-Opener-Policy on the document and matching policies on the subresources, and the check covers token spelling, not your deployment. Confirm the value you intend to ship, then test the real pages.',
+    },
+    {
+      heading: 'The policy string is inspected locally',
+      body: 'Analysis and generation run inside this page, so a policy string copied from an internal staging origin is never uploaded and no request leaves the tab.',
+    },
   ],
   faq: [
     {

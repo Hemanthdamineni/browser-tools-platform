@@ -157,28 +157,6 @@ export const meta: ToolMeta = {
       },
     },
   ],
-  article: [
-    {
-      heading: 'What a spectrogram shows',
-      body: 'A waveform tells you when sound happens; a spectrogram tells you what the sound is made of. The file is cut into short overlapping frames, each frame is windowed and transformed with a fast Fourier transform, and every frame becomes one thin column of pixels: frequency runs up the picture, time runs along it, and brightness (or colour) says how much energy was in each frequency band at that moment. A sung vowel shows up as a stack of parallel horizontal stripes — the harmonics — while a snare hit is a vertical smear covering the whole band at once.',
-    },
-    {
-      heading: 'Choosing the FFT size',
-      body: 'The FFT size is a trade-off between time and frequency detail. At a 44.1 kHz sample rate, a 256-point frame is about 6 ms long and tells frequencies apart only roughly (about 172 Hz per bin), which is ideal for timing percussive transients. A 4096-point frame is about 93 ms and resolves frequencies about 11 Hz apart, which is what you want to read the pitch of notes or the shape of formants. The 1024-point default sits in the middle and suits most material.',
-    },
-    {
-      heading: 'Why the window matters',
-      body: 'Cutting a signal into frames as if each were a tiny loop sharpens the cut at both ends, and that sharp edge smears energy across the spectrum — spectral leakage. A window function tapers each frame to zero at its edges to suppress it. Hann is the everyday choice, Hamming keeps a slightly flatter main lobe, and Blackman leaks the least at the cost of some sensitivity. If distant ghosts appear above and below a loud pure tone, a different window is the first thing to try.',
-    },
-    {
-      heading: 'Reading the dB scale',
-      body: 'Colours map decibels, not raw amplitudes, because hearing is roughly logarithmic: a sound at −10 dB is subjectively half as loud as one at 0 dB, not a tenth. The floor sets how quiet a signal must be before it disappears into the map’s darkest colour, and the ceiling pins the loudest. Lowering the floor to −100 or −110 reveals room tone, tape hiss and reverb tails; raising it to −40 flattens everything but the loudest content, which is useful for checking a mix’s balance.',
-    },
-    {
-      heading: 'Everything stays on your device',
-      body: 'The file is decoded by your browser’s own audio engine, the FFT runs in plain JavaScript in this tab, and the PNG is built byte by byte with no libraries. The same analysis path also drives the live microphone view, which appends one column per animation frame. No audio ever leaves your machine, and the tool works offline once the app is cached.',
-    },
-  ],
   faq: [
     {
       q: 'Which audio formats can I load?',
@@ -199,6 +177,28 @@ export const meta: ToolMeta = {
     {
       q: 'Does anything leave my device?',
       a: 'No. Decoding, the FFT, the colour mapping and the PNG encoding all run in this tab. Nothing is uploaded, and the tool keeps working with no connection.',
+    },
+  ],
+  article: [
+    {
+      heading: 'What a spectrogram shows',
+      body: 'A waveform tells you when sound happens; a spectrogram tells you what it is made of. The file is split into overlapping frames, each windowed and transformed with a fast Fourier transform, and every frame becomes a thin column of pixels: frequency up the picture, time along it, brightness the energy per band. A vowel appears as parallel harmonic stripes, a snare as a vertical smear.',
+    },
+    {
+      heading: 'Choosing the FFT size',
+      body: 'The FFT size trades time against frequency detail. At 44.1 kHz a 256-point frame lasts about 6 ms and separates roughly 172 Hz per bin, ideal for percussive timing; a 4096-point frame lasts 93 ms and resolves about 11 Hz, suiting pitch. The 1024-point default sits between them.',
+    },
+    {
+      heading: 'Why the window matters',
+      body: 'Cutting a signal into frames smears energy across the spectrum, so a window function tapers each frame to zero at both edges. Hann is the default, Hamming keeps a flatter main lobe, and Blackman leaks least at some cost to sensitivity. If ghosts appear around a loud tone, try another window.',
+    },
+    {
+      heading: 'Reading the dB scale',
+      body: 'Colours map decibels, not raw amplitudes, because hearing is roughly logarithmic. The floor silences anything quieter and the ceiling pins the loudest; lowering it to minus one hundred reveals room tone and hiss, while raising it flattens everything but the loudest content.',
+    },
+    {
+      heading: 'Everything stays on your device',
+      body: 'Your browser decodes the file, the FFT runs in plain JavaScript, and the PNG is built byte by byte with no libraries. The same path drives the live microphone view, and no audio leaves your machine, so it works offline once cached.',
     },
   ],
   related: ['audio-info', 'tone-generator', 'tuner', 'bpm-detector', 'voice-recorder'],

@@ -8,6 +8,24 @@ export const meta: ToolMeta = {
     'Generate Python dataclass or TypedDict definitions from a JSON sample, with nested models.',
   description:
     'Paste a JSON sample and get ready-to-paste Python type definitions. Objects become @dataclass classes (or TypedDict subclasses when you prefer maps), arrays become lists of the inferred element type, numbers become int or float, and nulls or optionally-typed fields get sensible defaults. Nested objects are hoisted into their own named models, keys can be snake_cased, and the output is import-clean for modern Python. All inference runs on your device.',
+  article: [
+    {
+      heading: 'What it returns',
+      body: 'Input is one JSON value as text, up to 1,000,000 characters; the output is a Python module — imports, then one class per shape. Objects are walked depth-first into named models, arrays become list[Element], whole numbers int, fractional numbers float, booleans bool and strings str. Only the first array element is sampled, so a mixed array collapses to the type of that entry.',
+    },
+    {
+      heading: 'When the sample comes from an API contract',
+      body: 'When you hold a representative response body and want typed models before writing any parsing code, paste it and take the generated classes straight into the project. Dataclass is the default style; choose TypedDict when your codebase prefers mapping-style types.',
+    },
+    {
+      heading: 'The options that change the output',
+      body: 'style picks @dataclass or TypedDict. snakeCase rewrites camelCase keys to snake_case field names — switch it off to keep the JSON key verbatim. useOptional annotates non-list fields as optional and defaults them from the sample, and unionSyntax chooses Optional[str] or str | None. indent accepts 2, 3, 4, 6 or 8 spaces; any other value is rejected.',
+    },
+    {
+      heading: 'Guessed types, gaps and privacy',
+      body: 'A JSON null always becomes Optional[Any] = None rather than a concrete type, empty arrays become list[Any], and keys that would not be valid Python identifiers are prefixed so the module still parses. The conversion is a pure function in this tab: JavaScript parses and emits everything on this device, nothing is uploaded and nothing survives the page.',
+    },
+  ],
   keywords: [
     'json to python',
     'json to dataclass',
@@ -80,6 +98,11 @@ export const meta: ToolMeta = {
       title: 'List of objects',
       input: '[{"id": 1, "label": "one"}, {"id": 2, "label": "two"}]',
       options: { rootName: 'Item' },
+    },
+    {
+      title: 'Nulls as TypedDict with pipe unions',
+      input: '{"eventId": 7, "note": null, "tags": ["a", "b"], "metrics": {"p95": 1.25}}',
+      options: { style: 'typeddict', unionSyntax: 'pipe', indent: 2 },
     },
   ],
   faq: [

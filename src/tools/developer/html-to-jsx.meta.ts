@@ -34,6 +34,28 @@ export const meta: ToolMeta = {
       default: true,
     },
   ],
+  article: [
+    {
+      heading: 'HTML in, JSX out',
+      body: 'Paste a static HTML snippet and get JSX for a React component body. Attribute names are mapped to their React spelling (class to className, for to htmlFor, tabindex to tabIndex and so on), void elements such as img, input, br and hr are self-closed, HTML comments become {/* ... */} and the tree is indented with two spaces.',
+    },
+    {
+      heading: 'When you are porting a static page',
+      body: 'Use it when a design hand-off arrives as HTML, when you are lifting markup out of a template or a CMS export into a component, or when you want to confirm a snippet is valid JSX before committing it. It is deliberately a converter rather than a framework: it never invents props, state or event handlers.',
+    },
+    {
+      heading: 'The two options',
+      body: 'Wrap multiple roots in a fragment encloses several top-level elements in <>...</> so the result is a legal component body instead of invalid sibling markup. Keep comments decides whether HTML comments survive as JSX comment expressions or are dropped, which is handy when comment blocks are template noise rather than documentation.',
+    },
+    {
+      heading: 'What it deliberately will not do',
+      body: 'Inline style strings are carried through unchanged, because turning CSS text into a React style object needs a full CSS parser. Attribute values stay plain strings, and a value containing a double quote is wrapped in a JS expression so the JSX stays valid. Unbalanced markup is reported rather than guessed at.',
+    },
+    {
+      heading: 'Nothing leaves the page',
+      body: 'The parse and render run in your browser and the snippet is never uploaded. Client markup, internal templates and half-finished components can all be converted without a network connection.',
+    },
+  ],
   examples: [
     {
       title: 'Navbar fragment',
@@ -44,6 +66,12 @@ export const meta: ToolMeta = {
       title: 'Form row',
       input:
         '<label for="email">Email</label>\n<input type="email" id="email" readonly><br><button disabled>Save</button>',
+    },
+    {
+      title: 'Attributes React renames',
+      input:
+        '<div class="card" tabindex="0"><label for="q">Search</label><input id="q" readonly></div>',
+      options: { fragment: false },
     },
   ],
   faq: [

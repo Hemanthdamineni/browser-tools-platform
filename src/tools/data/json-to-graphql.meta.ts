@@ -49,6 +49,39 @@ export const meta: ToolMeta = {
       input:
         '{\n  "id": 1,\n  "name": "Ada",\n  "tags": ["admin", "staff"],\n  "profile": { "bio": null, "age": 36 }\n}',
     },
+    {
+      title: 'Nested objects and a list of objects',
+      input:
+        '{\n  "user": { "id": 7, "active": true },\n  "items": [ { "sku": "A1", "price": 9.99 } ]\n}',
+      options: { rootName: 'Order', strictNull: true },
+    },
+    {
+      title: 'Four-space indent',
+      input: '{\n  "ok": true,\n  "count": 0\n}',
+      options: { indent: '4' },
+    },
+  ],
+  article: [
+    {
+      heading: 'From a JSON sample to GraphQL SDL',
+      body: 'Paste a JSON object and the generator walks it in one pass: strings become String, booleans Boolean, integers Int, floats Float and null a String placeholder. Nested objects become their own types, arrays become list types, and the whole document is emitted as Schema Definition Language with one type block per object.',
+    },
+    {
+      heading: 'How arrays and names are derived',
+      body: 'An array of strings maps to [String]. An array of objects becomes a list of the singularized type name, so an items field of objects yields type Item and items: [Item]. Colliding names get a numeric suffix, and a mixed-typed array falls back to [String] with a note suggesting a union type. The top-level object takes the Root type name value.',
+    },
+    {
+      heading: 'Nullability and indent',
+      body: 'By default every field is nullable, an honest reading of a single sample. Mark non-null fields with ! appends ! only to fields whose sample holds a concrete value, leaving nulls plain. The indent option switches the emitted blocks between two and four spaces.',
+    },
+    {
+      heading: 'Where a single sample falls short',
+      body: 'An empty array cannot reveal its item type, so it becomes [String], and a key that is missing from the sample never appears in the schema. Two different objects that share a field name collapse into one type, so the output is a starting point for a schema, not a complete model. Input must be valid JSON under one million characters.',
+    },
+    {
+      heading: 'The sample never leaves this tab',
+      body: 'The JSON is parsed and the SDL generated entirely in the browser, so an API response or internal configuration sample is never posted anywhere.',
+    },
   ],
   faq: [
     {

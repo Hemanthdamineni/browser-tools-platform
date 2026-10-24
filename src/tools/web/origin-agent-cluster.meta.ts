@@ -34,6 +34,25 @@ export const meta: ToolMeta = {
   examples: [
     { title: 'Analyze an isolation signal', input: '?1' },
     { title: 'Build an origin-keyed header', options: { mode: 'build', value: '?1' } },
+    { title: 'Analyze an explicit opt-out', input: '?0' },
+  ],
+  article: [
+    {
+      heading: 'A structured boolean, so only two answers are right',
+      body: 'Origin-Agent-Cluster has a one-value grammar: ?1 asks the browser to key the agent cluster to the origin, ?0 asks it not to. Analyze compares the pasted text with those two strings and returns a row with the value, a Valid or Invalid verdict and an assessment of the outcome requested. Build prints the trimmed value as a header line and refuses anything else, including the bare 1 or true people type first.',
+    },
+    {
+      heading: 'Reach for it when document.domain is in play',
+      body: 'The header is worth checking on any site that still widens its own origin with document.domain, and on pages embedding sibling subdomains that share objects across frames. Requesting ?1 keeps the origin as the cluster key but changes how the page relates to same-site frames, so confirm the exact value the deployment sends and test what depends on legacy behaviour before keeping it fixed: per-response changes cause bugs that show up on one edge node only.',
+    },
+    {
+      heading: 'What ?1 is not',
+      body: 'A valid ?1 is an isolation request, not proof of process isolation, and it does not turn on cross-origin isolation by itself. Browsers differ in whether they honour the header and in what they do with it, so the analyzer reports what the value says, not what the browser did. Treat a Valid verdict as confirmation of spelling and intent, never as a security audit.',
+    },
+    {
+      heading: 'Both tokens are checked on your machine',
+      body: 'No lookup is fetched and no request is made, so the header you paste and the host it came from stay in the tab while you compare what is deployed against what you meant to deploy.',
+    },
   ],
   faq: [
     {

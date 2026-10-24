@@ -40,6 +40,29 @@ export const meta: ToolMeta = {
       input: 'Read the [guide][guide-ref].\n\n## Guide\n\nMore.',
       options: {},
     },
+    {
+      title: 'Heading anchor that works',
+      input: '# My Notes\n\nJump to [my notes](#my-notes) above.',
+      options: { checkExternal: false },
+    },
+  ],
+  article: [
+    {
+      heading: 'What it checks, and what it only counts',
+      body: 'The document is scanned line by line and a findings table is produced with Status, Kind, Label, Target and Line. Structural problems are actually validated: a link to #fragment with no matching heading, an empty target or label, a reference-style link with no definition, a definition nothing links to, and malformed autolinks. Web links such as https: and mailto: are only counted and listed as unchecked, because nothing is fetched.',
+    },
+    {
+      heading: 'Why anchors are slugified like GitHub',
+      body: 'Local fragments use the rule GitHub applies to heading ids: lowercase, strip punctuation and collapse spaces or dashes, so "My Notes!" matches #my-notes. Explicit anchors in braces, {#custom}, are honoured too, the same convention as the markdown table-of-contents tool.',
+    },
+    {
+      heading: 'Severity levels and code skipping',
+      body: 'A missing definition, empty target or broken fragment is an error; unused definitions, duplicate anchors and malformed autolinks are warnings; external links are informational since nothing was requested. Every row carries its line number. Links inside fenced or indented code are ignored, so example URLs in snippets do not raise false alarms.',
+    },
+    {
+      heading: 'Your draft never leaves the page',
+      body: 'Everything is checked with text processing in this tab. No URL is requested and no document is uploaded, and the external-link option only decides whether those links are listed in the report, never whether they are fetched.',
+    },
   ],
   faq: [
     {

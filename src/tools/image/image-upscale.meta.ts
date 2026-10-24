@@ -130,19 +130,19 @@ export const meta: ToolMeta = {
   article: [
     {
       heading: 'Algorithmic upscaling, stated plainly',
-      body: 'This is not AI super-resolution. The tool resamples the pixels you already have with a Lanczos3, bicubic or nearest-neighbour kernel, so it can enlarge a picture and keep it sharp, but it cannot invent texture that was never captured. A neural upscaler trained on thousands of photos can hallucinate plausible detail; this one cannot, and it makes no network request to any model. That honesty matters: the browser-ready super-resolution models available today (APISR, Swin2SR) are GPL-3.0, and this project ships only permissively licensed code, so they are deliberately left out rather than quietly downloaded.',
+      body: 'Upscale Image enlarges a PNG, JPEG or WebP by 2x, 4x or a custom percentage, returning a new file in the format you choose. It resamples with a Lanczos3, bicubic or nearest-neighbour kernel, so it keeps a picture sharp but is not AI super-resolution and cannot invent texture the camera never caught. The browser-ready neural models (APISR, Swin2SR) are GPL-3.0, and this project ships only permissive licences, so they are deliberately excluded.',
     },
     {
-      heading: 'Choosing an interpolation method',
-      body: 'Lanczos3 uses a windowed sinc function with negative lobes, which preserves fine detail and edges but can produce a faint halo around high-contrast lines. Bicubic is the gentler choice most image editors default to: softer, with far less ringing, and a good match for noisy photos. Nearest-neighbour simply repeats each source pixel, which is exactly right for pixel art, screenshots and icons where any smoothing would destroy the intended hard edges. Switch kernels and the preview updates, so you can compare before committing.',
+      heading: 'When enlarging is the right move',
+      body: 'Reach for it when a small logo must fill a slide or an old screenshot needs to print legibly; for noisy photos a gentler kernel beats an aggressive one.',
     },
     {
-      heading: 'Why the result is sharpened afterwards',
-      body: 'Interpolation is a low-pass operation: every kernel averages neighbouring pixels, so edges lose a little contrast. The optional unsharp mask adds back a scaled copy of the difference between the image and a blurred version of it, restoring that micro-contrast. Amount 0 disables it; around 40% is a good starting point for photos. With detail-preserving sharpening on, the blur radius grows with the scale factor, so a 4× enlargement is sharpened across the same physical distance in the source image rather than only across one output pixel.',
+      heading: 'Interpolation, sharpening and format',
+      body: 'Lanczos3 preserves the most detail but can halo around hard edges; bicubic is gentler, with less ringing; nearest keeps pixel art blocky and suits icons and textures. Interpolation softens edges, so the unsharp mask adds contrast back, where 0 disables it and about 40 percent suits photos, while detail-preserving sharpening widens the radius as the scale grows. PNG keeps transparency; JPEG and WebP use the quality slider.',
     },
     {
-      heading: 'Preview, limits and export',
-      body: 'The preview is computed on the main thread at a reduced resolution so the sliders stay responsive, and the status line says when it is scaled down. The export itself runs in a Web Worker at the full target resolution and is capped by browser canvas limits — 100 million pixels and 16,384 pixels per side — so an enormous target is reported as an error instead of freezing the tab. PNG keeps transparency, so a cut-out stays a cut-out; JPEG has no alpha channel, so JPEG output is composited onto white first.',
+      heading: 'Caps, preview and where the pixels stay',
+      body: 'Output is capped at 100 million pixels and 16,384 per side, so an oversized target errors instead of freezing the tab, and because it only enlarges, a custom value below 101 percent is raised to 101. The preview renders on the main thread at reduced resolution and labels itself as scaled down, while the export runs in a worker at full size; JPEG output is composited onto white first. Everything stays on your device with no network request.',
     },
   ],
   related: ['image-resize', 'image-compress', 'image-convert', 'image-crop'],

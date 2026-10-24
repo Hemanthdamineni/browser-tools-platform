@@ -62,6 +62,24 @@ export const meta: ToolMeta = {
       a: 'No. Edits are autosaved as you type, and the latest text is flushed to storage the moment the tab is hidden or closed, so the very last keystroke is kept.',
     },
   ],
+  article: [
+    {
+      heading: 'Several drafts, kept side by side',
+      body: "Online Notepad holds a list of notes you can create, rename and delete, and each one autosaves to this browser's IndexedDB as you type, so a reload or a closed tab does not lose the last keystroke.",
+    },
+    {
+      heading: 'Exporting a note in the shape you need',
+      body: 'The export format option writes either plain text, which is the note content exactly as typed, or Markdown, which is the same text with a heading built from the title. The title supplies both that heading and the download file name, which is slugged to safe characters and falls back to note.',
+    },
+    {
+      heading: 'Why keep notes in the browser',
+      body: "It suits throwaway snippets, meeting scratch and anything you would not put in a shared document. Because storage lives in your browser's own private area, a note is available offline and disappears when you clear that site's data or press Delete all notes.",
+    },
+    {
+      heading: 'Your words stay put',
+      body: 'No note, title or keystroke is ever sent to a server; the whole editor and its storage run on your device, and nothing leaves it.',
+    },
+  ],
   related: ['text-stats', 'word-frequency', 'markdown-toc', 'char-frequency'],
   status: 'stable',
 };

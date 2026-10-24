@@ -65,6 +65,28 @@ export const meta: ToolMeta = {
       max: 8,
     },
   ],
+  article: [
+    {
+      heading: 'From schema object to TypeScript declarations',
+      body: 'Give it a JSON Schema and it prints TypeScript source: one declaration for the root plus one named type for every entry in $defs or definitions. Objects become interfaces or type aliases, an enum becomes a literal union, anyOf and oneOf become unions, and allOf becomes an intersection of its members.',
+    },
+    {
+      heading: 'Useful when the schema already exists',
+      body: 'This is the shortcut for the moment an API description or a validation schema is already written and the client needs matching types. Instead of transcribing property names, optionality and nested shapes by hand, paste the schema once and let the generator derive the interface you would have typed out.',
+    },
+    {
+      heading: 'The options that change the output',
+      body: 'Root type name sets what the top-level declaration is called (Root by default). Object style chooses between an interface and a type alias. Prefix declarations with export turns every declaration into an export, Mark properties readonly adds readonly to each field, Copy descriptions as JSDoc carries schema descriptions into comments, and Indent width controls the space count.',
+    },
+    {
+      heading: 'What it will and will not represent',
+      body: 'Property optionality follows the required list exactly, keys that are not valid identifiers stay quoted, and keywords TypeScript cannot express, such as not or if/then/else, fall back to unknown rather than a wrong type. The top level has to be a JSON object, remote references are not fetched, and input is capped near one million characters.',
+    },
+    {
+      heading: 'Generated on your device',
+      body: 'The schema is parsed and rendered entirely in the browser. Nothing about it is uploaded and no reference is resolved over the network, so internal API definitions stay on the machine and the page works offline.',
+    },
+  ],
   examples: [
     {
       title: 'Object with required and $defs',
@@ -75,6 +97,11 @@ export const meta: ToolMeta = {
       title: 'Unions and arrays',
       input:
         '{\n  "type": "object",\n  "required": ["items"],\n  "properties": {\n    "items": { "type": "array", "items": { "type": "object", "properties": { "id": { "type": "string" } }, "required": ["id"] } },\n    "count": { "type": ["integer", "null"] }\n  }\n}',
+    },
+    {
+      title: 'Inline reference to $defs',
+      input:
+        '{\n  "type": "object",\n  "properties": {\n    "status": { "$ref": "#/$defs/Status" },\n    "meta": { "$ref": "#/$defs/Meta" }\n  },\n  "$defs": {\n    "Status": { "enum": ["draft", "live", "archived"] },\n    "Meta": { "type": "object", "properties": { "rev": { "type": "integer" } }, "required": ["rev"] }\n  }\n}',
     },
   ],
   faq: [

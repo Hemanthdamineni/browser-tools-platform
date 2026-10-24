@@ -5,6 +5,8 @@ import ThemeToggle from './ThemeToggle.astro';
 
 const path = Astro.url.pathname;
 const isActive = (href: string) => path === href || path.startsWith(href + '/');
+// Asset/link paths must honour the deploy base (e.g. /browser-tools-platform on GitHub Pages).
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 
 <header
@@ -13,7 +15,7 @@ const isActive = (href: string) => path === href || path.startsWith(href + '/');
 >
   <div class="mx-auto flex h-14 max-w-content items-center gap-3 px-4 sm:px-6">
     <a
-      href="/"
+      href={`${base}/`}
       class="flex shrink-0 items-center gap-2.5 font-semibold tracking-tight"
       aria-label={`${site.shortName} home`}
     >

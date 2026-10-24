@@ -90,7 +90,7 @@ export const meta: ToolMeta = {
       a: 'It is how much of the denoised signal is kept. 100% is the fully denoised track, 0% is the original, and values between are a linear mix, so you can keep a little of the original air while removing the worst of the noise.',
     },
   ],
-  related: ['audio-normalize', 'audio-gain', 'audio-to-wav', 'audio-info'],
+  related: ['audio-normalize', 'audio-gain', 'audio-convert', 'audio-info'],
   credits: [
     {
       name: 'rnnoise-wasm (RNNoise compiled to WebAssembly)',

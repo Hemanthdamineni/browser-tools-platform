@@ -198,6 +198,24 @@ export const meta: ToolMeta = {
       options: { mode: 'add', amount: 2500, rate: '5', supply: 'intra' },
     },
   ],
+  article: [
+    {
+      heading: 'Reading the result table',
+      body: 'Paste a number into the text box or leave it empty and set the Amount field. The output lists the taxable value, the tax components and the gross amount in rupees, each rounded to the nearest paisa. Add mode treats the figure as the price before GST; Remove mode treats it as the inclusive total and divides by one plus the rate to recover the base.',
+    },
+    {
+      heading: 'Rates and the CGST/SGST split',
+      body: 'The picker carries the notified slabs — 0.25, 1.5, 3, 5, 18 and 40 percent — plus any custom rate from 0 to 100. An intra-state supply splits the rate evenly into CGST and SGST, so 18 percent becomes 9 plus 9. An inter-state supply charges the full rate as IGST instead.',
+    },
+    {
+      heading: 'When to use it',
+      body: 'Useful for a quick invoice check: enter an 11,800 inclusive total at 18 percent to confirm the taxable value is 10,000, or price a 50,000 inter-state sale at the 40 percent de-merit rate before quoting a customer.',
+    },
+    {
+      heading: 'Caveats and privacy',
+      body: 'This is arithmetic, not tax advice: it ignores input tax credit and compensation cess and does not decide which rate a product carries. Everything runs on your device in the browser, with no upload and nothing stored between visits.',
+    },
+  ],
   faq: [
     {
       q: 'Which GST rates are current, and where were they verified?',

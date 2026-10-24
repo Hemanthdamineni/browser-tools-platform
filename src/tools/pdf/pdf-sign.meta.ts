@@ -53,7 +53,39 @@ export const meta: ToolMeta = {
       default: '',
     },
   ],
-  examples: [{ title: 'Sign the first page' }],
+  examples: [
+    { title: 'Sign the first page' },
+    {
+      title: 'Sign page 3, upper right',
+      options: { page: 3, x: 360, y: 48, width: 160 },
+    },
+    {
+      title: 'A smaller signature low on the page',
+      options: { page: 1, x: 72, y: 690, width: 100 },
+    },
+  ],
+  article: [
+    {
+      heading: 'Draw, type or upload your mark',
+      body: 'The sign flow gives you three ways to make a signature: draw it with a mouse, finger or stylus, type a name in one of four built-in styles, or upload a PNG of a signature you already have. The typed styles use fonts already on your device, so nothing is fetched from the web. Once the mark exists, drag it into place on a page preview.',
+    },
+    {
+      heading: 'What flattened really means',
+      body: 'The signature is painted into the page content itself with pdf-lib — it is not a form field, a button or a clickable annotation. The result is an ordinary PDF whose page simply contains the signature pixels, so a viewer sees it as part of the page and it cannot be toggled off. That is what makes it a real signed copy rather than an overlay a reader could hide.',
+    },
+    {
+      heading: 'Placement and rotation',
+      body: 'Position is given as an x/y point in the browser’s display space (origin top-left, y growing down) and the height always follows the signature’s own aspect ratio, so nothing is stretched. If a placed mark would end up off the page or need to be shrunk to fit, the tool clamps it back inside and says so. On a rotated page the preview and the placement stay in step, so the mark lands where you drop it even when the page is landscape.',
+    },
+    {
+      heading: 'What you cannot do here',
+      body: 'An encrypted, password-protected PDF cannot be read until it is unlocked, so this tool refuses it rather than guessing. The signature is a bitmap of your mark, not a certificate-based digital signature — there is no PKI chain, no signing certificate and no tamper-evident digest. If you need cryptographic signing for compliance, use a dedicated signing service.',
+    },
+    {
+      heading: 'Your mark stays on your device',
+      body: 'The signature is drawn in this tab and embedded into the PDF on this machine — nothing is uploaded. Because a signature is not a credential to be synced, it is safest that it never leaves the browser, and the tool keeps working offline.',
+    },
+  ],
   faq: [
     {
       q: 'Is the signature really private?',

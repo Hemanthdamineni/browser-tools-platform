@@ -43,11 +43,45 @@ export const meta: ToolMeta = {
       default: true,
     },
   ],
+  article: [
+    {
+      heading: 'Following a message from sender to inbox',
+      body: 'Paste a raw header block or drop an .eml file and the tool parses the Name: value lines, including folded continuations, then reports according to the Output setting. Overview gives address roles, a delivery summary, authentication verdicts and timing warnings; Delivery hops lists each Received header in delivery order with the delay between them; Authentication results tabulates every SPF, DKIM and DMARC verdict; Addresses lists From, To, Reply-To and the rest; All headers dumps everything found.',
+    },
+    {
+      heading: 'Answering where a message really came from',
+      body: 'It is built for a suspected phishing email, a support ticket where mail arrived late, or a deliverability problem. The hop chain shows which server introduced the delay, and the authentication rows show whether the receiving server genuinely passed SPF, DKIM and DMARC.',
+    },
+    {
+      heading: 'The one real option',
+      body: 'Decode encoded-words is on by default and turns =?UTF-8?B?...?= sequences in subjects and display names back into readable text, dropping whitespace between adjacent encoded words as RFC 2047 requires. Turn it off to see the header exactly as it arrived.',
+    },
+    {
+      heading: 'Reading the results carefully',
+      body: 'Hops are shown oldest-first even though Received headers are written newest-first, and each delay is the gap from the previous row. Several authentication rows are normal because every server may add its own. A From and Return-Path domain mismatch is a warning, not a verdict. Input is capped at 5 MB and 2000 headers.',
+    },
+    {
+      heading: 'Headers are analysed in the tab',
+      body: 'The header block is parsed inside your browser and never uploaded. That matters because headers carry real addresses, message ids and internal server names, so a phishing report stays between you and your machine.',
+    },
+  ],
   examples: [
     {
       title: 'A message with two hops',
       input:
         'Return-Path: <alice@example.com>\nReceived: from mail.example.com (mail.example.com [192.0.2.10])\n\tby mx.google.com with ESMTPS id abc123\n\tfor <bob@example.org>; Tue, 1 Oct 2024 10:00:05 +0000\nReceived: from localhost (localhost [127.0.0.1]) by mail.example.com\n\twith ESMTP id def456; Tue, 1 Oct 2024 10:00:00 +0000\nAuthentication-Results: mx.google.com; spf=pass smtp.mailfrom=alice@example.com;\n\tdkim=pass header.i=@example.com; dmarc=pass header.from=example.com\nFrom: Alice Example <alice@example.com>\nTo: Bob <bob@example.org>\nSubject: =?UTF-8?B?w4TDpMOWw7w=?= report\nDate: Tue, 1 Oct 2024 10:00:04 +0000\nMessage-ID: <abc123@example.com>',
+    },
+    {
+      title: 'Just the delivery hops',
+      input:
+        'Return-Path: <alice@example.com>\nReceived: from mail.example.com (mail.example.com [192.0.2.10])\n\tby mx.google.com with ESMTPS id abc123\n\tfor <bob@example.org>; Tue, 1 Oct 2024 10:00:05 +0000\nReceived: from localhost (localhost [127.0.0.1]) by mail.example.com\n\twith ESMTP id def456; Tue, 1 Oct 2024 10:00:00 +0000\nFrom: Alice Example <alice@example.com>\nTo: Bob <bob@example.org>\nSubject: =?UTF-8?B?w4TDpMOWw7w=?= report\nDate: Tue, 1 Oct 2024 10:00:04 +0000',
+      options: { format: 'hops' },
+    },
+    {
+      title: 'Authentication verdicts only',
+      input:
+        'Received: from mail.example.com (mail.example.com [192.0.2.10]) by mx.google.com; Tue, 1 Oct 2024 10:00:05 +0000\nAuthentication-Results: mx.google.com; spf=pass smtp.mailfrom=alice@example.com;\n\tdkim=pass header.i=@example.com; dmarc=pass header.from=example.com\nFrom: Alice Example <alice@example.com>\nTo: Bob <bob@example.org>\nSubject: =?UTF-8?B?w4TDpMOWw7w=?= report',
+      options: { format: 'auth' },
     },
   ],
   faq: [

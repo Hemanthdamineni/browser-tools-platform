@@ -50,6 +50,28 @@ export const meta: ToolMeta = {
       default: true,
     },
   ],
+  article: [
+    {
+      heading: 'What it accepts and returns',
+      body: 'Feed it a .cbor file or pasted hex or base64 text. Pasted formats are auto-detected after 0x prefixes, whitespace and commas are stripped, or you can force hex or base64. The result is the decoded value as a code block, or a table walking every item by path with its type and preview. Input caps: 10 MB, 64 nesting levels, 200,000 items.',
+    },
+    {
+      heading: 'A concrete use',
+      body: 'Paste a WebAuthn credential ID or a COSE message and read its structure at a glance. The outline mode lists each nested path with its type, so an unfamiliar payload becomes navigable before you look at any raw value.',
+    },
+    {
+      heading: 'The options that matter',
+      body: 'format toggles the decoded JSON versus the path/type/value outline. interpretTags turns tag interpretation on or off: when on, tag 0 yields an ISO date from text, tag 1 an ISO date from epoch seconds, tags 2 and 3 become decimal bignum strings, and tag 24 is expanded as embedded CBOR; when off, every tag stays as an object with its raw value.',
+    },
+    {
+      heading: 'Edge cases worth knowing',
+      body: 'JSON has no byte type, so byte strings render as {"$bytes":"0102"}; NaN, infinity and undefined appear literally because strict JSON cannot hold them. More than one top-level item means a CBOR sequence, printed one per line. An empty file, an empty paste, odd-length hex or bad base64 each fail with a specific message.',
+    },
+    {
+      heading: 'Privacy',
+      body: 'The entire decode runs in the browser on the bytes you provide. Nothing is uploaded to a server, and no external library is fetched at run time.',
+    },
+  ],
   examples: [
     {
       title: 'A small map',
@@ -58,6 +80,10 @@ export const meta: ToolMeta = {
     {
       title: 'An epoch time with tag 1',
       input: 'c11a514b67b0',
+    },
+    {
+      title: 'A three-byte string',
+      input: '43010203',
     },
   ],
   faq: [

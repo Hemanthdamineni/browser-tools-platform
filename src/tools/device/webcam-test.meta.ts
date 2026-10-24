@@ -48,6 +48,32 @@ export const meta: ToolMeta = {
       help: 'Adds the values the browser reports for the video track, as-is.',
     },
   ],
+  examples: [
+    { title: 'Test the default camera' },
+    {
+      title: 'Force 1080p and keep the raw settings',
+      options: { resolution: '1920', includeSettings: true },
+    },
+    { title: 'Quick 360p preview', options: { resolution: '640', includeSettings: false } },
+  ],
+  article: [
+    {
+      heading: 'What the panel shows you',
+      body: 'Granting camera access opens a live preview and a picker of the cameras your device exposes, named "Camera 1", "Camera 2" and so on until permission is given and the real names appear. The report lists the resolution and frame rate the browser is actually delivering, so a requested 1280x720 that the sensor or driver refuses shows as the delivered value.',
+    },
+    {
+      heading: 'How to run a proper check',
+      body: 'Pick the camera you care about, set a requested resolution or leave the browser default, and watch the preview for dropped frames, colour casts and focus. The measured frame rate is counted from frames the browser really delivered, so a slow machine, browser or USB link shows a low number instead of the claimed spec. Take a snapshot to confirm exposure on a real subject.',
+    },
+    {
+      heading: 'The requested resolution is a hint',
+      body: 'The resolution option sends a getUserMedia constraint, but the browser and driver negotiate the final size. Enable the raw track settings to see the unmodified values the browser reports for the video track, which is how you compare what you asked for against what the camera really runs at.',
+    },
+    {
+      heading: 'Black previews, and what is never recorded',
+      body: 'A black preview usually means another app or tab already owns the camera, or the page is not served over https, and the panel says which. The preview is drawn by the browser, snapshots are rasterised on a canvas and handed to you as PNG downloads, and no frame is ever recorded, uploaded or stored.',
+    },
+  ],
   faq: [
     {
       q: 'Does the camera feed leave my device?',

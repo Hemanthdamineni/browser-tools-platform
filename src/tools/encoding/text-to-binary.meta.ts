@@ -62,6 +62,29 @@ export const meta: ToolMeta = {
       input: '01001000 01101001',
       options: { mode: 'decode' },
     },
+    {
+      title: 'Encode with nibble grouping',
+      input: 'OK',
+      options: { mode: 'encode', groupBy: '4' },
+    },
+  ],
+  article: [
+    {
+      heading: 'Eight bits per byte, UTF-8 underneath',
+      body: 'Encoding turns the text into UTF-8 bytes and prints each byte as eight binary digits, so "Hi" becomes 01001000 01101001. Because the bytes are UTF-8, an accented letter produces two bytes and an emoji four, and decoding regroups your 0s and 1s into the same bytes and back into text.',
+    },
+    {
+      heading: 'Grouping and separators',
+      body: 'The group option lays out eight bits per group (whole bytes) or four (nibbles), and the separator option puts a space between groups or runs them together. Every combination is valid output and the tool reads back any of them, so a result can be pasted straight into the other direction.',
+    },
+    {
+      heading: 'Decoding rules and errors',
+      body: 'Decoding strips every character that is not a 0 or a 1, so spaces, tabs and newlines between blocks are ignored and formatted output pastes directly. The bit count must be a multiple of eight; if it is not, the tool refuses with the number of bits it found and the closest valid length rather than padding or truncating.',
+    },
+    {
+      heading: 'Where it helps, and where it runs',
+      body: 'Use it to show how a byte is built, to check a flag mask against the bits a device reports, or to produce binary for a puzzle or serial protocol. It is deliberately not a hex or base64 converter, and input is capped at one million characters. Encoding and decoding use the browser\u2019s own TextEncoder and TextDecoder in this tab, with nothing uploaded.',
+    },
   ],
   faq: [
     {

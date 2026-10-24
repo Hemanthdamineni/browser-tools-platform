@@ -84,6 +84,38 @@ export const meta: ToolMeta = {
       help: 'The download gets this name plus the date and time of the recording.',
     },
   ],
+  article: [
+    {
+      heading: 'Record, review, then download',
+      body: 'The panel opens your camera with getUserMedia, previews the feed live and encodes the clip with the browser’s own MediaRecorder. Pressing Stop drops the finished file into a player so you can watch it back before saving. The download name is your chosen prefix plus the local date and time, so two takes never overwrite each other, and the extension follows the container the browser produced: WebM (VP9 or VP8) in Chrome and Firefox, MP4 (H.264) in Safari.',
+    },
+    {
+      heading: 'Resolution, bitrate and sound',
+      body: 'The resolution dropdown is a request rather than a command — the browser returns the closest mode your camera actually has, so a 720p webcam stays 720p even when you pick 1080p, and Auto uses whatever the camera opens with. Quality sets the target bitrate (1, 2.5 or 6 Mbit/s), which is the main thing driving file size. Microphone audio is off unless you enable it, and only then does the browser ask for microphone permission.',
+    },
+    {
+      heading: 'The automatic stop and its limits',
+      body: 'Recording halts on its own after the configured number of seconds — 300 by default, 0 for no limit — and a clip stopped before a single frame was captured is rejected rather than saved as an empty file. Cameras are only reachable from a secure context, so the page has to load over https:// or localhost.',
+    },
+    {
+      heading: 'The recording stays in this tab',
+      body: 'Video and audio are read, encoded and written to disk by this page alone. There is no upload, no server and no network request out, so it works offline and nobody but you ever sees the clip.',
+    },
+  ],
+  examples: [
+    {
+      title: 'Full HD with microphone',
+      options: { resolution: '1080', mic: true, quality: 'high' },
+    },
+    {
+      title: 'Short silent clip',
+      options: { resolution: '480', quality: 'small', mic: false, maxSeconds: 30 },
+    },
+    {
+      title: 'Camera default for two minutes',
+      options: { resolution: 'auto', quality: 'balanced', maxSeconds: 120 },
+    },
+  ],
   faq: [
     {
       q: 'Is my recording uploaded anywhere?',

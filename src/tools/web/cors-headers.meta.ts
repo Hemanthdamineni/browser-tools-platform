@@ -114,6 +114,28 @@ export const meta: ToolMeta = {
     },
     { title: 'Analyze a wildcard grant', input: '*' },
   ],
+  article: [
+    {
+      heading: 'One tool for the whole Access-Control-* family',
+      body: 'CORS is a set of response headers, and getting one of them wrong usually surfaces as an opaque browser error. This tool covers all of them: Allow-Origin, Allow-Credentials, Allow-Methods, Allow-Headers, Expose-Headers and Max-Age. In build mode it emits the ones you need as copyable lines; in analyze mode it reads a pasted response and tells you what each header permits and which values are invalid.',
+    },
+    {
+      heading: 'Building a policy',
+      body: 'Pick a target — a full policy or a single header — and fill the values in. The origin field takes * or one full http(s) origin, not a list, because the header itself carries a single value. Methods and headers are comma-separated lists that get validated as HTTP tokens. The output is a set of header lines with notes, such as the reminder to add Vary: Origin when the allowed origin is chosen per request so a cache cannot serve one caller another caller’s grant.',
+    },
+    {
+      heading: 'The wildcard-with-credentials trap',
+      body: 'The single most common CORS mistake is combining Access-Control-Allow-Origin: * with Access-Control-Allow-Credentials: true. That combination is forbidden: once credentials are allowed, the origin must name the specific caller and cannot be a wildcard, and the same restriction applies to * in Allow-Methods, Allow-Headers and Expose-Headers. The builder refuses to emit the bad combination and the analyzer flags it in a pasted response.',
+    },
+    {
+      heading: 'Analyzing an existing response',
+      body: 'Paste the raw header lines from a browser devtools panel and each recognised header becomes a row with its value, a Valid or Invalid status and a plain-English assessment. Duplicate header lines, malformed tokens and a wildcard used with credentials are all called out. If the paste has no recognisable header names, the tool falls back to treating a bare number as a Max-Age value and any other bare string as an Allow-Origin, which is handy when you only want to check one value quickly.',
+    },
+    {
+      heading: 'Checked on your device',
+      body: 'Validation and generation are pure string handling in this tab — no request is sent, so a real origin list or an internal hostname in a header stays private. The tool needs no network at all.',
+    },
+  ],
   faq: [
     {
       q: 'Can Access-Control-Allow-Origin be * with credentials?',

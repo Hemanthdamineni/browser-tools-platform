@@ -37,6 +37,30 @@ export const meta: ToolMeta = {
   examples: [
     { title: 'Validate a card number', input: '4539 1488 0343 6467' },
     { title: 'Compute a check digit', options: { mode: 'check-digit' } },
+    { title: 'Validate an IMEI', input: '490154203237518' },
+    { title: 'Append a check digit to a prefix', input: '7992739871', options: { mode: 'generate' } },
+  ],
+  article: [
+    {
+      heading: 'What the Luhn check proves',
+      body: 'Luhn, also called modulus 10, is the checksum behind credit card numbers, IMEIs and many national identifiers. The tool takes a number, strips spaces and dashes, and reports whether the weighted digit sum is a multiple of ten. A pass means the digits are internally consistent — it says nothing about whether the account exists, is funded, or was ever issued.',
+    },
+    {
+      heading: 'Three modes',
+      body: 'Validate checks a complete number and, when the leading digits look like a known issuer, names the network it resembles. Compute check digit takes a number without its final digit and returns the digit that would complete it, showing why. Generate does the same and appends the result, which is handy when you need a syntactically valid test number for a form or a fixture.',
+    },
+    {
+      heading: 'The right way to make test numbers',
+      body: 'Payment sandboxes often reject a number that fails Luhn before it even reaches the mock. Paste any prefix in generate mode and the tool appends the correct check digit, so you get a number the front-end validator accepts without copying a real card from somewhere. The number is still not a real account — it is a well-formed string and nothing more.',
+    },
+    {
+      heading: 'Limits and separators',
+      body: 'Input may contain only digits, spaces and dashes; anything else is rejected rather than stripped, so a stray letter is reported instead of silently ignored. A validate run needs at least two digits, and the single-digit case is refused. The issuer hint is a best-effort prefix match against Visa, Mastercard, Discover and American Express and is shown as context, never as proof.',
+    },
+    {
+      heading: 'Numbers never leave the tab',
+      body: 'The checksum is computed locally with plain integer arithmetic. Even though card numbers are not secrets in the way a CVV is, running the check on your own machine avoids sending anything to a third party, and the tool needs no network at all.',
+    },
   ],
   faq: [
     {

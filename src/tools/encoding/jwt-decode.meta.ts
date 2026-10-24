@@ -35,6 +35,28 @@ export const meta: ToolMeta = {
       ],
     },
   ],
+  article: [
+    {
+      heading: 'Splitting a token into readable JSON',
+      body: 'Paste a JWT and the tool splits it on its two dots, base64url-decodes the header and payload, and pretty-prints each as JSON under // header and // payload comments. NumericDate claims such as exp, iat and nbf are spelled out as UTC dates in the notes, and the stats report the alg, typ and kid taken from the header.',
+    },
+    {
+      heading: 'Reading what a token actually claims',
+      body: 'Reach for it when an API returns 401 and you need to know whether the token has expired, when you want to confirm which scopes or roles were issued, or when a front-end problem is being blamed on the wrong claim. Because it is pure decoding, you can inspect a token without holding the signing key, which never leaves the issuer.',
+    },
+    {
+      heading: 'The Show switch',
+      body: 'Header and payload is the default. Header only is useful when you just want to know how a token is signed and which key id it names; Payload only trims the output to the claims when you are pasting the result into a ticket or a chat thread.',
+    },
+    {
+      heading: 'What it cannot tell you',
+      body: "It does not verify the signature, so a decoded token is not evidence that the token is authentic — anybody can craft one containing the claims you see. A token must have exactly three segments and the header and payload must be valid JSON, or the position is rejected rather than silently padded. Treat exp as advisory too, because the clock that decides validity is the server's.",
+    },
+    {
+      heading: 'Decoded without a network call',
+      body: 'The whole operation is string work in your browser and the token is never transmitted. It is still a bearer credential, so paste one only where you would paste a password and clear the field when you are done.',
+    },
+  ],
   examples: [
     {
       title: 'Decode a sample token',
@@ -46,6 +68,12 @@ export const meta: ToolMeta = {
       input:
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
       options: { part: 'payload' },
+    },
+    {
+      title: 'Header only, to read the signing algorithm',
+      input:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
+      options: { part: 'header' },
     },
   ],
   faq: [

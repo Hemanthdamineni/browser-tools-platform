@@ -35,7 +35,41 @@ export const meta: ToolMeta = {
       default: false,
     },
   ],
-  examples: [],
+  examples: [
+    { title: 'Read an MP3 tag', input: '', options: { raw: false, extractArtwork: false } },
+    {
+      title: 'List every ID3 frame',
+      input: '',
+      options: { raw: true, extractArtwork: false },
+    },
+    {
+      title: 'Download the cover art',
+      input: '',
+      options: { raw: false, extractArtwork: true },
+    },
+  ],
+  article: [
+    {
+      heading: 'What it reads and where it looks',
+      body: 'Metadata lives in an ID3v2 block at the start of an MP3 and an older 128-byte ID3v1 trailer at the end. The tool reads both. When both exist ID3v2 wins, because it stores text as Unicode, and ID3v1 only fills the gaps it left empty.',
+    },
+    {
+      heading: 'The tag versions it understands',
+      body: 'ID3v2.2, 2.3 and 2.4 are parsed, along with the ID3v1.1 trailer that carries a track number in its final byte. Each text frame declares its own encoding — ISO-8859-1, UTF-16 with a byte order mark, UTF-16BE or UTF-8 — so accented and non-Latin titles survive intact. Unsynchronisation is reversed and an extended header is skipped.',
+    },
+    {
+      heading: 'Showing the raw frame list',
+      body: 'With “List every frame” on, every parsed frame appears by its four-letter identifier (TIT2, TPE1, APIC) with its size and a decoded preview. It is the diagnostic view: frames a tidy summary would hide, such as a second comment or an unusual private frame, become visible here.',
+    },
+    {
+      heading: 'Pulling the artwork out',
+      body: 'A cover picture is reported with its MIME type and byte count. Turn on “Extract cover art as a file” and the embedded image is returned as a download whose extension follows the MIME type — a real copy of the stored bytes, not a re-encode.',
+    },
+    {
+      heading: 'How much of the file is loaded',
+      body: 'Only the tag bytes are read, so a large MP3 never enters memory. Tags over 16 MB are refused to keep the tool responsive, and a tag that runs past the end of the file is read truncated with a warning. Nothing is uploaded.',
+    },
+  ],
   faq: [
     {
       q: 'Which tag versions are supported?',

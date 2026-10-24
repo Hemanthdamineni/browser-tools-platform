@@ -58,6 +58,40 @@ export const meta: ToolMeta = {
       input:
         '<?xml version="1.0"?><gpx version="1.1"><trk><trkseg><trkpt lat="0" lon="0"><ele>100</ele><time>2024-01-01T00:00:00Z</time></trkpt><trkpt lat="0" lon="0.001"><ele>110</ele><time>2024-01-01T00:01:00Z</time></trkpt><trkpt lat="0" lon="0.002"><ele>105</ele><time>2024-01-01T00:02:00Z</time></trkpt></trkseg></trk></gpx>',
     },
+    {
+      title: 'Per-kilometre splits, imperial units',
+      input:
+        '<?xml version="1.0"?><gpx version="1.1"><trk><trkseg><trkpt lat="40.7" lon="-74.0"><ele>10</ele><time>2024-06-01T08:00:00Z</time></trkpt><trkpt lat="40.71" lon="-74.01"><ele>12</ele><time>2024-06-01T08:05:00Z</time></trkpt><trkpt lat="40.72" lon="-74.02"><ele>11</ele><time>2024-06-01T08:10:00Z</time></trkpt></trkseg></trk></gpx>',
+      options: { splits: 'km', units: 'imperial' },
+    },
+    {
+      title: 'Quiet a jittery barometer',
+      input:
+        '<?xml version="1.0"?><gpx version="1.1"><trk><trkseg><trkpt lat="51.5" lon="-0.12"><ele>30</ele><time>2024-03-15T10:00:00Z</time></trkpt><trkpt lat="51.5001" lon="-0.1201"><ele>31</ele><time>2024-03-15T10:00:30Z</time></trkpt><trkpt lat="51.5002" lon="-0.1202"><ele>32</ele><time>2024-03-15T10:01:00Z</time></trkpt></trkseg></trk></gpx>',
+      options: { eleThreshold: 2 },
+    },
+  ],
+  article: [
+    {
+      heading: 'The numbers extracted from a GPX file',
+      body: 'A GPX file is parsed on-device for trkpt and rtept points, and each point is chained with a running distance. Distance uses the haversine formula on a 6371.0088 km sphere, while elevation gain and loss sum only the metre changes that clear a configurable noise threshold. With timestamps, duration, average speed and pace follow.',
+    },
+    {
+      heading: 'When the summary tells you the story',
+      body: 'Drop in a ride, run or hike exported from a watch, phone or ride-sharing app to see how far you went and how much climbing it packed without opening a mapping tool. The split table is the useful part for interval sessions: each row carries distance, gain, loss, duration and speed, with boundaries interpolated so a full split really is one kilometre of track.',
+    },
+    {
+      heading: 'What the options change',
+      body: 'Units toggles the whole report between metric (km, m) and imperial (mi, ft, mph), and the split table can be off, per kilometre, or per mile. The elevation noise threshold, in metres, drops every change smaller than its value from gain and loss, which counters barometric jitter; leave it at 0 to count every metre exactly.',
+    },
+    {
+      heading: 'Edge cases to keep in mind',
+      body: 'Points without an ele value are ignored for elevation, and a track with no usable time still reports distance and elevation but shows n/a for duration, speed and pace. A single point has no distance. Files over 25 MB are rejected, and a missing gpx root only raises a warning.',
+    },
+    {
+      heading: 'Parsing happens on your device',
+      body: 'The XML is read and every figure is computed in this tab, so a track from your device never leaves the browser and nothing is uploaded.',
+    },
   ],
   faq: [
     {

@@ -42,6 +42,40 @@ export const meta: ToolMeta = {
         'Natural language processing is a field of computer science focused on enabling computers to understand and generate human language. NLP powers many everyday tools including search engines, spell checkers, machine translation and digital assistants. A key practical application is automatic text summarization, which extracts the most important sentences from a long document. Summaries help readers quickly grasp the main idea without reading everything. Extractive methods score sentences by word frequency to pick the best candidates.',
       options: { length: 'short' },
     },
+    {
+      title: 'A fixed number of sentences',
+      input:
+        'Version control keeps a full history of a project. Each commit records what changed and who changed it. Branches let you try an idea without disturbing the main line. Merging brings that work back when it is ready. A good history makes it possible to find when a bug was introduced.',
+      options: { length: 'custom', count: 2 },
+    },
+    {
+      title: 'A longer extract',
+      input:
+        'Caching reduces the work a server must do for repeated requests. A cache stores the result of an expensive operation so the next caller can read it instead of recomputing it. The trade-off is freshness, because a cached value may be stale. Choosing a short time to live limits how stale the value can become. An eviction policy decides what to drop when the cache is full.',
+      options: { length: 'long' },
+    },
+  ],
+  article: [
+    {
+      heading: 'Extractive, not generative',
+      body: 'The tool picks whole sentences out of your text; it does not rewrite them. That distinction matters: nothing is paraphrased and nothing is invented, so a summary can be checked against the source and no fact can be fabricated. The output is a set of the most representative sentences, in the order they originally appeared.',
+    },
+    {
+      heading: 'How a sentence earns its place',
+      body: 'Each sentence is scored by how often its content words appear across the whole document — a simple term-frequency measure. Words shorter than three characters and a long stop-word list are ignored so that "the" and "and" carry no weight. A smoothing step accounts for how many clauses a sentence contains, which stops one enormous run-on sentence from crowding out the shorter, denser ones.',
+    },
+    {
+      heading: 'Choosing a length',
+      body: 'Short takes roughly 15% of the sentences, medium about 30% and long about 45%. Documents of two sentences or fewer always yield a single summary sentence. Custom lets you name an exact count from 1 to 25, which is the option to use when you need, say, a three-sentence abstract for a fixed slot rather than a proportion.',
+    },
+    {
+      heading: 'Where it will not help',
+      body: 'Text under ten words is refused, because there is nothing to rank. A single short paragraph comes back essentially unchanged — an extractive summarizer has no way to compress below one sentence without rewriting. Multi-paragraph prose, transcripts and long documentation are where the frequency scoring has enough signal to separate the central points from the detail.',
+    },
+    {
+      heading: 'Your document is not uploaded',
+      body: 'Tokenising, scoring and selecting all run inside this tab with no machine-learning service and no network call. A confidential report can be summarised without it leaving your machine, and the tool works offline once loaded.',
+    },
   ],
   faq: [
     {

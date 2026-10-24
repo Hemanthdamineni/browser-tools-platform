@@ -40,6 +40,24 @@ export const meta: ToolMeta = {
     { title: 'UPC-A', input: '036000291452' },
     { title: 'Compute check digit', input: '400638133393', options: { mode: 'checkdigit' } },
   ],
+  article: [
+    {
+      heading: 'What gets checked',
+      body: 'Paste a retail number, one per line. Spaces and dashes are ignored and only the first line is read. The table reports the format, the digit count, the GS1 country group, the numeric-system prefix, and whether the final digit matches the weighted modulo-10 check.',
+    },
+    {
+      heading: 'Format detection by length',
+      body: 'Length decides the label: 6 digits reads as UPC-E, 8 as EAN-8, 12 as UPC-A, 13 as EAN-13 and 14 as GTIN-14, with anything shorter tagged as a plain GTIN. The check digit is always the last digit of the code.',
+    },
+    {
+      heading: 'Computing a check digit',
+      body: 'Switch Mode to Compute check digit to work the other way. Give the code without its last digit and the table returns the digit plus the completed barcode, so you can build valid numbers. At least two digits are required.',
+    },
+    {
+      heading: 'When to use it and its limits',
+      body: 'Use it to catch a mis-keyed barcode before it reaches a system. The country group comes from the built-in GS1 prefix list, so the company itself is not resolved, and the tool never reads a barcode image. All checks run on your device and the numbers are never sent anywhere.',
+    },
+  ],
   faq: [
     {
       q: 'What barcode formats do you accept?',

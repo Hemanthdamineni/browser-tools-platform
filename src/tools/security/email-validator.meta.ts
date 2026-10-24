@@ -27,6 +27,28 @@ export const meta: ToolMeta = {
       default: true,
     },
   ],
+  article: [
+    {
+      heading: 'Every rule, reported separately',
+      body: 'The address is split at its single @ and each rule gets its own row: whitespace, the number of @ signs, local-part length and characters, domain length, label count and label rules, the top-level domain, the total length, and the verdict. A failing rule carries a reason instead of a bare Invalid.',
+    },
+    {
+      heading: 'Rules for the part before the @',
+      body: 'The local part must be 1 to 64 characters drawn from letters, digits, dot, percent, plus, hyphen and the RFC specials (! # $ & * / = ? ^ _ ` { | } ~). A dot may not start, end or repeat, so ada.smith+tag@ passes while .ada@ and ada..b@ do not.',
+    },
+    {
+      heading: 'Domains, labels and the TLD switch',
+      body: 'The domain may be up to 253 characters, split into labels of 1 to 63 made of letters, digits and internal hyphens; at least two labels are required, so a bare hostname fails. Require a two-letter or more top-level domain is on by default — switch it off to accept a last label such as a number, as in dev@intranet.42.',
+    },
+    {
+      heading: 'Syntax is all this checks',
+      body: 'Passing means the address is shaped like an email address, not that the mailbox exists. Delivery can only be confirmed by talking to the mail server, which this tool never does. Addresses longer than 300 characters are refused before any check runs.',
+    },
+    {
+      heading: 'The address never leaves your device',
+      body: 'The rule set is ordinary JavaScript running in this tab. Your address is not sent to a validator, no request leaves the page, and the check keeps working with the network turned off.',
+    },
+  ],
   examples: [
     {
       title: 'A normal address',
@@ -35,6 +57,11 @@ export const meta: ToolMeta = {
     {
       title: 'A subdomain address',
       input: 'user.name+tag@mail.example.co.uk',
+    },
+    {
+      title: 'A numeric last label without the TLD rule',
+      input: 'dev@intranet.42',
+      options: { requireTld: false },
     },
   ],
   faq: [

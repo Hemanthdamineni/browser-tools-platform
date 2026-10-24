@@ -73,6 +73,28 @@ export const meta: ToolMeta = {
       options: { container: 'mov' },
     },
   ],
+  article: [
+    {
+      heading: 'Choosing where the file should end up',
+      body: 'Pick MP4, WebM, MOV or MKV and the converter reads the clip from your device, then writes a copy in that container. It reports whether the streams were copied across unchanged (a remux) or re-encoded, and the finished file arrives as a normal download.',
+    },
+    {
+      heading: 'When a container forces a re-encode',
+      body: 'MP4 and MOV are built around H.264 and H.265, WebM around VP9, VP8 and AV1, while MKV accepts nearly everything. Sending an H.264 clip to WebM therefore triggers an encode, but the same clip going to MKV is copied without touching the picture.',
+    },
+    {
+      heading: 'The three controls',
+      body: 'Target container sets the wrapper. Video codec left on auto copies whatever already fits and encodes only when it must; naming a codec forces that encoder and fails clearly when the browser cannot produce it. Turning keep the audio off saves space at the cost of a silent result.',
+    },
+    {
+      heading: 'Size ceilings',
+      body: 'Two gigabytes is the largest source accepted. Because the output is muxed into memory, a conversion that would exceed 512 MB is refused before encoding starts, and anything past 64 MB carries a size warning.',
+    },
+    {
+      heading: 'Your clip never leaves the device',
+      body: 'Reading, converting and downloading all happen locally in the browser tab. No frame is uploaded, there is no network traffic, and the converter keeps working offline once the page has loaded.',
+    },
+  ],
   faq: [
     {
       q: 'What is the difference between remuxing and transcoding?',

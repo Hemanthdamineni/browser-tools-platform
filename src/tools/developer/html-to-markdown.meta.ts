@@ -44,6 +44,28 @@ export const meta: ToolMeta = {
       ],
     },
   ],
+  article: [
+    {
+      heading: 'What comes out of the converter',
+      body: 'Paste HTML and get back Markdown: headings, paragraphs, ordered and unordered lists, bold, italic and strikethrough emphasis, links, images, fenced code blocks, blockquotes, horizontal rules and line breaks. HTML entities are decoded to their characters, and unsupported elements fall back to their plain text.',
+    },
+    {
+      heading: 'Pulling an article into a docs repo',
+      body: 'The common case is moving content out of a CMS or a rendered page and into Markdown for a wiki, a README or a static site. Copy the page source, paste it here, and the body comes out ready to commit instead of hand-stripped tag by tag.',
+    },
+    {
+      heading: 'Two options that change the shape',
+      body: 'Link style decides how anchors are written: inline gives the usual bracketed text followed by the url, reference collects each unique url into a numbered footer list and leaves a short marker in the text, and text only keeps the anchor text and drops urls entirely. Heading style chooses ATX hashes or the setext underline form.',
+    },
+    {
+      heading: 'It converts content, not layout',
+      body: 'Attributes such as class and id are discarded, script and style blocks, head content and HTML comments are removed outright, and anything the converter does not recognise is reduced to its text. Tables become plain pipe-separated text. One deliberate limit: the input must stay under 200,000 characters, so very large pages need to be trimmed first.',
+    },
+    {
+      heading: 'Handled in the browser, top to bottom',
+      body: 'The HTML is parsed and rewritten entirely client-side. Nothing is sent to a server, no page is fetched on your behalf, and the converter keeps working offline, so internal or unlisted markup can be converted without exposing it.',
+    },
+  ],
   examples: [
     {
       title: 'Article snippet',
@@ -56,6 +78,12 @@ export const meta: ToolMeta = {
       input:
         '<h1>Docs</h1>\n<p>Read the <a href="https://example.com">guide</a> and run <code>npm install</code>.</p>',
       options: { linkStyle: 'reference' },
+    },
+    {
+      title: 'Setext headings from a spec page',
+      input:
+        '<h1>Release notes</h1>\n<h2>Fixes</h2>\n<p>See the <a href="https://example.com/changes">changelog</a>.</p>',
+      options: { headingStyle: 'setext' },
     },
   ],
   faq: [

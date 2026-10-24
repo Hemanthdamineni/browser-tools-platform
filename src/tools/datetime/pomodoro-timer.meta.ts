@@ -109,6 +109,40 @@ export const meta: ToolMeta = {
         autoStartWork: true,
       },
     },
+    {
+      title: 'Deep-work blocks',
+      options: {
+        workMinutes: 50,
+        shortBreakMinutes: 10,
+        longBreakMinutes: 30,
+        cyclesBeforeLongBreak: 3,
+        notifyOnPhase: true,
+        autoStartBreaks: false,
+        autoStartWork: false,
+      },
+    },
+  ],
+  article: [
+    {
+      heading: 'What the timer reports back',
+      body: 'The countdown itself is drawn by the timer panel, but the tool also reads a session snapshot — the JSON record the panel stores while running. Hand it back and it returns a compact report naming the phase (idle, working, short break or long break), the seconds remaining, and lifetime totals of completed work phases and sessions.',
+    },
+    {
+      heading: 'Timeboxing that survives a background tab',
+      body: 'Reach for it when you want fixed work blocks — a twenty-five-minute editing pass, a revision sprint before an exam — while switching between other tabs. Remaining time is computed from a saved deadline rather than by counting ticks, so a suspended tab catches up the moment you return instead of losing minutes.',
+    },
+    {
+      heading: 'The dials that reshape a cycle',
+      body: 'Work, short break and long break are independent minute values, and work phases before a long break sets how many focus rounds precede the longer rest. Start breaks automatically and start the next work phase automatically remove the two button presses between phases; notify me on each phase change raises a browser notification at every transition once permission is granted.',
+    },
+    {
+      heading: 'Bounds, defaults and quiet failure',
+      body: 'Every numeric field is clamped into its allowed range, so an out-of-range entry becomes the nearest valid value instead of an error. The long break follows only the configured number of completed work phases, never a short break. Decline the notification prompt and phases still advance, just silently.',
+    },
+    {
+      heading: 'Settings stay on this machine',
+      body: 'Your configuration and any running session are written only to this browser’s localStorage. Nothing is uploaded, there is no login, and clearing the site data erases both.',
+    },
   ],
   faq: [
     {

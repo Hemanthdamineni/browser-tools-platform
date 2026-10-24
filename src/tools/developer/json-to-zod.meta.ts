@@ -32,6 +32,28 @@ export const meta: ToolMeta = {
       placeholder: 'schema',
     },
   ],
+  article: [
+    {
+      heading: 'What it turns a JSON sample into',
+      body: 'Paste one JSON value and the tool returns a TypeScript module: an import of zod, a const bound to a z.object or z.array expression built from your sample, and an export. Objects gain a z.object with a typed key per field, strings become z.string, booleans z.boolean, and both whole and fractional numbers become z.number.',
+    },
+    {
+      heading: 'A concrete reason to use it',
+      body: 'Reach for it when you have a real API response and want runtime validation without hand-writing a schema. Paste one representative payload, and the generated schema checks every sampled field the moment you call parse in your app.',
+    },
+    {
+      heading: 'What the variable option changes',
+      body: 'The variable name field sets the identifier the schema is bound to and exported, defaulting to schema. If several generated schemas land in one file, give each a distinct name to avoid collisions.',
+    },
+    {
+      heading: 'Where the inference stays permissive',
+      body: 'Inference works from a sample, so edges stay loose: null becomes z.any, an empty array becomes z.array(z.any), and a mixed array uses its first non-null element. Sampled keys are required. Tighten the copy with .optional(), .nullable() or .int().',
+    },
+    {
+      heading: 'Privacy and input rules',
+      body: 'The JSON is parsed in this tab; nothing is uploaded and the page works offline. The input must be a single JSON value, so multiple objects or trailing commas fail. A parse error reports the first problem and asks you to check quotes, commas and brackets.',
+    },
+  ],
   examples: [
     {
       title: 'Simple user payload',
@@ -41,6 +63,11 @@ export const meta: ToolMeta = {
     {
       title: 'Nested object and empty array',
       input: '{"address":{"city":"London","zip":"SW1"},"tags":[]}',
+      options: {},
+    },
+    {
+      title: 'Decimal values and boolean flags',
+      input: '{"price":19.99,"available":true,"currency":"EUR"}',
       options: {},
     },
   ],

@@ -55,7 +55,36 @@ export const meta: ToolMeta = {
       help: 'Remove trailing spaces and the blank lines the engine sometimes adds.',
     },
   ],
-  examples: [{ title: 'Read the text in a screenshot' }],
+  article: [
+    {
+      heading: 'Text out of a picture',
+      body: 'Drop one or more PNG, JPEG, WebP, GIF or BMP images and each is decoded, normalised to a PNG — which also fixes the orientation a camera stored — and read by a WebAssembly build of Tesseract running in a worker. Every image gets its own text file, and the recognised text of all of them is shown together, sectioned by file name.',
+    },
+    {
+      heading: 'Scans, screenshots and receipts',
+      body: 'It is for the moments when the text you need is trapped inside an image: copying figures out of a screenshot, pulling the lines off a photographed receipt, or turning a scanned page into something you can search and quote. Clean, straight, printed text is where it is strongest.',
+    },
+    {
+      heading: 'The three options',
+      body: 'Language tells the engine which model to load — the picker covers English, German, French, Italian, Spanish, Portuguese, Dutch, Russian, Hindi and Chinese (Simplified) — and each model is downloaded the first time you use it. Text layout describes how the text sits in the picture, with Automatic suiting most images and single-line, block and sparse modes for the rest. Tidy up the spacing removes trailing spaces and stray blank lines.',
+    },
+    {
+      heading: 'Accuracy, size and caveats',
+      body: 'Accuracy depends entirely on the image: low contrast, skew and small type all hurt, so check numbers rather than trusting them. The first run downloads the engine (about 3.8 MB) and a language model (0.7–2.9 MB), then caches them. An unsupported file is reported on its own instead of failing the batch.',
+    },
+    {
+      heading: 'The engine runs in your browser',
+      body: 'Tesseract and its language models are served from this site and the recognition happens in a worker inside your tab — no image is uploaded and no CDN is contacted. Reading a passport scan or a medical letter here stays on your machine.',
+    },
+  ],
+  examples: [
+    { title: 'Read the text in a screenshot' },
+    { title: 'A German scanned page', options: { language: 'deu' } },
+    {
+      title: 'A single line, without tidying',
+      options: { mode: 'line', tidy: false },
+    },
+  ],
   faq: [
     {
       q: 'Are my images uploaded?',

@@ -54,6 +54,29 @@ export const meta: ToolMeta = {
       title: 'Basic auth GET',
       input: "curl -u alice:secret 'https://example.com/data?page=2' -H 'Accept: application/json'",
     },
+    {
+      title: 'URL-encoded form POST',
+      input:
+        "curl -X POST https://example.com/login \\\n  -d 'user=ada' --data-urlencode 'note=hello world'",
+    },
+  ],
+  article: [
+    {
+      heading: 'What comes back',
+      body: 'Paste a curl command, line continuations and quotes and all, and the tool prints the equivalent client code for the target you choose. JavaScript fetch produces a URL plus an options object with method, headers and body; axios produces the config-object style; Python requests produces a requests.request(...) call. Input is capped at 100,000 characters.',
+    },
+    {
+      heading: 'How the request is reconstructed',
+      body: 'The parser reads the request-shaping flags: -X for the method, -H for headers, the -d family for a body, -u for Basic auth, -b for cookies, -A for user-agent, -e for referer, -G to move data into the query string, -I for a HEAD and -F for multipart form fields. An explicit -X wins; otherwise a body implies POST and -I implies HEAD, and with neither the request is a GET.',
+    },
+    {
+      heading: 'The three switches that matter',
+      body: 'The target select picks the language and library. Pretty-print JSON bodies decides whether a JSON payload becomes an indented object or a single-line string, and the non-2xx error check adds fetch boilerplate that throws on a non-ok response, which is why generated fetch is longer than a bare one-liner.',
+    },
+    {
+      heading: 'What it deliberately does not do',
+      body: 'Anything that cannot survive into client code is reported as a note rather than dropped silently: -L, -k, --compressed, output and cookie-jar flags, timeouts, proxies, interfaces and unknown tokens all get an explicit warning, and a header without a colon is noted as ignored. The converter never executes, follows or even resolves the URL \u2014 it only rewrites your text, on your device, so the credentials inside it never leave the tab.',
+    },
   ],
   faq: [
     {

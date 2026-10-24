@@ -75,7 +75,33 @@ export const meta: ToolMeta = {
       ],
     },
   ],
-  examples: [{ title: 'Record my screen' }],
+  article: [
+    {
+      heading: 'Recording the screen from the tab',
+      body: "The panel drives the capture: you choose a screen, window or tab through the browser's own picker, optionally switch the microphone on, and start. When you stop, the recorded file is validated and handed back for download, and the report lists its name, size, container, duration, bitrate and whether a microphone track was included.",
+    },
+    {
+      heading: 'Demos, repro steps and walkthroughs',
+      body: 'Use it to record a bug reproduction for a ticket, a short walkthrough for a colleague, or a demo of a UI you cannot install software on. Because capture happens in the browser, it also works on a locked-down machine.',
+    },
+    {
+      heading: 'Options the panel sets',
+      body: 'Recording format offers WebM and, only where the browser can record it, MP4. Video quality chooses 2.5, 5 or 8 Mbps. Microphone was included in the recording records whether the audio track is a microphone. Recording length and Recorded MIME type are filled in as the recording stops; when missing, the tool falls back to the file type and name.',
+    },
+    {
+      heading: 'Caveats',
+      body: "WebM is the format browsers reliably write; if MP4 was requested but not supported, the file is a WebM and a warning says so. An unidentifiable or empty file is flagged, and recordings past the size cap are rejected. Screen sharing needs a secure https page and the browser's permission, and ending the share stops the recording.",
+    },
+    {
+      heading: 'Captured and kept on your device',
+      body: "Your browser records the screen inside this tab and hands the file straight back to you; nothing is uploaded and no server sees the video. What gets captured is mediated by the browser's own share picker.",
+    },
+  ],
+  examples: [
+    { title: 'Record my screen' },
+    { title: 'Sharp 8 Mbps recording', options: { videoBitsPerSecond: '8000000' } },
+    { title: 'Record with the microphone', options: { microphone: true } },
+  ],
   faq: [
     {
       q: 'Does the recording leave my device?',

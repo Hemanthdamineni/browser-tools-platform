@@ -46,12 +46,39 @@ export const meta: ToolMeta = {
     },
     { key: 'holidays', label: 'Holidays (one ISO date per line)', type: 'textarea', default: '' },
   ],
+  article: [
+    {
+      heading: 'The two modes and their input shapes',
+      body: 'In Add mode the input is a start date and a whole number of business days separated by a comma, such as 2026-01-05,10, and the result is the date that many working days later; a negative count moves backwards. Count mode takes two ISO dates joined by to, or a comma, and tallies the working days between them.',
+    },
+    {
+      heading: 'Quoting a date that lands on a working day',
+      body: 'This is the tool for turning a stated lead time into a date you can put in a quotation, and for checking how many billable working days a contract period really contains once weekends and public holidays are taken out of the picture.',
+    },
+    {
+      heading: 'Options: mode, weekend and holidays',
+      body: 'Mode switches between adding business days and counting them. Weekend picks which pair is skipped: Saturday and Sunday by default, Friday and Saturday, or Thursday and Friday for regions that rest earlier in the week. Holidays takes one ISO date per line, and each listed date is skipped once even when it also falls on a weekend.',
+    },
+    {
+      heading: 'How the boundaries are counted',
+      body: 'In Count mode both the start and end date are included in the tally. In Add mode the start date is not counted, so the result is the first business day strictly after the given number of working days. The count is capped at 100,000, and an impossible date is rejected rather than guessed at.',
+    },
+    {
+      heading: 'Safe for confidential schedules',
+      body: 'Every calculation runs on your device. Dates, holiday lists and the resulting schedule never leave the browser, so quotation deadlines and internal milestones stay private and the calculator works without a connection.',
+    },
+  ],
   examples: [
     { title: '10 business days from today', input: '2026-01-05,10' },
     {
       title: 'Business days around a holiday',
       input: '2026-12-21 to 2026-12-31',
       options: { holidays: '2026-12-24\n2026-12-25' },
+    },
+    {
+      title: 'Five days back with a Gulf weekend',
+      input: '2026-03-10,-5',
+      options: { weekend: 'fs' },
     },
   ],
   faq: [

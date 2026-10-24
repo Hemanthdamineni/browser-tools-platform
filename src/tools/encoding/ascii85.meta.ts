@@ -53,6 +53,28 @@ export const meta: ToolMeta = {
     },
     { title: 'Encode Z85 (4 bytes)', input: 'test', options: { mode: 'encode', variant: 'z85' } },
   ],
+  article: [
+    {
+      heading: 'How Ascii85 packs bytes',
+      body: 'Text is encoded as UTF-8 first, then every four bytes become five printable characters from an 85-character alphabet — about 25% larger than the raw bytes, noticeably tighter than Base64. Decoding reverses this and returns the UTF-8 text, with the byte count shown so you can confirm nothing was lost.',
+    },
+    {
+      heading: 'Three variants, three alphabets',
+      body: 'The Adobe variant wraps the output in <~ and ~> and writes a group of four zero bytes as a single z, which is what PostScript and PDF streams use. The btoa variant adds a y shorthand for four spaces and omits the delimiters. Z85 is the ZeroMQ RFC 32 alphabet and is only defined for input lengths that are a multiple of four, so it has no padding and rejects partial groups.',
+    },
+    {
+      heading: 'Choosing a variant by destination',
+      body: 'Pick Adobe when feeding a PostScript or PDF filter, or when you want the delimiters included. Pick btoa to match the historical btoa command. Pick Z85 when the other end is a ZeroMQ socket — and remember the multiple-of-four rule, the most common reason a Z85 encode is refused.',
+    },
+    {
+      heading: 'Edge cases worth knowing',
+      body: 'On decode the Adobe delimiters and any whitespace are stripped automatically. A dangling final group of a single character is an error, since a partial group needs at least two. Decoding does not verify valid UTF-8 — invalid sequences decode with replacement characters, so the byte count is the reliable check.',
+    },
+    {
+      heading: 'Encoded in the browser',
+      body: 'The conversion is pure arithmetic in this tab, with no request to any service. That matters when the input is a binary blob embedded in a PDF or a licence payload you would rather not paste into a third-party site.',
+    },
+  ],
   faq: [
     {
       q: 'What is the "z" shorthand?',

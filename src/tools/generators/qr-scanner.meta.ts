@@ -51,6 +51,33 @@ export const meta: ToolMeta = {
       default: true,
     },
   ],
+  examples: [
+    { title: 'Scan a code from a screenshot' },
+    { title: 'QR codes only, for a busy image', options: { formats: 'qr' } },
+    { title: 'Read a light-on-dark code', options: { invert: true } },
+  ],
+  article: [
+    {
+      heading: 'Two ways to feed it a code',
+      body: 'The scanner accepts a live camera feed, accessed in the panel and only over https, or an image file such as a screenshot or photo. Camera frames are decoded continuously as you aim; a file is decoded once. Either way the payload is displayed in full rather than acted on, and nothing is requested to resolve what it reads.',
+    },
+    {
+      heading: 'Which codes and which decoder',
+      body: 'QR codes are read in any orientation, including inverted ones when that option is on. Common 1D barcodes such as EAN-13, UPC-A, Code 128 and Code 39 are read when the browser ships a built-in detector, as Chrome, Edge and Android browsers do. Where the browser finds nothing, the fallback decoder loads on demand and is tried.',
+    },
+    {
+      heading: 'Payloads are recognised, not obeyed',
+      body: 'A URL, Wi-Fi join string, vCard, mailto, telephone number, SMS, geo position, otpauth setup URI or plain text is recognised and shown as fields you can copy. Opening a link is a button you press deliberately, and unsafe schemes such as javascript: and data: are refused as links outright, so a malicious code cannot act on its own.',
+    },
+    {
+      heading: 'Why a scan can fail',
+      body: 'Codes fail for practical reasons: too far away, glare or shadow over the pattern, motion blur, or a stylised design that breaks the module grid. Getting closer so the code fills more of the frame fixes most cases, as does cropping tightly in a photo. Without a built-in detector, 1D barcodes are not attempted, so only the QR path is guaranteed everywhere.',
+    },
+    {
+      heading: 'Frames stay in the tab',
+      body: 'Camera frames and image files are decoded inside this browser tab and are never recorded, stored or uploaded. The only thing the page fetches is its own fallback script, requested from the same site and only when a scan needs it.',
+    },
+  ],
   faq: [
     {
       q: 'Is my camera feed uploaded anywhere?',

@@ -51,6 +51,24 @@ export const meta: ToolMeta = {
       showWhen: { key: 'output', value: 'hex' },
     },
   ],
+  article: [
+    {
+      heading: 'What the output is',
+      body: 'The text you type is encoded as UTF-8 and the chosen checksum is computed over exactly those bytes. Hex output is always eight digits, zero-padded and big-endian, matching what zip and gzip report; decimal output is the unsigned 32-bit value, so it can reach 4294967295. The stats line repeats the variant, the byte count and both forms.',
+    },
+    {
+      heading: 'Picking the algorithm',
+      body: 'Choose CRC-32 when you must reproduce a value already stored inside a zip, gzip or PNG stream. Choose CRC-32C (Castagnoli) when you are matching storage formats such as iSCSI, ext4 or Btrfs that use that polynomial. Choose Adler-32 for the zlib checksum, which is cheaper to compute but weaker at catching certain bit patterns.',
+    },
+    {
+      heading: 'Options that matter',
+      body: 'The Algorithm select fixes which lookup table is used, Output switches between hex and decimal, and Uppercase hex applies only while the hex form is shown, so it is ignored for decimal. A trailing newline changes the result because it is part of the bytes, so only compare checksums taken over identical text.',
+    },
+    {
+      heading: 'Limits and privacy',
+      body: 'Empty input returns an empty output rather than the checksum of zero bytes. Only text is accepted, so there is no way to checksum raw binary here, and no parameter for a custom polynomial or initial value. The two tables are built once in the page and every computation runs locally with nothing uploaded.',
+    },
+  ],
   examples: [
     { title: 'CRC-32 of "123456789"', input: '123456789', options: { variant: 'crc32' } },
     { title: 'CRC-32C of "123456789"', input: '123456789', options: { variant: 'crc32c' } },

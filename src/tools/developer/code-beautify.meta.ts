@@ -127,6 +127,28 @@ export const meta: ToolMeta = {
       options: { language: 'yaml' },
     },
   ],
+  article: [
+    {
+      heading: 'One formatter, eleven languages',
+      body: 'Paste a snippet and choose a language — JavaScript, TypeScript, CSS, SCSS, Less, HTML, Vue single-file components, JSON, Markdown or YAML — or leave it on auto-detect so the parser is sniffed from the content. The output is the same Prettier style editors and CI pipelines apply, not a bespoke tidy-up of the input.',
+    },
+    {
+      heading: 'When a minified snippet needs reading',
+      body: 'The common trigger is code that arrived compressed or mangled: a one-line bundle excerpt, a stylesheet copied out of an email, or a JSON blob lifted from a log. Here it becomes readable text you can inspect and diff before committing it anywhere.',
+    },
+    {
+      heading: 'The options that actually change the text',
+      body: 'Line width decides where Prettier wraps and indent width picks spaces per level. The semicolon toggle, the single-quote toggle and the trailing-comma choice apply to JavaScript and TypeScript only, while JSON also honours trailing commas. Markdown and YAML are reflowed by their own rules and ignore the code-style switches.',
+    },
+    {
+      heading: 'The first run downloads one parser',
+      body: 'Prettier and each language bundle load on demand, so the first format in a language waits briefly while just that parser and printer arrive; later runs reuse the cache. Source that is invalid for the chosen parser surfaces the Prettier error line instead of a silent guess.',
+    },
+    {
+      heading: 'Your code never leaves the tab',
+      body: 'Formatting happens on this device, with the formatter served from this same origin, so nothing you paste is uploaded or stored.',
+    },
+  ],
   faq: [
     {
       q: 'Does my code leave the browser?',

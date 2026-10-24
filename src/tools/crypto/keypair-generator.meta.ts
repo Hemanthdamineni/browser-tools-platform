@@ -64,6 +64,24 @@ export const meta: ToolMeta = {
       options: { algorithm: 'ecdsa-p256', sign: false },
     },
   ],
+  article: [
+    {
+      heading: 'What this generates',
+      body: 'Pick an algorithm from the panel, RSA 2048, 3072 or 4096, ECDSA on P-256 or P-384, or Ed25519, and this calls the Web Crypto generateKey to mint a brand-new pair in memory. The result table shows the algorithm, key size, a SHA-256 fingerprint of the public SPKI bytes, and both keys as PEM blocks you copy out, the private one in PKCS#8 and the public in SPKI.',
+    },
+    {
+      heading: 'Why the sign-and-verify step is there',
+      body: 'With Sign the input text on, whatever you typed is signed with the fresh private key and the signature is checked against the public key, so the exported pair is proven coherent before you use it. That catches a mistyped or truncated PEM early rather than at 2 a.m. on a production server.',
+    },
+    {
+      heading: 'How the PEMs behave outside the browser',
+      body: 'Private key PKCS#8 and public key SPKI are the plain, unencrypted forms that openssl genpkey and openssl rsa or ec write accept, so the blocks drop straight into key files or OpenSSL pipelines. No passphrase is baked in, so wrap a stored key with something like openssl pkcs8 -topk8 if you need it encrypted at rest.',
+    },
+    {
+      heading: 'Caveats about size and safety',
+      body: 'Larger RSA keys must search for ever-bigger primes and can take several seconds, so RSA-4096 feels slow rather than broken. Ed25519 is the smallest and fastest choice here. Because the key lives only in memory and clipboard history, it suits short-lived test and development keys, not long-lived production secrets you would back up on trusted hardware.',
+    },
+  ],
   faq: [
     {
       q: 'Are the keys stored anywhere?',

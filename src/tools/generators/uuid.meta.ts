@@ -30,6 +30,14 @@ export const meta: ToolMeta = {
   examples: [
     { title: 'One v4', options: { version: 'v4', count: 1 } },
     { title: '10 × v7 (sortable)', options: { version: 'v7', count: 10 } },
+    {
+      title: 'Uppercase v4 with braces',
+      options: { version: 'v4', count: 1, uppercase: true, braces: true },
+    },
+    {
+      title: 'Compact v7 without hyphens',
+      options: { version: 'v7', count: 5, hyphens: false },
+    },
   ],
   faq: [
     {
@@ -39,6 +47,24 @@ export const meta: ToolMeta = {
     {
       q: 'When should I use v7 instead of v4?',
       a: 'v7 sorts by creation time, which keeps database indexes tighter and makes logs easier to scan. Use v4 when you want no time information leaked.',
+    },
+  ],
+  article: [
+    {
+      heading: 'Versions four and seven and nil',
+      body: 'Version 4 draws 122 random bits and sets the fixed version and variant bits, giving a value with no relationship to anything else. Version 7 writes the current millisecond timestamp into the first 48 bits and fills the rest at random, so values generated together sort chronologically. The nil option returns the all-zero UUID 00000000-0000-0000-0000-000000000000, useful as a sentinel.',
+    },
+    {
+      heading: 'Why v7 sorts and v4 does not',
+      body: 'Because the most significant bits of a v7 are its creation time, lexicographic order equals creation order. That keeps clustered database index pages dense and makes a log of generated IDs easy to scan. Version 4 reveals nothing about when the value was made, so pick it when time information would be a privacy or ordering concern.',
+    },
+    {
+      heading: 'Shaping the output for your consumer',
+      body: 'The count option emits up to 1000 IDs, one per line waiting for your columns or seed data. Uppercase changes the hex digits, braces wraps each value in { } for some languages and systems, and hyphens can be removed entirely for a 32-character hex string. A single run uses one base time for its v7 values, so they stay ordered even if generation spans a tick.',
+    },
+    {
+      heading: 'Randomness comes from the browser CSPRNG',
+      body: 'Every random byte is drawn from crypto.getRandomValues, the browser cryptographic random source, so the output is suitable for identifiers and keys — not for any deterministic or predictable scheme. Generation is local, makes no request and uploads nothing, and the list is offered as a uuids.txt download when you want it saved.',
     },
   ],
   related: ['nanoid', 'ulid', 'random-string', 'password'],

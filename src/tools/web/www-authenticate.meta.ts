@@ -40,6 +40,28 @@ export const meta: ToolMeta = {
     { key: 'scope', label: 'Bearer scope (optional)', type: 'text', default: '' },
     { key: 'error', label: 'Bearer error (optional)', type: 'text', default: '' },
   ],
+  article: [
+    {
+      heading: 'Reading and writing a 401 challenge',
+      body: 'Parse mode takes one or more WWW-Authenticate challenges — the kind that appear on a 401 response — and lists each scheme with its auth parameters, so realm, scope, error and anything else come out as separate rows. Build mode emits a challenge string for the Basic or Bearer scheme from the realm, scope and error options you set.',
+    },
+    {
+      heading: 'Debugging an authentication handshake',
+      body: 'Use it when an API returns 401 and you want to read the terms the server offered, when you are writing a client and need to know exactly how a server formatted its challenge, or when you are producing the challenge your own service will return and want the quoting and escaping right the first time.',
+    },
+    {
+      heading: 'Options',
+      body: 'Mode chooses parse or build. In build mode, Scheme selects Basic or Bearer, Realm supplies the quoted realm value, and the optional Bearer scope and Bearer error parameters are added when non-empty. In parse mode the pasted text is what matters and the options are ignored.',
+    },
+    {
+      heading: 'What it validates and what it does not',
+      body: 'It checks that the scheme is a valid token, that parameters are well-formed quoted or token values, that a realm is not empty, and that no auth parameter repeats. It never handles passwords or bearer tokens and never makes a request, so it cannot tell you whether credentials would be accepted. Basic credentials over plain HTTP remain a serious problem — Base64 is encoding, not encryption — and the tool says so rather than letting a parsed challenge look reassuring.',
+    },
+    {
+      heading: 'Parsed without touching the network',
+      body: 'Challenges are parsed in your browser and nothing is transmitted, so a header copied from a production 401 is safe to inspect here. It keeps working with no connection.',
+    },
+  ],
   examples: [
     {
       title: 'Parse challenges',
@@ -48,6 +70,11 @@ export const meta: ToolMeta = {
     {
       title: 'Build a Bearer challenge',
       options: { mode: 'build', scheme: 'Bearer', realm: 'api', scope: 'read:profile' },
+    },
+    {
+      title: 'Read a Bearer error challenge',
+      input:
+        'Bearer realm="api", error="invalid_token", error_description="The access token expired"',
     },
   ],
   faq: [

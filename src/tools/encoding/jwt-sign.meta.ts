@@ -78,6 +78,28 @@ export const meta: ToolMeta = {
       help: '0 adds no exp claim. Otherwise an exp claim is added based on iat (or now).',
     },
   ],
+  article: [
+    {
+      heading: 'Signing and verifying in one place',
+      body: 'In sign mode you paste a JSON object of claims and get a compact JWS: a base64url header, a base64url payload and an HMAC signature joined by dots, plus the algorithm, byte sizes and token length. In verify mode you paste a finished token, the tool recomputes the signature and answers Signature VALID or INVALID, reporting the exp and nbf timeline.',
+    },
+    {
+      heading: 'A realistic test loop',
+      body: 'It fits local API work: mint a short-lived HS256 token to exercise a bearer-token endpoint you are building, then paste a token your issuer produced to confirm it verifies with the shared secret you hold.',
+    },
+    {
+      heading: 'What each option alters',
+      body: 'Mode switches between signing and checking. Signing algorithm chooses HS256, HS384 or HS512. The secret is the HMAC key and is never stored. The typ toggle adds "typ":"JWT" to the header, add-issued-at stamps iat with the current time, and Expires in adds an exp claim a set number of minutes after iat (or now); 0 adds none.',
+    },
+    {
+      heading: 'Where it stops',
+      body: 'Only the HMAC family is supported: RS, ES and PS tokens, which need a private key, cannot be signed here and cannot be verified either. Verification proves the signature matches the secret you supplied and checks exp and nbf, but it cannot prove that secret is genuinely the issuer’s. A header using a crit extension is flagged.',
+    },
+    {
+      heading: 'The secret stays in the tab',
+      body: 'Signing runs through the Web Crypto API inside this page, so the secret and the claims are used locally, never uploaded and never logged. You can confirm it in DevTools → Network, and the page works with no connection.',
+    },
+  ],
   examples: [
     {
       title: 'Sign a sample payload',

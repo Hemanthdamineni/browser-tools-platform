@@ -78,7 +78,11 @@ export const meta: ToolMeta = {
       help: 'How many colours the GIF may use, and whether each frame gets its own palette.',
     },
   ],
-  examples: [{ title: 'Convert a clip to an animated GIF', options: {} }],
+  examples: [
+    { title: 'Convert a clip to an animated GIF', options: {} },
+    { title: 'Trim a five-second moment', options: { start: 4, end: 9, fps: 15, width: 640 } },
+    { title: 'Smallest possible loop', options: { fps: 8, width: 320, palette: 'small' } },
+  ],
   faq: [
     {
       q: 'What happens to the audio?',
@@ -111,6 +115,28 @@ export const meta: ToolMeta = {
     {
       q: 'Which videos are supported?',
       a: 'Anything this browser can decode — usually H.264 or VP8/VP9 in MP4, MOV or WebM. If the codec is not supported, the tool says so instead of producing a broken GIF.',
+    },
+  ],
+  article: [
+    {
+      heading: 'What Video to GIF returns',
+      body: 'Feed it a video file and it hands back one animated GIF, previewed above the download. The controls are the keep-range in seconds, a frame rate of 1 to 30 (default 10), an output width of 16 to 1280 pixels (default 480) and a palette preset. Height follows the source aspect ratio.',
+    },
+    {
+      heading: 'When a looping clip is the right answer',
+      body: 'Use it when a demonstration has to loop silently: a bug report, a pull-request comment, or a chat client that renders GIFs but not video. Trim first, since a ten-second excerpt at 10 fps is 100 frames, comfortably inside the 300-frame ceiling.',
+    },
+    {
+      heading: 'What the palette and frame rate really change',
+      body: 'Small file shares one 32-colour table across every frame and skips dithering, so it compresses hardest and bands gradients. Balanced builds a 128-colour table per frame. Best quality uses 256 colours per frame with Floyd-Steinberg dithering for the smoothest gradients. Dropping the frame rate or width cuts bytes fastest.',
+    },
+    {
+      heading: 'Limits, codecs and sound',
+      body: 'Audio is dropped, since a GIF has no soundtrack. More than 300 frames, or an estimated output over 16 MB, is refused before encoding starts. A file with no video track, or a codec WebCodecs cannot decode, raises a message pointing at H.264 MP4 or VP8/VP9 WebM.',
+    },
+    {
+      heading: 'No upload, no server',
+      body: 'Demuxing, decoding and encoding all happen in the worker on your device, so the clip and the finished GIF stay on the machine and the page keeps working offline.',
     },
   ],
   credits: [

@@ -67,6 +67,11 @@ export const meta: ToolMeta = {
       input:
         '<svg viewBox="0 0 10 10"><!-- dot --><circle cx="5" cy="5" r="4" style="fill: red; stroke-width: 2;"/></svg>',
     },
+    {
+      title: 'Plain JSX, no component wrapper',
+      input: '<svg viewBox="0 0 16 16"><path d="M0 0h16v16H0z"/></svg>',
+      options: { component: false, typescript: false },
+    },
   ],
   faq: [
     {
@@ -84,6 +89,28 @@ export const meta: ToolMeta = {
     {
       q: 'Does it validate my SVG?',
       a: 'No. It reformats markup; it does not check geometry, references, or accessibility. Use your editor for that.',
+    },
+  ],
+  article: [
+    {
+      heading: 'What the SVG to JSX converter does',
+      body: 'Paste SVG or inline markup and it returns JSX that React accepts: kebab-case attributes are camelCased, class becomes className, for becomes htmlFor, xlink and xml prefixes are collapsed, inline style strings become style objects, comments become JSX comments and empty elements self-close. It counts converted elements, attributes and style objects.',
+    },
+    {
+      heading: 'When to convert an icon here',
+      body: 'Use it when you have an SVG from a design tool or the web and want it as a React or TypeScript component, or when you need a quick JSX fragment for an icon set and want the exact syntax React expects.',
+    },
+    {
+      heading: 'The options that shape the output',
+      body: 'Wrap in a React component, on by default, adds an exported function with a props spread and names it after Component name (default Icon, sanitised to PascalCase). TypeScript adds an SVGProps import and types the props. StyleObjects toggles style-string conversion, and Indent sets the indent width from 0 to 8 spaces. Turning the wrapper off yields bare JSX.',
+    },
+    {
+      heading: 'What it does not check',
+      body: 'Input is capped at one million characters. It reformats markup structure but does not validate geometry, references or accessibility, and nested style and script content is emitted as a template-literal child, which is what JSX requires.',
+    },
+    {
+      heading: 'Where the conversion runs',
+      body: 'The markup is parsed and rewritten on your device in this tab; your SVG is never uploaded.',
     },
   ],
   related: ['svg-to-png', 'html-prettifier', 'json-to-typescript', 'html-to-markdown'],

@@ -40,7 +40,11 @@ function build(): RegisteredTool[] {
       throw new Error(`${path} does not export "meta"`);
     }
     const load = loaders.get(toolKey(path));
-    if (!load) {
+    // Redirect aliases (and hidden metas) have no implementation of their own —
+    // the registry resolves them to a replacement before any load happens. A
+    // normal, visible tool must still ship a real `.tool.ts` module.
+    const isAlias = !!meta.redirectTo || !!meta.hidden;
+    if (!load && !isAlias) {
       throw new Error(`${path} has no matching ".tool.ts" implementation`);
     }
     if (seen.has(meta.id)) {
@@ -58,7 +62,18 @@ function build(): RegisteredTool[] {
       throw new Error(`Tool "${meta.id}" has unknown category "${meta.category}"`);
     }
     seen.add(meta.id);
-    tools.push({ meta, load: load as RegisteredTool['load'] });
+    // Aliases never reach a loader — they redirect to a replacement before any
+    // run happens — so a missing `.tool.ts` is fine. Give them a stub that fails
+    // loudly rather than a silent undefined dereference if one is ever invoked.
+    const loader =
+      load ??
+      (() =>
+        Promise.reject(
+          new Error(
+            `Tool "${meta.id}" is a redirect alias to "${meta.redirectTo ?? 'a replacement'}" and has no runnable implementation`,
+          ),
+        ));
+    tools.push({ meta, load: loader as RegisteredTool['load'] });
   }
 
   return tools.sort((a, b) => a.meta.name.localeCompare(b.meta.name));

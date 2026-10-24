@@ -38,6 +38,38 @@ export const meta: ToolMeta = {
       title: 'Core working zones',
       input: 'UTC\nAmerica/New_York\nEurope/London\nAsia/Kolkata\nAsia/Tokyo\nAustralia/Sydney',
     },
+    {
+      title: 'Twelve hour clock for one city',
+      input: 'Asia/Singapore',
+      options: { hour12: true },
+    },
+    {
+      title: 'Offset only view',
+      input: 'UTC\nEurope/Berlin',
+      options: { showDate: false },
+    },
+  ],
+  article: [
+    {
+      heading: 'Current time across zones',
+      body: 'List IANA zone names on separate lines or separated by commas and the tool returns a table of the current local time, the UTC offset and, by default, the date for each zone. Every value is computed when you run it from your device clock and the browser time zone database.',
+    },
+    {
+      heading: 'Scheduling a call across continents',
+      body: 'A typical use is finding a slot that suits London, Bangalore and San Francisco at once. Enter the three zones, run the clock, and compare the offset column to see how far apart the working hours currently sit; the date column flags zones already on the next day.',
+    },
+    {
+      heading: 'Fewer columns and a twelve hour clock',
+      body: 'Turning Show the date off leaves just zone, time and offset, which suits a narrow panel. The 12-hour switch adds an AM or PM marker and formats the hour accordingly. Both options apply to every row in the table.',
+    },
+    {
+      heading: 'Unknown names and the sixty zone limit',
+      body: 'Names the browser does not recognise are skipped and counted in a note instead of failing the run; if none are valid you get an error suggesting forms like America/Los_Angeles. Duplicate entries collapse and at most sixty zones are processed. Leaving the box empty produces a default set of six.',
+    },
+    {
+      heading: 'Read from your own machine',
+      body: 'Each time is worked out locally from the browser time zone data. There are no server lookups, no zone history is kept, and an offline connection changes nothing about the figures.',
+    },
   ],
   faq: [
     {

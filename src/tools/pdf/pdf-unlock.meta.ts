@@ -40,6 +40,7 @@ export const meta: ToolMeta = {
   examples: [
     { title: 'Unlock a PDF with a known password', options: { password: 'hunter2' } },
     { title: 'Remove the password from an office file', options: { password: 'Quarterly-2026' } },
+    { title: 'Strip protection with a passphrase', options: { password: 'correct horse battery staple' } },
   ],
   faq: [
     {
