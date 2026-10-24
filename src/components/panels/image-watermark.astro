@@ -7,12 +7,15 @@
  * preview that uses the same layout maths as the worker, and stamps every
  * chosen image through `image-watermark.tool.ts` in a Web Worker.
  *
- * The root carries the shared workbench markers (`data-file-workbench`,
- * `data-tool-id`, …) so the page behaves like every other file tool, plus its
- * own `data-image-watermark-panel` marker. `data-multiple` is declared as
- * "false" only because the shared FileWorkbench script owns that attribute; the
- * panel's own drop zone accepts as many images as `validateFileSelection`
- * allows.
+ * The root carries its own `data-image-watermark-panel` marker plus the
+ * `data-tool-id` / `data-accept` / `data-multiple` markers the workbench
+ * convention uses. It deliberately does NOT carry `data-file-workbench`:
+ * `FileWorkbench.astro` binds the generic file behaviour to every
+ * `[data-file-workbench]` root (skipping only `data-signature-workbench`) and
+ * would attach a second runner to the same buttons. Panel pages are covered by
+ * `PanelWorkbench`'s `data-panel-workbench` wrapper instead. `data-multiple`
+ * mirrors the tool metadata; the panel's own drop zone accepts as many images
+ * as `validateFileSelection` allows.
  */
 import type { ToolMeta } from '@/lib/types';
 import Icon from '@/components/Icon.astro';
@@ -42,7 +45,6 @@ const ids = {
 
 <section
   class="surface rounded-lg p-4 sm:p-6"
-  data-file-workbench
   data-image-watermark-panel
   data-tool-id={meta.id}
   data-accept={meta.accept ?? ''}
