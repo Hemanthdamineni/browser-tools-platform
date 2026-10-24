@@ -1,0 +1,247 @@
+---
+/**
+ * The speaker test panel.
+ *
+ * A steady tone or a log-spaced frequency sweep, aimed at the left, right or
+ * both speakers. The tone is synthesized here in the tab and played straight
+ * to the output device — nothing is recorded, stored or uploaded. The panel
+ * owns the Web Audio graph; the shared workbench cannot express live playback,
+ * so the tool opts in via `meta.panel = 'speaker-test'`.
+ */
+import type { ToolMeta } from '@/lib/types';
+import Icon from '@/components/Icon.astro';
+
+interface Props {
+  meta: ToolMeta;
+}
+const { meta } = Astro.props;
+const p = meta.id;
+---
+
+<section
+  class="surface rounded-lg p-4 sm:p-6"
+  data-speaker-panel
+  data-tool-id={meta.id}
+  aria-labelledby={`${p}-heading`}
+>
+  <h2 id={`${p}-heading`} class="text-base font-semibold text-[rgb(var(--text))]">
+    Test a tone or a sweep
+  </h2>
+  <p
+    class="mt-1.5 max-w-prose text-sm leading-relaxed text-[rgb(var(--text-muted))]"
+    data-sp-status
+    role="status"
+    aria-live="polite"
+  >
+    Choose a channel, then press Play. Keep the volume low to start with.
+  </p>
+
+  <div class="mt-5 grid gap-5 lg:grid-cols-2">
+    <!-- Signal controls -->
+    <div class="rounded-lg border p-4">
+      <h3 class="text-sm font-semibold text-[rgb(var(--text))]">Signal</h3>
+
+      <div class="mt-3 grid gap-3 sm:grid-cols-2">
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-medium text-[rgb(var(--text-muted))]" for={`${p}-mode`}>
+            Mode
+          </label>
+          <select id={`${p}-mode`} class="field" data-sp-mode>
+            <option value="tone" selected>Steady tone</option>
+            <option value="sweep">Frequency sweep</option>
+          </select>
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-medium text-[rgb(var(--text-muted))]" for={`${p}-channel`}>
+            Channel
+          </label>
+          <select id={`${p}-channel`} class="field" data-sp-channel>
+            <option value="left">Left</option>
+            <option value="right">Right</option>
+            <option value="both" selected>Both</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="mt-3" data-sp-tone-controls>
+        <label class="text-xs font-medium text-[rgb(var(--text-muted))]" for={`${p}-frequency`}>
+          Frequency
+        </label>
+        <input
+          id={`${p}-frequency`}
+          type="number"
+          class="field mt-1"
+          min="20"
+          max="20000"
+          value="440"
+          data-sp-frequency
+        />
+        <input
+          type="range"
+          class="mt-2 h-1.5 w-full cursor-pointer appearance-none rounded-full accent-[rgb(var(--accent))]"
+          min="0"
+          max="100"
+          step="0.1"
+          value="46.9"
+          data-sp-frequency-slider
+          aria-label="Frequency, logarithmic"
+        />
+        <p class="mt-1 text-xs text-[rgb(var(--text-muted))]" data-sp-freq-readout>
+          440 Hz · A4
+        </p>
+        <p class="mt-1 text-[11px] leading-relaxed text-[rgb(var(--text-muted))]">
+          The slider is logarithmic, so every octave gets the same travel.
+        </p>
+      </div>
+
+      <div class="mt-3" data-sp-sweep hidden>
+        <div class="grid gap-3 sm:grid-cols-2">
+          <div class="flex flex-col gap-1">
+            <label
+              class="text-xs font-medium text-[rgb(var(--text-muted))]"
+              for={`${p}-sweep-start`}
+            >
+              Sweep start
+            </label>
+            <input
+              id={`${p}-sweep-start`}
+              type="number"
+              class="field"
+              min="20"
+              max="20000"
+              value="20"
+              data-sp-sweep-start
+            />
+            <input
+              type="range"
+              class="h-1.5 w-full cursor-pointer appearance-none rounded-full accent-[rgb(var(--accent))]"
+              min="0"
+              max="100"
+              step="0.1"
+              value="0"
+              data-sp-sweep-start-slider
+              aria-label="Sweep start frequency, logarithmic"
+            />
+            <p class="mt-1 text-xs text-[rgb(var(--text-muted))]" data-sp-sweep-start-readout></p>
+          </div>
+          <div class="flex flex-col gap-1">
+            <label
+              class="text-xs font-medium text-[rgb(var(--text-muted))]"
+              for={`${p}-sweep-end`}
+            >
+              Sweep end
+            </label>
+            <input
+              id={`${p}-sweep-end`}
+              type="number"
+              class="field"
+              min="20"
+              max="20000"
+              value="20000"
+              data-sp-sweep-end
+            />
+            <input
+              type="range"
+              class="h-1.5 w-full cursor-pointer appearance-none rounded-full accent-[rgb(var(--accent))]"
+              min="0"
+              max="100"
+              step="0.1"
+              value="100"
+              data-sp-sweep-end-slider
+              aria-label="Sweep end frequency, logarithmic"
+            />
+            <p class="mt-1 text-xs text-[rgb(var(--text-muted))]" data-sp-sweep-end-readout></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-3 flex flex-col gap-1">
+        <label class="text-xs font-medium text-[rgb(var(--text-muted))]" for={`${p}-duration`}>
+          Duration
+        </label>
+        <input
+          id={`${p}-duration`}
+          type="text"
+          class="field font-mono"
+          value="3s"
+          placeholder="3s, 1500ms, 0.5m"
+          autocomplete="off"
+          data-sp-duration
+        />
+        <p class="mt-1 text-xs text-[rgb(var(--text-muted))]" data-sp-duration-hint></p>
+      </div>
+    </div>
+
+    <!-- Playback + guidance -->
+    <div class="rounded-lg border p-4">
+      <h3 class="text-sm font-semibold text-[rgb(var(--text))]">Playback</h3>
+      <div class="mt-3 flex flex-wrap items-center gap-2.5">
+        <button type="button" class="btn btn-primary" data-sp-play aria-pressed="false">
+          <Icon name="play" size={16} /> Play
+        </button>
+        <button type="button" class="btn btn-ghost" data-sp-stop hidden>
+          <Icon name="stop" size={14} /> Stop
+        </button>
+        <button type="button" class="btn btn-subtle btn-sm" data-sp-clear>Clear log</button>
+      </div>
+
+      <div
+        class="mt-4 rounded-lg border px-3 py-2.5 text-sm"
+        style="background-color: rgb(var(--warning-soft)); border-color: rgb(var(--warning)); color: rgb(var(--warning))"
+        role="note"
+      >
+        <span class="font-semibold">Watch the volume.</span> Test tones are steady and can be
+        surprisingly loud. Start with the volume low and raise it slowly. If you hear distortion,
+        a rattle, or any discomfort, stop and turn it down.
+      </div>
+
+      <label class="mt-3 flex items-center gap-2 text-sm text-[rgb(var(--text-muted))]">
+        <input type="checkbox" class="h-4 w-4" data-sp-timestamps checked />
+        Show the time of each play in the report
+      </label>
+
+      <p class="mt-3 text-xs leading-relaxed text-[rgb(var(--text-muted))]">
+        Everything stays in this tab. The tone is synthesized by your browser and played straight
+        to your speakers — nothing is recorded, stored or uploaded.
+      </p>
+    </div>
+  </div>
+
+  <!-- The report -->
+  <div class="mt-5" data-result-wrap hidden>
+    <span class="mb-2 block text-sm font-semibold text-[rgb(var(--text))]">Report</span>
+    <div class="min-w-0" data-sp-report></div>
+    <ul class="mt-2 space-y-1 text-xs" data-sp-notes></ul>
+  </div>
+
+  <div
+    class="mt-4 rounded-lg border px-3 py-2 text-sm"
+    style="background-color: rgb(var(--danger-soft)); border-color: rgb(var(--danger)); color: rgb(var(--danger))"
+    role="alert"
+    data-sp-error
+    hidden
+  >
+  </div>
+
+  <noscript>
+    <p class="mt-4 text-sm text-[rgb(var(--text-muted))]">
+      Playing a test tone needs JavaScript — the Web Audio tone is synthesized by your browser.
+    </p>
+  </noscript>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-speaker-panel]').forEach((panel) => {
+    // The audio code is loaded on demand so no Web Audio ships to pages that
+    // do not test a speaker.
+    void import('./speaker-test-panel')
+      .then(({ mountSpeakerTestPanel }) => mountSpeakerTestPanel(panel))
+      .catch(() => {
+        const error = panel.querySelector<HTMLElement>('[data-sp-error]');
+        if (error) {
+          error.hidden = false;
+          error.textContent = 'The speaker test panel could not be loaded in this browser.';
+        }
+      });
+  });
+</script>

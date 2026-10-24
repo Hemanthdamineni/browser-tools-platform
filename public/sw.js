@@ -12,7 +12,18 @@
 const VERSION = 'v1';
 const RUNTIME = `tb-runtime-${VERSION}`;
 const PRECACHE = `tb-precache-${VERSION}`;
-const PRECACHE_URLS = ['/', '/tools', '/categories', '/privacy', '/about', '/offline', '/favicon.svg'];
+
+// Base path derived from the service worker's own registration scope, so the
+// worker works whether the app is served at the root or under a subpath (e.g.
+// GitHub Pages project sites). Trailing slash dropped: `/my-repo/` -> `/my-repo`;
+// at the root the scope is `/` and stays `/`.
+const BASE = (self.registration.scope || '/').replace(/\/+$/, '') || '/';
+// Absolute, scope-prefixed route: '/tools' -> '/my-repo/tools'; root -> '/tools'.
+const route = (path) => (BASE === '/' ? path : `${BASE}${path}`);
+// The immutable hashed assets directory, always under the base path.
+const ASTRO_PREFIX = route('/_astro/');
+
+const PRECACHE_URLS = ['/', '/tools', '/categories', '/privacy', '/about', '/offline', '/favicon.svg'].map(route);
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -51,7 +62,7 @@ self.addEventListener('fetch', (event) => {
   if (url.origin !== self.location.origin) return;
 
   // Immutable hashed assets: cache-first.
-  if (url.pathname.startsWith('/_astro/')) {
+  if (url.pathname.startsWith(ASTRO_PREFIX)) {
     event.respondWith(
       caches.match(request).then(
         (hit) =>
@@ -82,7 +93,7 @@ self.addEventListener('fetch', (event) => {
         .catch(() =>
           caches
             .match(request)
-            .then((hit) => hit || caches.match('/offline') || Response.error()),
+            .then((hit) => hit || caches.match(route('/offline')) || Response.error()),
         ),
     );
     return;

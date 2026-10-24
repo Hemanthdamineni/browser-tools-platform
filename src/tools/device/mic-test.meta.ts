@@ -76,6 +76,6 @@ export const meta: ToolMeta = {
       a: 'Either the browser handed back a silent track (the input may be muted in your operating system’s sound settings) or you picked the wrong input. The panel says which of the two it is.',
     },
   ],
-  related: ['audio-info', 'audio-normalize', 'audio-to-wav'],
+  related: ['audio-info', 'audio-normalize', 'audio-convert'],
   status: 'beta',
 };

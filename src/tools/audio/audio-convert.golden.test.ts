@@ -18,7 +18,7 @@ vi.mock('./lib', async (importOriginal) => {
   return { ...actual, decodeFile: vi.fn(async () => decoded) };
 });
 
-import tool from './audio-to-wav.tool';
+import tool from './audio-convert.tool';
 
 /** The reference tool is the system `ffprobe`; skip when it is not installed. */
 const hasFfprobe = (() => {
@@ -30,7 +30,7 @@ const hasFfprobe = (() => {
   }
 })();
 
-describe('audio-to-wav external golden output', () => {
+describe('audio-convert external golden output', () => {
   const tempDirs: string[] = [];
 
   afterEach(() => {
@@ -42,7 +42,7 @@ describe('audio-to-wav external golden output', () => {
     async () => {
       const result = await tool.run({
         files: [new File(['placeholder'], 'tone.input')],
-        options: { sampleRate: '16000', channels: 'stereo' },
+        options: { format: 'wav', sampleRate: '16000', channels: 'stereo' },
       });
       const output = result.outputs[0];
       expect(output).toBeDefined();

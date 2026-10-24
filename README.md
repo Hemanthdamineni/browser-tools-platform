@@ -25,7 +25,7 @@ npm run dev            # http://localhost:4321
 | Script                            | What                                                          |
 | --------------------------------- | ------------------------------------------------------------- |
 | `npm run dev`                     | Dev server                                                    |
-| `npm run build`                   | Static build to `dist/` (`SITE_URL=… npm run build` for prod) |
+| `npm run build`                   | Static build to `dist/` (see env vars below)                  |
 | `npm run preview`                 | Serve the build                                               |
 | `npm run check`                   | `astro check` (types)                                         |
 | `npm run lint` / `npm run format` | ESLint / Prettier                                             |
@@ -34,6 +34,17 @@ npm run dev            # http://localhost:4321
 | `npm run verify`                  | check + lint + test + build (the CI gate)                     |
 
 Requires Node 20+.
+
+Build-time environment variables:
+
+- `SITE_URL` — canonical origin, baked into canonical URLs and the sitemap
+  (default `https://hemanthdamineni.github.io/browser-tools-platform`).
+- `BASE_PATH` — path the site is served from (default `/browser-tools-platform`);
+  set `BASE_PATH=/` for a custom domain at the domain root.
+
+```bash
+SITE_URL=https://your-domain.example BASE_PATH=/ npm run build
+```
 
 ## Add a tool
 
@@ -47,7 +58,8 @@ Worker for heavy jobs. No backend. Full write-up in
 
 ## Deploy
 
-Any static host. Netlify / Vercel / Cloudflare Pages configs are included —
+Any static host. Set `SITE_URL` and `BASE_PATH` at build time (see above).
+GitHub Pages, Netlify, Vercel and Cloudflare Pages configs are included —
 **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)**.
 
 ## Privacy & security

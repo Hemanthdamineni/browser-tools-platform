@@ -1,0 +1,172 @@
+import type { ToolMeta } from '@/lib/types';
+
+export const meta: ToolMeta = {
+  id: 'video-frames',
+  name: 'Video Frames',
+  category: 'video',
+  summary:
+    'Pull still frames out of a video every N seconds, or as N evenly spaced shots — each as a PNG, or as one contact sheet.',
+  description:
+    'Extract still images from a clip entirely on your device. Grab a frame every N seconds, or N frames spread evenly across the clip, then download them one by one (or all at once) or as a single thumbnail contact sheet. Nothing is uploaded.',
+  keywords: [
+    'video',
+    'frames',
+    'extract frames',
+    'stills',
+    'thumbnails',
+    'contact sheet',
+    'screenshot',
+    'snapshot',
+    'frame grab',
+    'grid',
+    'png',
+    'mp4',
+    'webm',
+    'mov',
+  ],
+  privacy: { processing: 'on-device', network: 'none', offline: true },
+  input: 'file',
+  accept: 'video/*,.mp4,.m4v,.mov,.webm,.mkv,.ogv,.ts',
+  options: [
+    {
+      key: 'mode',
+      label: 'Which frames',
+      type: 'select',
+      default: 'interval',
+      choices: [
+        { value: 'interval', label: 'One frame every N seconds' },
+        { value: 'count', label: 'N evenly spaced frames' },
+      ],
+      help: 'Sample on a fixed clock, or spread a chosen number of frames across the clip.',
+    },
+    {
+      key: 'interval',
+      label: 'Interval (seconds)',
+      type: 'number',
+      default: 1,
+      min: 0.1,
+      step: 0.5,
+      showWhen: { key: 'mode', value: 'interval' },
+      help: 'How much time between each frame. The first frame sits at the start time.',
+    },
+    {
+      key: 'count',
+      label: 'Number of frames',
+      type: 'number',
+      default: 12,
+      min: 1,
+      max: 200,
+      step: 1,
+      showWhen: { key: 'mode', value: 'count' },
+      help: 'How many stills to take, spread evenly from the start time to the end time.',
+    },
+    {
+      key: 'start',
+      label: 'Start time (seconds)',
+      type: 'number',
+      default: 0,
+      min: 0,
+      step: 0.1,
+      help: 'Where the frames start. 0 means from the beginning of the clip.',
+    },
+    {
+      key: 'end',
+      label: 'End time (seconds)',
+      type: 'number',
+      default: 0,
+      min: 0,
+      step: 0.1,
+      help: 'Where the frames stop. 0 means to the end of the clip.',
+    },
+    {
+      key: 'layout',
+      label: 'Layout',
+      type: 'select',
+      default: 'individual',
+      choices: [
+        { value: 'individual', label: 'Individual images — one PNG per frame' },
+        { value: 'sheet', label: 'Contact sheet — all frames on one image' },
+      ],
+      help: 'Download each frame as its own PNG, or assemble them into a single thumbnail grid.',
+    },
+    {
+      key: 'columns',
+      label: 'Contact sheet columns',
+      type: 'number',
+      default: 0,
+      min: 0,
+      max: 16,
+      step: 1,
+      showWhen: { key: 'layout', value: 'sheet' },
+      help: 'How many thumbnails per row. 0 picks a near-square grid automatically.',
+    },
+    {
+      key: 'width',
+      label: 'Frame width (pixels)',
+      type: 'number',
+      default: 0,
+      min: 16,
+      max: 2560,
+      step: 10,
+      help: 'Width of each still; the height follows the aspect ratio. 0 uses the default (480 for single images, 320 for a contact sheet).',
+    },
+  ],
+  examples: [
+    { title: 'One frame every 2 seconds', options: { mode: 'interval', interval: 2 } },
+    {
+      title: 'Nine evenly spaced frames',
+      options: { mode: 'count', count: 9 },
+    },
+    {
+      title: 'A contact sheet of the whole clip',
+      options: { layout: 'sheet', columns: 4 },
+    },
+  ],
+  faq: [
+    {
+      q: 'What is the difference between the two frame modes?',
+      a: '“Every N seconds” samples on a fixed clock, so a 30-second clip at 10 seconds gives frames at 0, 10, 20 and 30. “N evenly spaced frames” spreads a chosen count across the range, so 6 frames of a 30-second clip land at 0, 6, 12, 18, 24 and 30. The first and last frames always sit on the range bounds.',
+    },
+    {
+      q: 'What is a contact sheet?',
+      a: 'A single image that stacks every extracted frame into a grid, like a film contact sheet or a light table. It is the quickest way to scan a clip at a glance and is saved as one PNG you can share.',
+    },
+    {
+      q: 'How many frames can I extract?',
+      a: 'At most 200 per run — enough to browse a long clip without freezing the tab. The tool says so up front and suggests a longer interval, fewer frames or a shorter range instead of silently truncating.',
+    },
+    {
+      q: 'Do individual frames keep the aspect ratio?',
+      a: 'Yes. Each still keeps the clip’s aspect ratio at the width you asked for, so nothing is stretched. For a contact sheet every thumbnail uses the same size and the sheet canvas is sized to hold them all.',
+    },
+    {
+      q: 'Are the frames re-encoded or are they the original picture?',
+      a: 'They are decoded from the clip and re-encoded as PNG, which is lossless — the pixels are exact copies of what was on screen at that moment (including any rotation metadata).',
+    },
+    {
+      q: 'Is my video uploaded anywhere?',
+      a: 'No. The clip is demuxed, decoded and re-encoded in your browser. The page works offline once it has loaded.',
+    },
+    {
+      q: 'Which videos are supported?',
+      a: 'Anything this browser can decode — usually H.264 or VP8/VP9 in MP4, MOV or WebM. If the codec is not supported, the tool says so instead of producing blank frames.',
+    },
+  ],
+  article: [
+    {
+      heading: 'What this tool does',
+      body: 'Still-frame extraction from a video, entirely on your device. Pick a sampling mode — a frame every N seconds, or N frames spread evenly across a time range — then choose a start and end to focus on part of the clip. Each frame is decoded, scaled to the width you asked for (the height keeps the aspect ratio), and written out as a lossless PNG.',
+    },
+    {
+      heading: 'Two layouts, two workflows',
+      body: 'Individual mode hands back one PNG per frame, each with a zero-padded number so the files sort in order, and a “Download all” button zips them together. Contact-sheet mode stacks every frame into a single grid image you can save or share as one file — the number of columns is automatic unless you pin it, and a white margin keeps the thumbnails readable on any background.',
+    },
+    {
+      heading: 'The frame cap',
+      body: 'Every still is a full decode plus a PNG encode, so a long clip at a tiny interval could otherwise wedge the tab. The tool caps the count at 200 and tells you the actual number up front, suggesting a longer interval, fewer frames or a shorter range — it never silently drops frames from the middle of a clip.',
+    },
+  ],
+  credits: [{ name: 'mediabunny', url: 'https://mediabunny.dev', license: 'MPL-2.0' }],
+  related: ['video-info', 'video-to-gif', 'video-trim'],
+  status: 'beta',
+};

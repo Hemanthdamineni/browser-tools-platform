@@ -37,6 +37,6 @@ export const meta: ToolMeta = {
       options: { start: '0:10', end: '1:00', fadeIn: 300, fadeOut: 500 },
     },
   ],
-  related: ['audio-fade', 'audio-to-wav'],
+  related: ['audio-fade', 'audio-convert'],
   status: 'stable',
 };

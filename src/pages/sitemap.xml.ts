@@ -2,15 +2,23 @@ import type { APIRoute } from 'astro';
 import { site } from '@/lib/site';
 import { VISIBLE_TOOLS, categoriesWithCounts } from '@/lib/registry';
 
+/** Only a real ISO `YYYY-MM-DD` `updated` date earns a `<lastmod>`; never invent one. */
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+
 export const GET: APIRoute = () => {
   const staticPaths = ['/', '/tools', '/categories', '/privacy', '/about'];
   const categoryPaths = categoriesWithCounts().map((c) => `/categories/${c.id}`);
-  const toolPaths = VISIBLE_TOOLS.map((t) => `/tools/${t.meta.id}`);
 
-  const urls = [...staticPaths, ...categoryPaths, ...toolPaths].map((path) => {
+  const entries: { path: string; lastmod?: string }[] = [
+    ...[...staticPaths, ...categoryPaths].map((path) => ({ path })),
+    ...VISIBLE_TOOLS.map((t) => ({ path: `/tools/${t.meta.id}`, lastmod: t.meta.updated })),
+  ];
+
+  const urls = entries.map(({ path, lastmod }) => {
     const loc = new URL(path, site.url).toString();
     const priority = path === '/' ? '1.0' : path.startsWith('/tools/') ? '0.8' : '0.6';
-    return `  <url><loc>${loc}</loc><changefreq>weekly</changefreq><priority>${priority}</priority></url>`;
+    const lastmodTag = lastmod && ISO_DATE.test(lastmod) ? `<lastmod>${lastmod}</lastmod>` : '';
+    return `  <url><loc>${loc}</loc>${lastmodTag}<changefreq>weekly</changefreq><priority>${priority}</priority></url>`;
   });
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>

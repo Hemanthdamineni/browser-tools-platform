@@ -5,6 +5,7 @@ import ToolCard from '@/components/ToolCard.astro';
 import Icon from '@/components/Icon.astro';
 import { CATEGORY_LIST } from '@/lib/categories';
 import { toolsInCategory } from '@/lib/registry';
+import { itemListJsonLd, categoryBreadcrumbJsonLd, toolPageId } from '@/lib/seo';
 
 export const getStaticPaths = (() => {
   return CATEGORY_LIST.map((category) => ({
@@ -15,9 +16,18 @@ export const getStaticPaths = (() => {
 
 const { category, tools } = Astro.props;
 const sorted = [...tools].sort((a, b) => a.meta.name.localeCompare(b.meta.name));
+const listed = sorted.map((t) => ({ id: t.meta.id, name: t.meta.name, url: toolPageId(t.meta.id) }));
 ---
 
-<Layout title={category.name} description={category.blurb} path={`/categories/${category.id}`}>
+<Layout
+  title={category.name}
+  description={category.blurb}
+  path={`/categories/${category.id}`}
+  jsonLd={[
+    itemListJsonLd(listed, category.name, `/categories/${category.id}`),
+    categoryBreadcrumbJsonLd(category.id, category.name),
+  ]}
+>
   <nav
     class="flex flex-wrap items-center gap-1.5 text-sm text-[rgb(var(--text-muted))]"
     aria-label="Breadcrumb"

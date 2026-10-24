@@ -1,0 +1,126 @@
+---
+/**
+ * The online notepad workbench: a note list and an editor. Notes are autosaved
+ * to IndexedDB on this device and export as .txt or .md.
+ *
+ * The generic text workbench cannot express a persistent, multi-note list, so
+ * the tool opts into this panel via `meta.panel = 'online-notepad'`.
+ */
+import type { ToolMeta } from '@/lib/types';
+import Icon from '@/components/Icon.astro';
+
+interface Props {
+  meta: ToolMeta;
+}
+const { meta } = Astro.props;
+const p = meta.id;
+---
+
+<section
+  class="surface rounded-lg p-4 sm:p-6"
+  data-online-notepad
+  data-tool-id={meta.id}
+  aria-label={`${meta.name} workbench`}
+>
+  <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <h2 class="flex items-center gap-2 text-base font-semibold text-[rgb(var(--text))]">
+        <Icon name="type" size={18} /> My notes
+      </h2>
+      <p class="mt-1 max-w-prose text-xs leading-relaxed text-[rgb(var(--text-muted))]">
+        Your notes never leave this browser. They are autosaved to this device and are not sent
+        anywhere. Delete them all with the “Delete all notes” button, or clear this site’s data in
+        your browser settings.
+      </p>
+    </div>
+    <div class="flex flex-wrap gap-2">
+      <button type="button" class="btn btn-primary btn-sm" data-new-note>
+        <Icon name="file-text" size={15} /> New note
+      </button>
+      <button type="button" class="btn btn-ghost btn-sm" data-delete-all>
+        Delete all notes
+      </button>
+    </div>
+  </div>
+
+  <div class="grid gap-4 lg:grid-cols-[minmax(12rem,15rem)_1fr]">
+    <!-- The note list -->
+    <aside class="rounded-lg border p-2">
+      <p class="px-2 pb-1 text-xs font-medium text-[rgb(var(--text-muted))]">Notes</p>
+      <ul class="space-y-1" data-note-list aria-label="Your notes"></ul>
+    </aside>
+
+    <!-- The editor -->
+    <div class="flex flex-col gap-2" data-editor hidden>
+      <div class="flex flex-wrap items-center gap-2">
+        <label class="sr-only" for={`${p}-title`}>Note title</label>
+        <input
+          id={`${p}-title`}
+          type="text"
+          class="field !w-auto flex-1 !py-1.5 text-sm"
+          data-note-title
+          autocomplete="off"
+          spellcheck="false"
+          placeholder="Note title"
+        />
+        <div class="flex gap-1.5">
+          <button type="button" class="btn btn-subtle btn-sm" data-export-txt>
+            <Icon name="download" size={14} /> .txt
+          </button>
+          <button type="button" class="btn btn-subtle btn-sm" data-export-md>
+            <Icon name="download" size={14} /> .md
+          </button>
+        </div>
+      </div>
+
+      <label class="sr-only" for={`${p}-content`}>Note text</label>
+      <textarea
+        id={`${p}-content`}
+        class="field min-h-[16rem] resize-y"
+        data-note-content
+        placeholder="Write your note here. It is autosaved as you type."
+      ></textarea>
+
+      <p class="text-xs text-[rgb(var(--text-muted))]" data-save-status role="status" aria-live="polite">
+        Saved to this browser.
+      </p>
+    </div>
+
+    <div class="flex flex-col items-center justify-center gap-2 rounded-lg border p-8 text-center" data-empty-state>
+      <Icon name="type" size={28} class="opacity-50" />
+      <p class="text-sm text-[rgb(var(--text-muted))]">
+        No notes yet. Create one to start writing.
+      </p>
+    </div>
+  </div>
+
+  <div
+    class="mt-4 rounded-lg border px-3 py-2 text-sm"
+    style="background-color: rgb(var(--danger-soft)); border-color: rgb(var(--danger)); color: rgb(var(--danger))"
+    role="alert"
+    data-error
+    hidden
+  >
+  </div>
+
+  <noscript>
+    <p class="mt-4 text-sm text-[rgb(var(--text-muted))]">
+      The notepad needs JavaScript to autosave your notes. The page itself works without it.
+    </p>
+  </noscript>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-online-notepad]').forEach((panel) => {
+    // Loaded on demand: the notepad panel is only used by this tool.
+    void import('./online-notepad-panel')
+      .then(({ mountOnlineNotepadPanel }) => mountOnlineNotepadPanel(panel))
+      .catch(() => {
+        const error = panel.querySelector<HTMLElement>('[data-error]');
+        if (error) {
+          error.hidden = false;
+          error.textContent = 'The notepad panel could not be loaded in this browser.';
+        }
+      });
+  });
+</script>

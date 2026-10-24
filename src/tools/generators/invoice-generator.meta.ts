@@ -1,0 +1,165 @@
+import type { ToolMeta } from '@/lib/types';
+
+export const meta: ToolMeta = {
+  id: 'invoice-generator',
+  name: 'Invoice Generator',
+  category: 'generators',
+  summary:
+    'Build a clean, printable PDF invoice with line items, tax and totals, and save drafts locally.',
+  description:
+    'Fill in the sender and recipient, add line items with quantity, unit price and tax rate, and download a tidy A4 PDF invoice. Totals are computed in integer cents so they never drift, and your draft is kept in your browser only.',
+  keywords: [
+    'invoice',
+    'invoice generator',
+    'billing',
+    'receipt',
+    'quote',
+    'pdf',
+    'line items',
+    'tax',
+    'vat',
+    'subtotal',
+    'grand total',
+  ],
+  privacy: { processing: 'on-device', network: 'none', offline: true },
+  input: 'text',
+  panel: 'invoice-generator',
+  options: [
+    {
+      // Filled in by the panel with the JSON invoice draft. The option keeps
+      // the tool runnable from a test or the generic workbench with a manual
+      // payload; the panel always drives it.
+      key: 'model',
+      label: 'Invoice draft (JSON)',
+      type: 'textarea',
+      default: '',
+    },
+    {
+      key: 'outputName',
+      label: 'Output file name',
+      type: 'text',
+      default: 'invoice.pdf',
+    },
+    {
+      key: 'currency',
+      label: 'Currency',
+      type: 'select',
+      default: 'USD',
+      choices: [
+        { value: 'USD', label: 'USD — US Dollar ($)' },
+        { value: 'EUR', label: 'EUR — Euro (€)' },
+        { value: 'GBP', label: 'GBP — British Pound (£)' },
+        { value: 'JPY', label: 'JPY — Japanese Yen (¥)' },
+        { value: 'CAD', label: 'CAD — Canadian Dollar ($)' },
+        { value: 'AUD', label: 'AUD — Australian Dollar ($)' },
+        { value: 'CHF', label: 'CHF — Swiss Franc' },
+        { value: 'INR', label: 'INR — Indian Rupee (₹)' },
+        { value: 'BRL', label: 'BRL — Brazilian Real (R$)' },
+      ],
+    },
+  ],
+  examples: [
+    {
+      title: 'One service with tax',
+      options: {
+        model: JSON.stringify({
+          version: 1,
+          from: {
+            name: 'Northwind Studio',
+            line1: '12 Harbour Lane',
+            line2: '',
+            city: 'Portland',
+            postal: 'OR 97205',
+            country: 'USA',
+            email: 'billing@northwind.example',
+            phone: '',
+          },
+          to: {
+            name: 'Acme Corp',
+            line1: '9 Innovation Drive',
+            line2: 'Suite 300',
+            city: 'Austin',
+            postal: 'TX 78701',
+            country: 'USA',
+            email: 'ap@acme.example',
+            phone: '',
+          },
+          invoiceNumber: 'INV-1042',
+          issueDate: '2026-10-01',
+          dueDate: '2026-10-31',
+          currency: 'USD',
+          lines: [
+            { description: 'Brand identity design', quantity: 1, unitPrice: 1250, taxRate: 8 },
+            { description: 'Monthly hosting', quantity: 12, unitPrice: 24.5, taxRate: 8 },
+          ],
+          discountPercent: 0,
+          notes: 'Thank you for your business!',
+          terms: 'Payment due within 30 days.',
+          logoDataUrl: '',
+        }),
+        currency: 'USD',
+        outputName: 'INV-1042.pdf',
+      },
+    },
+    {
+      title: 'Discount applied',
+      options: {
+        model: JSON.stringify({
+          version: 1,
+          from: {
+            name: 'Fern & Co',
+            line1: '88 Willow Road',
+            line2: '',
+            city: 'London',
+            postal: 'EC1V 3AR',
+            country: 'UK',
+            email: 'hello@fern.example',
+            phone: '',
+          },
+          to: {
+            name: 'Bright Byte Ltd',
+            line1: '2 Tester Close',
+            line2: '',
+            city: 'Manchester',
+            postal: 'M1 4BT',
+            country: 'UK',
+            email: 'accounts@brightbyte.example',
+            phone: '',
+          },
+          invoiceNumber: 'INV-0018',
+          issueDate: '2026-09-15',
+          dueDate: '2026-10-15',
+          currency: 'GBP',
+          lines: [{ description: 'Onboarding workshop (10 seats)', quantity: 10, unitPrice: 45, taxRate: 20 }],
+          discountPercent: 10,
+          notes: '',
+          terms: 'Payment due within 30 days.',
+          logoDataUrl: '',
+        }),
+        currency: 'GBP',
+        outputName: 'INV-0018.pdf',
+      },
+    },
+  ],
+  faq: [
+    {
+      q: 'How are totals rounded?',
+      a: 'Everything is computed in integer cents to avoid float drift. Each line amount is quantity × unit price rounded to the nearest cent; each line tax is that amount × tax rate % rounded to the nearest cent; and the discount is the subtotal × discount % rounded to the nearest cent. All rounding is half-up at two decimals, so the printed numbers match hand arithmetic.',
+    },
+    {
+      q: 'How is tax applied?',
+      a: 'Tax is computed per line item using that line’s own tax rate, rounded to the nearest cent, then all line taxes are summed into the total tax. So a 5% and a 20% line on the same invoice each contribute their own tax figure.',
+    },
+{
+      q: 'Where is my draft saved?',
+      a: 'Only in your browser’s localStorage. The Save draft button stores the current form, Load draft restores it, and Clear wipes it. Nothing is uploaded and the data is removed when you clear your site data.',
+    },
+    {
+      q: 'Can I add a logo?',
+      a: 'Yes — the optional logo field accepts a PNG, JPEG or SVG from your device. It is embedded into the PDF locally and never uploaded.',
+    },
+  ],
+  related: ['vcard', 'lorem-ipsum', 'nanoid'],
+  credits: [{ name: 'pdf-lib', url: 'https://github.com/Hopding/pdf-lib', license: 'MIT' }],
+  status: 'stable',
+};

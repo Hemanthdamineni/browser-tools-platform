@@ -423,7 +423,7 @@ describe('video-extract-audio meta', () => {
       'MPL-2.0',
     );
     expect(tool.meta.related).toContain('video-compress');
-    expect(tool.meta.related).toContain('audio-to-wav');
+    expect(tool.meta.related).toContain('audio-convert');
   });
 });
 

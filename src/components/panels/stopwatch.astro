@@ -1,0 +1,190 @@
+---
+/**
+ * The stopwatch panel: a live readout to the millisecond, laps with
+ * fastest/slowest marks, and keyboard shortcuts.
+ *
+ * Elapsed time is computed from wall-clock timestamps, never by counting
+ * ticks, so it stays exact when the tab sleeps or throttles the frame. The
+ * generic workbench cannot express a running stopwatch, so the tool opts into
+ * this panel via `meta.panel = 'stopwatch'`.
+ */
+import type { ToolMeta } from '@/lib/types';
+import Icon from '@/components/Icon.astro';
+import OptionsFields from '../workbench/OptionsFields.astro';
+
+interface Props {
+  meta: ToolMeta;
+}
+const { meta } = Astro.props;
+const examples = meta.examples ?? [];
+const options = meta.options ?? [];
+const p = meta.id;
+---
+
+<section
+  class="surface rounded-lg p-4 sm:p-6"
+  data-stopwatch-panel
+  data-tool-id={meta.id}
+  aria-label={`${meta.name} workbench`}
+>
+  {
+    examples.length > 0 && (
+      <div class="mb-4 flex flex-wrap items-center gap-2">
+        <span class="text-xs font-medium text-[rgb(var(--text-muted))]">Try:</span>
+        {examples.map((ex, i) => (
+          <button
+            type="button"
+            class="chip hover:text-[rgb(var(--text))]"
+            data-example={i}
+            data-example-payload={JSON.stringify({
+              input: ex.input ?? '',
+              options: ex.options ?? {},
+            })}
+          >
+            {ex.title}
+          </button>
+        ))}
+      </div>
+    )
+  }
+
+  <!-- The live readout -->
+  <div class="flex flex-col items-center py-2">
+    <output
+      class="font-mono text-5xl font-semibold tabular-nums tracking-tight text-[rgb(var(--text))] sm:text-6xl"
+      data-sw-readout
+      role="timer"
+      aria-live="off"
+      aria-label="Elapsed time"
+      id={`${p}-readout`}
+    >00:00:00.000</output>
+    <p
+      class="mt-2 text-xs text-[rgb(var(--text-muted))]"
+      data-sw-status
+      role="status"
+      aria-live="polite"
+    >
+      Ready.
+    </p>
+  </div>
+
+  <!-- Controls -->
+  <div class="mt-2 flex flex-wrap items-center justify-center gap-2.5">
+    <button type="button" class="btn btn-primary min-w-[7rem]" data-sw-start>
+      <Icon name="play" size={16} /> Start
+    </button>
+    <button type="button" class="btn btn-subtle" data-sw-lap disabled>
+      <Icon name="clock" size={15} /> Lap
+    </button>
+    <button type="button" class="btn btn-ghost" data-sw-reset>Reset</button>
+    <button type="button" class="btn btn-ghost" data-sw-copy>
+      <Icon name="copy" size={15} /> Copy all
+    </button>
+  </div>
+
+  <p class="mt-3 text-center text-xs text-[rgb(var(--text-muted))]">
+    Space starts and pauses the watch · <kbd class="kbd">L</kbd> takes a lap
+  </p>
+
+  <div class="mt-5 grid gap-5 lg:grid-cols-2">
+    <!-- Laps -->
+    <div>
+      <h3 class="text-sm font-semibold text-[rgb(var(--text))]">Laps</h3>
+      <ul
+        class="mt-2 space-y-1.5"
+        data-sw-laps
+        aria-label="Recorded laps"
+        aria-describedby={`${p}-laps-hint`}
+      ></ul>
+      <p class="mt-2 text-xs text-[rgb(var(--text-muted))]" id={`${p}-laps-hint`}>
+        Each lap shows its split (time since the previous lap) and its total.
+        Fastest and slowest splits are marked.
+      </p>
+    </div>
+
+    <!-- Report -->
+    <div>
+      <div class="flex items-center justify-between gap-2">
+        <h3 class="text-sm font-semibold text-[rgb(var(--text))]">Report</h3>
+        <button type="button" class="btn btn-subtle btn-sm" data-sw-view>
+          <Icon name="zap" size={14} /> Refresh report
+        </button>
+      </div>
+      <div class="mt-2" hidden data-sw-result-wrap>
+        <div class="rounded-lg border bg-[rgb(var(--surface-raised))] p-3" data-sw-report></div>
+      </div>
+      <p class="mt-2 text-xs text-[rgb(var(--text-muted))]">
+        Build a table of the run so far — or copy all as plain text.
+      </p>
+    </div>
+  </div>
+
+  <details class="mt-5 rounded-lg border" open>
+    <summary class="cursor-pointer select-none px-3 py-2 text-sm font-medium">Options</summary>
+    <div class="border-t p-3">
+      <OptionsFields options={options} idPrefix={p} />
+    </div>
+  </details>
+
+  <div
+    class="mt-4 rounded-lg border px-3 py-2 text-sm"
+    style="background-color: rgb(var(--danger-soft)); border-color: rgb(var(--danger)); color: rgb(var(--danger))"
+    role="alert"
+    data-sw-error
+    hidden
+  >
+  </div>
+
+  <noscript>
+    <p class="mt-3 text-sm text-[rgb(var(--text-muted))]">
+      The stopwatch needs JavaScript. You can still time yourself with the clock on your device.
+    </p>
+  </noscript>
+</section>
+
+<style>
+  .kbd {
+    display: inline-block;
+    padding: 0.05rem 0.4rem;
+    border: 1px solid rgb(var(--border));
+    border-radius: 0.25rem;
+    background: rgb(var(--bg-inset));
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    line-height: 1.4;
+  }
+
+  [data-sw-laps] li[data-fastest='true'] {
+    border-color: rgb(var(--accent));
+    background: rgb(var(--accent-soft));
+  }
+
+  [data-sw-laps] li[data-slowest='true'] {
+    border-color: rgb(var(--danger));
+    background: rgb(var(--danger-soft));
+  }
+
+  [data-sw-laps] [data-tag='fastest'],
+  [data-sw-laps] [data-tag='both'] {
+    color: rgb(var(--accent-strong));
+  }
+
+  [data-sw-laps] [data-tag='slowest'] {
+    color: rgb(var(--danger));
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-stopwatch-panel]').forEach((root) => {
+    // Loaded on demand: the stopwatch only ships to the stopwatch page.
+    void import('./stopwatch-panel')
+      .then(({ mountStopwatchPanel }) => mountStopwatchPanel(root))
+      .catch(() => {
+        const error = root.querySelector<HTMLElement>('[data-sw-error]');
+        if (error) {
+          error.hidden = false;
+          error.textContent = 'The stopwatch panel could not be loaded in this browser.';
+        }
+      });
+  });
+</script>

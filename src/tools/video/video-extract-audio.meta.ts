@@ -105,6 +105,6 @@ export const meta: ToolMeta = {
     },
   ],
   credits: [{ name: 'mediabunny', url: 'https://mediabunny.dev', license: 'MPL-2.0' }],
-  related: ['video-compress', 'video-info', 'audio-to-wav', 'audio-trim'],
+  related: ['video-compress', 'video-info', 'audio-convert', 'audio-trim'],
   status: 'beta',
 };

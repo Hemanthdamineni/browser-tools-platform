@@ -5,6 +5,7 @@ import CategoryCard from '@/components/CategoryCard.astro';
 import Icon from '@/components/Icon.astro';
 import { site } from '@/lib/site';
 import { VISIBLE_TOOLS, categoriesWithCounts, TOOL_COUNT, CATEGORY_COUNT } from '@/lib/registry';
+import { websiteJsonLd, organizationJsonLd } from '@/lib/seo';
 
 const categories = categoriesWithCounts();
 const featured = VISIBLE_TOOLS.filter((t) =>
@@ -38,7 +39,12 @@ const pillars = [
 ];
 ---
 
-<Layout title={site.name} description={site.description} path="/">
+<Layout
+  title={site.name}
+  description={site.description}
+  path="/"
+  jsonLd={[websiteJsonLd(), organizationJsonLd()]}
+>
   <section class="border-b pb-14 pt-14 sm:pb-16 sm:pt-20">
     <p class="font-mono text-[11px] uppercase tracking-[0.18em] text-[rgb(var(--accent))]">
       Private by default
