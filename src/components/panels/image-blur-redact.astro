@@ -1,0 +1,165 @@
+---
+/**
+ * The Blur & Redact panel: choose an image, draw redaction rectangles on it,
+ * then run the tool.
+ *
+ * The generic file workbench cannot express "draw, select and nudge rectangles
+ * on the image", so this tool opts into its own panel via
+ * `meta.panel = 'image-blur-redact'`. The panel owns the drawing interaction and
+ * hands the rectangles to the tool as JSON percentages; the actual pixel work
+ * happens in the Web Worker, never on the main thread.
+ *
+ * The root carries no `data-file-workbench` on purpose: `FileWorkbench.astro`'s
+ * script binds to every `[data-file-workbench]` root (it only skips the
+ * signature panel) and would attach a second drop zone, a second run handler and
+ * a `[data-download-all]` lookup this panel does not have. Panel tools are
+ * marked by `PanelWorkbench` with `data-panel-workbench` instead.
+ */
+import type { ToolMeta } from '@/lib/types';
+import OptionsFields from '../workbench/OptionsFields.astro';
+import Icon from '@/components/Icon.astro';
+
+interface Props {
+  meta: ToolMeta;
+}
+const { meta } = Astro.props;
+const p = meta.id;
+const options = meta.options ?? [];
+---
+
+<section
+  class="surface rounded-lg p-4 sm:p-6"
+  data-image-blur-redact-panel
+  data-tool-id={meta.id}
+  data-accept={meta.accept ?? ''}
+  data-multiple="false"
+  aria-label={`${meta.name} workbench`}
+>
+  <h2 class="text-base font-semibold text-[rgb(var(--text))]">1 · Choose the image</h2>
+  <div
+    class="drop-zone mt-3 flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed px-4 py-8 text-center transition-colors"
+    data-drop
+    role="button"
+    tabindex="0"
+    aria-label="Choose an image or drop it here"
+  >
+    <Icon name="image" size={28} class="opacity-60" />
+    <p class="text-sm font-medium">
+      Drop an image here, or <span class="link">browse</span>
+    </p>
+    {meta.accept && <p class="text-xs text-[rgb(var(--text-muted))]">Accepts: {meta.accept}</p>}
+    <p class="text-xs text-[rgb(var(--text-muted))]">The image stays on your device.</p>
+  </div>
+
+  <ul class="mt-3 space-y-1.5 text-sm" data-file-list></ul>
+
+  <h2 class="mt-6 text-base font-semibold text-[rgb(var(--text))]">2 · Mark what to hide</h2>
+  <p class="mt-1.5 max-w-prose text-sm leading-relaxed text-[rgb(var(--text-muted))]">
+    Drag on the image to draw a rectangle. Tab to a rectangle and use the arrow keys to move it
+    (hold Shift for bigger steps), <kbd>+</kbd> / <kbd>-</kbd> to resize it and Delete to remove it.
+    Every rectangle is listed below with number fields, so it can be placed without a mouse.
+  </p>
+
+  <div class="mt-3" hidden data-stage-wrap>
+    <div class="relative inline-block max-w-full touch-none select-none" data-stage>
+      <img
+        class="block h-auto max-h-[70vh] max-w-full rounded-lg"
+        alt="Preview of the chosen image, with redaction rectangles on top"
+        data-preview
+      />
+      <div class="absolute inset-0" data-overlay>
+        <div
+          class="pointer-events-none absolute hidden border-2 border-dashed border-[rgb(var(--accent))] bg-[rgb(var(--accent))]/20"
+          data-marquee
+        >
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-3 flex flex-wrap items-center gap-2">
+      <button type="button" class="btn btn-subtle btn-sm" data-add-region>Add a region</button>
+      <button type="button" class="btn btn-subtle btn-sm" data-clear-regions>Clear regions</button>
+    </div>
+
+    <ul class="mt-3 space-y-2" data-region-list></ul>
+  </div>
+
+  <p
+    class="mt-3 text-sm text-[rgb(var(--text-muted))]"
+    data-stage-status
+    role="status"
+    aria-live="polite"
+  >
+    Choose an image to start drawing.
+  </p>
+
+  <h2 class="mt-6 text-base font-semibold text-[rgb(var(--text))]">3 · Options</h2>
+  <div class="mt-3">
+    <OptionsFields options={options} idPrefix={p} />
+  </div>
+
+  <div class="mt-4 flex flex-wrap items-center gap-2.5">
+    <button type="button" class="btn btn-primary" data-run disabled>
+      <Icon name="zap" size={16} /> Redact &amp; export
+    </button>
+    <button type="button" class="btn btn-ghost" data-cancel hidden>Cancel</button>
+    <button type="button" class="btn btn-ghost" data-reset hidden>Reset</button>
+  </div>
+
+  <div class="mt-3" hidden data-progress-wrap>
+    <div class="h-2 overflow-hidden rounded-full" style="background-color: rgb(var(--bg-inset))">
+      <div
+        class="h-full transition-[width] duration-200 ease-out motion-reduce:transition-none"
+        style="width:0%; background-color: rgb(var(--accent))"
+        data-progress-bar
+      >
+      </div>
+    </div>
+    <p
+      class="mt-1 text-xs tabular-nums text-[rgb(var(--text-muted))]"
+      data-progress-msg
+      aria-live="polite"
+    >
+    </p>
+  </div>
+
+  <div
+    class="mt-4 rounded-lg border px-3 py-2 text-sm"
+    style="background-color: rgb(var(--danger-soft)); border-color: rgb(var(--danger)); color: rgb(var(--danger))"
+    role="alert"
+    data-error
+    hidden
+  >
+  </div>
+
+  <div class="mt-4" hidden data-result-wrap>
+    <div class="mb-2 flex items-center justify-between">
+      <span class="text-sm font-semibold text-[rgb(var(--text))]">Results</span>
+    </div>
+    <div data-report hidden class="mb-3 min-w-0"></div>
+    <ul class="space-y-2" data-outputs></ul>
+    <ul class="mt-2 space-y-1 text-xs" data-notes></ul>
+  </div>
+
+  <noscript>
+    <p class="mt-4 text-sm">
+      Redacting an image needs JavaScript: the tool draws and re-encodes the image in your browser,
+      so it cannot run without it.
+    </p>
+  </noscript>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-image-blur-redact-panel]').forEach((root) => {
+    // Loaded on demand: only this tool's page downloads the drawing code.
+    void import('./image-blur-redact.client')
+      .then(({ mountImageBlurRedactPanel }) => mountImageBlurRedactPanel(root))
+      .catch(() => {
+        const error = root.querySelector<HTMLElement>('[data-error]');
+        if (error) {
+          error.hidden = false;
+          error.textContent = 'The redaction panel could not be loaded. Reload the page to retry.';
+        }
+      });
+  });
+</script>
