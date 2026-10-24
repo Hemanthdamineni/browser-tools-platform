@@ -4,6 +4,7 @@ visitor's browser.
 
 - pdf-lib            — MIT      — https://github.com/Hopding/pdf-lib
 - pdfjs-dist         — Apache-2.0 — https://github.com/mozilla/pdf.js
+- @jspawn/qpdf-wasm  — Apache-2.0 — https://github.com/jsscheller/qpdf-wasm
 - fflate             — MIT      — https://github.com/101arrowz/fflate
 - mediabunny         — MPL-2.0  — https://github.com/vanilagy/mediabunny
 - gifenc             — MIT      — https://github.com/mattdesl/gifenc
@@ -38,6 +39,12 @@ separate chunk on demand, and the WebAssembly binary it needs is served from
 this origin at `/vendor/libheif/libheif.wasm` (committed under
 `public/vendor/libheif/`, with its licence text next to it). It is never
 fetched from a third party.
+
+@jspawn/qpdf-wasm (Apache-2.0) is qpdf 11.0.0 compiled to WebAssembly, used by
+the PDF protect tool only to add AES-256 encryption. Both the glue chunk and
+its 1.3 MB `qpdf.wasm` are built from this package into the site and are
+fetched from this origin the first time a PDF is encrypted — never from a
+third party, and never on page load.
 
 Build-time only (not shipped to visitors): astro, tailwindcss, typescript,
 vitest, playwright, eslint.
