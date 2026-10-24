@@ -1,11 +1,12 @@
 import type { ToolMeta } from '@/lib/types';
+
 export const meta: ToolMeta = {
   id: 'image-to-datauri',
   name: 'Image to Data URI',
   category: 'image',
   summary: 'Encode an image as a data URI for HTML, CSS, or source code.',
   description:
-    'Create a base64 data URI locally, with optional HTML image or CSS background wrappers.',
+    'Create a base64 data URI locally, with optional HTML image or CSS background wrappers. The tool is now a mode of the unified Data URI Converter; this URL redirects there.',
   keywords: ['image data uri', 'base64 image', 'embed image', 'inline image'],
   privacy: { processing: 'on-device', network: 'none', offline: true },
   input: 'file',
@@ -30,6 +31,8 @@ export const meta: ToolMeta = {
     },
   ],
   examples: [{ title: 'Encode an image' }],
-  related: ['datauri-to-image', 'data-uri', 'base64'],
+  related: ['data-uri', 'base64', 'url-encode'],
+  hidden: true,
+  redirectTo: 'data-uri',
   status: 'beta',
 };

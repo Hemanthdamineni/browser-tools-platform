@@ -309,7 +309,7 @@ id,name,category,input,status,summary
 "css-to-js","CSS to JS Object","web","text","stable","Convert CSS declarations or rule blocks into a JS object with camelCase style keys."
 "css-units","CSS Unit Converter","web","text","stable","Convert between px, rem, em, pt, pc, in, cm, mm and % for CSS lengths."
 "cubic-bezier","Cubic Bezier Explorer","web","text","stable","Sample a cubic-bezier() easing curve and find the nearest CSS keyword."
-"data-uri","Data URI Converter","web","text","stable","Encode text as a data: URI, or decode a data: URI back to text."
+"data-uri","Data URI Converter","web","file","stable","Encode text or an image as a data: URI, or decode a data: URI back to text or an image file."
 "date-header","Date Header Builder & Analyzer","web","text","stable","Build or inspect HTTP Date response timestamps."
 "document-policy","Document-Policy Builder & Analyzer","web","text","stable","Build or inspect Document-Policy behavior controls."
 "early-data","Early-Data Builder & Analyzer","web","text","stable","Build or inspect HTTP Early-Data replay signals."
