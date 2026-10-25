@@ -42,6 +42,10 @@ export const meta: ToolMeta = {
       title: 'Build a proxy error entry',
       options: { mode: 'build', proxy: 'edge', error: 'connection_refused' },
     },
+    {
+      title: 'Build an entry with a next hop',
+      options: { mode: 'build', proxy: 'cdn-cache', error: '', next: 'origin-server' },
+    },
   ],
   article: [
     {

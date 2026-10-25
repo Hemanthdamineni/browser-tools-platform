@@ -34,6 +34,7 @@ export const meta: ToolMeta = {
   examples: [
     { title: 'Analyze localized response', input: 'en-US, Latn, fr-CA' },
     { title: 'Build a language header', options: { mode: 'build', tags: 'en-US, fr-CA' } },
+    { title: 'Check a wildcard tag', input: '*' },
   ],
   article: [
     {

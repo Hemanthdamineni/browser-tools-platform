@@ -41,6 +41,7 @@ export const meta: ToolMeta = {
       title: 'Build a response header',
       options: { mode: 'build', location: '/representations/report.en.html' },
     },
+    { title: 'Analyze a network-path reference', input: '//cdn.example.com/assets/main.js' },
   ],
   article: [
     {

@@ -35,6 +35,10 @@ export const meta: ToolMeta = {
       title: 'A rule block',
       input: 'a:hover { color: red; text-decoration: none; }',
     },
+    {
+      title: 'Custom properties',
+      input: '--primary: #007bff;\n--spacing: 8px;\n--radius: 4px;',
+    },
   ],
   article: [
     {

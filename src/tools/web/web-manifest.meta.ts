@@ -58,6 +58,18 @@ export const meta: ToolMeta = {
       input: '',
       options: { mode: 'generate', name: 'Field Notes', shortName: 'Notes', startUrl: '/app/' },
     },
+    {
+      title: 'Generate a fullscreen dashboard manifest',
+      input: '',
+      options: {
+        mode: 'generate',
+        name: 'Dashboard',
+        shortName: 'Dash',
+        startUrl: '/dashboard/',
+        display: 'fullscreen',
+        scope: '/dashboard/',
+      },
+    },
   ],
   article: [
     {

@@ -79,6 +79,12 @@ export const meta: ToolMeta = {
         'From alice@example.com Mon Jan  6 09:12:04 2025\nMessage-ID: <a1@example.com>\nFrom: Alice <alice@example.com>\nDate: Mon, 6 Jan 2025 09:12:04 +0000\n\nOne\n\nFrom bob@example.com Mon Jan  6 11:30:00 2025\nMessage-ID: <b2@example.com>\nFrom: Bob <bob@example.com>\nDate: Mon, 6 Jan 2025 11:30:00 +0000\n\nTwo\n\nFrom alice@example.com Mon Jan  6 13:00:00 2025\nMessage-ID: <a3@example.com>\nFrom: Alice <alice@example.com>\nDate: Mon, 6 Jan 2025 13:00:00 +0000\n\nThree\n',
       options: { format: 'senders', top: 5 },
     },
+    {
+      title: 'List attachments',
+      input:
+        'From alice@example.com Mon Jan  6 09:12:04 2025\nMessage-ID: <a1@example.com>\nFrom: Alice <alice@example.com>\nDate: Mon, 6 Jan 2025 09:12:04 +0000\nContent-Type: multipart/mixed; boundary="bound"\n\n--bound\nContent-Type: text/plain\n\nSee attached.\n--bound\nContent-Type: application/pdf; name="doc.pdf"\nContent-Transfer-Encoding: base64\n\nJVBERi0xLjEK\n--bound--\n',
+      options: { format: 'attachments' },
+    },
   ],
   faq: [
     {

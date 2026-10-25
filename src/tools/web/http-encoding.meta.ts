@@ -58,6 +58,10 @@ export const meta: ToolMeta = {
       title: 'Build an Accept-Encoding header',
       options: { mode: 'build', header: 'accept', codings: 'br, gzip, deflate' },
     },
+    {
+      title: 'Build a Content-Encoding header',
+      options: { mode: 'build', header: 'content', codings: 'gzip' },
+    },
   ],
   article: [
     {

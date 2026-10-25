@@ -50,6 +50,11 @@ export const meta: ToolMeta = {
       input: 'password = "not-a-real-password"\nregion = "eu-west-1"',
       options: { operation: 'redact' },
     },
+    {
+      title: 'Raise the generic secret length',
+      input: 'token = "secret12345"\nTOKEN = "secret12345"',
+      options: { minLength: 8 },
+    },
   ],
   article: [
     {
