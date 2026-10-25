@@ -1079,18 +1079,21 @@ export function mountVoiceRecorderPanel(root: HTMLElement): void {
   }
 
   function showClip(blob: Blob, filename: string): void {
+    clipMeta.textContent = `${formatDuration(recordedMs / 1000)} · ${formatBytes(blob.size)} · ${
+      takeFormat === 'wav' ? 'WAV (PCM)' : 'WebM (Opus)'
+    }`;
+    clipWrap.hidden = false;
     try {
       if (clipUrl) URL.revokeObjectURL(clipUrl);
       clipUrl = URL.createObjectURL(blob);
       audioEl.src = clipUrl;
       downloadEl.href = clipUrl;
       downloadEl.download = filename;
-      clipMeta.textContent = `${formatDuration(recordedMs / 1000)} · ${formatBytes(blob.size)} · ${
-        takeFormat === 'wav' ? 'WAV (PCM)' : 'WebM (Opus)'
-      }`;
-      clipWrap.hidden = false;
     } catch {
-      /* the preview is a nicety — the download still works */
+      // Object URLs are unavailable (e.g. a sandboxed environment): the take is
+      // still shown with its metadata, and the processed output below stays
+      // downloadable through the result list.
+      clipUrl = null;
     }
   }
 

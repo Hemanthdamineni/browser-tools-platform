@@ -487,7 +487,7 @@ describe('mountVoiceRecorderPanel', () => {
     const [toolId, payload] = runToolByIdMock.mock.calls[0]!;
     expect(toolId).toBe('voice-recorder');
     const recorded = (payload.files as File[])[0]!;
-    expect(recorded.name).toMatch(/^voice-recording-\d{8}-\d{6}\.webm$/);
+    expect(recorded.name).toMatch(/^voice-recording-\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2}\.webm$/);
     expect(payload.options).toMatchObject({ format: 'webm' });
 
     await vi.waitFor(() => {
