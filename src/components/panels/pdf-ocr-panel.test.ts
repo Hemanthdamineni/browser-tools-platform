@@ -297,8 +297,13 @@ describe('tesseract words', () => {
         paragraphs: [
           {
             lines: [
-              { words: [word('a', 1, 2, 3, 4), word('b', 5, 6, 7, 8)] },
-              { words: [word('c', 9, 10, 11, 12)] },
+              {
+                words: [
+                  { text: 'a', bbox: { x0: 1, y0: 2, x1: 3, y1: 4 }, confidence: 90 },
+                  { text: 'b', bbox: { x0: 5, y0: 6, x1: 7, y1: 8 }, confidence: 90 },
+                ],
+              },
+              { words: [{ text: 'c', bbox: { x0: 9, y0: 10, x1: 11, y1: 12 }, confidence: 90 }] },
             ],
           },
         ],

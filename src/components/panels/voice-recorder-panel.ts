@@ -84,16 +84,9 @@ export function formatForMimeType(mime: string): RecordingFormat | null {
 export function recordingFileName(format: RecordingFormat, when: Date = new Date()): string {
   const d = when instanceof Date && !Number.isNaN(when.getTime()) ? when : new Date();
   const pad = (n: number) => String(n).padStart(2, '0');
-  const stamp = [
-    d.getFullYear(),
-    pad(d.getMonth() + 1),
-    pad(d.getDate()),
-    '-',
-    pad(d.getHours()),
-    pad(d.getMinutes()),
-    pad(d.getSeconds()),
-  ].join('');
-  return `voice-recording-${stamp}.${extensionForFormat(format)}`;
+  const date = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const time = `${pad(d.getHours())}-${pad(d.getMinutes())}-${pad(d.getSeconds())}`;
+  return `voice-recording-${date}-${time}.${extensionForFormat(format)}`;
 }
 
 /**
