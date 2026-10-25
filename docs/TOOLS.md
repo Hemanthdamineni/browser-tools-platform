@@ -1,6 +1,6 @@
 # Complete Tool List
 
-Total: **448** tools across **20** categories.
+Total: **449** tools across **20** categories.
 
 Generated from `src/tools/**/*.meta.ts` (source of truth).
 
@@ -21,7 +21,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `file-join` | Join File Chunks | file | stable | Join numbered file chunks into one file and verify an optional manifest. |
 | `file-split` | Split File into Chunks | file | stable | Split a large file into numbered part chunks plus a JSON manifest. |
 
-## audio (18)
+## audio (19)
 
 | id | name | input | status | summary |
 | --- | --- | --- | --- | --- |
@@ -38,6 +38,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `noise-reduction` | Noise Reduction | file | beta | Remove background noise from speech with RNNoise, then blend the result back into the original. |
 | `audio-normalize` | Normalise Audio | file | stable | Scale audio to a target peak or RMS level (in dBFS) without changing the length. |
 | `audio-reverse` | Reverse Audio | file | stable | Reverse an audio clip sample-for-sample and save the result as WAV. |
+| `spectrogram` | Spectrogram | file | stable | Render an audio file as a spectrogram PNG: FFT, window, colour map and dB range are yours. |
 | `text-to-speech` | Text to Speech | text | stable | Read text aloud with your browser’s built-in voices — pick a voice, tune rate, pitch and volume. |
 | `speech-to-text` | Transcribe Speech to Text | file | beta | Transcribe speech from an audio file or the microphone, on-device, and export TXT, SRT or VTT subtitles. |
 | `audio-trim` | Trim / Clip Audio | file | stable | Cut an audio file to a range and apply click-free fade in/out edges. |

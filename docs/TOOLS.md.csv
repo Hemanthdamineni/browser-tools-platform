@@ -24,6 +24,7 @@ id,name,category,input,status,summary
 "noise-reduction","Noise Reduction","audio","file","beta","Remove background noise from speech with RNNoise, then blend the result back into the original."
 "audio-normalize","Normalise Audio","audio","file","stable","Scale audio to a target peak or RMS level (in dBFS) without changing the length."
 "audio-reverse","Reverse Audio","audio","file","stable","Reverse an audio clip sample-for-sample and save the result as WAV."
+"spectrogram","Spectrogram","audio","file","stable","Render an audio file as a spectrogram PNG: FFT, window, colour map and dB range are yours."
 "text-to-speech","Text to Speech","audio","text","stable","Read text aloud with your browser’s built-in voices — pick a voice, tune rate, pitch and volume."
 "speech-to-text","Transcribe Speech to Text","audio","file","beta","Transcribe speech from an audio file or the microphone, on-device, and export TXT, SRT or VTT subtitles."
 "audio-trim","Trim / Clip Audio","audio","file","stable","Cut an audio file to a range and apply click-free fade in/out edges."
