@@ -69,7 +69,8 @@ export const meta: ToolMeta = {
     },
     {
       title: 'All-day events from date-only cells',
-      input: 'title,date,endDate,location\nConference,2024-03-11,2024-03-13,Berlin\nHoliday,2024-05-01,,',
+      input:
+        'title,date,endDate,location\nConference,2024-03-11,2024-03-13,Berlin\nHoliday,2024-05-01,,',
     },
     {
       title: 'US-format times treated as UTC',

@@ -19,24 +19,26 @@ const guide = getGuide('/guides/base64-explained');
     </h1>
 
     <p>
-      Base64 is not encryption, compression or a secret code — it is a way of writing raw bytes using
-      only 64 printable ASCII characters. It exists because many channels can carry text but not
-      arbitrary bytes: an email body, a JSON string, a URL, or an attribute in old HTML. Whenever you
-      must squeeze binary data into one of those channels, Base64 is the standard way to do it.
+      Base64 is not encryption, compression or a secret code — it is a way of writing raw bytes
+      using only 64 printable ASCII characters. It exists because many channels can carry text but
+      not arbitrary bytes: an email body, a JSON string, a URL, or an attribute in old HTML.
+      Whenever you must squeeze binary data into one of those channels, Base64 is the standard way
+      to do it.
     </p>
 
     <h2>What the encoding actually does</h2>
     <p>
       Bytes are eight bits, but the 64 Base64 characters only need six bits each. The encoder reads
       the input three bytes at a time (24 bits) and splits those 24 bits into four groups of six,
-      then maps each six-bit group to one of the 64 alphabet characters
-      (<code>A–Z a–z 0–9 + /</code>). If fewer than three bytes are left at the end, it pads the
-      result with one or two <code>=</code> characters so the output stays a multiple of four.
+      then maps each six-bit group to one of the 64 alphabet characters (<code>A–Z a–z 0–9 + /</code
+      >). If fewer than three bytes are left at the end, it pads the result with one or two <code
+        >=</code
+      > characters so the output stays a multiple of four.
     </p>
     <p>
-      So the string <code>Toolbench</code> is not "encrypted" by this — it is re-expressed. Decoding
-      runs the same mapping in reverse: skip the padding, turn the letters back into six-bit values
-      and stitch them back into bytes.
+      So the string <code>Toolbench</code> is not "encrypted" by this — it is re-expressed. Decoding runs
+      the same mapping in reverse: skip the padding, turn the letters back into six-bit values and stitch
+      them back into bytes.
     </p>
 
     <h2>The ~33% size overhead</h2>
@@ -60,8 +62,8 @@ const guide = getGuide('/guides/base64-explained');
       </li>
       <li><strong>Email attachments</strong>, where the transport is plain text.</li>
       <li>
-        <strong>Embedding a binary payload in JSON</strong> — JSON has no byte type, so Base64 is
-        the agreed convention.
+        <strong>Embedding a binary payload in JSON</strong> — JSON has no byte type, so Base64 is the
+        agreed convention.
       </li>
       <li>
         <strong>JWTs and API tokens</strong>, which are Base64url text on the wire (see below).
@@ -72,28 +74,28 @@ const guide = getGuide('/guides/base64-explained');
     <p>
       The standard alphabet includes <code>+</code> and <code>/</code>, which mean "space" and path
       separator in URLs and filenames, so the RFC 4648 §5 alphabet swaps them for <code>-</code> and
-      <code>_</code> and drops the trailing <code>=</code> padding. That variant is called base64url
-      and is what you see inside a JSON Web Token: the three dot-separated segments of a JWT are all
-      unpadded base64url. The safe rule is: if the value might appear in a URL, a query string or a
-      filename, use the URL-safe alphabet and no padding.
+      <code>_</code> and drops the trailing <code>=</code> padding. That variant is called base64url and
+      is what you see inside a JSON Web Token: the three dot-separated segments of a JWT are all unpadded
+      base64url. The safe rule is: if the value might appear in a URL, a query string or a filename, use
+      the URL-safe alphabet and no padding.
     </p>
 
     <h2>Unicode caveat</h2>
     <p>
       Base64 operates on bytes, so text must be turned into bytes first — normally UTF-8. The naive
-      browser pair <code>btoa</code>/<code>atob</code> throws on anything outside Latin-1; the
-      correct path is to UTF-8-encode first. This is exactly why a quick online encoder returns
-      garbage for emoji, while a proper one round-trips them.
+      browser pair <code>btoa</code>/<code>atob</code> throws on anything outside Latin-1; the correct
+      path is to UTF-8-encode first. This is exactly why a quick online encoder returns garbage for emoji,
+      while a proper one round-trips them.
     </p>
 
     <h2>Put it into practice</h2>
     <p>
       The{' '}
-      <a href="/tools/base64">Base64 Encode / Decode</a> tool encodes text or a whole file, supports
-      the URL-safe alphabet and 76-character MIME wrapping, and round-trips UTF-8 correctly. For the
-      related encodings, try <a href="/tools/base32">Base32</a>,{' '}
-      <a href="/tools/hex">Hex</a> or the <a href="/tools/url-encode">URL encoder</a>. And if you are
-      hashing rather than encoding, the{' '}
+      <a href="/tools/base64">Base64 Encode / Decode</a> tool encodes text or a whole file, supports the
+      URL-safe alphabet and 76-character MIME wrapping, and round-trips UTF-8 correctly. For the related
+      encodings, try <a href="/tools/base32">Base32</a>,{' '}
+      <a href="/tools/hex">Hex</a> or the <a href="/tools/url-encode">URL encoder</a>. And if you
+      are hashing rather than encoding, the{' '}
       <a href="/guides/which-hash">Which hash should I use?</a> guide covers the difference.
     </p>
 
@@ -117,16 +119,14 @@ const guide = getGuide('/guides/base64-explained');
     <h2>More guides</h2>
     <ul>
       <li>
-        <a href="/guides/which-hash">Which hash should I use?</a> — digests, password storage and
-        HMAC.
+        <a href="/guides/which-hash">Which hash should I use?</a> — digests, password storage and HMAC.
       </li>
       <li>
-        <a href="/guides/cron-cheat-sheet">Cron syntax cheat sheet</a> — scheduling recurring jobs
-        without guessing.
+        <a href="/guides/cron-cheat-sheet">Cron syntax cheat sheet</a> — scheduling recurring jobs without
+        guessing.
       </li>
       <li>
-        <a href="/guides/color-contrast-wcag">Colour contrast and WCAG</a> — accessible colour
-        choices.
+        <a href="/guides/color-contrast-wcag">Colour contrast and WCAG</a> — accessible colour choices.
       </li>
     </ul>
   </article>

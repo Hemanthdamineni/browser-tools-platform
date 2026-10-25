@@ -57,10 +57,7 @@ export function isModalOpen(doc: Document): boolean {
  * Subscribe to the run chord. Returns a disposer.
  * Panels and workbenches use this instead of binding their own chords.
  */
-export function onRunShortcut(
-  run: () => void,
-  target: EventTarget,
-): () => void {
+export function onRunShortcut(run: () => void, target: EventTarget): () => void {
   const handler = () => run();
   target.addEventListener(RUN_EVENT, handler);
   return () => target.removeEventListener(RUN_EVENT, handler);

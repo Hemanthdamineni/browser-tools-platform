@@ -42,7 +42,15 @@ function sine(freq: number, n: number, sampleRate = FS, amp = 1): Float32Array {
 
 /** Build options with a full band and the usual dB scale. */
 function opts(over: Partial<SpectrogramOptions> = {}): SpectrogramOptions {
-  return { fftSize: 1024, window: 'hann', minFreq: 0, maxFreq: 24000, floorDb: -80, ceilingDb: 0, ...over };
+  return {
+    fftSize: 1024,
+    window: 'hann',
+    minFreq: 0,
+    maxFreq: 24000,
+    floorDb: -80,
+    ceilingDb: 0,
+    ...over,
+  };
 }
 
 /* -------------------------------------------------------------------------- */
@@ -244,10 +252,7 @@ describe('layoutFor', () => {
     const imag = new Float32Array(n);
     const out = new Float32Array(l2.height);
     analyseFrame(l2, sine(binFreq, n), real, imag, out);
-    const row = Math.min(
-      l2.height - 1,
-      Math.max(0, Math.round((binFreq / rate) * n) - l2.minBin),
-    );
+    const row = Math.min(l2.height - 1, Math.max(0, Math.round((binFreq / rate) * n) - l2.minBin));
     expect(out[row]).toBeCloseTo(0, 1);
   });
 });
@@ -319,8 +324,8 @@ describe('PNG output', () => {
     expect(png[24]).toBe(8);
     expect(png[25]).toBe(6);
     // The stored DEFLATE block header + raw row follows the IDAT type.
-    const idatType = png.findIndex((b, i) =>
-      b === 0x49 && png[i + 1] === 0x44 && png[i + 2] === 0x41 && png[i + 3] === 0x54,
+    const idatType = png.findIndex(
+      (b, i) => b === 0x49 && png[i + 1] === 0x44 && png[i + 2] === 0x41 && png[i + 3] === 0x54,
     );
     expect(idatType).toBeGreaterThan(0);
     // Payload: 2 (zlib hdr) + 5 (block hdr) + (1 filter + 4 rgba) + 4 (adler).
@@ -382,7 +387,13 @@ describe('resolveSpectrogramOptions', () => {
   });
 
   it('coerces and clamps the numeric fields', () => {
-    const spec = resolveSpectrogramOptions({ fftSize: '300', minFreq: '10', maxFreq: '99000', floorDb: '-200', ceilingDb: '5' });
+    const spec = resolveSpectrogramOptions({
+      fftSize: '300',
+      minFreq: '10',
+      maxFreq: '99000',
+      floorDb: '-200',
+      ceilingDb: '5',
+    });
     expect(spec.fftSize).toBe(512);
     expect(spec.minFreq).toBe(10);
     expect(spec.maxFreq).toBe(96000);

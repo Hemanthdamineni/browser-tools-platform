@@ -116,7 +116,8 @@ export const meta: ToolMeta = {
     { title: 'Decode', input: 'data:text/plain,hello%20world', options: { mode: 'text-decode' } },
     {
       title: 'Decode an image data URI',
-      input: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=',
+      input:
+        'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=',
       options: { mode: 'image-decode' },
     },
   ],

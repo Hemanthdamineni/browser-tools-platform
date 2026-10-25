@@ -37,7 +37,8 @@ export const GUIDES: Guide[] = [
     title: 'Cron syntax cheat sheet',
     description:
       'Every cron field, the operators that combine them, the schedules worth memorising, and how cron differs from a systemd timer.',
-    summary: 'Every field, every operator, the schedules worth memorising, and cron versus systemd timers.',
+    summary:
+      'Every field, every operator, the schedules worth memorising, and cron versus systemd timers.',
   },
   {
     path: '/guides/color-contrast-wcag',

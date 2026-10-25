@@ -83,7 +83,7 @@ export const meta: ToolMeta = {
     },
     {
       q: 'What does Encode do exactly?',
-      a: "Replaces & < > \" and ' with their named entities, and apostrophes/quotes as configured. With \"Encode all printable non-ASCII\" it also turns é, ≤ and similar into numeric entities — handy when the target charset is ASCII-only.",
+      a: 'Replaces & < > " and \' with their named entities, and apostrophes/quotes as configured. With "Encode all printable non-ASCII" it also turns é, ≤ and similar into numeric entities — handy when the target charset is ASCII-only.',
     },
     {
       q: 'Which entities can be decoded?',

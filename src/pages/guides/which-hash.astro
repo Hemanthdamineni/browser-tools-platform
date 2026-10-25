@@ -69,12 +69,11 @@ const guide = getGuide('/guides/which-hash');
     <p>
       Both are still fast and still fine for catching a corrupted download, but neither can protect
       you from an attacker. MD5 (128-bit) has had practical <em>collisions</em> — two different inputs
-      with the same digest — since 2004, and chosen-prefix collisions since 2008, which is what let
-      researchers forge a certificate authority signature. SHA-1 (160-bit) fell in 2017: Google and
-      CWI produced two different PDFs with the same SHA-1 digest. Generating a collision does not let
-      anyone recover a password, but it does let them substitute one file for another, which breaks
-      signatures, certificates, and any "the digest matches, so it is the same file" check against an
-      adversary.
+      with the same digest — since 2004, and chosen-prefix collisions since 2008, which is what let researchers
+      forge a certificate authority signature. SHA-1 (160-bit) fell in 2017: Google and CWI produced two
+      different PDFs with the same SHA-1 digest. Generating a collision does not let anyone recover a
+      password, but it does let them substitute one file for another, which breaks signatures, certificates,
+      and any "the digest matches, so it is the same file" check against an adversary.
     </p>
     <p>
       So: use MD5 or SHA-1 only where the format dictates it (an object-storage ETag, a legacy
@@ -84,41 +83,41 @@ const guide = getGuide('/guides/which-hash');
 
     <h2>SHA-2 is the current default</h2>
     <p>
-      SHA-256, SHA-384 and SHA-512 are the SHA-2 family. There are no practical attacks on SHA-2, and
-      all three are available through the browser's Web Crypto API, so they cost you nothing in portability.
-      SHA-256 is the right default; SHA-512 is a fine choice on 64-bit hardware and whenever you want
-      a wider margin; SHA-384 shows up in TLS and in Subresource Integrity attributes. SHA-3 (Keccak)
-      is a later standard built on a different construction and stands ready as a backup — pick it if
-      your platform offers it and you want independence from SHA-2, but there is no need to migrate
-      away from SHA-256 today.
+      SHA-256, SHA-384 and SHA-512 are the SHA-2 family. There are no practical attacks on SHA-2,
+      and all three are available through the browser's Web Crypto API, so they cost you nothing in
+      portability. SHA-256 is the right default; SHA-512 is a fine choice on 64-bit hardware and
+      whenever you want a wider margin; SHA-384 shows up in TLS and in Subresource Integrity
+      attributes. SHA-3 (Keccak) is a later standard built on a different construction and stands
+      ready as a backup — pick it if your platform offers it and you want independence from SHA-2,
+      but there is no need to migrate away from SHA-256 today.
     </p>
 
     <h2>Why MD5 is unsafe for passwords</h2>
     <p>
       A plain hash of a password is the same every time, so an attacker who gets your database can
-      simply look the digest up in a precomputed <em>rainbow table</em> of common passwords and read
-      the original in microseconds. Even a random password falls to brute force because SHA-256 and
-      its relatives were designed to be fast — fast enough to try billions of candidates per second on
-      a GPU. "Fast" is exactly what you do not want when the input is a password.
+      simply look the digest up in a precomputed <em>rainbow table</em> of common passwords and read the
+      original in microseconds. Even a random password falls to brute force because SHA-256 and its relatives
+      were designed to be fast — fast enough to try billions of candidates per second on a GPU. "Fast"
+      is exactly what you do not want when the input is a password.
     </p>
     <p>
       Password storage therefore uses deliberately slow, keyed, memory-hard constructions:
       <strong>Argon2id</strong> is the modern recommendation, with <strong>scrypt</strong>,{' '}
-      <strong>bcrypt</strong> and <strong>PBKDF2</strong> as widely deployed alternatives. They mix
-      in a random <em>salt</em> so identical passwords produce different digests, and their cost
-      parameters are tuned to make guessing expensive. The{' '}
+      <strong>bcrypt</strong> and <strong>PBKDF2</strong> as widely deployed alternatives. They mix in
+      a random <em>salt</em> so identical passwords produce different digests, and their cost parameters
+      are tuned to make guessing expensive. The{' '}
       <a href="/tools/pbkdf2-key-derivation">PBKDF2 key derivation</a> tool applies that idea to derive
       keys and verify passwords on-device.
     </p>
 
     <h2>When you need HMAC, not a hash</h2>
     <p>
-      A plain SHA-256 digest is public: anyone can recompute it from the input, so it proves integrity
-      but says nothing about who produced the message. <strong>HMAC</strong> (hash-based message
-      authentication code) fixes that by mixing a secret key into the hashing, giving you an
-      authenticated digest that an attacker cannot forge without the key. Reach for HMAC-SHA-256
-      whenever you share a secret and need to prove a message came from the other party: API
-      authentication, webhook signatures, signed session tokens. The
+      A plain SHA-256 digest is public: anyone can recompute it from the input, so it proves
+      integrity but says nothing about who produced the message. <strong>HMAC</strong> (hash-based message
+      authentication code) fixes that by mixing a secret key into the hashing, giving you an authenticated
+      digest that an attacker cannot forge without the key. Reach for HMAC-SHA-256 whenever you share
+      a secret and need to prove a message came from the other party: API authentication, webhook signatures,
+      signed session tokens. The
       <a href="/tools/hmac">HMAC generator</a> tool computes these directly.
     </p>
     <p>
@@ -128,24 +127,25 @@ const guide = getGuide('/guides/which-hash');
 
     <h2>Using the tools</h2>
     <p>
-      The <a href="/tools/hash">Text Hash Generator</a> computes MD5, SHA-1, SHA-256, SHA-384 and
-      SHA-512 in hex, Base64 or base64url; <a href="/tools/file-hash">File Hash</a> does the same for
-      an uploaded file; and <a href="/tools/hash-identifier">Hash Identifier</a> guesses which
-      algorithm an unknown digest belongs to. For integrity on the web, the
-      <a href="/tools/sri-hash-generator">SRI hash generator</a> builds the integrity attributes you
-      drop on a <code>script</code> or <code>link</code> tag.
+      The <a href="/tools/hash">Text Hash Generator</a> computes MD5, SHA-1, SHA-256, SHA-384 and SHA-512
+      in hex, Base64 or base64url; <a href="/tools/file-hash">File Hash</a> does the same for an uploaded
+      file; and <a href="/tools/hash-identifier">Hash Identifier</a> guesses which algorithm an unknown
+      digest belongs to. For integrity on the web, the
+      <a href="/tools/sri-hash-generator">SRI hash generator</a> builds the integrity attributes you drop
+      on a <code>script</code> or <code>link</code> tag.
     </p>
 
     <h2>More guides</h2>
     <ul>
       <li>
-        <a href="/guides/base64-explained">Base64 explained</a> — encoding, not hashing, and when to
-        use it.
+        <a href="/guides/base64-explained">Base64 explained</a> — encoding, not hashing, and when to use
+        it.
       </li>
-      <li><a href="/guides/cron-cheat-sheet">Cron syntax cheat sheet</a> — scheduling with cron.</li>
       <li>
-        <a href="/guides/color-contrast-wcag">Colour contrast and WCAG</a> — accessible colour
-        choices.
+        <a href="/guides/cron-cheat-sheet">Cron syntax cheat sheet</a> — scheduling with cron.
+      </li>
+      <li>
+        <a href="/guides/color-contrast-wcag">Colour contrast and WCAG</a> — accessible colour choices.
       </li>
     </ul>
   </article>

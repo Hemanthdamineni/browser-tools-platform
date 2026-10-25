@@ -39,7 +39,11 @@ export const meta: ToolMeta = {
   examples: [
     { title: 'Tints & shades of blue', input: '#3b82f6' },
     { title: 'Complementary', input: '#3b82f6', options: { scheme: 'complementary', count: 2 } },
-    { title: 'Triadic from a named colour', input: 'teal', options: { scheme: 'triadic', count: 3 } },
+    {
+      title: 'Triadic from a named colour',
+      input: 'teal',
+      options: { scheme: 'triadic', count: 3 },
+    },
     {
       title: 'Analogous in rgb() notation',
       input: 'rgb(200, 120, 40)',

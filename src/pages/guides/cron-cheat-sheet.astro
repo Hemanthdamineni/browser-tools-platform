@@ -20,9 +20,9 @@ const guide = getGuide('/guides/cron-cheat-sheet');
 
     <p>
       Cron is the Unix scheduler that runs commands on a repeating timetable. A crontab line is five
-      fields followed by the command, and almost every cron mistake comes from misreading one of those
-      five fields. Here is the whole syntax, the schedules worth memorising, and the point where you
-      should reach for a systemd timer instead.
+      fields followed by the command, and almost every cron mistake comes from misreading one of
+      those five fields. Here is the whole syntax, the schedules worth memorising, and the point
+      where you should reach for a systemd timer instead.
     </p>
 
     <h2>The five fields</h2>
@@ -71,10 +71,14 @@ const guide = getGuide('/guides/cron-cheat-sheet');
 
     <h2>Operators</h2>
     <ul>
-      <li><code>*</code> — every value in the field, e.g. <code>* * * * *</code> is every minute.</li>
+      <li>
+        <code>*</code> — every value in the field, e.g. <code>* * * * *</code> is every minute.
+      </li>
       <li><code>5</code> — one value.</li>
       <li><code>1-5</code> — a range, inclusive.</li>
-      <li><code>*/15</code> — a step; <code>*/15</code> in the minute field means every 15 minutes.</li>
+      <li>
+        <code>*/15</code> — a step; <code>*/15</code> in the minute field means every 15 minutes.
+      </li>
       <li><code>10-40/10</code> — a range with a step.</li>
       <li><code>1,15</code> — a list; combine any of the above with commas.</li>
     </ul>
@@ -82,17 +86,17 @@ const guide = getGuide('/guides/cron-cheat-sheet');
     <h2>The day-of-month/day-of-week quirk</h2>
     <p>
       When <em>both</em> day fields are restricted, classic cron treats them as an OR, not an AND.
-      <code>0 3 13 * FRI</code> runs on the 13th of the month <em>and</em> every Friday, not only on
-      Friday the 13th. If you need that AND, put the check in the command itself or use a scheduler
-      with a clearer expression language.
+      <code>0 3 13 * FRI</code> runs on the 13th of the month <em>and</em> every Friday, not only on Friday
+      the 13th. If you need that AND, put the check in the command itself or use a scheduler with a clearer
+      expression language.
     </p>
 
     <h2>How it differs from a systemd timer</h2>
     <p>
-      Both run a unit on a schedule, but they are not the same tool. Cron is a daemon reading crontab
-      files, one line per job, with no dependency awareness and no catch-up. Systemd timers are an
-      ordinary unit pair: a <code>.timer</code> that says when, and a <code>.service</code> that says
-      what.
+      Both run a unit on a schedule, but they are not the same tool. Cron is a daemon reading
+      crontab files, one line per job, with no dependency awareness and no catch-up. Systemd timers
+      are an ordinary unit pair: a <code>.timer</code> that says when, and a <code>.service</code> that
+      says what.
     </p>
     <div class="overflow-x-auto">
       <table>
@@ -196,25 +200,27 @@ const guide = getGuide('/guides/cron-cheat-sheet');
     <h2>Time zones matter more than people expect</h2>
     <p>
       The clock cron uses is the local time of the machine, not UTC, unless you say otherwise.
-      <code>0 3 * * *</code> therefore runs at 03:00 in the server's zone and shifts by an hour when
-      daylight saving changes — and a job scheduled inside a skipped hour simply does not run that
-      day. For anything that must be predictable, pin the zone explicitly (many crontabs accept a{' '}
-      <code>CRON_TZ=</code> or <code>TZ=</code> line, and systemd timers accept a zone in the
-      calendar expression) and prefer UTC on servers.
+      <code>0 3 * * *</code> therefore runs at 03:00 in the server's zone and shifts by an hour when daylight
+      saving changes — and a job scheduled inside a skipped hour simply does not run that day. For anything
+      that must be predictable, pin the zone explicitly (many crontabs accept a{' '}
+      <code>CRON_TZ=</code> or <code>TZ=</code> line, and systemd timers accept a zone in the calendar
+      expression) and prefer UTC on servers.
     </p>
 
     <h2>Check an expression before you ship it</h2>
     <p>
-      A scheduler that fires at the wrong instant is worse than one that never fires, because you only
-      find out from the damage. The <a href="/tools/cron-parser">cron expression parser</a> turns an
-      expression into plain English and lists its next run times in UTC, so a misread field shows up
+      A scheduler that fires at the wrong instant is worse than one that never fires, because you
+      only find out from the damage. The <a href="/tools/cron-parser">cron expression parser</a> turns
+      an expression into plain English and lists its next run times in UTC, so a misread field shows up
       as an obviously wrong timestamp. If you would rather build the expression from a form, the
       <a href="/tools/crontab-generator">crontab generator</a> assembles it for you.
     </p>
 
     <h2>Common mistakes</h2>
     <ul>
-      <li>Assuming the hour comes first. It is minutes, then hours — <code>30 8</code> is 08:30.</li>
+      <li>
+        Assuming the hour comes first. It is minutes, then hours — <code>30 8</code> is 08:30.
+      </li>
       <li>
         Forgetting that cron gets a minimal environment: your <code>PATH</code>, aliases and shell
         profile are not loaded, so use absolute paths and set variables in the crontab itself.
@@ -223,13 +229,13 @@ const guide = getGuide('/guides/cron-cheat-sheet');
         Expecting a working directory. <code>cd /path &amp;&amp; ./job.sh</code> is safer than hoping.
       </li>
       <li>
-        Dropping output on the floor and losing errors, or the opposite — letting cron mail the output
-        of a chatty job. Redirect it deliberately.
+        Dropping output on the floor and losing errors, or the opposite — letting cron mail the
+        output of a chatty job. Redirect it deliberately.
       </li>
       <li>
-        Forgetting that <code>%</code> is special inside a crontab: an unescaped percent becomes a
-        newline and is fed to the command's standard input, so escape it as <code>\%</code> when you
-        mean the character.
+        Forgetting that <code>%</code> is special inside a crontab: an unescaped percent becomes a newline
+        and is fed to the command's standard input, so escape it as <code>\%</code> when you mean the
+        character.
       </li>
     </ul>
 
@@ -242,8 +248,7 @@ const guide = getGuide('/guides/cron-cheat-sheet');
         <a href="/guides/which-hash">Which hash should I use?</a> — digests, passwords and HMAC.
       </li>
       <li>
-        <a href="/guides/color-contrast-wcag">Colour contrast and WCAG</a> — accessible colour
-        choices.
+        <a href="/guides/color-contrast-wcag">Colour contrast and WCAG</a> — accessible colour choices.
       </li>
     </ul>
   </article>

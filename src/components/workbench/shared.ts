@@ -27,7 +27,10 @@ export function applyShowWhen(root: ParentNode): void {
       if (wrap.hidden === shouldShow) {
         // Visibility actually changed — replay a subtle, reduced-motion-aware
         // fade so an option appearing/disappearing is signposted (E7-T4).
-        if (!shouldShow && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches !== true) {
+        if (
+          !shouldShow &&
+          window.matchMedia?.('(prefers-reduced-motion: reduce)').matches !== true
+        ) {
           wrap.classList.remove('tb-reveal');
           void wrap.offsetWidth;
           wrap.classList.add('tb-reveal');
@@ -69,10 +72,7 @@ export function notify(message: string): void {
  * range / number / text / textarea). Shared by the example chips, the
  * remember-this-input restore and the shareable-hash restore.
  */
-export function setOptions(
-  root: ParentNode,
-  values: Record<string, unknown>,
-): void {
+export function setOptions(root: ParentNode, values: Record<string, unknown>): void {
   for (const [k, v] of Object.entries(values)) {
     const el = root.querySelector<HTMLInputElement | HTMLSelectElement>(`[data-opt-key="${k}"]`);
     if (!el) continue;
@@ -97,8 +97,7 @@ export function setOptions(
  * Honours `prefers-reduced-motion` (the transition itself is skipped).
  */
 export function revealResult(host: HTMLElement): void {
-  const reduce =
-    window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true;
+  const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true;
   if (reduce) return;
   host.classList.remove('tb-reveal');
   // Force a reflow so re-running the same tool replays the transition.

@@ -39,7 +39,11 @@ const one = (text: string, color = '', fontStyle = 0): TokenLineLike => [
 ];
 
 /** The fake token stream a test injects instead of a real Shiki highlight. */
-const fakeHighlight = (lines: TokenLineLike[], fg = '#c9d1d9', bg = '#0d1117'): HighlightResult => ({
+const fakeHighlight = (
+  lines: TokenLineLike[],
+  fg = '#c9d1d9',
+  bg = '#0d1117',
+): HighlightResult => ({
   tokens: lines,
   fg,
   bg,
@@ -89,9 +93,9 @@ describe('lineToSpans', () => {
   });
 
   it('drops empty tokens and defaults missing colour/style', () => {
-    expect(
-      lineToSpans([{ content: '' }, { content: 'y' }, { content: '' }]),
-    ).toEqual([{ text: 'y', color: '', fontStyle: 0 }]);
+    expect(lineToSpans([{ content: '' }, { content: 'y' }, { content: '' }])).toEqual([
+      { text: 'y', color: '', fontStyle: 0 },
+    ]);
   });
 });
 
@@ -111,11 +115,7 @@ describe('wrapSpanLine', () => {
     const spans = lineToSpans(one('abcdefghijkl', '#ff0000'));
     const lines = wrapSpanLine(spans, 42, 14);
     expect(lines).toHaveLength(3);
-    expect(lines.map((l) => l.spans.map((s) => s.text).join(''))).toEqual([
-      'abcde',
-      'fghij',
-      'kl',
-    ]);
+    expect(lines.map((l) => l.spans.map((s) => s.text).join(''))).toEqual(['abcde', 'fghij', 'kl']);
     // The split pieces keep the token's colour.
     for (const line of lines) {
       expect(line.spans[0]).toMatchObject({ color: '#ff0000' });
@@ -424,9 +424,17 @@ describe('renderFromHighlight', () => {
   });
 
   it('notes the 2× PNG rasterisation only when the format option is png', () => {
-    const svgResult = renderFromHighlight('x', { ...settings, format: 'svg' }, fakeHighlight([one('x')]));
+    const svgResult = renderFromHighlight(
+      'x',
+      { ...settings, format: 'svg' },
+      fakeHighlight([one('x')]),
+    );
     expect(svgResult.notes).toBeUndefined();
-    const pngResult = renderFromHighlight('x', { ...settings, format: 'png' }, fakeHighlight([one('x')]));
+    const pngResult = renderFromHighlight(
+      'x',
+      { ...settings, format: 'png' },
+      fakeHighlight([one('x')]),
+    );
     expect(pngResult.notes?.join(' ')).toMatch(/PNG/i);
   });
 });

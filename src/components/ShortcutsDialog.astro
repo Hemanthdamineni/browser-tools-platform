@@ -22,9 +22,7 @@ import { SHORTCUTS } from './keyboard';
         <div class="flex items-center justify-between gap-6">
           <dt class="text-sm text-[rgb(var(--text-muted))]">
             {s.label}
-            {s.note && (
-              <span class="block text-xs text-[rgb(var(--text-faint))]">({s.note})</span>
-            )}
+            {s.note && <span class="block text-xs text-[rgb(var(--text-faint))]">({s.note})</span>}
           </dt>
           <dd class="shrink-0">
             {s.tokens.map((token, i) => (

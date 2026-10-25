@@ -25,7 +25,8 @@ function useStorage(impl: Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>): 
   Object.defineProperty(globalThis, 'localStorage', { value: impl, configurable: true });
 }
 
-function memoryStorage(): Record<string, string> & Pick<Storage, 'getItem' | 'setItem' | 'removeItem'> {
+function memoryStorage(): Record<string, string> &
+  Pick<Storage, 'getItem' | 'setItem' | 'removeItem'> {
   const data: Record<string, string> = {};
   return Object.assign(data, {
     getItem: (k: string) => (k in data ? data[k]! : null),

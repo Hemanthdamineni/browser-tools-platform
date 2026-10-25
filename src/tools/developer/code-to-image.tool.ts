@@ -190,7 +190,10 @@ export function renderFromHighlight(
  * name (auto-detected first when the option is `auto`), then tokenise. This is
  * the only async, Shiki-dependent step — everything after it is pure.
  */
-export async function highlight(code: string, settings: CodeImageSettings): Promise<HighlightResult> {
+export async function highlight(
+  code: string,
+  settings: CodeImageSettings,
+): Promise<HighlightResult> {
   const lang = settings.language === 'auto' ? guessLanguage(code) : settings.language;
   const grammar = lang === 'plaintext' ? 'text' : lang;
   if (grammar !== 'text' && !(grammar in GRAMMARS)) {

@@ -85,7 +85,7 @@ export const meta: ToolMeta = {
     },
     {
       heading: 'How .env text is normalised',
-      body: 'Parsing trims each line, skips blanks and # comments, strips a leading export, and removes a matching pair of quotes. Inside double quotes \\n, \\t, \\r, \\\" and \\\\ are decoded to real characters, and an unquoted value is cut at a space-and-# comment. The JSON output is indented into a stable shape.',
+      body: 'Parsing trims each line, skips blanks and # comments, strips a leading export, and removes a matching pair of quotes. Inside double quotes \\n, \\t, \\r, \\" and \\\\ are decoded to real characters, and an unquoted value is cut at a space-and-# comment. The JSON output is indented into a stable shape.',
     },
     {
       heading: 'Building .env lines safely',

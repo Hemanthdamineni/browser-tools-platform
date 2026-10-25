@@ -122,7 +122,8 @@ export const meta: ToolMeta = {
     },
     {
       title: 'Parse a card',
-      input: 'BEGIN:VCARD\nVERSION:3.0\nN:Hopper;Grace;;;\nFN:Grace Hopper\nTEL;TYPE=CELL:+1 555 0100\nEND:VCARD\n',
+      input:
+        'BEGIN:VCARD\nVERSION:3.0\nN:Hopper;Grace;;;\nFN:Grace Hopper\nTEL;TYPE=CELL:+1 555 0100\nEND:VCARD\n',
       options: { mode: 'parse' },
     },
   ],

@@ -38,7 +38,9 @@ const listed = sorted.map((t) => ({
     class="flex flex-wrap items-center gap-1.5 text-sm text-[rgb(var(--text-muted))]"
     aria-label="Breadcrumb"
   >
-    <a class="transition-colors hover:text-[rgb(var(--accent))]" href={`${base}/categories`}>Categories</a>
+    <a class="transition-colors hover:text-[rgb(var(--accent))]" href={`${base}/categories`}
+      >Categories</a
+    >
     <Icon name="chevron-right" size={14} class="shrink-0" />
     <span class="text-[rgb(var(--text))]">{category.name}</span>
   </nav>

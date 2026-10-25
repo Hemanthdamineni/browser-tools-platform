@@ -59,7 +59,10 @@ export const meta: ToolMeta = {
     },
     {
       title: 'Verify against a published checksum',
-      options: { algorithm: 'SHA-256', expected: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855' },
+      options: {
+        algorithm: 'SHA-256',
+        expected: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+      },
     },
     {
       title: 'Hash with the stronger SHA-512',

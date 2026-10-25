@@ -68,8 +68,13 @@ const opening = examples[0]?.input ?? '';
         data-source
         set:text={opening}
       />
-      <p class="mt-1 text-xs text-[rgb(var(--text-muted))]" data-status role="status" aria-live="polite"
-      ></p>
+      <p
+        class="mt-1 text-xs text-[rgb(var(--text-muted))]"
+        data-status
+        role="status"
+        aria-live="polite"
+      >
+      </p>
     </div>
 
     <div class="flex min-w-0 flex-col">
@@ -148,21 +153,24 @@ const opening = examples[0]?.input ?? '';
       <span class="text-sm font-semibold text-[rgb(var(--text))]">Result</span>
     </div>
     <p class="mb-1 text-xs text-[rgb(var(--text-muted))]">
-      The SVG source below is exactly what Export SVG saves, and what the PNG export rasterises
-      onto a canvas. The preview above is the same markup inside a sandboxed iframe.
+      The SVG source below is exactly what Export SVG saves, and what the PNG export rasterises onto
+      a canvas. The preview above is the same markup inside a sandboxed iframe.
     </p>
     <details class="mt-2 rounded-lg border">
       <summary class="cursor-pointer select-none px-3 py-2 text-sm font-medium">SVG source</summary>
       <div class="border-t p-3">
-        <pre class="max-h-64 overflow-auto rounded-lg border p-3 text-xs leading-relaxed" data-output></pre>
+        <pre
+          class="max-h-64 overflow-auto rounded-lg border p-3 text-xs leading-relaxed"
+          data-output>
+        </pre>
       </div>
     </details>
   </div>
 
   <noscript>
     <p class="mt-3 text-sm text-[rgb(var(--text-muted))]">
-      Turning code into an image needs JavaScript — the Shiki highlighting and the SVG/PNG
-      export cannot run without it.
+      Turning code into an image needs JavaScript — the Shiki highlighting and the SVG/PNG export
+      cannot run without it.
     </p>
   </noscript>
 </section>
@@ -181,7 +189,13 @@ const opening = examples[0]?.input ?? '';
 
 <script>
   import { runToolById } from '@/lib/worker/client';
-  import { applyShowWhen, bindRangeOutputs, clearError, readOptions, showError } from '../workbench/shared';
+  import {
+    applyShowWhen,
+    bindRangeOutputs,
+    clearError,
+    readOptions,
+    showError,
+  } from '../workbench/shared';
   import { downloadBlob, downloadText } from '@/lib/files';
   import type { TextRunResult } from '@/lib/types';
 
@@ -216,7 +230,10 @@ const opening = examples[0]?.input ?? '';
     ctx.imageSmoothingEnabled = false;
     ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
     return await new Promise<Blob>((resolve, reject) =>
-      canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('PNG encoding failed.'))), 'image/png'),
+      canvas.toBlob(
+        (b) => (b ? resolve(b) : reject(new Error('PNG encoding failed.'))),
+        'image/png',
+      ),
     );
   }
 

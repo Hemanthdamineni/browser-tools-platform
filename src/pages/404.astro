@@ -20,7 +20,9 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
       The page may have moved, or the link is broken. Try a search or browse everything.
     </p>
     <div class="mt-6 flex justify-center gap-3">
-      <a href={`${base}/tools`} class="btn btn-primary">All tools <Icon name="arrow-right" size={16} /></a>
+      <a href={`${base}/tools`} class="btn btn-primary"
+        >All tools <Icon name="arrow-right" size={16} /></a
+      >
       <a href={`${base}/`} class="btn btn-ghost">Home</a>
       <button type="button" class="btn btn-ghost" data-open-search>
         <Icon name="search" size={16} /> Search

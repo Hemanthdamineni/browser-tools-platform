@@ -15,7 +15,7 @@ export const meta: ToolMeta = {
     },
     {
       heading: 'When deserializing an external API response',
-      body: 'Reach for it when you paste a sample of an endpoint response and want DTO classes to feed straight into JsonSerializer.Deserialize. A root array emits a class for the sampled element plus a List<Root> deserialization line, and the generated types line up with System.Text.Json\'s default case-insensitive matching.',
+      body: "Reach for it when you paste a sample of an endpoint response and want DTO classes to feed straight into JsonSerializer.Deserialize. A root array emits a class for the sampled element plus a List<Root> deserialization line, and the generated types line up with System.Text.Json's default case-insensitive matching.",
     },
     {
       heading: 'rootName and attributes',
