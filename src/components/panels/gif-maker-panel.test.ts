@@ -263,6 +263,10 @@ describe('mountGifMakerPanel', () => {
     await chooseFiles(root, [pngFile('a.png'), pngFile('b.png')]);
     expect(gridCaptions(root)).toHaveLength(2);
     expect(root.querySelector<HTMLButtonElement>('[data-run]')!.disabled).toBe(false);
+    // The caption is written after the thumbnails decode; wait for it to catch up.
+    await vi.waitFor(() => {
+      expect(root.querySelector<HTMLElement>('[data-duration]')!.textContent).toBe('200 ms');
+    });
     expect(root.querySelector<HTMLElement>('[data-duration]')!.textContent).toBe('200 ms');
   });
 
@@ -302,6 +306,10 @@ describe('mountGifMakerPanel', () => {
       expect(delays).toEqual(['3', '3']);
     });
     // 30 fps rounds to 3 cs, which plays back at 33.3 fps.
+    // The caption is written after the refreshed timeline renders; wait for it.
+    await vi.waitFor(() => {
+      expect(root.querySelector<HTMLElement>('[data-duration]')!.textContent).toBe('60 ms');
+    });
     expect(root.querySelector<HTMLElement>('[data-duration]')!.textContent).toBe('60 ms');
   });
 
