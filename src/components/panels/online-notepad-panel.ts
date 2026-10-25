@@ -130,17 +130,18 @@ export function createMemoryStore(): NoteStore {
   const map = new Map<string, Note>();
   return {
     async list() {
-      return [...map.values()].sort((a, b) => b.updatedAt - a.updatedAt);
+      return [...map.values()]
+        .sort((a, b) => b.updatedAt - a.updatedAt)
+        .map((note) => ({ ...note }));
     },
     async get(id) {
-      return map.get(id) ?? null;
+      const note = map.get(id);
+      return note ? { ...note } : null;
     },
     async put(note) {
-      await Promise.resolve();
       map.set(note.id, { ...note });
     },
     async delete(id) {
-      await Promise.resolve();
       map.delete(id);
     },
     async clear() {

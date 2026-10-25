@@ -108,7 +108,7 @@ export const meta: ToolMeta = {
   faq: [
     {
       q: 'Is this AI super-resolution?',
-      a: 'No. This tool uses classical resampling — Lanczos3, bicubic or nearest-neighbour interpolation — plus an optional unsharp mask. There is no neural network and no learned model, so it cannot invent detail that is not in the photo, but it is fully offline, instant and licence-clean.',
+      a: 'No — this is not AI super-resolution. This tool uses classical resampling — Lanczos3, bicubic or nearest-neighbour interpolation — plus an optional unsharp mask. There is no neural network and no learned model, so it cannot invent detail that is not in the photo, but it is fully offline, instant and licence-clean.',
     },
     {
       q: 'Why is there no AI super-resolution here?',

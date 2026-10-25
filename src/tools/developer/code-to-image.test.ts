@@ -52,7 +52,10 @@ const fakeHighlight = (lines: TokenLineLike[], fg = '#c9d1d9', bg = '#0d1117'): 
 
 describe('measureText', () => {
   it('gives every glyph the same monospace advance (0.6 × font size)', () => {
-    expect(measureText('abc', 14)).toBe(3 * MONO_ADVANCE * 14);
+    // measureText accumulates glyph-by-glyph, so the result can differ from
+    // the single-expression product by one rounding ulp — compare with a
+    // tolerance instead of exact float equality.
+    expect(measureText('abc', 14)).toBeCloseTo(3 * MONO_ADVANCE * 14, 10);
     expect(measureText('a', 20)).toBe(MONO_ADVANCE * 20);
     expect(measureText('', 14)).toBe(0);
   });
@@ -324,8 +327,10 @@ describe('buildSvg', () => {
   it('escapes XML-special characters in the code so output stays valid XML', () => {
     const laid = layout([one('<script>&"x"</script>')], baseOpts);
     const svg = buildSvg(laid, colors, baseOpts, '');
+    // User code can never appear unescaped: the raw markup is absent, and the
+    // text node carries the fully escaped form instead.
     expect(svg).not.toContain('<script>');
-    expect(svg).toContain('<script>&"x"</script>');
+    expect(svg).toContain('&lt;script&gt;&amp;&quot;x&quot;&lt;/script&gt;');
     // Still parses as XML (well-formed single root, escaped text only).
     expect(() => new DOMParser().parseFromString(svg, 'image/svg+xml')).not.toThrow();
     const doc = new DOMParser().parseFromString(svg, 'image/svg+xml');
@@ -336,7 +341,9 @@ describe('buildSvg', () => {
   it('escapes the title text in the chrome bar', () => {
     const laid = layout([one('x')], { ...baseOpts, chrome: true });
     const svg = buildSvg(laid, colors, { ...baseOpts, chrome: true }, 'a<b & "c"');
-    expect(svg).toContain('a<b & "c"');
+    // The title is escaped too: the raw form is absent and the escaped one present.
+    expect(svg).not.toContain('a<b & "c"');
+    expect(svg).toContain('a&lt;b &amp; &quot;c&quot;');
     expect(svg).toContain('<circle'); // traffic lights present
   });
 
@@ -377,7 +384,10 @@ describe('buildSvg', () => {
     expect(svg).not.toMatch(/href/i);
     expect(svg).not.toMatch(/url\(/i);
     expect(svg).not.toMatch(/<image/i);
-    expect(svg).not.toMatch(/@import|https?:\/\//i);
+    // The only URL in the document must be the SVG namespace declaration; no
+    // remote stylesheet import and no other absolute/relative resource URL.
+    const withoutNamespace = svg.replace('http://www.w3.org/2000/svg', '');
+    expect(withoutNamespace).not.toMatch(/@import|https?:\/\//i);
   });
 });
 

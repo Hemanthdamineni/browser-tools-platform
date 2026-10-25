@@ -132,7 +132,12 @@ export function wrapSpanLine(spans: Span[], codeWidth: number, fontSize: number)
       lineSpans.push({ text: piece, color: span.color, fontStyle: span.fontStyle });
       used += w;
       rest = rest.slice(piece.length);
-      if (used >= codeWidth && rest.length > 0) {
+      // The line is full when the scan stopped before the end of the span —
+      // i.e. the next glyph no longer fits — or when it has filled the box.
+      // Testing `used >= codeWidth` alone misses the common case where the
+      // accumulated glyph widths land a rounding hair below the integer width,
+      // so a wrapped line would silently overflow the code box.
+      if (i < chars.length || used >= codeWidth) {
         out.push({ spans: lineSpans });
         lineSpans = [];
         used = 0;

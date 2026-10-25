@@ -104,6 +104,7 @@ export function guessLanguage(code: string): string {
   if (/^\s*(?:import|from)\s+\w+\s*$/m.test(head)) return 'python';
   if (/\binterface\s+\w+|\btype\s+\w+\s*=|:\s*(?:string|number|boolean|any|void)\b/.test(head))
     return 'typescript';
+  if (/\bfn\s+\w+\s*\(|\blet\s+mut\b/.test(head)) return 'rust';
   if (/\b(?:function|const|let)\b|=>/.test(head)) return 'javascript';
   if (/\bSELECT\b[\s\S]*\bFROM\b|\bCREATE\s+TABLE\b/i.test(head)) return 'sql';
   if (/^#!.*\b(?:ba|z)?sh\b/m.test(head) || /^\$\s+\w+/m.test(head)) return 'bash';
@@ -114,7 +115,6 @@ export function guessLanguage(code: string): string {
   if (/\bpublic\s+(?:class|static\s+void\s+main)\b/.test(head)) return 'java';
   if (/\busing\s+System\b/.test(head) || /\bnamespace\s+\w+/.test(head)) return 'csharp';
   if (/\bpackage\s+\w+\s*;?\s*$/.test(head) || /\bfunc\s+\w+\s*\(/.test(head)) return 'go';
-  if (/\bfn\s+\w+\s*\(|\blet\s+mut\b/.test(head)) return 'rust';
   if (/\bputs\b|\battr_(?:accessor|reader)\b|\brequire\s+'[\w/]+'/.test(head)) return 'ruby';
   if (/^#{1,6}\s+\S/m.test(head)) return 'markdown';
   if (/(?:^|\n)\s*[.#]?[\w-]+\s*\{[^{}]*[;:][^{}]*\}/.test(head)) return 'css';

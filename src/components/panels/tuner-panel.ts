@@ -471,6 +471,14 @@ export function parseTunerInput(text: string): TunerSnapshot {
         'Use numbers like 440 441.2 439.8, or a JSON snapshot.',
       );
     }
+    // A frequency is a physical pitch: zero and negative values are not
+    // readings a tuner can name, so they are refused rather than dropped.
+    if (value <= 0) {
+      throw new ToolError(
+        'Frequencies must be positive.',
+        `“${token}” is not a frequency a tuner can measure — use values above 0 Hz.`,
+      );
+    }
     readings.push(value);
   }
   return { readings };

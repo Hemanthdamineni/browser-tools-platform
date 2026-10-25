@@ -50,12 +50,12 @@ describe('stopwatch run', () => {
     const { headers, rows } = table(r);
     expect(headers).toEqual(['Lap', 'Split', 'Total']);
     expect(rows).toEqual([
-      ['1', '05:45.000', '05:45.000'],
-      ['2', '05:57.000', '11:42.000'],
-      ['3', '05:53.000', '17:35.000'],
-      ['4', '11:55.000', '29:30.000'],
+      ['1', '00:05:45.000', '00:05:45.000'],
+      ['2', '00:05:57.000', '00:11:42.000'],
+      ['3', '00:05:53.000', '00:17:35.000'],
+      ['4', '00:11:55.000', '00:29:30.000'],
     ]);
-    expect(r.stats).toEqual({ elapsed: '29:30.000', laps: 4 });
+    expect(r.stats).toEqual({ elapsed: '00:29:30.000', laps: 4 });
   });
 
   it('handles an empty snapshot (fresh watch) as an empty report', async () => {
@@ -71,10 +71,10 @@ describe('stopwatch run', () => {
     const r = await run(JSON.stringify(finished), { includeSplits: false });
     expect(table(r).headers).toEqual(['Lap', 'Total']);
     expect(table(r).rows).toEqual([
-      ['1', '05:45.000'],
-      ['2', '11:42.000'],
-      ['3', '17:35.000'],
-      ['4', '29:30.000'],
+      ['1', '00:05:45.000'],
+      ['2', '00:11:42.000'],
+      ['3', '00:17:35.000'],
+      ['4', '00:29:30.000'],
     ]);
   });
 
