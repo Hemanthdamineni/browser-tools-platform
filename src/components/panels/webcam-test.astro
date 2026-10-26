@@ -88,6 +88,24 @@ const settingsId = `${p}-settings`;
     Camera names appear after you allow access.
   </p>
 
+  {
+    meta.examples && meta.examples.length > 0 && (
+      <div class="mt-3 flex flex-wrap items-center gap-1.5" data-example-row>
+        <span class="text-xs text-[rgb(var(--text-muted))]">Try:</span>
+        {meta.examples.map((ex, i) => (
+          <button
+            type="button"
+            class="chip hover:text-[rgb(var(--text))]"
+            data-example={i}
+            data-example-options={ex.options ? JSON.stringify(ex.options) : undefined}
+          >
+            {ex.title}
+          </button>
+        ))}
+      </div>
+    )
+  }
+
   <div class="mt-3 flex flex-wrap items-center gap-2">
     <button type="button" class="btn btn-primary" data-wt-start>
       <Icon name="camera" size={16} /> Start camera

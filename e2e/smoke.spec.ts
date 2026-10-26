@@ -83,10 +83,15 @@ test('every tool page renders a working workbench', async ({ page, baseURL }) =>
       continue;
     }
     if (tool.input === 'text' && tool.hasExamples) {
-      await page.locator('[data-example]').first().click();
-      await expect(page.locator('[data-result-wrap]')).toBeVisible({ timeout: 5000 });
-      const err = page.locator('[data-error]');
-      if (await err.isVisible()) failures.push(`${tool.id}: example produced an error`);
+      // Custom panels render their own affordances; example chips are a
+      // feature of the generic text workbench, so only click there.
+      const generic = page.locator('[data-text-workbench]');
+      if (await generic.count()) {
+        await generic.locator('[data-example]').first().click();
+        await expect(page.locator('[data-result-wrap]')).toBeVisible({ timeout: 5000 });
+        const err = page.locator('[data-error]');
+        if (await err.isVisible()) failures.push(`${tool.id}: example produced an error`);
+      }
     }
   }
   expect(failures, failures.join('\n')).toEqual([]);
@@ -114,28 +119,24 @@ test('option fields are accessible (axe on tools with select/boolean/range/numbe
     // Every visible option control is programmatically labelled.
     const unlabelled = await page.evaluate(() => {
       const bad: string[] = [];
-      document
-        .querySelectorAll('[data-options] select, [data-options] input')
-        .forEach((el) => {
-          const labelled =
-            el.getAttribute('aria-label') ||
-            el.getAttribute('aria-labelledby') ||
-            (el.id && document.querySelector(`label[for="${el.id}"]`)) ||
-            el.closest('label');
-          if (!labelled) bad.push(el.getAttribute('data-opt-key') ?? el.outerHTML.slice(0, 60));
-        });
+      document.querySelectorAll('[data-options] select, [data-options] input').forEach((el) => {
+        const labelled =
+          el.getAttribute('aria-label') ||
+          el.getAttribute('aria-labelledby') ||
+          (el.id && document.querySelector(`label[for="${el.id}"]`)) ||
+          el.closest('label');
+        if (!labelled) bad.push(el.getAttribute('data-opt-key') ?? el.outerHTML.slice(0, 60));
+      });
       return bad;
     });
     expect(unlabelled, path).toEqual([]);
     // Help text is wired via aria-describedby where present.
     const brokenDesc = await page.evaluate(() => {
       const bad: string[] = [];
-      document
-        .querySelectorAll('[data-options] [aria-describedby]')
-        .forEach((el) => {
-          const id = el.getAttribute('aria-describedby')!;
-          if (!document.getElementById(id)) bad.push(id);
-        });
+      document.querySelectorAll('[data-options] [aria-describedby]').forEach((el) => {
+        const id = el.getAttribute('aria-describedby')!;
+        if (!document.getElementById(id)) bad.push(id);
+      });
       return bad;
     });
     expect(brokenDesc, path).toEqual([]);

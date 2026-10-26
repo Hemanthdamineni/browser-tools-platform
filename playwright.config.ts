@@ -66,7 +66,9 @@ export default defineConfig({
     ...(hasWebkit ? [{ name: 'mobile-safari', use: { ...devices['iPhone 13'] } }] : []),
   ],
   webServer: {
-    command: 'npm run build && npm run preview -- --host --port 4321',
+    // The suite addresses pages from the site root (`/tools/...`), so build the
+    // e2e copy with a root base rather than the GitHub Pages project path.
+    command: 'BASE_PATH=/ npm run build && BASE_PATH=/ npm run preview -- --host --port 4321',
     url: 'http://localhost:4321',
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,

@@ -631,6 +631,31 @@ export function mountWebcamTestPanel(root: HTMLElement): void {
     void refreshReport('live', audioWarning);
   });
 
+  // Example chips: one click applies the documented option preset.
+  root.querySelectorAll<HTMLButtonElement>('[data-example]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      let options: Record<string, unknown> = {};
+      try {
+        options = JSON.parse(btn.dataset.exampleOptions ?? '{}') as Record<string, unknown>;
+      } catch {
+        options = {};
+      }
+      const resolution = options.resolution;
+      if (
+        typeof resolution === 'string' &&
+        [...resolutionSelect.options].some((o) => o.value === resolution)
+      ) {
+        resolutionSelect.value = resolution;
+      }
+      if ('includeSettings' in options) settingsToggle.checked = Boolean(options.includeSettings);
+      if ('audio' in options) audioToggle.checked = Boolean(options.audio);
+      if (live) {
+        stopCamera('Applying the preset…');
+        void start();
+      }
+    });
+  });
+
   video.addEventListener('loadeddata', () => {
     if (firstFrameTimer !== null) {
       window.clearTimeout(firstFrameTimer);

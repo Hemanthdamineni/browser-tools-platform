@@ -29,7 +29,7 @@ export const GET: APIRoute = () => {
       name: meta.name,
       category: meta.category,
       categoryName: CATEGORIES[meta.category].name,
-      href: `/tools/${meta.id}`,
+      href: `${import.meta.env.BASE_URL.replace(/\/$/, '')}/tools/${meta.id}`,
       input: meta.input,
       privacy: meta.privacy,
       hasExamples: (meta.examples?.length ?? 0) > 0,
