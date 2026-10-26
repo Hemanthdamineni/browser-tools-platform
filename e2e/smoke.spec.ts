@@ -88,9 +88,14 @@ test('every tool page renders a working workbench', async ({ page, baseURL }) =>
       const generic = page.locator('[data-text-workbench]');
       if (await generic.count()) {
         await generic.locator('[data-example]').first().click();
-        await expect(page.locator('[data-result-wrap]')).toBeVisible({ timeout: 5000 });
-        const err = page.locator('[data-error]');
-        if (await err.isVisible()) failures.push(`${tool.id}: example produced an error`);
+        // Panels that reuse the text-workbench root (e.g. webcam-test) render
+        // their own report area, so the generic result pane is not guaranteed.
+        const resultPane = generic.locator('[data-result-wrap]');
+        if (await resultPane.count()) {
+          await expect(resultPane).toBeVisible({ timeout: 5000 });
+          const err = page.locator('[data-error]');
+          if (await err.isVisible()) failures.push(`${tool.id}: example produced an error`);
+        }
       }
     }
   }
