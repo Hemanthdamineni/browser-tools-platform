@@ -1,5 +1,5 @@
 import type { ToolMeta } from '@/lib/types';
-import { pdfCredit, pdfjsCredit } from './shared';
+import { pdfCredit, pdfjsCredit } from './credits';
 import { OCR_LANGUAGES, OCR_MODES, DEFAULT_OCR_LANGUAGE } from '@/tools/image/ocr-languages';
 
 export const tesseractCredit = {

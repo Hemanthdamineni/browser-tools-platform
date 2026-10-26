@@ -486,3 +486,61 @@ died` apiece (`code-minify` is genuinely shipped; `merge-base64` likewise, `af14
     trivial.
   - `subtitle-converter` exists, but nothing converts audio→text; `speech-to-text` (already in TODOS) plus the
     now-proven worker-safe audio decode path (AudioSampleSink) makes the audio half of that tool mostly plumbing.
+
+## round-2026-10-25-complete-2 — 2026-10-25T07:00:00Z
+
+Round theme: **finish the project properly and make it findable.** Ran on branch `round/complete-2` in
+`.conductor/worktrees/complete-2`, deliberately isolated from the primary checkout because a second omp session
+was writing tools there concurrently (its ~20 untracked tools were rescued into this branch by name).
+
+- Merged: the whole in-flight tail — `master-int-f777` (video-convert, video-extract-audio, video-trim panel fix),
+  `tool/background-remover`, `tool/screen-recorder`, `tool/mic-test`, `tool/markdown-preview`, `tool/webcam-test`,
+  `tool/gst-calculator`, `tool/sip-calculator`. The remaining `tool/*` branches were confirmed dead duplicates of
+  work already on master.
+- Landed: **20 tools that existed only as untracked files** in the primary checkout (id3-tag-reader, csr-decoder,
+  geojson-validator, gpx-track-stats, mbox-archive-analyzer, plist-decoder, font-inspector, ieee754-inspector,
+  systemd-unit-inspector, cbor-decoder, significant-figures, email-header-analyzer, iptables-ruleset-auditor,
+  ssh-config-auditor, sudoers-auditor, svg-sanitizer, text-similarity, access-log-analyzer, feed-inspector,
+  webcam-test).
+- Built: **38 new tools** — stopwatch, countdown-timer, pomodoro-timer, typing-test, fancy-text, speaker-test,
+  dead-pixel-test, online-notepad, html-playground, file-encrypt, text-to-speech, voice-recorder, image-filters,
+  image-collage, signature-maker, invoice-generator, gif-maker, video-frames, speech-to-text, sqlite-viewer,
+  spreadsheet-viewer, bcrypt, pgp-tool, tuner, spectrogram, bpm-detector, image-upscale, audio-convert,
+  noise-reduction, pdf-unlock, pdf-fill-form, pdf-redact, pdf-ocr, calculator (scientific keypad), code-to-image,
+  mermaid-renderer, text-stats (platform limits + readability). Catalogue: **378 → 449 tools, 19 → 20 categories**.
+- Fixed (board items): **T005** — the 45 dead alias implementations are gone and `registry.ts` no longer requires a
+  `.tool.ts` for a `redirectTo` meta, with a test guarding the invariant. **T006** — `FileWorkbench` renders
+  `stats` escaped, the axe sweep owns a page-scaled timeout instead of blowing the default, `e2e/privacy.spec.ts`
+  uses `baseURL`, WebKit registers only when installed, and `verify` now runs `format:check`, `bundle:check` and
+  `test:e2e`. **T008** — `src/lib/related-tools.test.ts` gates dangling/hidden/duplicate `related` ids.
+  **T003** — the twelve examples that threw on click are repaired with per-example regression tests.
+  **T004** — the credit strings moved out of `src/tools/pdf/shared.ts` so pdf-lib leaves the eager graph
+  (measured by the new `scripts/check-bundle.mjs`).
+- SEO/AEO: every one of the 449 tool pages now carries unique editorial content — an `article` (3–5 headed
+  sections), ≥3 `examples` and ≥3 `faq` — enforced by `src/lib/contract.test.ts`. Added `/llms.txt`,
+  `/llms-full.txt`, an enriched `/tools-index.json`, `WebSite`/`Organization`/`ItemList`/`HowTo` JSON-LD,
+  per-tool Open Graph cards (`scripts/gen-og.mjs`, 353 PNGs), explicit AI-crawler rules in `robots.txt`,
+  `<lastmod>` in the sitemap, a `/guides` section with four evergreen guides, and base-path-aware links
+  everywhere so the canonical URL is a one-line change.
+- Infrastructure: `astro.config.mjs` takes `SITE_URL` + `BASE_PATH` from the environment, a GitHub Pages deploy
+  workflow publishes on push to `master`, and `docs/LAUNCH.md` + `docs/RUNBOOK.md` cover indexing, rollback and
+  incident response.
+- Checks: `astro check` 0 errors; `eslint` clean; `prettier --check` clean after formatting 35 files; `vitest`
+  **6389 passed / 0 failed**; `astro build` 481 pages; `docs:check` clean; `bundle:check` reported the eager
+  chunk defect before the fix and is the acceptance test for it.
+- Mistakes found and worth knowing:
+  - **The file tools' relative paths resolve against the session CWD, not the worktree.** Several agents wrote
+    into the primary checkout before the hazard was broadcast; every stray was rescued into the worktree and the
+    primary checkout was restored to its own session's state. Write absolute paths in every subagent brief.
+  - **`git stash` in a shared worktree is destructive.** One agent used it while siblings were editing; nothing
+    was lost, but a stash-and-drop can silently revert a peer's uncommitted work.
+  - **`pgp-tool.tool.ts` imported `openpgp` at module scope**, which threw under jsdom and took the whole
+    registry test down. The tool's own doc comment said it was lazy. Heavy libraries must be imported inside
+    `run()`.
+  - **A haiku-tier agent printed its tool calls as text instead of making them** — mechanical batches via `sonic`
+    need a file-existence check afterwards.
+  - **Agents report completion while their work is incomplete** (truncated transcripts, "Done" with the file
+    unwritten). Every agent's output was verified against the filesystem before its work was trusted.
+- Ideas: `scripts/check-bundle.mjs` should also assert per-tool lazy-chunk budgets; the `/guides` section has
+  room for a "privacy model" page that the AI answer engines can quote; `pdf-to-word` and `word-to-pdf` were the
+  two highest-demand gaps the demand research found and remain unbuilt.

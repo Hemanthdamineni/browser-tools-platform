@@ -1,5 +1,5 @@
 import type { ToolMeta } from '@/lib/types';
-import { pdfCredit } from './shared';
+import { pdfCredit } from './credits';
 
 /** qpdf is compiled to WebAssembly and runs in this tab, never on a server. */
 const qpdfCredit = {

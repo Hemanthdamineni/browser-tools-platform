@@ -1,5 +1,5 @@
 import type { ToolMeta } from '@/lib/types';
-import { fflateCredit, pdfjsCredit } from './shared';
+import { fflateCredit, pdfjsCredit } from './credits';
 export const meta: ToolMeta = {
   id: 'pdf-to-images',
   name: 'PDF to Images',

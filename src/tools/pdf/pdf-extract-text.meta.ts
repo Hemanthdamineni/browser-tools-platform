@@ -1,5 +1,5 @@
 import type { ToolMeta } from '@/lib/types';
-import { pdfjsCredit } from './shared';
+import { pdfjsCredit } from './credits';
 
 export const meta: ToolMeta = {
   id: 'pdf-extract-text',

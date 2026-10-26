@@ -1,5 +1,5 @@
 import type { ToolMeta } from '@/lib/types';
-import { pdfCredit, pdfjsCredit } from './shared';
+import { pdfCredit, pdfjsCredit } from './credits';
 export const meta: ToolMeta = {
   id: 'pdf-sign',
   name: 'Sign PDF',

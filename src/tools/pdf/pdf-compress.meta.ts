@@ -1,5 +1,5 @@
 import type { ToolMeta } from '@/lib/types';
-import { fflateCredit, pdfCredit } from './shared';
+import { fflateCredit, pdfCredit } from './credits';
 export const meta: ToolMeta = {
   id: 'pdf-compress',
   name: 'Compress PDF',
