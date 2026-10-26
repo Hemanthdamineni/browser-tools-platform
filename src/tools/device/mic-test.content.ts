@@ -29,20 +29,20 @@ export const content = {
   ],
   faq: [
     {
-      q: 'Does the recording leave my device?',
-      a: 'No. The clip is produced by your own browser’s MediaRecorder, measured in this tab and handed to you as a download. Toolbench never uploads it and never stores it.',
+      q: 'Is my voice recorded or sent anywhere?',
+      a: 'No. The microphone stream, the analyser and the recorder all run in this browser tab. Nothing is stored or uploaded, and closing the page releases the microphone.',
     },
     {
-      q: 'What does dBFS mean?',
-      a: 'Decibels relative to full scale. 0 dBFS is the loudest a digital sample can be and −∞ is silence. A microphone that is working well sits around −30 to −12 dBFS while you speak normally.',
+      q: 'Why does the browser ask for permission?',
+      a: 'Browsers only allow microphone access after you approve it, and only on secure pages (https:// or localhost). If you denied it earlier, open the padlock in the address bar and set Microphone to “Allow”.',
     },
     {
-      q: 'Which recording format do I get?',
-      a: 'Whatever your browser produces: WebM/Opus in Chrome and Firefox, MP4 in Safari. The download is named after the format that was actually recorded.',
+      q: 'What does the level meter tell me?',
+      a: 'Peak is the loudest sample in the last frame and RMS is the average loudness. Aim for a “Good level” verdict: peaks below full scale and RMS around −18 dBFS or so.',
     },
     {
-      q: 'The meter does not move — what is wrong?',
-      a: 'Either the browser handed back a silent track (the input may be muted in your operating system’s sound settings) or you picked the wrong input. The panel says which of the two it is.',
+      q: 'Which format is the recording saved in?',
+      a: 'Whatever the recorder supports — usually WebM (Opus) in Chromium and Ogg (Opus) in Firefox, occasionally MP4. The summary lists the exact format and the file keeps a matching extension.',
     },
   ],
 } as const;

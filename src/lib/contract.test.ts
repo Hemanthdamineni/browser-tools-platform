@@ -105,6 +105,10 @@ describe('tool meta contract', { timeout: 30_000 }, () => {
   it('has at least 3 runnable examples', () => {
     const problems: string[] = [];
     for (const { meta } of VISIBLE_TOOLS) {
+      // Examples are one-click text payloads. A file tool without the optional
+      // textarea has no way to express one — its workbench starts from a real
+      // file (often a live device capture), so the rule does not apply there.
+      if (meta.input === 'file' && !meta.acceptsText) continue;
       const count = (meta.examples ?? []).length;
       if (count < 3) problems.push(`${meta.id}: examples has ${count} entries (min 3)`);
     }

@@ -25,24 +25,24 @@ export const content = {
   ],
   faq: [
     {
-      q: 'Does the camera feed leave my device?',
-      a: 'No. The preview is drawn by the browser inside this tab, the snapshot is rasterised on your machine and the report is built here as well. Nothing is uploaded, recorded or stored, and the page makes no network requests once it has loaded.',
+      q: 'Is my camera feed uploaded anywhere?',
+      a: 'No. The preview is a live video element fed by your browser, the frame rate is counted from frames drawn in this tab, and the snapshot is encoded with a canvas here. Nothing is recorded, stored or sent over the network. The only thing the page downloads is its own JavaScript, served from this site.',
     },
     {
-      q: 'Why are the camera names missing?',
-      a: 'Browsers only reveal device names after the user grants camera permission. Until then the picker shows “Camera 1”, “Camera 2” and so on, and the names appear as soon as you allow access.',
+      q: 'Why does the measured frame rate differ from the camera spec?',
+      a: 'A camera often advertises 30 fps but delivers fewer frames in dim light, or more than the display can show. The measured number counts the frames the browser actually presented during the sampling window, which is what you would see in a recording. Some browsers cannot report frames from the video at all; there the rate is sampled from the display refresh loop and is an approximation.',
     },
     {
-      q: 'Why does the frame rate differ from what the camera claims?',
-      a: 'The claimed rate comes from the video track settings, while the measured rate is counted from the frames the browser actually delivered. When they disagree by more than 2 fps, the report says so — the machine, the browser or the USB link is dropping frames.',
+      q: 'Why are my camera names hidden?',
+      a: 'Browsers only reveal device names after you allow camera access at least once. Press Start camera to grant it, and the picker and the report will show the real names.',
     },
     {
-      q: 'Is the snapshot stored anywhere?',
-      a: 'No. The frame is drawn into a canvas in this tab and handed straight back to you as a PNG download. It is never uploaded and never kept by the site.',
+      q: 'What happens to the snapshot?',
+      a: 'It is drawn from the current frame into a PNG and offered as a download next to the report. The file is created in this tab and only leaves it if you save it.',
     },
     {
-      q: 'Why does the preview stay black?',
-      a: 'A black preview usually means the camera is already in use by another app or tab, or that the page is not served over https:// — browsers only hand out cameras on secure pages. The panel tells you which of the two it is when it happens.',
+      q: 'The camera does not start — what should I check?',
+      a: 'Camera access needs an https:// page (or localhost) and your permission. If another tab or app is already using the camera, close it and try again. The panel explains the exact reason for every blocker, including denied permission and a camera that is already in use.',
     },
   ],
 } as const;

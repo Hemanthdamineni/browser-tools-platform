@@ -29,28 +29,20 @@ export const content = {
   ],
   faq: [
     {
-      q: 'Does my photo get uploaded?',
-      a: 'No. The model runs in your browser and the image is never sent anywhere. The only download is the model weights themselves, from the Hugging Face Hub, the first time you use the tool. They are then cached in your browser.',
+      q: 'What gets downloaded?',
+      a: 'Two things, once: the MODNet model weights from the Hugging Face Hub, and the ONNX runtime binary (WebAssembly) from the jsDelivr CDN, which is where the runtime loads it from by default. Both are kept in your browser’s Cache Storage, so later runs work offline. Your images are never uploaded.',
     },
     {
-      q: 'What exactly does the model do?',
-      a: 'It uses MODNet, a portrait-matting network: it estimates a soft alpha matte for the person in the picture and everything around them becomes transparent. It is a portrait model — it is built for people, not for products, pets or scenery.',
+      q: 'Is my photo sent anywhere?',
+      a: 'No. The only requests are for the model weights (huggingface.co) and the ONNX runtime binary (cdn.jsdelivr.net) on first use; the photo itself is processed entirely on your device.',
     },
     {
-      q: 'Will it work on a photo of a landscape or an object?',
-      a: 'Probably not well. MODNet was trained on portraits of people. On a landscape it usually keeps most of the frame, and on a product shot it may find no subject at all. The result says so when the matte looks empty or covers everything.',
+      q: 'Which images work best?',
+      a: 'MODNet is a portrait matting model: it is best at isolating a single person. Group photos, pets or objects with no clear person may keep some background. Use the matte threshold to tighten feathered edges.',
     },
     {
-      q: 'How big is the download?',
-      a: 'About 6 MB of model weights, fetched once from the Hugging Face Hub. They are then cached in your browser, so later runs start immediately.',
-    },
-    {
-      q: 'Why do the edges look soft?',
-      a: 'The model returns a soft matte, not a hard cut-out, so hair and edges keep their natural falloff. Raise the edge cutoff to remove the faint halo some backgrounds leave behind.',
-    },
-    {
-      q: 'What format comes out?',
-      a: 'Always PNG — it is the only widely supported image format that keeps an alpha channel. When you pick a solid background the PNG is flattened and fully opaque.',
+      q: 'Why is my result pixelated or slightly off?',
+      a: 'The model runs at 512 px then scales back up, so small, heavily-compressed or very high-resolution photos may show soft edges. Save as PNG to keep the alpha channel lossless.',
     },
   ],
 } as const;

@@ -215,9 +215,9 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | --- | --- | --- | --- | --- |
 | `dead-pixel-test` | Dead Pixel Test | text | stable | Sweep your screen with solid colours and greys, fullscreen, to spot dead or stuck pixels. |
 | `keyboard-tester` | Keyboard Tester | text | beta | Watch every key you press light up on screen, read the key and code the browser receives, and test for ghosting. |
-| `mic-test` | Microphone Test | file | beta | Check your microphone: live input level in dBFS, a scrolling waveform, and a clip to play back. |
+| `mic-test` | Microphone Test | file | beta | Check a microphone: live level meter and waveform, then record a take and play it back. |
 | `speaker-test` | Speaker Test | text | stable | Play a test tone or a log-spaced frequency sweep out of the left, right or both channels. |
-| `webcam-test` | Webcam Test | text | beta | Pick a camera, watch a live preview, read the real resolution and frame rate, and take a snapshot. |
+| `webcam-test` | Webcam Test | file | beta | Preview a camera, read its live resolution and frame rate, and save a PNG snapshot. |
 
 ## encoding (14)
 
@@ -281,7 +281,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `image-metadata` | Image Metadata & EXIF Viewer | file | stable | Inspect image dimensions, file details, and common JPEG EXIF tags. |
 | `image-ocr` | Image OCR | file | beta | Read text out of images with on-device OCR — nothing is uploaded, nothing leaves your browser. |
 | `image-to-datauri` | Image to Data URI | file | beta | Encode an image as a data URI for HTML, CSS, or source code. |
-| `background-remover` | Remove Image Background | file | beta | Remove the background from a photo of a person and export a transparent PNG, on-device. |
+| `background-remover` | Remove Background | file | beta | Cut a subject out of a photo with an on-device AI matting model (MODNet). |
 | `image-resize` | Resize Image | file | stable | Resize images by percentage or to exact dimensions, entirely in your browser. |
 | `image-rotate` | Rotate / Flip Image | file | stable | Rotate images by 90-degree steps or flip them horizontally and vertically. |
 | `image-spritesheet` | Sprite Sheet Builder | file | stable | Combine multiple images into one sprite sheet with a position map. |

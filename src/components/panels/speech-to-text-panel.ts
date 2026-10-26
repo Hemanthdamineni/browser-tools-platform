@@ -17,11 +17,28 @@ import { formatBytes, formatDuration } from '@/lib/format';
 import { runToolById } from '@/lib/worker/client';
 import { applyShowWhen, clearError, readOptions, showError } from '../workbench/shared';
 import {
-  checkMicEnvironment,
-  chooseRecorderMimeType,
-  describeMediaError,
-  recordingFilename,
+  describeMicError,
+  pickRecorderMime,
+  recordingExtension,
 } from '@/tools/device/mic-test.core';
+
+/** Recording containers we can name, best first (mirrors mic-test's list). */
+const RECORDER_MIME_CANDIDATES: readonly string[] = [
+  'audio/webm;codecs=opus',
+  'audio/webm',
+  'audio/mp4;codecs=mp4a.40.2',
+  'audio/mp4',
+  'audio/ogg;codecs=opus',
+];
+
+/** `speech-recording-20260124-153000.webm` — deterministic once the clock is passed in. */
+function recordingFilename(mimeType: string, at: Date = new Date()): string {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const stamp =
+    `${at.getFullYear()}${pad(at.getMonth() + 1)}${pad(at.getDate())}` +
+    `-${pad(at.getHours())}${pad(at.getMinutes())}${pad(at.getSeconds())}`;
+  return `speech-recording-${stamp}.${recordingExtension(mimeType)}`;
+}
 
 /* -------------------------------------------------------------------------- */
 /*  Pure logic — testable without a DOM or a model                            */
@@ -376,30 +393,35 @@ export function mountSpeechToTextPanel(panel: HTMLElement): void {
   function finishMicRecording(): void {
     const blob = new Blob(micChunks, { type: recordingType });
     micChunks = [];
-    chooseFile(
-      new File([blob], recordingFilename('recording', recordingType), { type: recordingType }),
-    );
+    chooseFile(new File([blob], recordingFilename(recordingType), { type: recordingType }));
   }
 
   micRecordBtn.addEventListener('click', async () => {
-    const blocker = checkMicEnvironment({
-      secureContext: window.isSecureContext,
-      hasMediaDevices: !!navigator.mediaDevices,
-      hasGetUserMedia: typeof navigator.mediaDevices?.getUserMedia === 'function',
-      hasMediaRecorder: typeof window.MediaRecorder !== 'undefined',
-    });
-    if (blocker) {
-      showError(errorBox, blocker.message, blocker.hint);
+    // Environment gates, checked in the same order mic-test uses.
+    if (!window.isSecureContext) {
+      showError(
+        errorBox,
+        'A secure connection is required.',
+        'Open this page over HTTPS (or localhost) so the browser allows microphone access.',
+      );
+      return;
+    }
+    if (!navigator.mediaDevices || typeof navigator.mediaDevices.getUserMedia !== 'function') {
+      showError(
+        errorBox,
+        'This browser cannot access the microphone.',
+        'Try a recent Chrome, Edge, Firefox or Safari.',
+      );
       return;
     }
     try {
       stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     } catch (error) {
-      const info = describeMediaError(error);
-      showError(errorBox, info.message, info.hint);
+      const blocker = describeMicError(error);
+      showError(errorBox, blocker.message, blocker.hint);
       return;
     }
-    const format = chooseRecorderMimeType((mimeType) => {
+    const format = pickRecorderMime(RECORDER_MIME_CANDIDATES, (mimeType) => {
       try {
         return (
           typeof window.MediaRecorder !== 'undefined' &&
@@ -420,7 +442,7 @@ export function mountSpeechToTextPanel(panel: HTMLElement): void {
     }
     let next: MediaRecorder;
     try {
-      next = new MediaRecorder(stream, { mimeType: format.mimeType });
+      next = new MediaRecorder(stream, { mimeType: format });
     } catch {
       stopMicStream();
       showError(
@@ -431,7 +453,7 @@ export function mountSpeechToTextPanel(panel: HTMLElement): void {
       return;
     }
     recorder = next;
-    recordingType = format.mimeType;
+    recordingType = format;
     micChunks = [];
     next.ondataavailable = (event) => {
       if (event.data && event.data.size > 0) micChunks.push(event.data);
