@@ -35,20 +35,6 @@ export const meta: ToolMeta = {
     { title: 'Analyze a cache duration', input: '600' },
     { title: 'Build a five-minute cache', options: { mode: 'build', seconds: '600' } },
   ],
-  faq: [
-    {
-      q: 'What does this header do?',
-      a: 'It caches a successful CORS preflight so the browser skips the OPTIONS round-trip for subsequent requests within the window.',
-    },
-    {
-      q: 'Is the value always honored?',
-      a: 'Browsers cap it: Firefox caps around 25 hours but Chromium historically ~5 minutes (600s), and some ignore it entirely, so do not rely on it.',
-    },
-    {
-      q: 'When should I omit it?',
-      a: 'If you change CORS rules often, a short value or omission avoids stale preflight caches during rollout.',
-    },
-  ],
   related: ['cors-headers'],
   hidden: true,
   redirectTo: 'cors-headers',

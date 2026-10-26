@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { getContent } from '@/lib/content';
 import { ToolError, type OptionValues } from '@/lib/types';
 import tool, {
   buildReport,
@@ -50,7 +51,7 @@ describe('keyboard-tester meta', () => {
   });
 
   it('explains that a failed rollover test is not necessarily the page’s fault', () => {
-    const faq = tool.meta.faq ?? [];
+    const faq = getContent(tool.meta.id)?.faq ?? [];
     expect(faq.length).toBeGreaterThan(0);
     expect(faq.map((f) => `${f.q} ${f.a}`).join(' ')).toMatch(/operating system/i);
   });

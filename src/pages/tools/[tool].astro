@@ -4,7 +4,8 @@ import Layout from '@/components/Layout.astro';
 import ToolPage from '@/components/ToolPage.astro';
 import { ALL_TOOLS, redirectTarget } from '@/lib/registry';
 import { site } from '@/lib/site';
-import { softwareAppJsonLd, faqJsonLd, breadcrumbJsonLd } from '@/lib/seo';
+import { getContent } from '@/lib/content';
+import { softwareAppJsonLd, faqJsonLd, howToJsonLd, breadcrumbJsonLd } from '@/lib/seo';
 
 export const getStaticPaths = (() => {
   return ALL_TOOLS.map((tool) => ({
@@ -14,6 +15,7 @@ export const getStaticPaths = (() => {
 }) satisfies GetStaticPaths;
 
 const { meta } = Astro.props;
+const content = getContent(meta.id);
 // Link paths must honour the deploy base (e.g. /browser-tools-platform on GitHub Pages).
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
@@ -68,7 +70,12 @@ const targetUrl = target ? new URL(targetPath, site.url).toString() : '';
       description={meta.summary}
       path={`/tools/${meta.id}`}
       noindex={meta.hidden}
-      jsonLd={[softwareAppJsonLd(meta), faqJsonLd(meta), breadcrumbJsonLd(meta)]}
+      jsonLd={[
+        softwareAppJsonLd(meta),
+        faqJsonLd(meta, content?.faq),
+        howToJsonLd(meta, content?.article),
+        breadcrumbJsonLd(meta),
+      ]}
     >
       <ToolPage meta={meta} />
     </Layout>

@@ -37,20 +37,6 @@ export const meta: ToolMeta = {
       options: { mode: 'build', expectation: '100-continue' },
     },
   ],
-  faq: [
-    {
-      q: 'What does 100-continue do?',
-      a: 'It lets a client ask the server to approve request headers before sending a potentially large request body.',
-    },
-    {
-      q: 'Does this guarantee a 100 response?',
-      a: 'No. Servers and intermediaries may ignore, reject, or mishandle the expectation; clients need a timeout and fallback strategy.',
-    },
-    {
-      q: 'Can I use custom expectations?',
-      a: 'Extensions are possible in theory, but interoperability is limited. This tool flags them for review rather than claiming universal support.',
-    },
-  ],
   related: ['http-status', 'http-header-analyzer', 'content-type'],
   hidden: true,
   redirectTo: 'http-header-analyzer',

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { getContent } from '@/lib/content';
 import tool, {
   buildGrowthChart,
   buildYearTable,
@@ -263,7 +264,7 @@ describe('sip-calculator', () => {
     expect(joined).toMatch(/not financial advice/i);
     expect(joined).toMatch(/not guaranteed/i);
     expect(tool.meta.description).toMatch(/not financial advice/i);
-    const faq = tool.meta.faq ?? [];
+    const faq = getContent(tool.meta.id)?.faq ?? [];
     expect(faq.some((f) => /financial advice/i.test(f.q) && /not guaranteed/i.test(f.a))).toBe(
       true,
     );

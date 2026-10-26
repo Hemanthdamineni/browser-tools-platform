@@ -43,20 +43,6 @@ export const meta: ToolMeta = {
       options: { mode: 'build', hints: 'Viewport-Width DPR' },
     },
   ],
-  faq: [
-    {
-      q: 'What does Critical-CH do?',
-      a: 'It tells a browser that listed client hints are critical to the response, which can influence retry behavior when the first request lacked them.',
-    },
-    {
-      q: 'Is Critical-CH an opt-in?',
-      a: 'Accept-CH advertises requested hints; Critical-CH marks a subset as necessary. Browser support and retry behavior vary.',
-    },
-    {
-      q: 'Can it affect caching?',
-      a: 'Yes. Responses that vary by hints need matching Vary and cache-key policy to avoid incorrect variants.',
-    },
-  ],
   related: ['http-header-analyzer', 'cache-headers', 'permissions-policy'],
   hidden: true,
   redirectTo: 'http-header-analyzer',

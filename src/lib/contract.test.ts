@@ -20,19 +20,31 @@ const ALLOWED_STATUS = ['stable', 'beta'];
 /** types.ts: `summary` — "<= 120 chars". */
 const MAX_SUMMARY = 120;
 
-/**
- * `article` is an E6 addition that is not yet on `ToolMeta` (see TODO E6-S1-T1).
- * Read it structurally so this test enforces the shape the moment it lands,
- * without touching the shared type.
- */
+/** Editorial content lives in sibling `<id>.content.ts` modules, not on the meta. */
 interface ArticleSection {
   heading: string;
   body: string;
 }
-type MetaWithArticle = ToolMeta & { article?: ArticleSection[] };
+
+const CONTENT_MODULES = import.meta.glob<{
+  content: { article?: ArticleSection[]; faq?: { q: string; a: string }[] };
+}>('../tools/**/*.content.ts', { eager: true });
+
+const contentByTool = new Map<
+  string,
+  { article?: ArticleSection[]; faq?: { q: string; a: string }[] }
+>();
+for (const [path, mod] of Object.entries(CONTENT_MODULES)) {
+  const id = (path.split('/').pop() ?? '').replace(/\.content\.ts$/, '');
+  if (id) contentByTool.set(id, mod.content);
+}
 
 function articleOf(meta: ToolMeta): ArticleSection[] | undefined {
-  return (meta as MetaWithArticle).article;
+  return contentByTool.get(meta.id)?.article;
+}
+
+function faqOf(meta: ToolMeta): { q: string; a: string }[] | undefined {
+  return contentByTool.get(meta.id)?.faq;
 }
 
 function articleWords(sections: ArticleSection[]): number {
@@ -102,7 +114,7 @@ describe('tool meta contract', { timeout: 30_000 }, () => {
   it('has at least 3 faq entries', () => {
     const problems: string[] = [];
     for (const { meta } of VISIBLE_TOOLS) {
-      const count = (meta.faq ?? []).length;
+      const count = (faqOf(meta) ?? []).length;
       if (count < 3) problems.push(`${meta.id}: faq has ${count} entries (min 3)`);
     }
     expect(problems, problems.join('\n')).toEqual([]);

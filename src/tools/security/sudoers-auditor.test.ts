@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { getContent } from '@/lib/content';
 import tool from './sudoers-auditor.tool';
 import { meta } from './sudoers-auditor.meta';
 
@@ -271,7 +272,7 @@ describe('sudoers-auditor metadata', () => {
   });
 
   it('documents its limits without stray escape sequences', () => {
-    const text = JSON.stringify(meta.faq ?? []);
+    const text = JSON.stringify(getContent(meta.id)?.faq ?? []);
     expect(text).toContain('Include directives');
     expect(text).toContain('Group, user and host names are not resolved');
     expect(text).not.toContain('\\n');

@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { getContent } from '@/lib/content';
 import { ToolError, type OptionValues } from '@/lib/types';
 import tool, {
   buildReport,
@@ -54,13 +55,13 @@ describe('dead-pixel-test meta', () => {
   });
 
   it('tells the reader how to leave fullscreen', () => {
-    const faq = tool.meta.faq ?? [];
+    const faq = getContent(tool.meta.id)?.faq ?? [];
     expect(faq.length).toBeGreaterThan(0);
     expect(faq.map((f) => `${f.q} ${f.a}`).join(' ')).toMatch(/escape/i);
   });
 
   it('ships an article of three to five headed paragraphs', () => {
-    const article = tool.meta.article ?? [];
+    const article = getContent(tool.meta.id)?.article ?? [];
     expect(article.length).toBeGreaterThanOrEqual(3);
     expect(article.length).toBeLessThanOrEqual(5);
     for (const section of article) {

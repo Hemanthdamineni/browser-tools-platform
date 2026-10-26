@@ -64,20 +64,6 @@ export const meta: ToolMeta = {
       },
     },
   ],
-  faq: [
-    {
-      q: 'Does no-cache mean do not store?',
-      a: 'No. no-cache allows storage but requires validation before reuse. Use no-store when a response must not be stored.',
-    },
-    {
-      q: 'What is s-maxage?',
-      a: 's-maxage sets a freshness lifetime for shared caches such as CDNs and overrides max-age there. It does not by itself prevent browser caching.',
-    },
-    {
-      q: 'Can this know whether a response is safe to cache?',
-      a: 'No. It can flag suspicious combinations such as public caching with sensitive-looking headers, but cache safety depends on content, authorization, and deployment context.',
-    },
-  ],
   related: ['security-headers', 'content-disposition', 'http-status'],
   hidden: true,
   redirectTo: 'cache-headers',

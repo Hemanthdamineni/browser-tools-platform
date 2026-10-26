@@ -43,20 +43,6 @@ export const meta: ToolMeta = {
       options: { mode: 'build', date: 'Wed, 21 Oct 2030 07:28:00 GMT' },
     },
   ],
-  faq: [
-    {
-      q: 'Does Expires always control caching?',
-      a: 'No. Cache-Control max-age and s-maxage generally take precedence when present; Expires is a legacy-compatible fallback.',
-    },
-    {
-      q: 'What does a past Expires date mean?',
-      a: 'It indicates the response is already stale, though other cache directives and validation rules still affect actual behavior.',
-    },
-    {
-      q: 'What format should I send?',
-      a: 'Use IMF-fixdate, for example Wed, 21 Oct 2030 07:28:00 GMT. This tool does not make network requests.',
-    },
-  ],
   related: ['cache-headers', 'http-header-analyzer', 'conditional-request-headers'],
   hidden: true,
   redirectTo: 'cache-headers',

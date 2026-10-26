@@ -1,6 +1,7 @@
 ---
 import type { ToolMeta } from '@/lib/types';
 import { CATEGORIES } from '@/lib/categories';
+import { getContent } from '@/lib/content';
 import { relatedTools } from '@/lib/registry';
 import Icon from './Icon.astro';
 import PrivacyBadge from './PrivacyBadge.astro';
@@ -15,6 +16,9 @@ interface Props {
   meta: ToolMeta;
 }
 const { meta } = Astro.props;
+const content = getContent(meta.id);
+const article = content?.article;
+const faq = content?.faq;
 const category = CATEGORIES[meta.category];
 const related = relatedTools(meta);
 // Link paths must honour the deploy base (e.g. /browser-tools-platform on GitHub Pages).
@@ -67,10 +71,10 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   </div>
 
   {
-    meta.article && meta.article.length > 0 && (
+    article && article.length > 0 && (
       <section class="prose-tool mt-14 max-w-prose" aria-labelledby="how-it-works-heading">
         <h2 id="how-it-works-heading">How it works</h2>
-        {meta.article.map((entry) => (
+        {article.map((entry) => (
           <div>
             <h3>{entry.heading}</h3>
             <p>{entry.body}</p>
@@ -81,13 +85,13 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   }
 
   {
-    meta.faq && meta.faq.length > 0 && (
+    faq && faq.length > 0 && (
       <section class="mt-14" aria-labelledby="questions-heading">
         <h2 id="questions-heading" class="text-lg font-bold text-[rgb(var(--text))]">
           Questions
         </h2>
         <div class="mt-4 divide-y overflow-hidden rounded-lg border">
-          {meta.faq.map((f) => (
+          {faq.map((f) => (
             <details class="group px-4 py-4">
               <summary class="flex cursor-pointer list-none items-center justify-between gap-4 font-medium text-[rgb(var(--text))]">
                 <span>{f.q}</span>
@@ -108,7 +112,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   }
 
   {
-    meta.article == null && (
+    article == null && (
       <section class="prose-tool mt-14 max-w-prose">
         <h2>How it works</h2>
         <p>

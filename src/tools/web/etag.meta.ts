@@ -52,20 +52,6 @@ export const meta: ToolMeta = {
       options: { mode: 'compare', secondTag: '"abc"', comparison: 'weak' },
     },
   ],
-  faq: [
-    {
-      q: 'What is the difference between weak and strong comparison?',
-      a: 'Weak comparison treats W/"abc" and "abc" as equivalent. Strong comparison requires both tags to be strong and their opaque values to match exactly.',
-    },
-    {
-      q: 'Does this hash my file or response?',
-      a: 'No. It generates tags from the token you provide and never reads files or fetches resources.',
-    },
-    {
-      q: 'What does * mean?',
-      a: 'The wildcard matches any current representation in conditional request headers such as If-None-Match and If-Match.',
-    },
-  ],
   related: ['cache-headers', 'checksum-validator', 'file-hash'],
   hidden: true,
   redirectTo: 'conditional-request-headers',

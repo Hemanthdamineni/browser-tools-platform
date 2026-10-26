@@ -42,20 +42,6 @@ export const meta: ToolMeta = {
     { title: 'Analyze an update precondition', input: '"v1-abc123"' },
     { title: 'Build a strong If-Match condition', options: { mode: 'build', tag: '"v1-abc123"' } },
   ],
-  faq: [
-    {
-      q: 'What does If-Match protect against?',
-      a: 'It lets a client update only if the resource still has a matching entity tag, preventing accidental overwrites after another change.',
-    },
-    {
-      q: 'Are weak tags valid for If-Match?',
-      a: 'If-Match uses strong comparison, so weak entity-tags do not satisfy the condition. This tool accepts them for analysis but flags them for review.',
-    },
-    {
-      q: 'What does * mean?',
-      a: 'The wildcard matches any current representation, and is useful for operations that should proceed only when a resource exists.',
-    },
-  ],
   related: ['conditional-request-headers', 'http-range', 'http-status'],
   hidden: true,
   redirectTo: 'conditional-request-headers',

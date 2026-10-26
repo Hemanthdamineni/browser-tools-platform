@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { getContent } from '@/lib/content';
 import type { OptionValues } from '@/lib/types';
 import tool from './stopwatch.tool';
 
@@ -38,7 +39,7 @@ describe('stopwatch meta', () => {
   });
 
   it('explains the timestamp-accurate behaviour in the FAQ', () => {
-    const faq = tool.meta.faq ?? [];
+    const faq = getContent(tool.meta.id)?.faq ?? [];
     expect(faq.length).toBeGreaterThanOrEqual(3);
     expect(faq.map((f) => `${f.q} ${f.a}`).join(' ')).toMatch(/sleep/i);
   });

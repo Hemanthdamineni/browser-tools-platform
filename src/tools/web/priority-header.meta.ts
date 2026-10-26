@@ -39,20 +39,6 @@ export const meta: ToolMeta = {
       options: { mode: 'build', urgency: 1, incremental: false },
     },
   ],
-  faq: [
-    {
-      q: 'Does urgency 0 guarantee first delivery?',
-      a: 'No. It expresses relative urgency to the server and intermediary scheduler; congestion, dependencies, and implementation policy still decide delivery.',
-    },
-    {
-      q: 'What does i mean?',
-      a: 'The incremental parameter indicates that incremental delivery is acceptable for the response, such as progressively loading a resource.',
-    },
-    {
-      q: 'Is this the old HTTP/2 dependency tree?',
-      a: 'No. This uses the modern RFC 9218 Priority field syntax rather than obsolete HTTP/2 priority trees.',
-    },
-  ],
   related: ['http-status', 'content-type', 'http-header-analyzer'],
   hidden: true,
   redirectTo: 'http-header-analyzer',

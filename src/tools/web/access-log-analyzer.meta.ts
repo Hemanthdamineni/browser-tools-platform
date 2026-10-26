@@ -52,28 +52,6 @@ export const meta: ToolMeta = {
       default: true,
     },
   ],
-  article: [
-    {
-      heading: 'What Access Log Analyzer reports',
-      body: 'Access Log Analyzer parses Apache and nginx access logs written in the Common or Combined Log Format and returns the numbers an operator looks for: request and byte totals, the time span, status-class breakdown and error rate, top IPs, paths, user agents and referrers, the status distribution, 4xx and 5xx grouped by path, and findings that name bots, scanners, probed paths and empty responses.',
-    },
-    {
-      heading: 'When to point it at a log',
-      body: 'Reach for it after an incident or before a deploy, when you want to know what a log actually holds without a spreadsheet: which endpoints take the traffic, which addresses hammer 404s, whether a scanner is walking /.env and /wp-login.php, or how many requests came from a bot.',
-    },
-    {
-      heading: 'The output views and their options',
-      body: 'Format selects the view: summary, top, status, errors, or findings. Top sets how many rows each top list shows, from 3 to 50. Security toggles the probe and scanner check; when off, the bot, client and empty-response observations still appear but sensitive paths count as ordinary traffic.',
-    },
-    {
-      heading: 'The size and format limits',
-      body: 'The tool reads up to 16 MB of text and 200,000 lines; beyond that it reads to the limit and the report says the result is partial. A missing size written as a dash counts as zero bytes. Lines that do not match the grammar are counted and shown rather than silently dropped.',
-    },
-    {
-      heading: 'The log stays on your device',
-      body: 'The analysis happens entirely in your browser. Referrers, user agents and paths are only counted as text; nothing in the log is requested, resolved or opened, and nothing is uploaded anywhere.',
-    },
-  ],
   examples: [
     {
       title: 'A few combined-log lines',
@@ -87,24 +65,6 @@ export const meta: ToolMeta = {
     {
       title: 'Probe and scanner findings',
       options: { format: 'findings', security: true },
-    },
-  ],
-  faq: [
-    {
-      q: 'Which log formats are understood?',
-      a: 'The Common Log Format and the Combined Log Format that Apache and nginx write by default, including the quoted referrer and user-agent fields. Lines that do not match are counted and shown rather than silently dropped, and a missing size written as a dash is treated as zero bytes.',
-    },
-    {
-      q: 'How large a log can it handle?',
-      a: 'Up to 16 MB of text and 200,000 lines, which is far more than a browser tab can display comfortably. If a file is bigger it is read up to the limit and the findings say that the result is partial.',
-    },
-    {
-      q: 'Does it ever fetch anything it finds in the log?',
-      a: 'No. Referrers, user agents and paths are only counted as text. Nothing in the log is requested, resolved or opened, and the analysis stays on your device.',
-    },
-    {
-      q: 'What counts as a probe?',
-      a: 'Requests for paths that should not be publicly reachable, such as /.env, /.git/config, /wp-login.php, /admin or xmlrpc.php, plus any single address that collects a large number of 404s. Both are listed with the count and the addresses responsible.',
     },
   ],
   related: ['http-header-analyzer', 'user-agent', 'url-parse', 'robots-txt'],

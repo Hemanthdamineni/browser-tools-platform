@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { ToolError } from '@/lib/types';
 import { encodeWavPCM16 } from '@/lib/audio';
 import { getTool, redirectTarget } from '@/lib/registry';
+import { getContent } from '@/lib/content';
 import {
   encodeWav,
   FORMAT_EXT,
@@ -217,9 +218,9 @@ describe('audio-convert metadata contract', () => {
     expect(meta.hidden).not.toBe(true);
     expect(meta.redirectTo).toBeUndefined();
     expect(meta.examples!.length).toBeGreaterThanOrEqual(3);
-    expect(meta.faq!.length).toBeGreaterThanOrEqual(3);
-    expect(meta.article!.length).toBeGreaterThanOrEqual(3);
-    expect(meta.article!.length).toBeLessThanOrEqual(5);
+    expect(getContent(meta.id)?.faq?.length ?? 0).toBeGreaterThanOrEqual(3);
+    expect(getContent(meta.id)?.article?.length ?? 0).toBeGreaterThanOrEqual(3);
+    expect(getContent(meta.id)?.article?.length ?? 0).toBeLessThanOrEqual(5);
     expect(meta.credits?.some((c) => c.license === 'LGPL-3.0')).toBe(true);
     // Related ids must be visible tools.
     for (const rel of meta.related ?? []) {

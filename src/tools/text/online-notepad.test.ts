@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { getContent } from '@/lib/content';
 import tool, { buildExport, type Note } from './online-notepad.tool';
 
 /** A note with the given content and title. */
@@ -24,7 +25,7 @@ describe('online-notepad meta', () => {
   });
 
   it('says the notes never leave the browser and how to delete them', () => {
-    const faq = tool.meta.faq ?? [];
+    const faq = getContent(tool.meta.id)?.faq ?? [];
     expect(faq.length).toBeGreaterThanOrEqual(3);
     const text = faq.map((f) => `${f.q} ${f.a}`).join(' ');
     expect(text).toMatch(/never leave this browser/i);

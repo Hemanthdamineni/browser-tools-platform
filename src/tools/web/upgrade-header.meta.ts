@@ -39,20 +39,6 @@ export const meta: ToolMeta = {
     { title: 'Analyze a WebSocket request', input: 'websocket' },
     { title: 'Build a protocol declaration', options: { mode: 'build', protocols: 'websocket' } },
   ],
-  faq: [
-    {
-      q: 'Does Upgrade alone switch protocols?',
-      a: 'No. HTTP/1.1 also requires Connection: Upgrade, and the server must accept the switch with the appropriate response such as 101 Switching Protocols.',
-    },
-    {
-      q: 'Can HTTP/2 use Upgrade?',
-      a: 'Extended CONNECT is used for many HTTP/2 protocol tunnels; the HTTP/1.1 Upgrade mechanism is not generally available. HTTP/3 has similar constraints.',
-    },
-    {
-      q: 'Does this test a WebSocket server?',
-      a: 'No. It validates the header value locally and never opens a network connection.',
-    },
-  ],
   related: ['http-status', 'http-header-analyzer', 'content-type'],
   hidden: true,
   redirectTo: 'http-header-analyzer',

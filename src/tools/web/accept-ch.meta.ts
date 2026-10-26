@@ -44,20 +44,6 @@ export const meta: ToolMeta = {
       options: { mode: 'build', hints: 'Sec-CH-UA Sec-CH-UA-Mobile Viewport-Width' },
     },
   ],
-  faq: [
-    {
-      q: 'Does Accept-CH send hints immediately?',
-      a: 'It opts a browser into sending requested hints on subsequent requests when policy and browser support allow it; it is not a request header.',
-    },
-    {
-      q: 'Why might Vary matter?',
-      a: 'Responses that vary by client-hint values generally need an appropriate Vary strategy to avoid serving one client’s variant to another.',
-    },
-    {
-      q: 'Are all hints privacy-neutral?',
-      a: 'No. Some high-entropy hints can increase fingerprinting surface and may require Permissions-Policy or explicit delegation.',
-    },
-  ],
   related: ['cache-headers', 'security-headers', 'content-type'],
   hidden: true,
   redirectTo: 'http-header-analyzer',

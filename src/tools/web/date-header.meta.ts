@@ -38,20 +38,6 @@ export const meta: ToolMeta = {
       options: { mode: 'build', date: 'Wed, 21 Oct 2015 07:28:00 GMT' },
     },
   ],
-  faq: [
-    {
-      q: 'Why does Date matter?',
-      a: 'Caches use response dates with Age and freshness metadata, and operational tooling uses them to diagnose server clock skew.',
-    },
-    {
-      q: 'Should every response include Date?',
-      a: 'Origin servers generally send it for responses except some status and protocol-specific cases; intermediaries may add or update it according to HTTP rules.',
-    },
-    {
-      q: 'Does this measure my server clock?',
-      a: 'No. It only validates a pasted value or formats a supplied date string; it makes no network request.',
-    },
-  ],
   related: ['conditional-request-headers', 'cache-headers'],
   hidden: true,
   redirectTo: 'http-header-analyzer',

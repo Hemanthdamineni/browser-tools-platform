@@ -57,20 +57,6 @@ export const meta: ToolMeta = {
       options: { mode: 'build', code: '111', agent: 'cache', text: 'Revalidation Failed' },
     },
   ],
-  faq: [
-    {
-      q: 'What does Warning carry?',
-      a: 'A warn-code (a 3-digit integer), warn-agent, warn-text in quotes, and an optional warn-date — all per RFC 7234.',
-    },
-    {
-      q: 'Why is Warning obsolete?',
-      a: 'The header was deprecated in later specs, but some caches still emit the 1xx/2xx codes, so tools often must recognize them.',
-    },
-    {
-      q: 'How do I compare codes?',
-      a: 'Codes from 100–199 relate to the current response only; 200–299 persist across caches. Lower is generally more informative.',
-    },
-  ],
   related: ['cache-headers', 'proxy-status'],
   hidden: true,
   redirectTo: 'http-header-analyzer',

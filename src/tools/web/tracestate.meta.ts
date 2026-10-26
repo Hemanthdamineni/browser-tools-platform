@@ -39,20 +39,6 @@ export const meta: ToolMeta = {
       options: { mode: 'build', key: 'vendor', value: 'opaque-value' },
     },
   ],
-  faq: [
-    {
-      q: 'What belongs in tracestate?',
-      a: 'Vendors use it for implementation-specific trace metadata while preserving other vendors’ entries during propagation.',
-    },
-    {
-      q: 'Is tracestate confidential?',
-      a: 'It may reveal vendor identifiers or routing metadata. Avoid putting secrets or sensitive user data in it.',
-    },
-    {
-      q: 'How large can it be?',
-      a: 'The W3C format limits tracestate to 32 list-members and 512 bytes.',
-    },
-  ],
   related: ['http-header-analyzer'],
   hidden: true,
   redirectTo: 'http-header-analyzer',

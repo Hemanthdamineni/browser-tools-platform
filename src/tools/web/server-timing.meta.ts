@@ -49,20 +49,6 @@ export const meta: ToolMeta = {
       options: { mode: 'build', name: 'db', duration: 18.7, description: 'PostgreSQL query' },
     },
   ],
-  faq: [
-    {
-      q: 'Where is Server-Timing exposed?',
-      a: 'Browsers can expose response Server-Timing metrics through the PerformanceServerTiming API when the response and cross-origin policy allow it.',
-    },
-    {
-      q: 'Is dur required?',
-      a: 'No. A metric can be a simple milestone such as cache; a duration is optional.',
-    },
-    {
-      q: 'Should sensitive data go in descriptions?',
-      a: 'No. Header values can be observable to clients, logs, and intermediaries. Avoid secrets, user data, and internal details.',
-    },
-  ],
   related: ['http-status', 'cache-headers'],
   hidden: true,
   redirectTo: 'http-header-analyzer',

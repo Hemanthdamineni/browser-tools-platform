@@ -79,13 +79,13 @@ export function softwareAppJsonLd(meta: ToolMeta) {
   };
 }
 
-export function faqJsonLd(meta: ToolMeta) {
-  if (!meta.faq?.length) return null;
+export function faqJsonLd(meta: ToolMeta, faq?: { q: string; a: string }[]) {
+  if (!faq?.length) return null;
   return {
     '@context': 'https://schema.org',
     '@id': `${toolPageId(meta.id)}#faq`,
     '@type': 'FAQPage',
-    mainEntity: meta.faq.map((f) => ({
+    mainEntity: faq.map((f) => ({
       '@type': 'Question',
       name: f.q,
       acceptedAnswer: { '@type': 'Answer', text: f.a },
@@ -117,14 +117,14 @@ export function breadcrumbJsonLd(meta: ToolMeta) {
  * emitted when the tool actually ships an `article`, so the schema never
  * describes content that is not visible on the page.
  */
-export function howToJsonLd(meta: ToolMeta) {
-  if (!meta.article?.length) return null;
+export function howToJsonLd(meta: ToolMeta, article?: { heading: string; body: string }[]) {
+  if (!article?.length) return null;
   return {
     '@context': 'https://schema.org',
     '@id': `${toolPageId(meta.id)}#how-to`,
     '@type': 'HowTo',
     name: meta.name,
-    step: meta.article.map((entry, index) => ({
+    step: article.map((entry, index) => ({
       '@type': 'HowToStep',
       position: index + 1,
       name: entry.heading,

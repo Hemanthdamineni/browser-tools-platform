@@ -44,20 +44,6 @@ export const meta: ToolMeta = {
     { title: 'Analyze a credentials flag', input: 'true' },
     { title: 'Build the credentials header', options: { mode: 'build', value: 'true' } },
   ],
-  faq: [
-    {
-      q: 'What does this header do?',
-      a: 'It tells the browser to allow credentialed cross-origin requests (cookies, auth headers) to read the response, when the request used withCredentials.',
-    },
-    {
-      q: 'Can it combine with a wildcard?',
-      a: 'No. When credentials are allowed, Access-Control-Allow-Origin must name the specific origin and cannot be *.',
-    },
-    {
-      q: 'Is false a valid value?',
-      a: 'The CORS spec defines only true; a false value is non-standard and generally treated as absent.',
-    },
-  ],
   related: ['cors-headers', 'security-headers'],
   hidden: true,
   redirectTo: 'cors-headers',

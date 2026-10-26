@@ -53,20 +53,6 @@ export const meta: ToolMeta = {
       options: { mode: 'build', form: 'date', date: 'Wed, 21 Oct 2015 07:28:00 GMT' },
     },
   ],
-  faq: [
-    {
-      q: 'Which HTTP responses use Retry-After?',
-      a: 'It is commonly used with 429 Too Many Requests and 503 Service Unavailable, but applications may use it with other responses.',
-    },
-    {
-      q: 'What is delta-seconds?',
-      a: 'It is a non-negative integer number of seconds to wait from response receipt. It is not a Unix timestamp.',
-    },
-    {
-      q: 'Does this calculate a client-specific retry time?',
-      a: 'No. Date-form values are parsed as UTC header dates. Network latency, clock skew, and server policy can affect actual retry timing.',
-    },
-  ],
   related: ['http-status', 'cache-headers', 'timestamp'],
   hidden: true,
   redirectTo: 'http-header-analyzer',

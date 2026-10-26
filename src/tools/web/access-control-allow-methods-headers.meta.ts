@@ -49,20 +49,6 @@ export const meta: ToolMeta = {
       options: { mode: 'build', methods: 'GET, POST', headers: 'Content-Type' },
     },
   ],
-  faq: [
-    {
-      q: 'When are these headers used?',
-      a: 'The browser sends a CORS preflight (OPTIONS) request before non-simple requests; these headers tell it which methods and headers the server accepts.',
-    },
-    {
-      q: 'What is a wildcard grant?',
-      a: 'A * value answers that any of the simple methods or safe headers are allowed, but it cannot be combined with credentials in some cases.',
-    },
-    {
-      q: 'What counts as a simple method?',
-      a: 'GET, HEAD, and POST are simple; most others (PUT, DELETE, PATCH) trigger a preflight.',
-    },
-  ],
   related: ['cors-headers', 'security-headers', 'http-status'],
   hidden: true,
   redirectTo: 'cors-headers',

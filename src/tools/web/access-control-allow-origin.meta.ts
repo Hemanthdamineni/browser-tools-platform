@@ -48,20 +48,6 @@ export const meta: ToolMeta = {
       options: { mode: 'build', origin: 'https://app.example.com', credentials: 'no' },
     },
   ],
-  faq: [
-    {
-      q: 'What does Access-Control-Allow-Origin do?',
-      a: 'It tells the browser which origins may read the cross-origin response, enabling CORS for that caller.',
-    },
-    {
-      q: 'Can * be combined with credentials?',
-      a: 'No. When Access-Control-Allow-Credentials: true is set, the Allow-Origin value cannot be a wildcard and must name the specific requesting origin.',
-    },
-    {
-      q: 'Why send Vary: Origin?',
-      a: 'When the allowed origin is chosen dynamically per request, Vary: Origin prevents caches from serving the wrong origin grant to other callers.',
-    },
-  ],
   related: ['http-header-analyzer', 'cross-origin-resource-policy', 'security-headers'],
   hidden: true,
   redirectTo: 'cors-headers',

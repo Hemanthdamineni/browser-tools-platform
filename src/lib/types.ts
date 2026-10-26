@@ -148,15 +148,6 @@ export interface ToolMeta {
   options?: ToolOption[];
   /** Runnable examples — one click fills the workbench. */
   examples?: { title: string; input?: string; options?: OptionValues }[];
-  faq?: { q: string; a: string }[];
-  /**
-   * Long-form prose shown on the tool page as a "How it works" section, placed
-   * between the workbench and the FAQ. Each entry is one `heading` and one
-   * plain-text `body` paragraph — never HTML; both are escaped when rendered.
-   * Optional: tools without it keep the generic explainer copy. The headings
-   * also become the steps of the page's `HowTo` structured data.
-   */
-  article?: { heading: string; body: string }[];
   /** Related tool ids. */
   related?: string[];
   /** Third-party code bundled for this tool (shown on the page + in NOTICE). */

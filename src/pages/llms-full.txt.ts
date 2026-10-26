@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { site } from '@/lib/site';
 import { VISIBLE_TOOLS, categoriesWithCounts } from '@/lib/registry';
+import { getContent } from '@/lib/content';
 import type { ToolOption } from '@/lib/types';
 
 /**
@@ -67,9 +68,16 @@ export const GET: APIRoute = () => {
           );
         }
       }
-      if (meta.faq?.length) {
+      const content = getContent(meta.id);
+      if (content?.article?.length) {
+        lines.push('- How it works:');
+        for (const a of content.article) {
+          lines.push(`  - ${a.heading}: ${a.body}`);
+        }
+      }
+      if (content?.faq?.length) {
         lines.push('- FAQ:');
-        for (const f of meta.faq) {
+        for (const f of content.faq) {
           lines.push(`  - Q: ${f.q}`);
           lines.push(`    A: ${f.a}`);
         }

@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { VISIBLE_TOOLS } from '@/lib/registry';
 import { site } from '@/lib/site';
+import { getContent } from '@/lib/content';
 import { CATEGORIES } from '@/lib/categories';
 import type { ToolOption } from '@/lib/types';
 
@@ -39,7 +40,8 @@ export const GET: APIRoute = () => {
       status: meta.status ?? 'stable',
       options: (meta.options ?? []).map(serializeOption),
       examples: (meta.examples ?? []).map((e) => ({ title: e.title, input: e.input ?? '' })),
-      faq: (meta.faq ?? []).map((f) => ({ question: f.q, answer: f.a })),
+      ...(getContent(meta.id)?.article?.length ? { article: getContent(meta.id)!.article } : {}),
+      faq: (getContent(meta.id)?.faq ?? []).map((f) => ({ question: f.q, answer: f.a })),
     };
   });
 

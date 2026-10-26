@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { getContent } from '@/lib/content';
 import tool from './iptables-ruleset-auditor.tool';
 import { meta } from './iptables-ruleset-auditor.meta';
 
@@ -230,8 +231,9 @@ describe('iptables-ruleset-auditor metadata', () => {
 
   it('explains where the verdicts come from without stray escape sequences', () => {
     const answer =
-      (meta.faq ?? []).find((entry) => entry.q.includes('Where do the error messages come from'))
-        ?.a ?? '';
+      (getContent(meta.id)?.faq ?? []).find((entry) =>
+        entry.q.includes('Where do the error messages come from'),
+      )?.a ?? '';
     expect(answer).toContain('unknown option "--dport" when a port is given without -p tcp');
     expect(answer).toContain("Can't use --out-interface with INPUT");
     expect(answer).not.toContain('\\');

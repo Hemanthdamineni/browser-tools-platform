@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { getContent } from '@/lib/content';
 import { existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { ToolError } from '@/lib/types';
@@ -65,7 +66,7 @@ describe('meta', () => {
 
   it('ships real examples and enough questions', () => {
     expect((meta.examples ?? []).length).toBeGreaterThanOrEqual(3);
-    expect((meta.faq ?? []).length).toBeGreaterThanOrEqual(3);
+    expect((getContent(meta.id)?.faq ?? []).length).toBeGreaterThanOrEqual(3);
     expect((meta.keywords ?? []).length).toBeGreaterThanOrEqual(5);
   });
 
@@ -104,8 +105,8 @@ describe('meta', () => {
 
   it('ships the required examples, FAQ entries and article', () => {
     expect((meta.examples ?? []).length).toBeGreaterThanOrEqual(3);
-    expect((meta.faq ?? []).length).toBeGreaterThanOrEqual(3);
-    const article = meta.article ?? [];
+    expect((getContent(meta.id)?.faq ?? []).length).toBeGreaterThanOrEqual(3);
+    const article = getContent(meta.id)?.article ?? [];
     expect(article.length).toBeGreaterThanOrEqual(3);
     expect(article.length).toBeLessThanOrEqual(5);
     for (const section of article) {

@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
+import { getContent } from '@/lib/content';
 import { ToolError } from '@/lib/types';
 import tool from './image-upscale.tool';
 import { meta } from './image-upscale.meta';
@@ -58,8 +59,8 @@ describe('image-upscale meta', () => {
 
   it('ships the required examples, FAQ entries and article', () => {
     expect((meta.examples ?? []).length).toBeGreaterThanOrEqual(3);
-    expect((meta.faq ?? []).length).toBeGreaterThanOrEqual(3);
-    const article = meta.article ?? [];
+    expect((getContent(meta.id)?.faq ?? []).length).toBeGreaterThanOrEqual(3);
+    const article = getContent(meta.id)?.article ?? [];
     expect(article.length).toBeGreaterThanOrEqual(3);
     expect(article.length).toBeLessThanOrEqual(5);
     for (const section of article) {
@@ -70,7 +71,7 @@ describe('image-upscale meta', () => {
   });
 
   it('says plainly that this is not AI super-resolution, and why', () => {
-    const faq = meta.faq ?? [];
+    const faq = getContent(meta.id)?.faq ?? [];
     const mentionsAlgorithmic = faq.some((entry) => /not ai super-resolution/i.test(entry.a));
     const mentionsGpl = faq.some((entry) => /GPL/i.test(entry.a));
     expect(mentionsAlgorithmic).toBe(true);
