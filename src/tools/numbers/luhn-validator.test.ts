@@ -42,4 +42,10 @@ describe('luhn-validator', () => {
     expect(() => run('abc')).toThrow(ToolError);
     expect(run('').notes?.[0]).toContain('Paste');
   });
+
+  it('runs the "Compute a check digit" example without throwing', () => {
+    const result = run('4539 1488 0343 646', { mode: 'check-digit' });
+    expect(result.stats?.checkDigit).toBe(7);
+    expect(result.output.length).toBeGreaterThan(0);
+  });
 });

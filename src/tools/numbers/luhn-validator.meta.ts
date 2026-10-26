@@ -36,7 +36,11 @@ export const meta: ToolMeta = {
   ],
   examples: [
     { title: 'Validate a card number', input: '4539 1488 0343 6467' },
-    { title: 'Compute a check digit', options: { mode: 'check-digit' } },
+    {
+      title: 'Compute a check digit',
+      input: '4539 1488 0343 646',
+      options: { mode: 'check-digit' },
+    },
     { title: 'Validate an IMEI', input: '490154203237518' },
     {
       title: 'Append a check digit to a prefix',

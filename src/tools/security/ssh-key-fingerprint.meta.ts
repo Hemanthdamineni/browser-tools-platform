@@ -54,7 +54,7 @@ export const meta: ToolMeta = {
     {
       title: 'RSA key',
       input:
-        'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDLUDxVLEWAgE0k3F4D5T1JkGfTS8W0V0Zg2kboU7pPnS9fT0i8ZQfbD6E2L5kC8tSxL1kMjQnVmK8dJpM2sO4yZcQ1X2pRfW7cUJ9jH9qBzQ8YzNnE2x3Pk5bwUiMm6eIYGhFjKzLzKey@host',
+        'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQDimgA3WT34Riu5WUXpQGK5r5rULP5BHGHoInHLR/5PXHKfm5YOV05FPrYPjbP/VSGlHku3OjuYJegw85k/VGzXQ9BbjEHmxqm5QV5/MBA9TJ9oEILw2Oe6aXFSU2VWP1HH7dXoKsgLnEpoxQGrV3Vzjk0uekUlwNyI5YlcGAvRxw== deploy@build01',
     },
     {
       title: 'A key pasted without its comment',

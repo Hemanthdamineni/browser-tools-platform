@@ -52,7 +52,7 @@ export const meta: ToolMeta = {
   examples: [
     {
       title: 'Sanitize formula-leading cells',
-      input: 'name,comment\nAda,=HYPERLINK("https://example.com")\nLinus,+1+1',
+      input: 'name,comment\nAda,"=HYPERLINK(""https://example.com"")"\nLinus,+1+1',
     },
     {
       title: 'Inspect risky cells',

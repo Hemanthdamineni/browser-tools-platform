@@ -72,7 +72,7 @@ export const meta: ToolMeta = {
     { title: '10 business days from today', input: '2026-01-05,10' },
     {
       title: 'Business days around a holiday',
-      input: '2026-12-21 to 2026-12-31',
+      input: '2026-12-21,7',
       options: { holidays: '2026-12-24\n2026-12-25' },
     },
     {

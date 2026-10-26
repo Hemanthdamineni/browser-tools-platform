@@ -43,6 +43,24 @@ TlZGzYW6baJzeYPHdD1KZmUb9sueymclrCvhpyPZIn734Ir6h+NESiZJ/5JPBwBC
 xMezDok7CZzWZ+vtmbnLnQ==
 -----END CERTIFICATE-----`;
 
+const EXAMPLE_CERT_PEM = `-----BEGIN CERTIFICATE-----
+MIICyTCCAjKgAwIBAgIULJ1+KEaZwrqWmGpN673Cn4IK9hswDQYJKoZIhvcNAQEL
+BQAwYjELMAkGA1UEBhMCVVMxEDAOBgNVBAgMB0V4YW1wbGUxFDASBgNVBAcMC1Nw
+cmluZ2ZpZWxkMRUwEwYDVQQKDAxFeGFtcGxlIENvcnAxFDASBgNVBAMMC2V4YW1w
+bGUuY29tMB4XDTI2MTAyNjEyMjYxM1oXDTM2MTAyMzEyMjYxM1owYjELMAkGA1UE
+BhMCVVMxEDAOBgNVBAgMB0V4YW1wbGUxFDASBgNVBAcMC1NwcmluZ2ZpZWxkMRUw
+EwYDVQQKDAxFeGFtcGxlIENvcnAxFDASBgNVBAMMC2V4YW1wbGUuY29tMIGfMA0G
+CSqGSIb3DQEBAQUAA4GNADCBiQKBgQDuNmxGE/JosLx69ZkKtGajN8enukMH3xk8
+eIusOM6/jACxRFuJ7R5CJQsYI8C0yiOf39uWQlDL90ayRvHxr0WZTqU9JBe66TOD
+TyhkMCZ7dWdZL10jPre1l/fHLA1GbueKFgAdhISOi1r/ZY0X6iP6gLjb2RuAwCU/
+Hi80FNRDXQIDAQABo3wwejAdBgNVHQ4EFgQUFg9keJjQOyYvVXcqqURJGKWCCq4w
+HwYDVR0jBBgwFoAUFg9keJjQOyYvVXcqqURJGKWCCq4wDwYDVR0TAQH/BAUwAwEB
+/zAnBgNVHREEIDAeggtleGFtcGxlLmNvbYIPd3d3LmV4YW1wbGUuY29tMA0GCSqG
+SIb3DQEBCwUAA4GBAM5G1jJ9HE4EeMogxXQUWHznlCWbidY1Ki82HQ2JOcXn5Zgx
+4sCPOLdB/OvBBw2ct3vN4r+dhg84Ji/DUxxOWb+Orsbas+7IOII38ExZEgueyqIr
+u+38l4R50sVqHEb1wFp8DxerG3yzTiB9hWXBGNODZjoq0O8/W4pKUWGSIA7p
+-----END CERTIFICATE-----`;
+
 describe('x509-certificate-inspector', () => {
   it('reports instructions for blank input', async () => {
     const result = await run('  ');
@@ -95,5 +113,11 @@ describe('x509-certificate-inspector', () => {
 
   it('rejects non-certificate input', async () => {
     await expect(run('this is not a certificate')).rejects.toThrow(/certificate/i);
+  });
+
+  it('runs the "Certificate details" example without throwing', async () => {
+    const result = await run(EXAMPLE_CERT_PEM);
+    expect(table(result).rows.length).toBeGreaterThan(0);
+    expect(await get(EXAMPLE_CERT_PEM, 'Subject')).toContain('commonName=example.com');
   });
 });

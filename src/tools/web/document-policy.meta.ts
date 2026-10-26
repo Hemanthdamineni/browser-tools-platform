@@ -35,7 +35,7 @@ export const meta: ToolMeta = {
     { title: 'Analyze document controls', input: 'unload=(), sync-xhr=()' },
     {
       title: 'Build a policy header',
-      options: { mode: 'build', directives: 'unload=(), max-age=10' },
+      options: { mode: 'build', directives: 'unload=(), max-age=(10)' },
     },
     {
       title: 'Check a high threshold directive',

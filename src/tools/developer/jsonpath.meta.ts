@@ -38,12 +38,13 @@ export const meta: ToolMeta = {
   examples: [
     {
       title: 'Extract an array of names',
-      input: '$.users[*].name',
+      input: '$.users[*].name\n{"users":[{"name":"Ada"},{"name":"Linus"},{"name":"Grace"}]}',
       options: {},
     },
     {
       title: 'Filter objects where price is above a threshold',
-      input: '$.products[?(@.price > 20)].name',
+      input:
+        '$.products[?(@.price > 20)].name\n{"products":[{"name":"Keyboard","price":25},{"name":"Cable","price":8}]}',
       options: {},
     },
     {
