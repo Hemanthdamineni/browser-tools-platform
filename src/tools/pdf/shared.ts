@@ -2,21 +2,6 @@ import { PDFDocument } from 'pdf-lib';
 import { ToolError, type FileRunInput, type FileRunResult, type ToolMeta } from '@/lib/types';
 import { resolveOptions } from '@/lib/options';
 
-export const pdfCredit = {
-  name: 'pdf-lib',
-  url: 'https://github.com/Hopding/pdf-lib',
-  license: 'MIT',
-};
-export const pdfjsCredit = {
-  name: 'pdfjs-dist',
-  url: 'https://github.com/mozilla/pdf.js',
-  license: 'Apache-2.0',
-};
-export const fflateCredit = {
-  name: 'fflate',
-  url: 'https://github.com/101arrowz/fflate',
-  license: 'MIT',
-};
 export function firstFile(input: FileRunInput): File {
   if (!input.files?.length) throw new ToolError('Choose a PDF file.');
   return input.files[0]!;

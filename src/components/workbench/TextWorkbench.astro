@@ -91,10 +91,40 @@ const p = meta.id;
       <input type="checkbox" class="h-4 w-4 rounded" data-live checked />
       Run as I type
     </label>
+    <label
+      class="flex cursor-pointer items-center gap-2 text-sm text-[rgb(var(--text-muted))]"
+      title="Keep your last input and options for this tool, in this browser only."
+    >
+      <input type="checkbox" class="h-4 w-4 rounded" data-remember />
+      Remember input
+    </label>
+    <button
+      type="button"
+      class="btn btn-subtle btn-sm"
+      data-copy-link
+      title="Share this input and options via a link"
+    >
+      <Icon name="copy" size={14} /> Copy link
+    </button>
     <span
       class="ml-auto text-xs tabular-nums text-[rgb(var(--text-muted))]"
       data-timing
       aria-live="polite"></span>
+  </div>
+
+  <div class="mt-4 rounded-lg border border-dashed px-4 py-8 text-center" data-empty>
+    <p class="text-sm font-medium text-[rgb(var(--text))]">Your result will appear here</p>
+    <p class="mt-1.5 text-xs leading-relaxed text-[rgb(var(--text-muted))]" data-first-run>
+      Type or paste your input above, adjust the options, then press Run. Tip: press
+      <kbd class="kbd">Ctrl</kbd>+<kbd class="kbd">Enter</kbd> to run, and
+      <kbd class="kbd">?</kbd> for every shortcut.
+    </p>
+  </div>
+
+  <div class="mt-4 space-y-2" hidden data-skeleton aria-hidden="true">
+    <div class="tb-skeleton h-4 w-1/3"></div>
+    <div class="tb-skeleton h-24 w-full"></div>
+    <div class="tb-skeleton h-4 w-2/3"></div>
   </div>
 
   <div
@@ -140,7 +170,21 @@ const p = meta.id;
     showError,
     clearError,
     renderTextResult,
+    setOptions,
+    revealResult,
+    notify,
   } from './shared';
+  import {
+    isRememberEnabled,
+    setRememberEnabled,
+    saveDraft,
+    loadDraft,
+    clearDraft,
+    encodeHash,
+    decodeHash,
+    isMeaningful,
+  } from './state';
+  import { onRunShortcutClick, isCopyShortcut } from '../keyboard';
   import type { TextRunResult } from '@/lib/types';
 
   const DEBOUNCE = 180;
@@ -161,14 +205,53 @@ const p = meta.id;
     const timing = root.querySelector<HTMLElement>('[data-timing]')!;
     const inputStats = root.querySelector<HTMLElement>('[data-input-stats]');
     const optionsRoot = root.querySelector<HTMLElement>('[data-options]') ?? root;
+    const rememberBox = root.querySelector<HTMLInputElement>('[data-remember]');
+    const copyLinkBtn = root.querySelector<HTMLButtonElement>('[data-copy-link]');
+    const emptyState = root.querySelector<HTMLElement>('[data-empty]');
+    const skeleton = root.querySelector<HTMLElement>('[data-skeleton]');
 
     let last: TextRunResult | null = null;
     let timer: ReturnType<typeof setTimeout> | undefined;
+    let persistTimer: ReturnType<typeof setTimeout> | undefined;
     let controller: AbortController | null = null;
     let runSeq = 0;
 
     bindRangeOutputs(root);
     applyShowWhen(optionsRoot);
+
+    /** The current input + option values, as a plain snapshot. */
+    function snapshot() {
+      return { input: input?.value ?? '', options: readOptions(optionsRoot) };
+    }
+
+    /** Push a snapshot back into the form (input, options, range read-outs). */
+    function restore(snapshotState: { input: string; options: Record<string, unknown> }) {
+      if (input) input.value = snapshotState.input;
+      setOptions(optionsRoot, snapshotState.options);
+      applyShowWhen(optionsRoot);
+      updateInputStats();
+    }
+
+    // Keep the URL hash and (when opted in) the local draft in step with edits.
+    function schedulePersist() {
+      clearTimeout(persistTimer);
+      persistTimer = setTimeout(() => {
+        if (rememberBox?.checked) saveDraft(toolId, snapshot());
+        syncHash();
+      }, 500);
+    }
+
+    function syncHash() {
+      const state = snapshot();
+      if (!isMeaningful(state)) return;
+      const hash = encodeHash(state);
+      if (!hash) return;
+      try {
+        history.replaceState(null, '', `${location.pathname}${location.search}#${hash}`);
+      } catch {
+        /* history is unavailable — the link is still built on demand */
+      }
+    }
 
     function updateInputStats() {
       if (!inputStats || !input) return;
@@ -183,6 +266,8 @@ const p = meta.id;
       controller?.abort();
       controller = new AbortController();
       clearError(errorBox);
+      skeleton?.removeAttribute('hidden');
+      emptyState?.setAttribute('hidden', '');
       runBtn.disabled = true;
       runBtn.setAttribute('aria-busy', 'true');
       if (runLabel) runLabel.textContent = 'Running…';
@@ -204,7 +289,11 @@ const p = meta.id;
         if (seq !== runSeq) return;
         last = result;
         renderTextResult(outputHost, result);
+        skeleton?.setAttribute('hidden', '');
         resultWrap.hidden = false;
+        emptyState?.setAttribute('hidden', '');
+        revealResult(outputHost);
+        if (rememberBox?.checked) saveDraft(toolId, snapshot());
 
         statsHost.innerHTML = '';
         for (const [k, v] of Object.entries(result.stats ?? {})) {
@@ -230,6 +319,7 @@ const p = meta.id;
         if (seq !== runSeq) return;
         const e = err as Error & { hint?: string };
         if (e.name === 'AbortError') return;
+        skeleton?.setAttribute('hidden', '');
         resultWrap.hidden = true;
         timing.textContent = '';
         showError(errorBox, e.message || 'Something went wrong.', e.hint);
@@ -262,14 +352,35 @@ const p = meta.id;
     input?.addEventListener('input', () => {
       updateInputStats();
       schedule();
+      schedulePersist();
     });
     optionsRoot.addEventListener('input', () => {
       applyShowWhen(optionsRoot);
       schedule();
+      schedulePersist();
     });
     optionsRoot.addEventListener('change', () => {
       applyShowWhen(optionsRoot);
       schedule();
+      schedulePersist();
+    });
+
+    // Ctrl/⌘+Enter runs the current tool.
+    onRunShortcutClick(root, window);
+
+    // Opt-in "remember my input" — off until the visitor ticks the box.
+    rememberBox?.addEventListener('change', () => {
+      setRememberEnabled(rememberBox.checked);
+      if (rememberBox.checked) saveDraft(toolId, snapshot());
+      else clearDraft?.(toolId);
+    });
+
+    // Copy a shareable link carrying the current input + options.
+    copyLinkBtn?.addEventListener('click', async () => {
+      syncHash();
+      const url = `${location.origin}${location.pathname}${location.search}${location.hash}`;
+      const ok = await copyText(url);
+      notify(ok ? 'Link copied' : 'Copy failed');
     });
 
     root.querySelector('[data-clear]')?.addEventListener('click', () => {
@@ -277,8 +388,11 @@ const p = meta.id;
         input.value = '';
         updateInputStats();
       }
+      skeleton?.setAttribute('hidden', '');
       resultWrap.hidden = true;
+      emptyState?.removeAttribute('hidden');
       clearError(errorBox);
+      schedulePersist();
     });
     root.querySelector('[data-paste]')?.addEventListener('click', async () => {
       const t = await readClipboardText();
@@ -292,7 +406,23 @@ const p = meta.id;
     root.querySelector('[data-copy]')?.addEventListener('click', async () => {
       if (!last) return;
       const ok = await copyText(last.output);
-      (window as unknown as { toast?: (m: string) => void }).toast?.(ok ? 'Copied' : 'Copy failed');
+      notify(ok ? 'Copied' : 'Copy failed');
+    });
+    // Ctrl/⌘+C copies the output while focus is inside the result block.
+    resultWrap.addEventListener('keydown', async (e) => {
+      const t = e.target as HTMLElement | null;
+      const focusedInside = t && resultWrap.contains(t);
+      if (!focusedInside || !last) return;
+      if (!isCopyShortcut(e)) return;
+      // The output is a read-only textarea: copying selects it all so the
+      // whole result goes to the clipboard (native copy of a focused
+      // textarea only copies a selection, which is usually empty).
+      if (t instanceof HTMLTextAreaElement) {
+        e.preventDefault();
+        t.select();
+      }
+      const ok = await copyText(last.output);
+      notify(ok ? 'Copied' : 'Copy failed');
     });
     root.querySelector('[data-download]')?.addEventListener('click', () => {
       if (!last) return;
@@ -323,17 +453,10 @@ const p = meta.id;
             options: Record<string, unknown>;
           };
           if (input) input.value = payload.input;
-          for (const [k, v] of Object.entries(payload.options)) {
-            const el = optionsRoot.querySelector<HTMLInputElement | HTMLSelectElement>(
-              `[data-opt-key="${k}"]`,
-            );
-            if (!el) continue;
-            if ((el as HTMLInputElement).type === 'checkbox')
-              (el as HTMLInputElement).checked = Boolean(v);
-            else el.value = String(v);
-          }
+          setOptions(optionsRoot, payload.options);
           applyShowWhen(optionsRoot);
           updateInputStats();
+          schedulePersist();
           run();
         } catch {
           /* malformed example */
@@ -342,8 +465,31 @@ const p = meta.id;
     });
 
     updateInputStats();
-    // Auto-run once if an example / default produces output without input.
-    if (!input?.value && (root.querySelector('[data-example]') || toolId.includes('generat'))) {
+
+    // E7-T7 — restore a shared state from the URL hash when present, then
+    // E7-T6 — fall back to the remembered draft when the visitor opted in.
+    let restoredAny = false;
+    const shared = decodeHash(location.hash);
+    if (isMeaningful(shared)) {
+      restore(shared);
+      restoredAny = true;
+    }
+    if (rememberBox) rememberBox.checked = isRememberEnabled();
+    if (!restoredAny && rememberBox?.checked) {
+      const draft = loadDraft(toolId);
+      if (draft) {
+        restore(draft);
+        restoredAny = true;
+      }
+    }
+
+    if (restoredAny) {
+      run();
+    } else if (
+      !input?.value &&
+      (root.querySelector('[data-example]') || toolId.includes('generat'))
+    ) {
+      // Auto-run once if an example / default produces output without input.
       run();
     }
   });

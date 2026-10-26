@@ -74,16 +74,6 @@ export const meta: ToolMeta = {
       options: { mode: 'wrap', width: 10, breakLongWords: true },
     },
   ],
-  faq: [
-    {
-      q: 'How does wrapping decide where to break?',
-      a: 'Greedy word wrap: it fills each line with as many whitespace-separated words as fit within the width, then starts a new line. Runs of whitespace inside a paragraph are collapsed to single spaces.',
-    },
-    {
-      q: 'What counts as a paragraph break?',
-      a: 'One or more blank lines. With "Preserve blank lines" on, those gaps are kept and each paragraph is wrapped or unwrapped independently.',
-    },
-  ],
   related: ['indent-text', 'text-repeat', 'case-convert', 'sort-lines'],
   status: 'stable',
 };

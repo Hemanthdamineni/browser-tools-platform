@@ -34,20 +34,7 @@ export const meta: ToolMeta = {
   examples: [
     { title: 'Analyze an isolation signal', input: '?1' },
     { title: 'Build an origin-keyed header', options: { mode: 'build', value: '?1' } },
-  ],
-  faq: [
-    {
-      q: 'What does Origin-Agent-Cluster: ?1 request?',
-      a: 'It requests that the document use an origin-keyed agent cluster rather than a site-keyed one, reducing some cross-origin shared-memory exposure.',
-    },
-    {
-      q: 'Does ?1 guarantee process isolation?',
-      a: 'No. It is an agent-cluster isolation request, not a universal browser process or cross-origin isolation guarantee.',
-    },
-    {
-      q: 'Can it be changed later?',
-      a: 'Changing the value across responses can create compatibility issues; deploy consistently and test pages that use document.domain or related legacy behavior.',
-    },
+    { title: 'Analyze an explicit opt-out', input: '?0' },
   ],
   related: ['permissions-policy', 'security-headers', 'content-security-policy'],
   status: 'stable',

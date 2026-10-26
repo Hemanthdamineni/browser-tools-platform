@@ -153,24 +153,13 @@ export const meta: ToolMeta = {
       title: 'Tiled diagonal text',
       options: { mode: 'text', text: 'CONFIDENTIAL', tiled: true, tileAngle: -30, opacity: 25 },
     },
-    { title: 'Corner text', options: { mode: 'text', text: '© Your Name', position: 'bottom-right' } },
-  ],
-  faq: [
     {
-      q: 'Are my images uploaded to a server?',
-      a: 'No. Every pixel is processed on a canvas inside your browser, in a background worker, and nothing is sent anywhere.',
+      title: 'Corner text',
+      options: { mode: 'text', text: '© Your Name', position: 'bottom-right' },
     },
     {
-      q: 'How does the font size scale?',
-      a: 'Font size is a percentage of the image’s short edge, so a watermark set on a small photo looks the same on a large one.',
-    },
-    {
-      q: 'Can I use an SVG logo?',
-      a: 'Yes. The panel rasterises SVG (and PNG/JPEG) on your device before stamping it, because canvas drawing of SVG needs an <img> step.',
-    },
-    {
-      q: 'What happens to transparency?',
-      a: 'PNG and WebP keep it. JPEG has no alpha channel, so transparent pixels are flattened onto white before the watermark is drawn.',
+      title: 'Logo in the top-left corner',
+      options: { mode: 'logo', position: 'top-left', opacity: 70 },
     },
   ],
   related: ['image-crop', 'image-resize', 'image-rotate'],

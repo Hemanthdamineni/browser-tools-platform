@@ -40,13 +40,12 @@ export const meta: ToolMeta = {
       input: '5 &lt; 10 &amp;&amp; 10 &gt; 5 &#8212; ok',
       options: { mode: 'decode' },
     },
-  ],
-  faq: [
     {
-      q: 'Does decoding cover every named entity?',
-      a: 'It covers the common set (about 250 names) plus all decimal (&#NN;) and hex (&#xNN;) references. Rare names fall through unchanged.',
+      title: 'Escape for an ASCII-only template',
+      input: 'Café — €5',
+      options: { mode: 'encode', level: 'non-ascii' },
     },
   ],
-  related: ['url-encode', 'unicode-escape', 'string-escape', 'html-to-text'],
+  related: ['url-encode', 'unicode-lookup', 'string-escape', 'html-to-text'],
   status: 'stable',
 };

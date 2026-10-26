@@ -42,20 +42,6 @@ export const meta: ToolMeta = {
       options: { mode: 'build', headers: 'X-Total-Count' },
     },
   ],
-  faq: [
-    {
-      q: 'What does Access-Control-Expose-Headers do?',
-      a: 'It whitelists response headers that cross-origin scripts are allowed to read. By default only a small set of safe headers is exposed.',
-    },
-    {
-      q: 'Does the wildcard work with credentials?',
-      a: 'No. When Access-Control-Allow-Credentials: true is set, the value cannot be a wildcard and must name specific headers.',
-    },
-    {
-      q: 'How do I read custom headers cross-origin?',
-      a: 'Add each custom header name here so the browser lets scripts access it from a cross-origin fetch.',
-    },
-  ],
   related: ['cors-headers', 'security-headers'],
   hidden: true,
   redirectTo: 'cors-headers',

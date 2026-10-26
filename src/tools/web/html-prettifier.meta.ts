@@ -60,19 +60,10 @@ export const meta: ToolMeta = {
       title: 'Keep pre and comments',
       input: '<pre>  keep\n  this\n</pre><div style="color:red">x</div>',
     },
-  ],
-  faq: [
     {
-      q: 'Is the output semantically identical to the input?',
-      a: 'Yes. The formatter only changes whitespace between tokens (and never inside a <pre> element). Tag names, attributes, quoted values, comments and character references are copied as-is.',
-    },
-    {
-      q: 'Can it parse HTML perfectly?',
-      a: 'No parser handles every malformed document. Unknown tags, unmatched brackets and weird inline content are normalized conservatively; the formatter is designed to fail gracefully and never throw for malformed markup.',
-    },
-    {
-      q: 'Does it minify?',
-      a: 'No, it does the opposite. There is nothing removed and no attribute reordered. Use it to make inline messy markup human-readable again.',
+      title: 'Tabs with a wide wrap point',
+      input: '<ul><li><a href="/a">Alpha</a></li><li><a href="/b">Beta</a></li></ul>',
+      options: { indent: 1, tabs: true, inlineMax: 120 },
     },
   ],
   related: ['html-to-text', 'html-to-markdown', 'html-entities', 'markdown-link-checker'],

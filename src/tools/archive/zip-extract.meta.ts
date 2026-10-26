@@ -19,7 +19,11 @@ export const meta: ToolMeta = {
       placeholder: 'only extract paths containing…',
     },
   ],
-  examples: [{ title: 'Extract a ZIP' }],
+  examples: [
+    { title: 'Extract a ZIP' },
+    { title: 'Pull out just the log files', options: { filter: '.log' } },
+    { title: 'Extract only the assets folder', options: { filter: 'assets/' } },
+  ],
   related: ['zip-create', 'zip-inspect'],
   credits: [{ name: 'fflate', url: 'https://github.com/101arrowz/fflate', license: 'MIT' }],
   status: 'stable',

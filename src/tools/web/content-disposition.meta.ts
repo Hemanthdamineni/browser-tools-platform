@@ -50,19 +50,9 @@ export const meta: ToolMeta = {
       title: 'Parse a response header',
       input: 'attachment; filename="report.pdf"; filename*=UTF-8\'\'report%20final.pdf',
     },
-  ],
-  faq: [
     {
-      q: 'Why does the output include filename*?',
-      a: 'filename* uses RFC 5987 encoding and safely carries Unicode filenames. A quoted ASCII fallback is included for older clients.',
-    },
-    {
-      q: 'Does this set a browser download?',
-      a: 'No. It only creates or parses header text locally and never sends a response.',
-    },
-    {
-      q: 'Can a filename be trusted as a path?',
-      a: 'No. Header filenames are client hints. Servers should sanitize names, prevent path traversal, and avoid deriving authorization from them.',
+      title: 'Inline display header',
+      options: { mode: 'build', disposition: 'inline', filename: 'invoice-2026.pdf' },
     },
   ],
   related: ['mime-lookup', 'url-encode', 'set-cookie'],

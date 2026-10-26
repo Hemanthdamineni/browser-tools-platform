@@ -34,20 +34,7 @@ export const meta: ToolMeta = {
   examples: [
     { title: 'Analyze localized response', input: 'en-US, Latn, fr-CA' },
     { title: 'Build a language header', options: { mode: 'build', tags: 'en-US, fr-CA' } },
-  ],
-  faq: [
-    {
-      q: 'Is Content-Language the same as the user preferred language?',
-      a: 'No. Content-Language describes the language or languages of the representation. Accept-Language expresses client preferences.',
-    },
-    {
-      q: 'What does * mean?',
-      a: 'The wildcard can indicate that all languages are intended or that no specific language was selected, depending on application context.',
-    },
-    {
-      q: 'Does this fully implement BCP 47?',
-      a: 'It validates common language, script, region, variant, extension, and private-use shapes. It does not maintain the complete IANA language-subtag registry.',
-    },
+    { title: 'Check a wildcard tag', input: '*' },
   ],
   related: ['http-encoding', 'cache-headers', 'meta-tags'],
   status: 'stable',

@@ -68,23 +68,11 @@ export const meta: ToolMeta = {
         '| City | Population |\n|------|-----------:|\n| Osaka | 2.7M |\n| Berlin | 3.7M |\n| Lisbon | 0.5M |',
       options: { column: 'Population', order: 'asc' },
     },
-  ],
-  faq: [
     {
-      q: 'How do I choose which column to sort by?',
-      a: 'Enter the header text (matched case-insensitively) or the 1-based column number. Example: column "2" sorts by the second column even if it has no header.',
-    },
-    {
-      q: 'What does Auto sort type do?',
-      a: 'Auto compares numerically when every value in the column can be parsed as a number (including 2.7M or 1,200), and falls back to text comparison otherwise.',
-    },
-    {
-      q: 'What stays in place?',
-      a: 'The header row and the Markdown alignment separator row are never reordered. Only the data rows between/below them move, and their cell text is preserved exactly.',
-    },
-    {
-      q: 'Is the sort stable?',
-      a: 'Yes. Rows that compare equal keep their original relative order, and the comparison happens on trimmed cell values, so the output is deterministic.',
+      title: 'Case-insensitive text sort',
+      input:
+        '| Framework | Language |\n|---|---|\n| Vue | JavaScript |\n| angular | TypeScript |\n| React | JavaScript |',
+      options: { column: 'Framework', order: 'asc' },
     },
   ],
   related: ['markdown-table', 'markdown-toc', 'csv-to-markdown', 'sort-lines'],

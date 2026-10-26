@@ -40,20 +40,6 @@ export const meta: ToolMeta = {
     { title: 'Symbolic to octal', input: 'rwxr-xr-x', options: { mode: 'auto' } },
     { title: 'setuid binary (4755)', input: '4755', options: { mode: 'to-symbolic' } },
   ],
-  faq: [
-    {
-      q: 'What does the fourth octal digit mean?',
-      a: 'It is the special-bits digit: setuid = 4, setgid = 2, sticky = 1. 4755 means setuid plus rwxr-xr-x.',
-    },
-    {
-      q: 'What is the difference between s and S in the symbolic form?',
-      a: 'Lowercase s means the special bit and the execute bit are both set; uppercase S means the special bit is set but execute is not.',
-    },
-    {
-      q: 'Does it accept a leading file-type character?',
-      a: 'Yes. A 10-character symbolic string such as -rwxr-xr-x or drwxr-xr-x is accepted; the first character is ignored.',
-    },
-  ],
   related: ['number-base', 'hash-identifier', 'hex', 'base64'],
   status: 'stable',
 };

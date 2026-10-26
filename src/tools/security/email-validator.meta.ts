@@ -36,19 +36,10 @@ export const meta: ToolMeta = {
       title: 'A subdomain address',
       input: 'user.name+tag@mail.example.co.uk',
     },
-  ],
-  faq: [
     {
-      q: 'Does this check whether the mailbox exists?',
-      a: 'No. This is a format check only — it validates the structure so a valid-looking address can be entered, but confirming a mailbox exists requires contacting the mail server, which this tool does not do.',
-    },
-    {
-      q: 'Which characters are allowed in the local part?',
-      a: 'Letters, digits and the common specials in W3C’s email spec (dot, plus, underscore, hyphen, percent, slash and a few more). Dots cannot start or end the local part, and double dot is rejected.',
-    },
-    {
-      q: 'What length limits apply?',
-      a: 'The local part must be 1–64 characters, the domain 1–253 (in whole labels of up to 63), and the total address at most 254 — the real limits email systems use.',
+      title: 'A numeric last label without the TLD rule',
+      input: 'dev@intranet.42',
+      options: { requireTld: false },
     },
   ],
   related: ['password-strength', 'url-parse', 'http-status', 'mime-lookup'],

@@ -5,9 +5,9 @@ export const meta: ToolMeta = {
   name: 'Text Statistics',
   category: 'text',
   summary:
-    'Count characters, words, sentences, paragraphs and lines, with reading and speaking time estimates.',
+    'Count characters, words, sentences and paragraphs, with platform limits, readability scores and reading time.',
   description:
-    'Analyze any text for character, word, sentence, paragraph and line counts. Reading time is estimated at 238 words per minute and speaking time at 130 words per minute. Average word length, average sentence length and the longest word are included, all computed on your device.',
+    'Analyze any text for character, word, sentence, paragraph and line counts, plus reading and speaking time estimates. It also checks the text against common platform limits (X/Twitter, LinkedIn, Instagram, meta descriptions and SMS) and scores readability with Flesch Reading Ease, Flesch-Kincaid, Gunning Fog, SMOG, ARI and Coleman-Liau. Everything is computed on your device.',
   keywords: [
     'text statistics',
     'word count',
@@ -19,32 +19,31 @@ export const meta: ToolMeta = {
     'paragraph count',
     'text analyzer',
     'text analyser',
+    'readability score',
+    'character limit',
+    'twitter character count',
+    'syllable count',
   ],
   privacy: { processing: 'on-device', network: 'none', offline: true },
   input: 'text',
   options: [],
   examples: [
     { title: 'Two short sentences', input: 'The quick brown fox. The lazy dog runs.' },
-    { title: 'A single word', input: 'Hello' },
+    {
+      title: 'Check against platform limits',
+      input:
+        'The quick brown fox jumps over the lazy dog near the river bank. The clever cat watched the busy fish swim.',
+    },
     {
       title: 'Two paragraphs',
       input: 'First paragraph, line one.\n\nSecond paragraph here.',
     },
-  ],
-  faq: [
     {
-      q: 'How is reading time calculated?',
-      a: 'Word count divided by 238 words per minute — a common estimate of adult silent reading speed — rounded to the nearest second. Speaking time uses 130 words per minute.',
-    },
-    {
-      q: 'How are sentences detected?',
-      a: 'By splitting on runs of . ! and ? characters. Abbreviations such as "Mr." can therefore inflate the sentence count slightly.',
-    },
-    {
-      q: 'What does "characters (no spaces)" mean?',
-      a: 'The character count after removing every whitespace character, including tabs and newlines.',
+      title: 'Readability on denser prose',
+      input:
+        'Reading is a helpful activity for every person. The talented writer produced an excellent chapter for the popular magazine.',
     },
   ],
-  related: ['word-frequency', 'char-frequency', 'case-convert', 'sort-lines'],
+  related: ['readability-score', 'word-frequency', 'char-frequency', 'case-convert'],
   status: 'stable',
 };

@@ -62,6 +62,16 @@ describe('workday-calculator', () => {
     it('rejects a date-only input', () => {
       expect(() => run('2026-01-01')).toThrow(/expect.*START.*N/i);
     });
+
+    it('runs the "Business days around a holiday" example without throwing', () => {
+      // Mon 2026-12-21 + 7 business days, skipping 12-24 (Thu), 12-25 (Fri) and weekends → Fri 2027-01-01
+      const result = run('2026-12-21,7', { holidays: '2026-12-24\n2026-12-25' });
+      expect(result.render).toBe('table');
+      expect(get('2026-12-21,7', 'Result date', { holidays: '2026-12-24\n2026-12-25' })).toBe(
+        '2027-01-01',
+      );
+      expect(result.output.length).toBeGreaterThan(0);
+    });
   });
 
   describe('between mode', () => {

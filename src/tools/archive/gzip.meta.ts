@@ -33,7 +33,17 @@ export const meta: ToolMeta = {
       showWhen: { key: 'mode', value: 'compress' },
     },
   ],
-  examples: [{ title: 'Compress a file' }],
+  examples: [
+    { title: 'Compress a file' },
+    {
+      title: 'Decompress a gzip stream',
+      options: { mode: 'decompress' },
+    },
+    {
+      title: 'Maximum compression',
+      options: { mode: 'compress', level: 9 },
+    },
+  ],
   related: ['zip-create', 'base64'],
   credits: [{ name: 'fflate', url: 'https://github.com/101arrowz/fflate', license: 'MIT' }],
   status: 'stable',

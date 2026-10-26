@@ -65,19 +65,15 @@ export const meta: ToolMeta = {
       title: 'A blog post title',
       input: 'How to Write Clean Code — a 10-Minute Guide',
     },
-  ],
-  faq: [
     {
-      q: 'What exactly is a slug?',
-      a: 'The human-readable part of a URL that identifies a page, e.g. /tips/how-to-write-clean-code. A good slug is lowercase, uses one separator, and drops filler words.',
+      title: 'Drop stopwords',
+      input: 'The Art of the Deal',
+      options: { removeStopwords: true },
     },
     {
-      q: 'Why transliterate accents?',
-      a: 'URLs should stay ASCII. "café" becomes "cafe", "ñ" becomes "n", "æ" becomes "ae" — so links are copy-safe and consistent across systems.',
-    },
-    {
-      q: 'What happens when max length cuts a word?',
-      a: 'The slug is truncated at a word boundary and trailing separators are removed, so you never get a dangling "my-page-".',
+      title: 'Underscore filename',
+      input: 'My Final Report 2024',
+      options: { separator: '_' },
     },
   ],
   related: ['url-parse', 'url-encode', 'case-convert', 'text-stats'],

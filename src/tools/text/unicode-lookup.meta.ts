@@ -42,19 +42,15 @@ export const meta: ToolMeta = {
       title: 'Inspect a mixed string',
       input: 'A e',
     },
-  ],
-  faq: [
     {
-      q: 'What is a code point?',
-      a: 'Each character in Unicode has a numeric code point, usually written U+ followed by hex, e.g. U+1F44D for the thumbs-up emoji.',
+      title: 'Decode an emoji as UTF-16',
+      input: '👍',
+      options: { format: 'lines' },
     },
     {
-      q: 'Which characters count as astral?',
-      a: 'Code points above U+FFFF live outside the Basic Multilingual Plane and are encoded in UTF-16 as a surrogate pair of two 16-bit units.',
-    },
-    {
-      q: 'Why does the UTF-8 column matter?',
-      a: 'Mojibake happens when bytes encoded in one UTF flavour are decoded as another. The UTF-8 column shows exactly how many bytes each character requires (1-4).',
+      title: 'Look up a control character',
+      input: '\t',
+      options: { maxChars: 5 },
     },
   ],
   related: ['char-frequency', 'text-stats', 'case-convert'],

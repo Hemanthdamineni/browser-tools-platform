@@ -1,0 +1,255 @@
+---
+import Layout from '@/components/Layout.astro';
+import { getGuide, guideJsonLd } from '@/lib/guides';
+
+const guide = getGuide('/guides/cron-cheat-sheet');
+---
+
+<Layout
+  title={guide.title}
+  description={guide.description}
+  path={guide.path}
+  ogType="article"
+  jsonLd={[guideJsonLd(guide)]}
+  narrow
+>
+  <article class="prose-tool max-w-prose">
+    <h1 class="text-2xl font-bold tracking-tight text-[rgb(var(--text))] sm:text-3xl">
+      {guide.title}
+    </h1>
+
+    <p>
+      Cron is the Unix scheduler that runs commands on a repeating timetable. A crontab line is five
+      fields followed by the command, and almost every cron mistake comes from misreading one of
+      those five fields. Here is the whole syntax, the schedules worth memorising, and the point
+      where you should reach for a systemd timer instead.
+    </p>
+
+    <h2>The five fields</h2>
+    <p>
+      Fields are separated by spaces, in this order. A sixth field can be prepended on systems that
+      support seconds (Quartz-style schedulers and some crontab implementations).
+    </p>
+    <div class="overflow-x-auto">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Field</th>
+            <th scope="col">Range</th>
+            <th scope="col">Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>minute</td>
+            <td>0–59</td>
+            <td>The first field, not the hour.</td>
+          </tr>
+          <tr>
+            <td>hour</td>
+            <td>0–23</td>
+            <td>24-hour clock, in the server's time zone.</td>
+          </tr>
+          <tr>
+            <td>day of month</td>
+            <td>1–31</td>
+            <td>Days that do not exist in a month are skipped.</td>
+          </tr>
+          <tr>
+            <td>month</td>
+            <td>1–12 or JAN–DEC</td>
+            <td>Names are case-insensitive.</td>
+          </tr>
+          <tr>
+            <td>day of week</td>
+            <td>0–7 or SUN–SAT</td>
+            <td>0 and 7 both mean Sunday.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Operators</h2>
+    <ul>
+      <li>
+        <code>*</code> — every value in the field, e.g. <code>* * * * *</code> is every minute.
+      </li>
+      <li><code>5</code> — one value.</li>
+      <li><code>1-5</code> — a range, inclusive.</li>
+      <li>
+        <code>*/15</code> — a step; <code>*/15</code> in the minute field means every 15 minutes.
+      </li>
+      <li><code>10-40/10</code> — a range with a step.</li>
+      <li><code>1,15</code> — a list; combine any of the above with commas.</li>
+    </ul>
+
+    <h2>The day-of-month/day-of-week quirk</h2>
+    <p>
+      When <em>both</em> day fields are restricted, classic cron treats them as an OR, not an AND.
+      <code>0 3 13 * FRI</code> runs on the 13th of the month <em>and</em> every Friday, not only on Friday
+      the 13th. If you need that AND, put the check in the command itself or use a scheduler with a clearer
+      expression language.
+    </p>
+
+    <h2>How it differs from a systemd timer</h2>
+    <p>
+      Both run a unit on a schedule, but they are not the same tool. Cron is a daemon reading
+      crontab files, one line per job, with no dependency awareness and no catch-up. Systemd timers
+      are an ordinary unit pair: a <code>.timer</code> that says when, and a <code>.service</code> that
+      says what.
+    </p>
+    <div class="overflow-x-auto">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Aspect</th>
+            <th scope="col">cron</th>
+            <th scope="col">systemd timer</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Calendar syntax</td>
+            <td><code>*/5 * * * *</code></td>
+            <td><code>OnCalendar=*:0/5</code></td>
+          </tr>
+          <tr>
+            <td>Interval timers</td>
+            <td>Achieved by a step field</td>
+            <td><code>OnUnitActiveSec=30min</code> — monotonic, independent of wall-clock jumps</td>
+          </tr>
+          <tr>
+            <td>Missed runs (machine asleep)</td>
+            <td>Lost</td>
+            <td><code>Persistent=true</code> runs once on the next boot</td>
+          </tr>
+          <tr>
+            <td>Logging</td>
+            <td>Mails output, or you redirect it yourself</td>
+            <td>Captured in the journal by default</td>
+          </tr>
+          <tr>
+            <td>Dependencies</td>
+            <td>None</td>
+            <td><code>After=</code>, <code>Requires=</code>, full unit ordering</td>
+          </tr>
+          <tr>
+            <td>Random jitter</td>
+            <td>Manual</td>
+            <td><code>RandomizedDelaySec=</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Schedules worth memorising</h2>
+    <div class="overflow-x-auto">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Expression</th>
+            <th scope="col">Meaning</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>* * * * *</code></td>
+            <td>Every minute</td>
+          </tr>
+          <tr>
+            <td><code>*/5 * * * *</code></td>
+            <td>Every 5 minutes</td>
+          </tr>
+          <tr>
+            <td><code>0 * * * *</code></td>
+            <td>At the top of every hour</td>
+          </tr>
+          <tr>
+            <td><code>30 3 * * *</code></td>
+            <td>Daily at 03:30</td>
+          </tr>
+          <tr>
+            <td><code>0 9-17 * * MON-FRI</code></td>
+            <td>On the hour, 09:00–17:00, weekdays</td>
+          </tr>
+          <tr>
+            <td><code>15 2 * * 0</code></td>
+            <td>Sunday at 02:15</td>
+          </tr>
+          <tr>
+            <td><code>0 0 1 * *</code></td>
+            <td>Midnight on the first of each month</td>
+          </tr>
+          <tr>
+            <td><code>0 4 1,15 * *</code></td>
+            <td>04:00 on the 1st and 15th</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Shorthand keywords</h2>
+    <p>
+      Most crontabs accept a handful of words that expand to common schedules:{' '}
+      <code>@reboot</code> (once at startup), <code>@hourly</code>, <code>@daily</code> (or{' '}
+      <code>@midnight</code>), <code>@weekly</code>, <code>@monthly</code> and{' '}
+      <code>@yearly</code>. They are convenient and readable, though not part of the original POSIX
+      specification, so check that your cron implementation supports them.
+    </p>
+
+    <h2>Time zones matter more than people expect</h2>
+    <p>
+      The clock cron uses is the local time of the machine, not UTC, unless you say otherwise.
+      <code>0 3 * * *</code> therefore runs at 03:00 in the server's zone and shifts by an hour when daylight
+      saving changes — and a job scheduled inside a skipped hour simply does not run that day. For anything
+      that must be predictable, pin the zone explicitly (many crontabs accept a{' '}
+      <code>CRON_TZ=</code> or <code>TZ=</code> line, and systemd timers accept a zone in the calendar
+      expression) and prefer UTC on servers.
+    </p>
+
+    <h2>Check an expression before you ship it</h2>
+    <p>
+      A scheduler that fires at the wrong instant is worse than one that never fires, because you
+      only find out from the damage. The <a href="/tools/cron-parser">cron expression parser</a> turns
+      an expression into plain English and lists its next run times in UTC, so a misread field shows up
+      as an obviously wrong timestamp. If you would rather build the expression from a form, the
+      <a href="/tools/crontab-generator">crontab generator</a> assembles it for you.
+    </p>
+
+    <h2>Common mistakes</h2>
+    <ul>
+      <li>
+        Assuming the hour comes first. It is minutes, then hours — <code>30 8</code> is 08:30.
+      </li>
+      <li>
+        Forgetting that cron gets a minimal environment: your <code>PATH</code>, aliases and shell
+        profile are not loaded, so use absolute paths and set variables in the crontab itself.
+      </li>
+      <li>
+        Expecting a working directory. <code>cd /path &amp;&amp; ./job.sh</code> is safer than hoping.
+      </li>
+      <li>
+        Dropping output on the floor and losing errors, or the opposite — letting cron mail the
+        output of a chatty job. Redirect it deliberately.
+      </li>
+      <li>
+        Forgetting that <code>%</code> is special inside a crontab: an unescaped percent becomes a newline
+        and is fed to the command's standard input, so escape it as <code>\%</code> when you mean the
+        character.
+      </li>
+    </ul>
+
+    <h2>More guides</h2>
+    <ul>
+      <li>
+        <a href="/guides/base64-explained">Base64 explained</a> — what Base64 is and where it belongs.
+      </li>
+      <li>
+        <a href="/guides/which-hash">Which hash should I use?</a> — digests, passwords and HMAC.
+      </li>
+      <li>
+        <a href="/guides/color-contrast-wcag">Colour contrast and WCAG</a> — accessible colour choices.
+      </li>
+    </ul>
+  </article>
+</Layout>

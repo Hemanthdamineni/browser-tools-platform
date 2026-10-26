@@ -46,12 +46,6 @@ export const meta: ToolMeta = {
     { title: 'Halfway to blue', input: '#ff0000', options: { second: '#0000ff' } },
     { title: 'HSL blend', input: 'red', options: { second: 'blue', space: 'hsl' } },
   ],
-  faq: [
-    {
-      q: 'Why does RGB blending look dark in the middle?',
-      a: 'RGB blends each channel linearly, which can produce muddy midpoints. HSL blending moves around the hue wheel instead and often looks more natural for vivid colors.',
-    },
-  ],
   related: ['color-palette', 'gradient-css', 'color-convert'],
   status: 'stable',
 };

@@ -38,31 +38,19 @@ export const meta: ToolMeta = {
   examples: [
     {
       title: 'Extract an array of names',
-      input: '$.users[*].name',
+      input: '$.users[*].name\n{"users":[{"name":"Ada"},{"name":"Linus"},{"name":"Grace"}]}',
       options: {},
     },
     {
       title: 'Filter objects where price is above a threshold',
-      input: '$.products[?(@.price > 20)].name',
+      input:
+        '$.products[?(@.price > 20)].name\n{"products":[{"name":"Keyboard","price":25},{"name":"Cable","price":8}]}',
       options: {},
     },
-  ],
-  faq: [
     {
-      q: 'What JSONPath syntax is supported?',
-      a: 'Root shorthand ($ or omitted), dot child (.field), bracket child (["field"]), wildcard (.* or [*]), array indices and slices ([0], [1:3]), recursive descent (..field), and filters [?(@.field OP value)] with ==, !=, <, <=, >, >= and string/number comparisons.',
-    },
-    {
-      q: 'What happens when the expression has no matches?',
-      a: 'An empty result [] is returned with a message in the notes; this is not a parse error.',
-    },
-    {
-      q: 'Where must the JSON document go?',
-      a: 'Paste the JSON as the second line/block of input, separated by a blank line from the expression. The first non-whitespace line is treated as the JSONPath expression; the remainder as JSON.',
-    },
-    {
-      q: 'Is the filter syntax full JSONPath spec?',
-      a: 'It covers the common operators and nested paths of the widely used JSONPath for JavaScript dialect. Advanced script expressions are not supported, but the implemented subset handles typical real-world queries.',
+      title: 'Recursive descent, compact output',
+      input: '$..author\n{"store":{"book":[{"author":"A"},{"author":"B"}]}}',
+      options: { compact: true },
     },
   ],
   related: ['json-to-go-struct', 'json-to-zod', 'json-to-csharp', 'json-to-swift', 'json-diff'],

@@ -102,15 +102,11 @@ export const meta: ToolMeta = {
         phone: '+1 555 0100',
       },
     },
-  ],
-  faq: [
     {
-      q: 'Which vCard version is generated?',
-      a: 'vCard 3.0 (RFC 2426) — the most widely compatible format, supported by iOS, Android, Outlook and Google Contacts.',
-    },
-    {
-      q: 'Where can I use the output?',
-      a: 'Save it as a .vcf file, attach it to an email, host it on your site, or pair it with the QR Code Generator to make a scannable contact card.',
+      title: 'Parse a card',
+      input:
+        'BEGIN:VCARD\nVERSION:3.0\nN:Hopper;Grace;;;\nFN:Grace Hopper\nTEL;TYPE=CELL:+1 555 0100\nEND:VCARD\n',
+      options: { mode: 'parse' },
     },
   ],
   related: ['ical-event', 'qr-code', 'meta-tags'],

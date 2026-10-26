@@ -36,7 +36,8 @@ export const meta: ToolMeta = {
       title: 'Trim with fades',
       options: { start: '0:10', end: '1:00', fadeIn: 300, fadeOut: 500 },
     },
+    { title: 'Long ringtone tail', options: { start: '2:05', end: '2:35', fadeOut: 1500 } },
   ],
-  related: ['audio-fade', 'audio-to-wav'],
+  related: ['audio-fade', 'audio-convert'],
   status: 'stable',
 };

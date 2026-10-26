@@ -64,23 +64,11 @@ export const meta: ToolMeta = {
         '<svg viewBox="0 0 10 10"><rect x="0.1500000" y="0" width="10" height="10" fill="none"/></svg>',
       options: { mode: 'pretty' },
     },
-  ],
-  faq: [
     {
-      q: 'Does it change how the SVG looks?',
-      a: 'No. Only the serialization changes: whitespace between tags, comments (when enabled), empty <g> groups and numeric precision. Colours, paths and attribute values keep their meaning. "none" fills and stroke remain untouched.',
-    },
-    {
-      q: 'What does rounding do to attributes?',
-      a: 'Numeric tokens in attribute values (geometry, transform matrices that are present, coordinates) are rounded to the chosen precision. Colour values (hex like #fff or rgb(...)), identifiers and unit suffixes are left alone.',
-    },
-    {
-      q: 'Is minified output safe to inline in HTML?',
-      a: 'Yes — a single-line SVG is generally the most bandwidth-friendly for inlining. If any browser parser has issues with your exact file you can switch to pretty mode for a readable diff first.',
-    },
-    {
-      q: 'Does it handle malformed SVG?',
-      a: 'It reports a clear error if the opening <svg> element is missing or tags are unbalanced, rather than emitting a broken document.',
+      title: 'Pretty with comments kept',
+      input:
+        '<svg viewBox="0 0 24 24"><!-- icon --><circle cx="12.12345" cy="12" r="6.500000" fill="#0af"/></svg>',
+      options: { mode: 'pretty', stripComments: false, precision: 1 },
     },
   ],
   related: ['svg-to-jsx', 'data-uri', 'html-prettifier', 'css-minifier'],

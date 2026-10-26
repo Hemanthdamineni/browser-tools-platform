@@ -50,23 +50,11 @@ export const meta: ToolMeta = {
       input: '[{"id":1,"name":"Ada"}]',
       options: { rootName: 'User', attributes: false },
     },
-  ],
-  faq: [
     {
-      q: 'What type mapping is applied?',
-      a: 'strings become string, booleans bool, whole numbers int, fractional numbers double, null object?, objects become nested classes, arrays become List<T> of the sampled element type, empty arrays List<object>, and mixed arrays List<object>.',
-    },
-    {
-      q: 'Do I need the attributes for deserialization?',
-      a: 'No. System.Text.Json matches properties case-insensitively by default, so deserialization works without them. The attributes only help when you need exact key mapping, camelCase mismatch, or JSON serialization to emit different names than the C# properties.',
-    },
-    {
-      q: 'Why are properties PascalCase?',
-      a: 'The .NET naming convention is PascalCase. The generator converts snake_case and camelCase keys to PascalCase and uppercases common acronyms (URL, ID, API, JSON). The [JsonPropertyName] attribute keeps the original JSON key when attributes are enabled.',
-    },
-    {
-      q: 'What about root arrays and empty values?',
-      a: 'A root array generates a class for the sampled element and a usage comment showing List<Root>. An empty root array cannot be typed, so it errors. Empty nested arrays become List<object> and nulls become object? — tighten these to concrete types where you know them.',
+      title: 'Nested array of objects',
+      input:
+        '{"orderId":9,"items":[{"sku":"A","qty":2},{"sku":"B","qty":1}],"note":null,"tags":[]}',
+      options: { rootName: 'Order' },
     },
   ],
   related: [

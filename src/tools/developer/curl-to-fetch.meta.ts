@@ -54,19 +54,10 @@ export const meta: ToolMeta = {
       title: 'Basic auth GET',
       input: "curl -u alice:secret 'https://example.com/data?page=2' -H 'Accept: application/json'",
     },
-  ],
-  faq: [
     {
-      q: 'Which curl flags are understood?',
-      a: 'The request-shaping flags: -X/--request, -H/--header, -d/--data/--data-raw/--data-binary/--data-urlencode, --url, -u/--user, -b/--cookie, -A/--user-agent, -e/--referer, -G, -I/--head and -F/--form. Fetch-affecting flags such as -L, -k, --compressed, -o and proxy options are reported in the notes because the generated snippet cannot carry them portably.',
-    },
-    {
-      q: 'How is the HTTP method decided?',
-      a: 'An explicit -X wins. Otherwise a body implies POST and -I implies HEAD; with none of those the request is a GET.',
-    },
-    {
-      q: 'What happens to -d data?',
-      a: 'If the data parses as JSON it is emitted as a pretty-printed object (with JSON.stringify for fetch) and a JSON content type is added when you did not set one. Otherwise it is emitted as a quoted string, and --data-urlencode values become URL-encoded form fields.',
+      title: 'URL-encoded form POST',
+      input:
+        "curl -X POST https://example.com/login \\\n  -d 'user=ada' --data-urlencode 'note=hello world'",
     },
   ],
   related: ['url-parse', 'http-status', 'json-format', 'random-data'],

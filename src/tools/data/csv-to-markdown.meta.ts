@@ -50,23 +50,10 @@ export const meta: ToolMeta = {
       input: 'Name,Note\n"Smith, John","said ""hi"""',
       options: { justify: 'left' },
     },
-  ],
-  faq: [
     {
-      q: 'How are special characters handled?',
-      a: 'Literal pipe characters inside cells are escaped as \\| so they never break the table. Real new lines inside quoted fields become spaces. Everything else is preserved verbatim, including quotes, backticks and indentation.',
-    },
-    {
-      q: 'What does the alignment row do?',
-      a: 'The GFM header separator can express alignment: | --- | (left, default), | :---: | (center), | ---: | (right). In auto mode, columns that look numeric get right alignment and text columns stay left-aligned.',
-    },
-    {
-      q: 'Which CSV syntax is accepted?',
-      a: 'RFC 4180: comma separated with double-quote quoting, so fields containing commas, new lines or quotes parse correctly. Rows must have the same number of fields; a mismatch is reported with its row number. Blank lines are skipped.',
-    },
-    {
-      q: 'Is this different from the markdown-table formatter?',
-      a: "Yes. That tool takes an existing pipe table and normalises spacing/alignment. This one takes CSV — no Markdown yet — and produces a pipe table from scratch. Feed this tool's output into markdown-table if you want to rejoin or re-align afterwards.",
+      title: 'Plain table with no alignment row',
+      input: 'Item,Qty\nBolts,40\nNuts,12',
+      options: { header: true, justify: 'none' },
     },
   ],
   related: ['markdown-table', 'csv-to-json', 'csv-to-sql', 'json-to-csv', 'csv-sanitize'],

@@ -1,5 +1,5 @@
 import type { ToolMeta } from '@/lib/types';
-import { pdfCredit } from './shared';
+import { pdfCredit } from './credits';
 export const meta: ToolMeta = {
   id: 'images-to-pdf',
   name: 'Images to PDF',
@@ -49,7 +49,14 @@ export const meta: ToolMeta = {
       showWhen: { key: 'pageSize', value: 'a4' },
     },
   ],
-  examples: [{ title: 'Combine images into a PDF' }],
+  examples: [
+    { title: 'Combine images into a PDF' },
+    { title: 'Place each image on an A4 page', options: { pageSize: 'a4' } },
+    {
+      title: 'Fill A4 pages with a small margin',
+      options: { pageSize: 'a4', fitMode: 'cover', margin: 18 },
+    },
+  ],
   related: ['pdf-to-images', 'pdf-merge'],
   credits: [pdfCredit],
   status: 'stable',

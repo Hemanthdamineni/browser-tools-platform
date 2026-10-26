@@ -34,11 +34,9 @@ export const meta: ToolMeta = {
       input: 'https://a:b@ex.com:8443/p/q?x=1&x=2&y=hi#frag',
     },
     { title: 'Relative URL with base', input: '/a/b', options: { base: 'https://ex.com' } },
-  ],
-  faq: [
     {
-      q: 'Why does the port row disappear for https://ex.com?',
-      a: 'The URL API returns an empty port string when the URL uses the scheme’s default port (443 for https, 80 for http). That is the standards-compliant answer, not a parsing bug.',
+      title: 'Encoded path and repeated keys',
+      input: 'https://ex.com/a%20b/c?tag=x&tag=y&q=one%2Btwo',
     },
   ],
   related: ['querystring', 'basic-auth', 'utm-builder', 'punycode'],

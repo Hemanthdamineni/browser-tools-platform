@@ -36,28 +36,6 @@ export const meta: ToolMeta = {
       help: 'Filled in by the camera panel: the active device, its track settings, the measured frame rate and the cameras it found.',
     },
   ],
-  faq: [
-    {
-      q: 'Is my camera feed uploaded anywhere?',
-      a: 'No. The preview is a live video element fed by your browser, the frame rate is counted from frames drawn in this tab, and the snapshot is encoded with a canvas here. Nothing is recorded, stored or sent over the network. The only thing the page downloads is its own JavaScript, served from this site.',
-    },
-    {
-      q: 'Why does the measured frame rate differ from the camera spec?',
-      a: 'A camera often advertises 30 fps but delivers fewer frames in dim light, or more than the display can show. The measured number counts the frames the browser actually presented during the sampling window, which is what you would see in a recording. Some browsers cannot report frames from the video at all; there the rate is sampled from the display refresh loop and is an approximation.',
-    },
-    {
-      q: 'Why are my camera names hidden?',
-      a: 'Browsers only reveal device names after you allow camera access at least once. Press Start camera to grant it, and the picker and the report will show the real names.',
-    },
-    {
-      q: 'What happens to the snapshot?',
-      a: 'It is drawn from the current frame into a PNG and offered as a download next to the report. The file is created in this tab and only leaves it if you save it.',
-    },
-    {
-      q: 'The camera does not start — what should I check?',
-      a: 'Camera access needs an https:// page (or localhost) and your permission. If another tab or app is already using the camera, close it and try again. The panel explains the exact reason for every blocker, including denied permission and a camera that is already in use.',
-    },
-  ],
   related: ['qr-scanner', 'barcode', 'image-metadata'],
   status: 'beta',
   updated: '2026-10-24',

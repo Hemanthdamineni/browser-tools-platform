@@ -63,20 +63,6 @@ export const meta: ToolMeta = {
     { title: 'Find a determinant', input: '3 8\n4 6', options: { operation: 'determinant' } },
     { title: 'Transpose a 2×3 matrix', input: '1 2 3\n4 5 6', options: { operation: 'transpose' } },
   ],
-  faq: [
-    {
-      q: 'How do I enter a matrix?',
-      a: 'Put one row on each line. Separate values with spaces, commas, or tabs. Every row must contain the same number of finite decimal values.',
-    },
-    {
-      q: 'What size matrices are supported?',
-      a: 'Matrices are limited to 20 rows and 20 columns to keep calculations responsive. Determinants and inverses require square matrices.',
-    },
-    {
-      q: 'How are near-singular matrices handled?',
-      a: 'Determinants and inverses use partial pivoting. Inverse rejects pivots at or below a scale-relative tolerance; determinant results may be affected by floating-point rounding.',
-    },
-  ],
-  related: ['number-base', 'combinatorics'],
+  related: ['number-base', 'statistics-calculator'],
   status: 'stable',
 };

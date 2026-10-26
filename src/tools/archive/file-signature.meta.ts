@@ -34,20 +34,10 @@ export const meta: ToolMeta = {
       ],
     },
   ],
-  examples: [{ title: 'Inspect selected files' }],
-  faq: [
-    {
-      q: 'Can a file signature prove a file is safe?',
-      a: 'No. Signatures can suggest a format and expose some extension mismatches, but they do not validate the full contents or establish that a file is safe. Treat unknown or untrusted files cautiously.',
-    },
-    {
-      q: 'Why might the result say unknown?',
-      a: 'The inspector checks known signatures at the start of the file, including a few documented offsets. Many text formats and some container variants have no reliable fixed header and will remain unknown.',
-    },
-    {
-      q: 'Does it read or upload the whole file?',
-      a: 'No. It reads only the configured leading sample (at most 256 bytes) in your browser, and makes no network request.',
-    },
+  examples: [
+    { title: 'Inspect selected files' },
+    { title: 'Spot a renamed download' },
+    { title: 'Read a wider header sample', options: { sampleBytes: '256' } },
   ],
   related: ['file-metadata', 'mime-lookup', 'base64'],
   status: 'stable',

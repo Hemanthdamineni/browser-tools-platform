@@ -54,20 +54,6 @@ export const meta: ToolMeta = {
       options: { uppercaseKeywords: false },
     },
   ],
-  faq: [
-    {
-      q: 'Is this a real SQL parser?',
-      a: 'No. It is a formatter built from string rules, not a grammar. It handles common SELECT/INSERT/UPDATE/DELETE shapes but will not understand every dialect or deeply nested statement.',
-    },
-    {
-      q: 'Will it touch my string literals or comments?',
-      a: 'No. Single- and double-quoted text, -- line comments and /* block */ comments are masked before formatting and restored verbatim.',
-    },
-    {
-      q: 'Why did it report an unterminated string?',
-      a: 'The input has an opening quote or /* with no matching close, so the formatter cannot tell where the literal ends.',
-    },
-  ],
   related: ['json-format', 'xml-format', 'markdown-to-html', 'regex-tester'],
   status: 'stable',
 };

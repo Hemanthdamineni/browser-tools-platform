@@ -51,12 +51,6 @@ export const meta: ToolMeta = {
     { title: 'Escape emoji', input: 'A → 😀', options: { mode: 'escape' } },
     { title: 'Unescape', input: 'caf\\u00e9 \\u{1f600}', options: { mode: 'unescape' } },
   ],
-  faq: [
-    {
-      q: 'Which forms does unescape understand?',
-      a: 'It accepts them all at once: \\uXXXX, \\u{XXXXX}, \\xXX, \\UXXXXXXXX, &#DDDD;, &#xHHHH;, U+XXXX and CSS \\HHHHHH. Mix and match in one input.',
-    },
-  ],
   related: ['html-entities', 'hex', 'string-escape', 'base64'],
   hidden: true,
   redirectTo: 'string-escape',

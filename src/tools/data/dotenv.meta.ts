@@ -64,16 +64,6 @@ export const meta: ToolMeta = {
       options: { mode: 'build' },
     },
   ],
-  faq: [
-    {
-      q: 'Which lines are ignored when parsing?',
-      a: 'Blank lines and lines whose first non-space character is # are skipped. An "export " prefix is stripped, and matching single or double quotes around a value are removed.',
-    },
-    {
-      q: 'How does ${VAR} expansion work?',
-      a: 'With expansion on, ${NAME} in an unquoted or double-quoted value is replaced by the value of an earlier key. Single-quoted values are left literal.',
-    },
-  ],
   related: ['querystring', 'json-format', 'json-to-yaml', 'yaml-to-json'],
   status: 'stable',
 };

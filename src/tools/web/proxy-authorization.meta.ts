@@ -48,19 +48,9 @@ export const meta: ToolMeta = {
       title: 'Build a Bearer proxy credential',
       options: { mode: 'build', scheme: 'Bearer', token: 'proxy-token' },
     },
-  ],
-  faq: [
     {
-      q: 'Is Proxy-Authorization the same as Authorization?',
-      a: 'No. Proxy-Authorization supplies credentials to a forward proxy, while Authorization supplies credentials to the origin server.',
-    },
-    {
-      q: 'Is Basic encoding encryption?',
-      a: 'No. Base64 is reversible encoding. Use TLS and avoid logging or sharing generated credentials.',
-    },
-    {
-      q: 'Does this contact a proxy?',
-      a: 'No. The tool only formats and validates values locally and never sends credentials over the network.',
+      title: 'Build Basic credentials from a user name',
+      options: { mode: 'build', scheme: 'Basic', username: 'user', password: 'pass' },
     },
   ],
   related: ['proxy-authenticate', 'basic-auth', 'secret-scanner'],

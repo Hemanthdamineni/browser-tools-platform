@@ -81,19 +81,14 @@ export const meta: ToolMeta = {
         selector: '.dashboard',
       },
     },
-  ],
-  faq: [
     {
-      q: 'What syntax can tracks use?',
-      a: 'Common CSS track syntax is accepted, including lengths, percentages, fr units, minmax(), repeat(), auto-fit, and auto-fill. The generator validates basic safety and non-empty declarations but does not fully parse CSS.',
-    },
-    {
-      q: 'How are named areas validated?',
-      a: 'Each non-dot area name must occupy one contiguous rectangle in the matrix. Every row must contain the same number of cells, and the optional dot represents an intentionally empty cell.',
-    },
-    {
-      q: 'Does this add responsive breakpoints?',
-      a: 'No. It generates one grid rule. Use repeat(auto-fit, minmax(...)) for many responsive layouts, or compose the output with media queries yourself.',
+      title: 'Auto-fit responsive cards',
+      options: {
+        columns: 'repeat(auto-fit, minmax(240px, 1fr))',
+        rows: 'auto',
+        gap: '1.5rem',
+        selector: '.gallery',
+      },
     },
   ],
   related: ['css-units', 'box-shadow', 'fluid-clamp'],

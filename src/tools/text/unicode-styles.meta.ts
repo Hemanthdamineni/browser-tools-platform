@@ -64,20 +64,6 @@ export const meta: ToolMeta = {
       options: { style: 'monospace' },
     },
   ],
-  faq: [
-    {
-      q: 'Can I convert styled text back to ASCII?',
-      a: 'Yes. Choose "Styled → plain text" with the matching style. Every code point this tool can produce maps back to exactly one plain character; anything else passes through unchanged.',
-    },
-    {
-      q: 'What happens to unsupported characters?',
-      a: 'They are left exactly as they are. For example, emoji and punctuation in the squared style have no equivalent, so they stay unchanged while letters are restyled.',
-    },
-    {
-      q: 'Which characters does each style cover?',
-      a: 'Full-width covers the whole printable ASCII range and turns spaces into ideographic spaces. Circled covers A–Z, a–z and 0–9. Squared covers A–Z. Math sans-serif covers A–Z, a–z and 0–9.',
-    },
-  ],
-  related: ['case-convert', 'unicode-escape', 'slugify', 'whitespace-visualizer'],
+  related: ['case-convert', 'unicode-normalize', 'slugify', 'whitespace-visualizer'],
   status: 'stable',
 };

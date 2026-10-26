@@ -67,20 +67,6 @@ export const meta: ToolMeta = {
       options: { minLength: 4, top: 5 },
     },
   ],
-  faq: [
-    {
-      q: 'What counts as a word?',
-      a: 'A run of letters, digits and apostrophes. Hyphens, spaces and other punctuation split words apart.',
-    },
-    {
-      q: 'What does the percentage mean?',
-      a: "A word's share of all counted words, after the minimum-length and stop-word filters have been applied.",
-    },
-    {
-      q: 'Which stop words are removed?',
-      a: 'About 40 of the most common English function words such as the, a, an, and, or, of, to, in, is and it.',
-    },
-  ],
   related: ['text-stats', 'char-frequency', 'case-convert', 'dedupe-lines'],
   status: 'stable',
 };

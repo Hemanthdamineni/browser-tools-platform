@@ -10,7 +10,11 @@ export const meta: ToolMeta = {
   privacy: { processing: 'on-device', network: 'none', offline: true },
   input: 'file',
   accept: '.tar,.tar.gz,.tgz,application/x-tar,application/gzip',
-  examples: [{ title: 'Extract a TAR archive' }],
+  examples: [
+    { title: 'Extract a TAR archive' },
+    { title: 'Extract a gzipped .tar.gz' },
+    { title: 'Extract a .tgz release bundle' },
+  ],
   related: ['tar-create', 'zip-extract'],
   credits: [{ name: 'fflate', url: 'https://github.com/101arrowz/fflate', license: 'MIT' }],
   status: 'stable',

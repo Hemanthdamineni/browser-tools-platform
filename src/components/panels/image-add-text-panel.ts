@@ -232,7 +232,8 @@ export function mountImageAddTextPanel(root: HTMLElement): void {
       plan = next;
       placeBox(next);
       const position = positionValues();
-      const scaleNote = size.scale < 1 ? ` · preview at ${Math.round(size.scale * 100)}% scale` : '';
+      const scaleNote =
+        size.scale < 1 ? ` · preview at ${Math.round(size.scale * 100)}% scale` : '';
       announce(
         `${next.lines.length} line${next.lines.length === 1 ? '' : 's'} · ${Math.round(next.fontPx)} px font · ${position.x}% / ${position.y}%${scaleNote}`,
       );

@@ -58,16 +58,6 @@ export const meta: ToolMeta = {
       options: { epoch: 'custom', customEpoch: 0 },
     },
   ],
-  faq: [
-    {
-      q: 'What is the bit layout?',
-      a: 'From the top: 42 bits of millisecond timestamp, then 5 bits worker id, 5 bits process id, and 12 bits sequence. Twitter uses a single 10-bit machine id over the same two 5-bit fields.',
-    },
-    {
-      q: 'Why do I need to pick an epoch?',
-      a: 'The stored timestamp is milliseconds since a service-specific epoch, not the Unix epoch. Choosing the wrong one shifts every decoded date.',
-    },
-  ],
-  related: ['objectid', 'uuid', 'uuid-namespace', 'unix-time'],
+  related: ['objectid', 'uuid', 'uuid-namespace', 'timestamp'],
   status: 'stable',
 };

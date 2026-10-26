@@ -41,20 +41,6 @@ export const meta: ToolMeta = {
       options: { length: 8, uppercase: false, lowercase: false, symbols: false },
     },
   ],
-  faq: [
-    {
-      q: 'How is “no modulo bias” achieved?',
-      a: 'Random bytes are read as unsigned 32-bit integers and any value in the short final block that would skew the distribution is discarded and re-drawn (rejection sampling), so every character in the pool is equally likely.',
-    },
-    {
-      q: 'What does the entropy figure mean?',
-      a: 'It is log2(pool size) × length, the number of bits an attacker must brute-force on average. 20 characters from a ~90-character pool is roughly 129 bits.',
-    },
-    {
-      q: 'Is anything sent anywhere?',
-      a: 'No. Generation is local and offline; the passwords never leave your device.',
-    },
-  ],
   related: ['passphrase', 'random-string', 'uuid'],
   status: 'stable',
 };

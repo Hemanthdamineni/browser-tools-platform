@@ -77,20 +77,6 @@ export const meta: ToolMeta = {
       options: { find: '(\\w+) (\\w+)', replace: '$2, $1', mode: 'regex', flags: 'g' },
     },
   ],
-  faq: [
-    {
-      q: 'Are $1 backreferences supported?',
-      a: 'In regex mode, yes — the replacement string is passed through untouched, so $1, $<name> and $& all work. In plain and whole-word mode a literal $ is kept as-is.',
-    },
-    {
-      q: 'What happens with an invalid pattern?',
-      a: 'An invalid regular expression or an unknown flag raises a friendly error instead of a silent no-op.',
-    },
-    {
-      q: 'Does it replace every match?',
-      a: 'Plain and whole-word mode always replace all matches. Regex mode replaces all only when the flags include "g".',
-    },
-  ],
   related: ['remove-empty-lines', 'line-numbers', 'case-convert', 'slugify'],
   status: 'stable',
 };

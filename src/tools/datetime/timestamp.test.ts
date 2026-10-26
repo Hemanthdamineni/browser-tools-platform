@@ -62,4 +62,11 @@ describe('timestamp', () => {
     expect(r.render).toBe('table');
     expect(table(r).rows.length).toBeGreaterThanOrEqual(7);
   });
+
+  it('runs the "Now" example without throwing', async () => {
+    const r = await run('', {});
+    expect(r.render).toBe('table');
+    expect(table(r).rows.length).toBeGreaterThanOrEqual(7);
+    expect(table(r).rows[0]?.[0]).toBe('Unix seconds');
+  });
 });

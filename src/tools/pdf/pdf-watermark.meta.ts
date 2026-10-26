@@ -1,5 +1,5 @@
 import type { ToolMeta } from '@/lib/types';
-import { pdfCredit } from './shared';
+import { pdfCredit } from './credits';
 export const meta: ToolMeta = {
   id: 'pdf-watermark',
   name: 'Watermark PDF',
@@ -42,7 +42,11 @@ export const meta: ToolMeta = {
       ],
     },
   ],
-  examples: [{ title: 'Add a confidential watermark' }],
+  examples: [
+    { title: 'Add a confidential watermark' },
+    { title: 'Tile a DRAFT mark across every page' },
+    { title: 'Stamp only page 1 at higher opacity' },
+  ],
   related: ['pdf-page-numbers', 'pdf-metadata'],
   credits: [pdfCredit],
   status: 'stable',

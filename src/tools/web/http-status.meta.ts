@@ -39,12 +39,6 @@ export const meta: ToolMeta = {
     { title: 'Teapot', input: 'teapot' },
     { title: 'Browse all' },
   ],
-  faq: [
-    {
-      q: 'Which codes are missing from the list?',
-      a: 'Codes that were never standardised (unregistered NGX extensions, drafts that expired) are omitted. Everything in the current IANA HTTP Status Code Registry is included.',
-    },
-  ],
   related: ['port-lookup', 'mime-lookup', 'user-agent'],
   status: 'stable',
 };

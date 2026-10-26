@@ -46,20 +46,6 @@ export const meta: ToolMeta = {
       options: { mode: 'sort' },
     },
   ],
-  faq: [
-    {
-      q: 'Does build metadata affect comparison?',
-      a: 'No. SemVer 2.0.0 says build metadata is ignored for precedence. It is preserved in displayed and sorted values.',
-    },
-    {
-      q: 'Are leading v prefixes accepted?',
-      a: 'No. This tool validates strict SemVer 2.0.0. Remove a leading v, whitespace, or other tag prefix before checking.',
-    },
-    {
-      q: 'How are prereleases ordered?',
-      a: 'A version with a prerelease has lower precedence than the corresponding normal version. Numeric identifiers compare numerically, and numeric identifiers always precede non-numeric identifiers.',
-    },
-  ],
   related: ['number-base', 'timestamp', 'json-format'],
   status: 'stable',
 };

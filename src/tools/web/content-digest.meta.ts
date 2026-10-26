@@ -55,20 +55,6 @@ export const meta: ToolMeta = {
       },
     },
   ],
-  faq: [
-    {
-      q: 'Does this hash my content?',
-      a: 'No. Paste a digest generated elsewhere or use a file-hashing tool first. This utility only formats and validates digest field syntax.',
-    },
-    {
-      q: 'Is Digest the same as encryption?',
-      a: 'No. A digest detects changes when compared against a trusted expected value; it does not conceal content.',
-    },
-    {
-      q: 'Does a valid digest prove integrity?',
-      a: 'Only when the algorithm, value, and message context are trusted and the digest is computed over the exact transmitted representation.',
-    },
-  ],
   related: ['checksum-validator', 'file-metadata', 'base64'],
   hidden: true,
   redirectTo: 'http-header-analyzer',

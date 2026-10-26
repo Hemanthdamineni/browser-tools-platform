@@ -69,16 +69,6 @@ export const meta: ToolMeta = {
       options: { skipBlank: true, separator: 'pipe' },
     },
   ],
-  faq: [
-    {
-      q: 'What happens to blank lines when "Skip blank lines" is on?',
-      a: 'They stay exactly where they are but get no number, and they do not advance the counter.',
-    },
-    {
-      q: 'How wide is the zero-padding?',
-      a: 'The width of the largest number that will be printed, so every prefix lines up.',
-    },
-  ],
   related: ['remove-empty-lines', 'sort-lines', 'dedupe-lines', 'find-replace'],
   status: 'stable',
 };

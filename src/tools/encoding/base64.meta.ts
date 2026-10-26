@@ -52,20 +52,6 @@ export const meta: ToolMeta = {
     { title: 'Decode', input: 'aGVsbG8gd29ybGQ=', options: { mode: 'decode' } },
     { title: 'Emoji round-trips', input: 'I ❤ Toolbench', options: { mode: 'encode' } },
   ],
-  faq: [
-    {
-      q: 'Does this handle Unicode correctly?',
-      a: 'Yes. Text is encoded as UTF-8 first, so emoji and non-Latin scripts round-trip exactly. The naive btoa() approach throws on those; this tool does not.',
-    },
-    {
-      q: 'What is the URL-safe alphabet?',
-      a: 'RFC 4648 §5 replaces + with - and / with _ so the value is safe in URLs and filenames. Padding = is usually omitted.',
-    },
-    {
-      q: 'Can it encode a whole file?',
-      a: 'Yes — drop a file on the workbench and it is encoded as a .base64.txt download. If a file is selected it is used instead of any text you typed.',
-    },
-  ],
   related: ['base32', 'url-encode', 'hex', 'jwt-decode'],
   status: 'stable',
 };

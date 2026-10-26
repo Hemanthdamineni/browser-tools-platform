@@ -16,6 +16,7 @@ import tool, {
 } from './background-remover.tool';
 import { blobPixels, installImageMock, makeFile, pixelAt, type MockHandle } from './image-mock';
 import { meta } from './background-remover.meta';
+import { getContent } from '@/lib/content';
 
 /* -------------------------------------------------------------------------- */
 /*  Fixtures                                                                  */
@@ -290,7 +291,10 @@ describe('network disclosure', () => {
   });
 
   it('names both downloads and the image guarantee in its visible copy', () => {
-    const copy = [meta.description, ...(meta.faq ?? []).map((entry) => entry.a)].join(' ');
+    const copy = [
+      meta.description,
+      ...(getContent(meta.id)?.faq ?? []).map((entry: { q: string; a: string }) => entry.a),
+    ].join(' ');
     expect(copy).toMatch(/hugging[\s-]?face/i);
     expect(copy).toMatch(/jsdelivr/i);
     expect(copy).toMatch(/never (uploaded|leave)/i);

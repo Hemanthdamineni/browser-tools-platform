@@ -1,5 +1,5 @@
 import type { ToolMeta } from '@/lib/types';
-import { fflateCredit, pdfjsCredit } from './shared';
+import { fflateCredit, pdfjsCredit } from './credits';
 export const meta: ToolMeta = {
   id: 'pdf-to-images',
   name: 'PDF to Images',
@@ -41,7 +41,14 @@ export const meta: ToolMeta = {
       showWhen: { key: 'format', value: 'jpeg' },
     },
   ],
-  examples: [{ title: 'Convert PDF pages to PNG' }],
+  examples: [
+    { title: 'Convert PDF pages to PNG' },
+    {
+      title: 'Export pages 1 and 3-5 as JPEG',
+      options: { format: 'jpeg', scale: 2, pages: '1,3-5', quality: 85 },
+    },
+    { title: 'High-resolution WebP of page 2', options: { format: 'webp', scale: 4, pages: '2' } },
+  ],
   related: ['images-to-pdf', 'pdf-extract-text'],
   credits: [pdfjsCredit, fflateCredit],
   status: 'stable',

@@ -37,20 +37,7 @@ export const meta: ToolMeta = {
   examples: [
     { title: 'Analyze a MAC', input: '3C:22:FB:9C:11:D4' },
     { title: 'Convert to EUI-64', input: '3c:22:fb:9c:11:d4', options: { mode: 'eui64' } },
-  ],
-  faq: [
-    {
-      q: 'What is EUI-64?',
-      a: 'A 64-bit interface identifier derived from the MAC by inverting the U/L bit and inserting FF:FE after the first three octets — the basis of SLAAC IPv6 addresses.',
-    },
-    {
-      q: 'Is a MAC unique by itself?',
-      a: 'The OUI is assigned to a company, but the NIC/ULA bits and later octets must be unique on a LAN; locally-administered addresses can be set by anyone.',
-    },
-    {
-      q: 'What notations are accepted?',
-      a: 'AA:BB:CC:DD:EE:FF, AA-BB-CC-DD-EE-FF, aabb.ccdd.eeff, or 12 contiguous hex digits.',
-    },
+    { title: 'Analyze a Cisco dotted address', input: '001b.213c.22fb' },
   ],
   related: ['ipv6-expander', 'cidr-calculator', 'url-parse'],
   status: 'stable',

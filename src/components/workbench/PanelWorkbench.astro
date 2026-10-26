@@ -39,3 +39,13 @@ const Panel = (await panels[key]!()).default;
 <div data-panel-workbench={meta.id}>
   <Panel meta={meta} />
 </div>
+
+<script>
+  import { onRunShortcutClick } from '@/components/keyboard';
+
+  // Ctrl/⌘+Enter runs the current tool: panels that expose a `[data-run]`
+  // button get the chord for free; panels with bespoke controls keep their own.
+  document
+    .querySelectorAll<HTMLElement>('[data-panel-workbench]')
+    .forEach((root) => onRunShortcutClick(root, window));
+</script>

@@ -73,20 +73,6 @@ export const meta: ToolMeta = {
       options: { algorithm: 'sha-1', output: 'base64' },
     },
   ],
-  faq: [
-    {
-      q: 'Are MD5 and SHA-1 safe to use?',
-      a: 'No. Both are broken for collision resistance and must not be used for signatures, certificates or content deduplication where an attacker can influence the input. They are still fine as non-security checksums. Use SHA-256 or stronger for anything security related.',
-    },
-    {
-      q: 'Is the text hashed as UTF-8?',
-      a: 'Yes. The input string is encoded to UTF-8 bytes before hashing, so multi-byte characters produce the same digest as other UTF-8 tooling.',
-    },
-    {
-      q: 'What is the URL-safe Base64 option?',
-      a: 'Standard Base64 with "+" and "/" replaced by "-" and "_" and the trailing "=" padding removed, so the digest can be dropped straight into URLs and filenames.',
-    },
-  ],
   related: ['hmac', 'crc32', 'file-hash', 'base64'],
   status: 'stable',
 };

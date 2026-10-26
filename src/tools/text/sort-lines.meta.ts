@@ -42,13 +42,12 @@ export const meta: ToolMeta = {
   examples: [
     { title: 'Sort a list', input: 'banana\napple\ncherry' },
     { title: 'Natural sort', input: 'file10\nfile2\nfile1', options: { method: 'natural' } },
-  ],
-  faq: [
     {
-      q: 'What is a natural sort?',
-      a: 'Numbers inside the text are compared by value, not character by character, so "item2" sorts before "item10". Standard alphabetical sort would put "item10" first.',
+      title: 'Sort by length and drop duplicates',
+      input: 'cherry\napple\nbanana\napple',
+      options: { method: 'length', unique: true, trim: true },
     },
   ],
-  related: ['dedupe-lines', 'reverse-text', 'whitespace-cleanup'],
+  related: ['dedupe-lines', 'reverse-text', 'remove-empty-lines'],
   status: 'stable',
 };

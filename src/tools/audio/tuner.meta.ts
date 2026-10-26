@@ -1,0 +1,90 @@
+import type { ToolMeta } from '@/lib/types';
+
+export const meta: ToolMeta = {
+  id: 'tuner',
+  name: 'Tuner',
+  category: 'audio',
+  summary:
+    'Tune an instrument from your microphone: see the note, the cents deviation and a needle.',
+  description:
+    'Open your microphone and the tuner detects the pitch of what you play or sing — equal temperament with A4 = 440 Hz. It shows the nearest note, how many cents sharp or flat it is on a live needle, and the reference frequency for every note. You can recalibrate A4 (e.g. 442 or the baroque 415) and capture a session to review several readings as a table. Everything happens in this tab — no audio ever leaves your device.',
+  keywords: [
+    'tuner',
+    'pitch',
+    'note',
+    'cents',
+    'frequency',
+    'guitar tuner',
+    'bass tuner',
+    'violin',
+    'ukelele',
+    'calibration',
+    'A4',
+    'microphone',
+    'YIN',
+  ],
+  privacy: { processing: 'on-device', network: 'none', offline: true },
+  input: 'text',
+  panel: 'tuner',
+  worker: false,
+  options: [
+    {
+      key: 'a4',
+      label: 'Calibration note (A4 reference, Hz)',
+      type: 'range',
+      default: 440,
+      min: 400,
+      max: 480,
+      step: 0.5,
+      help: 'The frequency of the A above middle C. 440 is standard; orchestras often tune to 442, and baroque ensembles to 415.',
+    },
+    {
+      key: 'sensitivity',
+      label: 'Detection sensitivity',
+      type: 'range',
+      default: 0.12,
+      min: 0.05,
+      max: 0.3,
+      step: 0.01,
+      help: 'How strongly a pitch must stand out before it is trusted. Lower values are pickier about noise; higher values lock onto quiet sounds more readily.',
+    },
+    {
+      key: 'notation',
+      label: 'Note notation',
+      type: 'select',
+      default: 'sharps',
+      choices: [
+        { value: 'sharps', label: 'Sharps (C♯, D♯, …)' },
+        { value: 'flats', label: 'Flats (D♭, E♭, …)' },
+      ],
+    },
+    {
+      key: 'toleranceCents',
+      label: 'In-tune tolerance',
+      type: 'number',
+      default: 5,
+      min: 1,
+      max: 25,
+      help: 'How many cents a note may deviate and still count as in tune in the report.',
+    },
+  ],
+  examples: [
+    {
+      title: 'Perfectly tuned A4',
+      input: '440',
+      options: { toleranceCents: 2 },
+    },
+    {
+      title: 'A full A major arpeggio',
+      input: '440 554.37 659.26 880',
+      options: { toleranceCents: 5 },
+    },
+    {
+      title: 'Session snapshot (readings + sample rate)',
+      input: '{"readings":[440,440.5,441,439],"sampleRate":48000}',
+      options: { a4: 442 },
+    },
+  ],
+  related: ['mic-test', 'tone-generator', 'audio-info', 'bpm-detector'],
+  status: 'beta',
+};

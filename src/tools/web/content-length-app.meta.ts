@@ -42,19 +42,10 @@ export const meta: ToolMeta = {
       input: 'hello',
       options: { mode: 'verify', declared: '5' },
     },
-  ],
-  faq: [
     {
-      q: 'Why does byte length differ from string length?',
-      a: 'JavaScript strings count UTF-16 code units, so non-ASCII characters (é, emoji) use multiple bytes in UTF-8.',
-    },
-    {
-      q: 'When does Content-Length matter?',
-      a: 'A wrong Content-Length wrong corrupts HTTP/1.1 bodies; mismatches can cause truncation or desync. 2 bytes per multibyte character is a common source.',
-    },
-    {
-      q: 'What about chunked?',
-      a: 'Chunked transfer encoding omits Content-Length; this tool is for bodies that declare a length.',
+      title: 'Check an ASCII body',
+      input: 'key=value&x=1',
+      options: { mode: 'verify', declared: '13' },
     },
   ],
   related: ['http-range', 'url-encode', 'data-size'],

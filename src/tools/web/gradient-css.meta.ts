@@ -57,11 +57,23 @@ export const meta: ToolMeta = {
       showWhen: { key: 'type', value: 'linear' },
     },
   ],
-  examples: [{ title: 'Indigo → pink, 90°' }],
-  faq: [
+  examples: [
+    { title: 'Indigo → pink, 90°' },
     {
-      q: 'What is the background-color line for?',
-      a: 'Browsers that fail to parse the gradient (very old engines) still get a solid fill of the first stop colour. It is the standard progressive-enhancement pattern.',
+      title: 'Radial circle',
+      options: {
+        type: 'radial',
+        shape: 'circle',
+        stops: '#0f172a 0%\n#38bdf8 100%',
+      },
+    },
+    {
+      title: 'Conic colour wheel',
+      options: {
+        type: 'conic',
+        angle: 0,
+        stops: 'red 0deg\nlime 120deg\nblue 240deg\nred 360deg',
+      },
     },
   ],
   related: ['box-shadow', 'color-palette', 'color-blend'],

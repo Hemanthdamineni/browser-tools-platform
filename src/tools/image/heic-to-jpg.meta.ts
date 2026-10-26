@@ -52,32 +52,10 @@ export const meta: ToolMeta = {
       showWhen: { key: 'to', value: 'jpeg' },
     },
   ],
-  examples: [{ title: 'Convert a HEIC photo to JPG' }],
-  faq: [
-    {
-      q: 'Is anything uploaded?',
-      a: 'No. The HEIC decoder is a WebAssembly build of libheif that runs inside a Web Worker in your browser. Your photos are never sent anywhere.',
-    },
-    {
-      q: 'Why does the first conversion take a moment?',
-      a: 'The decoder is about 1.5 MB and is only downloaded the first time you convert something. After that it is cached by the browser.',
-    },
-    {
-      q: 'Does it keep transparency?',
-      a: 'PNG and WebP keep the alpha channel exactly as it is. JPEG has no transparency, so transparent pixels are flattened onto the background colour you choose.',
-    },
-    {
-      q: 'Which HEIC files are supported?',
-      a: 'HEIC and HEIF files that use HEVC — the format iPhones, iPads and most Android phones use. The rotation and crop stored in the file are applied. AVIF files are a different format; use the Image Converter for those.',
-    },
-    {
-      q: 'Are the colours and the metadata preserved?',
-      a: 'The pixels are decoded to 8-bit sRGB, so HDR gain maps and the original colour profile are not carried over. The output is a fresh file: no EXIF, GPS or other metadata is copied into it.',
-    },
-    {
-      q: 'Are the original photos modified?',
-      a: 'No. The originals are only read. Every conversion produces a new file next to the original, with the same name and a new extension.',
-    },
+  examples: [
+    { title: 'Convert a HEIC photo to JPG' },
+    { title: 'Keep full quality as PNG for editing', options: { to: 'png' } },
+    { title: 'Smaller WebP at 75 percent quality', options: { to: 'webp', quality: 75 } },
   ],
   related: ['image-convert', 'image-compress', 'image-metadata'],
   credits: [

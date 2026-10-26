@@ -45,23 +45,11 @@ export const meta: ToolMeta = {
       input:
         '<label for="email">Email</label>\n<input type="email" id="email" readonly><br><button disabled>Save</button>',
     },
-  ],
-  faq: [
     {
-      q: 'Does it convert CSS style strings to style objects?',
-      a: 'No. inline style="…" strings are carried through unchanged as strings. Converting to React style objects would need a CSS parser and is out of scope for a markup converter.',
-    },
-    {
-      q: 'Why are void elements self-closed?',
-      a: 'JSX requires every element to have a closing form, so img, input, br, hr, meta, link and friends are emitted as <img />, <input /> etc. HTML attributes are otherwise passed through.',
-    },
-    {
-      q: 'What about attributes I add later with expressions?',
-      a: 'Static input produces static JSX. You can replace any attribute value with an expression afterwards; the converter keeps values as plain strings so nothing is guessed.',
-    },
-    {
-      q: 'Can it handle multiple root elements?',
-      a: 'Yes — with "Wrap multiple roots" enabled, several top-level elements are wrapped in a JSX fragment so the output is a valid component body.',
+      title: 'Attributes React renames',
+      input:
+        '<div class="card" tabindex="0"><label for="q">Search</label><input id="q" readonly></div>',
+      options: { fragment: false },
     },
   ],
   related: ['svg-to-jsx', 'html-to-markdown', 'html-prettifier', 'markdown-to-html'],

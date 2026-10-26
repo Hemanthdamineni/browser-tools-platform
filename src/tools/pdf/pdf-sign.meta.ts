@@ -1,5 +1,5 @@
 import type { ToolMeta } from '@/lib/types';
-import { pdfCredit, pdfjsCredit } from './shared';
+import { pdfCredit, pdfjsCredit } from './credits';
 export const meta: ToolMeta = {
   id: 'pdf-sign',
   name: 'Sign PDF',
@@ -53,23 +53,15 @@ export const meta: ToolMeta = {
       default: '',
     },
   ],
-  examples: [{ title: 'Sign the first page' }],
-  faq: [
+  examples: [
+    { title: 'Sign the first page' },
     {
-      q: 'Is the signature really private?',
-      a: 'Yes. Your signature is drawn in this tab and embedded into the PDF on this device — nothing is uploaded.',
+      title: 'Sign page 3, upper right',
+      options: { page: 3, x: 360, y: 48, width: 160 },
     },
     {
-      q: 'What does "flattened" mean?',
-      a: 'The signature is painted into the page content, so it becomes part of the page itself. It is not a form field or a clickable annotation.',
-    },
-    {
-      q: 'Can I sign a password-protected PDF?',
-      a: 'No. Unlock the document first — an encrypted PDF cannot be read until it is decrypted.',
-    },
-    {
-      q: 'Which signature types are supported?',
-      a: 'Draw it with a mouse, finger or stylus, type a name in one of four styles, or upload a PNG. Typed signatures use fonts that are already on your device, so nothing is fetched from the web.',
+      title: 'A smaller signature low on the page',
+      options: { page: 1, x: 72, y: 690, width: 100 },
     },
   ],
   related: ['pdf-watermark', 'pdf-page-numbers', 'pdf-metadata'],

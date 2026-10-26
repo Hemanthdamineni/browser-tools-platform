@@ -49,20 +49,7 @@ export const meta: ToolMeta = {
   examples: [
     { title: 'Analyze a policy', input: 'strict-origin-when-cross-origin' },
     { title: 'Build a strict policy', options: { mode: 'build', value: 'no-referrer' } },
-  ],
-  faq: [
-    {
-      q: 'What is the recommended default?',
-      a: 'strict-origin-when-cross-origin is the common recommendation: it sends origins on cross-origin requests and full URLs same-origin.',
-    },
-    {
-      q: 'Why list multiple policies?',
-      a: 'The browser applies the last supported token, so a list can express a preferred policy with fallbacks for older browsers.',
-    },
-    {
-      q: 'Why is unsafe-url risky?',
-      a: 'It sends full URLs, potentially including paths, queries, or tokens, on cross-origin requests.',
-    },
+    { title: 'Spot a risky fallback list', input: 'no-referrer, unsafe-url' },
   ],
   related: ['security-headers', 'cross-origin-opener-policy', 'permissions-policy'],
   status: 'stable',

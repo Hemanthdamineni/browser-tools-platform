@@ -68,16 +68,6 @@ export const meta: ToolMeta = {
       options: { mode: 'build' },
     },
   ],
-  faq: [
-    {
-      q: 'How are repeated keys handled?',
-      a: 'Any key that appears more than once becomes an array. With the brackets format a key ending in [] is always an array; with the comma format a value containing commas is split.',
-    },
-    {
-      q: 'Is the input URL-decoded?',
-      a: 'Yes. Keys and values are percent-decoded and + is treated as a space when parsing, and re-encoded when building.',
-    },
-  ],
   related: ['json-format', 'url-encode', 'json-to-yaml', 'csv-to-json'],
   status: 'stable',
 };

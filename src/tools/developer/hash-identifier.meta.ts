@@ -33,20 +33,6 @@ export const meta: ToolMeta = {
       input: '$2b$12$R9h/cIPz0gi.URNNX3kh2OPST9/PgBkqquzi.Ss7KIUgO2t0jWMUW',
     },
   ],
-  faq: [
-    {
-      q: 'Can it tell MD5 from NTLM?',
-      a: 'No. They are both 32 hex characters, so both are listed. Confidence reflects how common each format is, not certainty.',
-    },
-    {
-      q: 'Does it compute or crack the hash?',
-      a: 'Neither. It only inspects the string shape — length, alphabet and any $prefix$ — entirely in your browser.',
-    },
-    {
-      q: 'Why is base64 sometimes suggested?',
-      a: 'A string whose length is a multiple of 4 and uses only A-Z a-z 0-9 + / = fits the base64 rule, so it is offered as a low-confidence option.',
-    },
-  ],
   related: ['hex', 'base64', 'number-base', 'chmod-calculator'],
   status: 'stable',
 };

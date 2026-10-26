@@ -32,6 +32,20 @@ export const meta: ToolMeta = {
       max: 0,
     },
   ],
+  examples: [
+    {
+      title: 'Bring a quiet recording up to -1 dB peak',
+      options: { mode: 'peak', targetDb: -1 },
+    },
+    {
+      title: 'Level music to -14 dB RMS',
+      options: { mode: 'rms', targetDb: -14 },
+    },
+    {
+      title: 'Gentle peak limit of -3 dB',
+      options: { mode: 'peak', targetDb: -3 },
+    },
+  ],
   related: ['audio-gain', 'audio-info'],
   status: 'stable',
 };

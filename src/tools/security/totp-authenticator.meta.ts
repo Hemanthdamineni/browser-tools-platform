@@ -55,19 +55,17 @@ export const meta: ToolMeta = {
       ],
     },
   ],
-  examples: [{ title: 'Generate codes', input: 'JBSWY3DPEHPK3PXP' }],
-  faq: [
+  examples: [
+    { title: 'Generate codes', input: 'JBSWY3DPEHPK3PXP' },
     {
-      q: 'Where do I find the secret?',
-      a: 'Scan or open the otpauth:// URI your service provides; the secret is the base32 string after "secret=".',
+      title: 'Generate 8-digit codes on a 60-second period',
+      input: 'JBSWY3DPEHPK3PXP',
+      options: { mode: 'codes', digits: '8', period: '60' },
     },
     {
-      q: 'Does this replace my authenticator app?',
-      a: 'Conveniently yes on this machine, but keep a real app or secure backup of your secrets too, since codes are generated on launch and nothing is stored.',
-    },
-    {
-      q: 'Why is my verify failing?',
-      a: 'Check the secret (base32 without spaces), digits, and that your device clock is roughly correct — the window tolerance covers a few seconds of drift.',
+      title: 'Check a code against the secret',
+      input: 'JBSWY3DPEHPK3PXP 123456',
+      options: { mode: 'verify' },
     },
   ],
   related: ['otp-uri', 'password', 'hmac'],

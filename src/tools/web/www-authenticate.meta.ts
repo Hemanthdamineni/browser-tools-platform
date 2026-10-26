@@ -49,19 +49,10 @@ export const meta: ToolMeta = {
       title: 'Build a Bearer challenge',
       options: { mode: 'build', scheme: 'Bearer', realm: 'api', scope: 'read:profile' },
     },
-  ],
-  faq: [
     {
-      q: 'Does this validate credentials?',
-      a: 'No. It only builds and parses challenge metadata. It never handles passwords, tokens, or network requests.',
-    },
-    {
-      q: 'Is Basic authentication secure?',
-      a: 'Basic credentials must be protected by HTTPS and appropriate server controls. Base64 is encoding, not encryption.',
-    },
-    {
-      q: 'What is a Bearer scope?',
-      a: 'It is a server-declared space-delimited scope hint for the requested authorization context. Exact meaning depends on the authorization system.',
+      title: 'Read a Bearer error challenge',
+      input:
+        'Bearer realm="api", error="invalid_token", error_description="The access token expired"',
     },
   ],
   related: ['basic-auth', 'set-cookie', 'security-headers'],

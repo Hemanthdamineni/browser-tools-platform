@@ -61,20 +61,6 @@ export const meta: ToolMeta = {
       options: { mode: 'build', header: 'content-range', start: 100, end: 199, size: 1000 },
     },
   ],
-  faq: [
-    {
-      q: 'Are range ends inclusive?',
-      a: 'Yes. bytes=0-99 requests the first 100 bytes. Content-Range uses the same inclusive start-end form.',
-    },
-    {
-      q: 'What is a suffix range?',
-      a: 'bytes=-500 requests the final 500 bytes. The parser can assess it when a representation size is provided.',
-    },
-    {
-      q: 'Does this download or inspect a resource?',
-      a: 'No. It only parses and generates header text locally.',
-    },
-  ],
-  related: ['http-status', 'content-disposition', 'content-length'],
+  related: ['http-status', 'content-disposition', 'content-length-app'],
   status: 'stable',
 };

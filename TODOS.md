@@ -27,21 +27,21 @@ Line order is priority: top first. This file is written by a human (via review) 
 - [x] **video-to-gif** · video · after: video-foundation — Time range, fps, width, palette quality. Preview before export. ✅ bc08c91
 - [x] **pdf-sign** · pdf — Draw, type, or upload a signature. Place and resize on the page, then flatten with pdf-lib. ⚠️ run died ✅ 75d7414
 - [x] **code-beautify** · developer — Prettier standalone for JS/TS/CSS/SCSS/HTML/JSON/Markdown/YAML. Lazy-load parsers per language. ⚠️ run died ✅ already exists as code-beautify
-- [ ] **code-minify** · developer — terser, lightningcss-wasm or csso, html-minifier-terser. Show bytes saved. ⚠️ run died ⚠️ run died
+- [x] **code-minify** · developer — terser, lightningcss-wasm or csso, html-minifier-terser. Show bytes saved. ⚠️ run died ⚠️ run died ✅ already on master
 - [x] **video-compress** · video · after: video-foundation — Presets by target size or quality. Warn on memory limits for long files. ⚠️ run died ✅ already exists as video-compress
 - [x] **image-ocr** · image — tesseract.js with a language picker and self-hosted traineddata. Copy or download the text. ⚠️ run died ⏳ run-20261021-1531-369a @ 2026-10-21T15:41:05Z ✅ 8784cc2
-- [x] **background-remover** · image · after: ml-runtime-foundation — Use a permissively licensed model (e.g. MODNet); RMBG-1.4 is non-commercial, so don't use it. Output transparent PNG or a solid-colour background. ⚠️ run died ✅ 0252de4
-- [ ] **screen-recorder** · video — getDisplayMedia + MediaRecorder with a mic toggle. WebM output, plus MP4 where the browser supports it. ⚠️ run died ⚠️ run died
+- [x] **background-remover** · image · after: ml-runtime-foundation — Use a permissively licensed model (e.g. MODNet); RMBG-1.4 is non-commercial, so don't use it. Output transparent PNG or a solid-colour background. ⚠️ run died ⏳ run-20261023-2100-7541 @ 2026-10-23T21:16:07Z ✅ round/complete-2
+- [x] **screen-recorder** · video — getDisplayMedia + MediaRecorder with a mic toggle. WebM output, plus MP4 where the browser supports it. ⚠️ run died ⚠️ run died ✅ round/complete-2
 - [x] **webcam-recorder** · video — getUserMedia + MediaRecorder. Share the recording code with screen-recorder. ⏳ run-20261021-1731-c91e @ 2026-10-21T17:37:32Z ✅ f6cb8ad
 - [x] **pdf-organize** · pdf — Thumbnail grid with drag-to-reorder, rotate, delete, and insert blank page. ⚠️ run died ⏳ run-20261021-1604-7f47 @ 2026-10-21T17:30:00Z ✅ a0f7e7e
 - [x] **password-strength** · security — zxcvbn-ts. Show estimated crack time and feedback. The password is never stored or logged. ⚠️ run died ✅ already exists as password-strength
-- [ ] **markdown-preview** · developer — Split-pane live editor: GFM, code highlighting, export to HTML, print to PDF. ⚠️ run died ⚠️ run died
+- [x] **markdown-preview** · developer — Split-pane live editor: GFM, code highlighting, export to HTML, print to PDF. ⚠️ run died ⚠️ run died ✅ round/complete-2
 - [x] **percentage-calculator** · misc — X% of Y; X is what % of Y; % change; increase/decrease by %. ⚠️ run died ✅ already exists as percentage-calculator
-- [ ] **gst-calculator** · misc — Add or remove GST; CGST/SGST/IGST split. Verify current slab rates against an official source before shipping. ⚠️ run died ⚠️ run died
-- [ ] **sip-calculator** · misc — SIP, step-up SIP, and lumpsum, with a growth chart. Add a "not financial advice" note. ⚠️ run died ⚠️ run died
+- [x] **gst-calculator** · misc — Add or remove GST; CGST/SGST/IGST split. Verify current slab rates against an official source before shipping. ⚠️ run died ⚠️ run died ✅ already on master
+- [x] **sip-calculator** · misc — SIP, step-up SIP, and lumpsum, with a growth chart. Add a "not financial advice" note. ⚠️ run died ⚠️ run died ✅ already on master
 - [x] **compound-interest** · misc — Compounding frequency, periodic contributions, and a yearly schedule table. ✅ already exists as compound-interest-calculator
-- [x] **webcam-test** · device — Registers the `device` category. Device picker, resolution and fps readout, snapshot. Nothing leaves the device. ⚠️ run died ✅ e67a2c7
-- [x] **mic-test** · device — Level meter, waveform, record and play back. ⚠️ run died ✅ e52ce7a
+- [x] **webcam-test** · device — Registers the `device` category. Device picker, resolution and fps readout, snapshot. Nothing leaves the device. ⚠️ run died ⏳ run-20261023-2100-7541 @ 2026-10-23T21:16:07Z ✅ round/complete-2
+- [x] **mic-test** · device — Level meter, waveform, record and play back. ⚠️ run died ⏳ run-20261023-2100-7541 @ 2026-10-23T21:16:07Z ✅ round/complete-2
 - [x] **keyboard-tester** · device — On-screen layout that lights up per key; key/code readout; ghosting test. ✅ c25e5c6
 - [x] **video-trim** · video · after: video-foundation — Stream copy when cut points allow, re-encode otherwise. Scrubber preview. ✅ 138c2bf
 - [x] **video-extract-audio** · video · after: video-foundation — MP3, AAC, and WAV output. ✅ a9067f7
@@ -50,49 +50,49 @@ Line order is priority: top first. This file is written by a human (via review) 
 - [x] **image-add-text** · image — Captions and meme-style text: fonts, stroke, shadow, drag to position. ✅ 906dd6a
 - [x] **image-blur-redact** · image — Draw regions to blur, pixelate, or black out. Strip metadata on export. ✅ 8cb89f1
 - [x] **pdf-protect** · pdf — Add a password via qpdf-wasm (Apache-2.0). AES-256. ✅ 777c090
-- [ ] **pdf-unlock** · pdf — Remove a password the user already knows (qpdf-wasm). No cracking.
-- [ ] **pdf-fill-form** · pdf — Fill AcroForm fields with pdf-lib; option to flatten.
-- [ ] **speech-to-text** · audio · after: ml-runtime-foundation — Whisper tiny/base. Timestamps; export TXT, SRT, and VTT. File input and mic input.
-- [ ] **text-to-speech** · audio — Web Speech API with voice, rate, and pitch controls.
-- [ ] **voice-recorder** · audio — MediaRecorder with WAV or WebM output. Link to audio-trim.
-- [ ] **audio-convert** · audio — Generalise audio-to-wav into `audio-convert`: WAV, MP3 (separate-file LGPL encoder is ok), and Opus/OGG. `audio-to-wav` becomes an alias.
-- [ ] **file-encrypt** · security — AES-256-GCM, reusing the text-encrypt KDF. Streaming or chunked for large files; versioned file header.
+- [x] **pdf-unlock** · pdf — Remove a password the user already knows (qpdf-wasm). No cracking. ✅ round/complete-2
+- [x] **pdf-fill-form** · pdf — Fill AcroForm fields with pdf-lib; option to flatten. ✅ round/complete-2
+- [x] **speech-to-text** · audio · after: ml-runtime-foundation — Whisper tiny/base. Timestamps; export TXT, SRT, and VTT. File input and mic input. ✅ round/complete-2
+- [x] **text-to-speech** · audio — Web Speech API with voice, rate, and pitch controls. ✅ round/complete-2
+- [x] **voice-recorder** · audio — MediaRecorder with WAV or WebM output. Link to audio-trim. ✅ round/complete-2
+- [x] **audio-convert** · audio — Generalise audio-to-wav into `audio-convert`: WAV, MP3 (separate-file LGPL encoder is ok), and Opus/OGG. `audio-to-wav` becomes an alias. ✅ round/complete-2
+- [x] **file-encrypt** · security — AES-256-GCM, reusing the text-encrypt KDF. Streaming or chunked for large files; versioned file header. ✅ round/complete-2
 - [x] **totp-generator** · security — Live 6/8-digit codes from a secret or otpauth URI, with a countdown. Pairs with otp-uri. ✅ already exists as totp-authenticator
-- [ ] **sqlite-viewer** · developer — sql.js. Browse tables, run queries, export CSV or JSON.
-- [ ] **spreadsheet-viewer** · data — SheetJS installed from the cdn.sheetjs.com tarball (the npm version is stale). Open xlsx/xls/ods/csv; switch sheets; convert to CSV, JSON, or XLSX.
+- [x] **sqlite-viewer** · developer — sql.js. Browse tables, run queries, export CSV or JSON. ✅ round/complete-2
+- [x] **spreadsheet-viewer** · data — SheetJS installed from the cdn.sheetjs.com tarball (the npm version is stale). Open xlsx/xls/ods/csv; switch sheets; convert to CSV, JSON, or XLSX. ✅ round/complete-2
 - [x] **xml-json** · data — XML ↔ JSON in both directions, with attribute and array handling options. ✅ already exists as xml-json-convert
 - [x] **toml-json** · data — TOML ↔ JSON, plus an INI ↔ JSON mode. ✅ already exists as toml-convert
 - [x] **jsonpath-tester** · data — JSONPath and JMESPath; highlight matches in the source. ✅ already exists as jsonpath
-- [ ] **mermaid-renderer** · developer — Live Mermaid editor; export SVG or PNG.
-- [ ] **code-to-image** · developer — Shiki highlighting; themes, padding, background, window chrome. PNG or SVG export.
-- [ ] **stopwatch** · datetime — Laps and keyboard shortcuts. Compute from timestamps rather than counting intervals, so it stays accurate when the tab sleeps.
-- [ ] **countdown-timer** · datetime — Multiple timers; sound and notification on finish.
-- [ ] **pomodoro-timer** · datetime — Configurable work/break cycles; notifications.
-- [ ] **typing-test** · text — WPM and accuracy, time modes, local history.
-- [ ] **signature-maker** · generators — Draw or type a signature; transparent PNG or SVG. Share the signature component with pdf-sign.
-- [ ] **invoice-generator** · generators — Form to PDF with pdf-lib: line items, taxes, logo. Drafts saved locally.
-- [ ] **image-filters** · image — Brightness, contrast, saturation, grayscale, sepia, sharpen, with live preview.
-- [ ] **gif-maker** · image — Images to animated GIF with gifenc; frame delay and loop settings.
-- [ ] **image-collage** · image — Grid layouts, spacing, background; export.
-- [ ] **svg-optimizer** · image — SVGO browser build; preset toggles; before/after size and preview.
+- [x] **mermaid-renderer** · developer — Live Mermaid editor; export SVG or PNG. ✅ round/complete-2
+- [x] **code-to-image** · developer — Shiki highlighting; themes, padding, background, window chrome. PNG or SVG export. ✅ round/complete-2
+- [x] **stopwatch** · datetime — Laps and keyboard shortcuts. Compute from timestamps rather than counting intervals, so it stays accurate when the tab sleeps. ✅ round/complete-2
+- [x] **countdown-timer** · datetime — Multiple timers; sound and notification on finish. ✅ round/complete-2
+- [x] **pomodoro-timer** · datetime — Configurable work/break cycles; notifications. ✅ round/complete-2
+- [x] **typing-test** · text — WPM and accuracy, time modes, local history. ✅ round/complete-2
+- [x] **signature-maker** · generators — Draw or type a signature; transparent PNG or SVG. Share the signature component with pdf-sign. ✅ round/complete-2
+- [x] **invoice-generator** · generators — Form to PDF with pdf-lib: line items, taxes, logo. Drafts saved locally. ✅ round/complete-2
+- [x] **image-filters** · image — Brightness, contrast, saturation, grayscale, sepia, sharpen, with live preview. ✅ round/complete-2
+- [x] **gif-maker** · image — Images to animated GIF with gifenc; frame delay and loop settings. ✅ round/complete-2
+- [x] **image-collage** · image — Grid layouts, spacing, background; export. ✅ round/complete-2
+- [x] **svg-optimizer** · image — SVGO browser build; preset toggles; before/after size and preview. ✅ already on master
 - [x] **x509-decoder** · security — Decode PEM/DER certificates and CSRs with @peculiar/x509: validity, SANs, issuer fields, fingerprints. ✅ already exists as x509-certificate-inspector
 - [x] **keypair-generator** · security — RSA, ECDSA, and Ed25519 via WebCrypto. PEM and OpenSSH formats. ✅ already exists as keypair-generator
-- [ ] **bcrypt** · security — Hash and verify with a cost factor; bcryptjs in a worker.
-- [ ] **pgp-tool** · security — openpgp.js (LGPL, separate chunk): keygen, encrypt/decrypt, sign/verify.
-- [ ] **tuner** · audio — Mic pitch detection (YIN or autocorrelation); show note and cents.
-- [ ] **spectrogram** · audio — From a file or the mic; FFT; PNG export.
-- [ ] **bpm-detector** · audio — Tempo detection from a file via Web Audio.
-- [ ] **speaker-test** · device — Left/right/both channels and a frequency sweep. Reuse tone-generator code.
-- [ ] **dead-pixel-test** · device — Fullscreen solid colours with cycling.
-- [ ] **fancy-text** · text — Unicode styled letters (bold, script, fraktur, etc.). Note that screen readers handle these poorly.
-- [ ] **upgrade-text-stats** · text — Add platform limits (X, LinkedIn, Instagram, meta description) and readability scores.
-- [ ] **gpa-calculator** · misc — 10-point CGPA and 4.0 scales; CGPA ↔ % conversion with a configurable formula.
-- [ ] **upgrade-calculator-scientific** · misc — Add a keypad UI to `calculator`: trig, log, constants, history.
-- [ ] **html-playground** · developer — HTML/CSS/JS live preview in a sandboxed iframe without allow-same-origin.
-- [ ] **video-frames** · video · after: video-foundation — Extract frames at an interval, or build a thumbnail contact sheet.
-- [ ] **pdf-redact** · pdf — True redaction: rasterize affected pages and burn in the boxes. Warn the user that those pages lose their text layer.
-- [ ] **pdf-ocr** · pdf · after: image-ocr — Produce a searchable PDF by adding a tesseract.js text layer.
-- [ ] **image-upscale** · image · after: ml-runtime-foundation — 2x/4x with a permissively licensed ESRGAN-type model. WebGPU preferred; enforce size limits.
-- [ ] **noise-reduction** · audio — RNNoise WASM.
+- [x] **bcrypt** · security — Hash and verify with a cost factor; bcryptjs in a worker. ✅ round/complete-2
+- [x] **pgp-tool** · security — openpgp.js (LGPL, separate chunk): keygen, encrypt/decrypt, sign/verify. ✅ round/complete-2
+- [x] **tuner** · audio — Mic pitch detection (YIN or autocorrelation); show note and cents. ✅ round/complete-2
+- [x] **spectrogram** · audio — From a file or the mic; FFT; PNG export. ✅ round/complete-2
+- [x] **bpm-detector** · audio — Tempo detection from a file via Web Audio. ✅ round/complete-2
+- [x] **speaker-test** · device — Left/right/both channels and a frequency sweep. Reuse tone-generator code. ✅ round/complete-2
+- [x] **dead-pixel-test** · device — Fullscreen solid colours with cycling. ✅ round/complete-2
+- [x] **fancy-text** · text — Unicode styled letters (bold, script, fraktur, etc.). Note that screen readers handle these poorly. ✅ round/complete-2
+- [x] **upgrade-text-stats** · text — Add platform limits (X, LinkedIn, Instagram, meta description) and readability scores. ✅ round/complete-2
+- [x] **gpa-calculator** · misc — 10-point CGPA and 4.0 scales; CGPA ↔ % conversion with a configurable formula. ✅ round/complete-2
+- [x] **upgrade-calculator-scientific** · misc — Add a keypad UI to `calculator`: trig, log, constants, history. ✅ round/complete-2
+- [x] **html-playground** · developer — HTML/CSS/JS live preview in a sandboxed iframe without allow-same-origin. ✅ round/complete-2
+- [x] **video-frames** · video · after: video-foundation — Extract frames at an interval, or build a thumbnail contact sheet. ✅ round/complete-2
+- [x] **pdf-redact** · pdf — True redaction: rasterize affected pages and burn in the boxes. Warn the user that those pages lose their text layer. ✅ round/complete-2
+- [x] **pdf-ocr** · pdf · after: image-ocr — Produce a searchable PDF by adding a tesseract.js text layer. ✅ round/complete-2
+- [x] **image-upscale** · image · after: ml-runtime-foundation — 2x/4x with a permissively licensed ESRGAN-type model. WebGPU preferred; enforce size limits. ✅ round/complete-2
+- [x] **noise-reduction** · audio — RNNoise WASM. ✅ round/complete-2
 - [x] **world-clock** · datetime — Pinned cities and a meeting-overlap view. Reuse timezone-convert logic. ✅ already exists as world-clock
-- [ ] **online-notepad** · text — Autosave to IndexedDB, multiple notes, export .txt or .md.
+- [x] **online-notepad** · text — Autosave to IndexedDB, multiple notes, export .txt or .md. ✅ round/complete-2

@@ -1,0 +1,162 @@
+---
+import Layout from '@/components/Layout.astro';
+import { getGuide, guideJsonLd } from '@/lib/guides';
+
+const guide = getGuide('/guides/color-contrast-wcag');
+---
+
+<Layout
+  title={guide.title}
+  description={guide.description}
+  path={guide.path}
+  ogType="article"
+  jsonLd={[guideJsonLd(guide)]}
+  narrow
+>
+  <article class="prose-tool max-w-prose">
+    <h1 class="text-2xl font-bold tracking-tight text-[rgb(var(--text))] sm:text-3xl">
+      {guide.title}
+    </h1>
+
+    <p>
+      "Is this readable?" is the wrong question to ask a designer, because the answer is always yes.
+      The useful question is "what contrast ratio does this pair reach, and does it clear the WCAG
+      threshold for its size?" The Web Content Accessibility Guidelines turn that into a number you
+      can check before you ship, and the check is quick enough to run on every colour pair you pick.
+    </p>
+
+    <h2>What the contrast ratio means</h2>
+    <p>
+      The WCAG contrast ratio is a single number comparing the <em>relative luminance</em> of a foreground
+      colour and a background colour, from 1:1 (same colour, invisible) to 21:1 (black on white). It is
+      deliberately colour-blind: it only cares about brightness, so two colours that look "fine" to you
+      can still fail, and a pair that passes can still be illegible if the colours are similar in hue
+      — which is why the number is necessary and not sufficient.
+    </p>
+
+    <h2>The ratios you must hit</h2>
+    <div class="overflow-x-auto">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Content</th>
+            <th scope="col">AA (minimum)</th>
+            <th scope="col">AAA (enhanced)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Normal text, under 18 pt (or under 14 pt bold)</td>
+            <td>4.5 : 1</td>
+            <td>7 : 1</td>
+          </tr>
+          <tr>
+            <td>Large text, 18 pt and up (or 14 pt bold and up)</td>
+            <td>3 : 1</td>
+            <td>4.5 : 1</td>
+          </tr>
+          <tr>
+            <td>Interface components, icons, graphics, focus outlines</td>
+            <td>3 : 1</td>
+            <td>Not defined</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      Large text is roughly 24 px at typical screen resolution, or 18.66 px bold — the guideline's
+      "18 pt / 14 pt bold" is anchored to a print point, so in practice most teams test at 24 px and
+      19 px bold. The component row (SC 1.4.11) covers the parts of a control you must be able to
+      perceive: the icon, the border of a text field, a focus ring, a chart's data marks.
+    </p>
+
+    <h2>How the number is calculated</h2>
+    <p>
+      Each channel of an sRGB colour is linearised (a value under 0.03928 divides by 12.92,
+      otherwise it is raised to 2.4), then combined as{' '}
+      <code>0.2126·R + 0.7152·G + 0.0722·B</code> to give the relative luminance. The ratio is{' '}
+      <code>(Lighter + 0.05) / (Darker + 0.05)</code>, and the 0.05 is why pure black and pure white
+      reach 21:1 instead of an infinite number. In practice it means the arithmetic is different
+      from "how much darker" the two colours look — the ratio is what matters, not the difference.
+    </p>
+
+    <p>
+      That is also why small lightness changes matter more than you expect: <code>#767676</code> on white
+      reaches about 4.5:1 and passes AA for normal text, while <code>#777777</code> — one step darker
+      — sits just under 4.5:1 and fails. A "readable-looking" grey is frequently a failing grey.
+    </p>
+
+    <h2>How to check a pair</h2>
+    <p>
+      The <a href="/tools/color-contrast">Colour Contrast Checker</a> takes a foreground and a background
+      colour and returns the WCAG ratio with AA and AAA verdicts for normal text, large text and graphics,
+      plus an approximate APCA value as a second opinion. Nothing leaves the page, so you can iterate
+      on a palette without pasting brand colours into a stranger's server.
+    </p>
+    <ul>
+      <li>
+        Check every state, not just the default: hover, focus, pressed, disabled, visited links.
+      </li>
+      <li>Check placeholder text inside inputs, which is often the lightest text on the page.</li>
+      <li>
+        Check the surface behind the text — a white card on a tinted page is a different pair from
+        white on white.
+      </li>
+      <li>
+        For text over an image or gradient, find the lightest and darkest part the text crosses and
+        check both; a single ratio does not exist for a gradient.
+      </li>
+      <li>
+        Check both themes if you ship dark mode. A colour that passes on a white background can fail
+        on a near-black one, because the ratio shrinks from the other side.
+      </li>
+    </ul>
+
+    <h2>The failures that ship most often</h2>
+    <ul>
+      <li>Grey placeholder and helper text sitting just below 4.5:1.</li>
+      <li>White or near-white text on a light tint, or brand colours used as body copy.</li>
+      <li>
+        <a href="/tools/color-blindness">Red and green</a> used as the only difference between success
+        and failure states.
+      </li>
+      <li>Links inside body text identified by colour alone, with no underline (SC 1.4.1).</li>
+      <li>
+        Disabled-looking buttons that are genuinely disabled, exempt from the rule and still
+        unreadable.
+      </li>
+      <li>Thin fonts at small sizes, where a passing ratio still reads poorly.</li>
+    </ul>
+
+    <h2>A practical workflow</h2>
+    <p>
+      Pick the pairs you intend to use, check each one, and when a pair fails, change the
+      <em>lightness</em> rather than the hue: darkening a mid-grey by ten percent usually recovers the
+      ratio without changing the feel of the design. Run the check again as the last step before a release,
+      because a later colour tweak can quietly undo it, and put the ratio in your design notes next to
+      the colour so the next person does not have to rediscover it.
+    </p>
+
+    <h2>Beyond contrast</h2>
+    <p>
+      WCAG contrast is the floor, not the ceiling.{' '}
+      <a href="/tools/color-convert">Converting colours</a> between hex, RGB and HSL helps when you need
+      to adjust luminance directly, and <a href="/tools/color-palette">building a palette</a>{' '}
+      makes it easier to keep a tint of a brand colour passing. Checks are cheap; put them in the routine
+      rather than in a pre-launch panic.
+    </p>
+
+    <h2>More guides</h2>
+    <ul>
+      <li>
+        <a href="/guides/base64-explained">Base64 explained</a> — what Base64 is and where it belongs.
+      </li>
+      <li>
+        <a href="/guides/which-hash">Which hash should I use?</a> — digests, passwords and HMAC.
+      </li>
+      <li>
+        <a href="/guides/cron-cheat-sheet">Cron syntax cheat sheet</a> — scheduling recurring jobs.
+      </li>
+    </ul>
+  </article>
+</Layout>

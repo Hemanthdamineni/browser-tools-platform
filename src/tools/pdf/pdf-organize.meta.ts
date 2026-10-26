@@ -1,5 +1,5 @@
 import type { ToolMeta } from '@/lib/types';
-import { pdfCredit, pdfjsCredit } from './shared';
+import { pdfCredit, pdfjsCredit } from './credits';
 export const meta: ToolMeta = {
   id: 'pdf-organize',
   name: 'Organize PDF Pages',
@@ -46,23 +46,18 @@ export const meta: ToolMeta = {
       default: 'organized.pdf',
     },
   ],
-  examples: [{ title: 'Organise a document' }],
-  faq: [
+  examples: [
+    { title: 'Organise a document' },
     {
-      q: 'Can I drag the pages into a new order?',
-      a: 'Yes — drag a thumbnail, or focus it and use the left and right arrow keys. Every thumbnail also has Move and Rotate buttons, so nothing depends on a mouse.',
+      title: 'Rotate page one and add a letter blank',
+      options: {
+        pages: '[{"source":1,"rotate":90},{"blank":true,"size":"letter"}]',
+        blankSize: 'letter',
+      },
     },
     {
-      q: 'Does the rotation add to a rotation the page already has?',
-      a: 'Yes. The turn you pick is added to the page’s own rotation, so the saved PDF looks exactly like the preview you arranged.',
-    },
-    {
-      q: 'Is the file uploaded anywhere?',
-      a: 'No. The thumbnails are drawn with a local PDF renderer and the new file is assembled in a background worker on this device.',
-    },
-    {
-      q: 'Can a page be used twice?',
-      a: 'No — every source page can appear only once. Copy a page in your PDF viewer first if you need it twice.',
+      title: 'Reverse a two-page scan',
+      options: { pages: '[{"source":2},{"source":1}]', outputName: 'reversed.pdf' },
     },
   ],
   related: ['pdf-merge', 'pdf-split', 'pdf-rotate', 'pdf-delete-pages'],

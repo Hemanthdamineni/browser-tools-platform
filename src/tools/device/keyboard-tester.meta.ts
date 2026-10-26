@@ -56,34 +56,12 @@ export const meta: ToolMeta = {
       help: 'How long the tester waits for the rest of the combination before it calls the attempt.',
     },
   ],
-  faq: [
+  examples: [
+    { title: 'Check a key I think is dead' },
+    { title: 'Test a ctrl + shift + t rollover', options: { rolloverWindowMs: 2000 } },
     {
-      q: 'What is the difference between key and code?',
-      a: 'The code is the physical position of the key — KeyA is always the key labelled A, whatever your layout says. The key is the character that position produces, so it follows your keyboard layout and the Shift key. The panel shows both, which is how you spot a layout that does not match the keycaps.',
-    },
-    {
-      q: 'My keyboard failed the rollover test — is it broken?',
-      a: 'Not necessarily. The browser only reports what the operating system hands it, so a failed combination can come from the keyboard hardware, the operating system’s key filter or the browser — not from this page. Try the same combination on another machine, or with the OS key filter turned off, before blaming the hardware.',
-    },
-    {
-      q: 'Does this page record what I type?',
-      a: 'No. The key events are read in the tab and used to draw the screen; nothing is stored, logged, or sent anywhere. The page keeps working with no connection at all.',
-    },
-    {
-      q: 'Why does the light stay on for a key I already let go of?',
-      a: 'So you can still read the value of a key you have just released. The last key stays on screen for a couple of seconds; tick “Pin the last key” to keep it until you press another one.',
-    },
-    {
-      q: 'Can I test a combination of my own?',
-      a: 'Yes. Type it into the custom box — for example ctrl + shift + t — and press Use. Avoid combinations the browser reserves (Ctrl+T, Ctrl+W, Ctrl+Shift+N and friends), because the browser acts on them before the page sees them.',
-    },
-    {
-      q: 'What does “Down together” mean in the report?',
-      a: 'It is the set of keys that were physically held at the same moment during the attempt. A pass means every key of the combination was in that set; a fail names the key that never joined the others.',
-    },
-    {
-      q: 'Does it work with non-US layouts?',
-      a: 'Yes. The lights follow the physical position (the code), so they are right on any layout. The readout shows both the character your layout produced and the US character for the same physical key.',
+      title: 'Keep a longer rollover history',
+      options: { historySize: 25, includeTimestamps: false },
     },
   ],
   related: ['unicode-lookup', 'whitespace-visualizer', 'morse-code'],

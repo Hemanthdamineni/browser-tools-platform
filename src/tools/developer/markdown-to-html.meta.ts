@@ -56,20 +56,6 @@ export const meta: ToolMeta = {
       options: { headerIds: true },
     },
   ],
-  faq: [
-    {
-      q: 'Does this preview the HTML?',
-      a: 'No. It deliberately shows the HTML source as text so you can copy it. Nothing is rendered as a live page.',
-    },
-    {
-      q: 'Which Markdown dialect is used?',
-      a: 'CommonMark via the marked library, with optional GitHub Flavored Markdown extensions when the GFM toggle is on.',
-    },
-    {
-      q: 'Why are heading ids off by default?',
-      a: 'Plain marked output has no ids. Turn on "Add id to headings" to get slugified anchors like id="install-steps".',
-    },
-  ],
   related: ['html-to-text', 'html-entities', 'slugify', 'sql-format'],
   credits: [{ name: 'marked', url: 'https://github.com/markedjs/marked', license: 'MIT' }],
   status: 'stable',

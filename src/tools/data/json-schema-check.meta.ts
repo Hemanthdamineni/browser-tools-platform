@@ -30,19 +30,10 @@ export const meta: ToolMeta = {
       input:
         '{"schema":{"type":"object","required":["id"],"properties":{"id":{"type":"integer"}}},"document":{"id":"abc"}}',
     },
-  ],
-  faq: [
     {
-      q: 'Does this implement the complete JSON Schema standard?',
-      a: 'No. It implements a documented subset of common validation keywords. Unsupported keywords are listed in the result and are not applied; use a full JSON Schema implementation when complete specification coverage is required.',
-    },
-    {
-      q: 'What input format should I use?',
-      a: 'Provide one JSON object with schema and document properties. The document value may be any JSON value, including null or an array.',
-    },
-    {
-      q: 'Is the document uploaded?',
-      a: 'No. Parsing and validation run entirely in your browser.',
+      title: 'Reject extra properties',
+      input:
+        '{"schema":{"type":"object","properties":{"name":{"type":"string"}},"additionalProperties":false},"document":{"name":"Ada","age":36}}',
     },
   ],
   related: ['json-to-jsonschema', 'json-format', 'json-patch'],

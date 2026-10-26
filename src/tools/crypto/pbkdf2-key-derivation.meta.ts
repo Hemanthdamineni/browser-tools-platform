@@ -107,32 +107,6 @@ export const meta: ToolMeta = {
       options: { iterations: 100000, output: 'base64' },
     },
   ],
-  faq: [
-    {
-      q: 'What is PBKDF2 used for?',
-      a: 'PBKDF2 turns a low-entropy passphrase into a fixed-length key by hashing it together with a salt many thousands of times. It is used for password storage (Django, WPA2, 1Password exports), for deriving encryption keys from passphrases, and for key stretching before use with AES or HMAC.',
-    },
-    {
-      q: 'How many iterations should I use?',
-      a: 'OWASP currently recommends 600,000 iterations for PBKDF2-HMAC-SHA256 and 210,000 for SHA-512. Higher counts slow attackers proportionally, so pick the largest number your sign-in latency budget allows.',
-    },
-    {
-      q: 'Why is a salt required?',
-      a: 'A salt prevents identical passphrases from producing identical keys and defeats precomputed rainbow tables. Never reuse a salt across users, and store it next to the hash so verification can repeat the derivation.',
-    },
-    {
-      q: 'Is my passphrase sent anywhere?',
-      a: 'No. Derivation runs locally with the browser Web Crypto API, and the page makes no network requests at all.',
-    },
-    {
-      q: 'How does verification work?',
-      a: 'Paste the expected key (hex or base64) into the verify field. The tool re-derives the key and compares the bytes in constant time, reporting Match or Mismatch — the same check a server performs when you sign in.',
-    },
-    {
-      q: 'How is the expected key interpreted?',
-      a: 'An even number of hex digits (spaces, colons and dashes are ignored) is read as hex; anything else is decoded as base64. Match the output encoding to whatever format your stored hash uses.',
-    },
-  ],
   related: ['hash', 'hmac', 'password-strength', 'file-hash', 'text-encrypt'],
   status: 'stable',
 };

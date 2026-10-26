@@ -35,19 +35,9 @@ export const meta: ToolMeta = {
       title: 'A rule block',
       input: 'a:hover { color: red; text-decoration: none; }',
     },
-  ],
-  faq: [
     {
-      q: 'What if my input is a full rule, not a declaration list?',
-      a: 'Both work. A rule is converted to a nested object keyed by selector, e.g. a:hover becomes "a:hover": { color: "red" }; a bare declaration list becomes a flat object.',
-    },
-    {
-      q: 'How are vendor prefixes handled?',
-      a: '-webkit-transform becomes WebkitTransform (capitalised after the dash) like React expects. CSS custom properties (--accent) are left untouched since they are not camelCased.',
-    },
-    {
-      q: 'Is the output always a single object?',
-      a: 'Yes — one flat object for a declaration list, or one object with selectors as keys when rules are given. Value strings are escaped so the output is always valid JS.',
+      title: 'Custom properties',
+      input: '--primary: #007bff;\n--spacing: 8px;\n--radius: 4px;',
     },
   ],
   related: ['css-minifier', 'css-units', 'js-to-css', 'html-to-jsx'],

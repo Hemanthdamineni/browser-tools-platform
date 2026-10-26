@@ -45,19 +45,9 @@ export const meta: ToolMeta = {
       input: 'Cookie: session=abc123; theme=dark; locale=en-US',
     },
     { title: 'Build from pairs', options: { mode: 'build', pairs: 'a=1; b=2' } },
-  ],
-  faq: [
     {
-      q: 'How are cookies delimited?',
-      a: 'The request-header uses semicolons between pairs and an = between name and value. Quoted values can contain semicolons.',
-    },
-    {
-      q: 'Should I percent-decode values?',
-      a: 'Values may be percent-encoded (e.g. space as %20); decoding shows the real value but encoded form is what compares for use.',
-    },
-    {
-      q: 'Are duplicate names allowed?',
-      a: 'Broken; only the last name in the HTTP header would normally survive. Servers should treat repeats as an anomaly, and proxies rarely tolerate them.',
+      title: 'Spot duplicate cookie names',
+      input: 'Cookie: sid=old; theme=dark; sid=new',
     },
   ],
   related: ['set-cookie', 'secret-scanner', 'url-encode'],

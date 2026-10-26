@@ -58,23 +58,10 @@ export const meta: ToolMeta = {
       input: '1\n00:00:01,500 --> 00:00:04,000\nWelcome back!',
       options: { shift: 2.5 },
     },
-  ],
-  faq: [
     {
-      q: 'Which subtitle formats are supported?',
-      a: 'SubRip (.srt) and WebVTT (.vtt). SRT timestamps use HH:MM:SS,mmm with commas and optional numeric cue ids. VTT timestamps use HH:MM:SS.mmm with dots, an optional WEBVTT header, and optional cue identifiers and cue settings which are stripped on conversion.',
-    },
-    {
-      q: 'How does shifting work?',
-      a: 'Enter a positive number of seconds to move every cue later, or a negative number to move it earlier. Sub-second values work (e.g. -0.5). Cues that would start at a negative time are clamped to zero and cues pushed entirely past zero are dropped.',
-    },
-    {
-      q: 'Will custom VTT metadata and cue settings survive?',
-      a: 'The WEBVTT header comment and cue-identifier lines are normalised away; cue settings such as align:start are dropped because SRT has no equivalent. The tool guarantees valid, standard output in the target format rather than preserving every extension.',
-    },
-    {
-      q: 'Is there a way to see the format it detected?',
-      a: 'Yes. The notes include the detected input format and the number of cues converted, and the target option can be set explicitly to override auto-detection.',
+      title: 'VTT to SRT',
+      input: 'WEBVTT\n\n00:00:01.500 --> 00:00:04.000\nWelcome back!',
+      options: {},
     },
   ],
   related: ['markdown-to-html', 'csv-to-markdown', 'docx-to-markdown', 'html-to-text'],

@@ -86,19 +86,28 @@ export const meta: ToolMeta = {
         volumes: './data:/data',
       },
     },
-  ],
-  faq: [
     {
-      q: 'Which fields can I set?',
-      a: 'Service name, image, container name, published ports (host:container), environment variables, bind-mount volumes and a restart policy. Unused optional fields are omitted so the YAML stays clean.',
+      title: 'A PostgreSQL database',
+      input: '',
+      options: {
+        serviceName: 'db',
+        image: 'postgres:16',
+        containerName: 'app-db',
+        ports: '5432:5432',
+        env: 'POSTGRES_USER=app\nPOSTGRES_PASSWORD=secret\nPOSTGRES_DB=app',
+        volumes: 'pgdata:/var/lib/postgresql/data',
+        restart: 'always',
+      },
     },
     {
-      q: 'Is the YAML valid?',
-      a: 'Very likely — ports and environment lines are emitted as YAML strings, which avoids the classic colon-parsing traps. If you edit it by hand, keep that quoting.',
-    },
-    {
-      q: 'Can I add more services?',
-      a: 'This builds a single-service file. Reproduce it per service and merge the services: block, or push each generated file through a YAML formatter afterwards.',
+      title: 'A headless worker with no ports',
+      input: '',
+      options: {
+        serviceName: 'worker',
+        image: 'node:20-alpine',
+        env: 'QUEUE_URL=amqp://mq',
+        restart: 'on-failure',
+      },
     },
   ],
   related: ['json-to-yaml', 'json-to-env', 'dotenv', 'ini-convert'],

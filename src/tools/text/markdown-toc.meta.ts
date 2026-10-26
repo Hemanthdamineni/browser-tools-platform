@@ -58,23 +58,10 @@ export const meta: ToolMeta = {
       input: '# Title {#custom}\n```\n# This is code, not a heading\n```\n## Real Heading',
       options: { format: 'plain' },
     },
-  ],
-  faq: [
     {
-      q: 'Which heading syntax is supported?',
-      a: 'ATX headings: a line starting with 1–6 # characters followed by a space (or a #-only line is treated as empty and skipped). Setext underlines are not expanded; if your document uses them, convert the top-level titles to # first.',
-    },
-    {
-      q: 'How are the anchors generated?',
-      a: 'With the GitHub convention: lowercase, keep letters/digits/underscores/hyphens, drop punctuation, turn whitespace into single hyphens. An explicit {#custom} at the end of a heading overrides the slug and is removed from the link text.',
-    },
-    {
-      q: 'Are code blocks ignored?',
-      a: 'Yes. Headings inside fenced code blocks (``` on both sides) are not included, so example documents that show hashtags stay out of the outline.',
-    },
-    {
-      q: 'Should tables of contents be limited by depth?',
-      a: 'Most READMEs link h1–h3. The depth option lets you cap how deep the outline goes — useful when h4+ headings are implementation notes you do not want to navigate.',
+      title: 'Nested HTML list capped at h3',
+      input: '# Intro\n## Setup\n### Install\n#### Tuning\n# Reference',
+      options: { format: 'html', depth: 3 },
     },
   ],
   related: ['markdown-table', 'markdown-to-html', 'html-to-text', 'text-stats'],

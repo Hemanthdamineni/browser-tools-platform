@@ -96,20 +96,6 @@ export const meta: ToolMeta = {
       options: { mode: 'verify', secret: 'your-256-bit-secret' },
     },
   ],
-  faq: [
-    {
-      q: 'Does my secret leave my browser?',
-      a: 'No. The secret is used as the HMAC key by the Web Crypto API inside this tab. Nothing is uploaded and no request is made — you can confirm in DevTools → Network.',
-    },
-    {
-      q: 'Which algorithms are supported?',
-      a: 'HMAC algorithms HS256, HS384 and HS512, which share a symmetric secret and are by far the most common for self-issued tokens. RS/ES/PS tokens need a private key and are not signed here; tokens signed with them cannot be verified either.',
-    },
-    {
-      q: 'Does verifying prove the token is trustworthy?',
-      a: 'It proves the signature matches for the secret you supply and reports whether the exp/nbf claims are in range. It cannot prove the secret itself is the issuer’s — make sure you paste the real secret.',
-    },
-  ],
   related: ['jwt-decode', 'hmac', 'base64', 'hash'],
   status: 'stable',
 };

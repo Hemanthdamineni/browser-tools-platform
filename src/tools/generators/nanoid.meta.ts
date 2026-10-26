@@ -48,15 +48,9 @@ export const meta: ToolMeta = {
   examples: [
     { title: 'One 21-char ID (default)', options: { size: 21, alphabet: 'url-safe', count: 1 } },
     { title: '10 short hex ids', options: { size: 8, alphabet: 'hex', count: 10 } },
-  ],
-  faq: [
     {
-      q: 'Why NanoID instead of a UUID?',
-      a: 'At the default 21 characters a NanoID has comparable randomness to a UUID v4 but is a third shorter and URL-safe with no hyphens.',
-    },
-    {
-      q: 'Is the randomness unbiased?',
-      a: 'Yes. It uses the rejection-sampling variant of the official NanoID algorithm: random bytes are masked and values outside the alphabet are discarded rather than wrapped.',
+      title: 'Custom lowercase alphabet',
+      options: { size: 12, alphabet: 'custom', custom: 'abcdefghjkmnpqrstuvwxyz', count: 5 },
     },
   ],
   related: ['uuid', 'ulid', 'random-string'],

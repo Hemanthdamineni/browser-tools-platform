@@ -26,19 +26,14 @@ export const meta: ToolMeta = {
       input:
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
     },
-  ],
-  faq: [
     {
-      q: 'Which browsers are recognized?',
-      a: 'Chrome, Firefox, Safari, Edge, Opera (and Opera GX), Samsung Internet, plus search/bot crawlers like Googlebot and Bingbot via keyword detection.',
+      title: 'An iPhone Safari UA',
+      input:
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Mobile/15E148 Safari/604.1',
     },
     {
-      q: 'Is this an exhaustive lookup?',
-      a: 'No. A User-Agent is a string, not a contract — detection is heuristic by design. Real products behave correctly for the common UAs this tool targets, and listed rules cover the mainstream long tail.',
-    },
-    {
-      q: 'How is my data used?',
-      a: 'This parser runs entirely in your browser. The string never leaves your device.',
+      title: 'A search crawler UA',
+      input: 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
     },
   ],
   related: ['diff-text', 'http-status', 'regex-tester', 'port-lookup'],

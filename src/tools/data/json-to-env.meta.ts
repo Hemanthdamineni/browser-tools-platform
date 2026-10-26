@@ -55,19 +55,10 @@ export const meta: ToolMeta = {
       title: 'Values that need quoting',
       input: '{\n  "title": "A Site",\n  "note": "line\\nbreak",\n  "empty": null\n}',
     },
-  ],
-  faq: [
     {
-      q: 'How are nested objects flattened?',
-      a: 'Nested keys join the parent with a double underscore by default, so { "server": { "host": "x" } } becomes SERVER__HOST=x. You can switch the separator to dot or single underscore.',
-    },
-    {
-      q: 'What happens to arrays and objects?',
-      a: 'Arrays are kept as JSON on one line (JSON.parse reconstructs them). Objects are flattened with the separator — { "server": { "host": "x" } } becomes SERVER__HOST=x. Null becomes an empty value.',
-    },
-    {
-      q: 'Do strings always get quoted?',
-      a: 'Only when they need it — values containing spaces, #, a quote or a newline are wrapped in double quotes with the contents escaped. Plain tokens stay bare so they behave predictably in shells and tools.',
+      title: 'Dot separator for a Spring-style config',
+      input: '{\n  "db": { "url": "postgres://localhost/app", "pool": 10 }\n}',
+      options: { separator: '.', uppercase: false },
     },
   ],
   related: ['dotenv', 'json-flatten', 'yaml-to-json', 'properties-convert'],

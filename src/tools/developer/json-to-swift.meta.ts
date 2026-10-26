@@ -61,23 +61,10 @@ export const meta: ToolMeta = {
       input: '[{"id":1,"name":"Ada"}]',
       options: { rootName: 'User' },
     },
-  ],
-  faq: [
     {
-      q: 'How are types inferred?',
-      a: 'Strings become String, booleans Bool, whole numbers Int, fractional numbers Double, nested objects become nested structs, arrays become [String]/[Int]/[Bool]/[Double]/[NestedStruct]. Nulls, empty arrays and mixed arrays fall back to String? / [String], which decode safely — tighten them once you know the real type.',
-    },
-    {
-      q: 'Why a CodingKeys enum and when is it emitted?',
-      a: 'Swift decodes by property name, so snake_case JSON keys need mapping to camelCase properties. CodingKeys carries a `case property = "json_key"` for every key whose spelling differs from its Swift name. Keys that already match are left out; disable the option to rely on decoder key-decoding strategies instead.',
-    },
-    {
-      q: 'Does this cover decoding optional values?',
-      a: 'Properties generated from a present value are non-optional. A field that is null in the sample becomes String? so it decodes as nil instead of throwing. Make present-but-sometimes-missing fields optional yourself with `String?`.',
-    },
-    {
-      q: 'What about array and empty roots?',
-      a: 'A root array generates a struct for the sampled element plus a comment showing `JSONDecoder().decode([Root].self, from: data)`. An empty array cannot be typed, so it raises an error, as do primitive roots.',
+      title: 'Deeper nesting, mutable properties',
+      input: '{"id":7,"tags":["a","b"],"meta":{"created_at":"2024-01-01","views":12}}',
+      options: { rootName: 'Article', propertyStyle: 'var' },
     },
   ],
   related: [

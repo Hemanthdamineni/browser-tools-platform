@@ -30,13 +30,12 @@ export const meta: ToolMeta = {
   examples: [
     { title: 'De-dupe', input: 'a\nb\na\nc\nb' },
     { title: 'Only repeats', input: 'a\nb\na\nc\nb', options: { keep: 'only-duplicates' } },
-  ],
-  faq: [
     {
-      q: 'Does it re-sort the output?',
-      a: 'No. Original order is preserved. Use Sort Lines first if you also want it sorted.',
+      title: 'Case-insensitive de-dupe, keeping the last',
+      input: 'Apple\napple\nBanana',
+      options: { keep: 'last', ignoreCase: true },
     },
   ],
-  related: ['sort-lines', 'whitespace-cleanup', 'unique-words'],
+  related: ['sort-lines', 'whitespace-visualizer', 'word-frequency'],
   status: 'stable',
 };

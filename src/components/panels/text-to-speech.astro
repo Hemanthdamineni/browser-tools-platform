@@ -1,0 +1,168 @@
+---
+/**
+ * Text-to-speech panel.
+ *
+ * The generic workbench cannot express a live voice picker and play / pause /
+ * stop transport, so the tool sets `meta.panel = 'text-to-speech'` and this
+ * component replaces it. It reuses the shared option fields for rate, pitch
+ * and volume (everything the generic form can express) and adds a dynamic
+ * voice picker, filled from `speechSynthesis.getVoices()`, plus the playback
+ * controls.
+ *
+ * The root deliberately does NOT carry `data-text-workbench`: the shared
+ * workbench's script binds itself to every `[data-text-workbench]` root and
+ * would double-mount this page. Panel tools are recognised by the
+ * `[data-panel-workbench]` wrapper `PanelWorkbench` renders around them.
+ *
+ * The behaviour lives in `./text-to-speech-panel.ts`, imported lazily from the
+ * script block below so no speech code ships to pages that do not read text
+ * aloud.
+ */
+import type { ToolMeta } from '@/lib/types';
+import OptionsFields from '@/components/workbench/OptionsFields.astro';
+import Icon from '@/components/Icon.astro';
+
+interface Props {
+  meta: ToolMeta;
+}
+const { meta } = Astro.props;
+const id = meta.id;
+const headingId = `${id}-heading`;
+const options = meta.options ?? [];
+const examples = meta.examples ?? [];
+// The voice picker is rendered below as a live select, not by OptionsFields.
+const gridOptions = options.filter((option) => option.key !== 'voice');
+---
+
+<section
+  class="surface rounded-lg p-4 sm:p-6"
+  data-tts-panel
+  data-tool-id={meta.id}
+  aria-labelledby={headingId}
+>
+  <div class="flex flex-wrap items-center gap-2">
+    <h2
+      id={headingId}
+      class="flex items-center gap-2 text-base font-semibold text-[rgb(var(--text))]"
+    >
+      <Icon name="audio-lines" size={18} /> Read aloud
+    </h2>
+    <span class="chip">On-device</span>
+  </div>
+  <p class="mt-1.5 max-w-prose text-sm leading-relaxed text-[rgb(var(--text-muted))]">
+    Type or paste text and hear it spoken with your browser’s installed voices. The text never
+    leaves this tab, and there is no download — browsers cannot save speech synthesis to a file.
+  </p>
+
+  <div class="mb-4 mt-4 flex flex-wrap items-center gap-2">
+    <span class="text-xs font-medium text-[rgb(var(--text-muted))]">Try:</span>
+    {
+      examples.map((ex, i) => (
+        <button
+          type="button"
+          class="chip hover:text-[rgb(var(--text))]"
+          data-tts-example={i}
+          data-tts-example-payload={JSON.stringify({
+            input: ex.input ?? '',
+            options: ex.options ?? {},
+          })}
+        >
+          {ex.title}
+        </button>
+      ))
+    }
+  </div>
+
+  <div class="mb-4">
+    <div class="mb-1.5 flex items-center justify-between">
+      <label for={`${id}-input`} class="text-sm font-medium text-[rgb(var(--text))]">
+        Text to speak
+      </label>
+      <div class="flex gap-1.5">
+        <button type="button" class="btn btn-subtle btn-sm" data-tts-paste>Paste</button>
+        <button type="button" class="btn btn-subtle btn-sm" data-tts-clear>Clear</button>
+      </div>
+    </div>
+    <textarea
+      id={`${id}-input`}
+      class="field"
+      rows="7"
+      data-tts-text
+      placeholder="Type or paste the text you want to hear…"></textarea>
+    <p class="mt-1 text-xs text-[rgb(var(--text-muted))]">
+      Longer text is trimmed to 5,000 characters before speaking.
+    </p>
+  </div>
+
+  <div class="mb-4">
+    <label for={`${id}-voice`} class="text-sm font-medium text-[rgb(var(--text))]">Voice</label>
+    <select id={`${id}-voice`} class="field mt-1.5" data-tts-voice data-opt-key="voice">
+      <option value="">Browser default</option>
+    </select>
+    <p class="mt-1 text-xs text-[rgb(var(--text-muted))]" data-tts-voice-status role="status">
+      Loading voices…
+    </p>
+  </div>
+
+  <details class="mb-4 rounded-lg border" open>
+    <summary class="cursor-pointer select-none px-3 py-2 text-sm font-medium">
+      Sound settings
+    </summary>
+    <div class="border-t p-3">
+      <OptionsFields options={gridOptions} idPrefix={id} />
+    </div>
+  </details>
+
+  <div class="flex flex-wrap items-center gap-2.5">
+    <button type="button" class="btn btn-primary" data-tts-play>
+      <Icon name="play" size={16} /> Play
+    </button>
+    <button type="button" class="btn btn-ghost" data-tts-pause disabled> Pause </button>
+    <button type="button" class="btn btn-ghost" data-tts-stop disabled>
+      <Icon name="stop" size={16} /> Stop
+    </button>
+    <button type="button" class="btn btn-subtle btn-sm" data-tts-download>
+      <Icon name="download" size={14} /> Why no download?
+    </button>
+    <span
+      class="ml-auto text-xs tabular-nums text-[rgb(var(--text-muted))]"
+      data-tts-status
+      role="status"
+      aria-live="polite"></span>
+  </div>
+
+  <div class="mt-4" hidden data-tts-result>
+    <h3 class="text-sm font-semibold text-[rgb(var(--text))]">Speech plan</h3>
+    <div class="mt-2" data-tts-report></div>
+  </div>
+
+  <div
+    class="mt-4 rounded-lg border px-3 py-2 text-sm"
+    style="background-color: rgb(var(--danger-soft)); border-color: rgb(var(--danger)); color: rgb(var(--danger))"
+    role="alert"
+    data-tts-error
+    hidden
+  >
+  </div>
+
+  <noscript>
+    <p class="mt-4 text-sm text-[rgb(var(--text-muted))]">
+      The live reader needs JavaScript. The page itself works without it.
+    </p>
+  </noscript>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-tts-panel]').forEach((panel) => {
+    // Loaded on demand: no speech code ships to pages that do not read aloud.
+    void import('./text-to-speech-panel')
+      .then(({ mountTextToSpeechPanel }) => mountTextToSpeechPanel(panel))
+      .catch(() => {
+        const error = panel.querySelector<HTMLElement>('[data-tts-error]');
+        if (error) {
+          error.hidden = false;
+          error.textContent = 'The text-to-speech panel could not be loaded in this browser.';
+        }
+      });
+  });
+</script>

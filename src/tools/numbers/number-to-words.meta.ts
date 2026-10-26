@@ -54,16 +54,6 @@ export const meta: ToolMeta = {
     { title: 'Decimal', input: '3.14' },
     { title: 'Ordinal', input: '21', options: { style: 'ordinal' } },
   ],
-  faq: [
-    {
-      q: 'How large a number is supported?',
-      a: 'Integers up to 10^21 are supported, along with negative values and decimals of up to four places.',
-    },
-    {
-      q: 'How are decimals read?',
-      a: 'Digits after the decimal point are spoken individually, so 3.14 becomes "three point one four".',
-    },
-  ],
-  related: ['roman-numeral', 'fraction'],
+  related: ['roman-numeral', 'fraction-simplify'],
   status: 'stable',
 };

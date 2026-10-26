@@ -35,19 +35,10 @@ export const meta: ToolMeta = {
       title: 'Integer to IP',
       input: '3232235777',
     },
-  ],
-  faq: [
     {
-      q: 'Which input do I give?',
-      a: 'Either one — a dotted IPv4 (1.2.3.4) or an unsigned integer between 0 and 4294967295. The tool detects and converts to the other form.',
-    },
-    {
-      q: 'What range is valid?',
-      a: 'Integer values 0 … 4294967295 (0.0.0.0 … 255.255.255.255). Values outside that range or malformed octets (256, letters, too many parts) are rejected.',
-    },
-    {
-      q: 'Is this the same as a subnet calculator?',
-      a: 'No — it converts one address to its numeric form. For prefix, range or subnet math use the CIDR calculator; this complements it.',
+      title: 'Integer to IP, bare result',
+      input: '167772161',
+      options: { showBoth: false },
     },
   ],
   related: ['cidr-calculator', 'ip-address-inspector', 'number-base', 'ipv6-expander'],

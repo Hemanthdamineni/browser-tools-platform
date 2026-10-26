@@ -156,24 +156,6 @@ export const meta: ToolMeta = {
       options: { mode: 'compare', secondTag: '"abc"', comparison: 'weak' },
     },
   ],
-  faq: [
-    {
-      q: 'What is the difference between weak and strong comparison?',
-      a: 'Weak comparison treats W/"abc" and "abc" as equivalent, so it is used by If-None-Match. Strong comparison requires both tags to be strong and their opaque values to match exactly, which If-Match and If-Range need.',
-    },
-    {
-      q: 'Which headers can use the wildcard *?',
-      a: 'Only If-Match and If-None-Match accept *; it matches any current representation. ETag and If-Range must name a specific validator.',
-    },
-    {
-      q: 'Why does If-Range reject weak tags?',
-      a: 'A Range must map to the exact bytes of one representation, so If-Range requires a strong validator — a strong entity-tag or an IMF-fixdate.',
-    },
-    {
-      q: 'Does this hash or fetch anything?',
-      a: 'No. It only generates and validates header text from what you type; nothing is hashed, uploaded or requested.',
-    },
-  ],
   related: ['cache-headers', 'http-range', 'http-status'],
   status: 'beta',
 };

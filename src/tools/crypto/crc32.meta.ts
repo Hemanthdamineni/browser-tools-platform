@@ -60,20 +60,6 @@ export const meta: ToolMeta = {
       options: { variant: 'adler32', output: 'decimal' },
     },
   ],
-  faq: [
-    {
-      q: 'Is CRC-32 a hash?',
-      a: 'No. CRC-32 and Adler-32 are error-detection checksums. They reliably catch accidental corruption but are trivial to forge, so never use them for security or integrity against a malicious party.',
-    },
-    {
-      q: 'How do CRC-32 and CRC-32C differ?',
-      a: 'They use different polynomials. CRC-32 (reversed 0xEDB88320) is used by zip, gzip and PNG; CRC-32C (reversed 0x82F63B78, Castagnoli) is used by iSCSI, ext4, Btrfs and the SSE4.2 CRC instruction.',
-    },
-    {
-      q: 'What byte order is the hex output?',
-      a: 'The checksum is shown as a big-endian, zero-padded 8-digit hex number, matching the value reported by zip and gzip tooling.',
-    },
-  ],
   related: ['hash', 'hmac', 'file-hash'],
   status: 'stable',
 };

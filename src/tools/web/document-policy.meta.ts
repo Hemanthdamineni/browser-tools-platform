@@ -35,21 +35,11 @@ export const meta: ToolMeta = {
     { title: 'Analyze document controls', input: 'unload=(), sync-xhr=()' },
     {
       title: 'Build a policy header',
-      options: { mode: 'build', directives: 'unload=(), max-age=10' },
-    },
-  ],
-  faq: [
-    {
-      q: 'What does Document-Policy control?',
-      a: 'It lets a document opt into or restrict browser behaviors and performance-related features, depending on browser support and the directive.',
+      options: { mode: 'build', directives: 'unload=(), max-age=(10)' },
     },
     {
-      q: 'Is it the same as Permissions-Policy?',
-      a: 'No. Permissions-Policy governs powerful feature access and delegation; Document-Policy governs document behavior and performance controls.',
-    },
-    {
-      q: 'Should I deploy it immediately?',
-      a: 'Roll out carefully, validate browser support, and test affected code because enforcing a policy can change page behavior.',
+      title: 'Check a high threshold directive',
+      input: 'unload=(), sync-xhr=(), layout-animations=()',
     },
   ],
   related: ['permissions-policy', 'security-headers', 'cross-origin-opener-policy'],

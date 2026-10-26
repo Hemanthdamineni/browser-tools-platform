@@ -1,4 +1,39 @@
 import { defineConfig, devices } from '@playwright/test';
+import { readdirSync } from 'node:fs';
+import { homedir } from 'node:os';
+import { join } from 'node:path';
+
+/**
+ * Whether the Playwright **WebKit** build is installed.
+ *
+ * The chromium project points at the system browser (`CHROMIUM_PATH`), so only
+ * the `mobile-safari` project needs a downloaded binary. Rather than letting
+ * every run die with "Executable doesn't exist", that project is skipped with a
+ * clear message when WebKit is absent.
+ */
+function webkitInstalled(): boolean {
+  const roots = [
+    process.env.PLAYWRIGHT_BROWSERS_PATH,
+    join(homedir(), '.cache', 'ms-playwright'),
+    // `PLAYWRIGHT_BROWSERS_PATH=0` installs browsers beside the package.
+    join(process.cwd(), 'node_modules', 'playwright-core', '.local-browsers'),
+  ].filter((root): root is string => Boolean(root) && root !== '0');
+  return roots.some((root) => {
+    try {
+      return readdirSync(root).some((entry) => entry.startsWith('webkit-'));
+    } catch {
+      return false;
+    }
+  });
+}
+
+const hasWebkit = webkitInstalled();
+if (!hasWebkit) {
+  console.warn(
+    '[playwright] Skipping the "mobile-safari" project: the WebKit browser binary is not installed.\n' +
+      '            Run `npx playwright install webkit` to enable Safari (iOS) coverage.',
+  );
+}
 
 /**
  * E2E + privacy assertions. Builds the static site and serves the `dist/`
@@ -27,10 +62,13 @@ export default defineConfig({
         },
       },
     },
-    { name: 'mobile-safari', use: { ...devices['iPhone 13'] } },
+    // Only registered when the WebKit binary is present — see `webkitInstalled`.
+    ...(hasWebkit ? [{ name: 'mobile-safari', use: { ...devices['iPhone 13'] } }] : []),
   ],
   webServer: {
-    command: 'npm run build && npm run preview -- --host --port 4321',
+    // The suite addresses pages from the site root (`/tools/...`), so build the
+    // e2e copy with a root base rather than the GitHub Pages project path.
+    command: 'BASE_PATH=/ npm run build && BASE_PATH=/ npm run preview -- --host --port 4321',
     url: 'http://localhost:4321',
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,

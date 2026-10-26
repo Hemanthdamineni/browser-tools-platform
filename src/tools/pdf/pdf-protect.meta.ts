@@ -1,5 +1,5 @@
 import type { ToolMeta } from '@/lib/types';
-import { pdfCredit } from './shared';
+import { pdfCredit } from './credits';
 
 /** qpdf is compiled to WebAssembly and runs in this tab, never on a server. */
 const qpdfCredit = {
@@ -64,27 +64,15 @@ export const meta: ToolMeta = {
       default: true,
     },
   ],
-  examples: [{ title: 'Protect a PDF with a password' }],
-  faq: [
+  examples: [
+    { title: 'Protect a PDF with a password' },
     {
-      q: 'What happens if I forget the password?',
-      a: 'The file cannot be opened again. The password is the only key and it is not stored anywhere — there is no recovery service and no back door. Keep it somewhere safe before you delete the original.',
+      title: 'A separate owner password',
+      options: { userPassword: 'open sesame', ownerPassword: 'change later' },
     },
     {
-      q: 'Which encryption is used?',
-      a: 'AES-256 with revision 6 of the PDF standard (the same scheme current Acrobat versions use), applied by qpdf compiled to WebAssembly.',
-    },
-    {
-      q: 'Does my PDF or my password leave my device?',
-      a: 'No. The file is read in this tab, encrypted by WebAssembly on your own machine, and the result is handed back to you. Nothing is uploaded and the page makes no network requests.',
-    },
-    {
-      q: 'Can I protect a PDF that is already password-protected?',
-      a: 'No. This tool refuses an already-encrypted file instead of quietly re-encrypting it and replacing a password you may still need. Open it with its current password (and remove that protection) first.',
-    },
-    {
-      q: 'Do PDF readers really respect the printing and copying limits?',
-      a: 'Mainstream readers honour them, but they are a request to the reader rather than cryptographic protection: anyone who can open the file with the user password can still print the screen. Use them to signal intent, not to make content unextractable.',
+      title: 'Block printing and copying',
+      options: { userPassword: 'open sesame', allowPrint: false, allowCopy: false },
     },
   ],
   related: ['pdf-sign', 'pdf-metadata', 'pdf-compress'],

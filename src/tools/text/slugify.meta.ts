@@ -44,12 +44,6 @@ export const meta: ToolMeta = {
     { title: 'With accents', input: 'Crème brûlée & café' },
     { title: 'Underscores', input: 'Hello World', options: { separator: '_' } },
   ],
-  faq: [
-    {
-      q: 'What happens to non-Latin scripts?',
-      a: 'In strict mode they are removed. Turn strict off to keep letters from other scripts (Cyrillic, Greek, CJK) — useful for localised URLs on sites that allow Unicode paths.',
-    },
-  ],
-  related: ['case-convert', 'remove-accents', 'whitespace-cleanup'],
+  related: ['case-convert', 'unicode-normalize', 'remove-empty-lines'],
   status: 'stable',
 };

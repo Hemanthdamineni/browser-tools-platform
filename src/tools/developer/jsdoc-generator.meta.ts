@@ -36,19 +36,9 @@ export const meta: ToolMeta = {
       title: 'Arrow with rest params',
       input: 'async function fetchUser(id, ...opts) { }',
     },
-  ],
-  faq: [
     {
-      q: 'Which signatures does it accept?',
-      a: 'Function declarations (function name(a, b)), the shorthand name(a, b), async functions, arrows (const f = (x) => …), defaults, rest parameters and simple object/array destructuring.',
-    },
-    {
-      q: 'How are parameters named?',
-      a: 'Each parameter becomes @param with its original name and position. Destructured parameters get the whole pattern name (e.g. { name } for the props object), with a hint to expand it into @property lines if you need them.',
-    },
-    {
-      q: 'Is @returns always included?',
-      a: 'Yes, a @returns line is always emitted as a template. Async functions keep the same shape — you can annotate Promise<…> yourself.',
+      title: 'Destructured options object',
+      input: 'function render({ title, body }) { }',
     },
   ],
   related: ['regex-explainer', 'regex-tester', 'semver', 'objectid'],

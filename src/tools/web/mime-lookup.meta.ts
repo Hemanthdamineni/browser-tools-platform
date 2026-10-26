@@ -33,12 +33,8 @@ export const meta: ToolMeta = {
   examples: [
     { title: 'Extension', input: 'png' },
     { title: 'MIME type', input: 'application/json', options: { mode: 'mime-to-ext' } },
-  ],
-  faq: [
-    {
-      q: 'How are compound extensions like .tar.gz handled?',
-      a: 'Only the last extension is matched (.gz → application/gzip). Full compound-extension matching (.tar.gz) is ambiguous and intentionally not attempted.',
-    },
+    { title: 'A dotted filename', input: 'photo.png' },
+    { title: 'Look up image/png', input: 'image/png', options: { mode: 'mime-to-ext' } },
   ],
   related: ['data-uri', 'http-status', 'file-metadata'],
   status: 'stable',

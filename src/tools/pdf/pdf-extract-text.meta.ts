@@ -1,5 +1,5 @@
 import type { ToolMeta } from '@/lib/types';
-import { pdfjsCredit } from './shared';
+import { pdfjsCredit } from './credits';
 
 export const meta: ToolMeta = {
   id: 'pdf-extract-text',
@@ -12,7 +12,11 @@ export const meta: ToolMeta = {
   privacy: { processing: 'on-device', network: 'none', offline: true },
   input: 'file',
   accept: 'application/pdf',
-  examples: [{ title: 'Extract text from a PDF' }],
+  examples: [
+    { title: 'Extract text from a PDF' },
+    { title: 'Copy clauses out of a contract' },
+    { title: 'Pull a report into a text editor' },
+  ],
   related: ['pdf-to-images', 'pdf-metadata', 'pdf-extract-pages'],
   credits: [pdfjsCredit],
   status: 'stable',

@@ -45,20 +45,6 @@ export const meta: ToolMeta = {
     },
     { title: '4 words, spaces', options: { words: 4, separator: 'space' } },
   ],
-  faq: [
-    {
-      q: 'How big is the built-in word list?',
-      a: 'It holds 1110 short, common, inoffensive English words (3–7 letters), which is about 10.1 bits of entropy per word — a 5-word passphrase is roughly 51 bits.',
-    },
-    {
-      q: 'Would a larger list be stronger?',
-      a: 'Yes. The EFF long Diceware list has 7776 words, giving about 12.9 bits per word, so the same number of words yields more entropy. The list here is kept small so it can be embedded and works fully offline.',
-    },
-    {
-      q: 'Does the appended number add much?',
-      a: 'Only about 10 bits, and it hurts memorability. Adding one more word is a better way to raise entropy.',
-    },
-  ],
   related: ['password', 'random-string', 'uuid'],
   status: 'stable',
 };

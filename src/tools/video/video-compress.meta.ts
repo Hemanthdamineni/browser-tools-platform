@@ -102,40 +102,6 @@ export const meta: ToolMeta = {
       options: { preset: 'size-50', width: 1280, fps: 30 },
     },
   ],
-  faq: [
-    {
-      q: 'How does the tool decide how small the file should be?',
-      a: 'The size presets turn the original file size into a target bitrate: "50% smaller" aims for half the bytes, "25% smaller" for a quarter, and "a specific target size" uses the number of megabytes you type. The quality presets work the other way round — they pick a bitrate from the picture size and frame rate, and let the file size fall where it may.',
-    },
-    {
-      q: 'Will the compressed video really be smaller?',
-      a: 'Usually, yes. But if the original was already compressed hard — a low bitrate recording, say — re-encoding it cannot beat it, and the tool says so instead of pretending otherwise.',
-    },
-    {
-      q: 'Does the tool keep the sound?',
-      a: 'Yes, by default the audio is re-encoded too and stays in sync with the picture. Turn "Keep the audio" off for a smaller, silent file.',
-    },
-    {
-      q: 'Which format should I pick?',
-      a: 'MP4 with H.264 plays on practically every phone, browser and video editor. WebM with VP9 is usually a little smaller for the same quality and is fully open, but older players may refuse it.',
-    },
-    {
-      q: 'Can it handle a long recording?',
-      a: 'Up to an hour. Longer clips get a warning first, because the re-encode takes a while and the finished file is held in memory until you download it. Past the limits the tool says so up front instead of freezing the tab.',
-    },
-    {
-      q: 'Why does my browser say it cannot encode video?',
-      a: 'The tool needs WebCodecs, the browser feature that does the encoding. It is available in recent Chrome, Edge and Firefox. If it is missing, the tool says so plainly rather than producing a broken file.',
-    },
-    {
-      q: 'Is my video uploaded anywhere?',
-      a: 'No. The clip is read from your device, decoded, re-encoded and muxed in your browser. Nothing is sent over the network, and the page keeps working offline once it has loaded.',
-    },
-    {
-      q: 'What happens to the original file?',
-      a: 'Nothing — it is never modified. The compressed copy is a new file you can save next to it.',
-    },
-  ],
   credits: [{ name: 'mediabunny', url: 'https://mediabunny.dev', license: 'MPL-2.0' }],
   related: ['video-to-gif', 'video-info'],
   status: 'beta',

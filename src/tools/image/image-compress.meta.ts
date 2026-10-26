@@ -42,7 +42,11 @@ export const meta: ToolMeta = {
       help: 'Browser re-encoding always removes metadata such as GPS and camera details.',
     },
   ],
-  examples: [{ title: 'Compress at 75% quality' }],
+  examples: [
+    { title: 'Compress at 75% quality' },
+    { title: 'Convert photos to WebP', options: { format: 'webp', quality: 70 } },
+    { title: 'Cap width for a form upload', options: { maxWidth: 1200, quality: 80 } },
+  ],
   related: ['image-resize', 'image-convert'],
   status: 'stable',
   updated: '2026-10-16',

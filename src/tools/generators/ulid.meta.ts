@@ -26,16 +26,7 @@ export const meta: ToolMeta = {
   examples: [
     { title: 'One ULID', options: { count: 1 } },
     { title: '10 monotonic ULIDs', options: { count: 10, monotonic: true } },
-  ],
-  faq: [
-    {
-      q: 'What is the difference between ULID and UUID v7?',
-      a: 'Both embed a timestamp, but ULID uses Crockford base32 (no I, L, O, U) with a fixed 26-character layout, making it shorter and typo-resistant when read aloud.',
-    },
-    {
-      q: 'What does monotonic mode do?',
-      a: 'When two ULIDs are generated in the same millisecond, monotonic mode increments the random part by one instead of re-rolling, so ids generated in the same ms are still strictly ordered.',
-    },
+    { title: '200 lowercase ULIDs for a bulk import', options: { count: 200, lowercase: true } },
   ],
   related: ['uuid', 'nanoid', 'snowflake'],
   status: 'stable',

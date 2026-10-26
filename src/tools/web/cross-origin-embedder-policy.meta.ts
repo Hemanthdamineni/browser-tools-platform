@@ -45,20 +45,7 @@ export const meta: ToolMeta = {
   examples: [
     { title: 'Analyze strict embedding policy', input: 'require-corp' },
     { title: 'Build a credentialless policy', options: { mode: 'build', value: 'credentialless' } },
-  ],
-  faq: [
-    {
-      q: 'What does require-corp do?',
-      a: 'It requires cross-origin resources to explicitly opt in through CORP or CORS before the document can embed them.',
-    },
-    {
-      q: 'What does credentialless change?',
-      a: 'It permits some no-CORS cross-origin resources without credentials, reducing credential leakage while preserving more compatibility than require-corp in some cases.',
-    },
-    {
-      q: 'Does COEP alone enable cross-origin isolation?',
-      a: 'No. Cross-origin isolation generally also needs compatible COOP and resource response policies, plus browser support.',
-    },
+    { title: 'Analyze a value the header does not allow', input: 'same-origin' },
   ],
   related: ['cross-origin-opener-policy', 'cross-origin-resource-policy', 'permissions-policy'],
   status: 'stable',

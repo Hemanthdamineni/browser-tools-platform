@@ -40,19 +40,15 @@ export const meta: ToolMeta = {
       input: '%Y-%m-%d %H:%M:%S',
       options: { at: 0 },
     },
-  ],
-  faq: [
     {
-      q: 'Which strftime tokens are supported?',
-      a: 'Year (%Y %y), month (%m, %b, %B), day (%d, %e, %j), weekday (%a, %A, %w, %u), hour (%H, %I, %p, %P), minute/second (%M %S), week numbers (%U Sunday-based, %W Monday-based), Unix time (%s) and zone (%z, %Z). Composite shorthands %c, %D, %F, %R, %T, %x, %X are expanded, and %% is a literal percent.',
+      title: 'ISO date and time with a zone offset',
+      input: '%F %T %z',
+      options: { at: 1700000000, utc: true },
     },
     {
-      q: 'What happens to an unknown token?',
-      a: 'It is left exactly as written (e.g. "%q" stays "%q") and listed in the notes so you can spot typos.',
-    },
-    {
-      q: 'Can I format a specific past or future date?',
-      a: 'Yes — put the Unix timestamp (seconds, not milliseconds) in the timestamp field. The epoch 0 formats 1970-01-01 00:00:00 UTC. Use UTC for fully deterministic output.',
+      title: 'Weekday, day of year and week number',
+      input: '%A, day %j, week %W',
+      options: { at: 1700000000, utc: true },
     },
   ],
   related: ['timestamp', 'timezone-convert', 'date-add', 'date-diff'],

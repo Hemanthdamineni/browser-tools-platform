@@ -19,6 +19,7 @@ export const meta: ToolMeta = {
   examples: [
     { title: 'Boost 6 dB', options: { gainDb: 6 } },
     { title: 'Reduce 3 dB', options: { gainDb: -3 } },
+    { title: 'Lift 12 dB with soft clipping', options: { gainDb: 12, hardClip: false } },
   ],
   related: ['audio-normalize', 'audio-fade'],
   status: 'stable',

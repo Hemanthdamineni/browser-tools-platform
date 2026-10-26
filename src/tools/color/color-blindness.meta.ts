@@ -49,15 +49,10 @@ export const meta: ToolMeta = {
       input: '#ff0000\n#00ff00\n#0000ff',
       options: { type: 'tritanopia' },
     },
-  ],
-  faq: [
     {
-      q: 'Which simulation is this?',
-      a: 'The linear-RGB Viénot/Brettel 3x3 matrices commonly used for CVD simulation, blended with the original color by the severity setting. They are an approximation, not a clinical model.',
-    },
-    {
-      q: 'Can I simulate a whole palette?',
-      a: 'Enter one color per line - each line is simulated in order.',
+      title: 'Partial deficiency',
+      input: '#e6194b\n#3cb44b\n#4363d8',
+      options: { type: 'deuteranopia', severity: 60 },
     },
   ],
   related: ['color-contrast', 'color-palette', 'color-convert'],

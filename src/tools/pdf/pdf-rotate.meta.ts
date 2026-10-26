@@ -1,5 +1,5 @@
 import type { ToolMeta } from '@/lib/types';
-import { pdfCredit } from './shared';
+import { pdfCredit } from './credits';
 export const meta: ToolMeta = {
   id: 'pdf-rotate',
   name: 'Rotate Pages',
@@ -31,7 +31,11 @@ export const meta: ToolMeta = {
       placeholder: 'all or e.g. 1,3-5',
     },
   ],
-  examples: [{ title: 'Rotate all pages 90°' }],
+  examples: [
+    { title: 'Rotate all pages 90°' },
+    { title: 'Upside down, every page', options: { angle: '180' } },
+    { title: 'Fix pages 2 to 5', options: { pages: '2-5' } },
+  ],
   related: ['pdf-delete-pages', 'pdf-page-numbers'],
   credits: [pdfCredit],
   status: 'stable',

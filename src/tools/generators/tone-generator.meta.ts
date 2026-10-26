@@ -83,6 +83,16 @@ export const meta: ToolMeta = {
       options: { waveform: 'sine', frequency: 440, durationMs: 3000 },
     },
     { title: 'Pink noise', options: { waveform: 'pink-noise', durationMs: 5000 } },
+    {
+      title: 'Click-free stereo square sweep reference',
+      options: {
+        waveform: 'square',
+        frequency: 1000,
+        durationMs: 4000,
+        fadeMs: 50,
+        channels: 'stereo',
+      },
+    },
   ],
   related: ['metronome-click', 'audio-info'],
   status: 'stable',

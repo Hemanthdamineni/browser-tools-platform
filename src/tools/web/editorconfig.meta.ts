@@ -66,11 +66,12 @@ export const meta: ToolMeta = {
       max: 200,
     },
   ],
-  examples: [{ title: 'Defaults' }],
-  faq: [
+  examples: [
+    { title: 'Defaults' },
+    { title: 'Tabs for a Go project', options: { indentStyle: 'tab' } },
     {
-      q: 'Why the [*.md] override?',
-      a: 'Markdown uses two trailing spaces as a hard line break, so trimming trailing whitespace in .md files would silently change rendering. The generator therefore always sets trim_trailing_whitespace = false for Markdown.',
+      title: 'Four spaces, CRLF, 100-column limit',
+      options: { indentSize: 4, endOfLine: 'crlf', maxLineLength: 100 },
     },
   ],
   related: ['gitignore', 'robots-txt'],

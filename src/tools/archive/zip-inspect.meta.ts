@@ -10,7 +10,11 @@ export const meta: ToolMeta = {
   privacy: { processing: 'on-device', network: 'none', offline: true },
   input: 'file',
   accept: '.zip,application/zip',
-  examples: [{ title: 'Inspect a ZIP' }],
+  examples: [
+    { title: 'Inspect a ZIP' },
+    { title: 'Check what a build bundle contains' },
+    { title: 'Compare entry sizes against a manifest' },
+  ],
   related: ['zip-extract', 'file-metadata'],
   credits: [{ name: 'fflate', url: 'https://github.com/101arrowz/fflate', license: 'MIT' }],
   status: 'stable',

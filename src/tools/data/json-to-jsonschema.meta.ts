@@ -56,20 +56,6 @@ export const meta: ToolMeta = {
       options: { title: 'Widget', additionalProperties: true },
     },
   ],
-  faq: [
-    {
-      q: 'Which draft does it target?',
-      a: 'Draft 2020-12. The output always sets "$schema" to the draft 2020-12 meta-schema URI.',
-    },
-    {
-      q: 'How are arrays with different element shapes handled?',
-      a: 'Element schemas are merged: object properties are unioned (a key present in every element stays required), and differing primitive types collapse to a "type" array such as ["integer", "string"].',
-    },
-    {
-      q: 'Are integers distinguished from floats?',
-      a: 'Yes. A whole number infers "integer"; a number with a fractional part infers "number".',
-    },
-  ],
   related: ['json-to-typescript', 'json-format', 'json-to-yaml', 'ndjson'],
   status: 'stable',
 };

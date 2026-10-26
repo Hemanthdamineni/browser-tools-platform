@@ -55,16 +55,6 @@ export const meta: ToolMeta = {
     { title: '1 HTML paragraph', options: { unit: 'paragraphs', count: 1, format: 'html' } },
     { title: '10 words', options: { unit: 'words', count: 10 } },
   ],
-  faq: [
-    {
-      q: 'What is lorem ipsum?',
-      a: 'A scrambled excerpt from Cicero’s “De finibus” (45 BC), used as neutral placeholder copy in typesetting and design since the 1500s.',
-    },
-    {
-      q: 'Is the text identical every time?',
-      a: 'No — beyond the optional “Lorem ipsum dolor sit amet…” opening, the word order and sentence lengths are randomized each run.',
-    },
-  ],
   related: ['random-data', 'text-repeat'],
   status: 'stable',
 };

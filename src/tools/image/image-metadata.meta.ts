@@ -12,20 +12,10 @@ export const meta: ToolMeta = {
   input: 'file',
   accept: 'image/*',
   multiple: true,
-  examples: [{ title: 'Inspect image metadata' }],
-  faq: [
-    {
-      q: 'Which tags are shown?',
-      a: 'Common camera tags such as Make, Model, Orientation, ISO, exposure, focal length and date, plus PNG text and density chunks.',
-    },
-    {
-      q: 'Is the original file changed?',
-      a: 'No. The tool only reads the file you choose.',
-    },
-    {
-      q: 'Can I inspect several images at once?',
-      a: 'Yes. Select multiple files and each one gets its own rows in a single table, labelled with the file name.',
-    },
+  examples: [
+    { title: 'Inspect image metadata' },
+    { title: 'Compare a batch of JPEGs' },
+    { title: 'Check the EXIF orientation before resizing' },
   ],
   related: ['image-compress', 'image-palette'],
   credits: [{ name: 'fflate', url: 'https://github.com/101arrowz/fflate', license: 'MIT' }],

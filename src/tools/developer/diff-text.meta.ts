@@ -68,20 +68,6 @@ export const meta: ToolMeta = {
       options: { second: 'sitting', granularity: 'chars', format: 'unified' },
     },
   ],
-  faq: [
-    {
-      q: 'How do I supply the second text?',
-      a: 'The workbench input is text A. Put text B in the "Text B" option box. If B is left empty the tool treats it as an empty document.',
-    },
-    {
-      q: 'What do the stats mean?',
-      a: 'Additions and deletions count the changed units for the chosen granularity — added/removed lines, words, or characters.',
-    },
-    {
-      q: 'Which view should I use?',
-      a: 'Unified is best for line-level review and pasting into patches. Inline is best for spotting small word or character edits within a sentence.',
-    },
-  ],
   related: ['json-diff', 'regex-tester', 'find-replace', 'sort-lines'],
   credits: [{ name: 'jsdiff', url: 'https://github.com/kpdecker/jsdiff', license: 'BSD-3-Clause' }],
   status: 'stable',

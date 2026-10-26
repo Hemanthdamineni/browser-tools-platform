@@ -4,7 +4,8 @@ export const meta: ToolMeta = {
   id: 'image-blur-redact',
   name: 'Blur & Redact Image',
   category: 'image',
-  summary: 'Blur, pixelate or black out parts of an image and export a clean copy with no metadata.',
+  summary:
+    'Blur, pixelate or black out parts of an image and export a clean copy with no metadata.',
   description:
     'Draw rectangles over a photo and blur, pixelate or black them out, then export a re-encoded copy with no EXIF, GPS or XMP left in it. The redaction is baked into the exported pixels — it is a real change to the image data, never a reversible overlay that a viewer could peel off.',
   keywords: [
@@ -97,31 +98,15 @@ export const meta: ToolMeta = {
       help: 'Filled in by the canvas above: an array of { x, y, w, h } rectangles in percent of the image, each with an optional effect. You can also edit it by hand — the canvas follows the JSON.',
     },
   ],
-  examples: [{ title: 'Blur a number plate or a face' }],
-  faq: [
+  examples: [
+    { title: 'Blur a number plate or a face' },
     {
-      q: 'Can anyone undo the blur?',
-      a: 'No. The effect is baked into the exported pixels when the file is re-encoded — nothing is stored as a layer, mask or overlay, so a viewer cannot reveal the original. Strong pixelation or a black box hides the most; a light blur can still hint at what was underneath, so keep the radius high and the rectangle generous.',
+      title: 'Mosaic a whole region',
+      options: { effect: 'pixelate', cellSize: 20 },
     },
     {
-      q: 'Which metadata is removed?',
-      a: 'All of it. The export is redrawn through a canvas and encoded from scratch, so EXIF, GPS, XMP, IPTC, the ICC profile and comments are gone. There is no option to keep them — a redacted copy should not carry a location with it.',
-    },
-    {
-      q: 'Do the regions survive a re-run?',
-      a: 'Yes. The rectangles you draw live in the “Redaction regions” field as percentages, so changing the effect, the radius or the export format re-uses the same regions without redrawing them.',
-    },
-    {
-      q: 'Which files can I use?',
-      a: 'PNG, JPEG and WebP. Other formats should be converted first with the Image Converter.',
-    },
-    {
-      q: 'Why does my phone photo come out the right way up?',
-      a: 'The stored EXIF orientation is applied while decoding, so the rotation is baked into the pixels, and the tag itself is dropped with the rest of the metadata.',
-    },
-    {
-      q: 'Is anything uploaded?',
-      a: 'No. Drawing, blurring and encoding all happen in your browser; the image never leaves your device.',
+      title: 'Black out at full opacity and save as JPEG',
+      options: { effect: 'black', opacity: 100, format: 'jpeg', quality: 90 },
     },
   ],
   related: ['image-crop', 'image-strip-metadata', 'image-metadata', 'image-convert'],

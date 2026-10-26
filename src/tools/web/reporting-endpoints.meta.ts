@@ -48,20 +48,6 @@ export const meta: ToolMeta = {
       options: { mode: 'build', name: 'default', url: 'https://reports.example.com/collect' },
     },
   ],
-  faq: [
-    {
-      q: 'What is Reporting-Endpoints?',
-      a: 'It is part of the Reporting API and configures where browsers should send reports such as CSP violations or deprecation warnings.',
-    },
-    {
-      q: 'Does a group need HTTPS?',
-      a: 'Reporting endpoints must be HTTPS in modern browsers; HTTP is permitted only for localhost origins.',
-    },
-    {
-      q: 'What does priority control?',
-      a: 'The optional priority parameter (0-255) controls connection pooling priority for the endpoint; it does not change report routing between groups.',
-    },
-  ],
   related: ['security-headers', 'content-security-policy', 'http-header-analyzer'],
   hidden: true,
   redirectTo: 'http-header-analyzer',

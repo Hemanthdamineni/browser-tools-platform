@@ -42,19 +42,9 @@ export const meta: ToolMeta = {
       title: 'Build a proxy error entry',
       options: { mode: 'build', proxy: 'edge', error: 'connection_refused' },
     },
-  ],
-  faq: [
     {
-      q: 'What does Proxy-Status describe?',
-      a: 'A proxy can use it to report how it processed a request and why it could not complete it, often alongside a 502 or 504 response.',
-    },
-    {
-      q: 'Can it expose infrastructure details?',
-      a: 'Yes. Proxy identifiers and parameters can reveal topology or vendor details, so emit only information appropriate for clients.',
-    },
-    {
-      q: 'Does this diagnose a live request?',
-      a: 'No. This tool parses and builds header values locally without making network requests.',
+      title: 'Build an entry with a next hop',
+      options: { mode: 'build', proxy: 'cdn-cache', error: '', next: 'origin-server' },
     },
   ],
   related: ['http-header-analyzer', 'http-status'],

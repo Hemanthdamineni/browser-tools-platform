@@ -76,26 +76,18 @@ export const meta: ToolMeta = {
       help: 'Turn this off to cut the picture only.',
     },
   ],
-  faq: [
+  examples: [
     {
-      q: 'What is a stream copy?',
-      a: 'The video is stored as a stream of already-encoded packets. Cutting it means picking the packets that belong to the range you want and writing them into a new file — the picture is never decoded and encoded again, so nothing is lost.',
+      title: 'Cut the first 45 seconds, lossless copy',
+      options: { start: '0:00', end: '0:45', format: 'source', copyMode: 'preferred' },
     },
     {
-      q: 'Why is my cut not exactly where I asked?',
-      a: 'A stream copy can only start on a key frame, so the clip usually begins at the key frame just before your in point and ends at the key frame just after your out point. Choose “Always re-encode” if you need the cut to the exact frame.',
+      title: 'Extract the middle of a clip to the exact frame',
+      options: { start: '1:30', end: '2:15', copyMode: 'never' },
     },
     {
-      q: 'When does the tool re-encode instead?',
-      a: 'When the chosen container cannot hold the codec of the source — an H.264 clip does not fit into a WebM file without being re-encoded — or when the cut does not land on a key frame and the timeline has to be rebuilt.',
-    },
-    {
-      q: 'Which videos are supported?',
-      a: 'Anything the bundled engine can read: MP4, QuickTime (MOV), WebM, Matroska (MKV), MPEG-TS, Ogg and WAV. Files are recognised by their contents, not their extension.',
-    },
-    {
-      q: 'Is my video uploaded anywhere?',
-      a: 'No. The clip is demuxed, copied or re-encoded inside your browser tab. The page works offline once it has loaded.',
+      title: 'Mute a section by cutting the picture only',
+      options: { start: '0:10', end: '1:00', format: 'mp4', keepAudio: false },
     },
   ],
   credits: [{ name: 'mediabunny', url: 'https://mediabunny.dev', license: 'MPL-2.0' }],

@@ -44,4 +44,10 @@ describe('document-policy', () => {
   it('normalizes directive names', () => {
     expect(run('', { mode: 'build', directives: 'UNLOAD=()' }).output).toBe('unload=()');
   });
+
+  it('runs the "Build a policy header" example without throwing', () => {
+    const result = run('', { mode: 'build', directives: 'unload=(), max-age=(10)' });
+    expect(result.output).toBe('unload=(), max-age=(10)');
+    expect(result.output.length).toBeGreaterThan(0);
+  });
 });

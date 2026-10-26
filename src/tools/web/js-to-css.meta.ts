@@ -36,19 +36,9 @@ export const meta: ToolMeta = {
       title: 'Nested to rules',
       input: '{ "a:hover": { color: "red" } }',
     },
-  ],
-  faq: [
     {
-      q: 'Which properties get px?',
-      a: 'Bare numbers on properties that accept lengths (width, margin, font-size…) become px. Numeric props like opacity, z-index, line-height, flex-grow and font-weight stay bare because CSS treats them as unitless.',
-    },
-    {
-      q: 'How are booleans and null handled?',
-      a: 'They are dropped — React uses truthiness to disable some properties (e.g. display: false), and CSS has no equivalent.',
-    },
-    {
-      q: 'Can I convert a whole style tree?',
-      a: 'Yes. A nested object becomes rules: { "@media (max-width: 600px)": { … } } or per-selector keys work the same way as css-to-js.',
+      title: 'Unitless numbers stay unitless',
+      input: '{ opacity: 0.5, zIndex: 10, transform: "scale(1.2)" }',
     },
   ],
   related: ['css-to-js', 'css-minifier', 'css-units', 'gradient-css'],

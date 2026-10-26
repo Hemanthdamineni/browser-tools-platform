@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { getContent } from '@/lib/content';
 import { ToolError, type OptionValues } from '@/lib/types';
 import tool, {
   buildReport,
@@ -50,7 +51,7 @@ describe('keyboard-tester meta', () => {
   });
 
   it('explains that a failed rollover test is not necessarily the page’s fault', () => {
-    const faq = tool.meta.faq ?? [];
+    const faq = getContent(tool.meta.id)?.faq ?? [];
     expect(faq.length).toBeGreaterThan(0);
     expect(faq.map((f) => `${f.q} ${f.a}`).join(' ')).toMatch(/operating system/i);
   });
@@ -346,11 +347,7 @@ describe('parseCombination', () => {
   });
 
   it('ignores case and padding', () => {
-    expect(parseCombination('  CTRL + Shift + T  ')).toEqual([
-      'ControlLeft',
-      'ShiftLeft',
-      'KeyT',
-    ]);
+    expect(parseCombination('  CTRL + Shift + T  ')).toEqual(['ControlLeft', 'ShiftLeft', 'KeyT']);
   });
 
   it('rejects an empty or unknown combination', () => {
@@ -438,10 +435,13 @@ describe('keyboard-tester run', () => {
 
   it('keeps a Unicode key value in the readout unchanged', () => {
     const result = run(
-      session([], [
-        { key: 'ф', code: 'KeyA', type: 'keydown' },
-        { key: '日', code: 'KeyJ', ctrlKey: true, type: 'keydown' },
-      ]),
+      session(
+        [],
+        [
+          { key: 'ф', code: 'KeyA', type: 'keydown' },
+          { key: '日', code: 'KeyJ', ctrlKey: true, type: 'keydown' },
+        ],
+      ),
     );
     const notes = result.notes?.join(' ') ?? '';
     expect(notes).toContain('ф');

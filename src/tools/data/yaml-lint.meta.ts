@@ -45,23 +45,9 @@ export const meta: ToolMeta = {
       title: 'Duplicate key',
       input: 'name: alice\nname: bob\nrole: admin',
     },
-  ],
-  faq: [
     {
-      q: 'Which YAML features are validated?',
-      a: 'Block mappings and sequences with nesting, flow collections ([…] and {…}, including multi-line), plain and single/double-quoted scalars, block scalars (| and >), comments, and document markers (---). Anchors, aliases, tags and multi-document streams are reported as unsupported rather than silently misparsed.',
-    },
-    {
-      q: 'Does "normalize" change the meaning?',
-      a: 'No. Values are re-emitted with safe quoting rules, so numbers, booleans and nulls keep their native meaning and strings are quoted only when a plain scalar would be ambiguous. Trailing comments are stripped after values, which is cosmetic.',
-    },
-    {
-      q: 'What makes linting fail?',
-      a: 'Tabs used for indentation, unclosed quotes or brackets, duplicate keys inside the same mapping, inconsistent block indentation, and empty input are reported as errors so you can fix the document.',
-    },
-    {
-      q: 'Is this a full YAML parser?',
-      a: 'It is a focused validator and normalizer for the common YAML subset described above — enough to catch most real-world mistakes — not a conformance implementation of the whole spec.',
+      title: 'Tab used for indentation',
+      input: 'root:\n\tnested: 1',
     },
   ],
   related: ['json-to-yaml', 'csv-to-yaml', 'yaml-to-json', 'ini-convert'],

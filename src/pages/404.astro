@@ -1,6 +1,9 @@
 ---
 import Layout from '@/components/Layout.astro';
 import Icon from '@/components/Icon.astro';
+
+// Link paths must honour the deploy base (e.g. /browser-tools-platform on GitHub Pages).
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 
 <Layout
@@ -17,8 +20,10 @@ import Icon from '@/components/Icon.astro';
       The page may have moved, or the link is broken. Try a search or browse everything.
     </p>
     <div class="mt-6 flex justify-center gap-3">
-      <a href="/tools" class="btn btn-primary">All tools <Icon name="arrow-right" size={16} /></a>
-      <a href="/" class="btn btn-ghost">Home</a>
+      <a href={`${base}/tools`} class="btn btn-primary"
+        >All tools <Icon name="arrow-right" size={16} /></a
+      >
+      <a href={`${base}/`} class="btn btn-ghost">Home</a>
       <button type="button" class="btn btn-ghost" data-open-search>
         <Icon name="search" size={16} /> Search
       </button>

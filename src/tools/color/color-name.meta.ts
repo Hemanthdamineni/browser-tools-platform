@@ -23,12 +23,6 @@ export const meta: ToolMeta = {
     { title: 'Near a name', input: '#ee0000' },
     { title: 'From rgb()', input: 'rgb(100, 149, 237)' },
   ],
-  faq: [
-    {
-      q: 'How is "nearest" measured?',
-      a: 'Both colors are converted to CIE L*a*b* and compared with the CIE76 Euclidean distance. Lower distance means the colors look more alike.',
-    },
-  ],
   related: ['color-convert', 'color-contrast', 'color-palette'],
   status: 'stable',
 };

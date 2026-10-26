@@ -65,23 +65,11 @@ export const meta: ToolMeta = {
         '<feed><entry><author><name>Ada</name></author><title>Hello</title></entry><entry><author><name>Bob</name></author><title>World</title></entry></feed>',
       options: { recordPath: 'feed.entry' },
     },
-  ],
-  faq: [
     {
-      q: 'How are columns named?',
-      a: 'Attributes become @id, @type and so on. Nested elements join with a dot, so <author><name> is the column author.name. When an element holds both attributes and text, the text goes in a column named after the element itself.',
-    },
-    {
-      q: 'What happens when records have different shapes?',
-      a: 'The header is the union of every column seen, in first-appearance order. Rows that lack a column are padded with an empty cell.',
-    },
-    {
-      q: 'How are repeated child elements handled?',
-      a: 'Values that appear several times inside one record are serialized as compact JSON in that cell, because a single CSV cell cannot repeat a column.',
-    },
-    {
-      q: 'Is the original XML uploaded anywhere?',
-      a: 'No. Parsing happens in your browser and no network request is made. Only local files or pasted text are read.',
+      title: 'Attributes and text in one record',
+      input:
+        '<products><product id="A1" price="9.99"><name>Dune</name></product><product id="B2" price="12.50"><name>It</name></product></products>',
+      options: { delimiter: 'semicolon', includeAttributes: true },
     },
   ],
   related: ['xml-json-convert', 'csv-to-json', 'json-to-csv', 'csv-profiler'],

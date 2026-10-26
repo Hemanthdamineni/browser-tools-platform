@@ -81,7 +81,14 @@ export const meta: ToolMeta = {
       help: '0 keeps MODNet’s soft, feathered edges. Higher values snap soft edge pixels to fully transparent or fully opaque for a crisper cut-out.',
     },
   ],
-  examples: [{ title: 'Cut out a portrait' }],
+  examples: [
+    { title: 'Cut out a portrait' },
+    {
+      title: 'Portrait on a white card',
+      options: { background: 'solid', backgroundColour: '#ffffff' },
+    },
+    { title: 'Cut out, saved as WebP', options: { format: 'webp' } },
+  ],
   credits: [
     {
       name: 'MODNet (Xenova/modnet)',
@@ -97,24 +104,6 @@ export const meta: ToolMeta = {
       name: 'onnxruntime-web',
       url: 'https://github.com/microsoft/onnxruntime',
       license: 'MIT',
-    },
-  ],
-  faq: [
-    {
-      q: 'What gets downloaded?',
-      a: 'Two things, once: the MODNet model weights from the Hugging Face Hub, and the ONNX runtime binary (WebAssembly) from the jsDelivr CDN, which is where the runtime loads it from by default. Both are kept in your browser’s Cache Storage, so later runs work offline. Your images are never uploaded.',
-    },
-    {
-      q: 'Is my photo sent anywhere?',
-      a: 'No. The only requests are for the model weights (huggingface.co) and the ONNX runtime binary (cdn.jsdelivr.net) on first use; the photo itself is processed entirely on your device.',
-    },
-    {
-      q: 'Which images work best?',
-      a: 'MODNet is a portrait matting model: it is best at isolating a single person. Group photos, pets or objects with no clear person may keep some background. Use the matte threshold to tighten feathered edges.',
-    },
-    {
-      q: 'Why is my result pixelated or slightly off?',
-      a: 'The model runs at 512 px then scales back up, so small, heavily-compressed or very high-resolution photos may show soft edges. Save as PNG to keep the alpha channel lossless.',
     },
   ],
   related: ['image-compress', 'image-convert', 'image-resize'],

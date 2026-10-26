@@ -30,24 +30,6 @@ export const meta: ToolMeta = {
     { title: 'IPv4-mapped IPv6', input: '::ffff:192.168.1.42' },
     { title: 'IPv6 with zone', input: 'fe80::a1b2:c3d4%eth0' },
   ],
-  faq: [
-    {
-      q: 'Is my IP looked up online?',
-      a: 'No. All parsing and classification is done locally in your browser tab.',
-    },
-    {
-      q: 'How are IPv6 link-local addresses shown?',
-      a: 'They are classified as link-local and their expanded 16-bit groups are listed; a zone identifier such as %eth0 is reported separately.',
-    },
-    {
-      q: 'What is an IPv4-mapped IPv6 address?',
-      a: 'The ::ffff:a.b.c.d form embeds an IPv4 address in the last 32 bits of an IPv6 address. The tool detects it and reports the embedded IPv4 address.',
-    },
-    {
-      q: 'Does it handle CIDR blocks too?',
-      a: 'No — this tool inspects a single address. For network math (prefix, range, broadcast, host count), use the CIDR Calculator instead.',
-    },
-  ],
   related: ['ipv6-expander', 'cidr-calculator', 'mac-address', 'port-lookup'],
   status: 'stable',
 };

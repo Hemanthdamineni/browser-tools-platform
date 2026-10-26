@@ -59,16 +59,6 @@ export const meta: ToolMeta = {
     { title: 'Compatibility characters', input: '① ＡＢＣ ™', options: { form: 'NFKC' } },
     { title: 'Remove accents', input: 'Crème brûlée — déjà vu', options: { stripMarks: true } },
   ],
-  faq: [
-    {
-      q: 'Which form should I use?',
-      a: 'NFC is a safe default for storage and comparison. NFKC and NFKD also fold compatibility characters such as full-width letters and circled digits, so use them only when that loss of distinction is intended.',
-    },
-    {
-      q: 'Does this upload my text?',
-      a: 'No. Normalization uses the browser’s built-in String.normalize API and runs entirely on your device.',
-    },
-  ],
   related: ['slugify', 'case-convert', 'json-format'],
   status: 'stable',
 };

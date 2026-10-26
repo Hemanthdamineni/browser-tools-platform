@@ -30,11 +30,10 @@ export const meta: ToolMeta = {
   examples: [
     { title: 'Black on white', input: '#000000' },
     { title: 'Grey on white', input: '#777777' },
-  ],
-  faq: [
     {
-      q: 'What is the APCA value?',
-      a: 'APCA (Accessible Perceptual Contrast Algorithm,) the successor to WCAG contrast, estimates perceived contrast in Lc units. This is an approximation off the full APCA 0.0.98G algorithm, labelled "approx".',
+      title: 'White on navy',
+      input: '#ffffff',
+      options: { second: '#000080' },
     },
   ],
   related: ['color-convert', 'color-palette', 'color-name'],

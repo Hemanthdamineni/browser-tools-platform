@@ -68,20 +68,6 @@ export const meta: ToolMeta = {
       options: { key: 'topsecret', output: 'base64' },
     },
   ],
-  faq: [
-    {
-      q: 'What is HMAC used for?',
-      a: 'HMAC proves that a message was produced by someone holding the shared secret key and has not been altered in transit. It is widely used for API request signing and webhook verification.',
-    },
-    {
-      q: 'How is the key interpreted?',
-      a: 'The key text is encoded as UTF-8 bytes and used directly as the raw HMAC key. Keys longer than the hash block size are hashed down first by the Web Crypto implementation.',
-    },
-    {
-      q: 'Is HMAC-SHA1 still safe?',
-      a: 'HMAC stays secure with SHA-1 far longer than plain SHA-1 does, and some legacy APIs still require it. Prefer HMAC-SHA256 for new systems.',
-    },
-  ],
   related: ['hash', 'crc32', 'file-hash', 'base64'],
   status: 'stable',
 };

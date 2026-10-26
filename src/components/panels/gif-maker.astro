@@ -1,0 +1,221 @@
+---
+/**
+ * Panel for the "GIF Maker" tool.
+ *
+ * The generic workbench cannot express a reorderable, per-frame animation
+ * timeline, so the tool sets `meta.panel = 'gif-maker'` and this component
+ * replaces it. It reuses the shared option fields for the global settings and
+ * adds a thumbnail grid with drag-and-drop reordering, per-frame delays and a
+ * live preview of the finished animation.
+ *
+ * The root deliberately does NOT carry `data-file-workbench`: FileWorkbench's
+ * generic script binds itself to every `[data-file-workbench]` root, so the
+ * marker would double-mount this page. Panel tools are recognised by the
+ * `[data-panel-workbench]` wrapper `PanelWorkbench` renders around them.
+ *
+ * The behaviour lives in `./gif-maker-panel.ts`, imported lazily from the
+ * script block below so no timeline code ships to pages that do not use it.
+ */
+import type { ToolMeta } from '@/lib/types';
+import OptionsFields from '@/components/workbench/OptionsFields.astro';
+import Icon from '@/components/Icon.astro';
+
+interface Props {
+  meta: ToolMeta;
+}
+const { meta } = Astro.props;
+const p = meta.id;
+const examples = meta.examples ?? [];
+// The per-frame delays are driven by the timeline, and the uniform delay by the
+// "set every frame" control, so their raw option fields stay out of the form.
+const hiddenKeys = ['delayCs', 'frameDelays'];
+const gridOptions = (meta.options ?? []).filter((option) => !hiddenKeys.includes(option.key));
+---
+
+<section
+  class="surface rounded-lg p-4 sm:p-6"
+  data-gif-maker-panel
+  data-tool-id={meta.id}
+  data-accept={meta.accept ?? ''}
+  aria-label={`${meta.name} workbench`}
+>
+  <h2 class="text-base font-semibold text-[rgb(var(--text))]">1 · Choose the frames</h2>
+  <div
+    class="drop-zone mt-3 flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed px-4 py-8 text-center transition-colors"
+    data-drop
+    role="button"
+    tabindex="0"
+    aria-label="Choose image files or drop them here"
+  >
+    <Icon name="image" size={26} class="opacity-60" />
+    <p class="text-sm font-medium">
+      Drop the image frames here, or <span class="link">browse</span>
+    </p>
+    <p class="text-xs text-[rgb(var(--text-muted))]">
+      The images never leave your device. They play in the order below.
+    </p>
+  </div>
+  <ul class="mt-3 space-y-1.5 text-sm" data-file-list></ul>
+  <p
+    class="mt-2 text-xs text-[rgb(var(--text-muted))]"
+    data-status
+    role="status"
+    aria-live="polite"
+  >
+    Choose two or more images to build an animation.
+  </p>
+
+  <h2 class="mt-6 text-base font-semibold text-[rgb(var(--text))]">
+    2 · Order, trim and time the frames
+  </h2>
+  <p class="mt-1 text-xs text-[rgb(var(--text-muted))]" id={`${p}-grid-hint`}>
+    Drag a frame to move it, or focus it and use the left and right arrow keys. Every frame also has
+    Move and Remove buttons and its own delay, in hundredths of a second.
+  </p>
+
+  <div class="mt-3 flex flex-wrap items-end gap-3">
+    <div>
+      <label class="text-xs font-medium" for={`${p}-fps`}>Set every frame to this frame rate</label>
+      <input
+        id={`${p}-fps`}
+        class="field mt-1 !w-28"
+        type="number"
+        min="1"
+        max="30"
+        step="1"
+        value="10"
+        data-fps
+        data-default-value="10"
+      />
+    </div>
+    <div class="flex items-end gap-2">
+      <button type="button" class="btn btn-ghost" data-reset-order disabled>Reset order</button>
+      <button type="button" class="btn btn-subtle" data-play disabled>Play</button>
+    </div>
+    <p
+      class="ml-auto text-xs text-[rgb(var(--text-muted))]"
+      data-timeline-status
+      role="status"
+      aria-live="polite"
+    >
+      Choose images to build an animation.
+    </p>
+  </div>
+
+  <div class="mt-3 flex items-center gap-2 text-xs text-[rgb(var(--text-muted))]">
+    <span>Total duration:</span>
+    <span class="font-semibold tabular-nums text-[rgb(var(--text))]" data-duration>—</span>
+  </div>
+
+  <ul
+    class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4"
+    data-grid
+    aria-label="Image frames in the new order"
+    aria-describedby={`${p}-grid-hint`}
+  >
+  </ul>
+
+  <h2 class="mt-6 text-base font-semibold text-[rgb(var(--text))]">3 · Preview the animation</h2>
+  <div class="mt-3 flex flex-wrap items-center gap-4">
+    <div class="w-full max-w-md">
+      <canvas
+        class="block w-full rounded-lg border"
+        width="16"
+        height="9"
+        role="img"
+        aria-label="Preview of the finished GIF animation"
+        data-preview-canvas></canvas>
+    </div>
+    <div class="min-w-0 flex-1">
+      <p class="text-sm text-[rgb(var(--text-muted))]">
+        This plays the frames at the delays you set. Press Play to watch it, then save the real GIF
+        below.
+      </p>
+    </div>
+  </div>
+
+  <h2 class="mt-6 text-base font-semibold text-[rgb(var(--text))]">4 · Output</h2>
+  {
+    examples.length > 0 && (
+      <div class="mt-3 flex flex-wrap items-center gap-2">
+        <span class="text-xs font-medium text-[rgb(var(--text-muted))]">Try:</span>
+        {examples.map((example, index) => (
+          <button
+            type="button"
+            class="chip hover:text-[rgb(var(--text))]"
+            data-example={index}
+            data-example-options={JSON.stringify(example.options ?? {})}
+          >
+            {example.title}
+          </button>
+        ))}
+      </div>
+    )
+  }
+  <div class="mt-3">
+    <OptionsFields options={gridOptions} idPrefix={p} />
+  </div>
+
+  <div class="mt-5 flex flex-wrap items-center gap-2.5">
+    <button type="button" class="btn btn-primary" data-run disabled>
+      <Icon name="zap" size={16} /> Make GIF
+    </button>
+    <button type="button" class="btn btn-ghost" data-cancel hidden>Cancel</button>
+    <button type="button" class="btn btn-ghost" data-reset hidden>Reset</button>
+  </div>
+
+  <div class="mt-3" hidden data-progress-wrap>
+    <div class="h-2 overflow-hidden rounded-full" style="background-color: rgb(var(--bg-inset))">
+      <div
+        class="h-full transition-[width] duration-200 ease-out motion-reduce:transition-none"
+        style="width:0%; background-color: rgb(var(--accent))"
+        data-progress-bar
+      >
+      </div>
+    </div>
+    <p
+      class="mt-1 text-xs tabular-nums text-[rgb(var(--text-muted))]"
+      data-progress-msg
+      aria-live="polite"
+    >
+    </p>
+  </div>
+
+  <div
+    class="mt-4 rounded-lg border px-3 py-2 text-sm"
+    style="background-color: rgb(var(--danger-soft)); border-color: rgb(var(--danger)); color: rgb(var(--danger))"
+    role="alert"
+    data-error
+    hidden
+  >
+  </div>
+
+  <div class="mt-4" hidden data-result-wrap>
+    <div class="mb-2 flex items-center justify-between">
+      <span class="text-sm font-semibold text-[rgb(var(--text))]" data-result-title>Results</span>
+    </div>
+    <ul class="space-y-2" data-outputs></ul>
+    <ul class="mt-2 space-y-1 text-xs" data-notes></ul>
+  </div>
+
+  <noscript>
+    <p class="mt-3 text-sm text-[rgb(var(--text-muted))]">
+      Building a GIF needs JavaScript. Nothing is ever uploaded.
+    </p>
+  </noscript>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-gif-maker-panel]').forEach((panel) => {
+    // The timeline code is loaded on demand: only this tool's page pays for it.
+    void import('./gif-maker-panel')
+      .then(({ mountGifMakerPanel }) => mountGifMakerPanel(panel))
+      .catch(() => {
+        const error = panel.querySelector<HTMLElement>('[data-error]');
+        if (error) {
+          error.hidden = false;
+          error.textContent = 'The GIF maker panel could not be loaded in this browser.';
+        }
+      });
+  });
+</script>

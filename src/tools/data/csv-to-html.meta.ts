@@ -56,23 +56,10 @@ export const meta: ToolMeta = {
       input: 'product,price\nApple,0.5\nOrange,0.75',
       options: { style: 'minimal' },
     },
-  ],
-  faq: [
     {
-      q: 'How does the parser handle quoted fields?',
-      a: 'It follows RFC 4180: fields wrapped in double quotes may contain the delimiter and newlines, and doubled quotes inside a field are unescaped.',
-    },
-    {
-      q: 'Is the output safe to embed?',
-      a: 'Yes, every cell value is HTML-escaped, so special characters like <, >, and & are never interpreted as markup.',
-    },
-    {
-      q: 'What do the two styles do?',
-      a: 'Plain produces a bare <table> with headers in <thead>. Minimal adds a small inline <style> block with borders, padding, and Zebra striping so it looks clean without external CSS.',
-    },
-    {
-      q: 'Can I change the separator?',
-      a: 'Yes. Choose from comma, tab, semicolon, or pipe in the delimiter option. The parser detects the field separator exactly as configured.',
+      title: 'Pipe-delimited data',
+      input: 'name|city\nAda|London\nGrace|New York',
+      options: { delimiter: 'pipe' },
     },
   ],
   related: ['csv-to-json', 'csv-to-markdown', 'csv-profiler', 'html-to-text', 'json-diff'],

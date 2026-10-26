@@ -91,9 +91,7 @@ export function normalizeRotation(value: unknown, position?: number): number {
  */
 export function resolveBlankSize(id: unknown, position?: number): PageSize {
   const key = typeof id === 'string' ? id.trim().toLowerCase() : '';
-  const size = Object.prototype.hasOwnProperty.call(PAGE_SIZES, key)
-    ? PAGE_SIZES[key]
-    : undefined;
+  const size = Object.prototype.hasOwnProperty.call(PAGE_SIZES, key) ? PAGE_SIZES[key] : undefined;
   if (!size) {
     const where = position ? `Blank page ${position}` : 'A blank page';
     throw new ToolError(

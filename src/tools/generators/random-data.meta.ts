@@ -60,15 +60,9 @@ export const meta: ToolMeta = {
   examples: [
     { title: '5 people as JSON', options: { dataset: 'person', rows: 5, format: 'json' } },
     { title: '20 contacts as CSV', options: { dataset: 'contact', rows: 20, format: 'csv' } },
-  ],
-  faq: [
     {
-      q: 'Are the names and addresses real?',
-      a: 'Names come from common first/last name lists and addresses from a mix of real city and street names, but the combinations are random. Treat any result as fiction — do not use it to impersonate anyone.',
-    },
-    {
-      q: 'Which fields does each dataset include?',
-      a: 'Person: first/last/full name, age, gender. Contact adds email and phone. Address: street, city, state, zip, country. Network: ipv4, ipv6, mac, domain, url, user agent. Commerce: product, category, price, currency, sku. Company: name, catch phrase, industry, domain. IDs: uuid, objectId, nanoid, ulid.',
+      title: '10 companies as SQL inserts',
+      options: { dataset: 'company', rows: 10, format: 'sql', tableName: 'companies' },
     },
   ],
   related: ['random-string', 'lorem-ipsum', 'uuid'],

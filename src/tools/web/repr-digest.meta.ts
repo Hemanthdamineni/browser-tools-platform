@@ -41,19 +41,13 @@ export const meta: ToolMeta = {
         digest: 'sha-256=:MVHvdqYQ2WJ6jL3b6h3AqXyS1e5m6lQf7c8d9e0f1g2=:',
       },
     },
-  ],
-  faq: [
     {
-      q: 'How is Repr-Digest different from Content-Digest?',
-      a: 'Repr-Digest identifies the selected representation, while Content-Digest identifies message content after transfer/content codings are considered.',
-    },
-    {
-      q: 'Is this an authenticity signature?',
-      a: 'No. A digest detects accidental changes but does not authenticate who produced the representation. Use a signature when authenticity is required.',
-    },
-    {
-      q: 'What bytes are hashed?',
-      a: 'This tool hashes the UTF-8 bytes of the entered text. Real deployments must hash the exact representation bytes specified by their protocol.',
+      title: 'Verify a mismatching digest',
+      input: 'Hello there!',
+      options: {
+        mode: 'analyze',
+        digest: 'sha-256=:MVHvdqYQ2WJ6jL3b6h3AqXyS1e5m6lQf7c8d9e0f1g2=:',
+      },
     },
   ],
   related: ['http-header-analyzer', 'content-md5'],

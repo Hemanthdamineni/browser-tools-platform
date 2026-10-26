@@ -60,16 +60,6 @@ export const meta: ToolMeta = {
     { title: 'A date', input: '2024-02-29T00:00:00Z' },
     { title: 'Now' },
   ],
-  faq: [
-    {
-      q: 'How does auto-detect tell seconds from milliseconds?',
-      a: 'Timestamps up to 100 billion in magnitude are treated as seconds (dates until the year 5138); anything larger is treated as milliseconds. Force the unit with the option if a value is misread.',
-    },
-    {
-      q: 'Does anything leave my browser?',
-      a: 'No. All conversion happens on-device and works fully offline.',
-    },
-  ],
   related: ['timezone-convert', 'date-diff', 'duration-convert', 'cron-parser'],
   status: 'stable',
 };

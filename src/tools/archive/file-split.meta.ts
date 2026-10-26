@@ -48,7 +48,14 @@ export const meta: ToolMeta = {
       showWhen: { key: 'mode', value: 'by-count' },
     },
   ],
-  examples: [{ title: 'Split a file' }],
+  examples: [
+    { title: 'Split a file' },
+    { title: 'Split by count into four parts', options: { mode: 'by-count', count: 4 } },
+    {
+      title: 'Split into 1 KB chunks',
+      options: { mode: 'by-size', chunkSize: 1, chunkUnit: 'KB' },
+    },
+  ],
   related: ['file-join', 'file-metadata'],
   status: 'stable',
 };

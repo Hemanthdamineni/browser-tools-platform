@@ -35,20 +35,6 @@ export const meta: ToolMeta = {
     { title: 'Analyze a 0-RTT request signal', input: '0' },
     { title: 'Build an Early-Data header', options: { mode: 'build', value: '0' } },
   ],
-  faq: [
-    {
-      q: 'What does Early-Data: 0 mean?',
-      a: 'It indicates that a request was sent in TLS 1.3 early data and may be replayed by an attacker or network path.',
-    },
-    {
-      q: 'What is 425 Too Early?',
-      a: 'A server can return 425 to ask the client to retry the request after the handshake, when replay safety cannot be established.',
-    },
-    {
-      q: 'Does this make a request safe?',
-      a: 'No. Applications must still use idempotency keys, reject unsafe replayable operations, and apply server-side anti-replay policy.',
-    },
-  ],
   related: ['http-status', 'http-header-analyzer', 'security-headers'],
   hidden: true,
   redirectTo: 'http-header-analyzer',

@@ -36,23 +36,10 @@ export const meta: ToolMeta = {
       title: 'Decimal to fraction',
       input: '0.75',
     },
-  ],
-  faq: [
     {
-      q: 'How is a decimal converted?',
-      a: 'Exactly — 0.75 becomes 75/100, reduced by their gcd to 3/4. No lossy approximation: the digits you type determine the denominator (0.1 + 0.2 stays exact as long as the text is exact).',
-    },
-    {
-      q: 'What do mixed numbers look like?',
-      a: 'An improper fraction like 9/4 becomes 2 1/4 when the mixed-number option is on; otherwise it stays 9/4. The option affects output only.',
-    },
-    {
-      q: 'Are negatives supported?',
-      a: 'Yes — -6/4 reduces to -3/2, and a negative decimal like -1.5 becomes -3/2. The sign always lives on the numerator.',
-    },
-    {
-      q: 'What input formats are accepted?',
-      a: 'fractions as a/b, decimals like 0.75 or -1.5, and plain integers (3 → 3/1). A zero denominator or unparseable text is rejected with a clear error.',
+      title: 'Improper fraction as a mixed number',
+      input: '9/4',
+      options: { mixedNumber: true },
     },
   ],
   related: ['unit-convert', 'roman-numeral', 'prime-factorization', 'statistics-calculator'],

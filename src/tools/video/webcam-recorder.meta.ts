@@ -84,38 +84,18 @@ export const meta: ToolMeta = {
       help: 'The download gets this name plus the date and time of the recording.',
     },
   ],
-  faq: [
+  examples: [
     {
-      q: 'Is my recording uploaded anywhere?',
-      a: 'No. The camera feed is read by this tab, encoded by the browser and saved as a file on your device. There is no server involved and no request leaves the page.',
+      title: 'Full HD with microphone',
+      options: { resolution: '1080', mic: true, quality: 'high' },
     },
     {
-      q: 'Does it record sound as well?',
-      a: 'Only if you turn on “Record microphone audio” (it is off by default). When it is on, the browser asks for microphone permission and the clip carries sound. The audio is recorded by this tab, like the video — it never leaves your device.',
+      title: 'Short silent clip',
+      options: { resolution: '480', quality: 'small', mic: false, maxSeconds: 30 },
     },
     {
-      q: 'Which resolution do I get?',
-      a: 'The resolution option is a request, not a command: the browser picks the closest mode your camera actually has. A 720p webcam stays 720p even with 1080p selected; “Auto” uses whatever mode the camera opens with.',
-    },
-    {
-      q: 'Can I choose which camera to use?',
-      a: 'Yes, if your device has more than one. Once the camera starts, a picker lists the cameras the browser knows about (after permission, it can show their names). Switching cameras restarts the preview — stop the recording first.',
-    },
-    {
-      q: 'Which format will I get?',
-      a: 'Whatever your browser records best: Chrome and Firefox record WebM (VP9 or VP8), Safari records MP4 (H.264). The download uses the matching extension, so the file plays where it came from.',
-    },
-    {
-      q: 'The camera does not start — what now?',
-      a: 'Cameras only work on secure pages: open the tool over https:// (or http://localhost). You also have to allow camera access when the browser asks — the padlock in the address bar shows whether it was blocked.',
-    },
-    {
-      q: 'How long can I record?',
-      a: 'As long as you like, up to the automatic stop in the options (five minutes by default). Set that to 0 to remove the limit.',
-    },
-    {
-      q: 'Can I check the clip before saving it?',
-      a: 'Yes. The recording appears in a player on the page, so you can watch it back and only then download it.',
+      title: 'Camera default for two minutes',
+      options: { resolution: 'auto', quality: 'balanced', maxSeconds: 120 },
     },
   ],
   related: ['video-info', 'video-to-gif', 'qr-scanner'],

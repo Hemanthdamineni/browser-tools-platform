@@ -41,20 +41,7 @@ export const meta: ToolMeta = {
       title: 'Build a response header',
       options: { mode: 'build', location: '/representations/report.en.html' },
     },
-  ],
-  faq: [
-    {
-      q: 'Is Content-Location the same as the request URL?',
-      a: 'Not necessarily. It identifies a specific representation or resource associated with the response and may be relative or absolute.',
-    },
-    {
-      q: 'Does it redirect the client?',
-      a: 'No. Content-Location is metadata, not a redirect. Use Location with a redirect status to move a client.',
-    },
-    {
-      q: 'Does this fetch the URI?',
-      a: 'No. The tool only validates syntax locally and never makes a network request.',
-    },
+    { title: 'Analyze a network-path reference', input: '//cdn.example.com/assets/main.js' },
   ],
   related: ['url-parse', 'http-status', 'cache-headers'],
   status: 'stable',

@@ -61,23 +61,15 @@ export const meta: ToolMeta = {
         '{\n  "server.host": "localhost",\n  "server.ports.http": 8080,\n  "users.0.name": "ada"\n}',
       options: { mode: 'unflatten' },
     },
-  ],
-  faq: [
     {
-      q: 'How are arrays flattened?',
-      a: 'Arrays become indexed paths: users.0.name. Switch the "Array paths" option to users[0].name if you prefer bracketed notation.',
+      title: 'Flatten with bracket array paths',
+      input: '{"a":{"b":[1,2,3]}}',
+      options: { arrayStyle: 'bracket' },
     },
     {
-      q: 'Can I get back to a nested object?',
-      a: 'Yes — switch the direction to "Rebuild dotted". Paste a flat record and it is nested again, and types keep through the round trip.',
-    },
-    {
-      q: 'What if dotted output and nested output conflict?',
-      a: 'If a key is both a value and a container (a.b alongside a.b.c) unflatten refuses with a conflict error instead of guessing.',
-    },
-    {
-      q: 'Does it preserve numbers, booleans and null?',
-      a: 'Yes. Leaves are kept with their JSON types, and unflatten parses them back the same way they were given.',
+      title: 'Flatten and sort alphabetically',
+      input: '{"z":1,"a":{"y":2,"x":3}}',
+      options: { sorted: true },
     },
   ],
   related: ['json-format', 'json-to-python', 'json-to-yaml', 'properties-convert'],

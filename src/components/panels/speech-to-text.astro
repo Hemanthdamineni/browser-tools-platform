@@ -1,0 +1,163 @@
+---
+/**
+ * The speech-to-text panel: choose an audio file or record from the microphone,
+ * pick a Whisper model, then transcribe it on-device and export TXT, SRT or VTT.
+ *
+ * The generic file workbench cannot express a microphone recorder or a live
+ * download-size + progress bar, so the tool opts into this panel via
+ * `meta.panel = 'speech-to-text'`. The behaviour lives in
+ * `./speech-to-text-panel.ts` and is loaded on demand.
+ */
+import type { ToolMeta } from '@/lib/types';
+import Icon from '@/components/Icon.astro';
+import OptionsFields from '@/components/workbench/OptionsFields.astro';
+
+interface Props {
+  meta: ToolMeta;
+}
+const { meta } = Astro.props;
+const p = meta.id;
+const examples = meta.examples ?? [];
+---
+
+<section
+  class="surface rounded-lg p-4 sm:p-6"
+  data-file-workbench
+  data-speech-panel
+  data-tool-id={meta.id}
+  data-accept={meta.accept ?? ''}
+  aria-label={`${meta.name} workbench`}
+>
+  {
+    examples.length > 0 && (
+      <div class="mb-4 flex flex-wrap items-center gap-2">
+        <span class="text-xs font-medium text-[rgb(var(--text-muted))]">Try:</span>
+        {examples.map((example, index) => (
+          <button
+            type="button"
+            class="chip hover:text-[rgb(var(--text))]"
+            data-example={index}
+            data-example-options={JSON.stringify(example.options ?? {})}
+          >
+            {example.title}
+          </button>
+        ))}
+      </div>
+    )
+  }
+
+  <h2 class="text-base font-semibold text-[rgb(var(--text))]">1 · Add audio</h2>
+  <div
+    class="drop-zone mt-3 flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed px-4 py-8 text-center transition-colors"
+    data-drop
+    role="button"
+    tabindex="0"
+    aria-label="Choose an audio file or drop it here"
+  >
+    <Icon name="audio-lines" size={26} class="opacity-60" />
+    <p class="text-sm font-medium">Drop an audio file here, or <span class="link">browse</span></p>
+    <p class="text-xs text-[rgb(var(--text-muted))]">
+      Or record a clip straight from the microphone below.
+    </p>
+  </div>
+  <ul class="mt-3 space-y-1.5 text-sm" data-file-list></ul>
+
+  <div class="mt-4 flex flex-wrap items-center gap-2.5">
+    <button type="button" class="btn btn-subtle" data-mic-record>
+      <Icon name="audio-lines" size={15} /> Record from microphone
+    </button>
+    <button type="button" class="btn btn-ghost" data-mic-stop hidden>
+      <Icon name="stop" size={14} /> Stop recording
+    </button>
+    <span
+      class="flex items-center gap-2 text-sm font-medium text-[rgb(var(--text))]"
+      data-mic-indicator
+      hidden
+    >
+      <span
+        class="inline-block h-2.5 w-2.5 animate-pulse rounded-full"
+        style="background-color: rgb(var(--danger))"
+        aria-hidden="true"></span>
+      <span>Recording</span>
+      <span class="font-mono tabular-nums" data-mic-timer>0:00</span>
+    </span>
+  </div>
+
+  <details class="mt-5 rounded-lg border">
+    <summary class="cursor-pointer select-none px-3 py-2 text-sm font-medium">Options</summary>
+    <div class="border-t p-3">
+      <OptionsFields options={meta.options ?? []} idPrefix={p} />
+      <p class="mt-2 text-xs text-[rgb(var(--text-muted))]" data-english-note hidden>
+        The tiny.en model only understands English — switch to “Whisper base” for other languages.
+      </p>
+      <p class="mt-2 text-xs text-[rgb(var(--text-muted))]" data-download-hint></p>
+    </div>
+  </details>
+
+  <div class="mt-5 flex flex-wrap items-center gap-2.5">
+    <button type="button" class="btn btn-primary" data-run disabled>
+      <Icon name="sparkles" size={16} /> Transcribe
+    </button>
+    <button type="button" class="btn btn-ghost" data-cancel hidden>Cancel</button>
+  </div>
+
+  <div class="mt-3" data-progress-wrap hidden>
+    <div class="h-2 overflow-hidden rounded-full" style="background-color: rgb(var(--bg-inset))">
+      <div
+        class="h-full transition-[width] duration-200 ease-out"
+        style="width:0%; background-color: rgb(var(--accent))"
+        data-progress-bar
+      >
+      </div>
+    </div>
+    <p
+      class="mt-1 text-xs tabular-nums text-[rgb(var(--text-muted))]"
+      data-progress-msg
+      aria-live="polite"
+    >
+    </p>
+  </div>
+
+  <div
+    class="mt-4 rounded-lg border px-3 py-2 text-sm"
+    style="background-color: rgb(var(--danger-soft)); border-color: rgb(var(--danger)); color: rgb(var(--danger))"
+    role="alert"
+    data-error
+    hidden
+  >
+  </div>
+
+  <div class="mt-4" data-result-wrap hidden>
+    <h3 class="mb-2 text-sm font-semibold text-[rgb(var(--text))]">Transcript</h3>
+    <pre
+      class="max-h-72 overflow-auto whitespace-pre-wrap rounded-lg border p-3 text-sm leading-relaxed"
+      data-transcript>
+    </pre>
+    <div class="mt-3 flex flex-wrap items-center gap-2" data-outputs></div>
+    <ul class="mt-2 space-y-1 text-xs" data-notes></ul>
+  </div>
+
+  <noscript>
+    <p class="mt-3 text-sm text-[rgb(var(--text-muted))]">
+      Transcribing speech needs JavaScript — the model and microphone APIs cannot run without it.
+    </p>
+  </noscript>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-speech-panel]').forEach((panel) => {
+    // The panel's logic is loaded on demand so no transcription code ships to
+    // pages that do not use it.
+    void import('./speech-to-text-panel')
+      .then(({ mountSpeechToTextPanel }) => {
+        mountSpeechToTextPanel(panel);
+      })
+      .catch(() => {
+        const error = panel.querySelector<HTMLElement>('[data-error]');
+        if (error) {
+          error.hidden = false;
+          error.textContent = 'The speech-to-text panel could not be loaded in this browser.';
+        }
+      });
+  });
+</script>

@@ -71,15 +71,10 @@ export const meta: ToolMeta = {
   examples: [
     { title: 'Noon UTC worldwide', input: '2024-01-15 12:00' },
     { title: 'Now, US zones', options: { targets: 'us' } },
-  ],
-  faq: [
     {
-      q: 'How are daylight-saving transitions handled?',
-      a: 'Offsets come from the browser Intl database for each specific instant. A time inside the one-hour "spring forward" gap resolves to the offset after the gap.',
-    },
-    {
-      q: 'What input formats work?',
-      a: 'Anything like 2024-01-15, 2024-01-15 12:00, or 2024-01-15T12:00:30. Leave the input blank to use the current time.',
+      title: 'Tokyo morning for European colleagues',
+      input: '2024-06-03 09:30',
+      options: { fromZone: 'Asia/Tokyo', targets: 'europe' },
     },
   ],
   related: ['timestamp', 'date-diff', 'week-number'],

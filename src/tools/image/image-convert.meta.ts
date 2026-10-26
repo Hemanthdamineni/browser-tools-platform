@@ -41,7 +41,11 @@ export const meta: ToolMeta = {
       help: 'JPEG has no transparency, so transparent areas are filled with this colour.',
     },
   ],
-  examples: [{ title: 'Convert to WebP' }],
+  examples: [
+    { title: 'Convert to WebP' },
+    { title: 'PNG to JPEG on a white background', options: { to: 'jpeg', quality: 85 } },
+    { title: 'Smaller AVIF copies', options: { to: 'avif', quality: 90 } },
+  ],
   related: ['image-compress', 'svg-to-png'],
   status: 'stable',
   updated: '2026-10-16',

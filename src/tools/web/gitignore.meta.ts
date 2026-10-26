@@ -38,12 +38,10 @@ export const meta: ToolMeta = {
       ],
     },
   ],
-  examples: [{ title: 'Node.js', input: 'node' }],
-  faq: [
-    {
-      q: 'Does it untrack files already committed?',
-      a: 'No. .gitignore only affects untracked files. Run git rm -r --cached . once (then commit) to stop tracking files that were committed before the rule existed.',
-    },
+  examples: [
+    { title: 'Node.js', input: 'node' },
+    { title: 'Python virtualenv project', options: { stack: 'python' } },
+    { title: 'OS and editor cruft only', options: { stack: 'general' } },
   ],
   related: ['editorconfig', 'robots-txt'],
   status: 'stable',

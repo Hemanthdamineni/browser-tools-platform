@@ -57,19 +57,15 @@ export const meta: ToolMeta = {
       input: '',
       options: { preset: 'node', extra: 'dist/\ncoverage/' },
     },
-  ],
-  faq: [
     {
-      q: 'What does a .dockerignore actually do?',
-      a: 'It excludes files from the build context sent to the Docker daemon, shrinking the upload and the image build. It does not remove files already in the image from earlier layers.',
+      title: 'Python with a local data directory',
+      input: '',
+      options: { preset: 'python', extra: 'local-data/' },
     },
     {
-      q: 'Do I need .gitignore in it?',
-      a: 'Usually yes — .git, .gitignore and other VCS/CI metadata rarely belong in a build context. The preset includes them; you can toggle sections with the options.',
-    },
-    {
-      q: 'Is this the same as a .gitignore?',
-      a: 'Related but different: .gitignore keeps files out of version control; .dockerignore keeps them out of the Docker build context. Both are here — check the gitignore tool for the former.',
+      title: 'Minimal list without section comments',
+      input: '',
+      options: { preset: 'generic', sectionComments: false, includeHidden: false },
     },
   ],
   related: ['docker-compose', 'dockerfile-generator', 'gitignore', 'editorconfig'],

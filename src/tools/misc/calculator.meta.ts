@@ -6,7 +6,7 @@ export const meta: ToolMeta = {
   category: 'misc',
   summary: 'Evaluate a mathematical expression with a safe parser — no eval, ever.',
   description:
-    'Type a maths expression and get the numeric result. The calculator uses a safe recursive-descent parser (no eval, no `new Function`), supporting the four operators, exponentiation, parentheses, common functions, constants and factorials. Trig functions respect the selected angle mode.',
+    'Type a maths expression (or tap it on the keypad) and get the numeric result. The calculator uses a safe recursive-descent parser (no eval, no `new Function`), supporting the four operators, exponentiation, parentheses, common functions, constants, factorials and a memory register. Flip the scientific toggle to reveal the trig, log, root, power and constant keys. Trig functions respect the selected angle mode.',
   keywords: [
     'calculator',
     'expression',
@@ -14,12 +14,22 @@ export const meta: ToolMeta = {
     'algebra',
     'evaluate',
     'scientific calculator',
+    'keypad',
     'factorial',
     'trigonometry',
+    'memory',
   ],
   privacy: { processing: 'on-device', network: 'none', offline: true },
   input: 'text',
+  panel: 'calculator',
   options: [
+    {
+      key: 'scientific',
+      label: 'Scientific keypad',
+      type: 'boolean',
+      default: false,
+      help: 'Adds the trig, log, root, power, factorial and constant keys to the keypad.',
+    },
     {
       key: 'angleMode',
       label: 'Angle mode',
@@ -44,17 +54,14 @@ export const meta: ToolMeta = {
     { title: 'Power', input: '(2+3)^2' },
     { title: 'Factorial', input: '5!' },
     { title: 'Trig with pi', input: 'sin(pi/2)' },
-  ],
-  faq: [
+    { title: 'Logarithm', input: 'log10(1000)' },
+    { title: 'Root', input: 'sqrt(144)' },
     {
-      q: 'Is this expression evaluated safely?',
-      a: 'Yes. The expression is parsed and evaluated token by token with a hand-written parser — `eval` and `new Function` are never used, so an expression cannot touch globals or run arbitrary code.',
-    },
-    {
-      q: 'What functions are supported?',
-      a: 'sqrt, cbrt, abs, round, floor, ceil, sign, ln, log, log2, exp, sin, cos, tan, asin, acos, atan, atan2, sinh, cosh, tanh, min, max, pow, hypot, gcd, factorial, plus the constants pi and e and the postfix factorial operator !.',
+      title: 'Sine in degrees',
+      input: 'sin(90)',
+      options: { scientific: true, angleMode: 'degrees' },
     },
   ],
-  related: ['programmer-calculator', 'unit-convert', 'percentage'],
+  related: ['programmer-calculator', 'percentage-calculator', 'unit-convert'],
   status: 'stable',
 };

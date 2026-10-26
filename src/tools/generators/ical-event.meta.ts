@@ -66,15 +66,16 @@ export const meta: ToolMeta = {
         reminderMinutes: 1440,
       },
     },
-  ],
-  faq: [
     {
-      q: 'What timezone is used?',
-      a: 'Times are entered in your device’s local timezone and stored as UTC in the file (with TZID omitted), which is what most calendar apps expect for one-off events.',
-    },
-    {
-      q: 'How do I use the output?',
-      a: 'Save it as event.ics and double-click it, or paste the text into a .ics file. You can also host it and link to it from a website.',
+      title: 'Timed event with location and URL',
+      options: {
+        summary: 'Design review',
+        startDateTime: '2026-12-02 15:30',
+        endDateTime: '2026-12-02 16:15',
+        location: 'Room 4',
+        url: 'https://example.com/meet',
+        reminderMinutes: 15,
+      },
     },
   ],
   related: ['vcard', 'date-add', 'timezone-convert'],

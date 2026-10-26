@@ -7,6 +7,11 @@
  *     SEO and `getStaticPaths()` work at build time.
  *   - `.tool.ts` modules are left as lazy import factories, so a tool's code (and
  *     any heavy dependency it pulls in) only downloads when someone runs it.
+ *
+ * Hidden redirect aliases (a merged tool's old id, kept routable via
+ * `redirectTo`) need only their `.meta.ts`: the registry rewrites the route to
+ * the replacement before any implementation is imported. A visible tool still
+ * must ship a real `.tool.ts`.
  */
 
 import type { CategoryId, RegisteredTool, ToolMeta } from './types';
@@ -40,7 +45,11 @@ function build(): RegisteredTool[] {
       throw new Error(`${path} does not export "meta"`);
     }
     const load = loaders.get(toolKey(path));
-    if (!load) {
+    // Redirect aliases (and hidden metas) have no implementation of their own —
+    // the registry resolves them to a replacement before any load happens. A
+    // normal, visible tool must still ship a real `.tool.ts` module.
+    const isAlias = !!meta.redirectTo || !!meta.hidden;
+    if (!load && !isAlias) {
       throw new Error(`${path} has no matching ".tool.ts" implementation`);
     }
     if (seen.has(meta.id)) {
@@ -58,7 +67,18 @@ function build(): RegisteredTool[] {
       throw new Error(`Tool "${meta.id}" has unknown category "${meta.category}"`);
     }
     seen.add(meta.id);
-    tools.push({ meta, load: load as RegisteredTool['load'] });
+    // Aliases never reach a loader — they redirect to a replacement before any
+    // run happens — so a missing `.tool.ts` is fine. Give them a stub that fails
+    // loudly rather than a silent undefined dereference if one is ever invoked.
+    const loader =
+      load ??
+      (() =>
+        Promise.reject(
+          new Error(
+            `Tool "${meta.id}" is a redirect alias to "${meta.redirectTo ?? 'a replacement'}" and has no runnable implementation`,
+          ),
+        ));
+    tools.push({ meta, load: loader as RegisteredTool['load'] });
   }
 
   return tools.sort((a, b) => a.meta.name.localeCompare(b.meta.name));
@@ -132,6 +152,9 @@ export interface SearchEntry {
   href: string;
 }
 
+/** Deploy base path, without a trailing slash (the site must work at any base). */
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
+
 export const SEARCH_INDEX: SearchEntry[] = VISIBLE_TOOLS.map((t) => ({
   id: t.meta.id,
   name: t.meta.name,
@@ -139,7 +162,7 @@ export const SEARCH_INDEX: SearchEntry[] = VISIBLE_TOOLS.map((t) => ({
   category: t.meta.category,
   categoryName: CATEGORIES[t.meta.category].name,
   keywords: t.meta.keywords,
-  href: `/tools/${t.meta.id}`,
+  href: `${BASE}/tools/${t.meta.id}`,
 }));
 
 export const TOOL_COUNT = VISIBLE_TOOLS.length;

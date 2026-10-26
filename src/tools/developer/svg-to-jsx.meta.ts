@@ -67,23 +67,10 @@ export const meta: ToolMeta = {
       input:
         '<svg viewBox="0 0 10 10"><!-- dot --><circle cx="5" cy="5" r="4" style="fill: red; stroke-width: 2;"/></svg>',
     },
-  ],
-  faq: [
     {
-      q: 'Which attributes are renamed?',
-      a: 'class becomes className, for becomes htmlFor, xlink:/xml: prefixes become camelCase, and any hyphenated attribute is camelCased (stroke-width to strokeWidth). data-* and aria-* attributes are left exactly as written, and attributes without a dash such as viewBox keep their case.',
-    },
-    {
-      q: 'How are inline style strings handled?',
-      a: 'style="fill: red" becomes style={{fill: \'red\'}}. Values stay quoted strings on purpose — React would add px to bare numbers, which changes rendering.',
-    },
-    {
-      q: 'Is the whole SVG supported?',
-      a: 'The converter works on markup structure, so any element or attribute name survives the trip. Nested <style> and <script> content is emitted as a template-literal child, which is what JSX requires.',
-    },
-    {
-      q: 'Does it validate my SVG?',
-      a: 'No. It reformats markup; it does not check geometry, references, or accessibility. Use your editor for that.',
+      title: 'Plain JSX, no component wrapper',
+      input: '<svg viewBox="0 0 16 16"><path d="M0 0h16v16H0z"/></svg>',
+      options: { component: false, typescript: false },
     },
   ],
   related: ['svg-to-png', 'html-prettifier', 'json-to-typescript', 'html-to-markdown'],

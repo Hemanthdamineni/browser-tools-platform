@@ -47,19 +47,10 @@ export const meta: ToolMeta = {
   examples: [
     { title: 'Expand an abbreviated address', input: '2001:db8::1' },
     { title: 'Validate an IPv6 address', options: { mode: 'validate', lowercase: 'keep' } },
-  ],
-  faq: [
     {
-      q: 'What does expansion do?',
-      a: 'It inserts the missing hextets of 0000 until the address has the full 8 hextets, each with 4 hex digits.',
-    },
-    {
-      q: 'Is :: valid?',
-      a: 'Yes — :: may appear at most once, representing the run of zero hextets. At least twice is invalid.',
-    },
-    {
-      q: 'Can expansion reduce it again?',
-      a: 'Often yes; the compress mode re-applies the rules to shorten the form, though it may choose different zero suppression than a canonical compressor.',
+      title: 'Compress back to shorthand',
+      input: '2001:0db8:0000:0000:0000:0000:0000:0001',
+      options: { mode: 'compress' },
     },
   ],
   related: ['cidr-calculator', 'punycode'],

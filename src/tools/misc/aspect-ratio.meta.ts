@@ -61,6 +61,16 @@ export const meta: ToolMeta = {
       input: '',
       options: { mode: 'simplify', ratioW: 1920, ratioH: 1080 },
     },
+    {
+      title: 'Solve a height from a width',
+      input: '',
+      options: { mode: 'solve', ratioW: 16, ratioH: 9, knownWidth: 1280 },
+    },
+    {
+      title: 'Browse common resolutions',
+      input: '',
+      options: { mode: 'presets' },
+    },
   ],
   related: ['css-units', 'image-resize'],
   status: 'stable',

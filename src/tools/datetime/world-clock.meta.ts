@@ -38,19 +38,15 @@ export const meta: ToolMeta = {
       title: 'Core working zones',
       input: 'UTC\nAmerica/New_York\nEurope/London\nAsia/Kolkata\nAsia/Tokyo\nAustralia/Sydney',
     },
-  ],
-  faq: [
     {
-      q: 'Which zones can I use?',
-      a: 'Any IANA time zone name — the same list the OS uses: continent/city such as America/Los_Angeles, Europe/Paris, Asia/Singapore. Try entering nothing to get a sensible default set.',
+      title: 'Twelve hour clock for one city',
+      input: 'Asia/Singapore',
+      options: { hour12: true },
     },
     {
-      q: 'What do the offsets mean?',
-      a: 'The offset of each zone relative to UTC at this instant (+05:30 for India, -05:00 for New York). It updates automatically for daylight saving since it is computed from the current time.',
-    },
-    {
-      q: 'Is the clock live?',
-      a: 'It computes the time when you run it. Times are accurate to the second at that moment — refresh to update.',
+      title: 'Offset only view',
+      input: 'UTC\nEurope/Berlin',
+      options: { showDate: false },
     },
   ],
   related: ['timezone-convert', 'timestamp', 'recurrence-dates', 'date-diff'],

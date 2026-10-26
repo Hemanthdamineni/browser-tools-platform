@@ -1,0 +1,237 @@
+---
+/**
+ * The signature maker panel.
+ *
+ * A drawing pad and a typed-name form, with a live preview and transparent
+ * SVG / PNG export. It replaces the generic text workbench for this tool.
+ *
+ * The behaviour lives in `./signature-maker-panel` and is loaded on demand, so
+ * the pad code only ships with this page.
+ */
+import type { ToolMeta } from '@/lib/types';
+import Icon from '@/components/Icon.astro';
+
+interface Props {
+  meta: ToolMeta;
+}
+const { meta } = Astro.props;
+const id = meta.id;
+const headingId = `${id}-heading`;
+const p = id;
+const styles = [
+  { value: 'script', label: 'Script' },
+  { value: 'classic', label: 'Classic' },
+  { value: 'modern', label: 'Modern' },
+  { value: 'mono', label: 'Typewriter' },
+];
+const colors = [
+  { value: '#111827', label: 'Black' },
+  { value: '#1d4ed8', label: 'Blue' },
+  { value: '#b91c1c', label: 'Red' },
+  { value: '#047857', label: 'Green' },
+];
+---
+
+<section
+  class="surface rounded-lg p-4 sm:p-6"
+  data-sm-panel-root
+  data-tool-id={meta.id}
+  aria-labelledby={headingId}
+>
+  <div class="flex flex-wrap items-center gap-2">
+    <h2
+      id={headingId}
+      class="flex items-center gap-2 text-base font-semibold text-[rgb(var(--text))]"
+    >
+      <Icon name="type" size={18} /> Signature maker
+    </h2>
+  </div>
+  <p class="mt-1.5 max-w-prose text-sm leading-relaxed text-[rgb(var(--text-muted))]">
+    Draw your signature with a mouse, finger or stylus, or type a name in a cursive style. Then
+    download it as a transparent PNG or SVG. Nothing leaves this tab.
+  </p>
+
+  <div role="tablist" aria-label="Signature source" class="mt-4 flex flex-wrap gap-1" data-sm-tabs>
+    <button
+      type="button"
+      role="tab"
+      id={`${p}-tab-draw`}
+      aria-controls={`${p}-panel-draw`}
+      aria-selected="true"
+      data-sm-tab="draw"
+      class="btn btn-subtle btn-sm"
+    >
+      Draw
+    </button>
+    <button
+      type="button"
+      role="tab"
+      id={`${p}-tab-type`}
+      aria-controls={`${p}-panel-type`}
+      aria-selected="false"
+      tabindex="-1"
+      data-sm-tab="type"
+      class="btn btn-subtle btn-sm"
+    >
+      Type
+    </button>
+  </div>
+
+  <div class="mt-3 grid gap-5 lg:grid-cols-[1.4fr_1fr]">
+    <div>
+      <div
+        role="tabpanel"
+        id={`${p}-panel-draw`}
+        aria-labelledby={`${p}-tab-draw`}
+        data-sm-panel="draw"
+      >
+        <canvas
+          data-sm-canvas
+          class="block w-full cursor-crosshair rounded-lg border bg-white"
+          style="aspect-ratio: 10 / 3; touch-action: none"
+          aria-label="Signature drawing pad. Draw your signature here with a mouse, finger or stylus."
+          role="img"
+        >
+        </canvas>
+        <div class="mt-2 flex flex-wrap items-center gap-3">
+          <button type="button" class="btn btn-ghost btn-sm" data-sm-clear>Clear pad</button>
+          <div class="flex items-center gap-2">
+            <label class="text-xs font-medium" for={`${p}-stroke`}>Stroke</label>
+            <input
+              id={`${p}-stroke`}
+              type="range"
+              min="1"
+              max="12"
+              step="1"
+              value="3"
+              data-sm-stroke
+            />
+            <span class="text-xs tabular-nums text-[rgb(var(--text-muted))]" data-sm-stroke-out>
+              3 px
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div
+        role="tabpanel"
+        id={`${p}-panel-type`}
+        aria-labelledby={`${p}-tab-type`}
+        data-sm-panel="type"
+        hidden
+      >
+        <div class="grid gap-3 sm:grid-cols-2">
+          <div class="sm:col-span-2">
+            <label class="text-xs font-medium" for={`${p}-name`}>Your name</label>
+            <input
+              class="field mt-1"
+              id={`${p}-name`}
+              type="text"
+              data-sm-name
+              placeholder="e.g. Ada Lovelace"
+              autocomplete="off"
+            />
+          </div>
+          <div>
+            <label class="text-xs font-medium" for={`${p}-style`}>Style</label>
+            <select class="field mt-1" id={`${p}-style`} data-sm-style>
+              {styles.map((style) => <option value={style.value}>{style.label}</option>)}
+            </select>
+          </div>
+          <div>
+            <label class="text-xs font-medium" for={`${p}-size`}>Font size</label>
+            <div class="mt-1 flex items-center gap-2">
+              <input
+                id={`${p}-size`}
+                type="range"
+                min="48"
+                max="360"
+                step="6"
+                value="180"
+                data-sm-size
+              />
+              <span class="text-xs tabular-nums text-[rgb(var(--text-muted))]" data-sm-size-out>
+                180 px
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4 flex items-center gap-2">
+        <label class="text-xs font-medium" for={`${p}-color`}>Ink</label>
+        <select class="field !w-40" id={`${p}-color`} data-sm-color>
+          {colors.map((color) => <option value={color.value}>{color.label}</option>)}
+        </select>
+      </div>
+    </div>
+
+    <div class="rounded-lg border p-3">
+      <h3 class="text-sm font-semibold text-[rgb(var(--text))]">Preview</h3>
+      <div class="mt-2 flex min-h-32 items-center justify-center rounded-lg border bg-white p-3">
+        <img data-sm-preview alt="Preview of your signature" class="max-h-32 w-auto" hidden />
+        <p class="text-xs text-[rgb(var(--text-muted))]" data-sm-preview-empty>
+          Your signature will appear here.
+        </p>
+      </div>
+
+      <div class="mt-3 flex flex-wrap gap-2">
+        <button type="button" class="btn btn-primary btn-sm" data-sm-download-svg disabled>
+          <Icon name="download" size={15} /> SVG
+        </button>
+        <button type="button" class="btn btn-subtle btn-sm" data-sm-download-png disabled>
+          <Icon name="download" size={15} /> PNG
+        </button>
+      </div>
+
+      <p
+        class="mt-2 text-xs leading-relaxed text-[rgb(var(--text-muted))]"
+        data-sm-status
+        role="status"
+      >
+        Draw your signature on the pad above.
+      </p>
+    </div>
+  </div>
+
+  <div
+    class="mt-4 rounded-lg border px-3 py-2 text-sm"
+    style="background-color: rgb(var(--danger-soft)); border-color: rgb(var(--danger)); color: rgb(var(--danger))"
+    role="alert"
+    data-sm-error
+    hidden
+  >
+  </div>
+
+  <noscript>
+    <p class="mt-4 text-sm text-[rgb(var(--text-muted))]">
+      The signature pad needs JavaScript. The page itself works without it.
+    </p>
+  </noscript>
+</section>
+
+<style>
+  canvas[data-sm-canvas] {
+    max-height: 22rem;
+  }
+
+  input[type='range'] {
+    accent-color: rgb(var(--accent));
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-sm-panel-root]').forEach((root) => {
+    // The pad logic is loaded on demand so no drawing code ships to pages that
+    // do not make a signature.
+    void import('./signature-maker-panel')
+      .then(({ mountSignatureMakerPanel }) => mountSignatureMakerPanel(root))
+      .catch(() => {
+        const error = root.querySelector<HTMLElement>('[data-sm-error]');
+        if (error) {
+          error.hidden = false;
+          error.textContent = 'The signature pad could not be loaded in this browser.';
+        }
+      });
+  });
+</script>

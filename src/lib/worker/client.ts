@@ -1,6 +1,5 @@
-import type { RegisteredTool } from '../types';
+import type { RegisteredTool, ToolModule } from '../types';
 import { capabilities } from '../capabilities';
-import { getTool } from '../registry';
 
 export interface RunOptions {
   signal?: AbortSignal;
@@ -8,6 +7,29 @@ export interface RunOptions {
 }
 
 let worker: Worker | null = null;
+
+/**
+ * Lazy loaders for every tool implementation. The client never imports the
+ * eager meta registry — `src/lib/registry.ts` is build-time only — so a tool
+ * page downloads just its own code when it runs, and the entry chunk carries
+ * no tool metadata at all.
+ */
+const toolLoaders = import.meta.glob<{ default: ToolModule }>('../../tools/**/*.tool.ts');
+
+function findLoader(toolId: string): (() => Promise<{ default: ToolModule }>) | undefined {
+  const suffix = `/${toolId}.tool.ts`;
+  for (const [key, loader] of Object.entries(toolLoaders)) {
+    if (key.endsWith(suffix)) return loader;
+  }
+  return undefined;
+}
+
+/** Load a tool implementation without running it. */
+export async function loadToolModule(toolId: string): Promise<ToolModule> {
+  const loader = findLoader(toolId);
+  if (!loader) throw new Error(`Unknown tool: ${toolId}`);
+  return (await loader()).default;
+}
 
 function getWorker(): Worker {
   if (!worker) {
@@ -95,9 +117,18 @@ export async function runToolById<T>(
   payload: Record<string, unknown>,
   opts: RunOptions = {},
 ): Promise<T> {
-  const tool = getTool(id);
-  if (!tool) throw new Error(`Unknown tool: ${id}`);
-  return runTool<T>(tool, payload, opts);
+  const mod = await loadToolModule(id);
+  const useWorker = mod.meta.worker ?? mod.meta.input === 'file';
+
+  if (useWorker && capabilities.workers) {
+    return runInWorker<T>(id, payload, opts);
+  }
+
+  return (await mod.run({
+    ...payload,
+    signal: opts.signal,
+    onProgress: opts.onProgress,
+  } as never)) as T;
 }
 
 export function disposeWorker(): void {

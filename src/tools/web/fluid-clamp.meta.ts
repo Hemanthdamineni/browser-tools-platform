@@ -82,19 +82,16 @@ export const meta: ToolMeta = {
         property: 'padding-block',
       },
     },
-  ],
-  faq: [
     {
-      q: 'What does the generated clamp do?',
-      a: 'It keeps the value at or above the minimum, scales linearly with viewport width between the chosen breakpoints, and caps it at the maximum.',
-    },
-    {
-      q: 'Does the rem calculation assume a 16px root size?',
-      a: 'The root font size is configurable and defaults to 16px. The generated CSS uses rem bounds and a viewport-width slope calculated against that root size.',
-    },
-    {
-      q: 'Is the formula exact at both viewport bounds?',
-      a: 'Yes, modulo the selected decimal precision. The computed preferred value equals the minimum at the minimum viewport and the maximum at the maximum viewport.',
+      title: 'Fluid container width in px',
+      options: {
+        minValue: 320,
+        maxValue: 1200,
+        minViewport: 400,
+        maxViewport: 1600,
+        unit: 'px',
+        property: 'max-width',
+      },
     },
   ],
   related: ['css-units', 'aspect-ratio', 'color-contrast'],

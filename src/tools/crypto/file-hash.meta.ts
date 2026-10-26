@@ -34,14 +34,21 @@ export const meta: ToolMeta = {
       placeholder: 'paste a checksum to verify against',
     },
   ],
-  faq: [
+  examples: [
     {
-      q: 'Why is MD5 not offered?',
-      a: 'The Web Crypto API in browsers does not implement MD5, and it is unsuitable for integrity checks anyway. Use SHA-256 or stronger. A separate text MD5 tool exists for legacy interoperability.',
+      title: 'SHA-256 a file',
+      options: { algorithm: 'SHA-256' },
     },
     {
-      q: 'How large a file can it handle?',
-      a: 'Hashing runs in a Web Worker so the page stays responsive. The browser Web Crypto API needs the whole file in memory at once, so the practical limit is roughly your device’s free RAM (comfortably hundreds of MB). True multi-gigabyte streaming is on the roadmap.',
+      title: 'Verify against a published checksum',
+      options: {
+        algorithm: 'SHA-256',
+        expected: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+      },
+    },
+    {
+      title: 'Hash with the stronger SHA-512',
+      options: { algorithm: 'SHA-512' },
     },
   ],
   related: ['hash', 'hmac', 'crc32'],

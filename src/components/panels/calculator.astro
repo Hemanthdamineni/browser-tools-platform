@@ -1,0 +1,193 @@
+---
+/**
+ * The calculator keypad panel.
+ *
+ * The generic text workbench cannot express a tap-able keypad with a scientific
+ * row and a memory register, so the tool opts into this panel via
+ * `meta.panel = 'calculator'`. The expression parser lives in
+ * `src/tools/misc/calculator.core.ts`; the keypad logic lives in
+ * `calculator-panel.ts`, which the `<script>` below loads lazily.
+ */
+import type { ToolMeta } from '@/lib/types';
+import Icon from '@/components/Icon.astro';
+
+interface Props {
+  meta: ToolMeta;
+}
+const { meta } = Astro.props;
+const p = meta.id;
+const examples = meta.examples ?? [];
+const scientificDefault = meta.options?.find((o) => o.key === 'scientific')?.default === true;
+---
+
+<section
+  class="surface rounded-lg p-4 sm:p-6"
+  data-calculator-panel
+  data-tool-id={meta.id}
+  aria-labelledby={`${p}-heading`}
+>
+  <h2
+    id={`${p}-heading`}
+    class="flex items-center gap-2 text-base font-semibold text-[rgb(var(--text))]"
+  >
+    <Icon name="calculator" size={18} /> Expression calculator
+  </h2>
+  <p class="mt-1.5 max-w-prose text-sm leading-relaxed text-[rgb(var(--text-muted))]">
+    Type an expression — or tap it on the keypad. Everything is evaluated on this device with a safe
+    parser; <span class="font-mono text-xs">eval</span> is never used.
+  </p>
+
+  {
+    examples.length > 0 && (
+      <div class="mt-3 flex flex-wrap items-center gap-1.5" data-example-row>
+        <span class="text-xs text-[rgb(var(--text-muted))]">Try:</span>
+        {examples.map((example) => (
+          <button
+            type="button"
+            class="chip"
+            data-example
+            data-example-entry={example.input ?? ''}
+            data-example-options={example.options ? JSON.stringify(example.options) : undefined}
+          >
+            {example.title}
+          </button>
+        ))}
+      </div>
+    )
+  }
+
+  <!-- Expression + memory indicator -->
+  <div class="mt-4">
+    <div class="mb-1.5 flex items-center justify-between">
+      <label class="text-sm font-medium text-[rgb(var(--text))]" for={`${p}-expression`}>
+        Expression
+      </label>
+      <span
+        class="rounded px-1.5 py-0.5 text-xs font-semibold text-[rgb(var(--accent))]"
+        style="background-color: rgb(var(--bg-subtle))"
+        data-memory-badge
+        title="A value is stored in memory"
+        hidden></span>
+    </div>
+    <input
+      id={`${p}-expression`}
+      type="text"
+      class="field font-mono text-base"
+      placeholder="2 + 3 * 4"
+      autocomplete="off"
+      autocapitalize="off"
+      spellcheck="false"
+      inputmode="text"
+      data-expression
+    />
+  </div>
+
+  <!-- Memory row -->
+  <div class="mt-3 flex flex-wrap gap-1.5" role="group" aria-label="Memory">
+    <button type="button" class="btn btn-subtle btn-sm" data-memory-key="mc" title="Clear memory">
+      MC
+    </button>
+    <button type="button" class="btn btn-subtle btn-sm" data-memory-key="mr" title="Recall memory">
+      MR
+    </button>
+    <button
+      type="button"
+      class="btn btn-subtle btn-sm"
+      data-memory-key="m+"
+      title="Add the result to memory"
+    >
+      M+
+    </button>
+    <button
+      type="button"
+      class="btn btn-subtle btn-sm"
+      data-memory-key="m-"
+      title="Subtract the result from memory"
+    >
+      M−
+    </button>
+  </div>
+
+  <!-- Scientific row (hidden until the toggle is on) -->
+  <div class="mt-4" data-scientific-row hidden={!scientificDefault}>
+    <p class="mb-1.5 text-xs font-medium text-[rgb(var(--text-muted))]">Scientific</p>
+    <div class="grid grid-cols-4 gap-1.5 sm:grid-cols-6" data-scientific-keys></div>
+  </div>
+
+  <!-- Basic keypad -->
+  <div class="mt-4 grid grid-cols-4 gap-1.5" data-basic-keys></div>
+
+  <div class="mt-3">
+    <button type="button" class="btn btn-primary w-full" data-eq>
+      <Icon name="check" size={16} /> Evaluate
+    </button>
+  </div>
+
+  <!-- Options -->
+  <div class="mt-4 grid gap-3 rounded-lg border p-3 sm:grid-cols-3">
+    <label class="flex cursor-pointer items-center gap-2.5 text-sm md:col-span-3">
+      <input type="checkbox" class="h-4 w-4" data-scientific checked={scientificDefault} />
+      <span class="text-[rgb(var(--text))]">Scientific keypad</span>
+    </label>
+    <div class="flex flex-col gap-1">
+      <label class="text-xs font-medium text-[rgb(var(--text-muted))]" for={`${p}-angle`}>
+        Angle mode
+      </label>
+      <select id={`${p}-angle`} class="field" data-angle-mode>
+        <option value="radians" selected>Radians</option>
+        <option value="degrees">Degrees</option>
+      </select>
+    </div>
+    <div class="flex flex-col gap-1">
+      <label class="text-xs font-medium text-[rgb(var(--text-muted))]" for={`${p}-precision`}>
+        Decimal places
+      </label>
+      <input
+        id={`${p}-precision`}
+        type="number"
+        class="field"
+        min="0"
+        max="15"
+        step="1"
+        value="10"
+        data-precision
+      />
+    </div>
+  </div>
+
+  <div
+    class="mt-4 rounded-lg border px-3 py-2 text-sm"
+    style="background-color: rgb(var(--danger-soft)); border-color: rgb(var(--danger)); color: rgb(var(--danger))"
+    role="alert"
+    data-error
+    hidden
+  >
+  </div>
+
+  <div class="mt-4" hidden data-result-wrap>
+    <span class="text-sm font-semibold text-[rgb(var(--text))]">Result</span>
+    <div class="mt-2" data-output></div>
+    <ul class="mt-2 space-y-1 text-xs" data-notes></ul>
+  </div>
+
+  <noscript>
+    <p class="mt-3 text-sm text-[rgb(var(--text-muted))]">
+      The keypad needs JavaScript. The expression parser and the tool are still available with it
+      disabled on the unified text workbench.
+    </p>
+  </noscript>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-calculator-panel]').forEach((root) => {
+    void import('./calculator-panel')
+      .then(({ mountCalculatorPanel }) => mountCalculatorPanel(root))
+      .catch(() => {
+        const error = root.querySelector<HTMLElement>('[data-error]');
+        if (error) {
+          error.hidden = false;
+          error.textContent = 'The calculator keypad could not be loaded in this browser.';
+        }
+      });
+  });
+</script>

@@ -75,7 +75,9 @@ async function chooseFile(root: HTMLElement, file: File, expectStage = true): Pr
 }
 
 /** The rectangles currently stored in the options field. */
-function fieldRegions(root: HTMLElement): { x: number; y: number; w: number; h: number; effect?: string }[] {
+function fieldRegions(
+  root: HTMLElement,
+): { x: number; y: number; w: number; h: number; effect?: string }[] {
   return JSON.parse(root.querySelector<HTMLTextAreaElement>('[data-opt-key="regions"]')!.value);
 }
 
@@ -286,7 +288,10 @@ describe('mountImageBlurRedactPanel', () => {
     const [toolId, recordedPayload, runOptions] = runToolByIdMock.mock.calls[0]!;
     expect(toolId).toBe('image-blur-redact');
     // `runToolById` is generic over its payload, so narrow the recorded call once.
-    const { files, options } = recordedPayload as { files: File[]; options: Record<string, unknown> };
+    const { files, options } = recordedPayload as {
+      files: File[];
+      options: Record<string, unknown>;
+    };
     expect(JSON.parse(String(options.regions))).toEqual([{ x: 30, y: 40, w: 41, h: 21 }]);
     expect(options.effect).toBe('pixelate');
     expect(options.radius).toBe(24);
@@ -313,7 +318,9 @@ describe('mountImageBlurRedactPanel', () => {
       expect(root.querySelector<HTMLElement>('[data-error]')!.hidden).toBe(false);
     });
 
-    expect(root.querySelector('[data-error]')!.textContent).toContain('Draw at least one rectangle.');
+    expect(root.querySelector('[data-error]')!.textContent).toContain(
+      'Draw at least one rectangle.',
+    );
     expect(root.querySelector<HTMLElement>('[data-result-wrap]')!.hidden).toBe(true);
   });
 
@@ -357,7 +364,9 @@ describe('mountImageBlurRedactPanel', () => {
     await vi.waitFor(() => {
       expect(root.querySelector<HTMLElement>('[data-error]')!.hidden).toBe(false);
     });
-    expect(root.querySelector<HTMLElement>('[data-error]')!.textContent).toMatch(/could not be shown/i);
+    expect(root.querySelector<HTMLElement>('[data-error]')!.textContent).toMatch(
+      /could not be shown/i,
+    );
     expect(root.querySelector<HTMLElement>('[data-stage-wrap]')!.hidden).toBe(true);
   });
 });

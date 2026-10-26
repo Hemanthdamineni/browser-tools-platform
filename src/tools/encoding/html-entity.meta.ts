@@ -48,25 +48,12 @@ export const meta: ToolMeta = {
       title: 'Decode',
       input: 'Tom &amp; Jerry &mdash; caf&eacute; &#169;',
     },
-  ],
-  faq: [
     {
-      q: 'When is auto-detect used?',
-      a: 'If the text contains &-entities such as &amp;, &#65; or &eacute;, it decodes; if it contains raw <, > or & it encodes. Force a direction with the mode option when a string has both.',
-    },
-    {
-      q: 'What does Encode do exactly?',
-      a: 'Replaces & < > " and \' with their named entities, and apostrophes/quotes as configured. With "Encode all printable non-ASCII" it also turns é, ≤ and similar into numeric entities — handy when the target charset is ASCII-only.',
-    },
-    {
-      q: 'Which entities can be decoded?',
-      a: 'All named HTML4 entities (&amp;, &copy;, &eacute;, &nbsp; and the rest), numeric decimal and hexadecimal forms (&#169;, &#x00A9;), and any HTML5 entity. Unknown fragments are left untouched.',
-    },
-    {
-      q: 'Is the result valid to paste anywhere?',
-      a: 'The encode output is valid HTML text. The decode output is always plain text. Both are safe to copy into any editor.',
+      title: 'Force encoding of a mixed string',
+      input: '5 < 6 & 7 > 4',
+      options: { mode: 'encode' },
     },
   ],
-  related: ['unicode-escape', 'url-encode', 'json-escape', 'string-escape'],
+  related: ['unicode-normalize', 'url-encode', 'text-to-binary', 'string-escape'],
   status: 'stable',
 };

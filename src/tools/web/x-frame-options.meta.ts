@@ -43,20 +43,7 @@ export const meta: ToolMeta = {
   examples: [
     { title: 'Analyze framing behavior', input: 'SAMEORIGIN' },
     { title: 'Build a strict frame policy', options: { mode: 'build', value: 'DENY' } },
-  ],
-  faq: [
-    {
-      q: 'What does X-Frame-Options do?',
-      a: 'It tells the browser whether the page may be framed, helping prevent clickjacking attacks where a page is embedded in a malicious overlay.',
-    },
-    {
-      q: 'What is the deprecated ALLOW-FROM?',
-      a: 'ALLOW-FROM was removed from browsers because it was hard to implement safely; use the CSP frame-ancestors directive instead.',
-    },
-    {
-      q: 'Should I still use XFO?',
-      a: 'Browsers that support CSP ignore XFO when frame-ancestors is present. Use frame-ancestors for modern control and XFO for older clients that do not support CSP.',
-    },
+    { title: 'Inspect an ALLOW-FROM value', input: 'ALLOW-FROM https://example.com' },
   ],
   related: ['security-headers', 'content-security-policy', 'permissions-policy'],
   status: 'stable',

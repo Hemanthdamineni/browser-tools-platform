@@ -43,19 +43,10 @@ export const meta: ToolMeta = {
       input: '{"server":{"host":"localhost","port":8080}}',
       options: { mode: 'to-toml' },
     },
-  ],
-  faq: [
     {
-      q: 'Is any data uploaded?',
-      a: 'No. Parsing and serialization happen inside your browser tab.',
-    },
-    {
-      q: 'Does it support date-time values?',
-      a: 'Yes — offset date-times, local date-times, local dates and local times are recognized and kept as their original string form.',
-    },
-    {
-      q: 'What about null in JSON?',
-      a: 'TOML has no null. Keys whose value is null are omitted when serializing, and the result reports how many were skipped.',
+      title: 'Arrays of tables both ways',
+      input: '{"products":[{"name":"bolt","price":0.5},{"name":"nut","price":0.2}]}',
+      options: { mode: 'to-toml' },
     },
   ],
   related: ['yaml-to-json', 'json-to-yaml', 'dotenv'],

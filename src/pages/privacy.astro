@@ -5,6 +5,8 @@ import { site } from '@/lib/site';
 
 const withNetwork = VISIBLE_TOOLS.filter((t) => t.meta.privacy.network !== 'none');
 const total = VISIBLE_TOOLS.length;
+// Link paths must honour the deploy base (e.g. /browser-tools-platform on GitHub Pages).
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 
 <Layout
@@ -33,6 +35,27 @@ const total = VISIBLE_TOOLS.length;
       </li>
       <li>No web fonts or CDNs. Every asset is served from this origin.</li>
     </ul>
+
+    <h2>What stays on your device</h2>
+    <p>
+      Everything below is opt-in and written only to this browser's <code>localStorage</code> or the URL
+      — never sent anywhere:
+    </p>
+    <ul>
+      <li>
+        <strong>Remember input</strong>: a per-tool checkbox. When ticked, your last pasted text and
+        option choices for that tool are saved on this device so they come back the next visit.
+      </li>
+      <li>
+        <strong>Copy link</strong>: a button that puts your current text and options into the URL
+        (an encoded fragment). Anyone with that link sees the same input in their own browser — no
+        copy ever reaches a server.
+      </li>
+    </ul>
+    <p>
+      Clearing your browser's site data erases both. There is no account, so there is nothing to
+      reset remotely.
+    </p>
 
     <h2>How you can verify it</h2>
     <ul>
@@ -72,7 +95,7 @@ const total = VISIBLE_TOOLS.length;
               {withNetwork.map((t) => (
                 <tr>
                   <td>
-                    <a href={`/tools/${t.meta.id}`}>{t.meta.name}</a>
+                    <a href={`${base}/tools/${t.meta.id}`}>{t.meta.name}</a>
                   </td>
                   <td>{(t.meta.privacy.network as string[]).join(', ')}</td>
                 </tr>

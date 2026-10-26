@@ -66,7 +66,10 @@ function fakeSource(
 }
 
 /** N chunks of `frames` frames of stereo silence at 48 kHz. */
-function stereoChunks(count: number, frames = 480): { channels: Float32Array[]; sampleRate: number }[] {
+function stereoChunks(
+  count: number,
+  frames = 480,
+): { channels: Float32Array[]; sampleRate: number }[] {
   return Array.from({ length: count }, () => ({
     channels: [new Float32Array(frames), new Float32Array(frames)],
     sampleRate: 48_000,
@@ -139,10 +142,7 @@ describe('resolveExtractSettings', () => {
 
   it('passes the source sample rate through unchanged (no resampling)', () => {
     for (const rate of [8_000, 22_050, 44_100, 96_000]) {
-      const settings = resolveExtractSettings(
-        {},
-        source({ sampleRate: rate, durationSeconds: 1 }),
-      );
+      const settings = resolveExtractSettings({}, source({ sampleRate: rate, durationSeconds: 1 }));
       // The estimate is built from the source rate verbatim.
       expect(settings.estimatedBytes).toBe(44 + rate * 2 * 2);
     }
@@ -189,9 +189,9 @@ describe('resolveExtractSettings', () => {
     expect(() =>
       resolveExtractSettings({}, source({ durationSeconds: EXTRACT_MAX_DURATION_SECONDS + 1 })),
     ).toThrow(/longer than the 60 minute limit/i);
-    expect(() =>
-      resolveExtractSettings({}, source({ durationSeconds: -1 })),
-    ).toThrow(/invalid duration/i);
+    expect(() => resolveExtractSettings({}, source({ durationSeconds: -1 }))).toThrow(
+      /invalid duration/i,
+    );
   });
 
   it('warns about a long clip and a length it cannot read', () => {
@@ -423,7 +423,7 @@ describe('video-extract-audio meta', () => {
       'MPL-2.0',
     );
     expect(tool.meta.related).toContain('video-compress');
-    expect(tool.meta.related).toContain('audio-to-wav');
+    expect(tool.meta.related).toContain('audio-convert');
   });
 });
 
@@ -453,7 +453,11 @@ describe('extractWav', () => {
   it('carries real sample values through the writer', async () => {
     const left = new Float32Array([0.5]);
     const right = new Float32Array([-0.5]);
-    const result = await extractWav(fakeSource({}, [{ channels: [left, right], sampleRate: 44_100 }]), settings(), {});
+    const result = await extractWav(
+      fakeSource({}, [{ channels: [left, right], sampleRate: 44_100 }]),
+      settings(),
+      {},
+    );
     const view = new DataView(result.bytes.buffer, 44);
     expect(view.getInt16(0, true)).toBeCloseTo(16_384, 0);
     expect(view.getInt16(2, true)).toBeCloseTo(-16_384, 0);
@@ -486,15 +490,12 @@ describe('extractWav', () => {
 
   it('passes a mono request through with one channel', async () => {
     const result = await extractWav(
-      fakeSource(
-        {},
-        [
-          {
-            channels: [new Float32Array([0.1]), new Float32Array([0.3])],
-            sampleRate: 48_000,
-          },
-        ],
-      ),
+      fakeSource({}, [
+        {
+          channels: [new Float32Array([0.1]), new Float32Array([0.3])],
+          sampleRate: 48_000,
+        },
+      ]),
       settings({ channels: 'mono' }),
       {},
     );
@@ -564,7 +565,10 @@ describe('runVideoExtractAudio', () => {
     const deps: ExtractDeps = {
       open: async () => fakeSource({ durationSeconds: 1, sampleRate: 48_000 }, stereoChunks(100)),
     };
-    const result = await runVideoExtractAudio({ files: [file('road trip.mp4')], options: {} }, deps);
+    const result = await runVideoExtractAudio(
+      { files: [file('road trip.mp4')], options: {} },
+      deps,
+    );
 
     expect(result.outputs).toHaveLength(1);
     expect(result.outputs[0]!.filename).toBe('road trip-audio.wav');
@@ -674,10 +678,7 @@ describe('runVideoExtractAudio', () => {
     controller.abort();
     const deps: ExtractDeps = { open: async () => fakeSource() };
     await expect(
-      runVideoExtractAudio(
-        { files: [file()], options: {}, signal: controller.signal },
-        deps,
-      ),
+      runVideoExtractAudio({ files: [file()], options: {}, signal: controller.signal }, deps),
     ).rejects.toMatchObject({ name: 'AbortError' });
   });
 
@@ -794,10 +795,7 @@ describe('the fake engine end to end', () => {
                 const ch = chunk.channels[options.planeIndex];
                 return (ch?.length ?? 0) * 4;
               },
-              copyTo(
-                destination: Uint8Array,
-                options: { planeIndex: number },
-              ) {
+              copyTo(destination: Uint8Array, options: { planeIndex: number }) {
                 if (this.closed) throw new Error('AudioSample is closed.');
                 const ch = chunk.channels[options.planeIndex];
                 destination.set(new Uint8Array((ch ?? new Float32Array()).buffer));
@@ -868,12 +866,7 @@ describe('the fake engine end to end', () => {
     };
     Object.defineProperty(engine, 'getFirstEncodableAudioCodec', { value: query });
     await expect(
-      extractEncoded(
-        file(),
-        resolveExtractSettings({ format: 'mp3' }, source()),
-        {},
-        engine,
-      ),
+      extractEncoded(file(), resolveExtractSettings({ format: 'mp3' }, source()), {}, engine),
     ).rejects.toThrow(/cannot encode MP3/i);
     expect(checked).toEqual([['mp3']]);
   });

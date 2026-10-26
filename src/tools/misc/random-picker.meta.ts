@@ -65,11 +65,15 @@ export const meta: ToolMeta = {
       input: 'Alex\nBlair\nCasey\nDrew',
       options: { mode: 'teams', teamCount: 2 },
     },
-  ],
-  faq: [
     {
-      q: 'How are random entries chosen?',
-      a: 'The browser cryptographic random number generator is used for each selection and shuffle step. Picks are without replacement by default.',
+      title: 'Draw a single winner',
+      input: 'Ana\nBo\nCy',
+      options: { mode: 'pick', pickCount: 1 },
+    },
+    {
+      title: 'Random speaking order',
+      input: 'Ari\nBea\nCal\nDot',
+      options: { mode: 'order' },
     },
   ],
   related: ['random-string', 'random-data', 'sort-lines'],

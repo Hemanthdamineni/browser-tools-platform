@@ -46,6 +46,10 @@ export const meta: ToolMeta = {
   examples: [
     { title: '120 BPM, 4/4, 4 bars', options: { bpm: 120, bars: 4, beatsPerBar: 4 } },
     { title: 'Waltz, 3/4', options: { bpm: 100, beatsPerBar: 3 } },
+    {
+      title: 'Fast 48 kHz track, bright click',
+      options: { bpm: 180, bars: 16, sampleRate: '48000', clickHz: 2000, accentHz: 3000 },
+    },
   ],
   related: ['tone-generator'],
   status: 'stable',

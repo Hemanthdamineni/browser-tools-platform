@@ -53,11 +53,9 @@ export const meta: ToolMeta = {
       input: 'Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==',
       options: { mode: 'decode' },
     },
-  ],
-  faq: [
     {
-      q: 'Where does the header go?',
-      a: 'Send it as a plain HTTP header: Authorization: Basic <token>. The browser or HTTP client attaches it to every request; it never touches this page once you copy it.',
+      title: 'Build with non-ASCII credentials',
+      options: { mode: 'build', username: 'josé', password: 'pässwörd' },
     },
   ],
   related: ['url-parse', 'jwt-decode', 'base64'],

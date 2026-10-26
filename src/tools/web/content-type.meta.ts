@@ -42,19 +42,14 @@ export const meta: ToolMeta = {
       title: 'Parse multipart form data',
       input: 'multipart/form-data; boundary="----formBoundary7MA4YWxkTrZu0gW"',
     },
-  ],
-  faq: [
     {
-      q: 'Should JSON include a charset?',
-      a: 'UTF-8 is the standard encoding for JSON, and many APIs send application/json without a charset. Either form is commonly accepted.',
-    },
-    {
-      q: 'Why does multipart need a boundary?',
-      a: 'The boundary separates parts in the body. The server must use the same boundary value in the body delimiters.',
-    },
-    {
-      q: 'Does this inspect the body encoding?',
-      a: 'No. It only parses or builds the header value and cannot infer how an external body was actually encoded.',
+      title: 'Build a multipart boundary header',
+      options: {
+        mode: 'build',
+        mediaType: 'multipart/form-data',
+        charset: '',
+        boundary: '----formBoundaryABC123',
+      },
     },
   ],
   related: ['mime-lookup', 'http-range', 'quoted-printable'],

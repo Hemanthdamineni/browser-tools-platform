@@ -62,21 +62,12 @@ export const meta: ToolMeta = {
       input: '01001000 01101001',
       options: { mode: 'decode' },
     },
-  ],
-  faq: [
     {
-      q: 'How are non-ASCII characters handled?',
-      a: 'Text is encoded to UTF-8 bytes first, so é, 中, emoji and every other character becomes its own sequence of 8-bit groups. Decoding groups the bits back into the same UTF-8 bytes.',
-    },
-    {
-      q: 'What if my binary string has the wrong length?',
-      a: 'Decoding needs a whole number of bytes. If the input is not a multiple of 8 bits, you get a clear error with the length that would be valid instead of a silently corrupt result.',
-    },
-    {
-      q: 'Can I include spaces or newlines in binary input?',
-      a: 'Yes — spaces, tabs and newlines between blocks of 0s and 1s are ignored, so you can paste formatted output directly.',
+      title: 'Encode with nibble grouping',
+      input: 'OK',
+      options: { mode: 'encode', groupBy: '4' },
     },
   ],
-  related: ['hex', 'base64', 'ascii85', 'unicode-escape'],
+  related: ['hex', 'base64', 'ascii85', 'unicode-normalize'],
   status: 'stable',
 };

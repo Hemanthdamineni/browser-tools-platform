@@ -43,16 +43,6 @@ export const meta: ToolMeta = {
     { title: 'Roman to number', input: 'MMXXIV' },
     { title: 'Extended range', input: '1234567', options: { extended: true } },
   ],
-  faq: [
-    {
-      q: 'What forms are rejected?',
-      a: 'Anything non-canonical: additive runs like IIII or VX are rejected because the converter validates by re-encoding, so only strict subtractive numerals decode.',
-    },
-    {
-      q: 'What is the maximum without extended mode?',
-      a: '3999 (MMMCMXCIX) — Roman numerals have no native symbol beyond 1000. Extended mode wraps thousands groups in parentheses, so (X) = 10,000.',
-    },
-  ],
   related: ['number-to-words', 'number-base'],
   status: 'stable',
 };

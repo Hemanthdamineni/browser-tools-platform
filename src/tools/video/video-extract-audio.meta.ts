@@ -82,29 +82,7 @@ export const meta: ToolMeta = {
     { title: 'Make a small MP3 of the audio', options: { format: 'mp3', quality: 'medium' } },
     { title: 'Mono WAV for transcription', options: { format: 'wav', channels: 'mono' } },
   ],
-  faq: [
-    {
-      q: 'Which format should I pick?',
-      a: 'WAV is lossless and works in every editor, but a minute of stereo audio takes roughly 10 MB. MP3 and AAC are about a tenth of that; MP3 plays on the widest range of devices, AAC is the default on Apple platforms.',
-    },
-    {
-      q: 'Why is MP3 or AAC greyed out or refused?',
-      a: 'Those formats are produced by your browser’s built-in audio encoder. Not every browser ships one for every format — Chrome and Edge can encode both, Firefox currently cannot encode either. The tool checks before it starts and tells you plainly rather than producing a broken file.',
-    },
-    {
-      q: 'Does the video get re-encoded?',
-      a: 'No — only the sound track is read. The picture is never decoded, which makes the extraction faster and lighter than a full conversion.',
-    },
-    {
-      q: 'Is the sample rate changed?',
-      a: 'No. The WAV header carries the sample rate of the source track verbatim, and MP3/AAC are told the same rate whenever the encoder accepts it. Nothing is resampled.',
-    },
-    {
-      q: 'What about multiple audio tracks?',
-      a: 'The primary (first) audio track is extracted. Additional tracks, such as a director’s commentary, are ignored.',
-    },
-  ],
   credits: [{ name: 'mediabunny', url: 'https://mediabunny.dev', license: 'MPL-2.0' }],
-  related: ['video-compress', 'video-info', 'audio-to-wav', 'audio-trim'],
+  related: ['video-compress', 'video-info', 'audio-convert', 'audio-trim'],
   status: 'beta',
 };

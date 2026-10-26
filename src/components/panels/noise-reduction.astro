@@ -1,0 +1,131 @@
+---
+/**
+ * The noise-reduction panel.
+ *
+ * The generic file workbench cannot express the flow this tool needs: pick one
+ * clip, decode-free file summary, a before/after waveform, and an inline player
+ * for the denoised WAV. The panel opts in via `meta.panel = 'noise-reduction'`;
+ * its behaviour lives in `./noise-reduction-panel.ts` and is loaded on demand.
+ */
+import type { ToolMeta } from '@/lib/types';
+import Icon from '@/components/Icon.astro';
+import OptionsFields from '@/components/workbench/OptionsFields.astro';
+
+interface Props {
+  meta: ToolMeta;
+}
+const { meta } = Astro.props;
+const p = meta.id;
+---
+
+<section
+  class="surface rounded-lg p-4 sm:p-6"
+  data-noise-reduction-panel
+  data-tool-id={meta.id}
+  aria-label={`${meta.name} workbench`}
+>
+  <div class="flex flex-wrap items-center gap-2">
+    <h2 class="flex items-center gap-2 text-base font-semibold text-[rgb(var(--text))]">
+      <Icon name="audio-lines" size={18} /> Noise reduction
+    </h2>
+    <span class="chip">On-device</span>
+  </div>
+  <p class="mt-1.5 max-w-prose text-sm leading-relaxed text-[rgb(var(--text-muted))]">
+    Pick a voice recording and RNNoise will trim the steady background noise. The clip is decoded,
+    denoised and encoded in this tab — nothing is uploaded.
+  </p>
+
+  <div
+    class="drop-zone mt-4 flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed px-4 py-8 text-center transition-colors"
+    data-nr-drop
+    data-nr-accept={meta.accept ?? 'audio/*'}
+    role="button"
+    tabindex="0"
+    aria-label="Choose an audio file or drop one here"
+  >
+    <Icon name="download" size={26} class="opacity-60" />
+    <p class="text-sm font-medium">
+      Drop an audio file here, or <span class="link">browse</span>
+    </p>
+    <p class="text-xs text-[rgb(var(--text-muted))]">
+      Speech, podcasts, interviews — decoded at 16 kHz mono.
+    </p>
+  </div>
+  <p class="mt-2 truncate text-sm text-[rgb(var(--text-muted))]" data-nr-file-summary hidden></p>
+
+  {
+    (meta.options ?? []).length > 0 && (
+      <details class="mt-4 rounded-lg border" open>
+        <summary class="cursor-pointer select-none px-3 py-2 text-sm font-medium">Options</summary>
+        <div class="border-t p-3" data-nr-options>
+          <OptionsFields options={meta.options ?? []} idPrefix={p} />
+        </div>
+      </details>
+    )
+  }
+
+  <div class="mt-4 flex flex-wrap items-center gap-2.5">
+    <button type="button" class="btn btn-primary" data-nr-run disabled>
+      <Icon name="zap" size={16} /> Remove noise
+    </button>
+    <button type="button" class="btn btn-ghost" data-nr-cancel hidden>Cancel</button>
+    <button type="button" class="btn btn-ghost" data-nr-reset hidden>Reset</button>
+  </div>
+
+  <div class="mt-3" hidden data-nr-progress-wrap>
+    <div class="h-2 overflow-hidden rounded-full" style="background-color: rgb(var(--bg-inset))">
+      <div
+        class="h-full transition-[width] duration-200 ease-out"
+        style="width:0%; background-color: rgb(var(--accent))"
+        data-nr-progress-bar
+      >
+      </div>
+    </div>
+    <p
+      class="mt-1 text-xs tabular-nums text-[rgb(var(--text-muted))]"
+      data-nr-progress-msg
+      aria-live="polite"
+    >
+    </p>
+  </div>
+
+  <div
+    class="mt-4 rounded-lg border px-3 py-2 text-sm"
+    style="background-color: rgb(var(--danger-soft)); border-color: rgb(var(--danger)); color: rgb(var(--danger))"
+    role="alert"
+    data-nr-error
+    hidden
+  >
+  </div>
+
+  <div class="mt-4" hidden data-nr-result>
+    <div data-nr-report class="min-w-0"></div>
+    <ul class="mt-3 space-y-2" data-nr-outputs></ul>
+    <ul class="mt-2 space-y-1 text-xs" data-nr-notes></ul>
+  </div>
+
+  <noscript>
+    <p class="mt-3 text-sm text-[rgb(var(--text-muted))]">
+      Noise reduction needs JavaScript — the browser's audio APIs and WebAssembly cannot run without
+      it.
+    </p>
+  </noscript>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-noise-reduction-panel]').forEach((panel) => {
+    // The panel's logic (and the RNNoise choreography) is loaded on demand so
+    // no denoising code ships to pages that do not use it.
+    void import('./noise-reduction-panel')
+      .then(({ mountNoiseReductionPanel }) => {
+        mountNoiseReductionPanel(panel);
+      })
+      .catch(() => {
+        const error = panel.querySelector<HTMLElement>('[data-nr-error]');
+        if (error) {
+          error.hidden = false;
+          error.textContent = 'The noise-reduction panel could not be loaded in this browser.';
+        }
+      });
+  });
+</script>

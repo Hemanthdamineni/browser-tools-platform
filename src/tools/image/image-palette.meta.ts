@@ -23,19 +23,15 @@ export const meta: ToolMeta = {
       choices: ['median-cut', 'k-means', 'most-frequent'].map((value) => ({ value, label: value })),
     },
   ],
-  examples: [{ title: 'Extract 6 colours' }],
-  faq: [
+  examples: [
+    { title: 'Extract 6 colours' },
     {
-      q: 'Are fully transparent pixels used?',
-      a: 'No. Pixels with an alpha below 32 are ignored so they do not skew the palette.',
+      title: 'Eight colours with k-means',
+      options: { colors: 8, algorithm: 'k-means' },
     },
     {
-      q: 'Is my image uploaded?',
-      a: 'No. Sampling happens on a canvas in your browser.',
-    },
-    {
-      q: 'Can I compare several images?',
-      a: 'Yes. Select multiple files and each image is listed with its dominant colour and full palette.',
+      title: 'Dominant colour from a small palette',
+      options: { colors: 3, algorithm: 'most-frequent' },
     },
   ],
   related: ['color-palette', 'color-name', 'image-metadata'],

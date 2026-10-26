@@ -1,0 +1,194 @@
+---
+/**
+ * The pitch tuner panel.
+ *
+ * The generic text workbench cannot express a live microphone readout — a
+ * note name, a cents needle and a reference line — so this tool opts into a
+ * panel via `meta.panel = 'tuner'`. The behaviour lives in
+ * `./tuner-panel.ts` and is loaded on demand. Nothing is uploaded: the
+ * microphone is read entirely by this tab.
+ */
+import type { ToolMeta } from '@/lib/types';
+import Icon from '@/components/Icon.astro';
+import OptionsFields from '@/components/workbench/OptionsFields.astro';
+
+interface Props {
+  meta: ToolMeta;
+}
+const { meta } = Astro.props;
+const p = meta.id;
+---
+
+<section
+  class="surface rounded-lg p-4 sm:p-6"
+  data-tuner-panel
+  data-tool-id={meta.id}
+  aria-label={`${meta.name} workbench`}
+>
+  <div class="flex flex-wrap items-center gap-2">
+    <h2 class="flex items-center gap-2 text-base font-semibold text-[rgb(var(--text))]">
+      <Icon name="audio-lines" size={18} /> Tuner
+    </h2>
+    <span class="chip">On-device</span>
+  </div>
+  <p class="mt-1.5 max-w-prose text-sm leading-relaxed text-[rgb(var(--text-muted))]">
+    Play or sing a single note and the tuner names it, shows how many cents sharp or flat it is, and
+    where it sits on the needle. The microphone is analysed in this tab only — no audio ever leaves
+    your device.
+  </p>
+
+  <div
+    class="mt-3 rounded-lg border px-3 py-2 text-sm"
+    style="background-color: rgb(var(--danger-soft)); border-color: rgb(var(--danger)); color: rgb(var(--danger))"
+    role="alert"
+    data-tuner-error
+    hidden
+  >
+  </div>
+
+  <div class="mt-4 flex flex-wrap items-center gap-2.5">
+    <button type="button" class="btn btn-primary" data-tuner-start>
+      <Icon name="play" size={16} /> Start microphone
+    </button>
+    <button type="button" class="btn btn-ghost" data-tuner-stop hidden>
+      <Icon name="stop" size={14} /> Stop microphone
+    </button>
+  </div>
+
+  <p
+    class="mt-3 text-sm text-[rgb(var(--text-muted))] [&:empty]:hidden"
+    data-tuner-status
+    role="status"
+    aria-live="polite"
+  >
+  </p>
+
+  <div class="mt-4" data-tuner-stage hidden>
+    <div class="flex flex-wrap items-end justify-center gap-x-8 gap-y-2">
+      <div class="text-center">
+        <p class="text-[10px] font-medium uppercase tracking-wider text-[rgb(var(--text-muted))]">
+          Note
+        </p>
+        <p class="mt-1 text-5xl font-semibold leading-none text-[rgb(var(--text))]" data-tuner-note>
+          ·
+        </p>
+      </div>
+      <div class="text-center">
+        <p class="text-[10px] font-medium uppercase tracking-wider text-[rgb(var(--text-muted))]">
+          Frequency
+        </p>
+        <p
+          class="mt-1 text-xl font-medium tabular-nums leading-none text-[rgb(var(--text))]"
+          data-tuner-freq
+        >
+          —
+        </p>
+      </div>
+      <div class="text-center">
+        <p class="text-[10px] font-medium uppercase tracking-wider text-[rgb(var(--text-muted))]">
+          Deviation
+        </p>
+        <p
+          class="mt-1 text-xl font-medium tabular-nums leading-none text-[rgb(var(--text))]"
+          data-tuner-cents
+        >
+          —
+        </p>
+      </div>
+    </div>
+
+    <div class="mt-5">
+      <div class="relative h-8">
+        <!-- The ±50 ¢ track. The needle is positioned with `left: %` from the panel. -->
+        <div
+          class="absolute inset-x-0 top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-[rgb(var(--border))]"
+        >
+          <div
+            class="absolute left-1/2 top-1/2 h-4 w-0.5 -translate-x-1/2 -translate-y-1/2 rounded bg-[rgb(var(--text-muted))]"
+          >
+          </div>
+        </div>
+        <div
+          class="absolute top-0 h-full w-1 -translate-x-1/2 rounded-full bg-[rgb(var(--accent))] transition-[left] duration-100 ease-out"
+          data-tuner-needle
+          role="slider"
+          tabindex="0"
+          aria-label="Tuning needle, cents deviation from the nearest note"
+          aria-valuemin="-50"
+          aria-valuemax="50"
+          aria-valuenow="0"
+          aria-valuetext="No pitch"
+          style="left: 50%"
+        >
+        </div>
+      </div>
+      <div class="mt-1 flex" data-tuner-scale aria-hidden="true"></div>
+      <p class="mt-2 text-center text-sm font-medium text-[rgb(var(--text))]" data-tuner-verdict>
+        Listening…
+      </p>
+      <p class="mt-1 text-center text-xs text-[rgb(var(--text-muted))]" data-tuner-ref>
+        Waiting for a sustained note
+      </p>
+    </div>
+  </div>
+
+  <p class="sr-only" data-tuner-live role="status" aria-live="polite"></p>
+
+  <div class="mt-4 flex flex-wrap items-center gap-2.5">
+    <button type="button" class="btn btn-subtle" data-tuner-capture disabled>
+      <Icon name="check" size={16} /> Capture reading
+    </button>
+    <button type="button" class="btn btn-ghost" data-tuner-report disabled>
+      <Icon name="file-text" size={16} /> Review session
+    </button>
+    <button type="button" class="btn btn-ghost" data-tuner-clear>
+      <Icon name="x" size={14} /> Clear session
+    </button>
+    <span class="text-sm text-[rgb(var(--text-muted))]" data-tuner-session>No readings yet.</span>
+  </div>
+
+  <div class="mt-4" data-result-wrap hidden>
+    <h3 class="mb-2 text-sm font-semibold text-[rgb(var(--text))]">Session report</h3>
+    <div class="min-w-0" data-tuner-report-host></div>
+  </div>
+
+  <details class="mt-5 rounded-lg border">
+    <summary class="cursor-pointer select-none px-3 py-2 text-sm font-medium">Options</summary>
+    <div class="border-t p-3" data-tuner-options>
+      <OptionsFields options={meta.options ?? []} idPrefix={p} />
+    </div>
+  </details>
+
+  <noscript>
+    <p class="mt-3 text-sm text-[rgb(var(--text-muted))]">
+      The tuner needs JavaScript — the microphone and the Web Audio API cannot run without it.
+    </p>
+  </noscript>
+</section>
+
+<style>
+  /*
+   * `.btn` sets `display: inline-flex` in the components layer, which beats
+   * Tailwind's base-layer `[hidden] { display: none }` — so a hidden button
+   * would still be on screen. This panel toggles buttons with the `hidden`
+   * attribute, so the attribute has to win here.
+   */
+  [hidden] {
+    display: none !important;
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-tuner-panel]').forEach((root) => {
+    // Loaded on demand: the tuner panel is only used by the tuner.
+    void import('./tuner-panel')
+      .then(({ mountTunerPanel }) => mountTunerPanel(root))
+      .catch(() => {
+        const error = root.querySelector<HTMLElement>('[data-tuner-error]');
+        if (error) {
+          error.hidden = false;
+          error.textContent = 'The tuner panel could not be loaded in this browser.';
+        }
+      });
+  });
+</script>

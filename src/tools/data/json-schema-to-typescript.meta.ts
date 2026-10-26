@@ -76,23 +76,10 @@ export const meta: ToolMeta = {
       input:
         '{\n  "type": "object",\n  "required": ["items"],\n  "properties": {\n    "items": { "type": "array", "items": { "type": "object", "properties": { "id": { "type": "string" } }, "required": ["id"] } },\n    "count": { "type": ["integer", "null"] }\n  }\n}',
     },
-  ],
-  faq: [
     {
-      q: 'Which schema drafts are supported?',
-      a: 'The keywords common to draft-07 and draft 2020-12: type, properties, required, items, prefixItems, enum, const, anyOf, oneOf, allOf, $ref, $defs and definitions. Unknown keywords are ignored rather than guessed at.',
-    },
-    {
-      q: 'How are nested and recursive schemas handled?',
-      a: 'Every entry in $defs or definitions becomes its own named declaration, so recursive references work because they refer to those names. Inline object schemas are emitted in place.',
-    },
-    {
-      q: 'What does an unrepresentable keyword become?',
-      a: 'Anything TypeScript cannot express — not, if/then/else, patternProperties — becomes unknown (or never for a false schema) instead of a wrong type.',
-    },
-    {
-      q: 'Does it need network access?',
-      a: 'No, and it does not resolve remote $ref URLs. Only local references such as #/$defs/Name are resolved.',
+      title: 'Inline reference to $defs',
+      input:
+        '{\n  "type": "object",\n  "properties": {\n    "status": { "$ref": "#/$defs/Status" },\n    "meta": { "$ref": "#/$defs/Meta" }\n  },\n  "$defs": {\n    "Status": { "enum": ["draft", "live", "archived"] },\n    "Meta": { "type": "object", "properties": { "rev": { "type": "integer" } }, "required": ["rev"] }\n  }\n}',
     },
   ],
   related: ['json-to-jsonschema', 'json-to-typescript', 'json-schema-check', 'json-to-zod'],

@@ -51,20 +51,7 @@ export const meta: ToolMeta = {
       options: { algorithm: 'sha384' },
     },
     { title: 'Style link integrity', options: { algorithm: 'sha512', element: 'link' } },
-  ],
-  faq: [
-    {
-      q: 'What is SRI?',
-      a: 'It lets a browser verify that a fetched script or style matches the published hash, protecting against tampered third-party resources.',
-    },
-    {
-      q: 'Which algorithm is recommended?',
-      a: 'sha384 is the widely-used balance; sha512 provides more bits at a larger digest size.',
-    },
-    {
-      q: 'When do I need crossorigin?',
-      a: 'Cross-origin resources require the crossorigin="anonymous" attribute for SRI to work correctly.',
-    },
+    { title: 'Integrity value without markup', options: { algorithm: 'sha256', element: 'none' } },
   ],
   related: ['http-header-analyzer', 'repr-digest', 'hash'],
   status: 'stable',

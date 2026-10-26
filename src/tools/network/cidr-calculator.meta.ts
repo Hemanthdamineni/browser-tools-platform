@@ -31,20 +31,6 @@ export const meta: ToolMeta = {
     { title: 'IPv6 /64', input: '2001:db8:abcd:12::1/64' },
     { title: 'Single IPv6 address', input: 'fe80::1/128' },
   ],
-  faq: [
-    {
-      q: 'What does the prefix number mean?',
-      a: 'It is the number of leading 1-bits in the netmask. A larger prefix means a smaller network: /24 gives 256 addresses, /32 gives exactly one. The bits after the prefix are host bits.',
-    },
-    {
-      q: 'Why does /31 or /32 show a special usable-host count?',
-      a: 'In classic subnetting /31 has no usable point-to-point hosts under the RFC 3021 convention; /32 is a single host. This tool shows the raw network and broadcast values plus the conventional usable count so you can see both.',
-    },
-    {
-      q: 'Does it work for IPv6?',
-      a: 'Yes. IPv6 uses no broadcast address, so ranges are reported as first and last addresses with the exact total count. An IPv4-embedded IPv6 address such as ::ffff:192.0.2.1 is also accepted.',
-    },
-  ],
   related: ['number-base', 'hex', 'basic-auth'],
   status: 'stable',
 };

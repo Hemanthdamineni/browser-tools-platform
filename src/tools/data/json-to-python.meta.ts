@@ -81,23 +81,10 @@ export const meta: ToolMeta = {
       input: '[{"id": 1, "label": "one"}, {"id": 2, "label": "two"}]',
       options: { rootName: 'Item' },
     },
-  ],
-  faq: [
     {
-      q: 'Which Python version is the output for?',
-      a: 'The generated module uses from __future__ import annotations and built-in generics (list[x], dict[str, x]), so it is compatible with Python 3.9+. The "str | None" union style needs 3.10+; Optional[str] is the safe default.',
-    },
-    {
-      q: 'How are arrays handled?',
-      a: 'Arrays become list[Element]. If the element is an object, a new model is generated (or reused) and the field is list[ThatModel].',
-    },
-    {
-      q: 'What about recursive or repeated shapes?',
-      a: 'Each distinct nested shape is emitted exactly once, named after its key, and later uses reference the same model. If a model would recurse, the forward reference stays valid thanks to the postponed annotations import.',
-    },
-    {
-      q: 'Is this a full schema?',
-      a: 'No — it is a type-guessing tool like the rest of the JSON family. Edge cases such as genuinely mixed-type arrays or optional fields missing from the sample are inferred optimistically, so review the output.',
+      title: 'Nulls as TypedDict with pipe unions',
+      input: '{"eventId": 7, "note": null, "tags": ["a", "b"], "metrics": {"p95": 1.25}}',
+      options: { style: 'typeddict', unionSyntax: 'pipe', indent: 2 },
     },
   ],
   related: ['json-to-typescript', 'json-to-go-struct', 'json-to-zod', 'json-to-jsonschema'],

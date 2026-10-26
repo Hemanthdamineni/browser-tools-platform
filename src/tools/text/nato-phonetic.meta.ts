@@ -39,16 +39,6 @@ export const meta: ToolMeta = {
       options: { mode: 'phonetic-to-text' },
     },
   ],
-  faq: [
-    {
-      q: 'Which words does it use?',
-      a: 'The ICAO/NATO set: Alfa, Bravo, Charlie, Delta, Echo, Foxtrot, Golf, Hotel, India, Juliett, Kilo, Lima, Mike, November, Oscar, Papa, Quebec, Romeo, Sierra, Tango, Uniform, Victor, Whiskey, X-ray, Yankee, Zulu, plus Zero–Niner for digits.',
-    },
-    {
-      q: 'What happens to spaces and punctuation?',
-      a: 'Spaces are dropped and any other character (a hyphen, comma, symbol) is emitted as its own token. On the reverse pass, a token that is not a phonetic word is kept verbatim, so punctuation survives a round trip.',
-    },
-  ],
   related: ['morse-code', 'rot13', 'case-convert', 'slugify'],
   status: 'stable',
 };

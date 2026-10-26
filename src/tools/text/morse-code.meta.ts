@@ -40,17 +40,12 @@ export const meta: ToolMeta = {
       input: '.... . .-.. .-.. --- / .-- --- .-. .-.. -..',
       options: { mode: 'morse-to-text' },
     },
-  ],
-  faq: [
     {
-      q: 'Which characters are supported?',
-      a: 'A–Z, 0–9 and the common punctuation marks . , ? \' ! / ( ) & : ; = + - _ " $ @. Case is ignored. On encoding, any unsupported character becomes "?" and is listed in a warning.',
-    },
-    {
-      q: 'How forgiving is decoding?',
-      a: 'Runs of whitespace are collapsed, and both "/" and "|" (with or without surrounding spaces) are treated as word separators. An unrecognised dot/dash group raises an error rather than being dropped silently.',
+      title: 'Decode a punctuated phrase',
+      input: '... --- ...',
+      options: { mode: 'morse-to-text' },
     },
   ],
-  related: ['nato-phonetic', 'rot13', 'binary-text', 'case-convert'],
+  related: ['nato-phonetic', 'rot13', 'text-to-binary', 'case-convert'],
   status: 'stable',
 };

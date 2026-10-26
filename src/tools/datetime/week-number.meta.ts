@@ -23,12 +23,7 @@ export const meta: ToolMeta = {
   examples: [
     { title: 'New Year Day', input: '2024-01-01' },
     { title: 'Year end', input: '2024-12-31' },
-  ],
-  faq: [
-    {
-      q: 'What is the ISO 8601 week rule?',
-      a: 'Week 1 is the week containing the first Thursday of the year, weeks run Monday to Sunday, and 1 January can therefore belong to week 52 or 53 of the previous year.',
-    },
+    { title: 'A date in a leap year', input: '2028-02-29' },
   ],
   related: ['date-diff', 'timestamp'],
   status: 'stable',

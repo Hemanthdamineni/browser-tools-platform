@@ -43,20 +43,6 @@ export const meta: ToolMeta = {
       options: { mode: 'build', directives: 'max-age=600, no-store' },
     },
   ],
-  faq: [
-    {
-      q: 'Who reads Surrogate-Control?',
-      a: 'Reverse proxies and surrogate caches may use it to control intermediary behavior; ordinary browsers generally do not use it as their cache policy.',
-    },
-    {
-      q: 'What does content mean?',
-      a: 'The content directive can identify surrogate processing technologies, such as ESI, supported by an intermediary.',
-    },
-    {
-      q: 'Is this a universal CDN standard?',
-      a: 'Support and precedence vary by proxy or CDN. Verify the target provider documentation before relying on it.',
-    },
-  ],
   related: ['cache-headers', 'content-type'],
   hidden: true,
   redirectTo: 'cache-headers',

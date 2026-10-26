@@ -42,20 +42,7 @@ export const meta: ToolMeta = {
       title: 'Build a logout wipe',
       options: { mode: 'build', targets: '"cookies", "storage", "cache"' },
     },
-  ],
-  faq: [
-    {
-      q: 'When is Clear-Site-Data used?',
-      a: 'Commonly on logout or account-reset responses to ask the browser to clear cookies, storage, or cache for the site.',
-    },
-    {
-      q: 'What does the wildcard clear?',
-      a: 'The * target requests clearing all supported data types; browsers that do not support a type may ignore it.',
-    },
-    {
-      q: 'Does it work over plain HTTP?',
-      a: 'No. Browsers require the response to be secure (HTTPS) and typically apply it only to the secure origin context.',
-    },
+    { title: 'Check the wildcard for redundancy', input: '"*", "cookies"' },
   ],
   related: ['security-headers', 'set-cookie', 'origin-agent-cluster'],
   status: 'stable',

@@ -114,20 +114,6 @@ export const meta: ToolMeta = {
     },
     { title: 'Analyze a wildcard grant', input: '*' },
   ],
-  faq: [
-    {
-      q: 'Can Access-Control-Allow-Origin be * with credentials?',
-      a: 'No. When Access-Control-Allow-Credentials: true is set, the allowed origin must name the specific requesting origin and cannot be a wildcard.',
-    },
-    {
-      q: 'Why add Vary: Origin?',
-      a: 'If the allowed origin is chosen per request, Vary: Origin stops caches serving one caller the origin grant meant for another.',
-    },
-    {
-      q: 'Which methods trigger a preflight?',
-      a: 'GET, HEAD, and POST with simple headers are sent directly; most other methods and headers trigger an OPTIONS preflight answered with Allow-Methods and Allow-Headers.',
-    },
-  ],
   related: ['security-headers', 'http-header-analyzer', 'cross-origin-resource-policy'],
   status: 'beta',
 };

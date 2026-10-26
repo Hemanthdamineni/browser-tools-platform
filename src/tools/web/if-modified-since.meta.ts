@@ -38,20 +38,6 @@ export const meta: ToolMeta = {
       options: { mode: 'build', date: 'Wed, 21 Oct 2015 07:28:00 GMT' },
     },
   ],
-  faq: [
-    {
-      q: 'What happens when the resource has not changed?',
-      a: 'A server may return 304 Not Modified without a response body, allowing the client to reuse its cached representation.',
-    },
-    {
-      q: 'What date format should I send?',
-      a: 'Use IMF-fixdate, for example Wed, 21 Oct 2015 07:28:00 GMT. Servers must accept older formats but send the modern form.',
-    },
-    {
-      q: 'Is this as precise as an entity tag?',
-      a: 'No. HTTP dates have one-second granularity and can miss changes made within the same second; ETags are generally more reliable.',
-    },
-  ],
   related: ['conditional-request-headers', 'cache-headers'],
   hidden: true,
   redirectTo: 'conditional-request-headers',

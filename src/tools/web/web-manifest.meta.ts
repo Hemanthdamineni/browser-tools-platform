@@ -58,19 +58,17 @@ export const meta: ToolMeta = {
       input: '',
       options: { mode: 'generate', name: 'Field Notes', shortName: 'Notes', startUrl: '/app/' },
     },
-  ],
-  faq: [
     {
-      q: 'Does a valid manifest guarantee PWA installability?',
-      a: 'No. Installability requirements vary by browser and also depend on serving the manifest and icons correctly, secure context, service-worker behavior, and page content.',
-    },
-    {
-      q: 'Does validation fetch or verify icon URLs?',
-      a: 'No. The tool makes no network requests. It checks manifest structure and reports likely icon recommendations but cannot verify referenced files.',
-    },
-    {
-      q: 'What does generation include?',
-      a: 'It creates a minimal JSON object with name, short_name, start_url, display, theme_color, and background_color, plus scope when provided. Add icons and other fields appropriate to your app.',
+      title: 'Generate a fullscreen dashboard manifest',
+      input: '',
+      options: {
+        mode: 'generate',
+        name: 'Dashboard',
+        shortName: 'Dash',
+        startUrl: '/dashboard/',
+        display: 'fullscreen',
+        scope: '/dashboard/',
+      },
     },
   ],
   related: ['robots-txt', 'meta-tags', 'json-format'],

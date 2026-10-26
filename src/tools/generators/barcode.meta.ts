@@ -114,28 +114,6 @@ export const meta: ToolMeta = {
       options: { symbology: 'datamatrix' },
     },
   ],
-  faq: [
-    {
-      q: 'Which symbology should I use?',
-      a: 'Code 128 is the best general-purpose choice — compact and it handles the full ASCII range. Choose EAN-13 / EAN-8 / UPC-A for products sold in stores, Code 39 for older industrial or asset-tag systems, ITF-14 for shipping cartons, and DataMatrix when you need a small 2D symbol that fits a lot of data into a tight square.',
-    },
-    {
-      q: 'What is DataMatrix and when should I use it?',
-      a: 'DataMatrix is a 2D code (ECC200) that packs a lot of data into a small square — common on electronics, medical devices and parts. It handles any text (encoded as UTF-8) and needs no check digit from you. Use it when a 1D barcode would be too wide.',
-    },
-    {
-      q: 'Does it add the check digit?',
-      a: 'Yes. EAN-13, EAN-8, UPC-A and ITF-14 get their GTIN mod-10 check digit appended automatically when you enter the shorter form, and it is verified when you supply all digits. Code 128 always includes its own checksum.',
-    },
-    {
-      q: 'Will the barcode actually scan?',
-      a: 'Yes, at the right size. Leave the quiet zone at 10 modules or more and use a module width of at least 2 px, then print at 100% (do not scale to fit a smaller box, which blurs the bars).',
-    },
-    {
-      q: 'Why SVG?',
-      a: 'A vector file stays perfectly crisp at any size, which is exactly what scanners and printers want — and it is a fraction of the size of a bitmap. The code is generated entirely on your device; nothing is uploaded.',
-    },
-  ],
   related: ['qr-code', 'placeholder-svg', 'data-uri', 'vcard'],
   status: 'stable',
 };

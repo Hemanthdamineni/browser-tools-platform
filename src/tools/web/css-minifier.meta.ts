@@ -47,23 +47,10 @@ export const meta: ToolMeta = {
       input:
         '.grid {\n  width: calc(100% - 32px);\n  grid-template-columns: minmax(0, 1fr) auto;\n}',
     },
-  ],
-  faq: [
     {
-      q: 'Will the minified CSS still be valid?',
-      a: 'Yes. Whitespace is only removed where CSS allows it: never inside strings or url() contents, never between two identifiers, and always kept around + and - inside calc(), min(), max() and clamp(), where CSS requires it.',
-    },
-    {
-      q: 'What happens to comments?',
-      a: 'Normal comments are removed. Comments that start with /*! — the convention for licenses and banners — are kept by default; turn off "Keep /*! license comments" to drop them too.',
-    },
-    {
-      q: 'Are empty rules really removed?',
-      a: 'Yes, rules whose body is empty after minification are deleted, including nested ones and empty at-rule blocks. Disable "Remove empty rules" if you rely on them as placeholders.',
-    },
-    {
-      q: 'Does it rename or merge selectors?',
-      a: 'No. It is a safe, lossless whitespace and comment minifier: selectors, properties, values and their order are left exactly as written.',
+      title: 'Drop banner comments as well',
+      input: '/*! theme v3 */\n.card {\n  color: red;\n  padding: 0;\n}',
+      options: { keepImportantComments: false },
     },
   ],
   related: ['css-units', 'css-grid', 'gradient-css', 'media-query-builder'],

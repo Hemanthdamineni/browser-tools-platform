@@ -42,20 +42,6 @@ export const meta: ToolMeta = {
       options: { mode: 'build', fields: 'Digest, Server-Timing' },
     },
   ],
-  faq: [
-    {
-      q: 'Does Trailer contain trailing values?',
-      a: 'No. It lists field names that may appear after the body. The actual values arrive in trailing headers.',
-    },
-    {
-      q: 'Which fields cannot be trailers?',
-      a: 'Routing, framing, authentication, representation-control, and some processing-sensitive fields must not be sent as trailers. Confirm constraints for your HTTP version and intermediary.',
-    },
-    {
-      q: 'Does this enable chunked encoding?',
-      a: 'No. It only builds the declaration. Streaming and transfer framing remain server responsibilities.',
-    },
-  ],
   related: ['http-header-analyzer', 'http-range'],
   hidden: true,
   redirectTo: 'http-header-analyzer',

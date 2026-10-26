@@ -57,23 +57,11 @@ export const meta: ToolMeta = {
         '<h1>Docs</h1>\n<p>Read the <a href="https://example.com">guide</a> and run <code>npm install</code>.</p>',
       options: { linkStyle: 'reference' },
     },
-  ],
-  faq: [
     {
-      q: 'Is it lossy?',
-      a: 'It targets content, not layout. Attributes like class and id are dropped, and unsupported elements fall back to their text content. Tables are converted to a plain table using pipe separators.',
-    },
-    {
-      q: 'What about script and style blocks?',
-      a: 'Both are removed entirely, along with HTML comments, so the result stays clean and focused on the visible content.',
-    },
-    {
-      q: 'How are links handled?',
-      a: 'Inline style produces [text](url). Reference style collects unique urls into numbered references at the end, which keeps long urls out of the text. Text-only drops urls and keeps the anchor text.',
-    },
-    {
-      q: 'Can I convert a whole page?',
-      a: 'Yes, paste the whole document. Only the body-style content is used; <head>, script, style, and comments are ignored.',
+      title: 'Setext headings from a spec page',
+      input:
+        '<h1>Release notes</h1>\n<h2>Fixes</h2>\n<p>See the <a href="https://example.com/changes">changelog</a>.</p>',
+      options: { headingStyle: 'setext' },
     },
   ],
   related: ['markdown-to-html', 'html-to-text', 'markdown-toc', 'csv-to-html', 'json-diff'],

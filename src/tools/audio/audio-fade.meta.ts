@@ -27,6 +27,20 @@ export const meta: ToolMeta = {
       ],
     },
   ],
+  examples: [
+    {
+      title: 'One-second fades on both edges',
+      options: { fadeInMs: 1000, fadeOutMs: 1000, curve: 'linear' },
+    },
+    {
+      title: 'Long soft fade in for a music bed',
+      options: { fadeInMs: 3000, fadeOutMs: 0, curve: 'exponential' },
+    },
+    {
+      title: 'Quick fade out on a voice note',
+      options: { fadeInMs: 0, fadeOutMs: 400, curve: 'logarithmic' },
+    },
+  ],
   related: ['audio-trim', 'audio-gain'],
   status: 'stable',
 };

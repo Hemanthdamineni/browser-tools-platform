@@ -143,9 +143,7 @@ export function convertSourceFromProbe(probe: VideoProbe): ConvertSource {
 }
 
 /** Ask the shared engine what this browser can encode. */
-export async function convertCapabilities(
-  engine?: VideoEngine,
-): Promise<ConvertCapabilities> {
+export async function convertCapabilities(engine?: VideoEngine): Promise<ConvertCapabilities> {
   if (!isWebCodecsAvailable()) return { webCodecs: false, encodableVideo: [], encodableAudio: [] };
   const resolved = engine ?? (await loadVideoEngine());
   const [video, audio] = await Promise.all([
@@ -472,9 +470,15 @@ export async function runVideoConvert(
       rows: [
         ['Source container', source.formatName],
         ['Target container', CONTAINERS[plan.container].label],
-        ['Conversion', plan.video.path === 'remux' ? 'Remux (stream copy)' : 'Transcode (re-encode)'],
+        [
+          'Conversion',
+          plan.video.path === 'remux' ? 'Remux (stream copy)' : 'Transcode (re-encode)',
+        ],
         ['Video codec', describeVideoCodec(converted.videoCodec)],
-        ['Video bitrate', plan.video.path === 'remux' ? 'copied from the source' : formatBitrate(plan.bitrate)],
+        [
+          'Video bitrate',
+          plan.video.path === 'remux' ? 'copied from the source' : formatBitrate(plan.bitrate),
+        ],
         [
           'Audio',
           converted.audioPath === 'drop'
@@ -483,8 +487,14 @@ export async function runVideoConvert(
                 converted.audioPath === 'remux' ? 'copied' : 're-encoded'
               }`,
         ],
-        ['Source size', `${formatBytes(sourceBytes)} (${sourceBytes.toLocaleString('en-US')} bytes)`],
-        ['Result size', `${formatBytes(outputBytes)} (${outputBytes.toLocaleString('en-US')} bytes)`],
+        [
+          'Source size',
+          `${formatBytes(sourceBytes)} (${sourceBytes.toLocaleString('en-US')} bytes)`,
+        ],
+        [
+          'Result size',
+          `${formatBytes(outputBytes)} (${outputBytes.toLocaleString('en-US')} bytes)`,
+        ],
         ['Duration', formatTimecode(outDuration)],
         ['Resolution', `${outWidth} × ${outHeight}`],
       ],

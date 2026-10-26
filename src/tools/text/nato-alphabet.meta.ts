@@ -53,19 +53,15 @@ export const meta: ToolMeta = {
       title: 'Spell a callsign',
       input: 'N73AB',
     },
-  ],
-  faq: [
     {
-      q: 'What is the NATO phonetic alphabet?',
-      a: 'The spelling alphabet used in radio and aviation: A=Alpha, B=Bravo, C=Charlie, and so on through Z=Zulu. Each letter has a distinct word so letters cannot be confused over a noisy channel.',
+      title: 'Decode a spoken sequence',
+      input: 'Foxtrot Oscar X-ray',
+      options: { direction: 'decode' },
     },
     {
-      q: 'How are digits handled?',
-      a: 'Digits map to their English names — 0=Zero, 1=One … 9=Nine — and are emitted as separate tokens, so "N73" becomes "November Seven Three". Punctuation such as hyphens or slashes is passed through as its own token so nothing is lost.',
-    },
-    {
-      q: 'How does decoding work?',
-      a: 'Paste words like "Alpha Bravo" and each recognised word maps back to its letter; unknown words are preserved in brackets so nothing is silently lost.',
+      title: 'One word per line',
+      input: 'Hotel Echo Lima Lima Oscar',
+      options: { direction: 'decode', separator: 'newline' },
     },
   ],
   related: ['morse-code', 'text-stats', 'case-convert', 'char-frequency'],

@@ -51,22 +51,16 @@ export const meta: ToolMeta = {
   ],
   examples: [
     {
-      title: 'Fill in the options and paste this',
-      input: 'Your project description goes here',
-    },
-  ],
-  faq: [
-    {
-      q: 'Which licenses are included?',
-      a: 'MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC, Unlicense and CC0-1.0 — the most common open-source licenses. Each text is the canonical text with just the year and holder substituted.',
+      title: 'MIT with the default wording',
+      options: { license: 'MIT' },
     },
     {
-      q: 'How do I pick the right license?',
-      a: 'For most libraries use MIT, Apache-2.0 or BSD-3. If you want to waive all rights use Unlicense or CC0-1.0. This tool only produces the text — check the license’s terms with your own legal counsel before choosing.',
+      title: 'MIT for a year and a person',
+      options: { license: 'MIT', year: '2026', fullname: 'Ada Lovelace' },
     },
     {
-      q: 'Is the output the full official text?',
-      a: 'Yes — you can paste it directly into a LICENSE file. The texts are the standard license texts with the year and holder substituted; verify against the SPDX reference if you ship to a regulated environment.',
+      title: 'Headerless Unlicense',
+      options: { license: 'Unlicense' },
     },
   ],
   related: ['nanoid', 'uuid', 'lorem-ipsum', 'gitignore'],

@@ -38,19 +38,10 @@ export const meta: ToolMeta = {
       title: 'Preserve literal pipes',
       input: '| Expression | Note |\n|---|---|\n| `a|b` | escaped \\| stays in cell |',
     },
-  ],
-  faq: [
     {
-      q: 'Does this parse all Markdown table syntax?',
-      a: 'No. It formats one pipe table. It preserves escaped pipes and pipes inside matched inline-code spans, but it does not evaluate Markdown, HTML, or multiline cell syntax.',
-    },
-    {
-      q: 'What happens when rows have different cell counts?',
-      a: 'Short rows are padded to the widest row. Rows with extra cells are preserved by expanding the table width.',
-    },
-    {
-      q: 'Does alignment change cell content?',
-      a: 'Only surrounding whitespace is trimmed. Content characters and backslash escapes are preserved; separator rows are rebuilt using Markdown alignment markers.',
+      title: 'Center alignment and no padding',
+      input: '| a | b |\n|:-:| -: |\n| x | y |',
+      options: { align: true, padding: 0 },
     },
   ],
   related: ['markdown-to-html', 'csv-to-json', 'json-to-csv'],

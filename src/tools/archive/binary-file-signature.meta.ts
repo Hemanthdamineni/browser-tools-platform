@@ -22,19 +22,10 @@ export const meta: ToolMeta = {
   multiple: true,
   accept: '',
   worker: true,
-  faq: [
-    {
-      q: 'What does a signature match prove?',
-      a: 'A match suggests a file format based on its leading bytes. It does not validate the whole file, prove the file is safe, or guarantee that the extension matches its contents.',
-    },
-    {
-      q: 'How much of each file is read?',
-      a: 'At most the first 512 bytes. Detection is quick even for large files; formats whose identifiers occur later in a file may be reported as unknown.',
-    },
-    {
-      q: 'Why might a ZIP-based document be reported as ZIP?',
-      a: 'DOCX, XLSX, PPTX, and other package formats use ZIP containers. Distinguishing them requires inspecting archive entries; this tool reports the container signature only.',
-    },
+  examples: [
+    { title: 'Identify an extensionless file' },
+    { title: 'Check a renamed file against its contents' },
+    { title: 'Spot a ZIP-based Office package' },
   ],
   related: ['file-hash', 'mime-lookup'],
   status: 'stable',

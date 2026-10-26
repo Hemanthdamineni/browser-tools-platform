@@ -58,16 +58,6 @@ export const meta: ToolMeta = {
       options: { mode: 'to-ndjson' },
     },
   ],
-  faq: [
-    {
-      q: 'What counts as a line?',
-      a: 'Input is split on newlines. Empty or whitespace-only lines are skipped; every other line must be a complete JSON value.',
-    },
-    {
-      q: 'Does the indent option affect NDJSON output?',
-      a: 'No. When producing NDJSON each line is always a single compact JSON value. The indent option only pretty-prints the array in the other direction.',
-    },
-  ],
-  related: ['json-format', 'json-escape'],
+  related: ['json-format', 'json-flatten'],
   status: 'stable',
 };

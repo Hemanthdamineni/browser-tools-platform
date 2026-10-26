@@ -50,19 +50,10 @@ export const meta: ToolMeta = {
       input: 'password = "not-a-real-password"\nregion = "eu-west-1"',
       options: { operation: 'redact' },
     },
-  ],
-  faq: [
     {
-      q: 'Can this prove that text contains no secrets?',
-      a: 'No. The scanner uses heuristics and known token shapes; it can miss unfamiliar formats or produce false positives. Review results and use your organization’s secret-scanning controls for source repositories.',
-    },
-    {
-      q: 'Are detected values shown in the report?',
-      a: 'No. The report includes only a short masked preview, type, and line/column. Redaction mode replaces detected spans in the text output.',
-    },
-    {
-      q: 'Is the input uploaded?',
-      a: 'No. Scanning runs in your browser and makes no network requests.',
+      title: 'Raise the generic secret length',
+      input: 'token = "secret12345"\nTOKEN = "secret12345"',
+      options: { minLength: 8 },
     },
   ],
   related: ['file-hash', 'text-encrypt', 'json-format'],

@@ -52,20 +52,6 @@ export const meta: ToolMeta = {
       options: { withSeconds: true },
     },
   ],
-  faq: [
-    {
-      q: 'Which time zone are the run times in?',
-      a: 'UTC. They are computed from your device clock and printed as ISO 8601 with a trailing Z.',
-    },
-    {
-      q: 'How is day-of-week handled?',
-      a: 'Both 0 and 7 mean Sunday, and names like MON or FRI work. When day-of-month and day-of-week are both restricted, a run matches if either one matches — standard cron behavior.',
-    },
-    {
-      q: 'What field syntax is supported?',
-      a: 'Asterisk, ranges (1-5), steps (*/10 or 10-30/5), and comma lists, plus JAN–DEC and SUN–SAT names.',
-    },
-  ],
   related: ['regex-tester', 'jwt-decode', 'uuid', 'json-format'],
   credits: [{ name: 'cronstrue', url: 'https://github.com/bradymholt/cronstrue', license: 'MIT' }],
   status: 'stable',

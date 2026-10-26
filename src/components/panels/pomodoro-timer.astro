@@ -1,0 +1,168 @@
+---
+/**
+ * The Pomodoro timer panel.
+ *
+ * A Pomodoro timer is a live, always-running UI, so the generic text and file
+ * workbenches cannot express it — the tool opts into this panel via
+ * `meta.panel = 'pomodoro-timer'`. The panel runs a deadline-based countdown
+ * through the phases, announces changes with a browser notification when the
+ * user opts in, and keeps a session counter.
+ *
+ * The state machine lives in `pomodoro-timer.core.ts`; the panel wires it to
+ * the DOM and to `localStorage`. Nothing is uploaded — the session and settings
+ * stay in this browser only.
+ */
+import type { ToolMeta } from '@/lib/types';
+import Icon from '@/components/Icon.astro';
+import OptionsFields from '@/components/workbench/OptionsFields.astro';
+import { DEFAULT_SETTINGS } from '@/tools/datetime/pomodoro-timer.core';
+
+interface Props {
+  meta: ToolMeta;
+}
+const { meta } = Astro.props;
+const p = meta.id;
+const headingId = `${p}-heading`;
+---
+
+<section
+  class="surface rounded-lg p-4 sm:p-6"
+  data-pomodoro-timer-panel
+  data-tool-id={meta.id}
+  aria-labelledby={headingId}
+>
+  <div class="flex flex-wrap items-center gap-2">
+    <h2
+      id={headingId}
+      class="flex items-center gap-2 text-base font-semibold text-[rgb(var(--text))]"
+    >
+      <Icon name="clock" size={18} />
+      {meta.name}
+    </h2>
+    <span class="chip">Live</span>
+  </div>
+  <p class="mt-1.5 max-w-prose text-sm leading-relaxed text-[rgb(var(--text-muted))]">
+    Run the Pomodoro technique here in this tab. The countdown is deadline-based, so a throttled or
+    backgrounded tab never drifts, and everything is stored only in this browser’s localStorage.
+  </p>
+
+  <!-- The clock -->
+  <div
+    class="mt-5 flex flex-col items-center gap-1 rounded-lg border p-5"
+    style="background-color: rgb(var(--bg-inset))"
+  >
+    <span
+      class="font-mono text-5xl tabular-nums tracking-tight text-[rgb(var(--text))]"
+      data-clock
+      role="timer">25:00</span
+    >
+    <div
+      class="mt-1 h-1.5 w-full max-w-xs overflow-hidden rounded-full"
+      style="background-color: rgb(var(--bg-subtle))"
+    >
+      <div
+        class="h-full transition-[width] duration-300 ease-linear"
+        style="width:0%; background-color: rgb(var(--accent))"
+        data-progress
+      >
+      </div>
+    </div>
+    <div class="mt-2 flex items-center gap-4 text-sm text-[rgb(var(--text-muted))]">
+      <span class="chip" data-phase>Ready</span>
+      <span>
+        Sessions: <strong class="tabular-nums text-[rgb(var(--text))]" data-sessions>0</strong>
+      </span>
+      <span>
+        Cycle: <span class="tabular-nums text-[rgb(var(--text))]" data-cycle
+          >0 / {DEFAULT_SETTINGS.cyclesBeforeLongBreak}</span
+        >
+      </span>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="mt-4 flex flex-wrap items-center gap-2.5">
+    <button type="button" class="btn btn-primary" data-start>
+      <Icon name="play" size={16} /> Start
+    </button>
+    <button type="button" class="btn btn-ghost" data-pause disabled>
+      <Icon name="stop" size={14} /> Pause
+    </button>
+    <button type="button" class="btn btn-ghost" data-skip title="Skip to the next phase">
+      <Icon name="check" size={16} /> Skip
+    </button>
+    <button type="button" class="btn btn-subtle" data-reset disabled>
+      <Icon name="x" size={16} /> Reset
+    </button>
+  </div>
+
+  <p
+    class="mt-2 text-sm text-[rgb(var(--text-muted))]"
+    data-status
+    role="status"
+    aria-live="polite"
+  >
+    Ready — press Start to begin a work phase.
+  </p>
+
+  <!-- Settings -->
+  <div class="mt-5">
+    <h3 class="text-sm font-semibold text-[rgb(var(--text))]">Settings</h3>
+    <p class="mt-1 text-xs text-[rgb(var(--text-muted))]">
+      Changes apply from the next phase; a running phase keeps its deadline.
+    </p>
+    <div class="mt-3">
+      <OptionsFields options={meta.options ?? []} idPrefix={p} />
+    </div>
+  </div>
+
+  <div
+    class="mt-3 rounded-lg border px-3 py-2 text-sm"
+    style="background-color: rgb(var(--danger-soft)); border-color: rgb(var(--danger)); color: rgb(var(--danger))"
+    role="alert"
+    data-error
+    hidden
+  >
+  </div>
+
+  <div class="mt-4" data-result-wrap hidden>
+    <span class="mb-2 block text-sm font-semibold text-[rgb(var(--text))]">Session summary</span>
+    <div class="mb-2 min-w-0" data-report hidden></div>
+    <div class="flex flex-wrap gap-x-5 gap-y-1 text-sm text-[rgb(var(--text-muted))]" data-stats>
+    </div>
+    <ul class="mt-2 space-y-1 text-xs text-[rgb(var(--text-muted))]" data-notes></ul>
+  </div>
+
+  <noscript>
+    <p class="mt-3 text-sm text-[rgb(var(--text-muted))]">
+      The Pomodoro timer needs JavaScript — the countdown runs live in this tab and never leaves it.
+    </p>
+  </noscript>
+</section>
+
+<style>
+  /*
+   * `.btn` sets `display: inline-flex` in the components layer, which beats
+   * Tailwind's base-layer `[hidden] { display: none }`. The panel toggles
+   * elements with the `hidden` attribute, so it has to win here.
+   */
+  [hidden] {
+    display: none !important;
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-pomodoro-timer-panel]').forEach((root) => {
+    // The timer logic is loaded on demand so no timer code ships to pages that
+    // do not use it.
+    void import('./pomodoro-timer-panel')
+      .then(({ mountPomodoroTimerPanel }) => mountPomodoroTimerPanel(root))
+      .catch(() => {
+        const error = root.querySelector<HTMLElement>('[data-error]');
+        if (error) {
+          error.hidden = false;
+          error.textContent = 'The Pomodoro timer panel could not be loaded in this browser.';
+        }
+      });
+  });
+</script>

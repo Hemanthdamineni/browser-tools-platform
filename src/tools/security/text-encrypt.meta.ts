@@ -56,19 +56,10 @@ export const meta: ToolMeta = {
         'TBenc1.VHnONYxWKMKAx6iMPgk+f7MulPOhXvyjQA2xntSPy2wMR9QWCJah30V1C92r9vd5IGYgCseVwe2K/ODCjk+wWYHPlPDXoKfV',
       options: { mode: 'decrypt', password: 'correct horse battery staple' },
     },
-  ],
-  faq: [
     {
-      q: 'What exactly does the encryption do?',
-      a: 'A random 16-byte salt is generated and your passphrase is stretched into a 256-bit key with PBKDF2-SHA256 at 600,000 iterations. The text is then encrypted with AES-256-GCM using a random 12-byte IV. The output is "TBenc1." followed by base64 of salt (16 bytes) + IV (12 bytes) + ciphertext with its authentication tag.',
-    },
-    {
-      q: 'I forgot the password — can you recover my text?',
-      a: 'No. There is no backup, no recovery hint and no server. A lost passphrase means the ciphertext is permanently unreadable, by design.',
-    },
-    {
-      q: 'Is this safe for highly sensitive data?',
-      a: 'The primitives are standard and run locally via the Web Crypto API, but security still depends on a strong, unique passphrase and a trusted device. For high-stakes secrets use dedicated, audited software.',
+      title: 'Encrypt a short key',
+      input: 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5 shared staging key',
+      options: { mode: 'encrypt', password: 'river-stone-42' },
     },
   ],
   related: ['file-hash', 'uuid', 'base64', 'hex'],

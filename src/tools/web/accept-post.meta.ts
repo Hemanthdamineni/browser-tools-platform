@@ -41,20 +41,7 @@ export const meta: ToolMeta = {
       input: 'application/json, application/x-www-form-urlencoded',
     },
     { title: 'Build a capability header', options: { mode: 'build', types: 'application/json' } },
-  ],
-  faq: [
-    {
-      q: 'Does Accept-Post authorize a client?',
-      a: 'No. It advertises supported document formats; authentication and authorization still determine whether a POST is allowed.',
-    },
-    {
-      q: 'Where is Accept-Post useful?',
-      a: 'It can describe formats accepted by a resource, commonly in OPTIONS responses or API capability discovery.',
-    },
-    {
-      q: 'What happens for an unsupported format?',
-      a: 'A server may reject the request with 415 Unsupported Media Type.',
-    },
+    { title: 'Spot a wildcard capability', input: 'application/json, */*' },
   ],
   related: ['content-type', 'accept-patch', 'http-status'],
   status: 'stable',

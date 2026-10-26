@@ -42,19 +42,9 @@ export const meta: ToolMeta = {
       title: 'Build a mobile-first query',
       options: { mode: 'build', minWidth: '480px', features: '(prefers-reduced-motion: reduce)' },
     },
-  ],
-  faq: [
     {
-      q: 'What makes a media query?',
-      a: 'A media type (optional, default all) plus one or more feature conditions combined by and, or, or not.',
-    },
-    {
-      q: 'Should I use min-width or max-width first?',
-      a: 'Mobile-first CSS favors min-width so base styles apply to small screens and breakpoints add on. Desktop-first favors max-width.',
-    },
-    {
-      q: 'Why balance parentheses?',
-      a: 'Media queries nest feature expressions in parentheses; unbalanced parens make the whole rule invalid and the declaration block is dropped.',
+      title: 'Analyze a range query',
+      input: '@media (hover: hover) and (min-width: 768px)',
     },
   ],
   related: ['css-grid', 'fluid-clamp', 'css-units'],

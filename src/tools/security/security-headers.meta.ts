@@ -32,19 +32,10 @@ export const meta: ToolMeta = {
       title: 'Review a minimal block',
       input: 'HTTP/1.1 200 OK\nServer: example',
     },
-  ],
-  faq: [
     {
-      q: 'Does this scan a website?',
-      a: 'No. Paste response headers yourself. The tool never makes a network request and cannot verify which headers a live server actually sends.',
-    },
-    {
-      q: 'Does a passing result mean my site is secure?',
-      a: 'No. This is a narrow, heuristic review of selected response headers. Security depends on application behavior, deployment, browser support, and many other controls.',
-    },
-    {
-      q: 'Why might a header be marked for review?',
-      a: 'Some policies depend on context. For example, HSTS should only be sent over HTTPS and CSP needs to match the resources your application actually uses. Read the suggestions before changing production settings.',
+      title: 'Missing framing protection',
+      input:
+        "HTTP/1.1 200 OK\nContent-Security-Policy: default-src 'self'\nX-Content-Type-Options: nosniff\nStrict-Transport-Security: max-age=31536000",
     },
   ],
   related: ['http-status', 'basic-auth', 'jwt-decode'],

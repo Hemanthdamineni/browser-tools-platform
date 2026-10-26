@@ -35,23 +35,15 @@ export const meta: ToolMeta = {
       help: 'COM segments often hold camera, scanner or software notes.',
     },
   ],
-  examples: [{ title: 'Strip a photo' }],
-  faq: [
+  examples: [
+    { title: 'Strip a photo' },
     {
-      q: 'Is stripping really lossless?',
-      a: 'Yes. The compressed image data (JPEG scan, PNG IDAT or WebP image chunk) is copied byte-for-byte. Only metadata segments are dropped, so image quality never changes.',
+      title: 'Keep the ICC profile, drop comments',
+      options: { keepColorProfile: true, removeComments: true },
     },
     {
-      q: 'Why does my photo look rotated afterwards?',
-      a: 'Many cameras store the orientation in an EXIF tag instead of rotating the pixels. Once that tag is removed, viewers show the raw orientation. Rotate the image first if that matters.',
-    },
-    {
-      q: 'Which formats are supported?',
-      a: 'JPEG, PNG and WebP. GIF, BMP, AVIF, TIFF and HEIC are not supported — convert them first with the Image Converter.',
-    },
-    {
-      q: 'Is anything uploaded?',
-      a: 'No. Parsing and rewriting happen entirely in your browser; the files never leave your device.',
+      title: 'Strip everything including the colour profile',
+      options: { keepColorProfile: false, removeComments: true },
     },
   ],
   related: ['image-metadata', 'image-compress', 'image-convert'],

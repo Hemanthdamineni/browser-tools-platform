@@ -36,15 +36,9 @@ export const meta: ToolMeta = {
   examples: [
     { title: '600 × 400 default', options: { width: 600, height: 400 } },
     { title: 'Hero banner', options: { width: 1200, height: 300, label: 'Hero' } },
-  ],
-  faq: [
     {
-      q: 'Why SVG instead of PNG?',
-      a: 'SVG is text — a few hundred bytes, infinitely scalable, and it can be committed to a repo or inlined into HTML. No raster generation is needed.',
-    },
-    {
-      q: 'Can I use any colours?',
-      a: 'Any hex colour works. The image is generated in your browser, so nothing is fetched from placeholder services like via.placeholder.com.',
+      title: 'Dark square avatar slot',
+      options: { width: 256, height: 256, bg: '#1e293b', fg: '#f8fafc', label: 'Avatar' },
     },
   ],
   related: ['qr-code', 'data-uri', 'image-resize'],

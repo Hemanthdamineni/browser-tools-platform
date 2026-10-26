@@ -24,7 +24,11 @@ export const meta: ToolMeta = {
     },
     { key: 'outputName', label: 'Output filename', type: 'text', default: 'joined.bin' },
   ],
-  examples: [{ title: 'Join split file parts' }],
+  examples: [
+    { title: 'Join split file parts' },
+    { title: 'Join parts in upload order', options: { sort: 'upload-order' } },
+    { title: 'Verify a manifest and rename the output', options: { outputName: 'restored.zip' } },
+  ],
   related: ['file-split'],
   status: 'stable',
 };

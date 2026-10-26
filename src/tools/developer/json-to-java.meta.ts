@@ -57,19 +57,15 @@ export const meta: ToolMeta = {
       input: '{"id":1,"name":"Ada","active":true,"tags":["math"]}',
       options: { className: 'User' },
     },
-  ],
-  faq: [
     {
-      q: 'Which types are inferred?',
-      a: 'Strings become String, whole numbers Integer (or Long when they exceed int range), decimals Double, booleans Boolean, nulls Object, nested objects a nested class, and arrays List<T>. Wrapper types are used by default so null values are safe.',
+      title: 'Array of objects to Java records',
+      input: '[{"id":1,"name":"Ada"},{"id":2,"name":"Alan"}]',
+      options: { className: 'User', style: 'record' },
     },
     {
-      q: 'How are keys turned into field names?',
-      a: 'Keys are camelCased (user_name and user-name both become userName), invalid characters are stripped, and Java reserved words get a trailing underscore (class → class_).',
-    },
-    {
-      q: 'What do the three styles emit?',
-      a: 'POJO emits fields plus getters and setters; Lombok emits @Data with fields only; record emits a Java 16+ record with a canonical constructor. Nested types are emitted as nested static classes (or nested records).',
+      title: 'Lombok class with a package',
+      input: '{"order_id":7,"total":12.5,"shipped":false}',
+      options: { className: 'Order', packageName: 'com.example.api', style: 'lombok' },
     },
   ],
   related: ['json-to-typescript', 'json-to-csharp', 'json-to-go-struct', 'json-to-swift'],

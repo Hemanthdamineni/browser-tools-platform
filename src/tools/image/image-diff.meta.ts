@@ -34,8 +34,11 @@ export const meta: ToolMeta = {
       ],
     },
   ],
-  examples: [{ title: 'Compare two images' }],
-  related: ['diff-text', 'image-metadata'],
+  examples: [
+    { title: 'Compare two images' },
+    { title: 'Spot tiny differences with a low threshold', options: { threshold: 0 } },
+    { title: 'View both images side by side', options: { output: 'side-by-side' } },
+  ],
   status: 'stable',
   updated: '2026-10-17',
 };

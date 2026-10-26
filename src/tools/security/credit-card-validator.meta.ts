@@ -35,19 +35,10 @@ export const meta: ToolMeta = {
       title: 'An Amex number',
       input: '3782 822463 10005',
     },
-  ],
-  faq: [
     {
-      q: 'Is this a real payment card check?',
-      a: 'No — the result is a checksum (Luhn) and a formatting check only. It tells you whether the number is well-formed, not whether a real card exists. This never contacts a bank or network, and runs entirely on your device.',
-    },
-    {
-      q: 'How is the brand detected?',
-      a: 'From the leading digits: 4 for Visa, 51–55 and 2221–2720 for Mastercard, 34/37 for Amex, 6011/65/64x for Discover, and so on. Brand detection is for the Issuer Identification Number range only.',
-    },
-    {
-      q: 'What if the brand is unknown?',
-      a: 'The Luhn check still runs. Unknown prefixes are reported as an unrecognised brand with no length requirement, so the verdict rests on the checksum.',
+      title: 'Luhn check without the brand length rule',
+      input: '4111 1111 1111 1111',
+      options: { strictLength: false },
     },
   ],
   related: ['hash', 'totp-authenticator', 'random-string', 'password-strength'],

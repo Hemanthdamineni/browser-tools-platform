@@ -52,12 +52,6 @@ export const meta: ToolMeta = {
     { title: 'Pastels', input: '', options: { style: 'pastel', count: 6 } },
     { title: 'Grayscale as rgb()', input: '', options: { style: 'grayscale', format: 'rgb' } },
   ],
-  faq: [
-    {
-      q: 'Are the colors truly random?',
-      a: 'Yes - they come from the browser cryptographic random number generator (crypto.getRandomValues), not a seeded pseudo-random generator.',
-    },
-  ],
   related: ['color-palette', 'random-data', 'color-blend'],
   status: 'stable',
 };

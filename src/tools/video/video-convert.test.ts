@@ -193,7 +193,11 @@ describe('resolveConvertOptions', () => {
 
 describe('decideConvertPlan — the container↔codec matrix', () => {
   it('remuxes H.264 into MP4', () => {
-    const plan = decideConvertPlan(source({ videoCodec: 'avc' }), prefs({ container: 'mp4' }), caps());
+    const plan = decideConvertPlan(
+      source({ videoCodec: 'avc' }),
+      prefs({ container: 'mp4' }),
+      caps(),
+    );
     expect(plan.video).toEqual({ path: 'remux', codec: 'avc' });
     expect(plan.audio).toEqual({ path: 'remux', codec: 'aac' });
     expect(plan.bitrate).toBeNull();
@@ -496,7 +500,10 @@ interface FakeEngineConfig {
   hasAudio?: boolean;
   encodableVideo?: string[];
   encodableAudio?: string[];
-  containerFormats?: Record<string, { video: string[]; audio: string[]; mime: string; ext: string }>;
+  containerFormats?: Record<
+    string,
+    { video: string[]; audio: string[]; mime: string; ext: string }
+  >;
 }
 
 const DEFAULT_CONTAINER_FORMATS: Record<
@@ -509,7 +516,12 @@ const DEFAULT_CONTAINER_FORMATS: Record<
     mime: 'video/mp4',
     ext: 'mp4',
   },
-  WebMOutputFormat: { video: ['vp9', 'vp8', 'av1'], audio: ['opus', 'vorbis'], mime: 'video/webm', ext: 'webm' },
+  WebMOutputFormat: {
+    video: ['vp9', 'vp8', 'av1'],
+    audio: ['opus', 'vorbis'],
+    mime: 'video/webm',
+    ext: 'webm',
+  },
   MovOutputFormat: {
     video: ['avc', 'hevc', 'vp9', 'av1', 'vp8', 'prores'],
     audio: ['aac', 'opus'],
@@ -695,12 +707,9 @@ function fakeEngine(config: FakeEngineConfig = {}) {
       const output = this.options.output as FakeOutput;
       const videoOptions = this.options.video as Record<string, any> | undefined;
       const audioOptions = this.options.audio as Record<string, any> | undefined;
-      const outVideoCodec = videoOptions?.discard
-        ? 'none'
-        : (videoOptions?.codec ?? videoCodec);
-      const outAudioCodec = !hasAudio || audioOptions?.discard
-        ? null
-        : (audioOptions?.codec ?? audioCodec);
+      const outVideoCodec = videoOptions?.discard ? 'none' : (videoOptions?.codec ?? videoCodec);
+      const outAudioCodec =
+        !hasAudio || audioOptions?.discard ? null : (audioOptions?.codec ?? audioCodec);
       const target = output.options.target;
       target.buffer = encodeFakeVideo(outVideoCodec, outAudioCodec).buffer as ArrayBuffer;
       this.onProgress?.(0, 0);
@@ -784,7 +793,12 @@ async function withWebCodecsAsync<T>(fn: () => Promise<T>): Promise<T> {
       close(): void {}
     },
   );
-  vi.stubGlobal('VideoFrame', class FakeVideoFrame { close(): void {} });
+  vi.stubGlobal(
+    'VideoFrame',
+    class FakeVideoFrame {
+      close(): void {}
+    },
+  );
   try {
     return await fn();
   } finally {
@@ -1078,10 +1092,7 @@ describe('runVideoConvert', () => {
             audioCodec: 'opus',
           }),
       };
-      return runVideoConvert(
-        { files: [file('clip.mp4')], options: { container: 'webm' } },
-        deps,
-      );
+      return runVideoConvert({ files: [file('clip.mp4')], options: { container: 'webm' } }, deps);
     });
     expect(result.outputs[0]!.filename).toBe('clip-converted.webm');
     expect(result.notes?.join(' ')).toMatch(/Re-encoded to VP9/);
@@ -1115,15 +1126,15 @@ describe('runVideoConvert', () => {
   });
 
   it('rejects an unknown container before any work starts', async () => {
-    await expect(
-      tool.run({ files: [file()], options: { container: 'avi' } }),
-    ).rejects.toThrow(/not a container this tool can write/i);
+    await expect(tool.run({ files: [file()], options: { container: 'avi' } })).rejects.toThrow(
+      /not a container this tool can write/i,
+    );
   });
 
   it('rejects an unknown codec before any work starts', async () => {
-    await expect(
-      tool.run({ files: [file()], options: { videoCodec: 'mpeg2' } }),
-    ).rejects.toThrow(/not a video codec this tool can target/i);
+    await expect(tool.run({ files: [file()], options: { videoCodec: 'mpeg2' } })).rejects.toThrow(
+      /not a video codec this tool can target/i,
+    );
   });
 
   it('reports progress that only ever moves forward', async () => {
@@ -1165,22 +1176,16 @@ describe('the fake engine end to end', () => {
     const { engine } = fakeEngine({ videoCodec: 'avc', audioCodec: 'aac' });
     const deps: ConvertDeps = {
       probe: (sourceFile, ctx) => probeConvertSource(sourceFile, ctx, engine),
-      convert: (sourceFile, plan, info, ctx) =>
-        convertVideo(sourceFile, plan, info, ctx, engine),
+      convert: (sourceFile, plan, info, ctx) => convertVideo(sourceFile, plan, info, ctx, engine),
     };
 
     const result = await withWebCodecsAsync(() =>
-      runVideoConvert(
-        { files: [file('holiday.mkv', 4096)], options: { container: 'mp4' } },
-        deps,
-      ),
+      runVideoConvert({ files: [file('holiday.mkv', 4096)], options: { container: 'mp4' } }, deps),
     );
 
     // H.264 into MP4 remuxes: the output carries the source codec untouched.
     expect(result.outputs[0]!.filename).toBe('holiday-converted.mp4');
-    const written = decodeFakeVideo(
-      new Uint8Array(await result.outputs[0]!.blob.arrayBuffer()),
-    );
+    const written = decodeFakeVideo(new Uint8Array(await result.outputs[0]!.blob.arrayBuffer()));
     expect(written).toEqual({ videoCodec: 'avc', audioCodec: 'aac' });
     expect(result.stats).toMatchObject({ videoPath: 'remux' });
   });
@@ -1189,21 +1194,15 @@ describe('the fake engine end to end', () => {
     const { engine, conversions } = fakeEngine({ videoCodec: 'avc' });
     const deps: ConvertDeps = {
       probe: (sourceFile, ctx) => probeConvertSource(sourceFile, ctx, engine),
-      convert: (sourceFile, plan, info, ctx) =>
-        convertVideo(sourceFile, plan, info, ctx, engine),
+      convert: (sourceFile, plan, info, ctx) => convertVideo(sourceFile, plan, info, ctx, engine),
     };
 
     const result = await withWebCodecsAsync(() =>
-      runVideoConvert(
-        { files: [file('holiday.mp4', 4096)], options: { container: 'webm' } },
-        deps,
-      ),
+      runVideoConvert({ files: [file('holiday.mp4', 4096)], options: { container: 'webm' } }, deps),
     );
 
     expect(result.stats).toMatchObject({ videoPath: 'transcode', container: 'webm' });
-    const written = decodeFakeVideo(
-      new Uint8Array(await result.outputs[0]!.blob.arrayBuffer()),
-    );
+    const written = decodeFakeVideo(new Uint8Array(await result.outputs[0]!.blob.arrayBuffer()));
     expect(written.videoCodec).toBe('vp9');
     // The encoder was asked for the source's own bitrate, so quality holds.
     expect(conversions[0]!.video.quality.options.bitrate).toBe(8_000_000);
@@ -1213,8 +1212,7 @@ describe('the fake engine end to end', () => {
     const { engine } = fakeEngine({ videoCodec: 'prores', videoDecodable: false });
     const deps: ConvertDeps = {
       probe: (sourceFile, ctx) => probeConvertSource(sourceFile, ctx, engine),
-      convert: (sourceFile, plan, info, ctx) =>
-        convertVideo(sourceFile, plan, info, ctx, engine),
+      convert: (sourceFile, plan, info, ctx) => convertVideo(sourceFile, plan, info, ctx, engine),
     };
     await withWebCodecsAsync(async () => {
       await expect(

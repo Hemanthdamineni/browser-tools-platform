@@ -51,16 +51,6 @@ export const meta: ToolMeta = {
     { title: 'ROT47 "Hello"', input: 'Hello', options: { variant: 'rot47' } },
     { title: 'Caesar +3 on "abc XYZ"', input: 'abc XYZ', options: { variant: 'caesar', shift: 3 } },
   ],
-  faq: [
-    {
-      q: 'How do I decrypt the result?',
-      a: 'ROT13 and ROT47 are their own inverse — run the tool again with the same variant to get the original text back. ROT5 and ROT18 are also self-inverse for their character sets. A Caesar shift of n is undone by a shift of 26 − n.',
-    },
-    {
-      q: 'Which characters are changed?',
-      a: 'ROT13 and Caesar touch A–Z/a–z only, ROT5 touches 0–9 only, ROT18 touches both, and ROT47 touches every printable ASCII character from "!" (33) to "~" (126). Everything else, including spaces and non-ASCII letters, is left untouched.',
-    },
-  ],
   related: ['case-convert', 'reverse-text', 'morse-code', 'nato-phonetic'],
   status: 'stable',
 };

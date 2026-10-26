@@ -38,20 +38,6 @@ export const meta: ToolMeta = {
     { title: 'Non-breaking space', input: 'price: 10 USD' },
     { title: 'Zero-width space', input: 'invisible​break' },
   ],
-  faq: [
-    {
-      q: 'Which characters are shown in visualization mode?',
-      a: 'Spaces, tabs, common Unicode spaces, line endings, C0/C1 control characters, byte-order marks, and selected zero-width formatting characters are replaced with labels containing their Unicode code point.',
-    },
-    {
-      q: 'What does clean mode change?',
-      a: 'It converts non-breaking spaces to ordinary spaces and removes zero-width space, non-joiner, word joiner, byte-order mark, and several invisible formatting controls. Zero-width joiner is retained because it is needed for emoji sequences and shaping in some scripts.',
-    },
-    {
-      q: 'Are my text or files uploaded?',
-      a: 'No. The text is processed entirely in your browser and is not sent over the network.',
-    },
-  ],
-  related: ['normalize-whitespace', 'remove-empty-lines', 'unicode-escape'],
+  related: ['unicode-lookup', 'remove-empty-lines', 'find-replace'],
   status: 'stable',
 };

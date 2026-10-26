@@ -49,16 +49,6 @@ export const meta: ToolMeta = {
       options: { mode: 'trim-trailing' },
     },
   ],
-  faq: [
-    {
-      q: 'Does a line with only spaces or tabs count as blank?',
-      a: 'Yes. In every mode a line is "blank" when it contains nothing but whitespace.',
-    },
-    {
-      q: 'What does collapse do to leading blank lines?',
-      a: 'Any run of consecutive blank lines anywhere in the text — including at the start — is reduced to a single blank line.',
-    },
-  ],
   related: ['dedupe-lines', 'line-numbers', 'sort-lines', 'find-replace'],
   status: 'stable',
 };

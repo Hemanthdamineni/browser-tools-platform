@@ -38,20 +38,7 @@ export const meta: ToolMeta = {
       input: 'Hello, world!',
       options: { mode: 'analyze', digest: 'bNNVbesNpUvKBgtMOUeYOQ==' },
     },
-  ],
-  faq: [
-    {
-      q: 'Is Content-MD5 secure?',
-      a: 'No. MD5 is collision-weak and Content-MD5 is not an authenticity mechanism. Prefer Content-Digest or a cryptographic signature for modern systems.',
-    },
-    {
-      q: 'What bytes are hashed?',
-      a: 'This tool hashes the UTF-8 encoding of the entered text, which must match the representation bytes used by the sender.',
-    },
-    {
-      q: 'Does this make a network request?',
-      a: 'No. Digest computation and verification run entirely in your browser.',
-    },
+    { title: 'Build a digest for an API body', input: '{"order":42}', options: { mode: 'build' } },
   ],
   related: ['http-header-analyzer', 'checksum-validator', 'hash'],
   status: 'stable',

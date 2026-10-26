@@ -1,5 +1,5 @@
 import type { ToolMeta } from '@/lib/types';
-import { pdfCredit } from './shared';
+import { pdfCredit } from './credits';
 export const meta: ToolMeta = {
   id: 'pdf-split',
   name: 'Split PDF',
@@ -44,12 +44,7 @@ export const meta: ToolMeta = {
   examples: [
     { title: 'One file per page' },
     { title: 'Split into ranges', options: { mode: 'ranges', ranges: '1-3,4-' } },
-  ],
-  faq: [
-    {
-      q: 'Why a ZIP?',
-      a: 'When the split produces more than one file they are bundled into a single ZIP download.',
-    },
+    { title: 'Split into 5-page chunks', options: { mode: 'fixed-size', size: 5 } },
   ],
   related: ['pdf-merge', 'pdf-extract-pages', 'pdf-delete-pages'],
   credits: [pdfCredit],

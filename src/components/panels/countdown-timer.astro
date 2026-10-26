@@ -1,0 +1,159 @@
+---
+/**
+ * The countdown timer workbench: add a duration (with an optional name), and
+ * start it ticking. Several timers can run at once — each with its own Pause,
+ * Resume, Restart and Remove controls, a large readable remaining time, and a
+ * sound and optional notification when it finishes.
+ *
+ * The generic text workbench cannot express a live, running timer, so the tool
+ * opts into this panel via `meta.panel = 'countdown-timer'`. All the logic that
+ * is worth testing lives in `countdown-timer-panel.ts`; this component only
+ * lays out the controls and loads that module.
+ */
+import type { ToolMeta } from '@/lib/types';
+import Icon from '@/components/Icon.astro';
+
+interface Props {
+  meta: ToolMeta;
+}
+const { meta } = Astro.props;
+const id = meta.id;
+const headingId = `${id}-heading`;
+const presets = [1, 3, 5, 10];
+const examples = meta.examples ?? [];
+---
+
+<section
+  class="surface rounded-lg p-4 sm:p-6"
+  data-countdown-panel
+  data-tool-id={meta.id}
+  aria-labelledby={headingId}
+>
+  <h2
+    id={headingId}
+    class="flex items-center gap-2 text-base font-semibold text-[rgb(var(--text))]"
+  >
+    <Icon name="clock" size={18} /> Countdown timer
+  </h2>
+  <p class="mt-1.5 max-w-prose text-sm leading-relaxed text-[rgb(var(--text-muted))]">
+    Add a duration such as <span class="font-mono text-xs">90s</span>,{' '}
+    <span class="font-mono text-xs">2m30s</span> or{' '}
+    <span class="font-mono text-xs">5:00</span> — put a name first (Tea 3m) to label the timer. It starts
+    counting down immediately and stays correct even if the tab is in the background.
+  </p>
+
+  <!-- Add a timer -->
+  <div class="mt-4 flex flex-wrap items-end gap-2.5">
+    <div class="min-w-0 flex-1">
+      <label class="text-xs font-medium text-[rgb(var(--text-muted))]" for={`${id}-duration`}>
+        Duration <span class="font-mono">(90s, 2m30s, 1h)</span>
+      </label>
+      <input
+        id={`${id}-duration`}
+        type="text"
+        class="field mt-1 font-mono"
+        placeholder="Tea 3m"
+        autocomplete="off"
+        spellcheck="false"
+        data-duration-input
+      />
+    </div>
+    <button type="button" class="btn btn-primary" data-add-timer>
+      <Icon name="zap" size={15} /> Add timer
+    </button>
+  </div>
+
+  <div class="mt-3 flex flex-wrap items-center gap-1.5" data-preset-row>
+    <span class="text-xs text-[rgb(var(--text-muted))]">Presets:</span>
+    {
+      presets.map((minutes) => (
+        <button type="button" class="btn btn-subtle btn-sm" data-preset={String(minutes * 60)}>
+          {minutes} min
+        </button>
+      ))
+    }
+  </div>
+
+  {
+    examples.length > 0 && (
+      <div class="mt-2 flex flex-wrap items-center gap-1.5" data-example-row>
+        <span class="text-xs text-[rgb(var(--text-muted))]">Examples:</span>
+        {examples.map((example) => (
+          <button type="button" class="chip" data-example data-example-entry={example.input ?? ''}>
+            {example.title}
+          </button>
+        ))}
+      </div>
+    )
+  }
+
+  <!-- The timers and their summary -->
+  <div class="mt-5" data-result-wrap>
+    <p class="text-sm text-[rgb(var(--text-muted))]" data-timer-empty>
+      No timers yet — add a duration above, or pick a preset.
+    </p>
+    <ul class="space-y-2" data-timer-list aria-label="Running countdown timers"></ul>
+    <div class="mt-4" data-timer-summary-wrap hidden>
+      <h3 class="text-sm font-semibold text-[rgb(var(--text))]">Summary</h3>
+      <div class="mt-2 overflow-x-auto rounded-lg border" data-timer-summary></div>
+      <ul class="mt-2 space-y-1 text-xs" data-timer-notes></ul>
+    </div>
+  </div>
+
+  <p
+    class="mt-3 text-xs text-[rgb(var(--text-muted))]"
+    data-timer-status
+    role="status"
+    aria-live="polite"
+  >
+    Add a duration to start a countdown.
+  </p>
+
+  <!-- Alerts -->
+  <div class="mt-4 flex flex-wrap items-end gap-4 text-sm">
+    <label class="flex items-center gap-2 text-[rgb(var(--text-muted))]">
+      <input type="checkbox" class="h-4 w-4" data-sound checked />
+      Beep when a timer finishes
+    </label>
+    <label class="flex items-center gap-2 text-[rgb(var(--text-muted))]">
+      <input type="checkbox" class="h-4 w-4" data-notify />
+      Send a desktop notification
+    </label>
+    <label class="flex flex-col gap-1">
+      <span class="text-xs font-medium text-[rgb(var(--text-muted))]">Report format</span>
+      <select class="field !w-auto" data-format>
+        <option value="clock" selected>Clock — 02:30</option>
+        <option value="words">Words — 2 minutes 30 seconds</option>
+      </select>
+    </label>
+  </div>
+
+  <div
+    class="mt-4 rounded-lg border px-3 py-2 text-sm"
+    style="background-color: rgb(var(--danger-soft)); border-color: rgb(var(--danger)); color: rgb(var(--danger))"
+    role="alert"
+    data-timer-error
+    hidden
+  >
+  </div>
+
+  <noscript>
+    <p class="mt-3 text-sm text-[rgb(var(--text-muted))]">
+      Timers need JavaScript. Without it the page has nothing to count down.
+    </p>
+  </noscript>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-countdown-panel]').forEach((root) => {
+    void import('./countdown-timer-panel')
+      .then(({ mountCountdownTimerPanel }) => mountCountdownTimerPanel(root))
+      .catch(() => {
+        const error = root.querySelector<HTMLElement>('[data-timer-error]');
+        if (error) {
+          error.hidden = false;
+          error.textContent = 'The timer panel could not be loaded in this browser.';
+        }
+      });
+  });
+</script>

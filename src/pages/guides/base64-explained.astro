@@ -1,0 +1,133 @@
+---
+import Layout from '@/components/Layout.astro';
+import { getGuide, guideJsonLd } from '@/lib/guides';
+
+const guide = getGuide('/guides/base64-explained');
+---
+
+<Layout
+  title={guide.title}
+  description={guide.description}
+  path={guide.path}
+  ogType="article"
+  jsonLd={[guideJsonLd(guide)]}
+  narrow
+>
+  <article class="prose-tool max-w-prose">
+    <h1 class="text-2xl font-bold tracking-tight text-[rgb(var(--text))] sm:text-3xl">
+      {guide.title}
+    </h1>
+
+    <p>
+      Base64 is not encryption, compression or a secret code — it is a way of writing raw bytes
+      using only 64 printable ASCII characters. It exists because many channels can carry text but
+      not arbitrary bytes: an email body, a JSON string, a URL, or an attribute in old HTML.
+      Whenever you must squeeze binary data into one of those channels, Base64 is the standard way
+      to do it.
+    </p>
+
+    <h2>What the encoding actually does</h2>
+    <p>
+      Bytes are eight bits, but the 64 Base64 characters only need six bits each. The encoder reads
+      the input three bytes at a time (24 bits) and splits those 24 bits into four groups of six,
+      then maps each six-bit group to one of the 64 alphabet characters (<code>A–Z a–z 0–9 + /</code
+      >). If fewer than three bytes are left at the end, it pads the result with one or two <code
+        >=</code
+      > characters so the output stays a multiple of four.
+    </p>
+    <p>
+      So the string <code>Toolbench</code> is not "encrypted" by this — it is re-expressed. Decoding runs
+      the same mapping in reverse: skip the padding, turn the letters back into six-bit values and stitch
+      them back into bytes.
+    </p>
+
+    <h2>The ~33% size overhead</h2>
+    <p>
+      Because three input bytes become four output characters, Base64 always makes things bigger:
+      every three bytes become four characters, so the size grows by 4⁄3, or about 33%. A 3 MB file
+      becomes roughly 4 MB of text. Gzip can reclaim much of that for compressible input, but for
+      already-compressed data (a JPEG, a PNG, a ZIP) the overhead stays close to the full third.
+    </p>
+    <p>
+      That growth is why you should think before Base64-ing a binary blob "for storage". If the
+      destination actually accepts bytes — a file system, an HTTP body — send the bytes. Base64 is
+      for text-only channels, not as a general-purpose container.
+    </p>
+
+    <h2>When to reach for it</h2>
+    <ul>
+      <li>
+        <strong>Data URIs</strong> in HTML or CSS (<code>data:image/png;base64,…</code>) so a small
+        asset ships inside the document instead of as a separate request.
+      </li>
+      <li><strong>Email attachments</strong>, where the transport is plain text.</li>
+      <li>
+        <strong>Embedding a binary payload in JSON</strong> — JSON has no byte type, so Base64 is the
+        agreed convention.
+      </li>
+      <li>
+        <strong>JWTs and API tokens</strong>, which are Base64url text on the wire (see below).
+      </li>
+    </ul>
+
+    <h2>The URL-safe variant</h2>
+    <p>
+      The standard alphabet includes <code>+</code> and <code>/</code>, which mean "space" and path
+      separator in URLs and filenames, so the RFC 4648 §5 alphabet swaps them for <code>-</code> and
+      <code>_</code> and drops the trailing <code>=</code> padding. That variant is called base64url and
+      is what you see inside a JSON Web Token: the three dot-separated segments of a JWT are all unpadded
+      base64url. The safe rule is: if the value might appear in a URL, a query string or a filename, use
+      the URL-safe alphabet and no padding.
+    </p>
+
+    <h2>Unicode caveat</h2>
+    <p>
+      Base64 operates on bytes, so text must be turned into bytes first — normally UTF-8. The naive
+      browser pair <code>btoa</code>/<code>atob</code> throws on anything outside Latin-1; the correct
+      path is to UTF-8-encode first. This is exactly why a quick online encoder returns garbage for emoji,
+      while a proper one round-trips them.
+    </p>
+
+    <h2>Put it into practice</h2>
+    <p>
+      The{' '}
+      <a href="/tools/base64">Base64 Encode / Decode</a> tool encodes text or a whole file, supports the
+      URL-safe alphabet and 76-character MIME wrapping, and round-trips UTF-8 correctly. For the related
+      encodings, try <a href="/tools/base32">Base32</a>,{' '}
+      <a href="/tools/hex">Hex</a> or the <a href="/tools/url-encode">URL encoder</a>. And if you
+      are hashing rather than encoding, the{' '}
+      <a href="/guides/which-hash">Which hash should I use?</a> guide covers the difference.
+    </p>
+
+    <h2>Rules of thumb</h2>
+    <ul>
+      <li>Use it for text-only channels, not as a general container for binary data.</li>
+      <li>
+        Never treat it as privacy — an encoded value is one paste into a decoder away from readable.
+      </li>
+      <li>Pick the URL-safe alphabet whenever the value might land in a URL or a filename.</li>
+      <li>
+        Prefer hex for anything a human will read or diff, such as digests and checksums: it is
+        case-insensitive and contains no punctuation.
+      </li>
+      <li>
+        When decoding a pasted value, tolerate stray whitespace and missing padding on input, but be
+        strict when turning a file back into bytes.
+      </li>
+    </ul>
+
+    <h2>More guides</h2>
+    <ul>
+      <li>
+        <a href="/guides/which-hash">Which hash should I use?</a> — digests, password storage and HMAC.
+      </li>
+      <li>
+        <a href="/guides/cron-cheat-sheet">Cron syntax cheat sheet</a> — scheduling recurring jobs without
+        guessing.
+      </li>
+      <li>
+        <a href="/guides/color-contrast-wcag">Colour contrast and WCAG</a> — accessible colour choices.
+      </li>
+    </ul>
+  </article>
+</Layout>

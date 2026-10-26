@@ -71,19 +71,24 @@ export const meta: ToolMeta = {
       input: 'Add pagination to the list endpoint',
       options: { type: 'feat', scope: 'api' },
     },
-  ],
-  faq: [
     {
-      q: 'What is Conventional Commits?',
-      a: 'A widely used naming scheme that encodes the intent of a change in the commit subject — `feat(x): do thing` means a new feature in the x area. This tool produces that format so you match your team’s convention every time.',
+      title: 'Breaking change with its own footer text',
+      input: 'Drop the page parameter from list endpoints',
+      options: {
+        type: 'feat',
+        scope: 'api',
+        breaking: true,
+        breakingDetail: 'Use limit plus cursor instead of page.',
+      },
     },
     {
-      q: 'How are breaking changes shown?',
-      a: 'A `!` is added right after type(scope), so `feat(api)!: ...`, and an optional BREAKING CHANGE: footer is appended from the detail field.',
-    },
-    {
-      q: 'Why warn about the length?',
-      a: 'The spec suggests keeping subjects below ~72 characters so git and emailing lists stay readable. A note appears when yours is longer; it is only a hint, not a hard failure.',
+      title: 'A fix with an explanatory body',
+      input: 'Treat a 204 response as success',
+      options: {
+        type: 'fix',
+        scope: 'http',
+        body: 'Retries no longer flag an empty body as a failure.\nThe retry budget is unchanged.',
+      },
     },
   ],
   related: ['diff-text', 'markdown-table', 'semver', 'slugify'],

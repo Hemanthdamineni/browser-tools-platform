@@ -1,0 +1,194 @@
+---
+/**
+ * The Mermaid Renderer panel: a split-pane editor.
+ *
+ * The generic text workbench cannot express a live preview, so the tool opts
+ * into this panel via `meta.panel = 'mermaid-renderer'`. The panel keeps the
+ * `data-panel-workbench` marker (added by PanelWorkbench) so the shared sweep
+ * treats it like every other tool, while `mermaid-renderer-panel.ts` drives the
+ * debounced render, the serialised SVG and the PNG export.
+ *
+ * The preview lives in an `<iframe sandbox>` without `allow-scripts` and
+ * without `allow-same-origin`, and the preview document carries a strict
+ * Content-Security-Policy: the SVG markup can neither run script nor reach
+ * this page nor fetch from the network.
+ */
+import type { ToolMeta } from '@/lib/types';
+import OptionsFields from '../workbench/OptionsFields.astro';
+import Icon from '@/components/Icon.astro';
+
+interface Props {
+  meta: ToolMeta;
+}
+const { meta } = Astro.props;
+const examples = meta.examples ?? [];
+const options = meta.options ?? [];
+const p = meta.id;
+/** The panel opens with the first example so the preview is never blank. */
+const opening = examples[0]?.input ?? '';
+---
+
+<section
+  class="surface rounded-lg p-4 sm:p-6"
+  data-mermaid-renderer-workbench
+  data-tool-id={meta.id}
+  aria-label={`${meta.name} workbench`}
+>
+  {
+    examples.length > 0 && (
+      <div class="mb-4 flex flex-wrap items-center gap-2">
+        <span class="text-xs font-medium text-[rgb(var(--text-muted))]">Try:</span>
+        {examples.map((ex, i) => (
+          <button
+            type="button"
+            class="chip hover:text-[rgb(var(--text))]"
+            data-example={i}
+            data-example-payload={JSON.stringify({
+              input: ex.input ?? '',
+              options: ex.options ?? {},
+            })}
+          >
+            {ex.title}
+          </button>
+        ))}
+      </div>
+    )
+  }
+
+  <div class="grid gap-4 lg:grid-cols-2">
+    <div class="flex min-w-0 flex-col">
+      <label class="mb-1.5 text-sm font-medium" for={`${p}-source`}>Diagram source</label>
+      <textarea
+        id={`${p}-source`}
+        class="field !min-h-[24rem] flex-1 font-mono text-[13px]"
+        rows="20"
+        spellcheck="false"
+        autocapitalize="off"
+        autocomplete="off"
+        data-source
+        set:text={opening}
+      />
+      <p
+        class="mt-1 text-xs text-[rgb(var(--text-muted))]"
+        data-status
+        role="status"
+        aria-live="polite"
+      >
+      </p>
+    </div>
+
+    <div class="flex min-w-0 flex-col">
+      <div class="mb-1.5 flex items-center justify-between gap-3">
+        <span class="text-sm font-medium">Preview</span>
+        <div class="flex items-center gap-2 text-xs text-[rgb(var(--text-muted))]">
+          <span>Zoom</span>
+          <input
+            class="h-1.5 w-24 accent-[rgb(var(--accent))]"
+            type="range"
+            min="0.5"
+            max="3"
+            step="0.1"
+            value="1"
+            data-zoom
+            aria-label="Preview zoom"
+          />
+          <button type="button" class="link text-xs" data-zoom-reset>reset</button>
+        </div>
+      </div>
+      <iframe
+        class="min-h-[24rem] w-full flex-1 rounded-md border"
+        style="background-color: rgb(var(--surface));"
+        data-preview
+        sandbox=""
+        title="Rendered Mermaid diagram"
+        referrerpolicy="no-referrer"></iframe>
+    </div>
+  </div>
+
+  {
+    options.length > 0 && (
+      <details class="mt-4 rounded-lg border" open>
+        <summary class="cursor-pointer select-none px-3 py-2 text-sm font-medium">Options</summary>
+        <div class="border-t p-3" data-options>
+          <OptionsFields options={options} idPrefix={p} />
+        </div>
+      </details>
+    )
+  }
+
+  <div class="mt-4 flex flex-wrap items-center gap-2.5">
+    <button type="button" class="btn btn-primary" data-run>
+      <Icon name="zap" size={16} />
+      <span data-run-label>Render diagram</span>
+    </button>
+    <label class="flex cursor-pointer items-center gap-2 text-sm text-[rgb(var(--text-muted))]">
+      <input type="checkbox" class="h-4 w-4 rounded" data-live checked />
+      Update as I type
+    </label>
+    <button type="button" class="btn btn-ghost" data-export-svg>
+      <Icon name="download" size={16} />
+      Export SVG
+    </button>
+    <button type="button" class="btn btn-ghost" data-export-png>
+      <Icon name="image" size={16} />
+      Export PNG
+    </button>
+    <button type="button" class="btn btn-ghost" data-clear>
+      <Icon name="x" size={16} />
+      Clear
+    </button>
+  </div>
+
+  <div
+    class="mt-4 rounded-lg border px-3 py-2 text-sm"
+    style="background-color: rgb(var(--danger-soft)); border-color: rgb(var(--danger)); color: rgb(var(--danger))"
+    role="alert"
+    data-error
+    hidden
+  >
+  </div>
+
+  <div class="mt-4" hidden data-result-wrap>
+    <div class="mb-2 flex items-center justify-between gap-3">
+      <span class="text-sm font-semibold text-[rgb(var(--text))]">Result</span>
+    </div>
+    <p class="mb-1 text-xs text-[rgb(var(--text-muted))]">
+      The serialised SVG below is exactly what Export SVG saves, and what the PNG export rasterises
+      onto a canvas. The preview above is the same markup inside a sandboxed iframe.
+    </p>
+    <details class="mt-2 rounded-lg border">
+      <summary class="cursor-pointer select-none px-3 py-2 text-sm font-medium">SVG source</summary>
+      <div class="border-t p-3">
+        <pre
+          class="max-h-64 overflow-auto rounded-lg border p-3 text-xs leading-relaxed"
+          data-output>
+        </pre>
+      </div>
+    </details>
+  </div>
+</section>
+
+<style is:global>
+  @media (prefers-reduced-motion: reduce) {
+    [data-mermaid-renderer-workbench] iframe,
+    [data-mermaid-renderer-workbench] textarea {
+      transition: none !important;
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-mermaid-renderer-workbench]').forEach((root) => {
+    // Loaded on demand: the panel is only used by this tool, and Mermaid is
+    // pulled in lazily by the panel module when the first diagram renders.
+    void import('./mermaid-renderer-panel')
+      .then(({ mountMermaidRendererPanel }) => mountMermaidRendererPanel(root))
+      .catch(() => {
+        const error = root.querySelector<HTMLElement>('[data-error]');
+        if (error) {
+          error.hidden = false;
+          error.textContent = 'The Mermaid Renderer panel could not be loaded in this browser.';
+        }
+      });
+  });
+</script>

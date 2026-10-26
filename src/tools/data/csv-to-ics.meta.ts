@@ -67,23 +67,15 @@ export const meta: ToolMeta = {
       input:
         'title,start,end,description\nStandup,2024-01-05T09:00:00,2024-01-05T09:30:00,Team sync\nReview,2024-01-06T14:00:00,2024-01-06T15:00:00,Code review',
     },
-  ],
-  faq: [
     {
-      q: 'Which column names are recognized?',
-      a: 'The first row is read as headers. Common names work: title/name/summary, start/startTime/date, end/endTime/dateEnd, description/desc/notes, location/place. Unmapped specials fall back to sensible defaults.',
+      title: 'All-day events from date-only cells',
+      input:
+        'title,date,endDate,location\nConference,2024-03-11,2024-03-13,Berlin\nHoliday,2024-05-01,,',
     },
     {
-      q: 'When is an event all-day?',
-      a: 'When the start cell has a date but no time (auto mode). All-day events use a DATE value so calendars render them without a timezone.',
-    },
-    {
-      q: 'Does the output follow the RFC?',
-      a: 'Yes — RFC 5545: CRLF line endings, escaping of commas/semicolons/backslashes, UID per event and long lines folded at 75 octets so major importers accept the file.',
-    },
-    {
-      q: 'What about timezones?',
-      a: 'Date-times are written as floating local times by default (no zone), which most importers treat as the calendar owner’s zone. Turn on “Treat times as UTC” to append Z instead.',
+      title: 'US-format times treated as UTC',
+      input: 'name,start,end\nSupport call,01/09/2024 3:30 PM,01/09/2024 4:00 PM',
+      options: { dateFormat: 'us', utc: true },
     },
   ],
   related: ['ical-event', 'vcard', 'csv-to-json', 'recurrence-dates'],

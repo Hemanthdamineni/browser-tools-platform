@@ -1,5 +1,5 @@
 import type { ToolMeta } from '@/lib/types';
-import { pdfCredit } from './shared';
+import { pdfCredit } from './credits';
 export const meta: ToolMeta = {
   id: 'pdf-extract-pages',
   name: 'Extract Pages',
@@ -20,7 +20,11 @@ export const meta: ToolMeta = {
       placeholder: 'e.g. 5,1 or 1-3',
     },
   ],
-  examples: [{ title: 'Extract pages 5 and 1', options: { pages: '5,1' } }],
+  examples: [
+    { title: 'Extract pages 5 and 1', options: { pages: '5,1' } },
+    { title: 'Extract a page range', options: { pages: '1-3' } },
+    { title: 'Mix list and range', options: { pages: '3,5-7' } },
+  ],
   related: ['pdf-split', 'pdf-delete-pages', 'pdf-merge'],
   credits: [pdfCredit],
   status: 'stable',

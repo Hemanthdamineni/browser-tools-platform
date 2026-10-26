@@ -15,7 +15,11 @@ export const meta: ToolMeta = {
     { key: 'tarName', label: 'Archive name', type: 'text', default: 'archive.tar' },
     { key: 'gzip', label: 'Gzip (.tar.gz)', type: 'boolean', default: false },
   ],
-  examples: [{ title: 'Create a TAR archive' }],
+  examples: [
+    { title: 'Create a TAR archive' },
+    { title: 'Create a gzipped archive', options: { gzip: true, tarName: 'bundle.tar' } },
+    { title: 'Name the archive', options: { tarName: 'project-source.tar' } },
+  ],
   related: ['tar-extract', 'zip-create'],
   credits: [{ name: 'fflate', url: 'https://github.com/101arrowz/fflate', license: 'MIT' }],
   status: 'stable',

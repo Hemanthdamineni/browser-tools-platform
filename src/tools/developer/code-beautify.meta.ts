@@ -127,24 +127,6 @@ export const meta: ToolMeta = {
       options: { language: 'yaml' },
     },
   ],
-  faq: [
-    {
-      q: 'Does my code leave the browser?',
-      a: 'No. Prettier runs entirely in this tab, and the formatter files are downloaded from this same site the first time you use them.',
-    },
-    {
-      q: 'Why did the first run take a moment?',
-      a: 'The formatter is only downloaded when you first use it, and only the parsers for the language you picked. Later runs reuse what is already loaded.',
-    },
-    {
-      q: 'What does Auto-detect do?',
-      a: 'It reads the input and picks the most likely language — for example JSON for a JSON object, or TypeScript when it sees type annotations. If it cannot tell, it asks you to choose a language.',
-    },
-    {
-      q: 'The output is wrapped differently from what I expected.',
-      a: 'Prettier is opinionated. Line width, indent width, quotes and semicolons are the knobs it exposes; nearly everything else is fixed.',
-    },
-  ],
   related: ['json-format', 'sql-format', 'diff-text', 'markdown-to-html'],
   credits: [{ name: 'Prettier', url: 'https://github.com/prettier/prettier', license: 'MIT' }],
   status: 'beta',

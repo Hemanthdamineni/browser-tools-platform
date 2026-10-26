@@ -9,18 +9,78 @@
  *   - Never touches cross-origin requests — there are none in normal use.
  */
 
-const VERSION = 'v1';
+const VERSION = 'v2';
 const RUNTIME = `tb-runtime-${VERSION}`;
 const PRECACHE = `tb-precache-${VERSION}`;
-const PRECACHE_URLS = ['/', '/tools', '/categories', '/privacy', '/about', '/offline', '/favicon.svg'];
+
+// Base path derived from the service worker's own registration scope, so the
+// worker works whether the app is served at the root or under a subpath (e.g.
+// GitHub Pages project sites). Trailing slash dropped: `/my-repo/` -> `/my-repo`;
+// at the root the scope is `/` and stays `/`.
+const BASE = (self.registration.scope || '/').replace(/\/+$/, '') || '/';
+// Absolute, scope-prefixed route: '/tools' -> '/my-repo/tools'; root -> '/tools'.
+const route = (path) => (BASE === '/' ? path : `${BASE}${path}`);
+// The immutable hashed assets directory, always under the base path.
+const ASTRO_PREFIX = route('/_astro/');
+
+// Machine-readable catalogue. Generated at build time from the tool registry
+// (src/pages/tools-index.json.ts), so the precache list below always matches
+// what actually shipped — no hand-maintained list to drift.
+const TOOLS_INDEX = route('/tools-index.json');
+// How many tool pages to precache. The index is alphabetical, so this is a
+// stable, deterministic slice; the rest cache on first visit at runtime.
+const TOOL_PRECACHE_LIMIT = 20;
+
+const PRECACHE_URLS = [
+  '/',
+  '/tools',
+  '/categories',
+  '/privacy',
+  '/about',
+  '/offline',
+  '/favicon.svg',
+  '/tools-index.json',
+].map(route);
+
+/**
+ * Precache the first N tool pages listed in the build-time index.
+ *
+ * Best-effort: each page is added on its own, so one missing or renamed route
+ * can never fail the whole install (unlike `cache.addAll`). Extending the list
+ * is a one-line change to `TOOL_PRECACHE_LIMIT`.
+ */
+async function precacheTopTools(cache) {
+  const res = await fetch(TOOLS_INDEX, { cache: 'no-store' });
+  if (!res.ok) return;
+  const list = await res.json();
+  if (!Array.isArray(list)) return;
+  const urls = list
+    .slice(0, TOOL_PRECACHE_LIMIT)
+    .map((tool) => (tool && typeof tool.href === 'string' ? route(tool.href) : null))
+    .filter(Boolean);
+  await Promise.allSettled(urls.map((url) => cache.add(url)));
+}
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches
-      .open(PRECACHE)
-      .then((cache) => cache.addAll(PRECACHE_URLS))
-      .then(() => self.skipWaiting())
-      .catch(() => self.skipWaiting()),
+    (async () => {
+      try {
+        const cache = await caches.open(PRECACHE);
+        try {
+          await cache.addAll(PRECACHE_URLS);
+        } catch {
+          // A single missing shell URL must not abort the install.
+        }
+        try {
+          await precacheTopTools(cache);
+        } catch {
+          // The tool index is an optimisation; offline still works without it.
+        }
+      } catch {
+        // Storage was unavailable — still activate so the fetch handlers run.
+      }
+      await self.skipWaiting();
+    })(),
   );
 });
 
@@ -51,7 +111,7 @@ self.addEventListener('fetch', (event) => {
   if (url.origin !== self.location.origin) return;
 
   // Immutable hashed assets: cache-first.
-  if (url.pathname.startsWith('/_astro/')) {
+  if (url.pathname.startsWith(ASTRO_PREFIX)) {
     event.respondWith(
       caches.match(request).then(
         (hit) =>
@@ -82,7 +142,7 @@ self.addEventListener('fetch', (event) => {
         .catch(() =>
           caches
             .match(request)
-            .then((hit) => hit || caches.match('/offline') || Response.error()),
+            .then((hit) => hit || caches.match(route('/offline')) || Response.error()),
         ),
     );
     return;

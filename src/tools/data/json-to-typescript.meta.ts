@@ -64,20 +64,6 @@ export const meta: ToolMeta = {
       options: { preferInterfaces: false, readonlyProps: true },
     },
   ],
-  faq: [
-    {
-      q: 'How are nested types named?',
-      a: 'Each nested object gets a PascalCase name built from its parent name plus the key, e.g. an "address" key under Root becomes RootAddress. Array element objects get an "Item" suffix.',
-    },
-    {
-      q: 'What happens with null or mixed values?',
-      a: 'A null value becomes the null type; an array holding several value types becomes a parenthesised union such as (number | string)[].',
-    },
-    {
-      q: 'Are numbers split into int and float?',
-      a: 'No. JSON has one number type, so every number becomes number.',
-    },
-  ],
   related: ['json-to-jsonschema', 'json-format', 'json-to-yaml', 'yaml-to-json'],
   status: 'stable',
 };

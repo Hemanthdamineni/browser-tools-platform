@@ -61,19 +61,15 @@ export const meta: ToolMeta = {
       input: '[{"id":1,"name":"Ada","active":true}]',
       options: { table: 'users' },
     },
-  ],
-  faq: [
     {
-      q: 'How are values escaped?',
-      a: "Single quotes in strings are doubled ('O''Brien'), which is valid across PostgreSQL, MySQL and SQLite. Nested objects and arrays are emitted as JSON strings; null stays NULL; booleans become 1/0.",
+      title: 'CREATE TABLE plus a transaction',
+      input: '[{"id":1,"email":"a@example.com"},{"id":2,"email":"b@example.com"}]',
+      options: { table: 'accounts', includeCreate: true, transaction: true },
     },
     {
-      q: 'What if objects have different keys?',
-      a: 'Columns are the union of all keys in first-seen order. Rows missing a key emit NULL for that column, so the generated INSERTs stay aligned.',
-    },
-    {
-      q: 'Which SQL dialect?',
-      a: 'Standard quoting works for PostgreSQL, SQLite and MySQL. Pick the MySQL option if you prefer backtick-quoted identifiers.',
+      title: 'MySQL dialect, single multi-row INSERT',
+      input: '[{"sku":"A1","qty":3},{"sku":"B2","qty":7}]',
+      options: { table: 'stock', dialect: 'mysql', multiRow: true },
     },
   ],
   related: ['csv-to-sql', 'json-to-csv', 'sql-format', 'json-to-yaml'],

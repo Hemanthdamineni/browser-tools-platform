@@ -40,20 +40,7 @@ export const meta: ToolMeta = {
       input: 'item;note\nbook;"paper; bound"',
       options: { delimiter: 'semicolon' },
     },
-  ],
-  faq: [
-    {
-      q: 'How are quoted fields handled?',
-      a: 'Fields wrapped in double quotes can contain delimiters, quotes escaped as doubled quotes, and line breaks. Output fields are quoted as needed.',
-    },
-    {
-      q: 'What happens when rows have different lengths?',
-      a: 'Short rows are padded with empty fields to the widest row before transposing.',
-    },
-    {
-      q: 'How does auto-detection work?',
-      a: 'The first record is checked for comma, semicolon, tab, and pipe separators. The delimiter appearing most often is selected; ties favor comma.',
-    },
+    { title: 'Rotate a numeric grid', input: '1,2,3\n4,5,6' },
   ],
   related: ['csv-to-json', 'json-to-csv'],
   status: 'stable',

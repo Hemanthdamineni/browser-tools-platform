@@ -1,8 +1,34 @@
-import { test, expect, request as pwRequest } from '@playwright/test';
+import { test, expect, request as pwRequest, type Page } from '@playwright/test';
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
 const AXE_PATH = require.resolve('axe-core/axe.min.js');
+
+interface AxeViolation {
+  id: string;
+  description: string;
+  impact: string;
+}
+
+/**
+ * Serious + critical axe violations on the page the caller already navigated to.
+ * Axe is injected after every navigation (the previous document is gone), and a
+ * full wcag2a/wcag2aa pass over the catalogue-heavy pages is expensive, so each
+ * caller budgets its own timeout rather than relying on the 30 s default.
+ */
+async function axeSeriousViolations(page: Page): Promise<AxeViolation[]> {
+  await page.addScriptTag({ path: AXE_PATH });
+  const results = await page.evaluate(async () => {
+    // @ts-expect-error axe is injected above
+    return await window.axe.run(document, {
+      runOnly: ['wcag2a', 'wcag2aa'],
+      resultTypes: ['violations'],
+    });
+  });
+  return (results.violations as AxeViolation[]).filter(
+    (v) => v.impact === 'serious' || v.impact === 'critical',
+  );
+}
 
 interface ToolEntry {
   id: string;
@@ -22,25 +48,19 @@ test.beforeAll(async ({ baseURL }) => {
 });
 
 test('core pages render and are accessible', async ({ page, baseURL }) => {
+  // Six pages, each with a full wcag2a/wcag2aa axe pass; the catalogue-heavy
+  // shell (tool grid, categories) makes axe slow enough to blow the 30 s
+  // default, so this test budgets its own generous timeout.
+  test.setTimeout(Math.max(120_000, 6 * 20_000));
   for (const path of ['/', '/tools', '/categories', '/privacy', '/about', '/404']) {
     const res = await page.goto(`${baseURL}${path}`);
     // 404 is served as a page; every other path is 200.
     expect(res, path).toBeTruthy();
     await expect(page.locator('h1')).toBeVisible();
-    await page.addScriptTag({ path: AXE_PATH });
-    const results = await page.evaluate(async () => {
-      // @ts-expect-error injected
-      return await window.axe.run(document, {
-        runOnly: ['wcag2a', 'wcag2aa'],
-        resultTypes: ['violations'],
-      });
-    });
-    const serious = results.violations.filter(
-      (v: { impact: string }) => v.impact === 'serious' || v.impact === 'critical',
-    );
+    const serious = await axeSeriousViolations(page);
     expect(
       serious,
-      `${path}: ${serious.map((v: { id: string; description: string }) => `${v.id} — ${v.description}`).join('; ')}`,
+      `${path}: ${serious.map((v) => `${v.id} — ${v.description}`).join('; ')}`,
     ).toEqual([]);
   }
 });
@@ -63,10 +83,20 @@ test('every tool page renders a working workbench', async ({ page, baseURL }) =>
       continue;
     }
     if (tool.input === 'text' && tool.hasExamples) {
-      await page.locator('[data-example]').first().click();
-      await expect(page.locator('[data-result-wrap]')).toBeVisible({ timeout: 5000 });
-      const err = page.locator('[data-error]');
-      if (await err.isVisible()) failures.push(`${tool.id}: example produced an error`);
+      // Custom panels render their own affordances; example chips are a
+      // feature of the generic text workbench, so only click there.
+      const generic = page.locator('[data-text-workbench]');
+      if (await generic.count()) {
+        await generic.locator('[data-example]').first().click();
+        // Panels that reuse the text-workbench root (e.g. webcam-test) render
+        // their own report area, so the generic result pane is not guaranteed.
+        const resultPane = generic.locator('[data-result-wrap]');
+        if (await resultPane.count()) {
+          await expect(resultPane).toBeVisible({ timeout: 5000 });
+          const err = page.locator('[data-error]');
+          if (await err.isVisible()) failures.push(`${tool.id}: example produced an error`);
+        }
+      }
     }
   }
   expect(failures, failures.join('\n')).toEqual([]);
@@ -85,49 +115,38 @@ test('option fields are accessible (axe on tools with select/boolean/range/numbe
   page,
   baseURL,
 }) => {
+  // Two pages, each with its own axe pass; budget generously (see the core
+  // pages test above for why the 30 s default is too tight for axe).
+  test.setTimeout(Math.max(60_000, 2 * 20_000));
   // password: select + boolean options; hex: select options
   for (const path of ['/tools/password', '/tools/hex']) {
     await page.goto(`${baseURL}${path}`);
     // Every visible option control is programmatically labelled.
     const unlabelled = await page.evaluate(() => {
       const bad: string[] = [];
-      document
-        .querySelectorAll('[data-options] select, [data-options] input')
-        .forEach((el) => {
-          const labelled =
-            el.getAttribute('aria-label') ||
-            el.getAttribute('aria-labelledby') ||
-            (el.id && document.querySelector(`label[for="${el.id}"]`)) ||
-            el.closest('label');
-          if (!labelled) bad.push(el.getAttribute('data-opt-key') ?? el.outerHTML.slice(0, 60));
-        });
+      document.querySelectorAll('[data-options] select, [data-options] input').forEach((el) => {
+        const labelled =
+          el.getAttribute('aria-label') ||
+          el.getAttribute('aria-labelledby') ||
+          (el.id && document.querySelector(`label[for="${el.id}"]`)) ||
+          el.closest('label');
+        if (!labelled) bad.push(el.getAttribute('data-opt-key') ?? el.outerHTML.slice(0, 60));
+      });
       return bad;
     });
     expect(unlabelled, path).toEqual([]);
     // Help text is wired via aria-describedby where present.
     const brokenDesc = await page.evaluate(() => {
       const bad: string[] = [];
-      document
-        .querySelectorAll('[data-options] [aria-describedby]')
-        .forEach((el) => {
-          const id = el.getAttribute('aria-describedby')!;
-          if (!document.getElementById(id)) bad.push(id);
-        });
+      document.querySelectorAll('[data-options] [aria-describedby]').forEach((el) => {
+        const id = el.getAttribute('aria-describedby')!;
+        if (!document.getElementById(id)) bad.push(id);
+      });
       return bad;
     });
     expect(brokenDesc, path).toEqual([]);
-    // Axe passes on the page.
-    await page.addScriptTag({ path: AXE_PATH });
-    const results = await page.evaluate(async () => {
-      // @ts-expect-error injected
-      return await window.axe.run(document, {
-        runOnly: ['wcag2a', 'wcag2aa'],
-        resultTypes: ['violations'],
-      });
-    });
-    const serious = results.violations.filter(
-      (v: { impact: string }) => v.impact === 'serious' || v.impact === 'critical',
-    );
+    // Axe passes on the page (serious + critical violations only).
+    const serious = await axeSeriousViolations(page);
     expect(serious, path).toEqual([]);
   }
 });

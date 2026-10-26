@@ -50,13 +50,17 @@ export const meta: ToolMeta = {
   examples: [
     { title: 'Encode a query value', input: 'name=John Doe & Co.', options: { mode: 'encode' } },
     { title: 'Decode', input: 'caf%C3%A9%20%26%20cr%C3%A8me', options: { mode: 'decode' } },
-  ],
-  faq: [
     {
-      q: 'Component vs whole URL?',
-      a: 'Use "component" for a single query-string value or path segment. Use "whole URL" when the input is already a full URL and you only want to fix unsafe characters without breaking the structure.',
+      title: 'Encode a full URL without breaking it',
+      input: 'https://example.com/search?q=blue shoes&page=2',
+      options: { mode: 'encode', scope: 'full' },
+    },
+    {
+      title: 'Decode a form-encoded body',
+      input: 'first_name=John+Doe&city=New+York',
+      options: { mode: 'decode', plusSpace: true },
     },
   ],
-  related: ['base64', 'html-entities', 'querystring-json', 'url-parse'],
+  related: ['base64', 'html-entities', 'querystring', 'url-parse'],
   status: 'stable',
 };

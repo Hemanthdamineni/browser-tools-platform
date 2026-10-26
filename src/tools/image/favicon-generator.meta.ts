@@ -30,7 +30,11 @@ export const meta: ToolMeta = {
       help: 'Safe-zone border applied only to the 512px Android maskable icon.',
     },
   ],
-  examples: [{ title: 'Generate favicon assets' }],
+  examples: [
+    { title: 'Generate favicon assets' },
+    { title: 'Icons on a solid background', options: { background: '#0f172a' } },
+    { title: 'Android-safe maskable icon', options: { padding: 10, include512: true } },
+  ],
   related: ['image-resize', 'image-spritesheet'],
   credits: [{ name: 'fflate', url: 'https://github.com/101arrowz/fflate', license: 'MIT' }],
   status: 'stable',

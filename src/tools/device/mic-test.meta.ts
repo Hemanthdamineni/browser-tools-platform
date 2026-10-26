@@ -73,24 +73,10 @@ export const meta: ToolMeta = {
       step: 5,
     },
   ],
-  examples: [{ title: 'Test my microphone' }],
-  faq: [
-    {
-      q: 'Is my voice recorded or sent anywhere?',
-      a: 'No. The microphone stream, the analyser and the recorder all run in this browser tab. Nothing is stored or uploaded, and closing the page releases the microphone.',
-    },
-    {
-      q: 'Why does the browser ask for permission?',
-      a: 'Browsers only allow microphone access after you approve it, and only on secure pages (https:// or localhost). If you denied it earlier, open the padlock in the address bar and set Microphone to “Allow”.',
-    },
-    {
-      q: 'What does the level meter tell me?',
-      a: 'Peak is the loudest sample in the last frame and RMS is the average loudness. Aim for a “Good level” verdict: peaks below full scale and RMS around −18 dBFS or so.',
-    },
-    {
-      q: 'Which format is the recording saved in?',
-      a: 'Whatever the recorder supports — usually WebM (Opus) in Chromium and Ogg (Opus) in Firefox, occasionally MP4. The summary lists the exact format and the file keeps a matching extension.',
-    },
+  examples: [
+    { title: 'Test my microphone' },
+    { title: 'Fine-grained waveform', options: { fftSize: '4096' } },
+    { title: 'Two-minute limit', options: { maxSeconds: 120 } },
   ],
   related: ['audio-info', 'tone-generator', 'webcam-test'],
   status: 'beta',

@@ -51,20 +51,6 @@ export const meta: ToolMeta = {
       options: { preserveLinks: true },
     },
   ],
-  faq: [
-    {
-      q: 'Does it use the browser DOM parser?',
-      a: 'No. It is a small pure-JS tokenizer, so it runs the same in a Web Worker or a test and never executes the HTML.',
-    },
-    {
-      q: 'Which entities are decoded?',
-      a: 'A common named set (&amp; &lt; &nbsp; &copy; &mdash; …) plus every numeric entity, both decimal (&#169;) and hex (&#xA9;).',
-    },
-    {
-      q: 'What happens to <script> and <style>?',
-      a: 'Their contents are removed entirely before any text is extracted.',
-    },
-  ],
   related: ['markdown-to-html', 'html-entities', 'xml-format', 'sql-format'],
   status: 'stable',
 };

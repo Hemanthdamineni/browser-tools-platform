@@ -30,19 +30,9 @@ export const meta: ToolMeta = {
       title: 'Inspect a form post',
       input: 'Sec-Fetch-Site: same-site\nSec-Fetch-Mode: navigate\nSec-Fetch-User: ?1',
     },
-  ],
-  faq: [
     {
-      q: 'What are Sec-Fetch headers?',
-      a: 'These request headers describe the request context (site relationship, mode, destination, and user activation) that the browser attaches to a request.',
-    },
-    {
-      q: 'How does fetch metadata help security?',
-      a: 'Because these headers are set by the browser and describe intent, servers can use them as a defense-in-depth signal against cross-site request forgery.',
-    },
-    {
-      q: 'Can an attacker forge them?',
-      a: 'They cannot be set by scripts due to their forbidden-header status, which is what makes them a trustworthy signal.',
+      title: 'A cross-site fetch with an invalid value',
+      input: 'Sec-Fetch-Site: cross-site\nSec-Fetch-Mode: cors\nSec-Fetch-Dest: script',
     },
   ],
   related: ['security-headers', 'cors-headers', 'http-status'],

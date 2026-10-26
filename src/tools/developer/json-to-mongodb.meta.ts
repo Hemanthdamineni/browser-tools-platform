@@ -59,19 +59,15 @@ export const meta: ToolMeta = {
         '[{"name":"Ada","role":"admin","active":true},{"name":"Lin","role":"dev","active":false}]',
       options: { collection: 'users' },
     },
-  ],
-  faq: [
     {
-      q: 'Is this valid mongosh input?',
-      a: 'Yes — the JSON is embedded as JavaScript object literals, exactly what mongosh executes. Numbers, booleans, nested documents and arrays map 1:1 to BSON types.',
+      title: 'A single document',
+      input: '{"sku":"A-1","stock":12}',
+      options: { collection: 'products' },
     },
     {
-      q: 'What if my top level is a single object?',
-      a: 'A single object becomes a one-document insertMany call — no manual wrapping needed.',
-    },
-    {
-      q: 'Why mongosh instead of mongoimport?',
-      a: 'insertMany runs in any shell and keeps your data as plain script you can review and version, while mongoimport is a bulk file path. This tool targets the script path.',
+      title: 'Compact output without the wrapper',
+      input: '[{"a":1},{"a":2}]',
+      options: { collection: 'items', format: 'compact', wrapped: false },
     },
   ],
   related: ['json-to-sql', 'json-to-csv', 'json-to-yaml', 'json-format'],

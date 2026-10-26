@@ -74,16 +74,6 @@ export const meta: ToolMeta = {
       options: { mode: 'indent', unit: 'tabs', count: 1 },
     },
   ],
-  faq: [
-    {
-      q: 'What does dedent do if a line has less indentation than requested?',
-      a: 'It removes whatever leading indentation is there, up to the requested amount, and leaves the rest of the line alone. It never removes non-whitespace characters.',
-    },
-    {
-      q: 'Does dedent mix spaces and tabs?',
-      a: 'No. It removes only the selected unit from the start of each line, stopping at the first character that is not that unit.',
-    },
-  ],
   related: ['wrap-text', 'text-repeat', 'case-convert', 'dedupe-lines'],
   status: 'stable',
 };

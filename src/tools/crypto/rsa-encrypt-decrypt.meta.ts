@@ -69,32 +69,28 @@ export const meta: ToolMeta = {
     {
       title: 'Encrypt a secret for a recipient',
       input:
-        '-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA...\n-----END PUBLIC KEY-----',
+        '-----BEGIN PUBLIC KEY-----\nMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDXa2uNHhSotgGCbtz5mYo8okG2\nWUUSV/q0O3nY+i8B3JM+GfhdG3bD40q8JVtyOFjLQkQaD68V9g44s5s+lc+aJ8h/\nujFd19Kj3Jv2Uc424+JblwNe8BCbDUfNqmf/5/19Tf7uCPtSfIZw2bhKzIdI2HQH\nUbdL35y1/R933sEI9QIDAQAB\n-----END PUBLIC KEY-----',
       options: { operation: 'encrypt', payload: 'attack at dawn' },
     },
     {
       title: 'Decrypt with a PKCS#8 private key',
       input:
-        '-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC4...\n-----END PRIVATE KEY-----',
-      options: { operation: 'decrypt', payload: 'm2zNw5q1...' },
-    },
-  ],
-  faq: [
-    {
-      q: 'What key formats are supported?',
-      a: 'Public keys as SPKI (-----BEGIN PUBLIC KEY-----) or PKCS#1 (-----BEGIN RSA PUBLIC KEY-----); private keys as PKCS#8 (-----BEGIN PRIVATE KEY-----) or PKCS#1 (-----BEGIN RSA PRIVATE KEY-----, the default output of openssl rsa). PKCS#1 keys are re-wrapped to the PKCS#8/SPKI forms Web Crypto requires.',
+        '-----BEGIN PRIVATE KEY-----\nMIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBANdra40eFKi2AYJu\n3PmZijyiQbZZRRJX+rQ7edj6LwHckz4Z+F0bdsPjSrwlW3I4WMtCRBoPrxX2Djiz\nmz6Vz5onyH+6MV3X0qPcm/ZRzjbj4luXA17wEJsNR82qZ//n/X1N/u4I+1J8hnDZ\nuErMh0jYdAdRt0vfnLX9H3fewQj1AgMBAAECgYB/+qKH0QInBRI6glCnvO8ifKcb\nhUeC0V/xKZCHNoMs0PVtJJKoBgP19pfU1UDRx+YAw5qf/QdgvbDPQO0PLoOJk9t8\nQ0mVuy9VClVaszhLsIm8xu0Wv02dttX2N9/vMbyta8TtHVQ2UI3IOb554VYI/2DJ\np3W0N++Jif8LkqRTtQJBAO8Y8lOISQuotqyQF3lyBY5B2kKKNsNbFgcTv3FarPEX\nBEbNy0K5yUWwCFDI/0VqbXDwcZBsd5VaJe40yvjc9+sCQQDmpfcSAEDWur9Q0FpS\nLtGdp2nb9bk+hL034vpmbp8SrJdqQz6Luq8P0gtAROXxv2PuymyqdhoS1XdYfo7T\nY6qfAkAI6aom2P64E4rztc9aNJjma6gCMPrHn36btu29AP9PYWdEaGl6TEinc19r\n+4IgiU4ZFq11D8YJaDnfvlIOotYPAkEAhUDnYGADFcvokiD9vbNM6V96elkZv/Pi\nefJJpnpMrvZFuF/HN+UQFPzOAUCM9MEVVDVg2I7I+46Wl+ruS1SukwJALvOiCpje\nnfSbGVVtoPb/LEKGnAKVSsvBDEUuhn5JJo0QXDaWzk32NhTBXMGRokjKX5KkdP0f\nDbzJuxFUrxKzKQ==\n-----END PRIVATE KEY-----',
+      options: {
+        operation: 'decrypt',
+        payload:
+          'NbOhBK4xNwEAZ0nMFqUMjp9AHHIR+gpSzkDwtblyvRvnisDd3B6Y/Mn4ec17D5QA3shMqAW0JWralembg/JWaBMiomR7e5WGjMg4SUi9Df52d5ZNTxpX7qm+fxWyfsTYR8pq/+BHbZEDMl89E41f8EaBBun7zYRzm8XfI75tODY=',
+      },
     },
     {
-      q: 'Why is there a size limit on the message?',
-      a: 'RSA-OAEP encrypts one block at a time: a 2048-bit key holds at most 214 bytes of message data (256 minus OAEP overhead), so this tool is for secrets like passphrases, keys or short notes — not large files. For bulk data, encrypt with a symmetric key and encrypt that key with RSA.',
-    },
-    {
-      q: 'Must the OAEP hash match on both sides?',
-      a: 'Yes. The hash selected here defines the OAEP padding for both encrypting and decrypting. If a ciphertext was created with a different hash, decryption fails with a padding error \u2014 try switching the hash option to what the sender used.',
-    },
-    {
-      q: 'Is the key uploaded anywhere?',
-      a: 'No. The key is parsed and used only in the browser\u2019s Web Crypto implementation. The page makes no network requests (this is enforced by the platform\u2019s privacy tests), so the private key stays on your machine.',
+      title: 'Encrypt as hex ciphertext',
+      input:
+        '-----BEGIN RSA PUBLIC KEY-----\nMIGJAoGBAO42bEYT8miwvHr1mQq0ZqM3x6e6QwffGTx4i6w4zr+MALFEW4ntHkIl\nCxgjwLTKI5/f25ZCUMv3RrJG8fGvRZlOpT0kF7rpM4NPKGQwJnt1Z1kvXSM+t7WX\n98csDUZu54oWAB2EhI6LWv9ljRfqI/qAuNvZG4DAJT8eLzQU1ENdAgMBAAE=\n-----END RSA PUBLIC KEY-----',
+      options: {
+        operation: 'encrypt',
+        payload: 'rotate the shared secret',
+        format: 'hex',
+      },
     },
   ],
   related: [

@@ -36,20 +36,10 @@ export const meta: ToolMeta = {
       choices: ['original', 'png', 'jpeg', 'webp'].map((value) => ({ value, label: value })),
     },
   ],
-  examples: [{ title: 'Rotate 90°', options: { rotate: '90' } }],
-  faq: [
-    {
-      q: 'Which way does 90° rotate?',
-      a: 'Clockwise, matching how most photo apps label a quarter turn.',
-    },
-    {
-      q: 'Are my images uploaded?',
-      a: 'No. Rotation runs on a canvas in your browser and nothing leaves your device.',
-    },
-    {
-      q: 'What about phone photos that look sideways?',
-      a: 'EXIF orientation is applied while decoding, so an upright photo stays upright. Exporting to JPEG flattens transparency onto white.',
-    },
+  examples: [
+    { title: 'Rotate 90°', options: { rotate: '90' } },
+    { title: 'Mirror the photo', options: { flip: 'horizontal' } },
+    { title: 'Rotate and save as PNG', options: { rotate: '90', format: 'png' } },
   ],
   related: ['image-crop', 'image-resize'],
   status: 'stable',

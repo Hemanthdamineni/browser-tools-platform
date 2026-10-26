@@ -1,5 +1,5 @@
 import type { ToolMeta } from '@/lib/types';
-import { pdfCredit } from './shared';
+import { pdfCredit } from './credits';
 export const meta: ToolMeta = {
   id: 'pdf-merge',
   name: 'Merge PDFs',
@@ -21,12 +21,10 @@ export const meta: ToolMeta = {
       default: false,
     },
   ],
-  examples: [{ title: 'Merge two PDFs' }],
-  faq: [
-    {
-      q: 'Are bookmarks preserved?',
-      a: 'pdf-lib does not carry document outlines across, so bookmarks from the source files are not retained.',
-    },
+  examples: [
+    { title: 'Merge two PDFs' },
+    { title: 'Combine a cover page and a report' },
+    { title: 'Join scanned chapters in reading order' },
   ],
   related: ['pdf-split', 'images-to-pdf', 'pdf-extract-pages'],
   credits: [pdfCredit],

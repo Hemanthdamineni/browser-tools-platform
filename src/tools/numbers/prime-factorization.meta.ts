@@ -44,24 +44,6 @@ export const meta: ToolMeta = {
     { title: 'Factor a huge number', input: '612345678901234567891' },
     { title: 'Is it prime?', input: '67280421310721', options: { mode: 'is-prime' } },
   ],
-  faq: [
-    {
-      q: 'How large a number can this handle?',
-      a: 'Effectively unlimited. The calculator uses BigInt arithmetic throughout, a deterministic Miller–Rabin primality test, and Pollard\u2019s rho for factoring, so even 30+ digit numbers are factored exactly.',
-    },
-    {
-      q: 'What does φ(n) (totient) mean?',
-      a: 'It counts how many integers from 1 to n are coprime with n. For n = p1^e1 … pk^ek it is n × (1 − 1/p1) × … × (1 − 1/pk).',
-    },
-    {
-      q: 'What are τ(n) and σ(n)?',
-      a: 'τ(n) is the number of positive divisors (including 1 and n). σ(n) is the sum of all positive divisors. Both follow directly from the prime-power exponents.',
-    },
-    {
-      q: 'What is the lists-primes mode?',
-      a: 'It runs the Sieve of Eratosthenes up to your limit and shows the count and the primes (capped for very large limits).',
-    },
-  ],
   related: ['luhn-validator', 'vin-validator', 'barcode-validator', 'unit-convert'],
   status: 'stable',
 };

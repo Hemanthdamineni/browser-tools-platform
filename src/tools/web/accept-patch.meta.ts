@@ -45,19 +45,9 @@ export const meta: ToolMeta = {
       title: 'Build an API capability header',
       options: { mode: 'build', types: 'application/json-patch+json' },
     },
-  ],
-  faq: [
     {
-      q: 'Does Accept-Patch allow a client to PATCH?',
-      a: 'No. It advertises supported document formats; authentication and authorization still control whether a PATCH request is accepted.',
-    },
-    {
-      q: 'Where is Accept-Patch sent?',
-      a: 'It is commonly sent in responses to advertise formats accepted by PATCH, including OPTIONS responses.',
-    },
-    {
-      q: 'What happens for an unsupported format?',
-      a: 'A server may reject the request with 415 Unsupported Media Type.',
+      title: 'A wildcard capability',
+      input: '*/*',
     },
   ],
   related: ['content-type', 'http-status', 'http-header-analyzer'],

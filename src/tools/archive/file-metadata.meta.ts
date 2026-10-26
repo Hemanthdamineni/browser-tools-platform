@@ -12,7 +12,11 @@ export const meta: ToolMeta = {
   accept: '',
   multiple: true,
   options: [{ key: 'hash', label: 'Compute SHA-256', type: 'boolean', default: true }],
-  examples: [{ title: 'Inspect file metadata' }],
+  examples: [
+    { title: 'Inspect file metadata' },
+    { title: 'Size and date check only', options: { hash: false } },
+    { title: 'Hash a whole folder upload' },
+  ],
   related: ['file-split', 'base64'],
   status: 'stable',
 };

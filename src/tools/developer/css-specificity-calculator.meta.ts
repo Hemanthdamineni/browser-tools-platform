@@ -32,19 +32,14 @@ export const meta: ToolMeta = {
       title: 'A common specificity clash',
       input: '#nav .item:hover\nnav ul li a',
     },
-  ],
-  faq: [
     {
-      q: 'How is the score calculated?',
-      a: 'The (a,b,c) triple: a = ID selectors, b = classes, attributes and pseudo-classes, c = type selectors and pseudo-elements. Compare lexicographically — 0,1,0 beats 0,0,9.',
+      title: 'Pseudo-class versus attribute',
+      input: 'a[href^="https"]\na.external',
+      options: { showExplanation: true },
     },
     {
-      q: 'How do :not(), :is() and :where() count?',
-      a: 'Per Selectors Level 4, :not() and :is() contribute the specificity of their most specific argument (the pseudo-class itself adds nothing), while :where() always contributes zero.',
-    },
-    {
-      q: 'Where do !important and inline styles fit?',
-      a: 'They are not part of the (a,b,c) triple. Inline styles outrank any selector specificity, and !important declarations outrank normal ones regardless of specificity — both are noted separately in the output.',
+      title: 'Where beats is',
+      input: ':where(#main) p\n:is(#main) p',
     },
   ],
   related: ['css-units', 'css-minifier', 'css-grid', 'color-contrast'],

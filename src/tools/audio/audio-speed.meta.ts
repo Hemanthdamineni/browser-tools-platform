@@ -31,5 +31,16 @@ export const meta: ToolMeta = {
     },
   ],
   related: ['audio-trim', 'audio-reverse'],
+  examples: [
+    { title: 'Double speed, pitch shifts', options: { rate: 200 } },
+    {
+      title: 'Slow down to 75% keeping pitch',
+      options: { rate: 75, preservePitch: true },
+    },
+    {
+      title: 'Half speed for transcribing',
+      options: { rate: 50, preservePitch: true },
+    },
+  ],
   status: 'stable',
 };

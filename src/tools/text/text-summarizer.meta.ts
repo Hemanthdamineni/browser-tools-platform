@@ -42,23 +42,17 @@ export const meta: ToolMeta = {
         'Natural language processing is a field of computer science focused on enabling computers to understand and generate human language. NLP powers many everyday tools including search engines, spell checkers, machine translation and digital assistants. A key practical application is automatic text summarization, which extracts the most important sentences from a long document. Summaries help readers quickly grasp the main idea without reading everything. Extractive methods score sentences by word frequency to pick the best candidates.',
       options: { length: 'short' },
     },
-  ],
-  faq: [
     {
-      q: 'How does the summarizer decide which sentences matter?',
-      a: 'It scores each sentence by the average frequency of its content words (words that are not stop-words). Words that appear often across the document push their source sentences up, and the top-ranked sentences are returned in their original order.',
+      title: 'A fixed number of sentences',
+      input:
+        'Version control keeps a full history of a project. Each commit records what changed and who changed it. Branches let you try an idea without disturbing the main line. Merging brings that work back when it is ready. A good history makes it possible to find when a bug was introduced.',
+      options: { length: 'custom', count: 2 },
     },
     {
-      q: 'Is my text uploaded anywhere?',
-      a: 'No. The whole process — tokenising, scoring and selecting — happens inside your browser tab, so even confidential documents never leave your machine.',
-    },
-    {
-      q: 'Are the chosen sentences reordered?',
-      a: 'No. The top sentences are emitted in the order they appear in the original text so the summary reads naturally.',
-    },
-    {
-      q: 'Will short paragraphs drop out?',
-      a: 'This is an extractive summarizer — it selects whole sentences from the input. Multi-paragraph documents work well; a single short paragraph shrinks to the same paragraph rather than a rewrite.',
+      title: 'A longer extract',
+      input:
+        'Caching reduces the work a server must do for repeated requests. A cache stores the result of an expensive operation so the next caller can read it instead of recomputing it. The trade-off is freshness, because a cached value may be stale. Choosing a short time to live limits how stale the value can become. An eviction policy decides what to drop when the cache is full.',
+      options: { length: 'long' },
     },
   ],
   related: ['text-stats', 'word-frequency', 'char-frequency'],

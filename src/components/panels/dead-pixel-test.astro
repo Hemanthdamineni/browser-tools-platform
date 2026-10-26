@@ -1,0 +1,119 @@
+---
+/**
+ * The dead pixel test panel.
+ *
+ * The generic text workbench cannot express a fullscreen solid colour with an
+ * auto-cycle and keyboard stepping, so this tool opts into a panel via
+ * `meta.panel = 'dead-pixel-test'`. The behaviour lives in
+ * `./dead-pixel-test-panel.ts` and is loaded on demand.
+ */
+import type { ToolMeta } from '@/lib/types';
+import Icon from '@/components/Icon.astro';
+import OptionsFields from '@/components/workbench/OptionsFields.astro';
+
+interface Props {
+  meta: ToolMeta;
+}
+const { meta } = Astro.props;
+const p = meta.id;
+---
+
+<section
+  class="surface rounded-lg p-4 sm:p-6"
+  data-dead-pixel-panel
+  data-tool-id={meta.id}
+  aria-label={`${meta.name} workbench`}
+>
+  <div class="flex flex-wrap items-center gap-2">
+    <span class="chip">Screen sweep</span>
+  </div>
+  <p class="mt-1.5 max-w-prose text-sm leading-relaxed text-[rgb(var(--text-muted))]">
+    Fill the screen with one flat colour at a time and step through a sweep of saturated colours and
+    a grey ramp. Press Enter to start fullscreen.
+  </p>
+
+  <div
+    class="mt-4 flex h-32 items-center justify-center rounded-lg border transition-colors"
+    style="background-color: #000; color: #fff"
+    data-dp-stage
+  >
+    <div class="flex flex-col items-center gap-1 px-4 text-center">
+      <span class="text-lg font-semibold" data-dp-colour>Black</span>
+      <span class="font-mono text-sm opacity-80" data-dp-value>#000000</span>
+      <span class="text-xs opacity-70" data-dp-step>1 / 17</span>
+    </div>
+  </div>
+
+  <div class="mt-4 flex flex-wrap items-center gap-2.5">
+    <button type="button" class="btn btn-primary" data-dp-start>
+      <Icon name="external-link" size={14} /> Start fullscreen
+    </button>
+    <button type="button" class="btn btn-ghost" data-dp-prev>
+      <Icon name="arrow-right" size={14} class="rotate-180" /> Previous
+    </button>
+    <button type="button" class="btn btn-ghost" data-dp-next>
+      Next <Icon name="arrow-right" size={14} />
+    </button>
+    <button type="button" class="btn btn-ghost" data-dp-toggle>Auto-cycle</button>
+  </div>
+
+  <p
+    class="mt-3 text-sm leading-relaxed text-[rgb(var(--text-muted))]"
+    data-dp-status
+    role="status"
+  >
+    Press Start to enter fullscreen, then sweep with the arrow keys.
+  </p>
+
+  <p
+    class="mt-2 rounded-lg border px-3 py-2 text-sm text-[rgb(var(--text-muted))]"
+    data-dp-hint
+    hidden
+  >
+    Fullscreen is on. Use <kbd>←</kbd>
+    <kbd>→</kbd> to step, <kbd>Space</kbd> to toggle the auto-cycle, and <kbd>Esc</kbd> to leave fullscreen.
+  </p>
+
+  <details class="mt-5 rounded-lg border">
+    <summary class="cursor-pointer select-none px-3 py-2 text-sm font-medium">Options</summary>
+    <div class="border-t p-3" data-dp-options>
+      <OptionsFields options={meta.options ?? []} idPrefix={p} />
+    </div>
+  </details>
+
+  <div class="mt-5" data-dp-result-wrap hidden>
+    <h3 class="text-sm font-semibold text-[rgb(var(--text))]">Your sweep</h3>
+    <div class="mt-2 min-w-0" data-dp-report></div>
+  </div>
+
+  <div
+    class="mt-4 rounded-lg border px-3 py-2 text-sm"
+    style="background-color: rgb(var(--danger-soft)); border-color: rgb(var(--danger)); color: rgb(var(--danger))"
+    role="alert"
+    data-dp-error
+    hidden
+  >
+  </div>
+
+  <noscript>
+    <p class="mt-4 text-sm text-[rgb(var(--text-muted))]">
+      The fullscreen sweep needs JavaScript — the browser’s Fullscreen API cannot run without it.
+    </p>
+  </noscript>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-dead-pixel-panel]').forEach((panel) => {
+    // The panel's logic is loaded on demand so no Fullscreen code ships to
+    // pages that do not use it.
+    void import('./dead-pixel-test-panel')
+      .then(({ mountDeadPixelPanel }) => mountDeadPixelPanel(panel))
+      .catch(() => {
+        const error = panel.querySelector<HTMLElement>('[data-dp-error]');
+        if (error) {
+          error.hidden = false;
+          error.textContent = 'The dead pixel panel could not be loaded in this browser.';
+        }
+      });
+  });
+</script>

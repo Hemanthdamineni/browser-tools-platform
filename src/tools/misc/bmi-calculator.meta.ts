@@ -78,11 +78,15 @@ export const meta: ToolMeta = {
       input: '',
       options: { units: 'metric', heightCm: 170, weightKg: 70 },
     },
-  ],
-  faq: [
     {
-      q: 'What do the categories mean?',
-      a: 'Underweight is below 18.5, Normal is 18.5–24.9, Overweight is 25–29.9 and Obese is 30 or above. BMI is a screening measure, not a diagnosis.',
+      title: 'Imperial, 5ft 7in / 154lb',
+      input: '',
+      options: { units: 'imperial', heightFt: 5, heightIn: 7, weightLb: 154 },
+    },
+    {
+      title: 'Tall and light — underweight',
+      input: '',
+      options: { units: 'metric', heightCm: 190, weightKg: 60 },
     },
   ],
   related: ['unit-convert', 'calculator'],

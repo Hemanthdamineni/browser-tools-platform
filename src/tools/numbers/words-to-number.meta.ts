@@ -36,19 +36,9 @@ export const meta: ToolMeta = {
       title: 'Big number with punctuation',
       input: 'two billion, four hundred thirty-five million',
     },
-  ],
-  faq: [
     {
-      q: 'What number formats are supported?',
-      a: 'Whole words from zero to trillions, hundreds, tens with hyphens, “and”, decimal points and negative/mimus. Consecutive digit words such as “one two three” become 123.',
-    },
-    {
-      q: 'Are unrelated words ignored?',
-      a: 'Yes — non-number words are skipped. “The total is five thousand” gives 5000. If the input contains no number words at all you get a clear error.',
-    },
-    {
-      q: 'How big can it go?',
-      a: 'Up to trillions (1e12). Values larger than about a quadrillion are rejected with an error rather than guessed.',
+      title: 'A negative decimal',
+      input: 'negative two point five',
     },
   ],
   related: ['number-to-words', 'roman-numeral', 'prime-factorization', 'case-convert'],

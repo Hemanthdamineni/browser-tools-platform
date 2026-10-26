@@ -31,16 +31,6 @@ export const meta: ToolMeta = {
       options: { mode: 'build', protocol: '1.1', host: 'proxy.example.com' },
     },
   ],
-  faq: [
-    {
-      q: 'What is the purpose of the Via header?',
-      a: 'The Via header tracks intermediaries like gateways or proxies to avoid request loops and diagnose routing issues.',
-    },
-    {
-      q: 'Is the Via header required for all proxies?',
-      a: 'Yes. RFC 7230 requires proxies to add Via headers to their forwarded requests and responses.',
-    },
-  ],
   related: ['proxy-authorization', 'http-header-analyzer'],
   hidden: true,
   redirectTo: 'http-header-analyzer',

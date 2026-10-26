@@ -39,11 +39,15 @@ export const meta: ToolMeta = {
   examples: [
     { title: 'Tints & shades of blue', input: '#3b82f6' },
     { title: 'Complementary', input: '#3b82f6', options: { scheme: 'complementary', count: 2 } },
-  ],
-  faq: [
     {
-      q: 'How many colors do the geometric schemes produce?',
-      a: 'Complementary yields 2, triadic 3, tetradic 4, split-complementary 3 - the count option is ignored for those. Tints & shades, monochromatic and analogous fill/repeat to the chosen count.',
+      title: 'Triadic from a named colour',
+      input: 'teal',
+      options: { scheme: 'triadic', count: 3 },
+    },
+    {
+      title: 'Analogous in rgb() notation',
+      input: 'rgb(200, 120, 40)',
+      options: { scheme: 'analogous', count: 5 },
     },
   ],
   related: ['color-convert', 'gradient-css', 'color-blend'],

@@ -41,15 +41,9 @@ export const meta: ToolMeta = {
       input: '{ "server": { "host": "localhost", "port": 8080 } }',
       options: { indent: '4' },
     },
-  ],
-  faq: [
     {
-      q: 'What happens with invalid JSON?',
-      a: 'The tool throws a friendly error with the parser message so you can find the syntax problem.',
-    },
-    {
-      q: 'Are comments supported?',
-      a: 'No. JSON has no comments, so the input must be strict JSON. Use YAML to JSON for the reverse direction.',
+      title: 'Array of records',
+      input: '[{"id":1,"name":"a"},{"id":2,"name":"b"}]',
     },
   ],
   related: ['yaml-to-json', 'json-to-csv', 'csv-to-json'],

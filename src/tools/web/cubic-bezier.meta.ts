@@ -23,11 +23,10 @@ export const meta: ToolMeta = {
   examples: [
     { title: 'ease', input: '0.25, 0.1, 0.25, 1' },
     { title: 'Custom snappy', input: '0.68, -0.55, 0.27, 1.55' },
-  ],
-  faq: [
     {
-      q: 'Why can x be outside the table but y not?',
-      a: 'Actually the reverse: CSS requires 0 ≤ x1,x2 ≤ 1 (they parametrise time), while y may overshoot to create bounce effects. Values outside that x range are rejected exactly like the browser would.',
+      title: 'Overshoot, finely sampled',
+      input: '0.34, 1.56, 0.64, 1',
+      options: { samples: 21 },
     },
   ],
   related: ['gradient-css'],

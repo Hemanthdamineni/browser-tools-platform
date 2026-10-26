@@ -42,11 +42,15 @@ export const meta: ToolMeta = {
       input: '',
       options: { principal: 1200, annualRatePercent: 0, years: 1 },
     },
-  ],
-  faq: [
     {
-      q: 'How is the monthly payment calculated?',
-      a: 'With the standard amortisation formula: P · r / (1 − (1+r)^−n), where r is the monthly rate and n is the number of monthly payments. When the rate is zero the payment is simply the principal divided by the number of payments.',
+      title: 'Overpay every month',
+      input: '',
+      options: {
+        principal: 20000,
+        annualRatePercent: 5,
+        years: 5,
+        extraMonthly: 200,
+      },
     },
   ],
   related: ['tip-calculator', 'unit-convert'],

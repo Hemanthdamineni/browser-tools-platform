@@ -12,6 +12,11 @@ export const meta: ToolMeta = {
   input: 'file',
   accept: 'audio/*',
   worker: false,
+  examples: [
+    { title: 'Reverse a voice memo' },
+    { title: 'Flip a sound effect for a video edit' },
+    { title: 'Play a music clip backwards' },
+  ],
   related: ['audio-trim', 'audio-speed'],
   status: 'stable',
 };

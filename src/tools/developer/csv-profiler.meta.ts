@@ -57,23 +57,10 @@ export const meta: ToolMeta = {
         'ts\tlevel\tmsg\n2026-01-01T00:00:00Z\tINFO\tstarted\n2026-01-01T00:00:01Z\tWARN\tflaky',
       options: { delimiter: 'tab' },
     },
-  ],
-  faq: [
     {
-      q: 'How is each column typed?',
-      a: 'The profiler looks at the non-empty values in a column. If every value is only true/false it is boolean; integers only it is integer; a mix that parses as finite numbers it is number; otherwise it is string. Empty columns show an empty type.',
-    },
-    {
-      q: 'What counts as a missing value?',
-      a: 'A cell whose trimmed content is empty (including a completely empty cell). The header row is not profiled. Missing counts are over the data rows only.',
-    },
-    {
-      q: 'How are min/max/mean computed?',
-      a: 'For integer and number columns, from the numeric values after ignoring empty cells. The mean is rounded to two decimals. Toggle parseNumbers off to hide this and keep the report focused on counts.',
-    },
-    {
-      q: 'Does it handle quoted fields and delimiters inside cells?',
-      a: 'Yes. The parser follows RFC 4180: fields wrapped in double quotes can contain the delimiter and newlines, and doubled quotes inside a field are unescaped. Rows with fewer fields than the header are padded; extra fields are ignored.',
+      title: 'Pipe-delimited flags',
+      input: 'id|name|active\n1|Ada|true\n2|Grace|false',
+      options: { delimiter: 'pipe' },
     },
   ],
   related: ['csv-to-json', 'csv-to-sql', 'csv-sanitize', 'csv-to-markdown', 'json-diff'],

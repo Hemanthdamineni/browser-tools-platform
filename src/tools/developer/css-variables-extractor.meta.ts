@@ -51,19 +51,15 @@ export const meta: ToolMeta = {
       input:
         ':root {\n  --brand: #2563eb;\n  --radius: 8px;\n}\n.theme-dark {\n  --brand: #60a5fa;\n}',
     },
-  ],
-  faq: [
     {
-      q: 'What does "scope" mean?',
-      a: 'The selector that declared the variable — :root for globals, .theme-dark for a theme override, or the enclosing @media/@supports block. Seeing the scope explains where an override takes effect.',
+      title: 'Export the tokens as JSON',
+      input: ':root {\n  --brand: #2563eb;\n  --space-2: 8px;\n}',
+      options: { output: 'json' },
     },
     {
-      q: 'How are duplicates handled?',
-      a: 'The same variable declared in several scopes is grouped, listing every scope and value in order, so override chains are obvious. Turn grouping off to see one row per declaration.',
-    },
-    {
-      q: 'Which formats can I export?',
-      a: 'A table, a flat JSON object, a JavaScript object, or SCSS $variables. The JSON/JS forms are handy for feeding tokens into a design system.',
+      title: 'One row per declaration',
+      input: ':root {\n  --brand: #2563eb;\n}\n.theme-dark {\n  --brand: #60a5fa;\n}',
+      options: { dedupe: false },
     },
   ],
   related: ['css-minifier', 'css-specificity-calculator', 'css-units', 'color-palette'],

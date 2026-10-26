@@ -39,16 +39,6 @@ export const meta: ToolMeta = {
     { title: 'Unescape a literal', input: '"line1\\nline2"', options: { mode: 'unescape' } },
     { title: 'Unescape without surrounding quotes', input: 'a\\tb', options: { mode: 'unescape' } },
   ],
-  faq: [
-    {
-      q: 'Do I need to include the surrounding quotes when unescaping?',
-      a: 'No. If the input is not already wrapped in double quotes, a pair is added before parsing.',
-    },
-    {
-      q: 'What happens on invalid input when unescaping?',
-      a: 'If the text is not a valid JSON string literal (for example an unterminated string or a non-string value) the tool reports an error.',
-    },
-  ],
   related: ['json-format', 'ndjson'],
   hidden: true,
   redirectTo: 'string-escape',

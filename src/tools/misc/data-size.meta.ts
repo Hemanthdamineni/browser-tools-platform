@@ -55,6 +55,8 @@ export const meta: ToolMeta = {
   ],
   examples: [
     { title: 'One gigabyte in mebibytes', input: '1', options: { from: 'GB', to: 'MiB' } },
+    { title: 'A mebibyte in plain bytes', input: '1', options: { from: 'MiB', to: 'B' } },
+    { title: 'Megabits to megabytes', input: '100', options: { from: 'Mbit', to: 'MB' } },
   ],
   related: ['unit-convert', 'css-units'],
   status: 'stable',

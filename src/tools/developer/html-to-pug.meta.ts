@@ -56,19 +56,17 @@ export const meta: ToolMeta = {
       title: 'A small card',
       input: '<div class="card"><h2 id="title">Hello</h2><p>Body text</p></div>',
     },
-  ],
-  faq: [
     {
-      q: 'What happens to class and id attributes?',
-      a: 'They become Pug shorthand: class="a b" turns into .a.b and id="x" becomes #x. A div with only classes or an id drops the tag name entirely, as in .card or #title.',
+      title: 'Nested menu with four-space indent',
+      input:
+        '<ul class="menu"><li><a href="/home">Home</a></li><li><a href="/about">About</a></li></ul>',
+      options: { indentWidth: 4 },
     },
     {
-      q: 'How are script and style tags handled?',
-      a: 'Their contents are emitted as raw text blocks using the trailing dot form (script. / style.), so JavaScript and CSS are not treated as markup or re-indented as Pug.',
-    },
-    {
-      q: 'When is the output not exactly equivalent?',
-      a: 'Pug cannot represent some HTML directly — for example an element with both leading and trailing text siblings, or mixed inline/block content in one line. Those cases still produce valid Pug, with the text moved to separate | lines and a warning listed in the notes.',
+      title: 'Single-quoted attributes, comments dropped',
+      input:
+        '<figure><img src="logo.png" alt="Logo"><figcaption>Mark</figcaption></figure><!-- old -->',
+      options: { quoteStyle: 'single', keepComments: false },
     },
   ],
   related: ['html-to-jsx', 'html-to-markdown', 'html-prettifier', 'html-to-text'],

@@ -51,20 +51,6 @@ export const meta: ToolMeta = {
       options: { mode: 'build', wildcard: true, method: 'PUT' },
     },
   ],
-  faq: [
-    {
-      q: 'What happens when a GET tag matches?',
-      a: 'The server commonly returns 304 Not Modified without the response body, allowing the client to reuse its cached representation.',
-    },
-    {
-      q: 'What does * mean for PUT?',
-      a: 'It commonly means proceed only when no current representation exists, supporting create-if-absent workflows.',
-    },
-    {
-      q: 'Are weak tags allowed?',
-      a: 'Yes. If-None-Match uses weak comparison, so weak tags can participate in cache validation.',
-    },
-  ],
   related: ['conditional-request-headers', 'cache-headers'],
   hidden: true,
   redirectTo: 'conditional-request-headers',

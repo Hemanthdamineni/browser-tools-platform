@@ -48,15 +48,10 @@ export const meta: ToolMeta = {
       input: 'https://example.com/p',
       options: { source: 'twitter', medium: 'social', campaign: 'launch-day' },
     },
-  ],
-  faq: [
     {
-      q: 'Which parameters should I always set?',
-      a: 'Google recommends utm_source, utm_medium and utm_campaign as a minimum — the tool warns if any of the three is missing.',
-    },
-    {
-      q: 'Do UTM parameters affect SEO?',
-      a: 'Tagged URLs are treated as separate addresses by analytics, but search engines canonicalise them away. Use them in campaigns, not in your internal links.',
+      title: 'Replace existing tags',
+      input: 'https://example.com/p?utm_source=old',
+      options: { campaign: 'relaunch', stripExisting: true },
     },
   ],
   related: ['url-parse', 'querystring'],

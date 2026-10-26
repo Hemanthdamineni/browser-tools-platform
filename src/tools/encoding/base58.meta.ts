@@ -37,20 +37,6 @@ export const meta: ToolMeta = {
     { title: 'Decode', input: '2NEpo7TZRRrLZSi2U', options: { mode: 'decode' } },
     { title: 'Encode a short word', input: 'hello', options: { mode: 'encode' } },
   ],
-  faq: [
-    {
-      q: 'Which alphabet does this use?',
-      a: 'The Bitcoin/IPFS alphabet: 123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz. It drops 0, O, I and l so the value is hard to mis-transcribe.',
-    },
-    {
-      q: 'Is this Base58Check?',
-      a: 'No. There is no version byte or checksum — it is plain Base58 of the raw bytes. Base58Check (used for Bitcoin addresses) adds a 4-byte double-SHA-256 checksum on top.',
-    },
-    {
-      q: 'Why do some results start with "1"?',
-      a: 'Each leading zero byte in the input becomes one leading "1" in the output, because "1" is the zero digit. Decoding turns them back into zero bytes.',
-    },
-  ],
   related: ['base64', 'base32', 'hex', 'ascii85'],
   status: 'stable',
 };

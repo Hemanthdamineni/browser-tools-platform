@@ -54,20 +54,6 @@ export const meta: ToolMeta = {
     { title: '64 hex chars', options: { length: 64, charset: 'hex-lower' } },
     { title: '10 × 21-char base64url', options: { length: 21, charset: 'base64url', count: 10 } },
   ],
-  faq: [
-    {
-      q: 'How is bias avoided?',
-      a: 'Each character index is read as an unsigned 32-bit integer; values in the short final block that would over-represent some characters are discarded and re-drawn (rejection sampling).',
-    },
-    {
-      q: 'What happens with duplicate custom characters?',
-      a: 'Duplicates are collapsed, so "aab" behaves like "ab". An empty custom set is rejected.',
-    },
-    {
-      q: 'Is this suitable for tokens and salts?',
-      a: 'Yes — the randomness comes from crypto.getRandomValues, the same CSPRNG used for cryptographic keys. The entropy figure shown is log2(set size) × length.',
-    },
-  ],
   related: ['password', 'passphrase', 'uuid'],
   status: 'stable',
 };

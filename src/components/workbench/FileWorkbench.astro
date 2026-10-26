@@ -95,6 +95,41 @@ const p = meta.id;
     </button>
     <button type="button" class="btn btn-ghost" data-cancel hidden>Cancel</button>
     <button type="button" class="btn btn-ghost" data-reset hidden>Reset</button>
+    {
+      meta.acceptsText && (
+        <>
+          <label
+            class="flex cursor-pointer items-center gap-2 text-sm text-[rgb(var(--text-muted))]"
+            title="Keep your last pasted text and options for this tool, in this browser only."
+          >
+            <input type="checkbox" class="h-4 w-4 rounded" data-remember />
+            Remember input
+          </label>
+          <button
+            type="button"
+            class="btn btn-subtle btn-sm"
+            data-copy-link
+            title="Share your pasted text and options via a link"
+          >
+            <Icon name="copy" size={14} /> Copy link
+          </button>
+        </>
+      )
+    }
+  </div>
+
+  <div class="mt-3 space-y-2" hidden data-skeleton aria-hidden="true">
+    <div class="tb-skeleton h-4 w-1/3"></div>
+    <div class="tb-skeleton h-20 w-full"></div>
+  </div>
+
+  <div class="mt-3 rounded-lg border border-dashed px-4 py-6 text-center" data-empty>
+    <p class="text-sm font-medium text-[rgb(var(--text))]">
+      Drop {meta.multiple ? 'files' : 'a file'} above to begin
+    </p>
+    <p class="mt-1 text-xs text-[rgb(var(--text-muted))]">
+      Your {meta.multiple ? 'files' : 'file'} are processed on this device and never uploaded.
+    </p>
   </div>
 
   <div class="mt-3" hidden data-progress-wrap>
@@ -131,6 +166,11 @@ const p = meta.id;
       </button>
     </div>
     <div data-report hidden class="mb-3 min-w-0"></div>
+    <div
+      class="mb-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-[rgb(var(--text-muted))]"
+      data-stats
+    >
+    </div>
     <ul class="space-y-2" data-outputs></ul>
     <ul class="mt-2 space-y-1 text-xs" data-notes></ul>
   </div>
@@ -147,7 +187,22 @@ const p = meta.id;
     showError,
     clearError,
     renderTextResult,
+    setOptions,
+    revealResult,
+    notify,
   } from './shared';
+  import {
+    isRememberEnabled,
+    setRememberEnabled,
+    saveDraft,
+    loadDraft,
+    clearDraft,
+    encodeHash,
+    decodeHash,
+    isMeaningful,
+  } from './state';
+  import { onRunShortcutClick } from '../keyboard';
+  import { copyText } from '@/lib/clipboard';
   import type { FileRunResult, OptionValues } from '@/lib/types';
 
   document.querySelectorAll<HTMLElement>('[data-file-workbench]').forEach((root) => {
@@ -173,6 +228,7 @@ const p = meta.id;
     const progressMsg = root.querySelector<HTMLElement>('[data-progress-msg]')!;
     const resultWrap = root.querySelector<HTMLElement>('[data-result-wrap]')!;
     const reportEl = root.querySelector<HTMLElement>('[data-report]')!;
+    const statsEl = root.querySelector<HTMLElement>('[data-stats]')!;
     const outputsEl = root.querySelector<HTMLUListElement>('[data-outputs]')!;
     const notesEl = root.querySelector<HTMLUListElement>('[data-notes]')!;
     const downloadAllBtn = root.querySelector<HTMLButtonElement>('[data-download-all]')!;
@@ -181,6 +237,10 @@ const p = meta.id;
     // every other file tool this is null and the behaviour is unchanged.
     const textEl = root.querySelector<HTMLTextAreaElement>('[data-text-input]');
     const acceptsText = textEl !== null;
+    const rememberBox = root.querySelector<HTMLInputElement>('[data-remember]');
+    const copyLinkBtn = root.querySelector<HTMLButtonElement>('[data-copy-link]');
+    const emptyState = root.querySelector<HTMLElement>('[data-empty]');
+    const skeleton = root.querySelector<HTMLElement>('[data-skeleton]');
 
     let files: File[] = [];
     let controller: AbortController | null = null;
@@ -189,6 +249,33 @@ const p = meta.id;
     let runGeneration = 0;
     let outputs: { filename: string; blob: Blob }[] = [];
     const previewUrls = new Set<string>();
+
+    /** The shareable part of a file tool's state: pasted text + options. */
+    function snapshot() {
+      return { input: pastedText(), options: readOptions(optionsRoot) };
+    }
+
+    function restore(snapshotState: { input: string; options: Record<string, unknown> }) {
+      if (textEl) textEl.value = snapshotState.input;
+      setOptions(optionsRoot, snapshotState.options);
+      applyShowWhen(optionsRoot);
+      syncRunState();
+    }
+
+    function syncHash() {
+      const state = snapshot();
+      if (!isMeaningful(state)) return;
+      const hash = encodeHash(state);
+      if (!hash) return;
+      try {
+        history.replaceState(null, '', `${location.pathname}${location.search}#${hash}`);
+      } catch {
+        /* history unavailable — link still built on demand */
+      }
+    }
+
+    // Ctrl/⌘+Enter runs the current tool.
+    onRunShortcutClick(root, window);
 
     function revokePreviews() {
       for (const url of previewUrls) URL.revokeObjectURL(url);
@@ -231,6 +318,8 @@ const p = meta.id;
       const ready = files.length > 0 || hasPastedText();
       runBtn.disabled = !ready;
       resetBtn.hidden = !ready;
+      // The "drop a file to begin" placeholder only shows before any input.
+      emptyState?.toggleAttribute('hidden', ready);
     }
 
     function addFiles(incoming: File[]) {
@@ -267,6 +356,7 @@ const p = meta.id;
       const generation = ++runGeneration;
       controller = new AbortController();
       clearError(errorBox);
+      skeleton?.removeAttribute('hidden');
       runBtn.disabled = true;
       cancelBtn.hidden = false;
       progressWrap.hidden = false;
@@ -297,10 +387,12 @@ const p = meta.id;
         if (generation !== runGeneration) return;
         progressBar.style.width = '100%';
         progressMsg.textContent = 'Done';
+        skeleton?.setAttribute('hidden', '');
         outputs = result.outputs;
         renderOutputs(result);
       } catch (err) {
         if (generation !== runGeneration) return;
+        skeleton?.setAttribute('hidden', '');
         const e = err as Error & { hint?: string };
         if (e.name !== 'AbortError') showError(errorBox, e.message || 'Processing failed', e.hint);
         else progressMsg.textContent = 'Cancelled';
@@ -315,6 +407,7 @@ const p = meta.id;
 
     function renderOutputs(result: FileRunResult) {
       resultWrap.hidden = false;
+      revealResult(resultWrap);
       // Inline report (e.g. metadata tables) — shown above any downloadable outputs.
       if (result.report) {
         renderTextResult(reportEl, {
@@ -326,6 +419,16 @@ const p = meta.id;
       } else {
         reportEl.hidden = true;
         reportEl.innerHTML = '';
+      }
+      statsEl.innerHTML = '';
+      const statsEntries = Object.entries(result.stats ?? {});
+      statsEl.hidden = statsEntries.length === 0;
+      for (const [key, value] of statsEntries) {
+        const span = document.createElement('span');
+        // Keys and values are tool output, so both are escaped before being
+        // turned into HTML — a hostile value can never inject elements.
+        span.innerHTML = `<span class="font-medium text-[rgb(var(--text))]">${escapeHtml(key)}:</span> ${escapeHtml(String(value))}`;
+        statsEl.appendChild(span);
       }
       outputsEl.innerHTML = '';
       result.outputs.forEach((o, i) => {
@@ -385,22 +488,67 @@ const p = meta.id;
       renderList();
       resultWrap.hidden = true;
       outputsEl.innerHTML = '';
+      statsEl.innerHTML = '';
       notesEl.innerHTML = '';
       reportEl.hidden = true;
       reportEl.innerHTML = '';
       downloadAllBtn.hidden = true;
       progressWrap.hidden = true;
+      skeleton?.setAttribute('hidden', '');
+      emptyState?.removeAttribute('hidden');
       clearError(errorBox);
     });
     downloadAllBtn.addEventListener('click', () => downloadZip(outputs, `${toolId}-output.zip`));
 
     // Typing in the textarea re-enables Run (for tools that accept text) and
     // hides the now-stale result.
+    let persistTimer: ReturnType<typeof setTimeout> | undefined;
+    function schedulePersist() {
+      clearTimeout(persistTimer);
+      persistTimer = setTimeout(() => {
+        if (rememberBox?.checked) saveDraft(toolId, snapshot());
+        syncHash();
+      }, 500);
+    }
     textEl?.addEventListener('input', () => {
       syncRunState();
       resultWrap.hidden = true;
       clearError(errorBox);
+      schedulePersist();
     });
+    optionsRoot.addEventListener('input', () => {
+      applyShowWhen(optionsRoot);
+      schedulePersist();
+    });
+    optionsRoot.addEventListener('change', () => {
+      applyShowWhen(optionsRoot);
+      schedulePersist();
+    });
+
+    // Opt-in "remember my input" — off until the visitor ticks the box.
+    rememberBox?.addEventListener('change', () => {
+      setRememberEnabled(rememberBox.checked);
+      if (rememberBox.checked) saveDraft(toolId, snapshot());
+      else clearDraft(toolId);
+    });
+
+    // Copy a shareable link carrying the current pasted text + options.
+    copyLinkBtn?.addEventListener('click', async () => {
+      syncHash();
+      const url = `${location.origin}${location.pathname}${location.search}${location.hash}`;
+      const ok = await copyText(url);
+      notify(ok ? 'Link copied' : 'Copy failed');
+    });
+
+    // Restore shared/remembered state on load (text + options only).
+    if (rememberBox) rememberBox.checked = isRememberEnabled();
+    const shared = decodeHash(location.hash);
+    if (isMeaningful(shared)) {
+      restore(shared);
+    } else if (rememberBox?.checked) {
+      const draft = loadDraft(toolId);
+      if (draft) restore(draft);
+    }
 
     // Example chips fill the textarea (and the options) and run straight away.
     root.querySelectorAll<HTMLButtonElement>('[data-example]').forEach((btn) => {
@@ -411,17 +559,10 @@ const p = meta.id;
             options: Record<string, unknown>;
           };
           if (textEl) textEl.value = payload.input;
-          for (const [k, v] of Object.entries(payload.options)) {
-            const el = optionsRoot.querySelector<HTMLInputElement | HTMLSelectElement>(
-              `[data-opt-key="${k}"]`,
-            );
-            if (!el) continue;
-            if ((el as HTMLInputElement).type === 'checkbox')
-              (el as HTMLInputElement).checked = Boolean(v);
-            else el.value = String(v);
-          }
+          setOptions(optionsRoot, payload.options);
           applyShowWhen(optionsRoot);
           syncRunState();
+          schedulePersist();
           run();
         } catch {
           /* malformed example */

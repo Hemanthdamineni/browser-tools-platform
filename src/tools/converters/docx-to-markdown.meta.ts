@@ -65,23 +65,15 @@ export const meta: ToolMeta = {
       showWhen: { key: 'output', value: 'markdown' },
     },
   ],
-  examples: [{ title: 'Convert a .docx to Markdown' }],
-  faq: [
+  examples: [
+    { title: 'Convert a .docx to Markdown' },
     {
-      q: 'Is my document uploaded anywhere?',
-      a: 'No. The .docx is unpacked and converted entirely inside this browser tab; no bytes leave your device and the tool works offline.',
+      title: 'Plain text with images embedded',
+      options: { output: 'text', images: 'embed' },
     },
     {
-      q: 'Why does my old .doc file not work?',
-      a: 'The older binary .doc format is not a ZIP of XML and cannot be read in a browser. Open it in Word/LibreOffice and save as .docx (or PDF) first.',
-    },
-    {
-      q: 'What is preserved?',
-      a: 'Paragraphs, heading levels (from Word styles), bold, italic, strikethrough, super/subscript, hyperlinks, tabs and line breaks, bullet and numbered lists, and tables. Images can optionally be embedded or extracted.',
-    },
-    {
-      q: 'Are equations, charts and text boxes included?',
-      a: 'Text in a paragraph body is included. Complex objects such as equations, embedded charts, SmartArt, headers/footers, footnotes and comments are not converted.',
+      title: 'Markdown with extracted images',
+      options: { output: 'markdown', images: 'link' },
     },
   ],
   related: ['markdown-to-html', 'html-to-text', 'pdf-extract-text', 'zip-extract'],

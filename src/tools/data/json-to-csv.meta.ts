@@ -61,20 +61,6 @@ export const meta: ToolMeta = {
       options: { delimiter: 'semicolon', header: false },
     },
   ],
-  faq: [
-    {
-      q: 'How are columns chosen?',
-      a: 'The tool takes the union of keys across all rows, in first-seen order, so rows with missing keys get an empty cell.',
-    },
-    {
-      q: 'When are fields quoted?',
-      a: 'Only when a value contains the delimiter, a double quote, or a line break. Embedded quotes are doubled, per RFC 4180.',
-    },
-    {
-      q: 'What if a row is not an object?',
-      a: 'A row that is a string, number, or null raises an error. Use an array of arrays if you want positional columns.',
-    },
-  ],
   related: ['csv-to-json', 'json-to-yaml', 'yaml-to-json'],
   status: 'stable',
 };

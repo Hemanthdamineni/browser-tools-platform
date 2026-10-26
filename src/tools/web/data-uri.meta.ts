@@ -92,21 +92,13 @@ export const meta: ToolMeta = {
       options: { mode: 'text-encode', mimeType: 'image/svg+xml' },
     },
     { title: 'Decode', input: 'data:text/plain,hello%20world', options: { mode: 'text-decode' } },
-  ],
-  faq: [
     {
-      q: 'Why base64 instead of percent-encoding?',
-      a: 'base64 grows the payload by ~33% but never needs escaping; percent-encoding is shorter for mostly-ASCII text. Both are valid per RFC 2397.',
-    },
-    {
-      q: 'What happened to “Image to Data URI” and “Data URI to Image”?',
-      a: 'Both are now modes of this tool. Their old URLs still work and redirect here, so old links and bookmarks keep working.',
-    },
-    {
-      q: 'Does the data: URI leave my device?',
-      a: 'No. Encoding and decoding happen in this tab; nothing is uploaded and the URI never leaves your browser.',
+      title: 'Decode an image data URI',
+      input:
+        'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=',
+      options: { mode: 'image-decode' },
     },
   ],
-  related: ['base64', 'url-encode', 'base64-file'],
+  related: ['base64', 'url-encode', 'hex'],
   status: 'stable',
 };

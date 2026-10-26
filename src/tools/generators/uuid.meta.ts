@@ -30,15 +30,13 @@ export const meta: ToolMeta = {
   examples: [
     { title: 'One v4', options: { version: 'v4', count: 1 } },
     { title: '10 × v7 (sortable)', options: { version: 'v7', count: 10 } },
-  ],
-  faq: [
     {
-      q: 'Are these cryptographically random?',
-      a: 'The random bits use crypto.getRandomValues, the browser CSPRNG. v7 also mixes in the current time so values are ordered.',
+      title: 'Uppercase v4 with braces',
+      options: { version: 'v4', count: 1, uppercase: true, braces: true },
     },
     {
-      q: 'When should I use v7 instead of v4?',
-      a: 'v7 sorts by creation time, which keeps database indexes tighter and makes logs easier to scan. Use v4 when you want no time information leaked.',
+      title: 'Compact v7 without hyphens',
+      options: { version: 'v7', count: 5, hyphens: false },
     },
   ],
   related: ['nanoid', 'ulid', 'random-string', 'password'],

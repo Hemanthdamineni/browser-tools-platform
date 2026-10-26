@@ -47,19 +47,11 @@ export const meta: ToolMeta = {
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
       options: { part: 'payload' },
     },
-  ],
-  faq: [
     {
-      q: 'Does this verify the signature?',
-      a: 'No. It only decodes the header and payload. It cannot tell you whether the token is authentic or was tampered with — that requires the signing key, which never leaves the issuer.',
-    },
-    {
-      q: 'Is my token sent anywhere?',
-      a: 'No. Decoding is pure string work that runs in your browser tab. Nothing is uploaded. Still, treat tokens as secrets and clear the field when you are done.',
-    },
-    {
-      q: 'What do exp, iat and nbf mean?',
-      a: 'They are NumericDate claims — seconds since 1970-01-01 UTC. exp is when the token expires, iat when it was issued, nbf the earliest time it is valid. This tool prints each as a readable UTC date.',
+      title: 'Header only, to read the signing algorithm',
+      input:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
+      options: { part: 'header' },
     },
   ],
   related: ['jwt-sign', 'base64', 'url-encode', 'hex'],

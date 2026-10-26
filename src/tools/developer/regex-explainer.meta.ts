@@ -39,19 +39,10 @@ export const meta: ToolMeta = {
       title: 'Groups and quantifiers',
       input: `^(https?://)?(\\d{1,3}\\.){3}\\d{1,3}(:\\d{2,5})?(/[\\w./-]*)?$`,
     },
-  ],
-  faq: [
     {
-      q: 'Which regex syntax is explained?',
-      a: 'The JavaScript/ECMAScript flavour your browser uses: literals, character classes, escapes, capturing/non-capturing/named groups, lookarounds, quantifiers, anchors, alternation and backreferences. PCRE-only syntax may be shown as unknown.',
-    },
-    {
-      q: 'Will it validate my pattern?',
-      a: 'It flags unknown escapes and unbalanced groups, but it does not execute the expression. Use it to read a pattern, not to prove it matches what you expect.',
-    },
-    {
-      q: 'What does the flags field do?',
-      a: 'The letters you enter (g, i, m, s, u, y, d, v) are decoded so the anchors, dot and case sensitivity read correctly in the explanation.',
+      title: 'Lookaround and named group',
+      input: '(?<user>\\w+)(?=@)\\s*@\\s*(?!spam\\.)[\\w.]+',
+      options: { flags: 'gi' },
     },
   ],
   related: ['regex-tester', 'jsonpath', 'find-replace', 'markdown-link-checker'],

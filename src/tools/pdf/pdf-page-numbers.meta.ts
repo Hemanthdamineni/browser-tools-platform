@@ -1,5 +1,5 @@
 import type { ToolMeta } from '@/lib/types';
-import { pdfCredit } from './shared';
+import { pdfCredit } from './credits';
 export const meta: ToolMeta = {
   id: 'pdf-page-numbers',
   name: 'Add Page Numbers',
@@ -43,7 +43,17 @@ export const meta: ToolMeta = {
     { key: 'margin', label: 'Margin', type: 'number', default: 24, min: 0, max: 200 },
     { key: 'skipFirst', label: 'Skip the first page', type: 'boolean', default: false },
   ],
-  examples: [{ title: 'Number at the bottom' }],
+  examples: [
+    { title: 'Number at the bottom' },
+    {
+      title: '"Page 3 of 12" in the top right',
+      options: { position: 'top-right', format: 'page-n-of-total', fontSize: 9 },
+    },
+    {
+      title: 'Start at 5 and skip the cover',
+      options: { startAt: 5, skipFirst: true, position: 'bottom-right' },
+    },
+  ],
   related: ['pdf-watermark', 'pdf-metadata', 'pdf-rotate'],
   credits: [pdfCredit],
   status: 'stable',

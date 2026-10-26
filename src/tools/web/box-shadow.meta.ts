@@ -29,11 +29,16 @@ export const meta: ToolMeta = {
   examples: [
     { title: 'Default elevation' },
     { title: 'Layered (3 layers)', options: { layers: 3 } },
-  ],
-  faq: [
     {
-      q: 'How does layered mode scale the shadows?',
-      a: 'Layer i of N uses offset/blur/spread multiplied by i/N and the colour alpha divided by i. It mimics the multi-shadow "elevation" technique popularised by Material Design.',
+      title: 'A soft inset ring',
+      options: {
+        offsetX: 0,
+        offsetY: 2,
+        blur: 6,
+        spread: 0,
+        color: 'rgba(0,0,0,0.2)',
+        inset: true,
+      },
     },
   ],
   related: ['gradient-css', 'color-blend'],

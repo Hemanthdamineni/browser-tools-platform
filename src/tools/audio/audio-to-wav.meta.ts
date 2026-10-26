@@ -1,5 +1,11 @@
 import type { ToolMeta } from '@/lib/types';
 
+/**
+ * Legacy id: `audio-to-wav` is now part of `audio-convert` (which adds MP3 and
+ * Opus/OGG). Kept routable so old links and bookmarks redirect; hidden from
+ * listings and search. The registry's `build()` still requires a matching
+ * `.tool.ts` (see `audio-to-wav.tool.ts`, which re-exports `audio-convert`).
+ */
 export const meta: ToolMeta = {
   id: 'audio-to-wav',
   name: 'Convert Audio to WAV',
@@ -47,6 +53,8 @@ export const meta: ToolMeta = {
       choices: [{ value: '16', label: '16-bit PCM' }],
     },
   ],
-  related: ['audio-info', 'audio-trim'],
+  related: ['audio-convert', 'audio-info', 'audio-trim'],
+  hidden: true,
+  redirectTo: 'audio-convert',
   status: 'stable',
 };

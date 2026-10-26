@@ -40,6 +40,11 @@ export const meta: ToolMeta = {
       input: '',
       options: { bill: 100, tipPercent: 20, split: 4 },
     },
+    { title: 'Round the total up', options: { bill: 47.2, tipPercent: 18, roundUp: 'total' } },
+    {
+      title: 'Round each share up',
+      options: { bill: 99, tipPercent: 15, split: 3, roundUp: 'per-person' },
+    },
   ],
   related: ['loan-calculator', 'unit-convert'],
   status: 'stable',

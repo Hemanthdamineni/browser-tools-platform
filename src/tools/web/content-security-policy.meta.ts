@@ -51,19 +51,9 @@ export const meta: ToolMeta = {
         frameAncestors: "'none'",
       },
     },
-  ],
-  faq: [
     {
-      q: 'What does CSP protect against?',
-      a: 'It constrains which resources a page may load (and where scripts may run), reducing XSS and data-injection risk when configured correctly.',
-    },
-    {
-      q: 'Is unsafe-inline always bad?',
-      a: 'unsafe-inline weakens CSP for the relevant directive. Use nonces or hashes when you need inline scripts or styles.',
-    },
-    {
-      q: 'What is report-only mode?',
-      a: 'Content-Security-Policy-Report-Only reports violations without enforcing them, which is the recommended way to test a policy before roll-out.',
+      title: 'Analyze a policy with a wildcard source',
+      input: "default-src 'self'; img-src *; script-src 'unsafe-inline'",
     },
   ],
   related: ['security-headers', 'x-frame-options', 'http-header-analyzer'],

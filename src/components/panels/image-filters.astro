@@ -1,0 +1,185 @@
+---
+/**
+ * The "Image Filters" panel.
+ *
+ * The generic file workbench cannot show a live, filtered preview on the actual
+ * image, so this tool opts into its own panel via `meta.panel = 'image-filters'`.
+ * The panel decodes the chosen image, draws a downscaled copy to a canvas and
+ * runs the same pixel pipeline the worker uses for the export, so the preview
+ * always matches the downloaded file — no CSS approximation. Options, a
+ * before/after compare and a filter reset live here; the heavy full-resolution
+ * work happens in the Web Worker.
+ *
+ * The root deliberately does NOT carry `data-file-workbench`: `FileWorkbench`'s
+ * script binds itself to every `[data-file-workbench]` root and would attach a
+ * second runner. Panel tools are recognised by the `[data-panel-workbench]`
+ * wrapper `PanelWorkbench` renders around them.
+ *
+ * Behaviour lives in `./image-filters-panel.ts`, imported lazily from the script
+ * block below so no canvas/filter code ships to pages that do not use it.
+ */
+import type { ToolMeta } from '@/lib/types';
+import OptionsFields from '@/components/workbench/OptionsFields.astro';
+import Icon from '@/components/Icon.astro';
+
+interface Props {
+  meta: ToolMeta;
+}
+const { meta } = Astro.props;
+const p = meta.id;
+const options = meta.options ?? [];
+const examples = meta.examples ?? [];
+const exampleId = `${p}-examples`;
+---
+
+<section
+  class="surface rounded-lg p-4 sm:p-6"
+  data-image-filters-panel
+  data-tool-id={meta.id}
+  data-accept={meta.accept ?? ''}
+  data-multiple="false"
+  aria-label={`${meta.name} workbench`}
+>
+  <h2 class="text-base font-semibold text-[rgb(var(--text))]">1 · Choose an image</h2>
+  <div
+    class="drop-zone mt-3 flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed px-4 py-8 text-center transition-colors"
+    data-drop
+    role="button"
+    tabindex="0"
+    aria-label="Choose an image or drop it here"
+  >
+    <Icon name="image" size={28} class="opacity-60" />
+    <p class="text-sm font-medium">
+      Drop an image here, or <span class="link">browse</span>
+    </p>
+    {meta.accept && <p class="text-xs text-[rgb(var(--text-muted))]">Accepts: {meta.accept}</p>}
+    <p class="text-xs text-[rgb(var(--text-muted))]">The image stays on your device.</p>
+  </div>
+
+  <ul class="mt-3 space-y-1.5 text-sm" data-file-list></ul>
+
+  {
+    examples.length > 0 && (
+      <div class="mt-3" aria-label="Example adjustments">
+        <span class="text-xs font-medium text-[rgb(var(--text-muted))]" id={exampleId}>
+          Try
+        </span>
+        <div class="mt-1.5 flex flex-wrap gap-2" aria-labelledby={exampleId}>
+          {examples.map((example) => (
+            <button
+              type="button"
+              class="btn btn-subtle btn-sm"
+              data-example
+              data-example-options={JSON.stringify(example.options ?? {})}
+            >
+              {example.title}
+            </button>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  <h2 class="mt-6 text-base font-semibold text-[rgb(var(--text))]">2 · Adjust the filters</h2>
+  <p class="mt-1.5 max-w-prose text-sm leading-relaxed text-[rgb(var(--text-muted))]">
+    Every slider updates a live preview drawn from the image's real pixels, so what you see is what
+    the export writes.
+  </p>
+
+  <div class="mt-3">
+    <OptionsFields options={options} idPrefix={p} />
+  </div>
+
+  <h2 class="mt-6 text-base font-semibold text-[rgb(var(--text))]">3 · Preview</h2>
+  <div class="mt-3" hidden data-preview-wrap>
+    <div class="flex flex-wrap items-center justify-between gap-2">
+      <button
+        type="button"
+        class="btn btn-subtle btn-sm"
+        data-compare
+        disabled
+        aria-pressed="false"
+      >
+        Compare with the original
+      </button>
+      <button type="button" class="btn btn-subtle btn-sm" data-reset-filters>Reset filters</button>
+    </div>
+    <div class="mt-3 overflow-hidden rounded-lg border">
+      <canvas
+        class="block h-auto max-h-[70vh] w-full"
+        data-preview-canvas
+        aria-label="Live filter preview"></canvas>
+    </div>
+  </div>
+  <p
+    class="mt-2 text-xs text-[rgb(var(--text-muted))]"
+    data-preview-status
+    role="status"
+    aria-live="polite"
+  >
+    Choose an image to see it here.
+  </p>
+
+  <div class="mt-5 flex flex-wrap items-center gap-2.5">
+    <button type="button" class="btn btn-primary" data-run disabled>
+      <Icon name="zap" size={16} /> Export filtered image
+    </button>
+    <button type="button" class="btn btn-ghost" data-cancel hidden>Cancel</button>
+    <button type="button" class="btn btn-ghost" data-reset hidden>Reset</button>
+  </div>
+
+  <div class="mt-3" hidden data-progress-wrap>
+    <div class="h-2 overflow-hidden rounded-full" style="background-color: rgb(var(--bg-inset))">
+      <div
+        class="h-full transition-[width] duration-200 ease-out motion-reduce:transition-none"
+        style="width:0%; background-color: rgb(var(--accent))"
+        data-progress-bar
+      >
+      </div>
+    </div>
+    <p
+      class="mt-1 text-xs tabular-nums text-[rgb(var(--text-muted))]"
+      data-progress-msg
+      aria-live="polite"
+    >
+    </p>
+  </div>
+
+  <div
+    class="mt-4 rounded-lg border px-3 py-2 text-sm"
+    style="background-color: rgb(var(--danger-soft)); border-color: rgb(var(--danger)); color: rgb(var(--danger))"
+    role="alert"
+    data-error
+    hidden
+  >
+  </div>
+
+  <div class="mt-4" hidden data-result-wrap>
+    <div class="mb-2 flex items-center justify-between">
+      <span class="text-sm font-semibold text-[rgb(var(--text))]" data-result-title>Results</span>
+    </div>
+    <ul class="space-y-2" data-outputs></ul>
+    <ul class="mt-2 space-y-1 text-xs" data-notes></ul>
+  </div>
+
+  <noscript>
+    <p class="mt-3 text-sm text-[rgb(var(--text-muted))]">
+      Editing image filters needs JavaScript. Nothing is ever uploaded.
+    </p>
+  </noscript>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-image-filters-panel]').forEach((panel) => {
+    // The canvas/filter code is loaded on demand: only this tool's page pays for it.
+    void import('./image-filters-panel')
+      .then(({ mountImageFiltersPanel }) => mountImageFiltersPanel(panel))
+      .catch(() => {
+        const error = panel.querySelector<HTMLElement>('[data-error]');
+        if (error) {
+          error.hidden = false;
+          error.textContent = 'The filters panel could not be loaded in this browser.';
+        }
+      });
+  });
+</script>

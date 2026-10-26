@@ -1,5 +1,5 @@
 import type { ToolMeta } from '@/lib/types';
-import { pdfCredit } from './shared';
+import { pdfCredit } from './credits';
 export const meta: ToolMeta = {
   id: 'pdf-delete-pages',
   name: 'Delete Pages',
@@ -20,7 +20,11 @@ export const meta: ToolMeta = {
       placeholder: 'e.g. 2,4 or 3-6',
     },
   ],
-  examples: [{ title: 'Delete pages 2 and 4', options: { pages: '2,4' } }],
+  examples: [
+    { title: 'Delete pages 2 and 4', options: { pages: '2,4' } },
+    { title: 'Delete a range', options: { pages: '3-6' } },
+    { title: 'Delete from page 5 to the end', options: { pages: '5-' } },
+  ],
   related: ['pdf-extract-pages', 'pdf-split', 'pdf-rotate'],
   credits: [pdfCredit],
   status: 'stable',

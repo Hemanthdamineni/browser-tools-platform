@@ -59,17 +59,12 @@ export const meta: ToolMeta = {
       input: '1',
       options: { category: 'data-storage', from: 'GiB', to: 'MiB' },
     },
-  ],
-  faq: [
     {
-      q: 'Does the data-storage category use binary or decimal prefixes?',
-      a: 'Both: KB/MB/GB are decimal (1000-based) and KiB/MiB/GiB are binary (1024-based), so 1 GiB = 1024 MiB but 1 GB = 1000 MB.',
-    },
-    {
-      q: 'How is temperature handled?',
-      a: 'Temperature is not a simple factor table — values are converted to Kelvin first, then out to Celsius, Fahrenheit, Kelvin or Rankine.',
+      title: 'Pressure in atmospheres',
+      input: '1',
+      options: { category: 'pressure', from: 'atm', to: 'Pa' },
     },
   ],
-  related: ['css-units', 'data-size', 'scientific-notation'],
+  related: ['css-units', 'data-size', 'significant-figures'],
   status: 'stable',
 };

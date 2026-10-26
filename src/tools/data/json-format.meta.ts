@@ -52,21 +52,8 @@ export const meta: ToolMeta = {
       input: '{"b":1,"a":{"d":4,"c":3}}',
       options: { operation: 'sort-keys' },
     },
+    { title: 'Check a config file', input: '{"port":8080}', options: { operation: 'validate' } },
   ],
-  faq: [
-    {
-      q: 'How are syntax errors reported?',
-      a: 'The raw parser message is shown, and where a position can be extracted it is translated into "at line L, column C" as a hint.',
-    },
-    {
-      q: 'Does it preserve large integers exactly?',
-      a: 'No. Values pass through JSON.parse, so integers beyond 2^53 and the exact spelling of numbers can change. Formatting is otherwise loss-free.',
-    },
-    {
-      q: 'What does "Validate only" report?',
-      a: 'It confirms the text is valid JSON and notes the top-level value type plus how many keys or elements it has.',
-    },
-  ],
-  related: ['json-escape', 'ndjson'],
+  related: ['json-diff', 'ndjson'],
   status: 'stable',
 };

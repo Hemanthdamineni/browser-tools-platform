@@ -47,19 +47,9 @@ export const meta: ToolMeta = {
       title: 'Build a Bearer proxy challenge',
       options: { mode: 'build', scheme: 'Bearer', realm: 'edge-proxy', scope: 'connect' },
     },
-  ],
-  faq: [
     {
-      q: 'When is Proxy-Authenticate used?',
-      a: 'A forward proxy can send it with 407 Proxy Authentication Required to request proxy credentials from the client.',
-    },
-    {
-      q: 'Is it the same as WWW-Authenticate?',
-      a: 'No. Proxy-Authenticate applies to the next proxy, while WWW-Authenticate challenges the origin server.',
-    },
-    {
-      q: 'Is Basic safe over HTTP?',
-      a: 'Basic credentials are only Base64-encoded. Use TLS and prefer stronger schemes where available.',
+      title: 'Build a Basic challenge',
+      options: { mode: 'build', scheme: 'Basic', realm: 'corp-proxy' },
     },
   ],
   related: ['www-authenticate', 'basic-auth', 'security-headers'],

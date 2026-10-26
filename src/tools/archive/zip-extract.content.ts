@@ -1,0 +1,40 @@
+/**
+ * Editorial content for the zip-extract tool page.
+ *
+ * Kept out of ``zip-extract.meta.ts`` so the eager client registry never ships this
+ * prose: pages and SEO endpoints import it at build time only.
+ */
+export const content = {
+  article: [
+    {
+      heading: 'What it does',
+      body: 'You pick one or more .zip files and every entry inside becomes its own downloadable file. The tool reads the central directory, decompresses each entry with fflate, and reports every path with its size and whether it was extracted or skipped.',
+    },
+    {
+      heading: 'Input and output',
+      body: 'The input is a ZIP (.zip or application/zip). The output is a set of downloads rather than one re-packed archive, plus a Path, Size and Status table. Separators in entry names become underscores, so folders arrive as a flat list of files rather than rebuilt directories.',
+    },
+    {
+      heading: 'The path filter',
+      body: 'The filter is a plain substring match: only paths containing the text you type are extracted, and the rest are marked skipped. Leave it blank for the whole archive, or type a folder or extension to pull out just the part of a large zip you actually want.',
+    },
+    {
+      heading: 'Limits, caveats and privacy',
+      body: 'Encrypted archives are refused with a message pointing you at password-aware software, and extraction stops after the first 200 matching entries per file. Paths that are absolute, use drive letters or contain . or .. are never written out. The archive is read on your device with nothing uploaded, and the tool works offline.',
+    },
+  ],
+  faq: [
+    {
+      q: 'Why is an entry marked skipped (limit)?',
+      a: 'Extraction stops after the first 200 matching, safe entries so a very large archive does not flood your browser with downloads. Reduce the set by using the path filter, or extract the archive in a tool that writes to disk instead.',
+    },
+    {
+      q: 'Can I extract a password-protected ZIP?',
+      a: 'No. The tool inspects the central directory and refuses encrypted archives with a clear error. Use password-aware unzip software for those files.',
+    },
+    {
+      q: 'Why is a file marked skipped but looks fine?',
+      a: 'A path is only extracted when it is relative and has no . or .. segments and no drive-letter prefix. Entries with unsafe names, or that do not match the filter, are reported as skipped rather than extracted.',
+    },
+  ],
+} as const;

@@ -23,13 +23,8 @@ export const meta: ToolMeta = {
     { title: 'SSH port', input: '22' },
     { title: 'By name', input: 'redis' },
     { title: 'Browse all', input: '' },
+    { title: 'Ports for a database', input: 'database' },
   ],
-  faq: [
-    {
-      q: 'Why do two services sometimes share a port?',
-      a: 'TCP and UDP are separate namespaces, and some historical services registered both. The Protocol column shows whether an entry applies to TCP, UDP, or both.',
-    },
-  ],
-  related: ['ip-info', 'http-status', 'cidr-calculator'],
+  related: ['ip-address-inspector', 'http-status', 'cidr-calculator'],
   status: 'stable',
 };

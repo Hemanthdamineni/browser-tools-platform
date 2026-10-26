@@ -53,23 +53,15 @@ export const meta: ToolMeta = {
       title: 'A list with repeats',
       input: 'apple\nbanana\napple\ncherry\nbanana\napple',
     },
-  ],
-  faq: [
     {
-      q: 'How is a found duplicate reported?',
-      a: 'Each repeated line gets a row with its count, the total occurrences, and the line number where it first appears. A line appearing three times counts as two duplicates.',
+      title: 'Full frequency table, most repeats first',
+      input: 'foo\nbar\nfoo\nbaz\nfoo\nbar',
+      options: { includeUnique: true, sortBy: 'frequency' },
     },
     {
-      q: 'What if I want unique lines too?',
-      a: 'Turn on "Include unique lines" to get a full frequency table of every line, singletons included. Lines that appear once then show count 1.',
-    },
-    {
-      q: 'Does it match byte-for-byte?',
-      a: 'Yes by default. With "Ignore case" and "Ignore leading/trailing spaces" it matches on the normalized form but keeps the first-seen original text for display.',
-    },
-    {
-      q: 'How do I remove the duplicates?',
-      a: 'This tool reports them. Use the dedupe-lines tool to actually delete repeats, keeping the first or last occurrence — they work together.',
+      title: 'Case-insensitive scan',
+      input: 'HTTP 200\nhttp 200\nHTTP 200\nHttp 404',
+      options: { ignoreCase: true },
     },
   ],
   related: ['dedupe-lines', 'sort-lines', 'remove-empty-lines', 'line-numbers'],

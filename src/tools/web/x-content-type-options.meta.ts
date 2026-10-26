@@ -43,19 +43,9 @@ export const meta: ToolMeta = {
   examples: [
     { title: 'Analyze a nosniff header', input: 'X-Content-Type-Options: nosniff' },
     { title: 'Build the security header', options: { mode: 'build', value: 'nosniff' } },
-  ],
-  faq: [
     {
-      q: 'What does nosniff do?',
-      a: 'It tells the browser not to guess a file type from its content; the declared Content-Type is authoritative, reducing drive-by download and injection risk.',
-    },
-    {
-      q: 'Is any other value valid?',
-      a: 'Only nosniff is defined. Other values are ignored by browsers and typically indicate a legacy or broken configuration.',
-    },
-    {
-      q: 'When is it required?',
-      a: 'It is a recommended security header for any HTML, CSS, or JavaScript delivered to browsers, especially on CDNs and static hosts.',
+      title: 'Analyze a non-standard value',
+      input: 'nosniff; something',
     },
   ],
   related: ['content-type', 'x-frame-options', 'security-headers'],

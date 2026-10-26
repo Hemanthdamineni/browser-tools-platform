@@ -27,12 +27,6 @@ export const meta: ToolMeta = {
     { title: 'rgb(239 68 68)', input: 'rgb(239 68 68)' },
     { title: 'hsl(160 84% 39%)', input: 'hsl(160 84% 39%)' },
   ],
-  faq: [
-    {
-      q: 'Which input formats are accepted?',
-      a: '#rgb, #rgba, #rrggbb, #rrggbbaa, rgb()/rgba() with commas or spaces, hsl()/hsla(), and the 148 CSS named colours.',
-    },
-  ],
-  related: ['color-contrast', 'color-palette', 'gradient-generator'],
+  related: ['color-contrast', 'color-palette', 'color-blend'],
   status: 'stable',
 };

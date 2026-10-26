@@ -80,4 +80,13 @@ describe('ssh-key-fingerprint', () => {
     const result = await run(RSA_PUB);
     expect(result.stats?.bits).toBe(2048);
   });
+
+  it('runs the "RSA key" example without throwing', async () => {
+    const example =
+      'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQDimgA3WT34Riu5WUXpQGK5r5rULP5BHGHoInHLR/5PXHKfm5YOV05FPrYPjbP/VSGlHku3OjuYJegw85k/VGzXQ9BbjEHmxqm5QV5/MBA9TJ9oEILw2Oe6aXFSU2VWP1HH7dXoKsgLnEpoxQGrV3Vzjk0uekUlwNyI5YlcGAvRxw== deploy@build01';
+    expect(await get(example, 'Key type')).toBe('ssh-rsa');
+    expect(await get(example, 'Key size')).toBe('1024 bits');
+    expect(await get(example, 'SHA256 fingerprint')).toMatch(/^SHA256:[A-Za-z0-9+/]+={0,2}$/);
+    expect(await get(example, 'Comment')).toBe('deploy@build01');
+  });
 });

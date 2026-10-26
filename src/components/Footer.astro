@@ -5,6 +5,8 @@ import Icon from './Icon.astro';
 
 const year = new Date().getFullYear();
 const groups = Object.entries(site.footer);
+// Asset/link paths must honour the deploy base (e.g. /browser-tools-platform on GitHub Pages).
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 
 <footer class="mt-20 border-t surface-subtle">
@@ -12,7 +14,7 @@ const groups = Object.entries(site.footer);
     <div class="grid gap-10 sm:grid-cols-[1.4fr_1fr_1fr] sm:gap-8">
       <div>
         <a
-          href="/"
+          href={`${base}/`}
           class="inline-flex items-center gap-2.5 font-semibold tracking-tight"
           aria-label={`${site.shortName} home`}
         >

@@ -48,12 +48,6 @@ export const meta: ToolMeta = {
     { title: 'ISO duration', input: 'PT2H' },
     { title: 'Days and hours', input: '1d 12h' },
   ],
-  faq: [
-    {
-      q: 'Is 01:30 read as 1 hour 30 minutes or 1 minute 30 seconds?',
-      a: 'Two-part clock values are read as MM:SS (90 seconds here). Use 1:30:00 or 1h 30m when you mean ninety minutes.',
-    },
-  ],
   related: ['timestamp', 'date-diff'],
   status: 'stable',
 };

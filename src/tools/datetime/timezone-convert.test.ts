@@ -53,4 +53,12 @@ describe('timezone-convert', () => {
     await expect(run('tomorrow-ish')).rejects.toThrow(ToolError);
     await expect(run('tomorrow-ish')).rejects.toThrow(/not a valid date and time/);
   });
+
+  it('runs the "Now, US zones" example without throwing', async () => {
+    const r = await run('', { targets: 'us' });
+    expect(r.render).toBe('table');
+    const zones = table(r).rows.map((x) => x[0]!);
+    expect(zones).toContain('America/New_York');
+    expect(r.output.length).toBeGreaterThan(0);
+  });
 });

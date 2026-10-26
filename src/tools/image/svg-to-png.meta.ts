@@ -47,7 +47,11 @@ export const meta: ToolMeta = {
       help: '“transparent”, or a hex colour such as #ffffff behind the artwork.',
     },
   ],
-  examples: [{ title: 'Rasterize SVG at 2×' }],
+  examples: [
+    { title: 'Rasterize SVG at 2×' },
+    { title: 'Export at an exact 1200 px width' },
+    { title: 'Rasterize at 4× with a white background' },
+  ],
   related: ['image-convert', 'image-resize'],
   status: 'stable',
   updated: '2026-10-17',

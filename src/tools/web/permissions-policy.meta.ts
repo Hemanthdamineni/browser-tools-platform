@@ -41,19 +41,9 @@ export const meta: ToolMeta = {
       title: 'Build a camera policy',
       options: { mode: 'build', feature: 'camera', allowlist: 'self "https://video.example"' },
     },
-  ],
-  faq: [
     {
-      q: 'What does Permissions-Policy control?',
-      a: 'It controls whether browser features such as camera, microphone, geolocation, or fullscreen may be used by a document and delegated frames.',
-    },
-    {
-      q: 'What does an empty allowlist mean?',
-      a: 'An empty list, written (), disables that feature for the document and its frames.',
-    },
-    {
-      q: 'Is this the old Feature-Policy header?',
-      a: 'Permissions-Policy is the current header name. Browser support and feature names evolve, so test the target browsers.',
+      title: 'Disable a feature outright',
+      options: { mode: 'build', feature: 'geolocation', allowlist: 'none' },
     },
   ],
   related: ['security-headers', 'http-header-analyzer', 'content-security-policy'],

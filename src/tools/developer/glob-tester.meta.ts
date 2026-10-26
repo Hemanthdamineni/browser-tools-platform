@@ -47,23 +47,10 @@ export const meta: ToolMeta = {
       input: 'a.ts\nb.js\nc.txt\nx/d.tsx',
       options: { pattern: '**/*.{ts,js}' },
     },
-  ],
-  faq: [
     {
-      q: 'Which glob features are supported?',
-      a: '* matches any characters except /, ** matches zero or more directories, ? matches one character, [...] is a character class and {a,b} is an alternation group. Everything else is matched literally.',
-    },
-    {
-      q: 'How does a leading **/ behave?',
-      a: 'A pattern beginning with **/ matches at any depth including the root, so **/*.ts matches src/a.ts and tests/x/a.ts. Without ** the pattern is anchored to the start of the path.',
-    },
-    {
-      q: 'Is matching case sensitive?',
-      a: 'No by default. Turn on "Case-sensitive match" to require exact casing.',
-    },
-    {
-      q: 'Do I need to prefix paths with ./ ?',
-      a: 'No. Leading ./ or / on both the pattern and the input paths is normalized away before matching.',
+      title: 'Character class in the file name',
+      input: 'report1.csv\nreport2.csv\nreportA.csv',
+      options: { pattern: 'report[0-9].csv' },
     },
   ],
   related: ['regex-tester', 'jsonpath', 'json-format', 'css-units'],

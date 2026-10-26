@@ -47,7 +47,14 @@ export const meta: ToolMeta = {
       ],
     },
   ],
-  examples: [{ title: 'Grid sprite sheet' }],
+  examples: [
+    { title: 'Grid sprite sheet' },
+    { title: 'A packed sheet with a margin', options: { layout: 'packed', padding: 4 } },
+    {
+      title: 'A horizontal row for an animation strip',
+      options: { layout: 'horizontal', padding: 2 },
+    },
+  ],
   related: ['favicon-generator', 'image-resize'],
   status: 'stable',
   updated: '2026-10-17',

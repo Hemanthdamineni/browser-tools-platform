@@ -3,15 +3,18 @@ import Layout from '@/components/Layout.astro';
 import ToolCard from '@/components/ToolCard.astro';
 import Icon from '@/components/Icon.astro';
 import { VISIBLE_TOOLS, categoriesWithCounts, TOOL_COUNT } from '@/lib/registry';
+import { itemListJsonLd, toolPageId } from '@/lib/seo';
 
 const categories = categoriesWithCounts();
 const tools = [...VISIBLE_TOOLS].sort((a, b) => a.meta.name.localeCompare(b.meta.name));
+const listed = tools.map((t) => ({ id: t.meta.id, name: t.meta.name, url: toolPageId(t.meta.id) }));
 ---
 
 <Layout
   title="All tools"
   description={`Browse all ${TOOL_COUNT} browser-based tools. Everything runs on your device.`}
   path="/tools"
+  jsonLd={[itemListJsonLd(listed, 'All tools', '/tools')]}
 >
   <header class="max-w-prose">
     <h1 class="text-2xl font-bold tracking-tight text-[rgb(var(--text))] sm:text-3xl">All tools</h1>

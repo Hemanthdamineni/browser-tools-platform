@@ -26,19 +26,13 @@ export const meta: ToolMeta = {
       input:
         '| Name | Age | City |\n| --- | ---: | --- |\n| Ada | 36 | London |\n| Grace | 40 | Brooklyn |',
     },
-  ],
-  faq: [
     {
-      q: 'Does it preserve my column alignment?',
-      a: 'Yes. Left, right and center alignment markers in the divider row (---:,  :---: and :---) are kept and the divider is regenerated with the same alignment.',
+      title: 'Numbers with right alignment',
+      input: '| Item | Qty |\n| --- | ---: |\n| Widget | 12 |\n| Gadget | 3 |',
     },
     {
-      q: 'How are wide CJK characters measured?',
-      a: 'East Asian wide and full-width characters count as two columns, so pipes line up correctly in tables containing Chinese, Japanese or Korean text.',
-    },
-    {
-      q: 'What about a pipe inside a cell?',
-      a: 'Escape it as \\| inside the cell. An escaped pipe is treated as part of the cell content, not as a column separator.',
+      title: 'Centered header with CJK text',
+      input: '| 名前 | Note |\n| :---: | --- |\n| 山田 | first |',
     },
   ],
   related: ['markdown-toc', 'markdown-to-html', 'csv-to-json', 'json-to-csv'],

@@ -94,15 +94,9 @@ export const meta: ToolMeta = {
       title: 'Known secret',
       options: { type: 'totp', issuer: 'ACME', account: 'alice', secretInput: 'JBSWY3DPEHPK3PXP' },
     },
-  ],
-  faq: [
     {
-      q: 'Does this show my current 6-digit code?',
-      a: 'No — this tool builds the provisioning URI only. Computing a live code needs the current time and HMAC; pair the URI with the QR Code Generator to enrol in your authenticator app.',
-    },
-    {
-      q: 'Is my secret safe?',
-      a: 'It is generated in your browser with crypto.getRandomValues and never leaves the device. Still, treat any 2FA secret like a password: anyone who has it can generate your codes.',
+      title: 'HOTP with a counter',
+      options: { type: 'hotp', issuer: 'ACME', account: 'alice', counter: 5, digits: '8' },
     },
   ],
   related: ['qr-code', 'random-string', 'hmac'],

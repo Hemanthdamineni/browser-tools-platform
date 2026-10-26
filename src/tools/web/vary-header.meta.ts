@@ -42,20 +42,6 @@ export const meta: ToolMeta = {
       options: { mode: 'build', fields: 'Accept-Encoding, Accept-Language' },
     },
   ],
-  faq: [
-    {
-      q: 'What does Vary do?',
-      a: 'It tells a cache that response selection depends on listed request header fields, so those values belong in the cache key.',
-    },
-    {
-      q: 'What does Vary: * mean?',
-      a: 'It indicates the response is not suitable for normal cache reuse and is effectively uncacheable by shared caches.',
-    },
-    {
-      q: 'Should Vary include Authorization?',
-      a: 'Usually private or authenticated responses need stronger cache controls. Vary alone is not an authorization boundary and cannot make unsafe content safe to cache.',
-    },
-  ],
   related: ['cache-headers', 'security-headers', 'http-encoding'],
   hidden: true,
   redirectTo: 'cache-headers',

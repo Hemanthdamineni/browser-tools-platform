@@ -39,12 +39,7 @@ export const meta: ToolMeta = {
     { title: 'One month after a leap day boundary', input: '2024-01-31', options: { months: 1 } },
     { title: 'Ninety minutes', input: '2024-01-01T00:00:00Z', options: { minutes: 90 } },
     { title: 'Minus one day', input: '2024-03-01', options: { operation: 'subtract', days: 1 } },
-  ],
-  faq: [
-    {
-      q: 'What happens to January 31 plus one month?',
-      a: 'The day is clamped to the last day of the target month: January 31 + 1 month is February 28 (or 29 in a leap year), never March 2 or 3.',
-    },
+    { title: 'Add three months to a date', input: '2025-05-15', options: { months: 3 } },
   ],
   related: ['date-diff', 'age-calculator'],
   status: 'stable',

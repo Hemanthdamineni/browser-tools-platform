@@ -93,28 +93,6 @@ export const meta: ToolMeta = {
       options: { table: 'users', nullText: 'NULL' },
     },
   ],
-  faq: [
-    {
-      q: 'Which databases does this work with?',
-      a: 'The output uses standard SQL: INSERT INTO table (columns) VALUES (...), (...); with quoted string literals. It runs on MySQL, PostgreSQL, SQLite, MariaDB, MSSQL (with double-quote literals) and most engines with minor adjustments.',
-    },
-    {
-      q: 'How are strings escaped safely?',
-      a: "Embedded quote characters are doubled (the standard SQL escape, e.g. O'Brien), which prevents accidental breaking of the statement and injection-by-CSV. Line breaks inside quoted fields are preserved as \\n escapes.",
-    },
-    {
-      q: 'How does the tool decide numbers vs strings?',
-      a: 'A cell that looks like a number and was not quoted in the CSV is emitted as a bare number. Quoted cells, dates and anything else become string literals. Cells equal to the NULL sentinel — or empty when that option is on — become NULL.',
-    },
-    {
-      q: 'What CSV syntax is supported?',
-      a: 'RFC 4180: comma-separated, with double-quote quoting for fields containing commas, new lines or quotes, and doubled quotes inside quoted fields. A malformed quote structure raises an error with the position instead of silently mis-splitting rows.',
-    },
-    {
-      q: 'Why batch the INSERTs?',
-      a: 'A single giant multi-row INSERT can exceed database statement-size limits. Batching at 100 rows/default keeps each statement well under limits for SQLite and MySQL while staying fast for bulk imports.',
-    },
-  ],
   related: ['csv-to-json', 'json-to-csv', 'sql-format', 'csv-sanitize', 'ndjson'],
   status: 'stable',
 };

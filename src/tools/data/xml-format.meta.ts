@@ -61,20 +61,6 @@ export const meta: ToolMeta = {
       options: { operation: 'pretty', indent: '4' },
     },
   ],
-  faq: [
-    {
-      q: 'Does it use the browser XML parser?',
-      a: 'No. Tokenizing and re-emitting is done by hand in plain JavaScript, so DOMParser is never called and the input is not validated against a schema.',
-    },
-    {
-      q: 'What counts as broken markup?',
-      a: 'An unterminated tag, comment, CDATA or processing instruction, or a stray "<" inside a tag (for example "<a<"). These raise an error. Mismatched or unclosed element tags only produce a warning and a best-effort result.',
-    },
-    {
-      q: 'Is whitespace inside elements preserved?',
-      a: 'Minify drops text nodes that are only whitespace and keeps the rest verbatim. Pretty-print collapses internal runs of whitespace in text to a single space.',
-    },
-  ],
   related: ['json-format', 'html-entities', 'json-to-typescript'],
   status: 'stable',
 };

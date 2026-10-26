@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { renderTextResult } from './shared';
+import { renderTextResult, applyShowWhen, setOptions, revealResult } from './shared';
 
 function host(): HTMLElement {
   const el = document.createElement('div');
@@ -91,5 +91,88 @@ describe('renderTextResult', () => {
     });
     expect(el.querySelectorAll('textarea').length).toBe(0);
     expect(el.querySelector('table')).not.toBeNull();
+  });
+});
+
+describe('setOptions', () => {
+  /** A minimal options form: boolean, number/range, select and text. */
+  function form(): HTMLElement {
+    const root = host();
+    root.innerHTML = `
+      <input data-opt-key="flag" data-opt-type="boolean" type="checkbox" />
+      <input data-opt-key="size" data-opt-type="number" type="range" value="1" />
+      <output data-range-out="size">1</output>
+      <select data-opt-key="mode" data-opt-type="select">
+        <option value="a">A</option>
+        <option value="b">B</option>
+      </select>
+      <input data-opt-key="label" data-opt-type="text" type="text" />`;
+    return root;
+  }
+
+  it('writes checkbox, select, text and range values', () => {
+    const root = form();
+    setOptions(root, { flag: true, size: 5, mode: 'b', label: 'hi' });
+    expect((root.querySelector('[data-opt-key="flag"]') as HTMLInputElement).checked).toBe(true);
+    expect((root.querySelector('[data-opt-key="size"]') as HTMLInputElement).value).toBe('5');
+    expect((root.querySelector('[data-opt-key="mode"]') as HTMLSelectElement).value).toBe('b');
+    expect((root.querySelector('[data-opt-key="label"]') as HTMLInputElement).value).toBe('hi');
+  });
+
+  it('keeps the range <output> in sync', () => {
+    const root = form();
+    setOptions(root, { size: 9 });
+    expect(root.querySelector('[data-range-out="size"]')!.textContent).toBe('9');
+  });
+
+  it('ignores unknown keys and values not present in a select', () => {
+    const root = form();
+    setOptions(root, { nope: 'x', mode: 'zzz' });
+    expect((root.querySelector('[data-opt-key="mode"]') as HTMLSelectElement).value).toBe('a');
+  });
+});
+
+describe('applyShowWhen', () => {
+  function root(): HTMLElement {
+    const el = host();
+    el.innerHTML = `
+      <select data-opt-key="mode" data-opt-type="select">
+        <option value="a">A</option>
+        <option value="b">B</option>
+      </select>
+      <div data-show-when='{"key":"mode","value":"b"}' hidden>B only</div>`;
+    return el;
+  }
+
+  it('reveals a dependent field when its condition is met', () => {
+    const el = root();
+    (el.querySelector('[data-opt-key="mode"]') as HTMLSelectElement).value = 'b';
+    applyShowWhen(el);
+    expect((el.querySelector('[data-show-when]') as HTMLElement).hidden).toBe(false);
+  });
+
+  it('hides a dependent field again when the condition no longer holds', () => {
+    const el = root();
+    (el.querySelector('[data-opt-key="mode"]') as HTMLSelectElement).value = 'b';
+    applyShowWhen(el);
+    (el.querySelector('[data-opt-key="mode"]') as HTMLSelectElement).value = 'a';
+    applyShowWhen(el);
+    expect((el.querySelector('[data-show-when]') as HTMLElement).hidden).toBe(true);
+  });
+
+  it('ignores a malformed condition', () => {
+    const el = host();
+    el.innerHTML = `<div data-show-when="not json"></div>`;
+    expect(() => applyShowWhen(el)).not.toThrow();
+  });
+});
+
+describe('revealResult', () => {
+  it('adds the reveal class (and is repeatable)', () => {
+    const el = host();
+    revealResult(el);
+    expect(el.classList.contains('tb-reveal')).toBe(true);
+    revealResult(el);
+    expect(el.classList.contains('tb-reveal')).toBe(true);
   });
 });

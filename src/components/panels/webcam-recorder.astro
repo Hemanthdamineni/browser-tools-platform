@@ -147,7 +147,13 @@ const nameDefault = nameOption ? String(nameOption.default) : 'webcam-recording'
       <div>
         <span class="block text-xs font-medium">Audio</span>
         <label class="mt-1 flex items-center gap-2 text-sm" for={`${p}-mic`}>
-          <input class="accent-[rgb(var(--accent))]" id={`${p}-mic`} type="checkbox" checked={micDefault} data-mic />
+          <input
+            class="accent-[rgb(var(--accent))]"
+            id={`${p}-mic`}
+            type="checkbox"
+            checked={micDefault}
+            data-mic
+          />
           Record microphone
         </label>
         <p class="mt-1 text-xs text-[rgb(var(--text-muted))]">

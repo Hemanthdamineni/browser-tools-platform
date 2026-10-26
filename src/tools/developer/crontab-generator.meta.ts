@@ -116,19 +116,20 @@ export const meta: ToolMeta = {
       input: '',
       options: { preset: 'daily', hour: 9, minute: 0 },
     },
-  ],
-  faq: [
     {
-      q: 'What do the five fields mean?',
-      a: 'minute hour day-of-month month day-of-week. Steps, ranges and lists work: */5, 9-17, 1,15, MON-FRI, JAN. The tool validates them and flags bad input.',
+      title: 'Every 15 minutes with a command',
+      input: '',
+      options: { preset: 'every-15-minutes', command: '/usr/bin/example' },
     },
     {
-      q: 'How do "every minute" and "hourly" differ?',
-      a: 'Every minute is * * * * *; every 5 minutes is */5 * * * *; hourly at minute m is m * * * *. Presets set these for you, and custom lets you tweak any field directly.',
-    },
-    {
-      q: 'Why show a summary?',
-      a: 'Cron syntax is easy to tie in knots. The plain-English summary confirms what you actually scheduled before you save it, complementing cron-parser for next-run times.',
+      title: 'Custom: weekdays at 9–17',
+      input: '',
+      options: {
+        preset: 'custom',
+        minuteField: '0',
+        hourField: '9-17',
+        dayOfWeekField: 'MON-FRI',
+      },
     },
   ],
   related: ['cron-parser', 'recurrence-dates', 'timestamp', 'timezone-convert'],

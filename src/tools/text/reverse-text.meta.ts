@@ -27,12 +27,7 @@ export const meta: ToolMeta = {
   examples: [
     { title: 'Characters', input: 'Hello 👋 World' },
     { title: 'Word order', input: 'the quick brown fox', options: { by: 'words' } },
-  ],
-  faq: [
-    {
-      q: 'Why does character reverse not mangle emoji?',
-      a: 'It splits on Unicode code points (Array.from), not UTF-16 units, so multi-byte characters stay intact. Some emoji built from several joined code points may still separate.',
-    },
+    { title: 'Lines in reverse', input: 'first\nsecond\nthird', options: { by: 'lines' } },
   ],
   related: ['sort-lines', 'case-convert', 'rot13'],
   status: 'stable',

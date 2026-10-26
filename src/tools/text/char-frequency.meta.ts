@@ -54,20 +54,6 @@ export const meta: ToolMeta = {
     { title: 'Case-insensitive', input: 'aAbBbB', options: { caseInsensitive: true } },
     { title: 'Sort by character', input: 'banana', options: { sortBy: 'char' } },
   ],
-  faq: [
-    {
-      q: 'How are spaces and control characters shown?',
-      a: 'A space is shown as (space), a tab as \\t, a newline as \\n, and any other control character as \\xNN with its two-digit hexadecimal code.',
-    },
-    {
-      q: 'What is the percentage relative to?',
-      a: 'The number of characters that remain after the scope filter is applied.',
-    },
-    {
-      q: 'Does it count by code point?',
-      a: 'Yes. Text is split into Unicode code points, so most emoji and combining sequences are handled sensibly.',
-    },
-  ],
-  related: ['word-frequency', 'text-stats', 'hex', 'unicode-escape'],
+  related: ['word-frequency', 'text-stats', 'hex', 'unicode-normalize'],
   status: 'stable',
 };

@@ -58,21 +58,11 @@ export const meta: ToolMeta = {
       options: { mode: 'generate', format: 'uuid-v4', header: 'X-Request-ID' },
     },
     { title: 'Validate an incoming value', input: '550e8400-e29b-41d4-a716-446655440000' },
-  ],
-  faq: [
     {
-      q: 'Why use a request ID?',
-      a: 'It lets you correlate a single user request across proxies, services, and logs, making failures far easier to trace.',
-    },
-    {
-      q: 'What is a good format?',
-      a: 'A UUIDv4 (or a 128-bit random token) is a strong choice: high entropy, collision-resistant, widely understood.',
-    },
-    {
-      q: 'Should the server echo it?',
-      a: 'Yes — return the same ID in the response header and include it in your structured logs for end-to-end correlation.',
+      title: 'Generate a short hex token',
+      options: { mode: 'generate', format: 'token', header: 'X-Correlation-ID' },
     },
   ],
-  related: ['uuid', 'http-header-analyzer', 'distributed-tracing'],
+  related: ['uuid', 'http-header-analyzer', 'access-log-analyzer'],
   status: 'stable',
 };

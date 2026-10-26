@@ -291,7 +291,7 @@ crashed the session twice — each sub-agent committed in small steps, so no wor
     form labels, landmark structure — as a linter rather than the single-purpose checks that
     exist today.
   - **Burn subtitles into a video** (SRT/VTT → hardcoded or soft): `subtitle-converter` changes
-  the text file, but nothing can put the subtitles on the picture.
+    the text file, but nothing can put the subtitles on the picture.
   - A **font inspector** for WOFF2/WOFF — coverage, variation axes, unicode ranges, licence bits
     — since nothing in the catalogue touches fonts at all.
 
@@ -346,7 +346,7 @@ crashed the session twice — each sub-agent committed in small steps, so no wor
   Dubious-looking but left alone: `code-minify` and `merge-base64` sit at two ⚠️ without a ⛔.
 - Mistakes noticed:
   - **Panel tools and `data-file-workbench`.** `FileWorkbench.astro:152-176` binds the generic
-    workbench behaviour to *every* `[data-file-workbench]` root and skips only the hardcoded
+    workbench behaviour to _every_ `[data-file-workbench]` root and skips only the hardcoded
     `data-signature-workbench`, dereferencing `[data-report]`, `[data-download-all]` and friends with
     `!`. Any custom panel that carries the marker therefore gets a second drop zone and a second Run
     handler and throws as soon as the generic code touches a node the panel does not have. My three
@@ -398,6 +398,7 @@ crashed the session twice — each sub-agent committed in small steps, so no wor
     `workbench/shared.ts` should export `imageToPngBlob`.
 
 ## run-20261023-2031-a3f2 — 2026-10-24T10:35:00Z
+
 - Merged: merge-datauri (0b2222e) — `data-uri` gains four modes (text/image × encode/decode); `image-to-datauri` and `datauri-to-image` stay routable as redirect aliases; deprecated `unescape`/`escape` path replaced with TextEncoder/TextDecoder.
 - Merged: image-ocr (8784cc2) — tesseract.js OCR with 10 self-hosted languages (all traineddata vendored under `/vendor/tesseract/`, no third-party fetch); lazy dynamic import; text report + per-image .txt download.
 - Merged: webcam-recorder (f6cb8ad) — getUserMedia + MediaRecorder recorder panel; VP9→VP8→WebM→MP4 mime fallback; resolution + mic options; camera device picker; shared mockable `webcam-recorder-core` ready for screen-recorder reuse.
@@ -452,7 +453,7 @@ fixture, all four merges verified with the full `verify` gate (check + lint + vi
   - **A panel root with `data-text-workbench` kills the whole page.** The keyboard-tester panel shipped with a
     stray `data-text-workbench` attribute on its root section. The shared TextWorkbench script matches that
     attribute, assumes a `[data-run]` button exists, and throws `Cannot read properties of null (reading
-    'addEventListener')` in the hoisted module — which also prevents the panel's own lazy script from mounting.
+'addEventListener')` in the hoisted module — which also prevents the panel's own lazy script from mounting.
     The page was dead on arrival (fixed in this run by removing the attribute; the e2e workbench sweep only
     needs `[data-panel-workbench]`). Any future panel copying a workbench root's attributes will hit this again;
     the TextWorkbench script should guard its required elements.
@@ -467,7 +468,7 @@ fixture, all four merges verified with the full `verify` gate (check + lint + vi
     (camera, mic, screen recorder) should do the same for their metadata events.
   - **Two items that master had already absorbed were still unticked with stale ⏳ claims** (`code-minify`
     `5c6b600`, `video-compress` `819c44d`), and run-20261023-2100-7541 then burned them with a second `⚠️ run
-    died` apiece (`code-minify` is genuinely shipped; `merge-base64` likewise, `af1467a` — master's `base64`
+died` apiece (`code-minify` is genuinely shipped; `merge-base64` likewise, `af1467a` — master's `base64`
     gained the file mode and `base64-file` is already a routable alias). Those three lines now read "failed
     twice" even though nothing failed and nothing needs doing; the human should tick them in the next review.
   - **`docs/TOOLS.md` on origin/master was stale again** (claimed 404 tools; 389 exist — it lists 5 tools whose
@@ -486,29 +487,60 @@ fixture, all four merges verified with the full `verify` gate (check + lint + vi
   - `subtitle-converter` exists, but nothing converts audio→text; `speech-to-text` (already in TODOS) plus the
     now-proven worker-safe audio decode path (AudioSampleSink) makes the audio half of that tool mostly plumbing.
 
-## run-20261023-2100-7541 — 2026-10-24T10:35:54Z
+## round-2026-10-25-complete-2 — 2026-10-25T07:00:00Z
 
-- Merged: `background-remover` (`0252de4`) — MODNet portrait matting on-device; batch, transparent PNG/WebP or a solid colour, 24 MP ceiling, before/after preview.
-- Merged: `webcam-test` (`e67a2c7`) — device picker, live resolution/aspect/fps readout, in-tab snapshot to PNG; first `device` category tool, custom panel.
-- Merged: `mic-test` (`e52ce7a`) — live peak/RMS meter with dBFS readout and verdict, canvas waveform, record/stop/playback, reset; custom panel.
-- Merged: `video-compress` — no code, dedupe only: the tool already exists in `src/tools/video/` (salvaged in an earlier round), so the item was ticked `already exists`.
-- Failed: none.
-- Blocked: **ML runtime + deployed CSP** (platform decision, not a tool defect) — every ML tool is dead on the deployed site: `public/_headers`, `netlify.toml` and `vercel.json` all set `connect-src 'self' blob:` and `script-src 'self' 'wasm-unsafe-eval'`, which blocks both the Hugging Face weight download and the ONNX runtime binary. Worse, `onnxruntime-web` loads its `.wasm`/`.mjs` from `https://cdn.jsdelivr.net` itself (transformers.js default `wasmPaths`), outside `src/lib/ml`'s allow-listed `createModelFetch` — the loader blocks the pre-load attempt, then ORT fetches it anyway (observed in a real browser: `https://cdn.jsdelivr.net/.../ort-wasm-simd-threaded.asyncify.wasm` alongside `huggingface.co`; console warning `Failed to pre-load WASM binary: ToolError: Blocked a request to "cdn.jsdelivr.net"`). So `docs/ML-RUNTIME.md`'s "the only network traffic is model files fetched from the permitted host" and "`createModelFetch` is the single network chokepoint" are both inaccurate. Two options for a human: (a) self-host the ONNX runtime assets under `public/vendor/onnxruntime/` (as `libheif` already is) and add the Hub to `connect-src`, keeping `script-src 'self'`; or (b) bless `cdn.jsdelivr.net` in `script-src`/`connect-src`. (a) is the option that matches the platform's self-hosting convention; it needs a vendoring script + `wasmPaths` wiring, i.e. foundation work. This run deliberately did **not** touch the deploy configs (a security-posture change is not an orchestrator's call) and disclosed the real hosts in the tool metadata instead (`privacy.network: ['huggingface.co', 'cdn.jsdelivr.net']`).
-- New dependencies: none in any of the three tools (`@huggingface/transformers@4.3.1` and `onnxruntime-web` were already present; `Xenova/modnet` is Apache-2.0 and already on the ML allow-list). `tesseract.js` + `@tesseract.js-data/*` arrived with another run's `image-ocr`, not this one.
-- Limitations: `background-remover` — MODNet is portrait-only (group/animal shots degrade), batch cancel lands between images (one transformers.js inference call is not abortable), one before/after preview per run, `offline: false` because the weights must be fetched once, ~2× model size peak memory, and it is unusable under the deployed CSP until the Blocked item above is resolved. `webcam-test` — fps comes from presented frames (a display-loop fallback is labelled in the report), no cancel for the (instant) snapshot, panel emits PNG only (uploaded JPEG headers are also read). `mic-test` — duration/sample-rate/peak/RMS come from the panel, not `run()`, because the tool worker has no `AudioContext`, so a headless `run()` shows "not measured"; the recording format follows the browser; a `MediaRecorder` that never fires `stop` leaves Record disabled until Reset.
-- Mistakes noticed:
-  - **The ML foundation cannot work in production** — see Blocked. `ml-runtime-foundation` shipped unit-tested but never exercised against the repo's own CSP, so nothing caught it; the e2e privacy spec only exercises `network: 'none'` tools, which structurally excludes every ML tool. A deploy-like CSP check (or a Playwright `_headers` server) would have caught it.
-  - **`ROUND_REPORT.md` on `origin/master` is not Prettier-clean**, so CI's `format:check` step is red on main irrespective of this run (`npx prettier --check` on the committed file fails). Every run appends prose to this file; whoever writes the next entry should run Prettier on it — but note that reformatting it rewrites earlier entries, which the append-only rule forbids, so it needs a human decision.
-  - **`keyboard-tester.core.ts` and `keyboard-tester.test.ts` (merged by run-2024-f777 as `c25e5c6`) are not Prettier-formatted**, so `npm run format:check` fails on main for a second reason.
-  - **Two items are wedged at the attempt limit and one of them is already done**: `merge-base64` and `code-minify` both carry two `⚠️ run died` markers now (their claims were days stale). `code-minify` is a false negative — `src/tools/developer/code-minify.*` exists in main (salvaged earlier) with `code-beautify` marked "already exists" in the same tranche; a human should tick it rather than let a future run mark it ⛔.
-  - **Stale `⏳` claims from dead runs are the piling-up failure mode.** Claiming this batch required writing off five-day-old claims on `background-remover`, `webcam-test` and `mic-test`, and the same stale markers blocked `merge-base64`, `code-minify`, `screen-recorder`, `markdown-preview`, `gst-calculator` and `sip-calculator`. The attempt counter conflates "a run died" with "the work is hard", so good items quietly become unclaimable.
-  - **Orphaned `astro preview` servers from dead runs are still holding ports** (`4321`, `4322`, `4399` — started two days ago and still listening). One of them made this run's first smoke attempt poll the wrong port. Runs should clean up their servers, or the harness should always parse the port it actually bound.
-  - **A panel's `[hidden]` attributes lose to Tailwind's utility classes** (pre-existing, from an earlier round's report). The new panels hit it: `mic-test` had to scope `[data-mic-test-panel] [hidden] { display: none }` locally. The base-layer fix is still outstanding and now affects at least three tools.
-  - `src/tools/index.js` is imported by nothing — a leftover two-entry index (`pdfToImage`, `summarizeText`) that the glob-based registry superseded.
-  - Three duplicate abort helpers now exist for the same DOMException: `src/lib/ml/types.ts`, `src/tools/image/image-batch.ts` (`throwIfAborted`) and `src/tools/image/common.ts` (`checkAbort`).
-  - `docs/ADDING-A-TOOL.md` says a tool is "three co-located files" while `src/lib/types.ts`'s header still says "TWO"; the same doc's `OutputRender` table omits `'html-escaped'`, which the workbench supports.
-  - `FileWorkbench.astro` only revokes `blob:` preview URLs found in `outputs[].previewUrl`, so a `report`-only blob URL would leak one object URL per run (the new `background-remover` note documents the `data:` workaround).
-  - **Disk exhaustion is still the top operational risk**: this run hit **0 bytes free** mid-verification (git could not even write a ref lock). Four runs plus their clones share `/mnt/Shared` (120 GB, 100% full at the time); this run's own footprint was 1.1 GB (one `node_modules`, shared with its worktrees by symlink). Recovery moves (deps to tmpfs) work but do not survive a reboot, and a mid-run reboot did kill two sub-agents here — their fixes were on disk and were finished and committed by the orchestrator.
-- Ideas:
-  - **A model/cache manager tool** (`device` or a new `storage` category): list what the ML tools have cached in Cache Storage (per-model size, last used, licence), with evict/re-download buttons and a total-quota readout. The catalogue now ships 25–100 MB per ML tool and users have no way to see or reclaim any of it; the shared loader already exposes every fact the UI needs.
-  - **A "this device" capability report** (one printable page): WebCodecs / WebGPU / `BarcodeDetector` / `getDisplayMedia` / share target / storage quota / `wasm` SIMD / installed-PWA state, next to which tools depend on each — the platform now has enough capability-gated tools that "why does this not work here?" is a recurring question.
+Round theme: **finish the project properly and make it findable.** Ran on branch `round/complete-2` in
+`.conductor/worktrees/complete-2`, deliberately isolated from the primary checkout because a second omp session
+was writing tools there concurrently (its ~20 untracked tools were rescued into this branch by name).
+
+- Merged: the whole in-flight tail — `master-int-f777` (video-convert, video-extract-audio, video-trim panel fix),
+  `tool/background-remover`, `tool/screen-recorder`, `tool/mic-test`, `tool/markdown-preview`, `tool/webcam-test`,
+  `tool/gst-calculator`, `tool/sip-calculator`. The remaining `tool/*` branches were confirmed dead duplicates of
+  work already on master.
+- Landed: **20 tools that existed only as untracked files** in the primary checkout (id3-tag-reader, csr-decoder,
+  geojson-validator, gpx-track-stats, mbox-archive-analyzer, plist-decoder, font-inspector, ieee754-inspector,
+  systemd-unit-inspector, cbor-decoder, significant-figures, email-header-analyzer, iptables-ruleset-auditor,
+  ssh-config-auditor, sudoers-auditor, svg-sanitizer, text-similarity, access-log-analyzer, feed-inspector,
+  webcam-test).
+- Built: **38 new tools** — stopwatch, countdown-timer, pomodoro-timer, typing-test, fancy-text, speaker-test,
+  dead-pixel-test, online-notepad, html-playground, file-encrypt, text-to-speech, voice-recorder, image-filters,
+  image-collage, signature-maker, invoice-generator, gif-maker, video-frames, speech-to-text, sqlite-viewer,
+  spreadsheet-viewer, bcrypt, pgp-tool, tuner, spectrogram, bpm-detector, image-upscale, audio-convert,
+  noise-reduction, pdf-unlock, pdf-fill-form, pdf-redact, pdf-ocr, calculator (scientific keypad), code-to-image,
+  mermaid-renderer, text-stats (platform limits + readability). Catalogue: **378 → 449 tools, 19 → 20 categories**.
+- Fixed (board items): **T005** — the 45 dead alias implementations are gone and `registry.ts` no longer requires a
+  `.tool.ts` for a `redirectTo` meta, with a test guarding the invariant. **T006** — `FileWorkbench` renders
+  `stats` escaped, the axe sweep owns a page-scaled timeout instead of blowing the default, `e2e/privacy.spec.ts`
+  uses `baseURL`, WebKit registers only when installed, and `verify` now runs `format:check`, `bundle:check` and
+  `test:e2e`. **T008** — `src/lib/related-tools.test.ts` gates dangling/hidden/duplicate `related` ids.
+  **T003** — the twelve examples that threw on click are repaired with per-example regression tests.
+  **T004** — the credit strings moved out of `src/tools/pdf/shared.ts` so pdf-lib leaves the eager graph
+  (measured by the new `scripts/check-bundle.mjs`).
+- SEO/AEO: every one of the 449 tool pages now carries unique editorial content — an `article` (3–5 headed
+  sections), ≥3 `examples` and ≥3 `faq` — enforced by `src/lib/contract.test.ts`. Added `/llms.txt`,
+  `/llms-full.txt`, an enriched `/tools-index.json`, `WebSite`/`Organization`/`ItemList`/`HowTo` JSON-LD,
+  per-tool Open Graph cards (`scripts/gen-og.mjs`, 353 PNGs), explicit AI-crawler rules in `robots.txt`,
+  `<lastmod>` in the sitemap, a `/guides` section with four evergreen guides, and base-path-aware links
+  everywhere so the canonical URL is a one-line change.
+- Infrastructure: `astro.config.mjs` takes `SITE_URL` + `BASE_PATH` from the environment, a GitHub Pages deploy
+  workflow publishes on push to `master`, and `docs/LAUNCH.md` + `docs/RUNBOOK.md` cover indexing, rollback and
+  incident response.
+- Checks: `astro check` 0 errors; `eslint` clean; `prettier --check` clean after formatting 35 files; `vitest`
+  **6389 passed / 0 failed**; `astro build` 481 pages; `docs:check` clean; `bundle:check` reported the eager
+  chunk defect before the fix and is the acceptance test for it.
+- Mistakes found and worth knowing:
+  - **The file tools' relative paths resolve against the session CWD, not the worktree.** Several agents wrote
+    into the primary checkout before the hazard was broadcast; every stray was rescued into the worktree and the
+    primary checkout was restored to its own session's state. Write absolute paths in every subagent brief.
+  - **`git stash` in a shared worktree is destructive.** One agent used it while siblings were editing; nothing
+    was lost, but a stash-and-drop can silently revert a peer's uncommitted work.
+  - **`pgp-tool.tool.ts` imported `openpgp` at module scope**, which threw under jsdom and took the whole
+    registry test down. The tool's own doc comment said it was lazy. Heavy libraries must be imported inside
+    `run()`.
+  - **A haiku-tier agent printed its tool calls as text instead of making them** — mechanical batches via `sonic`
+    need a file-existence check afterwards.
+  - **Agents report completion while their work is incomplete** (truncated transcripts, "Done" with the file
+    unwritten). Every agent's output was verified against the filesystem before its work was trusted.
+- Ideas: `scripts/check-bundle.mjs` should also assert per-tool lazy-chunk budgets; the `/guides` section has
+  room for a "privacy model" page that the AI answer engines can quote; `pdf-to-word` and `word-to-pdf` were the
+  two highest-demand gaps the demand research found and remain unbuilt.

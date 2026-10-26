@@ -61,23 +61,10 @@ export const meta: ToolMeta = {
       input: 'id,name\n1,Alice\n2,Bob',
       options: { second: 'id,name\n2,Bob\n3,Cara' },
     },
-  ],
-  faq: [
     {
-      q: 'How are rows matched between the two files?',
-      a: 'By the value of the key column you choose (default "id"). Every row is identified by that cell, so rows may be in any order and still match.',
-    },
-    {
-      q: 'What if the two files have different columns?',
-      a: 'Separate entries report columns only present in A or only in B, and each shared column is still compared cell by cell. The key column is excluded from value comparison.',
-    },
-    {
-      q: 'Are duplicate keys reported?',
-      a: 'Yes. If a key appears more than once in the same file, that is reported as a duplicate-key issue; the last occurrence is used for comparison.',
-    },
-    {
-      q: 'How is the delimiter chosen?',
-      a: 'Auto-detect counts comma, semicolon, tab and pipe characters in the first lines and picks the most frequent. You can also force one from the dropdown.',
+      title: 'Semicolon export keyed by SKU',
+      input: 'sku;qty\nA1;3\nA2;5',
+      options: { second: 'sku;qty\nA1;4\nA2;5', keyColumn: 'sku', delimiter: ';' },
     },
   ],
   related: ['csv-profiler', 'json-diff', 'csv-to-json', 'csv-sanitize', 'csv-to-markdown'],

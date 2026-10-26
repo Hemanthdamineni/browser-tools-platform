@@ -38,20 +38,8 @@ export const meta: ToolMeta = {
   examples: [
     { title: '20% of 150', input: '20 150' },
     { title: 'Change from 80 to 100', input: '80 100', options: { mode: 'percent-change' } },
-  ],
-  faq: [
-    {
-      q: 'How do I type values?',
-      a: 'Enter two numbers separated by a space or comma, in the order shown by the mode (e.g. "20 150" for 20% of 150, or "80 100" for the change from 80 to 100).',
-    },
-    {
-      q: 'Can percentages be over 100?',
-      a: 'Yes. For example, 150% of 40 is 60, and a change from 50 to 200 is +300%.',
-    },
-    {
-      q: 'Does it round output?',
-      a: 'Results are reported with full precision by default; use the provided rounded figures when you need money-style values.',
-    },
+    { title: 'Increase 50 by 15%', input: '50 15', options: { mode: 'increase' } },
+    { title: 'Apply a 25% discount', input: '40 25', options: { mode: 'decrease' } },
   ],
   related: ['calculator', 'programmer-calculator', 'tip-calculator'],
   status: 'stable',

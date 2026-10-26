@@ -49,23 +49,16 @@ export const meta: ToolMeta = {
       input:
         '{\n  "id": 1,\n  "name": "Ada",\n  "tags": ["admin", "staff"],\n  "profile": { "bio": null, "age": 36 }\n}',
     },
-  ],
-  faq: [
     {
-      q: 'How are scalars mapped?',
-      a: 'Strings map to String, booleans to Boolean, integers to Int and floats to Float. null gets a default scalar (String) so a missing value never breaks the schema.',
+      title: 'Nested objects and a list of objects',
+      input:
+        '{\n  "user": { "id": 7, "active": true },\n  "items": [ { "sku": "A1", "price": 9.99 } ]\n}',
+      options: { rootName: 'Order', strictNull: true },
     },
     {
-      q: 'What about arrays?',
-      a: 'Arrays become list types: an array of strings maps to [String]. If the items are objects, each object becomes a type and the field becomes a list of that type.',
-    },
-    {
-      q: 'Is every field nullable?',
-      a: 'By default fields are nullable (no !), which is the safe choice for a sample. Turn on "Mark non-null fields with !" to add ! to every field that holds a concrete value.',
-    },
-    {
-      q: 'How is the top-level name chosen?',
-      a: 'The top-level object gets the name you provide in "Root type name"; nested objects are named after their field (camelCase → PascalCase). You can rename freely afterwards.',
+      title: 'Four-space indent',
+      input: '{\n  "ok": true,\n  "count": 0\n}',
+      options: { indent: '4' },
     },
   ],
   related: ['json-to-go-struct', 'json-to-typescript', 'json-to-zod', 'json-schema-to-typescript'],

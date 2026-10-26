@@ -24,20 +24,7 @@ export const meta: ToolMeta = {
   examples: [
     { title: 'Check a password', input: 'Tr0ub4dor&3' },
     { title: 'Weak example', input: 'password123' },
-  ],
-  faq: [
-    {
-      q: 'Is my password uploaded?',
-      a: 'No. Analysis runs entirely in your browser; the value never leaves your machine.',
-    },
-    {
-      q: 'What does the score mean?',
-      a: '0–100 estimating resilience against automated guessing, balancing entropy, length and detectable patterns. Under 50 is risky for important accounts.',
-    },
-    {
-      q: 'Does entropy guarantee security?',
-      a: 'Entropy is only a model. Uniqueness, not being reused elsewhere, and using a password manager still matter.',
-    },
+    { title: 'Strong example', input: 'qX7!mpl3-Kwy@4z' },
   ],
   related: ['password', 'random-string', 'hash-identifier'],
   status: 'stable',

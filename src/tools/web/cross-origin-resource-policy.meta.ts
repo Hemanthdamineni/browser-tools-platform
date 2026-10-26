@@ -44,20 +44,7 @@ export const meta: ToolMeta = {
   examples: [
     { title: 'Analyze a strict resource policy', input: 'same-origin' },
     { title: 'Build a same-site policy', options: { mode: 'build', value: 'same-site' } },
-  ],
-  faq: [
-    {
-      q: 'What does CORP protect?',
-      a: 'It lets a resource declare which origins may load it in cross-origin contexts, reducing unwanted reads or embeddings in supported browsers.',
-    },
-    {
-      q: 'Which value is strictest?',
-      a: 'same-origin is strictest, same-site permits related sites, and cross-origin permits broad embedding.',
-    },
-    {
-      q: 'Does CORP replace CORS?',
-      a: 'No. CORP controls loading/embedding policy, while CORS controls whether scripts may read cross-origin responses.',
-    },
+    { title: 'Flag a broadly embeddable resource', input: 'cross-origin' },
   ],
   related: ['security-headers', 'origin-agent-cluster', 'content-security-policy'],
   status: 'stable',

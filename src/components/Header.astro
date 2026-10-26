@@ -1,10 +1,14 @@
 ---
 import { site } from '@/lib/site';
 import Icon from './Icon.astro';
+import InstallButton from './InstallButton.astro';
+import ShortcutsDialog from './ShortcutsDialog.astro';
 import ThemeToggle from './ThemeToggle.astro';
 
 const path = Astro.url.pathname;
 const isActive = (href: string) => path === href || path.startsWith(href + '/');
+// Asset/link paths must honour the deploy base (e.g. /browser-tools-platform on GitHub Pages).
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 
 <header
@@ -13,7 +17,7 @@ const isActive = (href: string) => path === href || path.startsWith(href + '/');
 >
   <div class="mx-auto flex h-14 max-w-content items-center gap-3 px-4 sm:px-6">
     <a
-      href="/"
+      href={`${base}/`}
       class="flex shrink-0 items-center gap-2.5 font-semibold tracking-tight"
       aria-label={`${site.shortName} home`}
     >
@@ -70,7 +74,18 @@ const isActive = (href: string) => path === href || path.startsWith(href + '/');
         <span class="hidden text-[13px] font-medium sm:inline">Search</span>
         <kbd class="kbd hidden sm:inline-flex">/</kbd>
       </button>
+      <InstallButton />
       <ThemeToggle />
+      <button
+        type="button"
+        id="shortcuts-open"
+        class="btn btn-subtle btn-sm !px-2"
+        aria-label="Keyboard shortcuts"
+        aria-keyshortcuts="?"
+        title="Keyboard shortcuts (?)"
+      >
+        <Icon name="info" size={16} />
+      </button>
       <button
         type="button"
         id="menu-toggle"
@@ -104,7 +119,11 @@ const isActive = (href: string) => path === href || path.startsWith(href + '/');
   </nav>
 </header>
 
+<ShortcutsDialog />
+
 <script>
+  import { isTypingTarget, isModalOpen, isRunShortcut } from '@/components/keyboard';
+
   const btn = document.getElementById('menu-toggle');
   const nav = document.getElementById('mobile-nav');
 
@@ -143,6 +162,27 @@ const isActive = (href: string) => path === href || path.startsWith(href + '/');
   document.getElementById('search-open')?.addEventListener('click', () => {
     window.dispatchEvent(new CustomEvent('toolbench:search'));
   });
+
+  // Page-wide chords. Character chords are ignored while typing; modifier
+  // chords never produce characters, so they are honoured everywhere.
+  window.addEventListener('keydown', (e) => {
+    // '?' opens the shortcuts help dialog.
+    if (e.key === '?' && !e.ctrlKey && !e.metaKey && !e.altKey && !isTypingTarget(e.target)) {
+      e.preventDefault();
+      window.dispatchEvent(new CustomEvent('toolbench:shortcuts'));
+      return;
+    }
+    // Ctrl/Cmd+Enter runs the current tool. A modifier chord types no
+    // characters, so it is honoured even with focus in the input field.
+    if (isRunShortcut(e)) {
+      if (isModalOpen(document)) return;
+      e.preventDefault();
+      window.dispatchEvent(new CustomEvent('toolbench:run'));
+      return;
+    }
+  });
+
+  // The original '/' handler — kept for the header-scoped behaviour above.
   window.addEventListener('keydown', (e) => {
     const t = e.target as HTMLElement;
     if (e.key === '/' && !/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) && !t.isContentEditable) {
@@ -150,4 +190,63 @@ const isActive = (href: string) => path === href || path.startsWith(href + '/');
       window.dispatchEvent(new CustomEvent('toolbench:search'));
     }
   });
+
+  // A new service worker finished installing while an older one is still in
+  // charge of this page. Ask it to take over (`skip-waiting`) and offer a
+  // reload — the page's own assets are still the old ones until it does.
+  if ('serviceWorker' in navigator) {
+    let announced = false;
+    const announce = () => {
+      if (announced) return;
+      announced = true;
+      showUpdateToast();
+    };
+    const watch = (registration: ServiceWorkerRegistration) => {
+      registration.addEventListener('updatefound', () => {
+        const installing = registration.installing;
+        if (!installing) return;
+        installing.addEventListener('statechange', () => {
+          // `controller` non-null means an older worker owns this page, so the
+          // freshly installed one is a genuine update rather than first install.
+          if (installing.state === 'installed' && navigator.serviceWorker.controller) {
+            registration.waiting?.postMessage('skip-waiting');
+            announce();
+          }
+        });
+      });
+    };
+    navigator.serviceWorker.ready.then(watch).catch(() => {
+      /* offline support is a progressive enhancement */
+    });
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      // A reload already happened (or another tab activated the update); keep
+      // the toast from lingering with a stale message.
+      document.querySelector('[data-update-toast]')?.remove();
+    });
+  }
+
+  function showUpdateToast() {
+    const host = document.getElementById('toast');
+    if (!host || document.querySelector('[data-update-toast]')) return;
+    const box = document.createElement('div');
+    box.setAttribute('data-update-toast', '');
+    box.className =
+      'pointer-events-auto flex items-center gap-3 rounded-lg border px-4 py-2 text-sm shadow-lg animate-slide-up';
+    box.style.backgroundColor = 'rgb(var(--bg))';
+    const message = document.createElement('span');
+    message.textContent = 'A new version is available.';
+    const reload = document.createElement('button');
+    reload.type = 'button';
+    reload.className = 'btn btn-primary btn-sm';
+    reload.textContent = 'Reload';
+    reload.addEventListener('click', () => window.location.reload());
+    const later = document.createElement('button');
+    later.type = 'button';
+    later.className = 'btn btn-subtle btn-sm';
+    later.textContent = 'Later';
+    later.setAttribute('aria-label', 'Dismiss the update notice');
+    later.addEventListener('click', () => box.remove());
+    box.append(message, reload, later);
+    host.appendChild(box);
+  }
 </script>

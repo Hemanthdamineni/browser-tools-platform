@@ -62,19 +62,10 @@ export const meta: ToolMeta = {
         'Access-Control-Request-Method: PATCH\nAccess-Control-Request-Headers: Content-Type, X-Custom-Token',
     },
     { title: 'Build a preflight header block', options: { mode: 'build', method: 'PATCH' } },
-  ],
-  faq: [
     {
-      q: 'When is a preflight sent?',
-      a: 'For requests that are not simple — non-safelisted methods (PUT, PATCH, DELETE) or non-safelisted headers — the browser sends an OPTIONS preflight first, and proceeds only if the response allows it.',
-    },
-    {
-      q: 'What do the two headers mean?',
-      a: 'Access-Control-Request-Method states the method the real request will use; Access-Control-Request-Headers lists the custom headers it will send.',
-    },
-    {
-      q: 'How do I read this vs Allow-* ?',
-      a: 'The server must echo back Access-Control-Allow-Methods/Headers covering those requested values; otherwise the browser blocks the real request.',
+      title: 'Check a DELETE preflight',
+      input:
+        'Access-Control-Request-Method: DELETE\nAccess-Control-Request-Headers: Authorization, X-Request-Id\nOrigin: https://app.example.com',
     },
   ],
   related: ['cors-headers', 'http-header-analyzer'],

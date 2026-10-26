@@ -25,13 +25,12 @@ export const meta: ToolMeta = {
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
     },
     { title: 'curl', input: 'curl/8.4.0' },
-  ],
-  faq: [
     {
-      q: 'Is the parser infallible?',
-      a: 'No. User-agent strings are free-form text and browsers misrepresent each other for compatibility (the "like Gecko" convention). Results are best-effort heuristics, ordered so the most specific signal wins.',
+      title: 'Mobile Safari on an iPhone',
+      input:
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1',
     },
   ],
-  related: ['http-status', 'ip-info'],
+  related: ['http-status', 'ip-address-inspector'],
   status: 'stable',
 };

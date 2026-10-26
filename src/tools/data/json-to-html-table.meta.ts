@@ -53,15 +53,10 @@ export const meta: ToolMeta = {
       title: 'Rows from arrays of arrays',
       input: '[[1, 2, 3], [4, 5, 6], [7, 8, 9]]',
     },
-  ],
-  faq: [
     {
-      q: 'What input does it accept?',
-      a: 'A JSON array. An array of objects uses the object keys as the header; an array of arrays uses the first row as the header (or numbers the columns when there is a single row). Numbers, booleans and null are preserved as their JSON values.',
-    },
-    {
-      q: 'How are nested values handled?',
-      a: 'Objects and arrays inside a cell are pretty-printed as JSON so nothing is lost, and cell text is HTML-escaped (with the option to disable it) so the table markup stays valid.',
+      title: 'Zebra table with compact nested values',
+      input: '[ { "id": 1, "tags": ["a", "b"] } ]',
+      options: { theme: 'zebra', nestedCells: false },
     },
   ],
   related: ['csv-to-html', 'json-format', 'csv-to-json', 'csv-profiler'],

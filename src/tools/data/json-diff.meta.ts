@@ -52,16 +52,6 @@ export const meta: ToolMeta = {
       options: { second: '{ "tags": ["c", "b", "a"] }', ignoreArrayOrder: true },
     },
   ],
-  faq: [
-    {
-      q: 'What do the +/- lines mean?',
-      a: 'A line starting with - is the value only in A (removed); a line starting with + is the value only in B (added). A changed value shows both a - and a + line for the same path.',
-    },
-    {
-      q: 'How does "ignore array order" work?',
-      a: 'Arrays are compared as multisets: an element present in both sides in equal counts is treated as unchanged regardless of position. Otherwise arrays are compared index by index.',
-    },
-  ],
   related: ['json-format', 'json-to-yaml', 'querystring', 'ndjson'],
   status: 'stable',
 };

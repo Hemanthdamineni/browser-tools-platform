@@ -36,20 +36,16 @@ export const meta: ToolMeta = {
   ],
   examples: [
     { title: 'Validate a card number', input: '4539 1488 0343 6467' },
-    { title: 'Compute a check digit', options: { mode: 'check-digit' } },
-  ],
-  faq: [
     {
-      q: 'What is Luhn?',
-      a: 'The mod-10 algorithm used as a quick validity check for numbers that include a check digit, such as credit cards and IMEIs.',
+      title: 'Compute a check digit',
+      input: '4539 1488 0343 646',
+      options: { mode: 'check-digit' },
     },
+    { title: 'Validate an IMEI', input: '490154203237518' },
     {
-      q: 'Does Luhn guarantee a real card?',
-      a: 'No — passing Luhn only verifies the number is well-formed; it gives no signal about issuer, funds, or account status.',
-    },
-    {
-      q: 'How is the check digit computed?',
-      a: 'Process digits from the right, doubling every second one and subtracting 9 from results over 9, then choose the digit that makes the sum a multiple of 10.',
+      title: 'Append a check digit to a prefix',
+      input: '7992739871',
+      options: { mode: 'generate' },
     },
   ],
   related: ['checksum-validator', 'random-string'],

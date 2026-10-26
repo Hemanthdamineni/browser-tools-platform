@@ -58,20 +58,6 @@ export const meta: ToolMeta = {
       input: 'curl -F name=holiday -F file=@photo.png https://upload.example.com',
     },
   ],
-  faq: [
-    {
-      q: 'Which curl flags are understood?',
-      a: 'The request-shaping flags: -X/--request, -H/--header, -d/--data*, --json, -F/--form, -u/--user, -b/--cookie, -A/--user-agent, -e/--referer, -G/--get, -I/--head, -T/--upload-file, -L/--location, -k/--insecure, --compressed, -m/--max-time and -x/--proxy. Other flags are ignored, and genuinely transport-specific ones (custom certificates, --resolve) are reported as notes rather than silently dropped.',
-    },
-    {
-      q: 'Why do file uploads show a TODO comment?',
-      a: 'A curl command only contains a path such as @photo.png. The browser cannot read that local file from a pasted command, so the generated code marks where the File/Blob or stream should be supplied — the multipart structure and field names are still correct.',
-    },
-    {
-      q: 'Is my command sent anywhere?',
-      a: 'No. Parsing and code generation run entirely in your browser tab. Commands often contain tokens and cookies, so trim or rotate any secrets before sharing generated snippets.',
-    },
-  ],
   related: ['http-status', 'basic-auth', 'mime-lookup', 'url-parse'],
   status: 'stable',
 };

@@ -72,20 +72,6 @@ export const meta: ToolMeta = {
       options: { version: 'v5', namespace: 'url' },
     },
   ],
-  faq: [
-    {
-      q: 'Which version should I use?',
-      a: 'Prefer v5. It uses SHA-1, which is stronger than the MD5 used by v3. Use v3 only for compatibility with a system that already produces it.',
-    },
-    {
-      q: 'Are these random?',
-      a: 'No. Name-based UUIDs are fully deterministic — the same namespace and name always produce the same UUID, on any machine.',
-    },
-    {
-      q: 'What are the standard namespaces?',
-      a: 'RFC 4122 defines DNS 6ba7b810-9dad-11d1-80b4-00c04fd430c8, URL 6ba7b811-…, OID 6ba7b812-… and X.500 6ba7b814-… (all sharing the same suffix).',
-    },
-  ],
   related: ['uuid', 'objectid', 'snowflake', 'hash'],
   status: 'stable',
 };

@@ -40,23 +40,10 @@ export const meta: ToolMeta = {
       input: 'Read the [guide][guide-ref].\n\n## Guide\n\nMore.',
       options: {},
     },
-  ],
-  faq: [
     {
-      q: 'Will it fetch external web links to check them?',
-      a: 'No. Everything runs on-device. External links like https://… or mailto:… are listed as unchecked; only structure inside your document (headings, fragments, reference definitions) is validated.',
-    },
-    {
-      q: 'How are heading anchors computed?',
-      a: 'With the GitHub slug rule: lowercase, remove punctuation, collapse spaces/dashes. Custom anchors written as {#custom} are honored too, matching the markdown-toc tool.',
-    },
-    {
-      q: 'What is a broken fragment?',
-      a: 'A local link like #details that points to a heading or custom anchor that does not exist in the document, or a #anchor with no matching heading.',
-    },
-    {
-      q: 'Are code blocks skipped?',
-      a: 'Yes. Links inside fenced code blocks (``` and ~~~) and indented code are ignored so example URLs in snippets do not trigger false alarms.',
+      title: 'Heading anchor that works',
+      input: '# My Notes\n\nJump to [my notes](#my-notes) above.',
+      options: { checkExternal: false },
     },
   ],
   related: [

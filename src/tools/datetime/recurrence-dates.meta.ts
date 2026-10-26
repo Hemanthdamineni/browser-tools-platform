@@ -86,23 +86,10 @@ export const meta: ToolMeta = {
       input: '2026-01-01',
       options: { mode: 'monthly-nth', nth: '2', weekday: 'tue', count: 6 },
     },
-  ],
-  faq: [
     {
-      q: 'How do I input the start date?',
-      a: 'Paste a single date in YYYY-MM-DD form, for example 2026-10-18. Alternative formats like 18/10/2026 are recognised when the numbers are unambiguous.',
-    },
-    {
-      q: 'What happens on the 31st in a 30-day month?',
-      a: 'With clamping on (default) the date rolls to the last day of that month, like real calendar software. With clamping off, short months are skipped and the 31st only appears in months that have one.',
-    },
-    {
-      q: 'How is leap day February 29 handled?',
-      a: 'With a yearly pattern, clamping rolls it to February 28 in non-leap years; without clamping it only occurs in leap years.',
-    },
-    {
-      q: 'Does this build an iCalendar rule?',
-      a: 'No — it computes the concrete next dates directly. If you need an RRULE string, use the iCalendar Recurrence Rule Builder instead.',
+      title: 'Monthly on the 31st, short months clamped',
+      input: '2026-01-31',
+      options: { mode: 'monthly-day', count: 6 },
     },
   ],
   related: ['rrule-builder', 'date-add', 'timestamp', 'week-number'],

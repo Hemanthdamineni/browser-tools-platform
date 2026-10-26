@@ -68,4 +68,12 @@ describe('csv-sanitize', () => {
     expect(() => run('a,b', { delimiter: 'bad' })).toThrow(/delimiter/i);
     expect(() => run('a,b', { mode: 'bad' })).toThrow(/action/i);
   });
+
+  it('runs the "Sanitize formula-leading cells" example without throwing', () => {
+    const out = run('name,comment\nAda,"=HYPERLINK(""https://example.com"")"\nLinus,+1+1');
+    expect(out.output).toBe(
+      'name,comment\r\nAda,"\'=HYPERLINK(""https://example.com"")"\r\nLinus,\'+1+1',
+    );
+    expect(out.stats).toMatchObject({ 'risky cells': 2, 'cells protected': 2 });
+  });
 });

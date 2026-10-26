@@ -62,11 +62,12 @@ export const meta: ToolMeta = {
       max: 60,
     },
   ],
-  examples: [{ title: 'Block AI crawlers' }],
-  faq: [
+  examples: [
+    { title: 'Block AI crawlers' },
+    { title: 'Allow everything' },
     {
-      q: 'Does blocking AI crawlers really keep my content out of training sets?',
-      a: 'It signals polite crawlers (GPTBot, CCBot, ClaudeBot, …) not to fetch your site. It cannot bind operators who ignore robots.txt, and it does nothing against humans or scraper networks that ignore it.',
+      title: 'Block everything but point at a sitemap',
+      options: { preset: 'block-all', sitemapUrl: 'https://example.com/sitemap.xml' },
     },
   ],
   related: ['gitignore', 'editorconfig', 'meta-tags'],

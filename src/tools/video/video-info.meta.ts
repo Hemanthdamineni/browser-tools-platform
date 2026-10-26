@@ -41,20 +41,10 @@ export const meta: ToolMeta = {
       default: true,
     },
   ],
-  examples: [{ title: 'Inspect a video file', options: {} }],
-  faq: [
-    {
-      q: 'Which formats are supported?',
-      a: 'Anything the bundled Mediabunny engine can demux — commonly MP4, QuickTime (MOV), WebM, Matroska (MKV), MPEG-TS, Ogg and WAV. Files are identified by their contents, not their extension.',
-    },
-    {
-      q: 'Why does it say a track is not decodable?',
-      a: 'Reading the container only needs JavaScript, but decoding frames needs the browser WebCodecs API. When that is unavailable (or the codec is), the metadata is still shown and only playback/export is out of reach.',
-    },
-    {
-      q: 'Is my video uploaded anywhere?',
-      a: 'No. The file is read directly from your device by this page, and the tool works offline once it has loaded.',
-    },
+  examples: [
+    { title: 'Inspect a video file', options: {} },
+    { title: 'Deep scan for true frame rate', options: { scanFrames: true } },
+    { title: 'Skip the decode check', options: { checkDecode: false } },
   ],
   credits: [{ name: 'mediabunny', url: 'https://mediabunny.dev', license: 'MPL-2.0' }],
   status: 'beta',

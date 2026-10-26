@@ -45,23 +45,10 @@ export const meta: ToolMeta = {
       input: '{"server.port": 8080, "app": {"name": "demo", "ssl": true}}',
       options: { mode: 'json-to-props' },
     },
-  ],
-  faq: [
     {
-      q: 'Which comment and separator styles are supported?',
-      a: 'Lines beginning with # or ! are skipped as comments, and blank lines are ignored. Keys end at the first unescaped =, : , or whitespace, matching Java properties rules.',
-    },
-    {
-      q: 'Are multiline values supported?',
-      a: 'Yes. A trailing backslash continues the value onto the next line, and escaped sequences like \\n, \\t, \\\\ and \\uXXXX are decoded into their real characters during parsing.',
-    },
-    {
-      q: 'How does JSON to properties handle nested objects?',
-      a: 'Objects are flattened with dotted keys (app.port → app.port), arrays become repeated numbered keys (items.0 = ...), and primitives are written as strings with escaping. Key order is preserved.',
-    },
-    {
-      q: 'How are duplicate keys handled?',
-      a: 'Pursuant to Java properties semantics, the last occurrence of a key wins during parsing. When generating, keys are written once.',
+      title: 'Colons and escaped unicode',
+      input: 'greeting: h\\u00e9llo\npath:C:\\\\tmp',
+      options: {},
     },
   ],
   related: ['ini-convert', 'toml-convert', 'json-to-yaml', 'yaml-to-json', 'dotenv'],

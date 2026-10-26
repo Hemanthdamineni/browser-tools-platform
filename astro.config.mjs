@@ -4,15 +4,35 @@ import tailwind from '@astrojs/tailwind';
 
 /**
  * Public site URL. Override at build time with SITE_URL for your deployment,
- * e.g. `SITE_URL=https://toolbench.app npm run build`.
+ * e.g. `SITE_URL=https://your-domain npm run build`.
  */
-const SITE_URL = process.env.SITE_URL || 'https://toolbench.app';
+const SITE_URL = process.env.SITE_URL || 'https://hemanthdamineni.github.io/browser-tools-platform';
+
+/**
+ * Path the site is served from. Override at build time with BASE_PATH for a
+ * subpath deployment (a GitHub Pages project site), e.g. `BASE_PATH=/my-repo`.
+ */
+const BASE_PATH = process.env.BASE_PATH || '/browser-tools-platform';
+
+/**
+ * Normalise a base path to a leading slash and no trailing slash, so Astro's
+ * `BASE_URL` never produces a doubled slash. `/` stays `/`.
+ */
+function normaliseBase(value) {
+  const trimmed = value.trim();
+  const withLeading = trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
+  const stripped = withLeading.replace(/\/+$/, '');
+  return stripped === '' ? '/' : stripped;
+}
+
+const base = normaliseBase(BASE_PATH);
 
 const srcAlias = { '@': fileURLToPath(new URL('./src', import.meta.url)) };
 
 // https://astro.build
 export default defineConfig({
   site: SITE_URL,
+  base,
   output: 'static',
   trailingSlash: 'ignore',
   build: {

@@ -331,3 +331,28 @@
 [data-option-wrap][hidden] {
   display: none;
 }
+
+/*
+ * E7-T4 — result reveal and skeleton placeholder. The reveal is a 180ms
+ * transition (the `prefers-reduced-motion` block above zeroes it out, and the
+ * JS guard skips it entirely for reduced-motion users). The skeleton is a
+ * static block: no looping animation, so nothing here exceeds 200ms.
+ */
+.tb-reveal {
+  animation: tb-reveal 180ms var(--ease);
+}
+@keyframes tb-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tb-skeleton {
+  border-radius: 0.375rem;
+  background: rgb(var(--bg-inset));
+}

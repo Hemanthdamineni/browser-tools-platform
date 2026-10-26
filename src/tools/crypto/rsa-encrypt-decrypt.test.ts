@@ -175,4 +175,49 @@ describe('rsa-encrypt-decrypt', () => {
     expect(enc.render).toBe('code');
     expect(enc.notes?.join(' ')).toMatch(/locally|browser/i);
   });
+
+  describe('meta examples', () => {
+    const EXAMPLE_SPKI = [
+      '-----BEGIN PUBLIC KEY-----',
+      'MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDXa2uNHhSotgGCbtz5mYo8okG2',
+      'WUUSV/q0O3nY+i8B3JM+GfhdG3bD40q8JVtyOFjLQkQaD68V9g44s5s+lc+aJ8h/',
+      'ujFd19Kj3Jv2Uc424+JblwNe8BCbDUfNqmf/5/19Tf7uCPtSfIZw2bhKzIdI2HQH',
+      'UbdL35y1/R933sEI9QIDAQAB',
+      '-----END PUBLIC KEY-----',
+    ].join('\n');
+
+    const EXAMPLE_PKCS8 = [
+      '-----BEGIN PRIVATE KEY-----',
+      'MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBANdra40eFKi2AYJu',
+      '3PmZijyiQbZZRRJX+rQ7edj6LwHckz4Z+F0bdsPjSrwlW3I4WMtCRBoPrxX2Djiz',
+      'mz6Vz5onyH+6MV3X0qPcm/ZRzjbj4luXA17wEJsNR82qZ//n/X1N/u4I+1J8hnDZ',
+      'uErMh0jYdAdRt0vfnLX9H3fewQj1AgMBAAECgYB/+qKH0QInBRI6glCnvO8ifKcb',
+      'hUeC0V/xKZCHNoMs0PVtJJKoBgP19pfU1UDRx+YAw5qf/QdgvbDPQO0PLoOJk9t8',
+      'Q0mVuy9VClVaszhLsIm8xu0Wv02dttX2N9/vMbyta8TtHVQ2UI3IOb554VYI/2DJ',
+      'p3W0N++Jif8LkqRTtQJBAO8Y8lOISQuotqyQF3lyBY5B2kKKNsNbFgcTv3FarPEX',
+      'BEbNy0K5yUWwCFDI/0VqbXDwcZBsd5VaJe40yvjc9+sCQQDmpfcSAEDWur9Q0FpS',
+      'LtGdp2nb9bk+hL034vpmbp8SrJdqQz6Luq8P0gtAROXxv2PuymyqdhoS1XdYfo7T',
+      'Y6qfAkAI6aom2P64E4rztc9aNJjma6gCMPrHn36btu29AP9PYWdEaGl6TEinc19r',
+      '+4IgiU4ZFq11D8YJaDnfvlIOotYPAkEAhUDnYGADFcvokiD9vbNM6V96elkZv/Pi',
+      'efJJpnpMrvZFuF/HN+UQFPzOAUCM9MEVVDVg2I7I+46Wl+ruS1SukwJALvOiCpje',
+      'nfSbGVVtoPb/LEKGnAKVSsvBDEUuhn5JJo0QXDaWzk32NhTBXMGRokjKX5KkdP0f',
+      'DbzJuxFUrxKzKQ==',
+      '-----END PRIVATE KEY-----',
+    ].join('\n');
+
+    it('runs the "Encrypt a secret for a recipient" example without throwing', async () => {
+      const enc = await run(EXAMPLE_SPKI, { operation: 'encrypt', payload: 'attack at dawn' });
+      expect(enc.output).toMatch(/^[A-Za-z0-9+/]+={0,2}$/);
+      expect(enc.output.length).toBeGreaterThan(0);
+    });
+
+    it('runs the "Decrypt with a PKCS#8 private key" example without throwing', async () => {
+      const dec = await run(EXAMPLE_PKCS8, {
+        operation: 'decrypt',
+        payload:
+          'NbOhBK4xNwEAZ0nMFqUMjp9AHHIR+gpSzkDwtblyvRvnisDd3B6Y/Mn4ec17D5QA3shMqAW0JWralembg/JWaBMiomR7e5WGjMg4SUi9Df52d5ZNTxpX7qm+fxWyfsTYR8pq/+BHbZEDMl89E41f8EaBBun7zYRzm8XfI75tODY=',
+      });
+      expect(dec.output).toBe('attack at dawn');
+    });
+  });
 });

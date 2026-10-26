@@ -48,20 +48,7 @@ export const meta: ToolMeta = {
       title: 'Build a preload-ready policy',
       options: { mode: 'build', maxAge: '31536000', flags: 'includeSubDomains+preload' },
     },
-  ],
-  faq: [
-    {
-      q: 'What does HSTS do?',
-      a: 'It tells the browser to only use HTTPS for the origin (and subdomains when includeSubDomains is set), preventing protocol-downgrade attacks after the first visit.',
-    },
-    {
-      q: 'Can I reduce max-age later?',
-      a: 'max-age=0 revokes HSTS for the requesting browser, but clients that already cached the policy must honor it until it expires.',
-    },
-    {
-      q: 'What is required for the preload list?',
-      a: "Chrome's HSTS preload submissions require max-age of at least 31,536,000 seconds (one year) and includeSubDomains.",
-    },
+    { title: 'Analyze a short max-age', input: 'max-age=3600' },
   ],
   related: ['security-headers', 'http-header-analyzer'],
   status: 'stable',

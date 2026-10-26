@@ -89,7 +89,17 @@ export const meta: ToolMeta = {
       choices: ['original', 'png', 'jpeg', 'webp'].map((value) => ({ value, label: value })),
     },
   ],
-  examples: [{ title: 'Square center crop' }],
+  examples: [
+    { title: 'Square center crop' },
+    {
+      title: 'Exact 800x600 rectangle from the top-left',
+      options: { mode: 'pixels', x: 0, y: 0, cropWidth: 800, cropHeight: 600 },
+    },
+    {
+      title: '16:9 banner anchored to the top, saved as WebP',
+      options: { mode: 'aspect', aspect: '16:9', anchor: 'top', format: 'webp' },
+    },
+  ],
   related: ['image-resize', 'image-rotate'],
   status: 'stable',
   updated: '2026-10-16',

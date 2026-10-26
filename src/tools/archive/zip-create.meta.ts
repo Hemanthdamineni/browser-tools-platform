@@ -15,7 +15,19 @@ export const meta: ToolMeta = {
     { key: 'zipName', label: 'Archive name', type: 'text', default: 'bundle.zip' },
     { key: 'flatten', label: 'Flatten paths', type: 'boolean', default: false },
   ],
-  examples: [{ title: 'Create an archive' }],
+  examples: [
+    { title: 'Create an archive', input: '' },
+    {
+      title: 'Zip two files at maximum compression',
+      input: '',
+      options: { level: 9, zipName: 'backup.zip' },
+    },
+    {
+      title: 'Flatten a folder tree into one level',
+      input: '',
+      options: { flatten: true },
+    },
+  ],
   related: ['zip-extract', 'zip-inspect', 'tar-create'],
   credits: [{ name: 'fflate', url: 'https://github.com/101arrowz/fflate', license: 'MIT' }],
   status: 'stable',

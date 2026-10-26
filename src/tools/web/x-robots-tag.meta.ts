@@ -39,20 +39,6 @@ export const meta: ToolMeta = {
     { title: 'Analyze a robots tag', input: 'noindex, nofollow' },
     { title: 'Build a noindex header', options: { mode: 'build', value: 'noindex, noarchive' } },
   ],
-  faq: [
-    {
-      q: 'How does X-Robots-Tag differ from robots.txt?',
-      a: 'robots.txt is a site-wide crawl file; X-Robots-Tag is a per-URL header (or meta tag equivalent) applied at fetch time.',
-    },
-    {
-      q: 'What do the core directives do?',
-      a: 'noindex stops indexing; nofollow stops following links; noarchive stops caching; nosnippet restricts snippets; max-snippet:N caps snippet length.',
-    },
-    {
-      q: 'Can it target specific crawlers?',
-      a: 'Yes — a group such as "googlebot: noindex" confines the rule to that user agent, and a value may contain multiple groups.',
-    },
-  ],
   related: ['robots-txt', 'meta-tags', 'user-agent'],
   hidden: true,
   redirectTo: 'http-header-analyzer',

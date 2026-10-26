@@ -33,19 +33,16 @@ export const meta: ToolMeta = {
       title: 'A short sentence',
       input: 'The quick brown fox jumps over the lazy dog.',
     },
-  ],
-  faq: [
     {
-      q: 'What do the two scores mean?',
-      a: "Flesch Reading Ease runs 0–100: roughly 90–100 is very easy (children's books), 60–70 is plain English, under 30 is very difficult. Flesch-Kincaid Grade Level reports the US education grade needed, so 8 means an average 13–14 year old can read it.",
+      title: 'A dense academic paragraph',
+      input:
+        'The epistemological ramifications of post-structuralist hermeneutics necessitate a reconsideration of the methodological presuppositions underlying contemporary textual analysis.',
+      options: { showDetails: true },
     },
     {
-      q: 'How are syllables counted?',
-      a: 'By a vowel-group estimate — every run of vowels (a, e, i, o, u, y after a consonant) in a word counts as one syllable, then small rules fix silent-e endings. It is close for English without needing a dictionary.',
-    },
-    {
-      q: 'When is short text unreliable?',
-      a: 'The formulas are meant for prose like articles. A single word or a very short phrase can produce a score that does not generalise, so the result is marked as approximate for input under about 100 words.',
+      title: 'Score without the raw counts',
+      input: 'We shipped the update on Tuesday. It made the app start faster. Users noticed.',
+      options: { showDetails: false },
     },
   ],
   related: ['text-stats', 'word-frequency', 'char-frequency', 'text-summarizer'],

@@ -37,19 +37,10 @@ export const meta: ToolMeta = {
   examples: [
     { title: 'Decode a VIN', input: '1HGCM82633A004352' },
     { title: 'Validate only', options: { mode: 'validate' } },
-  ],
-  faq: [
     {
-      q: 'What makes a VIN valid?',
-      a: 'Exactly 17 characters from 0–9 and A–Z excluding I, O and Q, plus a check digit at position 9 that matches the weighted sum (mod 11).',
-    },
-    {
-      q: 'Can the check digit be X?',
-      a: 'Yes — the remainder 10 is written as the letter X, which is the only allowed letter in position 9.',
-    },
-    {
-      q: 'Do all VINs use the check digit?',
-      a: 'Vehicles built for the US market do. Some other markets historically use a serial number in position 9, so a checksum mismatch alone does not always mean a fake VIN.',
+      title: 'Compute a missing check digit',
+      input: '1HGCM82603A004352',
+      options: { mode: 'generate' },
     },
   ],
   related: ['luhn-validator', 'checksum-validator'],

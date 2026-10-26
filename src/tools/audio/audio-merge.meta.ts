@@ -40,6 +40,21 @@ export const meta: ToolMeta = {
       default: false,
     },
   ],
+  examples: [
+    { title: 'Concatenate two clips end-to-end' },
+    {
+      title: 'Mix tracks with a silent gap between them',
+      options: { mode: 'concat', gapMs: 500 },
+    },
+    {
+      title: 'Mix three takes over each other',
+      options: { mode: 'mix' },
+    },
+    {
+      title: 'Join clips at even loudness',
+      options: { mode: 'concat', matchLoudness: true },
+    },
+  ],
   related: ['audio-channels', 'audio-normalize'],
   status: 'stable',
 };

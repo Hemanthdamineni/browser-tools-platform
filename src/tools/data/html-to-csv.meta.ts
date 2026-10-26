@@ -41,23 +41,15 @@ export const meta: ToolMeta = {
       title: 'A simple HTML table',
       input: '<table><tr><th>Name</th><th>Score</th></tr><tr><td>Ada</td><td>98</td></tr></table>',
     },
-  ],
-  faq: [
     {
-      q: 'How are nested tables handled?',
-      a: 'Nested tables inside a cell are skipped so their rows do not leak into the outer table; only the table you asked for is exported.',
+      title: 'Export every table on the page',
+      input: '<table><tr><td>a</td></tr></table>\n<table><tr><td>b</td></tr></table>',
+      options: { mode: 'all' },
     },
     {
-      q: 'Do rowspan and colspan survive?',
-      a: 'colspan shrinks the cell into repeated cells, and rowspan pushes empty placeholders into the following rows so the grid stays rectangular.',
-    },
-    {
-      q: 'What about markup inside a cell?',
-      a: 'Tags are stripped and HTML entities (&amp;, &#169;, …) decoded, so “<b>Hi</b> &amp; bye” becomes “Hi & bye”.',
-    },
-    {
-      q: 'What if my HTML has several tables?',
-      a: 'Export the first table or all tables in document order, each separated by a blank line. Choose with the option.',
+      title: 'Keep sparse rows',
+      input: '<table><tr><th>H</th></tr><tr><td></td></tr></table>',
+      options: { skipEmptyRows: false },
     },
   ],
   related: ['csv-to-html', 'html-to-text', 'html-to-markdown', 'csv-to-markdown'],

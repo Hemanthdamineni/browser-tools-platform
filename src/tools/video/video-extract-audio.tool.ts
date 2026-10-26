@@ -313,7 +313,7 @@ export async function extractEncoded(
   ctx.signal?.throwIfAborted?.();
 
   const codecId = settings.formatId === 'aac' ? 'aac' : 'mp3';
-  const outChannels = settings.channelCount ?? (settings.channelCount ?? 2);
+  const outChannels = settings.channelCount ?? settings.channelCount ?? 2;
 
   const supported = await resolved.getFirstEncodableAudioCodec([codecId], {
     numberOfChannels: settings.channelCount ?? 2,
@@ -347,9 +347,7 @@ export async function extractEncoded(
         codec: codecId,
         quality: new resolved.Quality({ bitrate: settings.bitrate }),
         // Mono/stereo remixing is done by the engine during the conversion.
-        ...(settings.channelCount != null
-          ? { numberOfChannels: settings.channelCount }
-          : {}),
+        ...(settings.channelCount != null ? { numberOfChannels: settings.channelCount } : {}),
         // A fresh encode, never a copy of the source packets.
         forceTranscode: true,
       },

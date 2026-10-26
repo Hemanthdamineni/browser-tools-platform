@@ -29,11 +29,10 @@ export const meta: ToolMeta = {
       options: { mode: 'decode' },
     },
     { title: 'Encode', input: 'Café — €5', options: { mode: 'encode' } },
-  ],
-  faq: [
     {
-      q: 'What is a soft line break?',
-      a: 'An = at the very end of a line means "this line continues" — it is removed on decode. Encoding wraps at 76 characters using soft breaks.',
+      title: 'Decode a folded email line',
+      input: 'The quick brown fox =\njumps over the lazy dog.',
+      options: { mode: 'decode' },
     },
   ],
   related: ['base64', 'url-encode', 'hex'],

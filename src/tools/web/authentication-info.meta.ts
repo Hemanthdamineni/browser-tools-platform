@@ -51,19 +51,9 @@ export const meta: ToolMeta = {
       title: 'Build a nextnonce field',
       options: { mode: 'build', parameter: 'nextnonce', value: '"server-nonce"' },
     },
-  ],
-  faq: [
     {
-      q: 'Does Authentication-Info contain credentials?',
-      a: 'It carries response-side Digest authentication parameters, not the user password. Still avoid pasting live production nonces or tokens into shared environments.',
-    },
-    {
-      q: 'What is nextnonce?',
-      a: 'It lets a server provide a nonce for a subsequent authenticated request, reducing the need for another challenge.',
-    },
-    {
-      q: 'Does this verify rspauth?',
-      a: 'No. It validates field syntax only and cannot verify a response digest without the request context and secret.',
+      title: 'Check a nonce count value',
+      input: 'nc=0000002a',
     },
   ],
   related: ['www-authenticate', 'basic-auth', 'secret-scanner'],

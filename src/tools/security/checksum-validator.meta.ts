@@ -43,20 +43,6 @@ export const meta: ToolMeta = {
     { title: 'IBAN checksum', input: 'GB82 WEST 1234 5698 7654 32', options: { format: 'iban' } },
     { title: 'ISBN-10 with X check digit', input: '0-306-40615-2', options: { format: 'isbn' } },
   ],
-  faq: [
-    {
-      q: 'Does a valid checksum mean a card or account is real?',
-      a: 'No. A valid checksum only means that the identifier is structurally consistent. It does not contact a bank, confirm account ownership, or establish that a card is active. Use synthetic test data, not live payment credentials.',
-    },
-    {
-      q: 'How does auto-detection work?',
-      a: 'Values containing letters are checked as possible IBAN or ISBN identifiers. Digit-only values are checked as ISBN-13 when 13 digits long, otherwise as Luhn candidates. Choose a format explicitly when in doubt.',
-    },
-    {
-      q: 'Is my input sent to a server?',
-      a: 'No. All checks run locally in your browser and no network requests are made.',
-    },
-  ],
   related: ['file-hash', 'hash', 'secret-scanner'],
   status: 'stable',
 };

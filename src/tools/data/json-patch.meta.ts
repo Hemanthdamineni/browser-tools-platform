@@ -59,20 +59,6 @@ export const meta: ToolMeta = {
       },
     },
   ],
-  faq: [
-    {
-      q: 'Which operations are supported?',
-      a: 'The tool supports RFC 6902 add, remove, replace, move, copy and test. A failed operation stops processing and no partial document is returned.',
-    },
-    {
-      q: 'What syntax do paths use?',
-      a: 'Paths use JSON Pointer: they start with /, and ~1 escapes a slash while ~0 escapes a tilde in a property name. Use /- to append to an array.',
-    },
-    {
-      q: 'Is my document uploaded?',
-      a: 'No. Parsing and patching happen in your browser; no network requests are made by this tool.',
-    },
-  ],
   related: ['json-format', 'json-diff', 'json-to-jsonschema'],
   status: 'stable',
 };

@@ -67,19 +67,10 @@ export const meta: ToolMeta = {
       input: '1,2,3\n4,5,6\n',
       options: { header: false },
     },
-  ],
-  faq: [
     {
-      q: 'How does auto-detection work?',
-      a: 'The first line is scanned for commas, semicolons, tabs, and pipes; whichever appears most often wins, with commas breaking ties.',
-    },
-    {
-      q: 'What keys are used without a header?',
-      a: 'Columns are named col1, col2, and so on, based on the widest row.',
-    },
-    {
-      q: 'How are quotes handled?',
-      a: 'Fields may be wrapped in double quotes; a doubled "" inside a quoted field becomes a literal quote, per RFC 4180.',
+      title: 'Quoted fields with commas and quotes',
+      input: '"name","quote"\n"Doe, John","She said ""hi"""\n',
+      options: { header: true },
     },
   ],
   related: ['json-to-csv', 'yaml-to-json', 'json-to-yaml'],

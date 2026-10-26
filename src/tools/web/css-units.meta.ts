@@ -79,12 +79,6 @@ export const meta: ToolMeta = {
     { title: '1.5rem', input: '1.5rem' },
     { title: '12pt', input: '12pt' },
   ],
-  faq: [
-    {
-      q: 'Why is em and % the same value here?',
-      a: 'Both resolve against a font size — em against the parent font size and % against the percent base. With both left at 16 px they match; change either option to model a different context.',
-    },
-  ],
   related: ['aspect-ratio', 'gradient-css'],
   status: 'stable',
 };

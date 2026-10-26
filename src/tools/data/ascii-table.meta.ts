@@ -56,19 +56,15 @@ export const meta: ToolMeta = {
       title: 'CSV input',
       input: 'name,role,url\nAda,Analyst,https://ada.dev\nGrace,Engineer,https://grace.dev',
     },
-  ],
-  faq: [
     {
-      q: 'What delimiters are supported?',
-      a: 'Comma, tab, semicolon and pipe — or let auto-detection pick. Fields enclosed in quotes are parsed correctly, including embedded delimiters and newlines.',
+      title: 'Tab-separated with a tab delimiter',
+      input: 'name\tqty\nwidget\t3\nbolt\t12',
+      options: { delimiter: '\t' },
     },
     {
-      q: 'What styles can I choose?',
-      a: 'Cell alignment (left/right/center) and whether the first row becomes a header with a divider line. The border style is fixed to the classic +---+ grid.',
-    },
-    {
-      q: 'Can I paste the result into markdown or email?',
-      a: 'Yes — an ASCII table renders as literal text in markdown with escaping, in code blocks, and in plain-text emails. It is not markdown; use markdown-table for that.',
+      title: 'Semicolons, right-aligned numbers',
+      input: 'city;population\nParis;2148000\nBerlin;3645000',
+      options: { delimiter: ';', align: 'right' },
     },
   ],
   related: ['markdown-table', 'csv-to-markdown', 'csv-to-html', 'csv-to-sql'],

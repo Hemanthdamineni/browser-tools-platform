@@ -82,20 +82,6 @@ export const meta: ToolMeta = {
     },
     { title: 'Annual event until year-end', options: { frequency: 'YEARLY', until: '2026-12-31' } },
   ],
-  faq: [
-    {
-      q: 'How do I use the generated rule?',
-      a: 'Add the RRULE line inside a VEVENT in an iCalendar file. DTSTART defines the first occurrence; the rule describes repeats relative to that event start.',
-    },
-    {
-      q: 'Can I specify both COUNT and UNTIL?',
-      a: 'No. RFC 5545 requires a recurrence rule to use at most one of COUNT or UNTIL.',
-    },
-    {
-      q: 'Are dates timezone-aware?',
-      a: 'UNTIL is emitted as a date-only value in YYYYMMDD form. For date-time DTSTART values, RFC 5545 generally requires UNTIL in UTC; use a UTC timestamp-aware calendar library for that case.',
-    },
-  ],
   related: ['ical-event', 'cron-parser', 'date-add'],
   status: 'stable',
 };

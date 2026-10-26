@@ -29,11 +29,9 @@ export const meta: ToolMeta = {
   examples: [
     { title: 'Millennium baby', input: '2000-01-01', options: { asOf: '2024-01-01' } },
     { title: 'Day before a birthday', input: '2000-06-15', options: { asOf: '2024-06-14' } },
-  ],
-  faq: [
     {
-      q: 'How is the age in years, months and days computed?',
-      a: 'Calendar arithmetic: count whole years, then whole months, then remaining days — borrowing the real length of the previous month when the day of month needs it.',
+      title: 'Age today, no reference date',
+      input: '1995-03-11',
     },
   ],
   related: ['date-diff', 'week-number'],

@@ -46,13 +46,12 @@ export const meta: ToolMeta = {
   examples: [
     { title: 'Encode "Hi"', input: 'Hi', options: { mode: 'encode' } },
     { title: 'Decode', input: '68 65 6c 6c 6f', options: { mode: 'decode' } },
-  ],
-  faq: [
     {
-      q: 'What input does decoding accept?',
-      a: 'Any hex string. Spaces, colons, newlines, 0x and \\x prefixes are ignored, so you can paste output from most tools directly.',
+      title: 'Encode with 0x prefixes in uppercase',
+      input: 'Hi',
+      options: { mode: 'encode', separator: '0x', uppercase: true },
     },
   ],
-  related: ['base64', 'base32', 'binary-text', 'unicode-escape'],
+  related: ['base64', 'base32', 'text-to-binary', 'quoted-printable'],
   status: 'stable',
 };

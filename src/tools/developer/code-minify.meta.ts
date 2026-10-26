@@ -83,32 +83,6 @@ export const meta: ToolMeta = {
       options: { language: 'json' },
     },
   ],
-  faq: [
-    {
-      q: 'Does my code leave the browser?',
-      a: 'No. Every minifier runs in this tab. The minifier files are downloaded from this same site the first time you use them, and your input is never uploaded.',
-    },
-    {
-      q: 'Why did the first run take a moment?',
-      a: 'The minifier for the language you picked is only downloaded when you first use it. Later runs reuse what is already loaded, so they are almost instant.',
-    },
-    {
-      q: 'What is the difference between Safe and Aggressive?',
-      a: 'Safe only removes whitespace, comments and other redundancy. Aggressive also renames local and top-level identifiers, drops unused top-level code and applies optimisations that assume a modern browser — so use it for build output, not for code you read by hand.',
-    },
-    {
-      q: 'Does it handle TypeScript?',
-      a: 'Yes. Type annotations, interfaces, enums, generics and namespaces are stripped first, then the JavaScript is minified. The result is plain JavaScript.',
-    },
-    {
-      q: 'Can it minify JSX or Vue files?',
-      a: 'No. JSX has to be compiled before it can be minified, and a single-file component mixes three languages. Transform them to plain JavaScript or plain HTML first.',
-    },
-    {
-      q: 'Is the byte count gzipped?',
-      a: 'No, it is the raw size of the text in UTF-8 bytes, before and after minifying. Gzip would shrink both numbers further, but by a different amount.',
-    },
-  ],
   related: ['code-beautify', 'css-minifier', 'json-format', 'html-validator'],
   credits: [
     { name: 'Terser', url: 'https://github.com/terser/terser', license: 'BSD-2-Clause' },

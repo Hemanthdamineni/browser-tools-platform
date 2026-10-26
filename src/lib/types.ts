@@ -148,7 +148,6 @@ export interface ToolMeta {
   options?: ToolOption[];
   /** Runnable examples — one click fills the workbench. */
   examples?: { title: string; input?: string; options?: OptionValues }[];
-  faq?: { q: string; a: string }[];
   /** Related tool ids. */
   related?: string[];
   /** Third-party code bundled for this tool (shown on the page + in NOTICE). */
@@ -165,7 +164,11 @@ export interface ToolMeta {
    * Must name a real, non-alias tool id.
    */
   redirectTo?: string;
-  /** ISO date, updated when behaviour changes. */
+  /**
+   * ISO `YYYY-MM-DD` date, bumped when the tool's behaviour or copy changes.
+   * Emitted as `<lastmod>` in the sitemap; a tool with no `updated` simply has
+   * no `<lastmod>` — never invent a date for it.
+   */
   updated?: string;
 }
 

@@ -231,24 +231,6 @@ export const meta: ToolMeta = {
       options: { header: 'vary', mode: 'build', fields: 'Accept-Encoding, Origin' },
     },
   ],
-  faq: [
-    {
-      q: 'Why is this one tool instead of seven?',
-      a: 'Cache-Control, CDN-Cache-Control, Surrogate-Control, Expires, Age, Cache-Status, and Vary are all cache-related response fields. The older single-header tools now redirect to this one; their URLs still work.',
-    },
-    {
-      q: 'Does no-cache mean do not store?',
-      a: 'No. no-cache allows storage but requires validation before reuse. Use no-store when a response must not be stored.',
-    },
-    {
-      q: 'Can this know whether a response is safe to cache?',
-      a: 'No. It can flag suspicious combinations such as public caching with contradictory directives, but cache safety depends on content, authorization, and deployment context.',
-    },
-    {
-      q: 'Does a CDN have to honor these fields?',
-      a: 'Only if the CDN supports the field and its documented precedence rules. Treat provider-specific fields as advisory unless the provider documents otherwise.',
-    },
-  ],
   related: ['conditional-request-headers', 'http-header-analyzer'],
   status: 'beta',
 };

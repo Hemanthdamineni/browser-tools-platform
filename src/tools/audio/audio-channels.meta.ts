@@ -28,6 +28,11 @@ export const meta: ToolMeta = {
       ],
     },
   ],
-  related: ['audio-merge', 'audio-to-wav'],
+  examples: [
+    { title: 'Downmix to mono', options: { operation: 'to-mono' } },
+    { title: 'Swap left and right', options: { operation: 'swap' } },
+    { title: 'Isolate the left side', options: { operation: 'left-only' } },
+  ],
+  related: ['audio-merge', 'audio-convert'],
   status: 'stable',
 };

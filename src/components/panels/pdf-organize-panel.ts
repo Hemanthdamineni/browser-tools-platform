@@ -61,13 +61,9 @@ export function movePage(pages: OrganizerPage[], from: number, to: number): Orga
 }
 
 /** Turn the page at `index` by `delta` degrees (clockwise). */
-export function rotatePage(
-  pages: OrganizerPage[],
-  index: number,
-  delta: number,
-): OrganizerPage[] {
+export function rotatePage(pages: OrganizerPage[], index: number, delta: number): OrganizerPage[] {
   if (index < 0 || index >= pages.length) return pages;
-  const step = ((Math.round(delta / 90) * 90) % 360 + 360) % 360;
+  const step = (((Math.round(delta / 90) * 90) % 360) + 360) % 360;
   const next = pages.slice();
   const page = next[index]!;
   next[index] = { ...page, rotate: (page.rotate + step) % 360 };
@@ -237,7 +233,7 @@ export function mountPdfOrganizePanel(root: HTMLElement): void {
     const pdfPage = await doc.getPage(page.source);
     // The turn the user picked is added to the rotation the page already has,
     // which is exactly what the tool does when it rebuilds the PDF.
-    const rotation = (((pdfPage.rotate || 0) + page.rotate) % 360 + 360) % 360;
+    const rotation = ((((pdfPage.rotate || 0) + page.rotate) % 360) + 360) % 360;
     const probe = pdfPage.getViewport({ scale: 1, rotation });
     const scale = Math.min(THUMB_MAX_W / probe.width, THUMB_MAX_H / probe.height);
     const dpr = Math.min(2, window.devicePixelRatio || 1);
@@ -457,7 +453,9 @@ export function mountPdfOrganizePanel(root: HTMLElement): void {
       return;
     }
     refresh();
-    announceCurrent(`${pages.length} pages loaded. Drag a page or use the arrow keys to rearrange.`);
+    announceCurrent(
+      `${pages.length} pages loaded. Drag a page or use the arrow keys to rearrange.`,
+    );
   }
 
   const dz = createDropZone(dropEl, {

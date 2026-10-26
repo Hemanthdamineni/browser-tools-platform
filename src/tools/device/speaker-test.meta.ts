@@ -1,0 +1,98 @@
+import type { ToolMeta } from '@/lib/types';
+
+export const meta: ToolMeta = {
+  id: 'speaker-test',
+  name: 'Speaker Test',
+  category: 'device',
+  summary:
+    'Play a test tone or a log-spaced frequency sweep out of the left, right or both channels.',
+  description:
+    'Send a steady tone or a smooth frequency sweep to just the left speaker, just the right one, or both, and listen for dead drivers, crackle or a lopsided balance. Every tone is synthesized in this tab and played straight to your speakers — nothing is recorded, stored or uploaded.',
+  keywords: [
+    'speaker',
+    'speakers',
+    'speaker test',
+    'left right',
+    'channel',
+    'balance',
+    'tone',
+    'frequency sweep',
+    'stereo',
+    'audio test',
+  ],
+  privacy: { processing: 'on-device', network: 'none', offline: true },
+  input: 'text',
+  panel: 'speaker-test',
+  options: [
+    {
+      key: 'channel',
+      label: 'Channel',
+      type: 'select',
+      default: 'both',
+      choices: [
+        { value: 'left', label: 'Left' },
+        { value: 'right', label: 'Right' },
+        { value: 'both', label: 'Both' },
+      ],
+      help: 'Which speaker to aim the tone at. “Both” also confirms the two channels are in phase.',
+    },
+    {
+      key: 'mode',
+      label: 'Mode',
+      type: 'select',
+      default: 'tone',
+      choices: [
+        { value: 'tone', label: 'Steady tone' },
+        { value: 'sweep', label: 'Frequency sweep' },
+      ],
+    },
+    {
+      key: 'frequency',
+      label: 'Frequency (Hz)',
+      type: 'number',
+      default: 440,
+      min: 20,
+      max: 20000,
+      help: 'The tone you hear. The slider is logarithmic, so every octave gets the same travel.',
+    },
+    {
+      key: 'sweepStart',
+      label: 'Sweep start (Hz)',
+      type: 'number',
+      default: 20,
+      min: 20,
+      max: 20000,
+      showWhen: { key: 'mode', value: 'sweep' },
+    },
+    {
+      key: 'sweepEnd',
+      label: 'Sweep end (Hz)',
+      type: 'number',
+      default: 20000,
+      min: 20,
+      max: 20000,
+      showWhen: { key: 'mode', value: 'sweep' },
+    },
+    {
+      key: 'duration',
+      label: 'Duration',
+      type: 'text',
+      default: '3s',
+      placeholder: '3s, 1500ms, 0.5m',
+      help: 'How long to play, as seconds, milliseconds or minutes.',
+    },
+    {
+      key: 'includeTimestamps',
+      label: 'Show the time of each play in the report',
+      type: 'boolean',
+      default: true,
+    },
+  ],
+  examples: [
+    { title: 'Check the balance', options: { channel: 'both', frequency: 1000 } },
+    { title: 'Left speaker only', options: { channel: 'left', frequency: 440, duration: '2s' } },
+    { title: 'Full range sweep', options: { mode: 'sweep', channel: 'both', duration: '6s' } },
+  ],
+  related: ['mic-test', 'tone-generator', 'audio-channels'],
+  status: 'stable',
+};

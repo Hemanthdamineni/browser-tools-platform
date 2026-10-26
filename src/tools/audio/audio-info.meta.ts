@@ -22,13 +22,11 @@ export const meta: ToolMeta = {
   input: 'file',
   accept: 'audio/*',
   worker: false,
-  examples: [{ title: 'Inspect an audio file', options: {} }],
-  faq: [
-    {
-      q: 'Which formats are supported?',
-      a: 'Whatever your browser can decode — commonly MP3, WAV, OGG, M4A and FLAC.',
-    },
+  examples: [
+    { title: 'Inspect an audio file', options: {} },
+    { title: 'Compare a WAV and an MP3 export' },
+    { title: 'Check a mix for clipping' },
   ],
-  related: ['audio-to-wav', 'audio-normalize'],
+  related: ['audio-convert', 'audio-normalize'],
   status: 'stable',
 };

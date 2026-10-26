@@ -53,20 +53,6 @@ export const meta: ToolMeta = {
     },
     { title: 'Encode Z85 (4 bytes)', input: 'test', options: { mode: 'encode', variant: 'z85' } },
   ],
-  faq: [
-    {
-      q: 'What is the "z" shorthand?',
-      a: 'In the Adobe and btoa variants a group of four zero bytes is written as a single "z" instead of "!!!!!". The btoa variant additionally writes four spaces as "y".',
-    },
-    {
-      q: 'Why does Z85 reject my input?',
-      a: 'Z85 (ZeroMQ RFC 32) is only defined for byte lengths that are a multiple of 4, and encoded lengths that are a multiple of 5. It has no padding, so partial groups are an error.',
-    },
-    {
-      q: 'Does the Adobe variant need the <~ ~> delimiters?',
-      a: 'When decoding they are optional — the tool strips them if present. When encoding with the Adobe variant they are always added.',
-    },
-  ],
   related: ['base64', 'base32', 'base58', 'hex'],
   status: 'stable',
 };

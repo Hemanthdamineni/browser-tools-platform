@@ -1,0 +1,81 @@
+---
+/**
+ * Keyboard-shortcuts help dialog. Opened with `?` or the header help button.
+ * The chord list is the single source of truth in `./keyboard.ts` so the help
+ * never drifts from what the page actually wires.
+ */
+import { SHORTCUTS } from './keyboard';
+---
+
+<dialog id="shortcuts-dialog" class="shortcuts-dialog" aria-labelledby="shortcuts-title">
+  <div class="flex items-center justify-between border-b px-4 py-3">
+    <h2 id="shortcuts-title" class="text-sm font-semibold text-[rgb(var(--text))]">
+      Keyboard shortcuts
+    </h2>
+    <form method="dialog">
+      <button type="submit" value="close" class="kbd" aria-label="Close shortcuts">Esc</button>
+    </form>
+  </div>
+  <dl class="max-h-[60vh] space-y-2.5 overflow-y-auto p-4">
+    {
+      SHORTCUTS.map((s) => (
+        <div class="flex items-center justify-between gap-6">
+          <dt class="text-sm text-[rgb(var(--text-muted))]">
+            {s.label}
+            {s.note && <span class="block text-xs text-[rgb(var(--text-faint))]">({s.note})</span>}
+          </dt>
+          <dd class="shrink-0">
+            {s.tokens.map((token, i) => (
+              <Fragment>
+                {i > 0 && <span class="mx-0.5 text-xs text-[rgb(var(--text-faint))]">+</span>}
+                <kbd class="kbd">{token}</kbd>
+              </Fragment>
+            ))}
+          </dd>
+        </div>
+      ))
+    }
+    <p class="border-t pt-3 text-xs leading-relaxed text-[rgb(var(--text-muted))]">
+      Shortcuts are ignored while you are typing in an input, a textarea or a select.
+    </p>
+  </dl>
+</dialog>
+
+<script>
+  const dialog = document.getElementById('shortcuts-dialog') as HTMLDialogElement | null;
+  const trigger = document.getElementById('shortcuts-open');
+
+  let lastTrigger: Element | null = null;
+
+  function open() {
+    if (!dialog || dialog.open) return;
+    lastTrigger = document.activeElement;
+    dialog.showModal();
+  }
+
+  window.addEventListener('toolbench:shortcuts', open);
+  trigger?.addEventListener('click', open);
+  dialog?.addEventListener('close', () => {
+    if (lastTrigger instanceof HTMLElement) lastTrigger.focus();
+    lastTrigger = null;
+  });
+</script>
+
+<style>
+  .shortcuts-dialog {
+    margin: auto;
+    padding: 0;
+    width: 100%;
+    max-width: 24rem;
+    border-radius: 0.75rem;
+    border: 1px solid rgb(var(--border));
+    background-color: rgb(var(--surface-raised));
+    color: rgb(var(--text));
+    box-shadow: var(--shadow-lg);
+  }
+  .shortcuts-dialog::backdrop {
+    background-color: rgb(29 29 27 / 0.45);
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
+  }
+</style>

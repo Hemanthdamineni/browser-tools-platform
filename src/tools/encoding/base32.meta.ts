@@ -43,13 +43,8 @@ export const meta: ToolMeta = {
   examples: [
     { title: 'Encode "hello"', input: 'hello', options: { mode: 'encode' } },
     { title: 'Decode', input: 'NBSWY3DP', options: { mode: 'decode' } },
+    { title: 'Encode with Crockford', input: 'Hello', options: { variant: 'crockford' } },
   ],
-  faq: [
-    {
-      q: 'Why use Base32 over Base64?',
-      a: 'Base32 is case-insensitive and avoids look-alike characters, so it survives being read aloud, typed by hand, or put in a filename or URL. TOTP secrets use it.',
-    },
-  ],
-  related: ['base64', 'hex', 'otp-secret'],
+  related: ['base64', 'base58', 'hex'],
   status: 'stable',
 };

@@ -33,13 +33,8 @@ export const meta: ToolMeta = {
   examples: [
     { title: 'To ASCII', input: 'münchen.de' },
     { title: 'To Unicode', input: 'xn--mnchen-3ya.de', options: { mode: 'to-unicode' } },
+    { title: 'A Cyrillic domain', input: 'пример.рф' },
   ],
-  faq: [
-    {
-      q: 'Is every label validated for length?',
-      a: 'No — this tool performs the RFC 3492 code conversion only. DNS label length limits (63 bytes) and whole-domain validation are the responsibility of your registrar or DNS tooling.',
-    },
-  ],
-  related: ['url-parse', 'url-encode', 'unicode-escape'],
+  related: ['url-parse', 'url-encode', 'unicode-normalize'],
   status: 'stable',
 };

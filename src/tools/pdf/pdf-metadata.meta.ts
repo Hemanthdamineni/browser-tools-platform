@@ -1,5 +1,5 @@
 import type { ToolMeta } from '@/lib/types';
-import { pdfCredit } from './shared';
+import { pdfCredit } from './credits';
 export const meta: ToolMeta = {
   id: 'pdf-metadata',
   name: 'View / Edit PDF Metadata',
@@ -23,6 +23,7 @@ export const meta: ToolMeta = {
   examples: [
     { title: 'View PDF metadata' },
     { title: 'Set a title', options: { title: 'My document' } },
+    { title: 'Strip all metadata', options: { clearAll: true } },
   ],
   related: ['pdf-page-numbers', 'pdf-watermark', 'image-metadata'],
   credits: [pdfCredit],

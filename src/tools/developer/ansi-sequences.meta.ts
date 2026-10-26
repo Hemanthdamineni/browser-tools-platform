@@ -47,20 +47,6 @@ export const meta: ToolMeta = {
       options: { operation: 'analyze' },
     },
   ],
-  faq: [
-    {
-      q: 'Which codes are recognized?',
-      a: 'CSI sequences are recognized by their ESC [ prefix and final byte; OSC sequences begin with ESC ] and end with BEL or ESC backslash. Other C1 or terminal-specific controls are not interpreted.',
-    },
-    {
-      q: 'Does stripping ANSI codes remove all control characters?',
-      a: 'No. This utility removes recognized CSI and OSC sequences only. Newlines, tabs, carriage returns and unsupported control bytes are preserved.',
-    },
-    {
-      q: 'Can OSC sequences contain sensitive links?',
-      a: 'OSC payloads are shown literally in analysis and visualization output. Avoid sharing the output if it contains private terminal hyperlinks or commands.',
-    },
-  ],
-  related: ['backslash-escape', 'string-escape', 'html-to-text'],
+  related: ['string-escape', 'html-to-text'],
   status: 'stable',
 };

@@ -60,16 +60,6 @@ export const meta: ToolMeta = {
       options: { count: 8, separator: 'custom', custom: ' ' },
     },
   ],
-  faq: [
-    {
-      q: 'Is there a size limit?',
-      a: 'Yes — the output is capped at 5,000,000 characters. If you exceed it, reduce the number of copies.',
-    },
-    {
-      q: 'Can the separator be more than one character?',
-      a: 'Yes. Choose "Custom…" and type any literal string, including spaces. It is inserted verbatim between copies, not before the first or after the last.',
-    },
-  ],
   related: ['reverse-text', 'case-convert', 'sort-lines', 'dedupe-lines'],
   status: 'stable',
 };

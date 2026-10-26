@@ -56,23 +56,10 @@ export const meta: ToolMeta = {
       input: '{"book":{"@id":"1","title":"Dune","author":"Herbert"}}',
       options: { mode: 'json-to-xml' },
     },
-  ],
-  faq: [
     {
-      q: 'Is my XML uploaded?',
-      a: 'No. Parsing and serialization run entirely inside your browser tab.',
-    },
-    {
-      q: 'Why do repeated elements become arrays?',
-      a: 'JSON objects cannot hold duplicate keys, so sibling elements sharing a name are collected into an array — a single occurrence stays a plain object or string.',
-    },
-    {
-      q: 'Do comments survive a round trip?',
-      a: 'No. Comments, processing instructions and DOCTYPE declarations are ignored; element data, attributes, text and CDATA content are preserved.',
-    },
-    {
-      q: 'Are values converted to numbers or booleans?',
-      a: 'Not by default — everything is kept as a string so the conversion is lossless. Numbers are only emitted when you convert a JSON document containing real numbers back to XML.',
+      title: 'Pull only the text, ignoring attributes',
+      input: '<book id="1"><title>Dune</title><author>Herbert</author></book>',
+      options: { attributes: 'ignore' },
     },
   ],
   related: ['xml-format', 'json-to-yaml', 'yaml-to-json', 'toml-convert'],

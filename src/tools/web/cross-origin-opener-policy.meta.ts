@@ -48,20 +48,7 @@ export const meta: ToolMeta = {
       title: 'Build a popup-compatible policy',
       options: { mode: 'build', value: 'same-origin-allow-popups' },
     },
-  ],
-  faq: [
-    {
-      q: 'What does COOP isolate?',
-      a: 'It controls whether a document shares a browsing context group with cross-origin windows, affecting window.opener relationships and popup communication.',
-    },
-    {
-      q: 'Does COOP alone enable cross-origin isolation?',
-      a: 'No. Cross-origin isolation commonly also requires compatible Cross-Origin-Embedder-Policy and resource headers.',
-    },
-    {
-      q: 'What is the popup tradeoff?',
-      a: 'same-origin is stricter, while same-origin-allow-popups preserves selected opener relationships but provides less isolation.',
-    },
+    { title: 'Assess the no-isolation default', input: 'unsafe-none' },
   ],
   related: ['cross-origin-resource-policy', 'origin-agent-cluster', 'security-headers'],
   status: 'stable',

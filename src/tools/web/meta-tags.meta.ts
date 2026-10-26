@@ -55,11 +55,20 @@ export const meta: ToolMeta = {
         imageUrl: 'https://example.com/cover.png',
       },
     },
-  ],
-  faq: [
     {
-      q: 'Why are attribute values escaped?',
-      a: 'Quotes and angle brackets are escaped (&quot; &lt; &gt; &amp;) so the generated HTML is safe to paste even when your title contains special characters.',
+      title: 'Minimal page',
+      options: { title: 'Widget Pro', description: 'A small widget that does a lot.' },
+    },
+    {
+      title: 'Article with a small card',
+      options: {
+        title: 'Release notes 2.0',
+        description: 'What changed in the 2.0 release.',
+        canonicalUrl: 'https://example.com/blog/2-0',
+        ogType: 'article',
+        twitterCard: 'summary',
+        siteName: 'Example',
+      },
     },
   ],
   related: ['robots-txt', 'gitignore', 'url-parse'],

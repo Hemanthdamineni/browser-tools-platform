@@ -84,19 +84,24 @@ export const meta: ToolMeta = {
         body: '{"name":"Ada"}',
       },
     },
-  ],
-  faq: [
     {
-      q: 'What exactly do I get?',
-      a: 'A raw HTTP/1.1 message: the request line (METHOD path?query HTTP/1.1), headers, an empty line, and the body. Suitable for debugging proxies, socket tools and netcat.',
+      title: 'A GET with a custom header',
+      input: '',
+      options: {
+        method: 'GET',
+        url: 'https://api.example.com/items?page=1',
+        headers: 'Accept: application/json\nX-API-Key: abc123',
+      },
     },
     {
-      q: 'How are Host and Content-Length handled?',
-      a: 'Host is taken from the URL origin unless you already define it; Content-Length is set from the body bytes when present (both can be overridden or disabled with the options).',
-    },
-    {
-      q: 'Is this the same as a code generator?',
-      a: 'No — this emits the raw wire-format request text. Tools like curl-to-fetch or curl-to-code generate programming-language snippets instead.',
+      title: 'A relative request against HTTP/1.0',
+      input: '',
+      options: {
+        method: 'DELETE',
+        url: '/items/42',
+        version: '1.0',
+        addHost: false,
+      },
     },
   ],
   related: ['curl-to-fetch', 'curl-to-code', 'http-status', 'http-range'],

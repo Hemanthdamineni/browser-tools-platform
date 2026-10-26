@@ -77,20 +77,6 @@ export const meta: ToolMeta = {
       options: { pattern: ',\\s*', mode: 'split' },
     },
   ],
-  faq: [
-    {
-      q: 'Which regex flavor is used?',
-      a: 'JavaScript (ECMAScript) regular expressions, evaluated with your browser’s built-in RegExp engine.',
-    },
-    {
-      q: 'How are capture groups shown?',
-      a: 'In "List matches" mode the Groups column is a JSON object keyed by group number ("1", "2", …) plus any named groups.',
-    },
-    {
-      q: 'Why did I get an "Invalid flags" error?',
-      a: 'Only g, i, m, s, u and y are accepted, and each flag may appear once.',
-    },
-  ],
   related: ['find-replace', 'cron-parser', 'slugify', 'case-convert'],
   status: 'stable',
 };

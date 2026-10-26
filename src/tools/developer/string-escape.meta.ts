@@ -117,28 +117,6 @@ export const meta: ToolMeta = {
       options: { target: 'unicode', mode: 'escape', style: 'js' },
     },
   ],
-  faq: [
-    {
-      q: 'Does the JSON target add surrounding quotes?',
-      a: 'Yes. JSON strings are quoted by definition, so escaping produces a complete "…" literal and unescaping accepts one with or without the outer quotes.',
-    },
-    {
-      q: 'How does the shell target escape a string?',
-      a: "It wraps the whole value in single quotes and rewrites every embedded ' as '\\'' , which is safe for POSIX sh and bash.",
-    },
-    {
-      q: 'Which unescape operations can fail?',
-      a: 'URL unescaping throws on malformed percent-encoding, JSON unescaping throws when the text is not a valid JSON string, and the generic backslash target throws on a malformed \\u{…} code point.',
-    },
-    {
-      q: 'What happens to an unknown backslash escape like \\q?',
-      a: 'The generic backslash target drops the backslash, keeps the letter, and lists every distinct unknown escape in a note under the output.',
-    },
-    {
-      q: 'Does escaping Unicode depend on the escape direction?',
-      a: 'The style and "which characters" options apply when escaping. Unescaping accepts every form at once — \\uXXXX, \\u{…}, \\xXX, \\UXXXXXXXX, U+XXXX, &#xHHHH; and CSS \\HHHHHH — so mixed input just works.',
-    },
-  ],
   related: ['html-entities', 'url-encode', 'hex', 'base64'],
   status: 'stable',
 };

@@ -57,19 +57,9 @@ export const meta: ToolMeta = {
         httpOnly: true,
       },
     },
-  ],
-  faq: [
     {
-      q: 'Does this handle browser cookies?',
-      a: 'No. It only formats and analyzes header text locally. It does not read your browser cookie jar, set cookies, or make network requests.',
-    },
-    {
-      q: 'Why are Secure and HttpOnly recommended?',
-      a: 'Secure limits transmission to HTTPS, while HttpOnly prevents JavaScript from reading the cookie. Whether they are appropriate depends on the application and deployment.',
-    },
-    {
-      q: 'Is SameSite=None always valid?',
-      a: 'Modern browsers generally require SameSite=None cookies to also include Secure. The analyzer flags that combination when Secure is absent.',
+      title: 'Analyze a cookie missing its security flags',
+      input: 'id=1234; Path=/; Domain=.example.com',
     },
   ],
   related: ['security-headers', 'url-encode', 'basic-auth'],

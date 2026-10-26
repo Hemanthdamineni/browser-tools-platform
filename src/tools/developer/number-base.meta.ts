@@ -63,20 +63,6 @@ export const meta: ToolMeta = {
       options: { fromBase: 16, toBase: 2, groupDigits: true },
     },
   ],
-  faq: [
-    {
-      q: 'How large a number can it handle?',
-      a: 'Any size. Parsing and conversion use BigInt, so there is no 53-bit floating-point limit.',
-    },
-    {
-      q: 'What input formats are accepted?',
-      a: 'An optional leading minus sign, an optional 0x / 0o / 0b prefix, and digits 0-9 then a-z for values 10-35. Underscores, spaces, commas and apostrophes are stripped.',
-    },
-    {
-      q: 'What happens if a digit is invalid for the chosen base?',
-      a: 'The tool reports which character is out of range for the "from base" you selected.',
-    },
-  ],
   related: ['hex', 'chmod-calculator', 'hash-identifier', 'base32'],
   status: 'stable',
 };

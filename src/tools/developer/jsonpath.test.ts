@@ -92,4 +92,20 @@ describe('jsonpath', () => {
     await expect(run('   \n')).rejects.toThrow(/expression/i);
     await expect(run('$.a\n{not json')).rejects.toThrow(/invalid json/i);
   });
+
+  it('runs the "Extract an array of names" example without throwing', async () => {
+    const r = await run(
+      '$.users[*].name\n{"users":[{"name":"Ada"},{"name":"Linus"},{"name":"Grace"}]}',
+    );
+    expect(parsed(r)).toEqual(['Ada', 'Linus', 'Grace']);
+    expect(r.output.length).toBeGreaterThan(0);
+  });
+
+  it('runs the "Filter objects where price is above a threshold" example without throwing', async () => {
+    const r = await run(
+      '$.products[?(@.price > 20)].name\n{"products":[{"name":"Keyboard","price":25},{"name":"Cable","price":8}]}',
+    );
+    expect(parsed(r)).toEqual(['Keyboard']);
+    expect(r.output.length).toBeGreaterThan(0);
+  });
 });

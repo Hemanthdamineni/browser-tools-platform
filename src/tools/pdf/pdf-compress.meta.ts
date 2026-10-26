@@ -1,5 +1,5 @@
 import type { ToolMeta } from '@/lib/types';
-import { fflateCredit, pdfCredit } from './shared';
+import { fflateCredit, pdfCredit } from './credits';
 export const meta: ToolMeta = {
   id: 'pdf-compress',
   name: 'Compress PDF',
@@ -50,20 +50,7 @@ export const meta: ToolMeta = {
   examples: [
     { title: 'Compress a PDF (balanced)' },
     { title: 'Strong compression', options: { preset: 'strong' } },
-  ],
-  faq: [
-    {
-      q: 'Is my PDF uploaded anywhere?',
-      a: 'No. The whole process runs in a Web Worker on your device; the file never leaves your browser.',
-    },
-    {
-      q: 'What if the result is bigger?',
-      a: 'You get the original file back untouched and a note saying compression would not have helped.',
-    },
-    {
-      q: 'Why did the size barely change?',
-      a: 'pdf-lib can rebuild streams and re-encode raster pictures, but it cannot re-compress text or vector artwork, and it cannot transcode JPEG 2000, CCITT fax or transparency masks.',
-    },
+    { title: 'Custom limits', options: { preset: 'custom', maxEdge: 1200, quality: 80 } },
   ],
   related: ['pdf-to-images', 'pdf-merge', 'image-compress'],
   credits: [pdfCredit, fflateCredit],

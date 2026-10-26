@@ -78,40 +78,10 @@ export const meta: ToolMeta = {
       help: 'How many colours the GIF may use, and whether each frame gets its own palette.',
     },
   ],
-  examples: [{ title: 'Convert a clip to an animated GIF', options: {} }],
-  faq: [
-    {
-      q: 'What happens to the audio?',
-      a: 'It is dropped — a GIF is a sequence of images and has no sound. Use a video converter if you need to keep the audio.',
-    },
-    {
-      q: 'Can I check the result before saving it?',
-      a: 'Yes. The finished animation is shown above the download, so you can look at the range, the size and the colours before you save the file.',
-    },
-    {
-      q: 'Does the GIF loop?',
-      a: 'Yes, it loops forever — that is how the GIF format works. The preview animates on the page as well.',
-    },
-    {
-      q: 'How do I keep the file small?',
-      a: 'Lower the frame rate and the width, and pick the "Small file" palette quality. A 480-pixel-wide GIF at 10 fps is a good starting point for social media.',
-    },
-    {
-      q: 'Why is the preview a different size from the clip?',
-      a: 'The GIF is scaled to the width you asked for and the height follows the clip’s aspect ratio, so the frame is never stretched.',
-    },
-    {
-      q: 'How long a clip can I convert?',
-      a: 'At most 300 frames, which is 30 seconds at 10 fps or 10 seconds at 30 fps. The tool says so up front instead of freezing the tab.',
-    },
-    {
-      q: 'Is my video uploaded anywhere?',
-      a: 'No. The clip is demuxed, decoded and encoded in your browser. The page works offline once it has loaded.',
-    },
-    {
-      q: 'Which videos are supported?',
-      a: 'Anything this browser can decode — usually H.264 or VP8/VP9 in MP4, MOV or WebM. If the codec is not supported, the tool says so instead of producing a broken GIF.',
-    },
+  examples: [
+    { title: 'Convert a clip to an animated GIF', options: {} },
+    { title: 'Trim a five-second moment', options: { start: 4, end: 9, fps: 15, width: 640 } },
+    { title: 'Smallest possible loop', options: { fps: 8, width: 320, palette: 'small' } },
   ],
   credits: [
     { name: 'mediabunny', url: 'https://mediabunny.dev', license: 'MPL-2.0' },

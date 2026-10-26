@@ -43,20 +43,6 @@ export const meta: ToolMeta = {
       options: { mode: 'build', origins: 'https://metrics.example.com' },
     },
   ],
-  faq: [
-    {
-      q: 'What does Timing-Allow-Origin control?',
-      a: 'It whitelists origins that are allowed to read cross-origin resource timing metrics from PerformanceResourceTiming.',
-    },
-    {
-      q: 'What does the wildcard grant?',
-      a: 'A * value allows any origin to read timing data, which can expose load-duration details.',
-    },
-    {
-      q: 'Is it related to CORS?',
-      a: 'It is a separate header from CORS but serves a similar allowlisting role specifically for performance timing data.',
-    },
-  ],
   related: ['http-header-analyzer', 'security-headers', 'cross-origin-resource-policy'],
   hidden: true,
   redirectTo: 'http-header-analyzer',

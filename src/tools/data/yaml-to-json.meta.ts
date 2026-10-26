@@ -47,15 +47,10 @@ export const meta: ToolMeta = {
       input: 'b: 2\na: 1\n',
       options: { sortKeys: true, indent: 'tab' },
     },
-  ],
-  faq: [
     {
-      q: 'Which YAML version is supported?',
-      a: 'YAML 1.2 core schema, including anchors and aliases, via the yaml package. Invalid documents raise a friendly error.',
-    },
-    {
-      q: 'Does sorting recurse into nested objects?',
-      a: 'Yes. Every object in the tree has its keys sorted; array order is always preserved.',
+      title: 'Nested config with four-space indent',
+      input: 'server:\n  host: localhost\n  ports:\n    - 80\n    - 443\n',
+      options: { indent: '4' },
     },
   ],
   related: ['json-to-yaml', 'csv-to-json', 'json-to-csv'],

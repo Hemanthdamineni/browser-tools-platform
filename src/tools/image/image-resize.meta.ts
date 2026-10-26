@@ -52,12 +52,12 @@ export const meta: ToolMeta = {
     },
     { key: 'upscale', label: 'Allow upscaling', type: 'boolean', default: false },
   ],
-  examples: [{ title: 'Fit within 800 × 600', options: { mode: 'fit', width: 800, height: 600 } }],
-  faq: [
-    { q: 'Are images uploaded?', a: 'No. Images are processed locally in your browser.' },
+  examples: [
+    { title: 'Fit within 800 × 600', options: { mode: 'fit', width: 800, height: 600 } },
+    { title: 'Shrink to 50%', options: { mode: 'percent', percent: 50 } },
     {
-      q: 'Does it respect photo orientation?',
-      a: 'Yes — EXIF orientation is applied while decoding so portrait photos are not rotated.',
+      title: 'Export as JPEG at 80% quality',
+      options: { mode: 'fit', width: 1280, height: 720, format: 'jpeg', quality: 80 },
     },
   ],
   related: ['image-compress', 'image-convert', 'image-crop'],

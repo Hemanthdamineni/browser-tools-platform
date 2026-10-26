@@ -47,16 +47,6 @@ export const meta: ToolMeta = {
       options: { mode: 'generate' },
     },
   ],
-  faq: [
-    {
-      q: 'What do the 12 bytes mean?',
-      a: 'Bytes 0-3 are a big-endian Unix timestamp in seconds, bytes 4-8 are a random value fixed per process, and bytes 9-11 are a counter that increments for each id.',
-    },
-    {
-      q: 'Is the generated id the same as the MongoDB driver would make?',
-      a: 'It has the same structure and a valid timestamp. The random and counter bytes come from crypto.getRandomValues rather than a persistent per-process seed.',
-    },
-  ],
-  related: ['snowflake', 'uuid', 'uuid-namespace', 'unix-time'],
+  related: ['snowflake', 'uuid', 'uuid-namespace', 'timestamp'],
   status: 'stable',
 };

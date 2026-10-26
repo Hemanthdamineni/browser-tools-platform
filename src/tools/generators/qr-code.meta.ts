@@ -69,15 +69,10 @@ export const meta: ToolMeta = {
       input: 'MyNet',
       options: { contentType: 'wifi', wifiPassword: 'secret' },
     },
-  ],
-  faq: [
     {
-      q: 'Why SVG?',
-      a: 'SVG scales to any size without blurring, and the file is tiny. Paste it into a design tool or embed it directly in a page.',
-    },
-    {
-      q: 'Which error-correction level should I pick?',
-      a: 'M is the usual default. Choose H when the code may be printed small, worn, or partly covered — higher levels let scanners still decode a damaged code.',
+      title: 'Printed geo sticker with high error correction',
+      input: 'geo:48.8584,2.2945',
+      options: { contentType: 'geo', ecc: 'H', cellSize: 8, margin: 2, dark: '#1a1a1a' },
     },
   ],
   related: ['placeholder-svg', 'data-uri', 'vcard'],

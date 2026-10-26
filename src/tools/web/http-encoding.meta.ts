@@ -58,19 +58,9 @@ export const meta: ToolMeta = {
       title: 'Build an Accept-Encoding header',
       options: { mode: 'build', header: 'accept', codings: 'br, gzip, deflate' },
     },
-  ],
-  faq: [
     {
-      q: 'What does q mean?',
-      a: 'The q-value expresses relative preference from 0 to 1. A coding with q=0 is explicitly unacceptable.',
-    },
-    {
-      q: 'What is identity?',
-      a: 'identity means no content coding. It is generally acceptable unless explicitly assigned q=0 or excluded by a wildcard rule.',
-    },
-    {
-      q: 'Does this compress data?',
-      a: 'No. It only builds and analyzes negotiation headers; it never transforms a response body.',
+      title: 'Build a Content-Encoding header',
+      options: { mode: 'build', header: 'content', codings: 'gzip' },
     },
   ],
   related: ['gzip', 'mime-lookup', 'http-status'],

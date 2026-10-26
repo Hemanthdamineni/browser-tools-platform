@@ -177,6 +177,15 @@ const p = meta.id;
 </section>
 
 <script>
+  import { onRunShortcutClick } from '@/components/keyboard';
+
+  // Ctrl/⌘+Enter runs the current tool (the "Sign PDF" button).
+  document
+    .querySelectorAll<HTMLElement>('[data-signature-workbench]')
+    .forEach((root) => onRunShortcutClick(root, window));
+</script>
+
+<script>
   document.querySelectorAll<HTMLElement>('[data-signature-workbench]').forEach((root) => {
     // Loaded on demand: the signing panel is only used by the PDF signer.
     void import('./signature-workbench')

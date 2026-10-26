@@ -283,21 +283,23 @@ export interface TrimSettings {
  * An empty value means "not set" — the caller decides what that means (the
  * start of the clip, or the end of it).
  */
-function readTime(
-  value: unknown,
-  fallback: number | null,
-  label: string,
-): number | null {
+function readTime(value: unknown, fallback: number | null, label: string): number | null {
   if (value === undefined || value === null) return fallback;
   if (typeof value === 'boolean') {
     throw new ToolError(`${label} must be a time.`, 'Use SS, M:SS or H:MM:SS — for example 0:05.');
   }
   if (typeof value === 'number') {
     if (!Number.isFinite(value)) {
-      throw new ToolError(`${label} must be a time.`, 'Use SS, M:SS or H:MM:SS — for example 0:05.');
+      throw new ToolError(
+        `${label} must be a time.`,
+        'Use SS, M:SS or H:MM:SS — for example 0:05.',
+      );
     }
     if (value < 0) {
-      throw new ToolError(`${label} must be 0 seconds or more.`, 'A cut cannot start before the clip does.');
+      throw new ToolError(
+        `${label} must be 0 seconds or more.`,
+        'A cut cannot start before the clip does.',
+      );
     }
     return value;
   }
@@ -496,8 +498,7 @@ export function classifyTrimMode(facts: TrimModeFacts): TrimModeVerdict {
   if (lossless) {
     label = 'Stream copy — the encoded packets were copied untouched, so the cut is lossless.';
   } else if (kind === 'copy') {
-    label =
-      'Stream copy — the encoded packets were reused, but the codec could not be verified.';
+    label = 'Stream copy — the encoded packets were reused, but the codec could not be verified.';
   } else if (kind === 'mixed') {
     label = 'Mixed — some tracks were copied, others were re-encoded.';
   } else {
@@ -610,10 +611,7 @@ export function buildTrimReport(facts: TrimReportFacts): {
     ['Output duration', formatTimecode(facts.rangeSeconds)],
     ['Output container', `${facts.container.label} (${facts.container.mimeType})`],
     ['How the cut was made', facts.verdict.label],
-    [
-      'Video codec',
-      codecRow(facts.inputVideoCodec, facts.outputVideoCodec, facts.verdict.video),
-    ],
+    ['Video codec', codecRow(facts.inputVideoCodec, facts.outputVideoCodec, facts.verdict.video)],
     ['Audio codec', codecRow(facts.inputAudioCodec, facts.outputAudioCodec, facts.verdict.audio)],
   ];
 
