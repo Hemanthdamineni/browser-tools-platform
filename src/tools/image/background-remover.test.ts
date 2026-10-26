@@ -1,504 +1,511 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ToolError } from '@/lib/types';
+import { setMlRuntimeLoader, type MlRuntime, type MlRuntimeEnv } from '@/lib/ml';
 import tool, {
   MODEL_ID,
-  MODEL_TASK,
-  setMatteProducer,
-  type MatteResult,
-} from './background-remover.tool';
-import {
-  MAX_INPUT_BYTES,
-  MAX_INPUT_PIXELS,
-  OUTPUT_MIME,
-  applyCutoff,
-  assertInputBytes,
-  assertInputPixels,
-  composite,
-  matteCoverage,
-  modelProgressUpdate,
-  normalizeCutoff,
+  compositePixels,
+  cutout,
+  matteToAlpha,
   outputFilename,
   resolveBackground,
-} from './background-remover.core';
-import { installImageMock, makeFile, pixelAt, type MockHandle } from './image-mock';
+  resolveFormat,
+  resolveQuality,
+  resolveThreshold,
+  type MattingMask,
+  type SegmentationSegment,
+} from './background-remover.tool';
+import { blobPixels, installImageMock, makeFile, pixelAt, type MockHandle } from './image-mock';
+import { meta } from './background-remover.meta';
+
+/* -------------------------------------------------------------------------- */
+/*  Fixtures                                                                  */
+/* -------------------------------------------------------------------------- */
+
+const SOURCE: [number, number, number, number] = [200, 100, 50, 255];
+
+function maskOf(width: number, height: number, values: number[], channels = 1): MattingMask {
+  return { data: Uint8ClampedArray.from(values), width, height, channels };
+}
+
+/** A full-strength matte: every pixel is fully subject. */
+function opaqueSegment(width: number, height: number): SegmentationSegment {
+  const values = new Array<number>(width * height).fill(255);
+  return { label: null, score: null, mask: maskOf(width, height, values) };
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Harness                                                                   */
+/* -------------------------------------------------------------------------- */
 
 let mock: MockHandle | undefined;
 
 afterEach(() => {
   mock?.restore();
   mock = undefined;
-  setMatteProducer(null);
+  setMlRuntimeLoader(null);
 });
 
-const png = (name = 'photo.png') => makeFile(name, 'image/png');
-
-/** Build a matte of `size`×`size` whose left half is empty and right half opaque. */
-function halfMatte(size = 4): MatteResult {
-  const data = new Uint8ClampedArray(size * size);
-  for (let y = 0; y < size; y++) {
-    for (let x = 0; x < size; x++) {
-      data[y * size + x] = x >= size / 2 ? 255 : 0;
-    }
-  }
-  return { data, width: size, height: size };
-}
-
-/** A matte whose every pixel is transparent. */
-function emptyMatte(size = 4): MatteResult {
-  return { data: new Uint8ClampedArray(size * size), width: size, height: size };
-}
-
-/** A matte whose every pixel is fully opaque. */
-function fullMatte(size = 4): MatteResult {
-  return { data: new Uint8ClampedArray(size * size).fill(255), width: size, height: size };
-}
-
-/** Install a producer that always returns `matte`. */
-function useProducer(matte: MatteResult = halfMatte()) {
-  const producer = vi.fn(async () => matte);
-  setMatteProducer(producer);
-  return producer;
+/**
+ * Install a fake image stack (decode + canvas) and a fake ML runtime whose
+ * `image-segmentation` pipeline returns the mattes produced by `segmenter`.
+ */
+function installStack(
+  segmenter: (input: unknown, call: number) => SegmentationSegment[] | SegmentationSegment,
+  config: Parameters<typeof installImageMock>[0] = {},
+) {
+  mock = installImageMock({ width: 4, height: 4, color: SOURCE, pixelOutput: true, ...config });
+  const inputs: unknown[] = [];
+  const pipeline = vi.fn(async (input: unknown) => {
+    const call = inputs.length;
+    inputs.push(input);
+    return segmenter(input, call);
+  });
+  const requested: { task: string; model: string }[] = [];
+  const factory = vi.fn(async (task: string, model: string) => {
+    requested.push({ task, model });
+    return pipeline;
+  });
+  const env: MlRuntimeEnv = {
+    allowLocalModels: true,
+    allowRemoteModels: true,
+    useBrowserCache: true,
+    useCustomCache: false,
+    customCache: null,
+    remoteHost: 'https://huggingface.co/',
+    remotePathTemplate: '{model}/resolve/{revision}/{file}',
+    fetch: (async () => new Response()) as MlRuntimeEnv['fetch'],
+  };
+  setMlRuntimeLoader(() => Promise.resolve({ env, pipeline: factory } as unknown as MlRuntime));
+  return { pipeline, factory, requested, inputs };
 }
 
 /* -------------------------------------------------------------------------- */
-/*  resolveBackground                                                          */
+/*  matteToAlpha                                                              */
+/* -------------------------------------------------------------------------- */
+
+describe('matteToAlpha', () => {
+  it('passes a single-channel matte through unchanged', () => {
+    const alpha = matteToAlpha(maskOf(2, 1, [0, 255]), 2, 1);
+    expect([...alpha]).toEqual([0, 255]);
+  });
+
+  it('nearest-neighbour upscales a small matte to the source size', () => {
+    const alpha = matteToAlpha(maskOf(2, 1, [10, 20]), 4, 1);
+    expect([...alpha]).toEqual([10, 10, 20, 20]);
+  });
+
+  it('downsamples by dropping pixels, never by reading out of bounds', () => {
+    const alpha = matteToAlpha(maskOf(4, 1, [1, 2, 3, 4]), 2, 1);
+    expect([...alpha]).toEqual([1, 3]);
+  });
+
+  it('takes the alpha plane of a 4-channel matte', () => {
+    const alpha = matteToAlpha(maskOf(2, 1, [9, 9, 9, 0, 9, 9, 9, 255], 4), 2, 1);
+    expect([...alpha]).toEqual([0, 255]);
+  });
+
+  it('takes the second channel of a gray+alpha matte', () => {
+    const alpha = matteToAlpha(maskOf(2, 1, [0, 40, 0, 200], 2), 2, 1);
+    expect([...alpha]).toEqual([40, 200]);
+  });
+
+  it('converts a 3-channel matte to luminance', () => {
+    const alpha = matteToAlpha(maskOf(2, 1, [255, 255, 255, 0, 0, 0], 3), 2, 1);
+    expect([...alpha]).toEqual([255, 0]);
+  });
+
+  it('rejects a matte with no dimensions', () => {
+    expect(() => matteToAlpha(maskOf(0, 0, []), 2, 2)).toThrow(/empty matte/i);
+  });
+
+  it('rejects a truncated matte', () => {
+    expect(() => matteToAlpha(maskOf(4, 4, [1, 2, 3]), 4, 4)).toThrow(/truncated matte/i);
+  });
+
+  it('rejects an unsupported channel count', () => {
+    expect(() => matteToAlpha(maskOf(1, 1, [1], 5), 1, 1)).toThrow(/channel count/i);
+  });
+});
+
+/* -------------------------------------------------------------------------- */
+/*  compositePixels                                                           */
+/* -------------------------------------------------------------------------- */
+
+describe('compositePixels', () => {
+  const source = new Uint8ClampedArray([200, 100, 50, 255, 10, 20, 30, 255]);
+
+  it('keeps the source colour and writes the matte into the alpha channel', () => {
+    const out = compositePixels(source, new Uint8ClampedArray([0, 128]), { kind: 'transparent' });
+    expect([...out]).toEqual([200, 100, 50, 0, 10, 20, 30, 128]);
+  });
+
+  it('flattens a solid background behind the subject', () => {
+    const out = compositePixels(source, new Uint8ClampedArray([0, 255]), {
+      kind: 'solid',
+      r: 255,
+      g: 0,
+      b: 0,
+    });
+    expect([...out]).toEqual([255, 0, 0, 255, 10, 20, 30, 255]);
+  });
+
+  it('blends partially transparent pixels between subject and background', () => {
+    // 50% over black gives half the source colour, rounded by Uint8ClampedArray.
+    const out = compositePixels(
+      new Uint8ClampedArray([200, 100, 50, 255]),
+      new Uint8ClampedArray([128]),
+      { kind: 'solid', r: 0, g: 0, b: 0 },
+    );
+    expect([...out]).toEqual([100, 50, 25, 255]);
+  });
+
+  it('snaps the matte to hard edges when a threshold is set', () => {
+    const soft = new Uint8ClampedArray([10, 128, 200, 254]);
+    const snapped = compositePixels(source, soft, { kind: 'transparent' }, 128);
+    expect([...snapped].filter((_, i) => i % 4 === 3)).toEqual([0, 255, 255, 255]);
+  });
+
+  it('leaves the matte untouched when the threshold is zero', () => {
+    const soft = new Uint8ClampedArray([10, 254]);
+    const out = compositePixels(source, soft, { kind: 'transparent' }, 0);
+    expect([...out].filter((_, i) => i % 4 === 3)).toEqual([10, 254]);
+  });
+});
+
+/* -------------------------------------------------------------------------- */
+/*  cutout                                                                    */
+/* -------------------------------------------------------------------------- */
+
+describe('cutout', () => {
+  it('reports how much of the frame the subject covers', () => {
+    const source = new Uint8ClampedArray(2 * 1 * 4).fill(255);
+    const result = cutout(source, 2, 1, maskOf(2, 1, [0, 255]), { kind: 'transparent' });
+    expect(result.coverage).toBeCloseTo(0.5);
+    expect([...result.pixels].filter((_, i) => i % 4 === 3)).toEqual([0, 255]);
+  });
+
+  it('rejects a source buffer that is too short for the stated size', () => {
+    expect(() =>
+      cutout(new Uint8ClampedArray(4), 2, 2, maskOf(2, 2, [255, 255, 255, 255]), {
+        kind: 'transparent',
+      }),
+    ).toThrow(/incomplete/i);
+  });
+});
+
+/* -------------------------------------------------------------------------- */
+/*  Option resolution                                                         */
 /* -------------------------------------------------------------------------- */
 
 describe('resolveBackground', () => {
-  it('treats "transparent" and an empty value as a transparent PNG', () => {
-    expect(resolveBackground('transparent')).toEqual({ rgb: null, label: 'transparent' });
-    expect(resolveBackground('TRANSPARENT')).toEqual({ rgb: null, label: 'transparent' });
-    expect(resolveBackground('')).toEqual({ rgb: null, label: 'transparent' });
-    expect(resolveBackground(undefined)).toEqual({ rgb: null, label: 'transparent' });
+  it('defaults to transparent', () => {
+    expect(resolveBackground(undefined, undefined)).toEqual({ kind: 'transparent' });
   });
 
-  it('parses 3- and 6-digit hex colours', () => {
-    expect(resolveBackground('#fff').rgb).toEqual({ r: 255, g: 255, b: 255 });
-    expect(resolveBackground('#ffffff').rgb).toEqual({ r: 255, g: 255, b: 255 });
-    expect(resolveBackground('#1a2b3c').rgb).toEqual({ r: 26, g: 43, b: 60 });
-    expect(resolveBackground('#1A2B3C').label).toBe('#1a2b3c');
+  it('parses a solid hex colour, expanding 3-digit values', () => {
+    expect(resolveBackground('solid', '#0f8')).toEqual({ kind: 'solid', r: 0, g: 255, b: 136 });
   });
 
-  it('rejects anything that is not transparent or a hex colour', () => {
-    expect(() => resolveBackground('blue')).toThrow(ToolError);
-    expect(() => resolveBackground('#12345')).toThrow(/hex colour/i);
-    expect(() => resolveBackground('rgb(0,0,0)')).toThrow(/hex colour/i);
-  });
-});
-
-/* -------------------------------------------------------------------------- */
-/*  Cutoff                                                                     */
-/* -------------------------------------------------------------------------- */
-
-describe('normalizeCutoff', () => {
-  it('accepts numbers and numeric strings', () => {
-    expect(normalizeCutoff(0)).toBe(0);
-    expect(normalizeCutoff(64)).toBe(64);
-    expect(normalizeCutoff('128')).toBe(128);
+  it('rejects an unknown background mode', () => {
+    expect(() => resolveBackground('blur', '#fff')).toThrow(/not a valid background/i);
   });
 
-  it('clamps out-of-range values', () => {
-    expect(normalizeCutoff(-10)).toBe(0);
-    expect(normalizeCutoff(999)).toBe(254);
-  });
-
-  it('falls back to 0 for values that are not numbers', () => {
-    expect(normalizeCutoff('abc')).toBe(0);
-    expect(normalizeCutoff(Number.NaN)).toBe(0);
-    expect(normalizeCutoff(undefined)).toBe(0);
-  });
-});
-
-describe('applyCutoff', () => {
-  it('is the identity when the cutoff is zero', () => {
-    for (const alpha of [0, 1, 127, 128, 254, 255]) {
-      expect(applyCutoff(alpha, 0)).toBe(alpha);
-    }
-  });
-
-  it('clears samples at or below the cutoff', () => {
-    expect(applyCutoff(0, 64)).toBe(0);
-    expect(applyCutoff(64, 64)).toBe(0);
-    expect(applyCutoff(63, 64)).toBe(0);
-  });
-
-  it('keeps a fully opaque subject opaque and rescales the rest', () => {
-    expect(applyCutoff(255, 64)).toBe(255);
-    expect(applyCutoff(128, 64)).toBe(Math.round((64 * 255) / 191));
-    expect(applyCutoff(65, 64)).toBe(Math.round((1 * 255) / 191));
-  });
-
-  it('never brightens a sample and never lowers a fully opaque one', () => {
-    for (const alpha of [0, 32, 64, 100, 200, 255]) {
-      const out = applyCutoff(alpha, 64);
-      expect(out).toBeGreaterThanOrEqual(0);
-      expect(out).toBeLessThanOrEqual(alpha);
-    }
-    expect(applyCutoff(255, 64)).toBe(255);
-  });
-
-  it('keeps a higher cutoff stricter', () => {
-    for (const alpha of [0, 32, 100, 200, 255]) {
-      expect(applyCutoff(alpha, 128)).toBeLessThanOrEqual(applyCutoff(alpha, 64));
+  it('rejects a non-hex colour for a solid background', () => {
+    try {
+      resolveBackground('solid', 'rebeccapurple');
+      expect.unreachable('expected resolveBackground to throw');
+    } catch (error) {
+      expect((error as ToolError).message).toMatch(/hex colour/i);
+      expect((error as ToolError).hint).toMatch(/#ffffff/);
     }
   });
 });
 
-/* -------------------------------------------------------------------------- */
-/*  Compositing                                                                */
-/* -------------------------------------------------------------------------- */
-
-describe('composite', () => {
-  // Three source pixels, all the same colour.
-  const source = new Uint8ClampedArray([200, 100, 50, 255, 200, 100, 50, 255, 200, 100, 50, 255]);
-  // Their mattes: fully opaque, fully transparent, half transparent.
-  const matte = new Uint8ClampedArray([255, 0, 128]);
-
-  it('keeps the alpha and the colour when the background is transparent', () => {
-    const out = composite(source, matte, 3, 1, null);
-    expect(out).toHaveLength(12);
-    expect([out[0], out[1], out[2], out[3]]).toEqual([200, 100, 50, 255]);
-    expect([out[4], out[5], out[6], out[7]]).toEqual([200, 100, 50, 0]);
-    expect(out[11]).toBe(128);
+describe('resolveFormat', () => {
+  it('maps png and webp', () => {
+    expect(resolveFormat('png')).toBe('image/png');
+    expect(resolveFormat('WEBP')).toBe('image/webp');
   });
 
-  it('flattens onto a solid colour and makes the result opaque', () => {
-    const out = composite(source, matte, 3, 1, { r: 255, g: 255, b: 255 });
-    // Fully opaque source keeps its own colour.
-    expect([out[0], out[1], out[2], out[3]]).toEqual([200, 100, 50, 255]);
-    // Fully transparent source becomes the background colour.
-    expect([out[4], out[5], out[6], out[7]]).toEqual([255, 255, 255, 255]);
-    // Half transparent source is mixed with the background.
-    expect(out[8]).toBe(Math.round(200 * (128 / 255) + 255 * (1 - 128 / 255)));
-    expect(out[11]).toBe(255);
+  it('falls back to PNG when unset', () => {
+    expect(resolveFormat(undefined)).toBe('image/png');
   });
 
-  it('applies the cutoff before compositing', () => {
-    const out = composite(source, matte, 3, 1, null, 128);
-    expect(out[11]).toBe(0); // 128 would survive without the cutoff
-    expect(out[3]).toBe(255);
-  });
-
-  it('round-trips: compositing onto the source colour changes nothing', () => {
-    const out = composite(source, matte, 3, 1, { r: 200, g: 100, b: 50 });
-    expect([out[0], out[1], out[2]]).toEqual([200, 100, 50]);
-    expect([out[4], out[5], out[6]]).toEqual([200, 100, 50]);
+  it('rejects an unsupported format', () => {
+    expect(() => resolveFormat('jpeg')).toThrow(/not a supported output format/i);
   });
 });
 
-describe('matteCoverage', () => {
-  it('reports the share of foreground pixels', () => {
-    expect(matteCoverage(new Uint8ClampedArray(8))).toBe(0);
-    expect(matteCoverage(new Uint8ClampedArray([255]))).toBe(1);
-    expect(matteCoverage(new Uint8ClampedArray([0, 255]))).toBe(0.5);
-    expect(matteCoverage(new Uint8ClampedArray(0))).toBe(0);
+describe('resolveQuality', () => {
+  it('converts a percentage to a 0..1 encoder quality', () => {
+    expect(resolveQuality(75)).toBeCloseTo(0.75);
   });
 
-  it('counts only the pixels the cutoff keeps', () => {
-    const faint = new Uint8ClampedArray([10, 200]);
-    expect(matteCoverage(faint)).toBe(1);
-    expect(matteCoverage(faint, 64)).toBe(0.5);
+  it('clamps out-of-range and non-numeric values', () => {
+    expect(resolveQuality(1)).toBeCloseTo(0.1);
+    expect(resolveQuality(1000)).toBe(1);
+    expect(resolveQuality('nonsense')).toBeCloseTo(0.9);
   });
 });
 
-/* -------------------------------------------------------------------------- */
-/*  Size guards                                                                */
-/* -------------------------------------------------------------------------- */
-
-describe('assertInputBytes', () => {
-  it('accepts a normal file', () => {
-    expect(() => assertInputBytes(1024, 'a.png')).not.toThrow();
+describe('resolveThreshold', () => {
+  it('is disabled at zero or below', () => {
+    expect(resolveThreshold(0)).toBe(0);
+    expect(resolveThreshold(-5)).toBe(0);
+    expect(resolveThreshold(undefined)).toBe(0);
   });
 
-  it('rejects an empty file', () => {
-    expect(() => assertInputBytes(0, 'a.png')).toThrow(/empty/i);
-  });
-
-  it('rejects a file above the byte ceiling', () => {
-    expect(() => assertInputBytes(MAX_INPUT_BYTES + 1, 'a.png')).toThrow(/too large/i);
-    expect(() => assertInputBytes(MAX_INPUT_BYTES, 'a.png')).not.toThrow();
-  });
-
-  it('rejects a nonsensical size', () => {
-    expect(() => assertInputBytes(Number.NaN, 'a.png')).toThrow(/readable size/i);
+  it('scales a percentage to an alpha cut-off', () => {
+    expect(resolveThreshold(50)).toBe(128);
+    expect(resolveThreshold(1000)).toBe(255);
   });
 });
-
-describe('assertInputPixels', () => {
-  it('accepts an image at the pixel ceiling', () => {
-    expect(() => assertInputPixels(4000, 3000)).not.toThrow();
-    expect(4000 * 3000).toBe(MAX_INPUT_PIXELS);
-  });
-
-  it('rejects an image above the pixel ceiling', () => {
-    expect(() => assertInputPixels(4000, 3001)).toThrow(/too large/i);
-    expect(() => assertInputPixels(12000, 12000)).toThrow(/too large/i);
-  });
-
-  it('rejects an image with no measurable size', () => {
-    expect(() => assertInputPixels(0, 0)).toThrow(/measurable size/i);
-  });
-});
-
-/* -------------------------------------------------------------------------- */
-/*  Output naming                                                              */
-/* -------------------------------------------------------------------------- */
 
 describe('outputFilename', () => {
-  it('names the output after the source', () => {
-    expect(outputFilename('photo.png')).toBe('photo-no-bg.png');
-    expect(outputFilename('photo')).toBe('photo-no-bg.png');
-    expect(outputFilename('my.photo.png')).toBe('my.photo-no-bg.png');
-  });
-
-  it('keeps Unicode names intact', () => {
-    expect(outputFilename('фото-日本語.png')).toBe('фото-日本語-no-bg.png');
-    expect(outputFilename('emoji-🎉.png')).toBe('emoji-🎉-no-bg.png');
-  });
-
-  it('falls back to a usable name for an empty base', () => {
-    expect(outputFilename('.png')).toBe('image-no-bg.png');
-    expect(outputFilename('')).toBe('image-no-bg.png');
-  });
-});
-
-/* -------------------------------------------------------------------------- */
-/*  Progress mapping                                                           */
-/* -------------------------------------------------------------------------- */
-
-describe('modelProgressUpdate', () => {
-  it('maps the download fraction into the workbench slice', () => {
-    const update = modelProgressUpdate(
-      { phase: 'downloading', fraction: 0.5, loaded: 512, total: 1024, message: 'x' },
-      0.05,
-      0.8,
+  it('names transparent output after the source stem', () => {
+    expect(outputFilename('holiday.photo.jpg', { kind: 'transparent' }, 'image/png')).toBe(
+      'holiday.photo-no-bg.png',
     );
-    expect(update.fraction).toBeCloseTo(0.45);
   });
 
-  it('names the byte counts while downloading', () => {
-    const update = modelProgressUpdate({
-      phase: 'downloading',
-      fraction: 0.5,
-      loaded: 3 * 1024 * 1024,
-      total: 6 * 1024 * 1024,
-      message: 'x',
-    });
-    expect(update.message).toMatch(/Downloading the model/i);
-    expect(update.message).toMatch(/3 MB of 6 MB/);
-  });
-
-  it('handles an unknown total and a null fraction', () => {
-    const update = modelProgressUpdate({
-      phase: 'downloading',
-      fraction: null,
-      loaded: 1024,
-      total: 0,
-      message: 'x',
-    });
-    expect(update.fraction).toBe(0.05);
-    expect(update.message).toMatch(/1 KB/);
-    expect(update.message).not.toMatch(/ of /);
-  });
-
-  it('reports the ready phase', () => {
-    const update = modelProgressUpdate({
-      phase: 'ready',
-      fraction: 1,
-      loaded: 1,
-      total: 1,
-      message: 'x',
-    });
-    expect(update.message).toBe('Model ready');
-    expect(update.fraction).toBeCloseTo(0.85);
+  it('marks solid-background output and follows the extension', () => {
+    expect(outputFilename('me.png', { kind: 'solid', r: 0, g: 0, b: 0 }, 'image/webp')).toBe(
+      'me-solid.webp',
+    );
   });
 });
 
 /* -------------------------------------------------------------------------- */
-/*  The tool                                                                   */
+/*  Network disclosure                                                        */
+/* -------------------------------------------------------------------------- */
+
+describe('network disclosure', () => {
+  it('declares every host the page contacts', () => {
+    // The Hub serves the weights; the ONNX runtime WebAssembly binary comes from
+    // jsDelivr (transformers.js's default `wasmPaths`), which onnxruntime-web
+    // fetches outside the ML runtime's model fetch. Understating either host
+    // would make the privacy badge and the privacy page wrong.
+    const hosts = Array.isArray(meta.privacy.network) ? meta.privacy.network : [];
+    expect(hosts).toEqual(expect.arrayContaining(['huggingface.co', 'cdn.jsdelivr.net']));
+  });
+
+  it('names both downloads and the image guarantee in its visible copy', () => {
+    const copy = [meta.description, ...(meta.faq ?? []).map((entry) => entry.a)].join(' ');
+    expect(copy).toMatch(/hugging[\s-]?face/i);
+    expect(copy).toMatch(/jsdelivr/i);
+    expect(copy).toMatch(/never (uploaded|leave)/i);
+  });
+});
+
+/* -------------------------------------------------------------------------- */
+/*  run()                                                                     */
 /* -------------------------------------------------------------------------- */
 
 describe('background-remover run', () => {
-  it('uses the reviewed model on the shared ML runtime', () => {
-    expect(MODEL_ID).toBe('Xenova/modnet');
-    expect(MODEL_TASK).toBe('image-segmentation');
-  });
-
-  it('cuts out the subject and writes a transparent PNG', async () => {
-    mock = installImageMock({ width: 4, height: 4, pixelOutput: true, color: [10, 20, 30, 255] });
-    useProducer(halfMatte(4));
-
-    const result = await tool.run({ files: [png()], options: {} });
-
-    expect(result.outputs).toHaveLength(1);
-    expect(result.outputs[0]!.filename).toBe('photo-no-bg.png');
-    expect(result.outputs[0]!.blob.type).toBe(OUTPUT_MIME);
-
-    const pixels = new Uint8ClampedArray(await result.outputs[0]!.blob.arrayBuffer());
-    // Left half is background (transparent), right half is the subject.
-    expect(pixelAt(pixels, 4, 0, 0)).toEqual([10, 20, 30, 0]);
-    expect(pixelAt(pixels, 4, 3, 0)).toEqual([10, 20, 30, 255]);
-  });
-
-  it('composites the subject onto a solid colour when one is picked', async () => {
-    mock = installImageMock({ width: 4, height: 4, pixelOutput: true, color: [10, 20, 30, 255] });
-    useProducer(halfMatte(4));
-
-    const result = await tool.run({ files: [png()], options: { background: '#ffffff' } });
-
-    const pixels = new Uint8ClampedArray(await result.outputs[0]!.blob.arrayBuffer());
-    expect(pixelAt(pixels, 4, 0, 0)).toEqual([255, 255, 255, 255]);
-    expect(pixelAt(pixels, 4, 3, 0)).toEqual([10, 20, 30, 255]);
-  });
-
-  it('applies the edge cutoff to the matte', async () => {
-    mock = installImageMock({ width: 4, height: 4, pixelOutput: true, color: [10, 20, 30, 255] });
-    const faint = new Uint8ClampedArray(16).fill(20);
-    useProducer({ data: faint, width: 4, height: 4 });
-
-    const result = await tool.run({ files: [png()], options: { cutoff: 64 } });
-    const pixels = new Uint8ClampedArray(await result.outputs[0]!.blob.arrayBuffer());
-    expect(pixelAt(pixels, 4, 0, 0)[3]).toBe(0);
-  });
-
-  it('gives the producer a canvas of the source size and forwards progress', async () => {
-    mock = installImageMock({ width: 4, height: 4, color: [10, 20, 30, 255] });
-    const producer = vi.fn(async (canvas: OffscreenCanvas) => {
-      expect(canvas.width).toBe(4);
-      expect(canvas.height).toBe(4);
-      return halfMatte(4);
-    });
-    setMatteProducer(producer);
-
-    const onProgress = vi.fn();
-    await tool.run({ files: [png()], options: {}, onProgress });
-
-    expect(producer).toHaveBeenCalledOnce();
-    expect(onProgress).toHaveBeenCalledWith(1, 'Done');
-    expect(onProgress).toHaveBeenCalledWith(
-      expect.any(Number),
-      expect.stringMatching(/portrait matting model/i),
-    );
-  });
-
-  it('reports the model, the backend and the coverage in the stats', async () => {
-    mock = installImageMock({ width: 4, height: 4, color: [10, 20, 30, 255] });
-    useProducer(halfMatte(4));
-
-    const result = await tool.run({ files: [png()], options: {} });
-    expect(result.stats).toMatchObject({
-      width: 4,
-      height: 4,
-      model: MODEL_ID,
-      foregroundPercent: 50,
-    });
-  });
-
-  it('warns when the model found no subject at all', async () => {
-    mock = installImageMock({ width: 4, height: 4, color: [10, 20, 30, 255] });
-    useProducer(emptyMatte(4));
-
-    const result = await tool.run({ files: [png()], options: {} });
-    expect(result.warnings?.join(' ')).toMatch(/no subject/i);
-    expect(result.stats).toMatchObject({ foregroundPercent: 0 });
-  });
-
-  it('warns when the model kept the whole image', async () => {
-    mock = installImageMock({ width: 4, height: 4, color: [10, 20, 30, 255] });
-    useProducer(fullMatte(4));
-
-    const result = await tool.run({ files: [png()], options: {} });
-    expect(result.warnings?.join(' ')).toMatch(/almost the whole image/i);
-  });
-
-  it('says that the model is a portrait model in the notes', async () => {
-    mock = installImageMock({ width: 4, height: 4, color: [10, 20, 30, 255] });
-    useProducer(halfMatte(4));
-
-    const result = await tool.run({ files: [png()], options: {} });
-    expect(result.notes?.join(' ')).toMatch(/portrait/i);
-    expect(result.notes?.join(' ')).toMatch(/device/i);
-  });
-
-  it('keeps Unicode filenames intact', async () => {
-    mock = installImageMock({ width: 4, height: 4, color: [10, 20, 30, 255] });
-    useProducer(halfMatte(4));
-
-    const result = await tool.run({ files: [png('фото-日本語.png')], options: {} });
-    expect(result.outputs[0]!.filename).toBe('фото-日本語-no-bg.png');
-  });
-
   it('rejects an empty selection', async () => {
+    installStack(() => []);
     await expect(tool.run({ files: [], options: {} })).rejects.toThrow(/Choose an image file/i);
   });
 
-  it('rejects more than one image', async () => {
-    mock = installImageMock({ width: 2, height: 2 });
-    await expect(tool.run({ files: [png('a.png'), png('b.png')], options: {} })).rejects.toThrow(
-      /exactly one/i,
+  it('rejects a non-image selection', async () => {
+    installStack(() => []);
+    const file = new File(['notes'], 'notes.txt', { type: 'text/plain' });
+    await expect(tool.run({ files: [file], options: {} })).rejects.toThrow(/not an image/i);
+  });
+
+  it('rejects an empty file before touching the model', async () => {
+    const { pipeline } = installStack(() => []);
+    const empty = new File([], 'empty.png', { type: 'image/png' });
+    await expect(tool.run({ files: [empty], options: {} })).rejects.toThrow(/is empty/i);
+    expect(pipeline).not.toHaveBeenCalled();
+  });
+
+  it('rejects an oversized image instead of exhausting memory', async () => {
+    // The fake decoder reports huge dimensions; the size check runs before any
+    // pixels are allocated and before the model is fetched.
+    const { pipeline } = installStack(() => [], { width: 20_000, height: 20_000 });
+    await expect(tool.run({ files: [makeFile('huge.png')], options: {} })).rejects.toThrow(
+      /too large/i,
+    );
+    expect(pipeline).not.toHaveBeenCalled();
+  });
+
+  it('cancels when the signal is already aborted', async () => {
+    installStack(() => []);
+    await expect(
+      tool.run({ files: [makeFile('a.png')], options: {}, signal: AbortSignal.abort() }),
+    ).rejects.toThrow(/cancelled/i);
+  });
+
+  it('loads Xenova/modnet through the image-segmentation task', async () => {
+    const { factory, requested } = installStack(() => [opaqueSegment(4, 4)]);
+    await tool.run({ files: [makeFile('a.png')], options: {} });
+    expect(requested).toEqual([{ task: 'image-segmentation', model: MODEL_ID }]);
+    expect(MODEL_ID).toBe('Xenova/modnet');
+    expect(factory).toHaveBeenCalledTimes(1);
+  });
+
+  it('writes a transparent PNG by default', async () => {
+    const { inputs } = installStack(() => [opaqueSegment(4, 4)]);
+    const result = await tool.run({ files: [makeFile('photo.png')], options: {} });
+
+    expect(result.outputs).toHaveLength(1);
+    expect(result.outputs[0]!.filename).toBe('photo-no-bg.png');
+    expect(result.outputs[0]!.blob.type).toBe('image/png');
+
+    const pixels = await blobPixels(result.outputs[0]!.blob);
+    expect(pixelAt(pixels, 4, 0, 0)).toEqual([200, 100, 50, 255]);
+    // The model must see the image at its original size so its matte is
+    // predicted (and returned) in the same coordinate space.
+    expect(inputs).toHaveLength(1);
+    expect(inputs[0]).toMatchObject({ width: 4, height: 4 });
+    expect(result.stats?.files).toBe(1);
+    expect(result.stats?.subject).toBe('100% of the frame');
+    expect(result.stats?.background).toBe('transparent');
+    expect(result.stats?.format).toBe('png');
+  });
+
+  it('cuts the matte out of the source pixels instead of copying the whole frame', async () => {
+    // A 2×2 matte for a 4×4 source: one quadrant is background, the rest subject.
+    installStack(() => [{ label: null, score: null, mask: maskOf(2, 2, [0, 255, 255, 0]) }]);
+    const result = await tool.run({ files: [makeFile('photo.png')], options: {} });
+    const pixels = await blobPixels(result.outputs[0]!.blob);
+
+    expect(pixelAt(pixels, 4, 0, 0)).toEqual([200, 100, 50, 0]); // transparent corner
+    expect(pixelAt(pixels, 4, 3, 0)).toEqual([200, 100, 50, 255]); // opaque corner
+    expect(pixelAt(pixels, 4, 0, 3)).toEqual([200, 100, 50, 255]);
+    expect(pixelAt(pixels, 4, 3, 3)).toEqual([200, 100, 50, 0]);
+    expect(result.stats?.subject).toBe('50% of the frame');
+  });
+
+  it('fills a solid colour behind the subject when asked', async () => {
+    installStack(() => [opaqueSegment(4, 4)]);
+    const result = await tool.run({
+      files: [makeFile('photo.png')],
+      options: { background: 'solid', backgroundColour: '#00ff00' },
+    });
+
+    expect(result.outputs[0]!.filename).toBe('photo-solid.png');
+    expect(result.stats?.background).toBe('#00ff00');
+    const pixels = await blobPixels(result.outputs[0]!.blob);
+    expect(pixelAt(pixels, 4, 1, 1)).toEqual([200, 100, 50, 255]);
+  });
+
+  it('composites the solid colour over a partially transparent matte', async () => {
+    installStack(() => [{ label: null, score: null, mask: maskOf(1, 1, [0]) }]);
+    const result = await tool.run({
+      files: [makeFile('photo.png')],
+      options: { background: 'solid', backgroundColour: '#0000ff' },
+    });
+    const pixels = await blobPixels(result.outputs[0]!.blob);
+    // Fully transparent matte → the background colour shows through everywhere.
+    expect(pixelAt(pixels, 4, 0, 0)).toEqual([0, 0, 255, 255]);
+    expect(pixelAt(pixels, 4, 3, 3)).toEqual([0, 0, 255, 255]);
+  });
+
+  it('honours the WebP format and quality options', async () => {
+    installStack(() => [opaqueSegment(4, 4)]);
+    const result = await tool.run({
+      files: [makeFile('photo.png')],
+      options: { format: 'webp', quality: 40 },
+    });
+
+    expect(result.outputs[0]!.filename).toBe('photo-no-bg.webp');
+    const encoder = mock!.canvases.find((c) => c.encodes[0]?.type === 'image/webp');
+    expect(encoder).toBeDefined();
+    expect(encoder!.encodes[0]!.quality).toBeCloseTo(0.4);
+  });
+
+  it('snaps soft edges when the matte threshold is raised', async () => {
+    installStack(() => [{ label: null, score: null, mask: maskOf(1, 1, [100]) }]);
+    const soft = await tool.run({ files: [makeFile('photo.png')], options: {} });
+    const snapped = await tool.run({
+      files: [makeFile('photo.png')],
+      options: { threshold: 50 },
+    });
+
+    const softPixels = await blobPixels(soft.outputs[0]!.blob);
+    const snappedPixels = await blobPixels(snapped.outputs[0]!.blob);
+    expect(pixelAt(softPixels, 4, 0, 0)[3]).toBe(100);
+    expect(pixelAt(snappedPixels, 4, 0, 0)[3]).toBe(0);
+  });
+
+  it('processes a batch and reports progress while the model downloads', async () => {
+    const { pipeline } = installStack(() => [opaqueSegment(4, 4)]);
+    const progress: [number, string | undefined][] = [];
+    const result = await tool.run({
+      files: [makeFile('a.png'), makeFile('b.jpg', 'image/jpeg'), makeFile('c.png')],
+      options: {},
+      onProgress: (fraction, message) => progress.push([fraction, message]),
+    });
+
+    expect(result.outputs.map((o) => o.filename)).toEqual([
+      'a-no-bg.png',
+      'b-no-bg.png',
+      'c-no-bg.png',
+    ]);
+    expect(result.stats?.files).toBe(3);
+    expect(pipeline).toHaveBeenCalledTimes(3);
+    // The model is fetched once, not once per image.
+    expect(mock!.bitmaps).toHaveLength(3);
+    expect(progress.at(-1)).toEqual([1, 'Done']);
+    expect(progress.some(([fraction]) => fraction <= 0.6)).toBe(true);
+    expect(progress.some(([, message]) => /modnet/i.test(message ?? ''))).toBe(true);
+    expect(progress.some(([, message]) => (message ?? '').includes('b.jpg'))).toBe(true);
+    // The single preview shows the first image, and the note says which one.
+    expect(result.notes?.join(' ')).toMatch(/preview above is “a.png”/);
+  });
+
+  it('reports a friendly error when the subject cannot be found', async () => {
+    installStack(() => []);
+    await expect(tool.run({ files: [makeFile('plain.png')], options: {} })).rejects.toThrow(
+      /could not isolate a subject/i,
     );
   });
 
-  it('rejects a non-image file', async () => {
-    const txt = new File(['x'], 'a.txt', { type: 'text/plain' });
-    await expect(tool.run({ files: [txt], options: {} })).rejects.toThrow(/not an image/i);
+  it('surfaces a model-load failure as a ToolError', async () => {
+    setMlRuntimeLoader(() =>
+      Promise.resolve({
+        env: {} as MlRuntimeEnv,
+        pipeline: async () => {
+          throw new Error('no onnx runtime here');
+        },
+      } as unknown as MlRuntime),
+    );
+    mock = installImageMock({ width: 4, height: 4, color: SOURCE, pixelOutput: true });
+
+    await expect(tool.run({ files: [makeFile('a.png')], options: {} })).rejects.toThrow(
+      /Could not load the model "Xenova\/modnet"/,
+    );
   });
 
-  it('rejects an empty file', async () => {
-    const empty = makeFile('empty.png', 'image/png', 0);
-    await expect(tool.run({ files: [empty], options: {} })).rejects.toThrow(/empty/i);
+  it('previews the first image side by side', async () => {
+    installStack(() => [opaqueSegment(4, 4)]);
+    const result = await tool.run({ files: [makeFile('a.png')], options: {} });
+
+    expect(result.report?.render).toBe('image');
+    expect(result.report?.output.startsWith('data:image/png;base64,')).toBe(true);
+    // before | gap | after — two source-width panels.
+    expect(mock!.canvases.at(-1)!.width).toBe(4 + 6 + 4);
   });
 
-  it('rejects an oversized file with a friendly error', async () => {
-    const big = { name: 'big.png', type: 'image/png', size: MAX_INPUT_BYTES + 1 } as File;
-    await expect(tool.run({ files: [big], options: {} })).rejects.toThrow(/too large/i);
-  });
-
-  it('rejects an image with too many pixels', async () => {
-    mock = installImageMock({ width: 4000, height: 3001 });
-    await expect(tool.run({ files: [png()], options: {} })).rejects.toThrow(/too large/i);
-  });
-
-  it('rejects an invalid background colour before loading the model', async () => {
-    mock = installImageMock({ width: 4, height: 4 });
-    const producer = vi.fn(async () => halfMatte(4));
-    setMatteProducer(producer);
+  it('rejects an invalid solid colour instead of silently ignoring it', async () => {
+    installStack(() => [opaqueSegment(4, 4)]);
     await expect(
-      tool.run({ files: [png()], options: { background: 'not-a-colour' } }),
+      tool.run({
+        files: [makeFile('a.png')],
+        options: { background: 'solid', backgroundColour: 'not-a-colour' },
+      }),
     ).rejects.toThrow(/hex colour/i);
-    expect(producer).not.toHaveBeenCalled();
   });
 
-  it('honours an aborted signal', async () => {
-    mock = installImageMock({ width: 4, height: 4 });
-    await expect(
-      tool.run({ files: [png()], options: {}, signal: AbortSignal.abort() }),
-    ).rejects.toThrow(/cancel/i);
-  });
-
-  it('turns a model failure into a friendly error', async () => {
-    mock = installImageMock({ width: 4, height: 4 });
-    setMatteProducer(async () => {
-      throw new Error('onnx exploded');
-    });
-    await expect(tool.run({ files: [png()], options: {} })).rejects.toThrow(
-      /could not be removed/i,
-    );
-  });
-
-  it('re-throws a ToolError from the producer unchanged', async () => {
-    mock = installImageMock({ width: 4, height: 4 });
-    setMatteProducer(async () => {
-      throw new ToolError('The model is unavailable.', 'Try again later.');
-    });
-    await expect(tool.run({ files: [png()], options: {} })).rejects.toThrow(
-      /model is unavailable/i,
-    );
-  });
-
-  it('rejects a matte that does not match the image size', async () => {
-    mock = installImageMock({ width: 4, height: 4 });
-    useProducer(halfMatte(8));
-    await expect(tool.run({ files: [png()], options: {} })).rejects.toThrow(/does not match/i);
+  it('surfaces the cache state of the model download instead of claiming a fetch', async () => {
+    installStack(() => [opaqueSegment(4, 4)]);
+    const result = await tool.run({ files: [makeFile('a.png')], options: {} });
+    // Nothing was fetched through the loader, so it reports a cache hit.
+    expect(result.notes?.some((note) => /cache/i.test(note))).toBe(true);
+    // And the run still produced usable, unchanged pixels.
+    const pixels = await blobPixels(result.outputs[0]!.blob);
+    expect(pixelAt(pixels, 4, 0, 0)).toEqual([200, 100, 50, 255]);
   });
 });

@@ -1,77 +1,94 @@
-import type { TextRunInput, TextRunResult, TextToolModule } from '@/lib/types';
+/**
+ * Webcam Test.
+ *
+ * The camera panel does the live work (device picker, preview, frame-rate
+ * measurement, snapshot); this module turns the captured frame plus the panel's
+ * readings into a report and a downloadable PNG. It stays pure — no DOM, no
+ * `navigator`, no camera — so the whole of it runs in a Web Worker and in a test.
+ */
+import type { FileRunInput, FileRunResult, FileToolModule } from '@/lib/types';
 import { ToolError } from '@/lib/types';
 import { resolveOptions } from '@/lib/options';
 import { meta } from './webcam-test.meta';
 import {
-  RESOLUTION_VALUES,
-  buildNotes,
+  assertSnapshotDimensions,
+  buildReportNotes,
   buildReportRows,
-  buildStats,
-  fpsWarning,
-  parseWebcamFacts,
-  type ReportOptions,
+  formatFps,
+  formatResolution,
+  parseCaptureProbe,
+  readImageDimensions,
+  snapshotFilename,
+  type SnapshotFormat,
 } from './webcam-test.core';
 
-/** The resolution the panel asked for — validated, never guessed. */
-function readResolution(value: unknown): string {
-  const raw = value === undefined || value === null ? 'auto' : value;
-  if (typeof raw !== 'string') {
-    throw new ToolError(
-      'The "resolution" option must be a string.',
-      `Received ${typeof raw} instead.`,
-    );
-  }
-  if (!RESOLUTION_VALUES.includes(raw)) {
-    throw new ToolError(
-      `Unknown resolution "${raw}".`,
-      `Choose one of: ${RESOLUTION_VALUES.join(', ')}.`,
-    );
-  }
-  return raw;
-}
+const MIME: Record<SnapshotFormat, string> = { png: 'image/png', jpeg: 'image/jpeg' };
 
-/** Whether the raw track settings belong in the report. */
-function readIncludeSettings(value: unknown): boolean {
-  if (value === undefined || value === null) return true;
-  if (typeof value !== 'boolean') {
-    throw new ToolError(
-      'The "includeSettings" option must be true or false.',
-      `Received ${typeof value} instead.`,
-    );
-  }
-  return value;
-}
-
-/**
- * Build the webcam report from the facts the panel measured.
- *
- * The panel is the UI; the tool owns the parsing, the validation and the
- * formatting, so the same code path is used in the browser and in the tests.
- */
-function run(input: TextRunInput): TextRunResult {
+async function run(input: FileRunInput): Promise<FileRunResult> {
   const o = resolveOptions(meta, input.options);
-  const facts = parseWebcamFacts(input.text);
+  const files = (input.files ?? []).filter(Boolean);
 
-  const options: ReportOptions = {
-    requested: readResolution(o.resolution),
-    includeSettings: readIncludeSettings(o.includeSettings),
-  };
+  if (!files.length) {
+    throw new ToolError(
+      'Take a snapshot first.',
+      'Press “Start camera” in the panel above, then “Take snapshot”.',
+    );
+  }
+  if (files.length > 1) {
+    throw new ToolError(
+      'One snapshot at a time.',
+      'The webcam test reports a single frame per run.',
+    );
+  }
 
-  const rows = buildReportRows(facts, options);
-  const notes = buildNotes(facts);
-  const warnings: string[] = [];
+  const file = files[0]!;
+  if (file.size === 0) {
+    throw new ToolError(`“${file.name}” is empty.`, 'Take the snapshot again from the panel.');
+  }
+  input.signal?.throwIfAborted?.();
 
-  const frameRateWarning = fpsWarning(facts);
-  if (frameRateWarning) warnings.push(frameRateWarning);
+  // A malformed reading probe is a user-facing error rather than a silent,
+  // half-empty report.
+  const probe = parseCaptureProbe(o.capture);
 
+  input.onProgress?.(0, 'Reading the snapshot');
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  const dimensions = readImageDimensions(bytes);
+  if (!dimensions) {
+    throw new ToolError(
+      `“${file.name}” is not a PNG or JPEG image.`,
+      'This tool reports the frame the camera panel captures; PNG and JPEG are the formats it can measure.',
+    );
+  }
+  assertSnapshotDimensions(dimensions.width, dimensions.height);
+
+  input.onProgress?.(0.5, 'Building the report');
+  const snapshot = { ...dimensions, bytes: bytes.length };
+  const rows = buildReportRows(probe, snapshot);
+  const { notes, warnings } = buildReportNotes(probe, snapshot);
+
+  input.onProgress?.(1, 'Done');
   return {
-    output: JSON.stringify({ headers: ['Property', 'Value'], rows }),
-    render: 'table',
-    stats: buildStats(facts),
+    outputs: [
+      {
+        filename: snapshotFilename(probe.deviceLabel, new Date(), dimensions.format),
+        blob: new Blob([bytes], { type: MIME[dimensions.format] }),
+      },
+    ],
+    report: {
+      output: JSON.stringify({ headers: ['Item', 'Details'], rows }),
+      render: 'table',
+    },
     notes,
     warnings: warnings.length ? warnings : undefined,
+    stats: {
+      resolution: formatResolution(dimensions.width, dimensions.height),
+      frameRate: formatFps(probe.fps),
+      cameras: probe.devices?.length ?? 0,
+      snapshotBytes: bytes.length,
+    },
   };
 }
 
-const tool: TextToolModule = { meta, run };
+const tool: FileToolModule = { meta, run };
 export default tool;

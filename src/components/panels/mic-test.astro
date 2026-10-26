@@ -1,39 +1,141 @@
 ---
-/**
- * The microphone test panel.
- *
- * The generic file workbench cannot express a live level meter, a rolling
- * waveform scope and a recorder, so this tool opts into a panel via
- * `meta.panel = 'mic-test'`. The behaviour lives in `./mic-test-panel.ts` and
- * is loaded on demand.
- */
 import type { ToolMeta } from '@/lib/types';
 import Icon from '@/components/Icon.astro';
-import OptionsFields from '@/components/workbench/OptionsFields.astro';
 
 interface Props {
   meta: ToolMeta;
 }
 const { meta } = Astro.props;
-const p = meta.id;
+const headingId = `${meta.id}-heading`;
+const statusId = `${meta.id}-status`;
+const deviceId = `${meta.id}-device`;
+const fftId = `${meta.id}-fft`;
+const smoothingId = `${meta.id}-smoothing`;
+const floorId = `${meta.id}-floor`;
+const limitId = `${meta.id}-limit`;
 ---
 
 <section
-  class="surface rounded-lg p-4 sm:p-6"
-  data-file-workbench
-  data-mic-panel
+  class="surface mb-4 rounded-lg p-4 sm:p-6"
+  data-mic-test-panel
   data-tool-id={meta.id}
-  aria-label={`${meta.name} workbench`}
+  aria-labelledby={headingId}
 >
   <div class="flex flex-wrap items-center gap-2">
-    <h2 class="flex items-center gap-2 text-base font-semibold text-[rgb(var(--text))]">
-      <Icon name="audio-lines" size={18} /> Microphone test
+    <h2
+      id={headingId}
+      class="flex items-center gap-2 text-base font-semibold text-[rgb(var(--text))]"
+    >
+      <Icon name="audio-lines" size={18} /> Test your microphone
     </h2>
-    <span class="chip">On-device</span>
+    <span class="chip">Beta</span>
   </div>
   <p class="mt-1.5 max-w-prose text-sm leading-relaxed text-[rgb(var(--text-muted))]">
-    Watch your input level in dBFS, follow the waveform on a rolling scope, then record a clip and
-    play it back. Audio is analysed in this tab only — the recording is never uploaded.
+    Watch the level meter and waveform to see whether your input is silent, quiet or clipping, then
+    record a take and play it back. The microphone stream is analysed and recorded in this tab only
+    — nothing is stored or uploaded. Microphone access needs an https:// page, and your browser will
+    ask for permission the first time.
+  </p>
+
+  <div class="mt-4 flex flex-wrap items-center gap-2.5">
+    <button type="button" class="btn btn-primary" data-mic-start>
+      <Icon name="audio-lines" size={16} /> Enable microphone
+    </button>
+    <button type="button" class="btn btn-primary" data-mic-record hidden>
+      <Icon name="play" size={16} /> Record
+    </button>
+    <button type="button" class="btn btn-subtle" data-mic-stop hidden>
+      <Icon name="stop" size={14} /> Stop recording
+    </button>
+    <button type="button" class="btn btn-ghost" data-mic-reset hidden>
+      <Icon name="x" size={14} /> Reset
+    </button>
+  </div>
+
+  <div class="mt-3 flex flex-wrap items-center gap-2" data-mic-device-wrap hidden>
+    <label for={deviceId} class="text-xs font-medium text-[rgb(var(--text-muted))]"
+      >Microphone</label
+    >
+    <select id={deviceId} class="field !w-auto !py-1 text-sm" data-mic-device></select>
+  </div>
+
+  <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+    <div>
+      <label for={fftId} class="block text-xs font-medium text-[rgb(var(--text-muted))]">
+        Waveform detail
+      </label>
+      <select id={fftId} class="field mt-1 w-full text-sm" data-mic-fft>
+        <option value="1024">1024 samples</option>
+        <option value="2048" selected>2048 samples</option>
+        <option value="4096">4096 samples</option>
+        <option value="8192">8192 samples</option>
+      </select>
+      <p class="mt-1 text-xs text-[rgb(var(--text-muted))]">
+        Higher draws the waveform in more detail.
+      </p>
+    </div>
+    <div>
+      <label for={smoothingId} class="block text-xs font-medium text-[rgb(var(--text-muted))]">
+        Meter smoothing
+      </label>
+      <input
+        id={smoothingId}
+        type="range"
+        min="0"
+        max="1"
+        step="0.05"
+        value="0.6"
+        class="mt-2 w-full"
+        data-mic-smoothing
+      />
+      <p class="mt-1 text-xs text-[rgb(var(--text-muted))]">
+        How slowly the meter follows the level.
+      </p>
+    </div>
+    <div>
+      <label for={floorId} class="block text-xs font-medium text-[rgb(var(--text-muted))]">
+        Meter floor (dBFS)
+      </label>
+      <input
+        id={floorId}
+        type="range"
+        min="-120"
+        max="-20"
+        step="5"
+        value="-80"
+        class="mt-2 w-full"
+        data-mic-floor
+      />
+      <p class="mt-1 text-xs text-[rgb(var(--text-muted))]">Bottom of the level bars.</p>
+    </div>
+    <div>
+      <label for={limitId} class="block text-xs font-medium text-[rgb(var(--text-muted))]">
+        Recording limit (seconds)
+      </label>
+      <input
+        id={limitId}
+        type="number"
+        min="5"
+        max="600"
+        step="5"
+        value="60"
+        class="field mt-1 w-full text-sm"
+        data-mic-limit
+      />
+      <p class="mt-1 text-xs text-[rgb(var(--text-muted))]">
+        Recording stops on its own at this length.
+      </p>
+    </div>
+  </div>
+
+  <p
+    id={statusId}
+    class="mt-3 text-sm text-[rgb(var(--text-muted))]"
+    data-mic-status
+    role="status"
+    aria-live="polite"
+  >
+    Microphone off.
   </p>
 
   <div
@@ -45,154 +147,111 @@ const p = meta.id;
   >
   </div>
 
-  <div class="mt-4 flex flex-wrap items-center gap-2.5">
-    <button type="button" class="btn btn-primary" data-mic-start>
-      <Icon name="zap" size={16} /> Start microphone
-    </button>
-    <button type="button" class="btn btn-ghost" data-mic-stop hidden>
-      <Icon name="stop" size={14} /> Stop microphone
-    </button>
-  </div>
-
-  <p
-    class="mt-3 text-sm text-[rgb(var(--text-muted))]"
-    data-mic-status
-    role="status"
-    aria-live="polite"
-  >
-    Microphone off. Press “Start microphone” to begin.
-  </p>
-
-  <div class="mt-4" data-mic-stage hidden>
-    <div class="flex flex-wrap items-baseline justify-between gap-3">
-      <span class="text-sm font-medium text-[rgb(var(--text))]">Input level</span>
-      <span class="font-mono text-sm tabular-nums text-[rgb(var(--text))]" data-mic-readout>—</span>
-    </div>
-
-    <div
-      class="relative mt-1.5 h-3 overflow-hidden rounded-full"
-      style="background-color: rgb(var(--bg-inset))"
-      role="progressbar"
-      aria-valuemin="-60"
-      aria-valuemax="0"
-      aria-valuenow="-120"
-      aria-valuetext="No signal"
-      aria-label="Microphone input level in dBFS"
-      data-mic-meter
+  <div class="mt-4 space-y-3" hidden data-mic-meter-wrap>
+    <canvas
+      class="h-32 w-full rounded-lg border bg-[rgb(var(--bg-subtle))]"
+      data-mic-waveform
+      role="img"
+      aria-label="Live waveform of the microphone input. Its shape is decorative; the peak and RMS meters below carry the level."
     >
-      <div
-        class="absolute inset-y-0 left-0 rounded-full"
-        style="width: 0%; background-color: rgb(var(--accent))"
-        data-mic-fill
-      >
-      </div>
-      <div
-        class="absolute inset-y-0 w-0.5 rounded-full"
-        style="left: 0%; background-color: rgb(var(--text))"
-        data-mic-peak
-        hidden
-      >
-      </div>
-    </div>
+    </canvas>
 
-    <div
-      class="mt-1 flex flex-wrap items-center justify-between gap-2 text-xs text-[rgb(var(--text-muted))]"
-    >
-      <span data-mic-scale>−60 dBFS</span>
-      <span data-mic-state>No signal</span>
-    </div>
-
-    <!-- The moving bar cannot be read out by a screen reader, so the level is
-         also announced in a polite live region (throttled, see the panel). -->
-    <p class="sr-only" data-mic-live role="status" aria-live="polite"></p>
-
-    <figure class="mt-5">
-      <figcaption class="text-sm font-medium text-[rgb(var(--text))]">Waveform</figcaption>
-      <canvas
-        class="mt-1.5 h-32 w-full rounded-lg border"
-        style="background-color: rgb(var(--bg-inset))"
-        data-mic-canvas
-        role="img"
-        aria-label="Live microphone waveform. No signal yet."
-      >
-      </canvas>
-      <p class="mt-1 text-xs text-[rgb(var(--text-muted))]" data-mic-scope-alt>No signal yet.</p>
-    </figure>
-
-    <div class="mt-5 flex flex-wrap items-center gap-2.5">
-      <button type="button" class="btn btn-primary" data-mic-record disabled>
-        <Icon name="audio-lines" size={16} /> Record
-      </button>
-      <button type="button" class="btn btn-ghost" data-mic-record-stop hidden>
-        <Icon name="stop" size={14} /> Stop recording
-      </button>
-      <span
-        class="flex items-center gap-2 text-sm font-medium text-[rgb(var(--text))]"
-        data-mic-recording-indicator
-        hidden
-      >
-        <span
-          class="inline-block h-2.5 w-2.5 animate-pulse rounded-full"
-          style="background-color: rgb(var(--danger))"
-          aria-hidden="true"
+    <div class="space-y-2">
+      <div>
+        <div class="flex items-center justify-between gap-2 text-xs text-[rgb(var(--text-muted))]">
+          <span>Peak</span>
+          <span class="font-mono" data-mic-peak-db>−∞ dB</span>
+        </div>
+        <div
+          class="mt-1 h-2.5 w-full overflow-hidden rounded-full bg-[rgb(var(--bg-subtle))]"
+          role="progressbar"
+          aria-label="Peak level in dBFS"
+          aria-valuemin="-80"
+          aria-valuemax="0"
+          aria-valuenow="-80"
+          aria-valuetext="−∞ dB"
+          data-mic-peak-bar
         >
-        </span>
-        <span>Recording</span>
-        <span class="font-mono tabular-nums" data-mic-timer>0:00.0</span>
-      </span>
-    </div>
-
-    <div class="mt-4" data-mic-playback hidden>
-      <h3 class="text-sm font-semibold text-[rgb(var(--text))]">Your clip</h3>
-      <audio
-        class="mt-2 w-full"
-        controls
-        preload="metadata"
-        data-mic-audio
-        aria-label="Recorded microphone clip"
-      >
-      </audio>
-      <div class="mt-2 flex flex-wrap items-center gap-2">
-        <a class="btn btn-subtle btn-sm" data-mic-download download="recording.webm">
-          Download the clip
-        </a>
-        <button type="button" class="btn btn-ghost btn-sm" data-mic-record-again>
-          Record again
-        </button>
+          <div
+            class="h-full w-0 rounded-full"
+            style="background-color: rgb(var(--accent))"
+            data-mic-peak-fill
+          >
+          </div>
+        </div>
       </div>
-      <p class="mt-2 text-xs text-[rgb(var(--text-muted))]" data-mic-clip-meta></p>
+      <div>
+        <div class="flex items-center justify-between gap-2 text-xs text-[rgb(var(--text-muted))]">
+          <span>RMS (average loudness)</span>
+          <span class="font-mono" data-mic-rms-db>−∞ dB</span>
+        </div>
+        <div
+          class="mt-1 h-2.5 w-full overflow-hidden rounded-full bg-[rgb(var(--bg-subtle))]"
+          role="progressbar"
+          aria-label="RMS level in dBFS"
+          aria-valuemin="-80"
+          aria-valuemax="0"
+          aria-valuenow="-80"
+          aria-valuetext="−∞ dB"
+          data-mic-rms-bar
+        >
+          <div
+            class="h-full w-0 rounded-full"
+            style="background-color: rgb(var(--success))"
+            data-mic-rms-fill
+          >
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div class="mt-5" data-result-wrap hidden>
-      <h3 class="mb-2 text-sm font-semibold text-[rgb(var(--text))]">Measurements</h3>
-      <div class="min-w-0" data-mic-report></div>
-      <ul class="mt-2 space-y-1 text-xs" data-mic-outputs></ul>
-      <ul class="mt-2 space-y-1 text-xs" data-mic-notes></ul>
-    </div>
+    <p class="text-sm" data-mic-verdict>Waiting for the microphone…</p>
+    <p class="font-mono text-xs text-[rgb(var(--text-muted))]" data-mic-timer></p>
   </div>
 
-  <details class="mt-5 rounded-lg border">
-    <summary class="cursor-pointer select-none px-3 py-2 text-sm font-medium">Options</summary>
-    <div class="border-t p-3" data-mic-options>
-      <OptionsFields options={meta.options ?? []} idPrefix={p} />
-    </div>
-  </details>
+  <div class="mt-4" hidden data-mic-playback>
+    <h3 class="text-sm font-semibold text-[rgb(var(--text))]">Play back</h3>
+    <audio
+      class="mt-2 w-full"
+      controls
+      preload="metadata"
+      data-mic-audio
+      aria-label="Your recording"></audio>
+    <p class="mt-1 text-xs text-[rgb(var(--text-muted))]">
+      Listen for hum, clipping or a channel that stays silent. Save the take with the button under
+      the summary.
+    </p>
+  </div>
+
+  <div class="mt-4 space-y-3" data-mic-results></div>
 
   <noscript>
     <p class="mt-3 text-sm text-[rgb(var(--text-muted))]">
-      The microphone test needs JavaScript — the browser’s audio APIs cannot run without it.
+      Testing a microphone needs JavaScript. Your operating system's sound settings cover the same
+      ground without it.
     </p>
   </noscript>
 </section>
 
+<style>
+  /*
+   * `hidden` must beat the display utilities on the controls it toggles: a
+   * `.btn` is `inline-flex` and the device picker carries `.flex`, both of
+   * which outrank Tailwind's preflight `[hidden]` rule — the same reason
+   * global.css special-cases `[data-option-wrap][hidden]`. Scoped to this
+   * panel so nothing else on the page changes.
+   */
+  [data-mic-test-panel] [hidden] {
+    display: none;
+  }
+</style>
+
 <script>
-  document.querySelectorAll<HTMLElement>('[data-mic-panel]').forEach((panel) => {
-    // The panel's logic is loaded on demand so no microphone code ships to
-    // pages that do not use it.
-    void import('./mic-test-panel')
-      .then(({ mountMicPanel }) => {
-        mountMicPanel(panel);
-      })
+  document.querySelectorAll<HTMLElement>('[data-mic-test-panel]').forEach((panel) => {
+    // The panel's logic is loaded on demand so no microphone code ships to pages
+    // that don't test one.
+    void import('./mic-test')
+      .then(({ mountMicPanel }) => mountMicPanel(panel))
       .catch(() => {
         const error = panel.querySelector<HTMLElement>('[data-mic-error]');
         if (error) {

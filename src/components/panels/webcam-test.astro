@@ -1,11 +1,11 @@
 ---
 /**
- * The webcam test panel.
+ * Webcam Test panel — a live camera preview plus a resolution / frame-rate
+ * readout and a snapshot button. It replaces the generic file workbench
+ * (`meta.panel = 'webcam-test'`) because none of that fits an option form.
  *
- * A live camera preview, a device picker and a snapshot button cannot be
- * expressed by the generic text workbench, so this tool opts into a panel
- * (`meta.panel = 'webcam-test'`). The behaviour lives in
- * `webcam-test-panel.ts` and is imported lazily from the script block below.
+ * The behaviour lives in `./webcam-test.ts`, imported lazily by the script at
+ * the bottom, so no camera code ships to pages that do not open this tool.
  */
 import type { ToolMeta } from '@/lib/types';
 import Icon from '@/components/Icon.astro';
@@ -14,17 +14,21 @@ interface Props {
   meta: ToolMeta;
 }
 const { meta } = Astro.props;
-const p = meta.id;
-const headingId = `${p}-heading`;
-const deviceId = `${p}-device`;
-const resolutionId = `${p}-resolution`;
-const audioId = `${p}-audio`;
-const settingsId = `${p}-settings`;
+const headingId = `${meta.id}-heading`;
+const statusId = `${meta.id}-status`;
+const helpId = `${meta.id}-help`;
+const deviceId = `${meta.id}-device`;
 ---
 
+<!--
+  The tool page wraps this panel in [data-panel-workbench], which is the marker
+  the shared e2e workbench sweep accepts. It deliberately does not carry
+  [data-file-workbench] (the generic workbench's script would wire a drop zone
+  into it) or [data-signature-workbench] (the signing panel's script would mount
+  itself here).
+-->
 <section
-  class="surface rounded-lg p-4 sm:p-6"
-  data-text-workbench
+  class="surface mb-4 rounded-lg p-4 sm:p-6"
   data-webcam-test-panel
   data-tool-id={meta.id}
   aria-labelledby={headingId}
@@ -34,93 +38,38 @@ const settingsId = `${p}-settings`;
       id={headingId}
       class="flex items-center gap-2 text-base font-semibold text-[rgb(var(--text))]"
     >
-      <Icon name="camera" size={18} /> Camera test
+      <Icon name="camera" size={18} /> Test your camera
     </h2>
-    <span class="chip">On-device</span>
+    <span class="chip">Beta</span>
   </div>
-  <p class="mt-1.5 max-w-prose text-sm leading-relaxed text-[rgb(var(--text-muted))]">
-    Open your camera, watch a live preview and read the resolution and frame rate the browser
-    actually delivers — not the ones that were requested. Snapshots are drawn in this tab. No frame
-    is recorded, uploaded or stored.
+  <p id={helpId} class="mt-1.5 max-w-prose text-sm leading-relaxed text-[rgb(var(--text-muted))]">
+    Preview a camera and read the resolution, aspect ratio and frame rate of the live stream, then
+    take a snapshot to download. The feed is drawn in this tab only — nothing is recorded, stored or
+    uploaded. Camera access needs an https:// page, and your browser will ask for permission the
+    first time.
   </p>
 
-  <div class="mt-4 flex flex-wrap items-end gap-x-4 gap-y-3">
-    <div class="flex flex-col gap-1">
-      <label for={deviceId} class="text-xs font-medium text-[rgb(var(--text-muted))]">Camera</label>
-      <select id={deviceId} class="field !w-auto !py-1 text-sm" data-wt-device>
-        <option value="">No camera yet</option>
-      </select>
-    </div>
-
-    <div class="flex flex-col gap-1">
-      <label for={resolutionId} class="text-xs font-medium text-[rgb(var(--text-muted))]"
-        >Requested resolution</label
-      >
-      <select id={resolutionId} class="field !w-auto !py-1 text-sm" data-wt-resolution>
-        <option value="auto">Browser default</option>
-        <option value="640">640 × 360</option>
-        <option value="1280">1280 × 720</option>
-        <option value="1920">1920 × 1080</option>
-      </select>
-    </div>
-
-    <fieldset class="flex flex-col gap-1 border-0 p-0">
-      <legend class="text-xs font-medium text-[rgb(var(--text-muted))]">Options</legend>
-      <div class="flex flex-wrap items-center gap-3">
-        <label for={audioId} class="flex items-center gap-1.5 text-xs text-[rgb(var(--text))]">
-          <input id={audioId} type="checkbox" class="accent-[rgb(var(--accent))]" data-wt-audio />
-          Also capture audio
-        </label>
-        <label for={settingsId} class="flex items-center gap-1.5 text-xs text-[rgb(var(--text))]">
-          <input
-            id={settingsId}
-            type="checkbox"
-            class="accent-[rgb(var(--accent))]"
-            data-wt-settings
-            checked
-          />
-          Include raw track settings
-        </label>
-      </div>
-    </fieldset>
-  </div>
-  <p class="mt-1.5 text-xs text-[rgb(var(--text-muted))]" data-wt-device-note>
-    Camera names appear after you allow access.
-  </p>
-
-  {
-    meta.examples && meta.examples.length > 0 && (
-      <div class="mt-3 flex flex-wrap items-center gap-1.5" data-example-row>
-        <span class="text-xs text-[rgb(var(--text-muted))]">Try:</span>
-        {meta.examples.map((ex, i) => (
-          <button
-            type="button"
-            class="chip hover:text-[rgb(var(--text))]"
-            data-example={i}
-            data-example-options={ex.options ? JSON.stringify(ex.options) : undefined}
-          >
-            {ex.title}
-          </button>
-        ))}
-      </div>
-    )
-  }
-
-  <div class="mt-3 flex flex-wrap items-center gap-2">
-    <button type="button" class="btn btn-primary" data-wt-start>
+  <div class="mt-4 flex flex-wrap items-center gap-2.5">
+    <button type="button" class="btn btn-primary" data-webcam-start>
       <Icon name="camera" size={16} /> Start camera
     </button>
-    <button type="button" class="btn btn-ghost" data-wt-stop hidden>
+    <button type="button" class="btn btn-ghost" data-webcam-stop hidden>
       <Icon name="stop" size={14} /> Stop camera
     </button>
-    <button type="button" class="btn btn-subtle" data-wt-snapshot hidden>
-      <Icon name="image" size={14} /> Take snapshot
+    <button type="button" class="btn btn-subtle" data-webcam-snapshot hidden disabled>
+      <Icon name="download" size={14} /> Take snapshot
     </button>
+  </div>
+
+  <div class="mt-3 flex flex-wrap items-center gap-2" data-webcam-device-wrap hidden>
+    <label for={deviceId} class="text-xs font-medium text-[rgb(var(--text-muted))]">Camera</label>
+    <select id={deviceId} class="field !w-auto !py-1 text-sm" data-webcam-device></select>
   </div>
 
   <p
+    id={statusId}
     class="mt-3 text-sm text-[rgb(var(--text-muted))]"
-    data-wt-status
+    data-webcam-status
     role="status"
     aria-live="polite"
   >
@@ -131,81 +80,75 @@ const settingsId = `${p}-settings`;
     class="mt-3 rounded-lg border px-3 py-2 text-sm"
     style="background-color: rgb(var(--danger-soft)); border-color: rgb(var(--danger)); color: rgb(var(--danger))"
     role="alert"
-    data-wt-error
+    data-webcam-error
     hidden
   >
   </div>
 
-  <div class="mt-4" data-wt-stage hidden>
+  <div class="mt-3" hidden data-webcam-stage>
     <video
-      class="w-full max-w-md rounded-lg border bg-black"
-      data-wt-video
+      class="w-full max-w-sm rounded-lg border bg-black"
+      data-webcam-video
       playsinline
       muted
       autoplay
-      aria-label="Live camera preview"></video>
+      aria-label="Live camera preview"
+      aria-describedby={helpId}></video>
   </div>
-  <p class="mt-3 text-sm text-[rgb(var(--text-muted))]" data-wt-placeholder>
-    The preview appears here once the camera is running.
-  </p>
 
   <dl
-    class="mt-4 grid gap-x-6 gap-y-1.5 text-sm sm:grid-cols-[minmax(8rem,auto)_1fr]"
-    data-wt-readout
+    class="mt-4 grid gap-x-6 gap-y-2 text-sm sm:grid-cols-2"
+    data-webcam-readout
+    hidden
+    aria-label="Live stream readout"
   >
-    <dt class="font-medium text-[rgb(var(--text-muted))]">Resolution</dt>
-    <dd class="font-mono text-xs text-[rgb(var(--text))]" data-wt-resolution-value>—</dd>
-    <dt class="font-medium text-[rgb(var(--text-muted))]">Frame rate</dt>
-    <dd class="font-mono text-xs text-[rgb(var(--text))]" data-wt-fps-value>—</dd>
-    <dt class="font-medium text-[rgb(var(--text-muted))]">Audio</dt>
-    <dd class="font-mono text-xs text-[rgb(var(--text))]" data-wt-audio-value>—</dd>
-    <dt class="font-medium text-[rgb(var(--text-muted))]">Cameras</dt>
-    <dd class="font-mono text-xs text-[rgb(var(--text))]" data-wt-cameras-value>—</dd>
+    <div class="flex items-baseline justify-between gap-3 border-b pb-1">
+      <dt class="text-[rgb(var(--text-muted))]">Resolution</dt>
+      <dd class="font-mono text-xs" data-webcam-value="resolution">—</dd>
+    </div>
+    <div class="flex items-baseline justify-between gap-3 border-b pb-1">
+      <dt class="text-[rgb(var(--text-muted))]">Aspect ratio</dt>
+      <dd class="font-mono text-xs" data-webcam-value="aspect">—</dd>
+    </div>
+    <div class="flex items-baseline justify-between gap-3 border-b pb-1">
+      <dt class="text-[rgb(var(--text-muted))]">Measured frame rate</dt>
+      <dd class="font-mono text-xs" data-webcam-value="fps">—</dd>
+    </div>
+    <div class="flex items-baseline justify-between gap-3 border-b pb-1">
+      <dt class="text-[rgb(var(--text-muted))]">Frame rate reported by the camera</dt>
+      <dd class="font-mono text-xs" data-webcam-value="track-fps">—</dd>
+    </div>
+    <div class="flex items-baseline justify-between gap-3 border-b pb-1">
+      <dt class="text-[rgb(var(--text-muted))]">Frames sampled</dt>
+      <dd class="font-mono text-xs" data-webcam-value="frames">—</dd>
+    </div>
   </dl>
 
-  <div class="mt-4" data-wt-snapshot-wrap hidden>
-    <h3 class="text-sm font-semibold text-[rgb(var(--text))]">Snapshot</h3>
-    <canvas class="mt-2 w-full max-w-md rounded-lg border" data-wt-canvas></canvas>
-    <a
-      class="btn btn-subtle btn-sm mt-2"
-      data-wt-snapshot-link
-      href="#"
-      download="webcam-snapshot.png"
-    >
-      <Icon name="download" size={14} /> Download PNG
-    </a>
-  </div>
-
-  <div class="mt-5" data-wt-report-wrap hidden>
-    <h3 class="text-sm font-semibold text-[rgb(var(--text))]">Report</h3>
-    <div class="mt-2" data-wt-report></div>
-    <dl
-      class="mt-3 grid gap-x-6 gap-y-1 text-xs sm:grid-cols-[minmax(8rem,auto)_1fr]"
-      data-wt-stats
-    >
-    </dl>
-    <ul class="mt-3 space-y-1 text-xs" data-wt-notes></ul>
-    <ul class="mt-2 space-y-1 text-xs" data-wt-warnings></ul>
+  <div class="mt-4 space-y-3">
+    <div class="min-w-0" data-webcam-report hidden></div>
+    <ul class="space-y-2" data-webcam-outputs></ul>
+    <ul class="space-y-1 text-xs" data-webcam-notes></ul>
   </div>
 
   <noscript>
     <p class="mt-3 text-sm text-[rgb(var(--text-muted))]">
-      The camera test needs JavaScript — the preview, the readout and the snapshot all run in your
-      browser tab.
+      Testing a camera needs JavaScript: the browser exposes no other way to read a live video
+      stream.
     </p>
   </noscript>
 </section>
 
 <script>
   document.querySelectorAll<HTMLElement>('[data-webcam-test-panel]').forEach((panel) => {
-    // The panel's logic is loaded on demand so no camera code ships to the
-    // pages that do not use it.
-    void import('./webcam-test-panel')
+    // The panel's logic is loaded on demand so no camera code ships to pages
+    // that don't test a camera.
+    void import('./webcam-test')
       .then(({ mountWebcamTestPanel }) => mountWebcamTestPanel(panel))
       .catch(() => {
-        const status = panel.querySelector<HTMLElement>('[data-wt-status]');
-        if (status) {
-          status.textContent = 'The camera panel could not be loaded in this browser.';
+        const error = panel.querySelector<HTMLElement>('[data-webcam-error]');
+        if (error) {
+          error.hidden = false;
+          error.textContent = 'The camera panel could not be loaded in this browser.';
         }
       });
   });

@@ -1,473 +1,587 @@
 /**
- * Pure logic behind the webcam test tool.
+ * Pure helpers behind the Webcam Test panel.
  *
- * The panel (`src/components/panels/webcam-test-panel.ts`) owns everything
- * that touches the DOM and the camera. This module only parses what the panel
- * measured and turns it into the report the page shows, so it can be unit
- * tested without a browser.
- *
- * The panel hands the tool a JSON document with this shape:
- *
- * ```json
- * {
- *   "state": "live",
- *   "cameraLabel": "FaceTime HD Camera",
- *   "width": 1280,
- *   "height": 720,
- *   "reportedFps": 30,
- *   "measuredFps": 29.8,
- *   "hasAudio": false,
- *   "cameras": [{ "deviceId": "abc", "label": "FaceTime HD Camera" }],
- *   "settings": { "width": 1280, "height": 720, "frameRate": 30 },
- *   "errorMessage": null
- * }
- * ```
- *
- * Nothing here reaches the network or the camera — the report is built from
- * the numbers the panel already measured.
+ * Nothing here touches the DOM, `navigator` or a camera. The panel measures the
+ * live stream (`getUserMedia` + `track.getSettings()` + presented-frame
+ * timings), serialises the numbers to JSON and hands them to this tool's `run()`,
+ * which turns the snapshot plus those numbers into the report. Keeping every
+ * rule below DOM-free is what makes it unit-testable in jsdom.
  */
 import { ToolError } from '@/lib/types';
+import { formatBytes, formatDuration, pluralize } from '@/lib/format';
 
-/* -------------------------------------------------------------------------- */
-/*  Limits                                                                     */
-/* -------------------------------------------------------------------------- */
-
-/** The panel never sends more than this; a bigger payload is a bug or an attack. */
-export const MAX_INPUT_CHARS = 100_000;
-/** Practical per-side pixel limit shared by browsers. */
-export const MAX_DIMENSION = 16_384;
-/** Above this a frame rate is nonsense, not a camera. */
-export const MAX_FPS = 1_000;
-/** A browser with more cameras than this is a broken enumeration. */
-export const MAX_CAMERAS = 64;
-
-/* -------------------------------------------------------------------------- */
-/*  States                                                                     */
-/* -------------------------------------------------------------------------- */
-
-/** The panel reports exactly one of these states. */
-export const WEBCAM_STATES = [
-  'live',
-  'stopped',
-  'denied',
-  'no-camera',
-  'in-use',
-  'unsupported',
-  'failed',
-] as const;
-
-export type WebcamState = (typeof WEBCAM_STATES)[number];
-
-/** How each state reads in the report. */
-export const STATE_LABELS: Record<WebcamState, string> = {
-  live: 'Camera running',
-  stopped: 'Camera off',
-  denied: 'Permission denied',
-  'no-camera': 'No camera found',
-  'in-use': 'Camera already in use',
-  unsupported: 'No camera API in this browser',
-  failed: 'The camera could not be started',
-};
-
-/* -------------------------------------------------------------------------- */
-/*  Resolutions                                                                */
-/* -------------------------------------------------------------------------- */
-
-/** The capture sizes the panel can ask for. `auto` lets the browser decide. */
-export const RESOLUTION_CHOICES: { value: string; label: string }[] = [
-  { value: 'auto', label: 'Browser default' },
-  { value: '640', label: '640 × 360' },
-  { value: '1280', label: '1280 × 720' },
-  { value: '1920', label: '1920 × 1080' },
-];
-
-/** The values `resolution` accepts. */
-export const RESOLUTION_VALUES = RESOLUTION_CHOICES.map((choice) => choice.value);
-
+/** A bigger "snapshot" is a bug (or a hostile file), not a webcam frame. */
+export const MAX_SNAPSHOT_EDGE = 16_384;
+export const MAX_SNAPSHOT_PIXELS = 40_000_000;
+/** Rolling window the live frame rate is measured over. */
+export const FRAME_WINDOW_MS = 2_000;
 /**
- * The ideal capture size for a resolution request, or `null` for the browser
- * default. Throws for an unknown value so a typo never reaches `getUserMedia`.
+ * A stream that has presented nothing for this long counts as stopped, so its
+ * last rate is never shown — or reported in a snapshot — as current.
  */
-export function resolutionConstraint(value: string): { width: number; height: number } | null {
-  switch (value) {
-    case 'auto':
-      return null;
-    case '640':
-      return { width: 640, height: 360 };
-    case '1280':
-      return { width: 1280, height: 720 };
-    case '1920':
-      return { width: 1920, height: 1080 };
-    default:
-      throw new ToolError(
-        `Unknown resolution "${value}".`,
-        `Choose one of: ${RESOLUTION_VALUES.join(', ')}.`,
-      );
-  }
-}
-
-/** The human label of a resolution request. */
-export function resolutionLabel(value: string): string {
-  return RESOLUTION_CHOICES.find((choice) => choice.value === value)?.label ?? value;
-}
+export const FRAME_STALE_MS = 1_000;
 
 /* -------------------------------------------------------------------------- */
-/*  Facts                                                                      */
+/*  Probe shape                                                               */
 /* -------------------------------------------------------------------------- */
 
-/** One camera the browser knows about. */
-export interface CameraDevice {
-  /** The browser's opaque id for the camera. */
-  deviceId: string;
-  /** The camera's name — empty until the user grants permission. */
-  label: string;
-}
+/** Where the frame timings came from. */
+export type FpsSource = 'video-frame' | 'raf';
 
-/** Everything the panel measured, already validated. */
-export interface WebcamFacts {
-  state: WebcamState;
-  /** Name of the camera in use. */
-  cameraLabel: string;
-  /** Actual capture width in pixels, from `track.getSettings()`. */
+export interface TrackSettings {
   width: number | null;
-  /** Actual capture height in pixels, from `track.getSettings()`. */
   height: number | null;
-  /** Frame rate the track claims to deliver. */
-  reportedFps: number | null;
-  /** Frame rate actually measured over the preview window. */
-  measuredFps: number | null;
-  /** True when an audio track is live. */
-  hasAudio: boolean;
-  /** Every camera the browser enumerated. */
-  cameras: CameraDevice[];
-  /** The raw `track.getSettings()` object, when there is one. */
-  settings: Record<string, unknown> | null;
-  /** A friendly message for the failure, when there is one. */
-  errorMessage: string | null;
+  /** Frame rate the camera reports for the track, if it reports one. */
+  frameRate: number | null;
+  aspectRatio: number | null;
+  facingMode: string | null;
 }
 
-/* -------------------------------------------------------------------------- */
-/*  Parsing                                                                    */
-/* -------------------------------------------------------------------------- */
-
-function readString(source: Record<string, unknown>, key: string, fallback = ''): string {
-  const value = source[key];
-  if (value === undefined || value === null) return fallback;
-  if (typeof value !== 'string') {
-    throw new ToolError(`"${key}" must be a string.`, `Received ${typeof value} instead.`);
-  }
-  return value;
-}
-
-function readBoolean(source: Record<string, unknown>, key: string, fallback: boolean): boolean {
-  const value = source[key];
-  if (value === undefined || value === null) return fallback;
-  if (typeof value !== 'boolean') {
-    throw new ToolError(`"${key}" must be true or false.`, `Received ${typeof value} instead.`);
-  }
-  return value;
-}
-
-interface NumberBounds {
-  min: number;
-  max: number;
+export interface CameraDevice {
+  deviceId: string;
   label: string;
+  /** True for the camera the live stream is actually using. */
+  active: boolean;
+}
+
+/** Everything the panel measured, in the shape `run()` consumes. */
+export interface CaptureProbe {
+  deviceId: string;
+  deviceLabel: string;
+  settings: TrackSettings;
+  /** Frames presented per second during the sampling window, or null. */
+  fps: number | null;
+  /** Frames observed in the sampling window. */
+  frames: number;
+  /** Length of the sampling window in milliseconds. */
+  sampleMs: number;
+  fpsSource: FpsSource;
+  /** Every video input the browser listed, or null when none were reported. */
+  devices: CameraDevice[] | null;
+}
+
+/** The probe for a run that has no live camera readings (e.g. an uploaded file). */
+export function emptyProbe(): CaptureProbe {
+  return {
+    deviceId: '',
+    deviceLabel: '',
+    settings: {
+      width: null,
+      height: null,
+      frameRate: null,
+      aspectRatio: null,
+      facingMode: null,
+    },
+    fps: null,
+    frames: 0,
+    sampleMs: 0,
+    fpsSource: 'video-frame',
+    devices: null,
+  };
+}
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function malformed(field: string): ToolError {
+  return new ToolError(
+    `The camera details were malformed (${field}).`,
+    'Take a fresh snapshot — the camera panel fills this in automatically.',
+  );
+}
+
+function readString(source: Record<string, unknown>, key: string): string | null {
+  const value = source[key];
+  if (value === undefined || value === null) return null;
+  if (typeof value !== 'string') throw malformed(key);
+  return value;
 }
 
 function readNumber(
   source: Record<string, unknown>,
   key: string,
-  bounds: NumberBounds,
+  { integer = false }: { integer?: boolean } = {},
 ): number | null {
   const value = source[key];
   if (value === undefined || value === null) return null;
-  if (typeof value !== 'number' || !Number.isFinite(value)) {
-    throw new ToolError(
-      `"${key}" must be a finite number.`,
-      `Received ${typeof value === 'number' ? String(value) : typeof value} instead.`,
-    );
-  }
-  if (value < bounds.min || value > bounds.max) {
-    throw new ToolError(
-      `"${key}" is out of range (${value}).`,
-      `A ${bounds.label} must be between ${bounds.min} and ${bounds.max}.`,
-    );
-  }
+  if (typeof value !== 'number' || !Number.isFinite(value) || value < 0) throw malformed(key);
+  if (integer && !Number.isInteger(value)) throw malformed(key);
   return value;
 }
 
-function readCameras(source: Record<string, unknown>): CameraDevice[] {
-  const value = source['cameras'];
-  if (value === undefined || value === null) return [];
-  if (!Array.isArray(value)) {
-    throw new ToolError('"cameras" must be an array.', 'Received something else instead.');
-  }
-  if (value.length > MAX_CAMERAS) {
-    throw new ToolError(
-      `Too many cameras listed (${value.length}).`,
-      `At most ${MAX_CAMERAS} cameras are accepted.`,
-    );
-  }
-  return value.map((entry, index) => {
-    if (!entry || typeof entry !== 'object' || Array.isArray(entry)) {
-      throw new ToolError(
-        `Camera #${index + 1} must be an object.`,
-        'Each camera needs a "deviceId" and a "label".',
-      );
-    }
-    const record = entry as Record<string, unknown>;
+function readBoolean(source: Record<string, unknown>, key: string): boolean {
+  const value = source[key];
+  if (value === undefined || value === null) return false;
+  if (typeof value !== 'boolean') throw malformed(key);
+  return value;
+}
+
+function parseDevices(raw: unknown): CameraDevice[] | null {
+  if (raw === undefined || raw === null) return null;
+  if (!Array.isArray(raw)) throw malformed('devices');
+  return raw.map((entry, index) => {
+    if (!isPlainObject(entry)) throw malformed(`devices[${index}]`);
     return {
-      deviceId: readString(record, 'deviceId'),
-      label: readString(record, 'label'),
+      deviceId: readString(entry, 'deviceId') ?? '',
+      label: readString(entry, 'label') ?? '',
+      active: readBoolean(entry, 'active'),
     };
   });
 }
 
-function readSettings(source: Record<string, unknown>): Record<string, unknown> | null {
-  const value = source['settings'];
-  if (value === undefined || value === null) return null;
-  if (typeof value !== 'object' || Array.isArray(value)) {
-    throw new ToolError(
-      '"settings" must be an object.',
-      'It holds the raw values from track.getSettings().',
-    );
-  }
-  return value as Record<string, unknown>;
-}
-
 /**
- * Parse and validate the JSON the panel sent.
- *
- * Every failure is a `ToolError`: a report built from half-understood numbers
- * would be worse than no report at all.
+ * Read the panel's JSON reading probe. An absent value is fine (the tool stays
+ * usable without a camera), but anything present must be well-formed — a
+ * half-parsed report would be worse than an error.
  */
-export function parseWebcamFacts(text: string): WebcamFacts {
-  if (typeof text !== 'string') {
-    throw new ToolError('No camera details were provided.');
-  }
-  const trimmed = text.trim();
-  if (!trimmed) {
-    throw new ToolError(
-      'No camera details were provided.',
-      'Start the camera in the panel above — the report is built from what it measures.',
-    );
-  }
-  if (trimmed.length > MAX_INPUT_CHARS) {
-    throw new ToolError(
-      `The camera details are too large (${trimmed.length.toLocaleString()} characters).`,
-      `The limit is ${MAX_INPUT_CHARS.toLocaleString()} characters.`,
-    );
-  }
+export function parseCaptureProbe(raw: unknown): CaptureProbe {
+  if (raw === undefined || raw === null || raw === '') return emptyProbe();
+  if (typeof raw !== 'string') throw malformed('capture');
 
   let parsed: unknown;
   try {
-    parsed = JSON.parse(trimmed);
+    parsed = JSON.parse(raw);
   } catch {
     throw new ToolError(
-      'The camera details are not valid JSON.',
-      'This is a bug in the panel — reload the page and try again.',
+      'The camera details were not valid JSON.',
+      'Take a fresh snapshot — the camera panel fills this in automatically.',
     );
   }
-  if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
-    throw new ToolError(
-      'The camera details must be a JSON object.',
-      'Expected an object with at least a "state" field.',
-    );
+  if (!isPlainObject(parsed)) throw malformed('capture');
+
+  const rawSettings = parsed.settings;
+  if (rawSettings !== undefined && rawSettings !== null && !isPlainObject(rawSettings)) {
+    throw malformed('settings');
   }
+  const settingsSource = (rawSettings ?? {}) as Record<string, unknown>;
 
-  const source = parsed as Record<string, unknown>;
-
-  const rawState = source['state'];
-  if (typeof rawState !== 'string' || !WEBCAM_STATES.includes(rawState as WebcamState)) {
-    throw new ToolError(
-      typeof rawState === 'string'
-        ? `Unknown camera state "${rawState}".`
-        : 'The camera details are missing a "state" field.',
-      `Expected one of: ${WEBCAM_STATES.join(', ')}.`,
-    );
-  }
-  const state = rawState as WebcamState;
-
-  const width = readNumber(source, 'width', { min: 1, max: MAX_DIMENSION, label: 'width' });
-  const height = readNumber(source, 'height', { min: 1, max: MAX_DIMENSION, label: 'height' });
-  const reportedFps = readNumber(source, 'reportedFps', {
-    min: 0,
-    max: MAX_FPS,
-    label: 'frame rate',
-  });
-  const measuredFps = readNumber(source, 'measuredFps', {
-    min: 0,
-    max: MAX_FPS,
-    label: 'frame rate',
-  });
-
-  if (state === 'live' && (width === null || height === null)) {
-    throw new ToolError(
-      'The live report is missing the capture resolution.',
-      'Both "width" and "height" are required while the camera is running.',
-    );
+  const rawSource = readString(parsed, 'fpsSource');
+  if (rawSource !== null && rawSource !== 'video-frame' && rawSource !== 'raf') {
+    throw malformed('fpsSource');
   }
 
   return {
-    state,
-    cameraLabel: readString(source, 'cameraLabel'),
-    width,
-    height,
-    reportedFps,
-    measuredFps,
-    hasAudio: readBoolean(source, 'hasAudio', false),
-    cameras: readCameras(source),
-    settings: readSettings(source),
-    errorMessage: readString(source, 'errorMessage') || null,
+    deviceId: readString(parsed, 'deviceId') ?? '',
+    deviceLabel: readString(parsed, 'deviceLabel') ?? '',
+    settings: {
+      width: readNumber(settingsSource, 'width'),
+      height: readNumber(settingsSource, 'height'),
+      frameRate: readNumber(settingsSource, 'frameRate'),
+      aspectRatio: readNumber(settingsSource, 'aspectRatio'),
+      facingMode: readString(settingsSource, 'facingMode'),
+    },
+    fps: readNumber(parsed, 'fps'),
+    frames: readNumber(parsed, 'frames', { integer: true }) ?? 0,
+    sampleMs: readNumber(parsed, 'sampleMs') ?? 0,
+    fpsSource: rawSource ?? 'video-frame',
+    devices: parseDevices(parsed.devices),
   };
 }
 
 /* -------------------------------------------------------------------------- */
-/*  Numbers                                                                    */
+/*  Measuring                                                                 */
 /* -------------------------------------------------------------------------- */
 
-/** Frames per second over a window. Zero for an empty or nonsensical window. */
-export function framesPerSecond(frames: number, elapsedMs: number): number {
-  if (!Number.isFinite(frames) || frames <= 0) return 0;
-  if (!Number.isFinite(elapsedMs) || elapsedMs <= 0) return 0;
-  return (frames * 1000) / elapsedMs;
+function round1(value: number): number {
+  return Math.round(value * 10) / 10;
 }
 
-/** Round a frame rate to `decimals` places — 29.97 becomes 30, not 29.969999. */
-export function roundFps(fps: number, decimals = 1): number {
-  if (!Number.isFinite(fps) || fps <= 0) return 0;
-  const factor = 10 ** decimals;
-  return Math.round(fps * factor) / factor;
+/**
+ * Frames per second from the timestamps of frames the browser presented.
+ * `null` when fewer than two frames (or a zero-length span) were seen.
+ */
+export function fpsFromTimestamps(timestamps: readonly number[]): number | null {
+  if (!Array.isArray(timestamps) || timestamps.length < 2) return null;
+  const first = timestamps[0]!;
+  const last = timestamps[timestamps.length - 1]!;
+  const span = last - first;
+  if (!Number.isFinite(span) || span <= 0) return null;
+  const fps = ((timestamps.length - 1) * 1000) / span;
+  return Number.isFinite(fps) && fps > 0 ? round1(fps) : null;
 }
 
-/** How far the measured frame rate is from the one the track claims. */
-export function fpsDiscrepancy(reported: number | null, measured: number | null): number | null {
-  if (reported === null || measured === null) return null;
-  return Math.abs(reported - measured);
+/**
+ * True when the newest timestamp is too old to describe the stream right now —
+ * a stalled camera, or a tab the browser has stopped painting. Callers treat a
+ * stale measurement as "no rate" rather than reporting the last good number.
+ */
+export function measurementStale(
+  timestamps: readonly number[],
+  now: number,
+  staleAfterMs = FRAME_STALE_MS,
+): boolean {
+  if (timestamps.length === 0) return true;
+  const newest = timestamps[timestamps.length - 1]!;
+  return !Number.isFinite(newest) || now - newest > staleAfterMs;
 }
 
-/* -------------------------------------------------------------------------- */
-/*  Formatting                                                                 */
-/* -------------------------------------------------------------------------- */
-
-/** `1920 × 1080 px`, or a dash when the size is unknown. */
-export function formatResolution(width: number | null, height: number | null): string {
-  if (width === null || height === null) return '—';
-  return `${width} × ${height} px`;
-}
-
-/** The name to show for a camera — never an empty cell. */
-export function displayLabel(label: string): string {
-  const trimmed = label.trim();
-  return trimmed.length ? trimmed : 'Unnamed camera';
-}
-
-/** A one-line summary of the camera list the browser reported. */
-export function summariseCameraList(cameras: CameraDevice[]): string {
-  if (!cameras.length) return 'No cameras detected';
-  const named = cameras.filter((camera) => camera.label.trim().length > 0).length;
-  const count = `${cameras.length} camera${cameras.length === 1 ? '' : 's'}`;
-  if (named === 0) return `${count} detected (names hidden until you allow access)`;
-  if (named < cameras.length) return `${count} detected (${named} named)`;
-  return count;
-}
-
-/** The frame-rate cell: what the track claims, and what was really delivered. */
-export function formatFrameRate(facts: WebcamFacts): string {
-  const parts: string[] = [];
-  if (facts.reportedFps !== null) parts.push(`${roundFps(facts.reportedFps)} fps reported`);
-  if (facts.measuredFps !== null) parts.push(`${roundFps(facts.measuredFps)} fps measured`);
-  if (!parts.length) return '—';
-  return parts.join(' · ');
-}
-
-/** A warning when the preview delivered noticeably fewer frames than promised. */
-export function fpsWarning(facts: WebcamFacts, tolerance = 2): string | null {
-  const difference = fpsDiscrepancy(facts.reportedFps, facts.measuredFps);
-  if (difference === null || difference <= tolerance) return null;
-  return `The camera reports ${roundFps(facts.reportedFps!)} fps but the preview delivered about ${roundFps(
-    facts.measuredFps!,
-  )} fps — the browser is likely dropping frames.`;
+/**
+ * Drop timestamps older than the rolling window. Returns the input array
+ * unchanged (the same reference) when nothing has aged out, so the live loop
+ * does not allocate on every frame.
+ */
+export function trimFrameWindow(
+  timestamps: number[],
+  now: number,
+  windowMs = FRAME_WINDOW_MS,
+): number[] {
+  const cutoff = now - windowMs;
+  let start = 0;
+  while (start < timestamps.length && timestamps[start]! < cutoff) start++;
+  return start === 0 ? timestamps : timestamps.slice(start);
 }
 
 /* -------------------------------------------------------------------------- */
-/*  The report                                                                 */
+/*  Formatting                                                                */
 /* -------------------------------------------------------------------------- */
 
-/** How the report should be built. */
-export interface ReportOptions {
-  /** The resolution the panel asked for. */
-  requested: string;
-  /** Whether the raw track settings are included. */
-  includeSettings: boolean;
+function isPositive(value: number | null | undefined): value is number {
+  return typeof value === 'number' && Number.isFinite(value) && value > 0;
 }
 
-/** The report rows, ready for the shared table renderer. */
-export function buildReportRows(facts: WebcamFacts, options: ReportOptions): string[][] {
-  const rows: string[][] = [['Status', STATE_LABELS[facts.state]]];
+/** `1280 × 720`, or `unknown` when the size is not known. */
+export function formatResolution(
+  width: number | null | undefined,
+  height: number | null | undefined,
+): string {
+  if (!isPositive(width) || !isPositive(height)) return 'unknown';
+  return `${Math.round(width)} × ${Math.round(height)}`;
+}
 
-  if (facts.state === 'live') {
-    rows.push(['Camera', displayLabel(facts.cameraLabel)]);
-    rows.push(['Resolution', formatResolution(facts.width, facts.height)]);
-    rows.push(['Frame rate', formatFrameRate(facts)]);
-    rows.push(['Audio', facts.hasAudio ? 'Yes — an audio track is live' : 'No — video only']);
+/** `30.0 fps`, or `unknown` when a rate could not be measured. */
+export function formatFps(fps: number | null | undefined): string {
+  if (!isPositive(fps)) return 'unknown';
+  return `${fps.toFixed(1)} fps`;
+}
+
+function gcd(a: number, b: number): number {
+  let x = a;
+  let y = b;
+  while (y) {
+    [x, y] = [y, x % y];
   }
+  return x;
+}
 
-  rows.push(['Cameras detected', summariseCameraList(facts.cameras)]);
-  rows.push(['Requested resolution', resolutionLabel(options.requested)]);
+/** `16:9`, or a decimal ratio when the reduced form is unwieldy. */
+export function formatAspectRatio(
+  width: number | null | undefined,
+  height: number | null | undefined,
+): string | null {
+  if (!isPositive(width) || !isPositive(height)) return null;
+  const w = Math.round(width);
+  const h = Math.round(height);
+  const divisor = gcd(w, h);
+  const reducedW = w / divisor;
+  const reducedH = h / divisor;
+  if (reducedW <= 32 && reducedH <= 32) return `${reducedW}:${reducedH}`;
+  return `${(w / h).toFixed(2)}:1`;
+}
 
-  if (facts.errorMessage) rows.push(['Details', facts.errorMessage]);
-
-  if (options.includeSettings && facts.settings) {
-    rows.push(['Track settings', JSON.stringify(facts.settings)]);
+/** Human wording for a `facingMode` track setting. */
+export function facingLabel(mode: string | null | undefined): string | null {
+  if (!mode) return null;
+  switch (mode) {
+    case 'user':
+      return 'Front (user-facing)';
+    case 'environment':
+      return 'Rear (environment-facing)';
+    case 'left':
+    case 'right':
+      return `${mode[0]!.toUpperCase()}${mode.slice(1)} side`;
+    default:
+      return mode;
   }
+}
 
+/* -------------------------------------------------------------------------- */
+/*  Snapshot                                                                  */
+/* -------------------------------------------------------------------------- */
+
+export type SnapshotFormat = 'png' | 'jpeg';
+
+export interface SnapshotDimensions {
+  width: number;
+  height: number;
+  format: SnapshotFormat;
+}
+
+export interface SnapshotInfo extends SnapshotDimensions {
+  bytes: number;
+}
+
+const PNG_SIGNATURE = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
+
+function readU32BE(bytes: Uint8Array, offset: number): number {
+  return (
+    ((bytes[offset]! << 24) |
+      (bytes[offset + 1]! << 16) |
+      (bytes[offset + 2]! << 8) |
+      bytes[offset + 3]!) >>>
+    0
+  );
+}
+
+function pngDimensions(bytes: Uint8Array): SnapshotDimensions | null {
+  if (bytes.length < 24) return null;
+  if (!PNG_SIGNATURE.every((byte, i) => bytes[i] === byte)) return null;
+  // IHDR must be the first chunk: 4-byte length, 4-byte type, then width/height.
+  if (String.fromCharCode(bytes[12]!, bytes[13]!, bytes[14]!, bytes[15]!) !== 'IHDR') return null;
+  const width = readU32BE(bytes, 16);
+  const height = readU32BE(bytes, 20);
+  if (!width || !height) return null;
+  return { width, height, format: 'png' };
+}
+
+/** Start-of-frame markers: every SOFn except the DHT/JPG/DAC codes (0xc4/c8/cc). */
+const SOF_MARKERS = new Set([
+  0xc0, 0xc1, 0xc2, 0xc3, 0xc5, 0xc6, 0xc7, 0xc9, 0xca, 0xcb, 0xcd, 0xce, 0xcf,
+]);
+
+function jpegDimensions(bytes: Uint8Array): SnapshotDimensions | null {
+  if (bytes.length < 4 || bytes[0] !== 0xff || bytes[1] !== 0xd8) return null;
+  let offset = 2;
+  while (offset + 3 < bytes.length) {
+    if (bytes[offset] !== 0xff) {
+      offset += 1; // resync after a stray byte
+      continue;
+    }
+    const marker = bytes[offset + 1]!;
+    if (marker === 0xff) {
+      offset += 1; // fill byte
+      continue;
+    }
+    offset += 2;
+    // Standalone markers carry no payload.
+    if (marker === 0x01 || (marker >= 0xd0 && marker <= 0xd7)) continue;
+    // End of image, or the entropy-coded scan (which has no fixed length).
+    if (marker === 0xd9 || marker === 0xda) return null;
+    if (offset + 1 >= bytes.length) return null;
+    const length = (bytes[offset]! << 8) | bytes[offset + 1]!;
+    if (length < 2 || offset + length > bytes.length) return null;
+    if (SOF_MARKERS.has(marker)) {
+      if (length < 7) return null;
+      const height = (bytes[offset + 3]! << 8) | bytes[offset + 4]!;
+      const width = (bytes[offset + 5]! << 8) | bytes[offset + 6]!;
+      if (!width || !height) return null;
+      return { width, height, format: 'jpeg' };
+    }
+    offset += length;
+  }
+  return null;
+}
+
+/**
+ * Read the pixel size straight out of the container header — no decoding, no
+ * canvas, so it works in a worker and in a test.
+ */
+export function readImageDimensions(bytes: Uint8Array): SnapshotDimensions | null {
+  return pngDimensions(bytes) ?? jpegDimensions(bytes);
+}
+
+/** Reject a snapshot whose size cannot be trusted (empty, absurd or hostile). */
+export function assertSnapshotDimensions(width: number, height: number): void {
+  if (!Number.isInteger(width) || !Number.isInteger(height) || width < 1 || height < 1) {
+    throw new ToolError(
+      `The snapshot has no readable size (${width} × ${height}).`,
+      'Take the snapshot again from the camera panel.',
+    );
+  }
+  if (width > MAX_SNAPSHOT_EDGE || height > MAX_SNAPSHOT_EDGE) {
+    throw new ToolError(
+      `The snapshot is ${formatResolution(width, height)} — larger than this tool supports.`,
+      `Frames up to ${MAX_SNAPSHOT_EDGE} px per side are supported.`,
+    );
+  }
+  if (width * height > MAX_SNAPSHOT_PIXELS) {
+    throw new ToolError(
+      `The snapshot is ${width * height} pixels — larger than this tool supports.`,
+      `Frames up to ${MAX_SNAPSHOT_PIXELS / 1_000_000} megapixels are supported.`,
+    );
+  }
+}
+
+/** True when the live stream and the captured frame describe the same size. */
+export function sameResolution(
+  streamWidth: number | null | undefined,
+  streamHeight: number | null | undefined,
+  snapshotWidth: number,
+  snapshotHeight: number,
+): boolean {
+  if (!isPositive(streamWidth) || !isPositive(streamHeight)) return true; // nothing to compare against
+  return Math.round(streamWidth) === snapshotWidth && Math.round(streamHeight) === snapshotHeight;
+}
+
+function pad(value: number, length = 2): string {
+  return String(value).padStart(length, '0');
+}
+
+/**
+ * `face-time-hd-camera-webcam-snapshot-20261024-093000.png` — the camera name
+ * makes a folder of test snapshots self-describing, and the timestamp keeps two
+ * captures apart.
+ */
+export function snapshotFilename(label: string, at: Date, extension = 'png'): string {
+  const stamp = `${at.getFullYear()}${pad(at.getMonth() + 1)}${pad(at.getDate())}-${pad(
+    at.getHours(),
+  )}${pad(at.getMinutes())}${pad(at.getSeconds())}`;
+  const slug = label
+    .normalize('NFKD')
+    .replace(/\p{Diacritic}/gu, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)+/g, '')
+    .slice(0, 40)
+    .replace(/-+$/, '');
+  const parts = [slug, 'webcam-snapshot', stamp].filter(Boolean);
+  return `${parts.join('-')}.${extension.replace(/^\./, '')}`;
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Report                                                                    */
+/* -------------------------------------------------------------------------- */
+
+/** The report table shown to the user: everything the test measured. */
+export function buildReportRows(probe: CaptureProbe, snapshot: SnapshotInfo): string[][] {
+  const rows: string[][] = [];
+  const { settings } = probe;
+
+  rows.push(['Camera', probe.deviceLabel || 'Unknown camera']);
+  rows.push(['Device ID', probe.deviceId || '(hidden until camera access is allowed)']);
+  rows.push(['Live resolution', formatResolution(settings.width, settings.height)]);
+  const ratio = formatAspectRatio(settings.width, settings.height);
+  if (ratio) rows.push(['Aspect ratio', ratio]);
+  if (isPositive(settings.frameRate)) {
+    rows.push(['Frame rate reported by the camera', formatFps(settings.frameRate)]);
+  }
+  rows.push([
+    'Measured frame rate',
+    probe.frames >= 2
+      ? `${formatFps(probe.fps)} (${pluralize(probe.frames, 'frame')} over ${formatDuration(
+          probe.sampleMs,
+        )})`
+      : 'not measured',
+  ]);
+  const facing = facingLabel(settings.facingMode);
+  if (facing) rows.push(['Facing', facing]);
+  rows.push([
+    'Snapshot',
+    `${formatResolution(snapshot.width, snapshot.height)} ${snapshot.format.toUpperCase()} · ${formatBytes(
+      snapshot.bytes,
+    )}`,
+  ]);
+
+  const devices = probe.devices ?? [];
+  rows.push(['Cameras detected', String(devices.length)]);
+  devices.forEach((device, index) => {
+    const name = device.label || '(label hidden until camera access is allowed)';
+    rows.push([`Camera ${index + 1}`, device.active ? `${name} — in use` : name]);
+  });
   return rows;
 }
 
-/** The key numbers, for the summary under the table. */
-export function buildStats(facts: WebcamFacts): Record<string, string | number> {
-  const stats: Record<string, string | number> = {
-    state: facts.state,
-    cameras: facts.cameras.length,
-    audio: facts.hasAudio ? 'yes' : 'no',
-  };
-  if (facts.width !== null) stats['width'] = facts.width;
-  if (facts.height !== null) stats['height'] = facts.height;
-  const fps = facts.measuredFps ?? facts.reportedFps;
-  if (fps !== null) stats['fps'] = roundFps(fps);
-  if (facts.measuredFps !== null) stats['measured fps'] = roundFps(facts.measuredFps);
-  return stats;
+/** The notes and warnings that go with a report. */
+export function buildReportNotes(
+  probe: CaptureProbe,
+  snapshot: SnapshotInfo,
+): {
+  notes: string[];
+  warnings: string[];
+} {
+  const notes: string[] = [];
+  const warnings: string[] = [];
+
+  if (
+    !sameResolution(probe.settings.width, probe.settings.height, snapshot.width, snapshot.height)
+  ) {
+    warnings.push(
+      `The live stream reported ${formatResolution(
+        probe.settings.width,
+        probe.settings.height,
+      )} but the captured frame is ${formatResolution(snapshot.width, snapshot.height)}.`,
+    );
+  }
+  if (probe.deviceId && probe.frames < 2) {
+    notes.push(
+      'The frame rate could not be measured — fewer than two frames were observed in the sampling window.',
+    );
+  }
+  if (probe.fpsSource === 'raf') {
+    notes.push(
+      'This browser has no video-frame callback, so the frame rate was sampled from the display refresh loop and may differ from the rate the camera actually delivers.',
+    );
+  }
+  if (!probe.deviceId && probe.devices === null) {
+    notes.push(
+      'No live camera readings were supplied, so this report only describes the snapshot.',
+    );
+  }
+  notes.push('The frame was captured and measured in this tab — nothing was recorded or uploaded.');
+  return { notes, warnings };
 }
 
-/** The short explanation under the report. */
-export function buildNotes(facts: WebcamFacts): string[] {
-  const notes = [
-    'Measured in this tab — no frame left your device and nothing was recorded or stored.',
-  ];
-  switch (facts.state) {
-    case 'stopped':
-      notes.push('The camera was stopped — start it again to measure the camera.');
-      break;
-    case 'denied':
-      notes.push('Allow camera access for this site, then start the camera again.');
-      break;
-    case 'no-camera':
-      notes.push(
-        'Connect a camera (and check that it is not disabled in system settings), then try again.',
+/* -------------------------------------------------------------------------- */
+/*  Friendly errors                                                           */
+/* -------------------------------------------------------------------------- */
+
+/** Turn a `getUserMedia` / camera failure into a user-facing `ToolError`. */
+export function describeCameraError(err: unknown): ToolError {
+  const e = err as { name?: string; message?: string } | undefined;
+  switch (e?.name) {
+    case 'NotAllowedError':
+    case 'PermissionDeniedError':
+      return new ToolError(
+        'Camera permission was denied.',
+        'Allow camera access for this site — open the padlock in the address bar, set Camera to “Allow”, then press Start camera again.',
       );
-      break;
-    case 'in-use':
-      notes.push('Close the other app or tab holding the camera, then start it again.');
-      break;
-    case 'unsupported':
-      notes.push('Camera access needs a recent Chrome, Edge, Firefox or Safari.');
-      break;
-    case 'failed':
-      notes.push('Try a different camera, or start the camera again.');
-      break;
+    case 'NotFoundError':
+    case 'DevicesNotFoundError':
+      return new ToolError(
+        'No camera was found on this device.',
+        'Connect a webcam and check that it is not disabled in your system settings, then press Start camera again.',
+      );
+    case 'NotReadableError':
+    case 'TrackStartError':
+    case 'AbortError':
+      return new ToolError(
+        'The camera is already in use.',
+        'Close other apps or tabs that are using the camera (video calls, other tabs), then press Start camera again.',
+      );
+    case 'OverconstrainedError':
+    case 'ConstraintNotSatisfiedError':
+      return new ToolError(
+        'This camera does not support the requested settings.',
+        'Press Start camera again to retry with the default camera.',
+      );
+    case 'SecurityError':
+      return new ToolError(
+        'Camera access is blocked on this page.',
+        'Browsers only allow cameras on secure pages — open this tool over https:// (or localhost), then try again.',
+      );
+    case 'TypeError':
+      return new ToolError(
+        'This browser does not expose a camera API.',
+        'Camera access needs a recent Chrome, Edge, Firefox or Safari.',
+      );
     default:
-      break;
+      return new ToolError(
+        e?.message || 'The camera could not be started.',
+        'Check that a camera is connected and not in use by another app, then press Start camera again.',
+      );
   }
-  return notes;
+}
+
+/**
+ * Guard the “press Start with no camera attached” case with a clear message.
+ * Returns the list it was given, so the caller can adopt it directly.
+ */
+export function assertHasDevices(devices: CameraDevice[]): CameraDevice[] {
+  if (devices.length === 0) {
+    throw new ToolError(
+      'No camera was found on this device.',
+      'Connect a webcam, then reload this page. If one is already attached, check that the browser is allowed to use it in your system settings.',
+    );
+  }
+  return devices;
 }

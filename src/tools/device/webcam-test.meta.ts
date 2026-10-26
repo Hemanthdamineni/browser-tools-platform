@@ -4,59 +4,61 @@ export const meta: ToolMeta = {
   id: 'webcam-test',
   name: 'Webcam Test',
   category: 'device',
-  summary:
-    'Pick a camera, watch a live preview, read the real resolution and frame rate, and take a snapshot.',
+  summary: 'Preview a camera, read its live resolution and frame rate, and save a PNG snapshot.',
   description:
-    'Open your camera in the browser and check it properly: choose between the cameras your device exposes, watch a live preview, and read the resolution and frame rate the browser actually delivers — not the ones that were requested. Snapshots are drawn in this tab and downloaded as PNGs. No frame is ever recorded, uploaded or stored.',
+    'Check a webcam before a call or a recording. Pick which camera to use, watch the live preview, see the real resolution, aspect ratio and measured frame rate of the stream, then take a snapshot you can download. Everything happens in this tab.',
   keywords: [
-    'webcam',
     'webcam test',
     'camera test',
-    'camera',
-    'webcam preview',
-    'live preview',
-    'resolution',
-    'frame rate',
-    'fps',
-    'snapshot',
-    'getUserMedia',
-    'video call',
-    'mirror check',
+    'test my camera',
+    'webcam check',
+    'camera resolution',
+    'fps test',
+    'framerate',
+    'webcam snapshot',
+    'device picker',
+    'camera preview',
   ],
   privacy: { processing: 'on-device', network: 'none', offline: true },
-  input: 'text',
+  input: 'file',
+  accept: 'image/*',
+  // The flow (choose a camera → live preview → live readout → snapshot) needs a
+  // video element the generic option form cannot express, so this tool opts into
+  // its own panel. The option below is what that panel hands to `run()`; it is
+  // declared so the contract is explicit and `run()` stays usable on its own.
   panel: 'webcam-test',
   options: [
     {
-      key: 'resolution',
-      label: 'Requested resolution',
-      type: 'select',
-      default: 'auto',
-      choices: [
-        { value: 'auto', label: 'Browser default' },
-        { value: '640', label: '640 × 360' },
-        { value: '1280', label: '1280 × 720' },
-        { value: '1920', label: '1920 × 1080' },
-      ],
-      help: 'A request, not a promise — the report always shows what the camera really delivered.',
-    },
-    {
-      key: 'includeSettings',
-      label: 'Include the raw track settings in the report',
-      type: 'boolean',
-      default: true,
-      help: 'Adds the values the browser reports for the video track, as-is.',
+      key: 'capture',
+      label: 'Camera readings (JSON)',
+      type: 'textarea',
+      default: '',
+      help: 'Filled in by the camera panel: the active device, its track settings, the measured frame rate and the cameras it found.',
     },
   ],
-  examples: [
-    { title: 'Test the default camera' },
+  faq: [
     {
-      title: 'Force 1080p and keep the raw settings',
-      options: { resolution: '1920', includeSettings: true },
+      q: 'Is my camera feed uploaded anywhere?',
+      a: 'No. The preview is a live video element fed by your browser, the frame rate is counted from frames drawn in this tab, and the snapshot is encoded with a canvas here. Nothing is recorded, stored or sent over the network. The only thing the page downloads is its own JavaScript, served from this site.',
     },
-    { title: 'Quick 360p preview', options: { resolution: '640', includeSettings: false } },
+    {
+      q: 'Why does the measured frame rate differ from the camera spec?',
+      a: 'A camera often advertises 30 fps but delivers fewer frames in dim light, or more than the display can show. The measured number counts the frames the browser actually presented during the sampling window, which is what you would see in a recording. Some browsers cannot report frames from the video at all; there the rate is sampled from the display refresh loop and is an approximation.',
+    },
+    {
+      q: 'Why are my camera names hidden?',
+      a: 'Browsers only reveal device names after you allow camera access at least once. Press Start camera to grant it, and the picker and the report will show the real names.',
+    },
+    {
+      q: 'What happens to the snapshot?',
+      a: 'It is drawn from the current frame into a PNG and offered as a download next to the report. The file is created in this tab and only leaves it if you save it.',
+    },
+    {
+      q: 'The camera does not start — what should I check?',
+      a: 'Camera access needs an https:// page (or localhost) and your permission. If another tab or app is already using the camera, close it and try again. The panel explains the exact reason for every blocker, including denied permission and a camera that is already in use.',
+    },
   ],
-  related: ['qr-scanner', 'video-info', 'image-metadata', 'audio-info'],
+  related: ['qr-scanner', 'barcode', 'image-metadata'],
   status: 'beta',
-  updated: '2026-10-22',
+  updated: '2026-10-24',
 };

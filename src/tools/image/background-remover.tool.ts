@@ -1,241 +1,490 @@
+/**
+ * Remove Background — on-device portrait matting with MODNet.
+ *
+ * The heavy work happens in the model: `Xenova/modnet` (Apache-2.0) predicts a
+ * single-channel alpha matte for the subject, and this tool composites it. Two
+ * files reach the network on the first run — the model weights from the Hugging
+ * Face Hub, and the ONNX runtime WebAssembly binary from the jsDelivr CDN (the
+ * transformers.js default `wasmPaths`, fetched by onnxruntime-web itself); both
+ * are cached by `@/lib/ml`, and the images never leave the tab.
+ *
+ * The matte maths below is pure — unit-tested without a browser or a model.
+ * Only `run()` (plus the preview encoder) touches canvas and model APIs.
+ */
 import type { FileToolModule, FileRunInput, FileRunResult } from '@/lib/types';
 import { ToolError } from '@/lib/types';
 import { resolveOptions } from '@/lib/options';
-import { isAbortError, loadModel } from '@/lib/ml';
-import { checkAbort, checkFiles } from './common';
-import { context2d, createCanvas, decodeOriented, encodeCanvas } from './image-batch';
+import { loadModel, type LoadedModel, type LoadProgress } from '@/lib/ml';
+import { checkAbort, checkFiles, extension, parseHexColor, stem } from './common';
 import {
-  OUTPUT_MIME,
-  assertInputBytes,
-  assertInputPixels,
-  composite,
-  matteCoverage,
-  modelProgressUpdate,
-  normalizeCutoff,
-  outputFilename,
-  resolveBackground,
-  type Matte,
-} from './background-remover.core';
+  assertCanvasBudget,
+  context2d,
+  createCanvas,
+  decodeOriented,
+  encodeCanvas,
+  runBatch,
+} from './image-batch';
 import { meta } from './background-remover.meta';
 
-/**
- * Remove an image background on-device with MODNet.
- *
- * The model (`Xenova/modnet`, Apache-2.0) is a *portrait matting* network: it
- * estimates a soft alpha matte for the person in the picture. The weights are
- * downloaded from the Hugging Face Hub on first use and cached in the browser;
- * the user's image never leaves the tab.
- *
- * The model call is injectable (`setMatteProducer`) so the pure logic in
- * `background-remover.core.ts` can be tested without a model.
- */
-
-/** The reviewed, permissively licensed model this tool uses. */
+/** Allow-listed MODNet export (Apache-2.0). RMBG-1.4 is non-commercial — not used. */
 export const MODEL_ID = 'Xenova/modnet';
 
-/** The transformers.js task that produces the alpha matte. */
-export const MODEL_TASK = 'image-segmentation';
+/** Fraction of the progress bar reserved for downloading/initialising the model. */
+const LOAD_SHARE = 0.6;
 
-/** The mask the image-segmentation pipeline returns for the subject. */
-interface MaskLike {
-  data: Uint8ClampedArray;
+/** Longest side of each panel in the before/after preview. */
+const PREVIEW_PANEL_MAX = 260;
+const PREVIEW_GAP = 6;
+/** Backdrop painted behind the preview so transparent pixels stay visible. */
+const PREVIEW_BACKDROP = '#e2e8f0';
+
+/**
+ * Tool-specific pixel ceiling.
+ *
+ * A cut-out holds the source `ImageData`, the composited RGBA buffer and the
+ * output `ImageData` size-by-size (~12 bytes per pixel) on top of the decoded
+ * bitmap and the two canvases. The shared 100-megapixel canvas budget
+ * (`MAX_CANVAS_PIXELS`) would therefore mean well over a gigabyte of typed
+ * arrays and can kill the tab, so this tool refuses anything above 24 MP
+ * (e.g. 4000×6000, ~500 MB peak) with a clear message instead.
+ */
+export const MAX_CUTOUT_PIXELS = 24_000_000;
+
+/* -------------------------------------------------------------------------- */
+/*  Model shapes                                                              */
+/* -------------------------------------------------------------------------- */
+
+/** A `RawImage`-shaped matte as returned by transformers.js. */
+export interface MattingMask {
+  data: ArrayLike<number>;
   width: number;
   height: number;
+  /** 1 = grayscale alpha, 2 = gray+alpha, 3 = RGB, 4 = RGBA. */
   channels: number;
 }
 
-interface SegmentationEntry {
-  label: string | null;
-  score: number | null;
-  mask: MaskLike;
+/** One segment of the `image-segmentation` pipeline output. */
+export interface SegmentationSegment {
+  label?: string | null;
+  score?: number | null;
+  mask: MattingMask;
 }
 
-type SegmentationPipeline = (input: OffscreenCanvas) => Promise<SegmentationEntry[]>;
+/** The `image-segmentation` pipeline, narrowed to what this tool calls. */
+export type SegmentationPipeline = (
+  input: unknown,
+) => Promise<SegmentationSegment[] | SegmentationSegment>;
 
-/** What a producer returns: the matte plus a little run metadata. */
-export interface MatteResult extends Matte {
-  /** True when the model weights came from the browser cache. */
-  fromCache?: boolean;
-  /** Which backend actually ran the model (`webgpu` or `wasm`). */
-  backend?: string;
-}
+/* -------------------------------------------------------------------------- */
+/*  Options                                                                   */
+/* -------------------------------------------------------------------------- */
 
-export interface MatteContext {
-  signal?: AbortSignal;
-  onProgress?: (fraction: number, message?: string) => void;
-}
+/** What replaces the removed background. */
+export type Background =
+  { kind: 'transparent' } | { kind: 'solid'; r: number; g: number; b: number };
 
 /**
- * Produces the alpha matte for a canvas. Injectable so tests never need the
- * real model (or a network connection).
+ * Resolve the `background` / `backgroundColour` options into a background.
+ * `'transparent'` keeps the alpha channel; `'solid'` needs a valid hex colour.
  */
-export type MatteProducer = (
-  canvas: OffscreenCanvas,
-  context: MatteContext,
-) => Promise<MatteResult>;
-
-let producer: MatteProducer | null = null;
-
-/** Replace the model producer (tests). Pass `null` to restore MODNet. */
-export function setMatteProducer(next: MatteProducer | null): void {
-  producer = next;
+export function resolveBackground(mode: unknown, colour: unknown): Background {
+  const value = String(mode ?? 'transparent')
+    .trim()
+    .toLowerCase();
+  if (value === 'transparent') return { kind: 'transparent' };
+  if (value !== 'solid') {
+    throw new ToolError(
+      `“${String(mode)}” is not a valid background.`,
+      'Choose “Transparent” or “Solid colour”.',
+    );
+  }
+  const rgb = parseHexColor(String(colour ?? ''));
+  if (!rgb) {
+    throw new ToolError(
+      'Enter a hex colour for the new background.',
+      'Use a 3- or 6-digit hex value such as #ffffff.',
+    );
+  }
+  return { kind: 'solid', r: rgb[0], g: rgb[1], b: rgb[2] };
 }
 
-/**
- * The default producer: load MODNet through the shared ML runtime and run it.
- *
- * The loader's download progress is mapped onto the workbench bar, including
- * the byte counts, so the first run says how much it is downloading instead of
- * looking like a hung tab.
- */
-async function runModnet(canvas: OffscreenCanvas, context: MatteContext): Promise<MatteResult> {
-  const loaded = await loadModel<SegmentationPipeline>({
-    task: MODEL_TASK,
-    model: MODEL_ID,
-    signal: context.signal,
-    onProgress: (progress) => {
-      const update = modelProgressUpdate(progress, 0.05, 0.8);
-      context.onProgress?.(update.fraction, update.message);
-    },
-  });
+/** Map the `format` option to an encodable MIME type. */
+export function resolveFormat(value: unknown): string {
+  const format = String(value ?? 'png')
+    .trim()
+    .toLowerCase();
+  if (format === 'png') return 'image/png';
+  if (format === 'webp') return 'image/webp';
+  throw new ToolError(
+    `“${String(value)}” is not a supported output format.`,
+    'Choose PNG or WebP.',
+  );
+}
 
-  try {
-    context.onProgress?.(0.86, 'Removing the background…');
-    const result = await loaded.pipeline(canvas);
-    const entry = Array.isArray(result) ? result[0] : undefined;
-    const mask = entry?.mask;
-    if (!mask || !mask.data?.length) {
-      throw new ToolError(
-        'The model did not return a matte for this image.',
-        'Try another picture.',
-      );
-    }
-    return {
-      data: mask.data,
-      width: mask.width,
-      height: mask.height,
-      fromCache: loaded.fromCache,
-      backend: loaded.backend,
-    };
-  } finally {
-    await loaded.dispose();
+/** Clamp the `quality` option to an encoder quality in 0..1 (WebP only). */
+export function resolveQuality(value: unknown): number {
+  const quality = Number(value);
+  if (!Number.isFinite(quality)) return 0.9;
+  return Math.min(100, Math.max(10, quality)) / 100;
+}
+
+/** Clamp the `threshold` option to an integer alpha cut-off in 0..255. Zero disables it. */
+export function resolveThreshold(value: unknown): number {
+  const threshold = Number(value);
+  if (!Number.isFinite(threshold) || threshold <= 0) return 0;
+  return Math.round((Math.min(100, threshold) / 100) * 255);
+}
+
+/** Output filename: `<name>-no-bg.png` for transparency, `<name>-solid.png` otherwise. */
+export function outputFilename(name: string, background: Background, mime: string): string {
+  const suffix = background.kind === 'transparent' ? 'no-bg' : 'solid';
+  return `${stem(name)}-${suffix}.${extension(mime)}`;
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Pure matte maths                                                          */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Enforce the shared canvas limits, then this tool's tighter ceiling. Runs on
+ * the decoded dimensions, before any full-resolution buffer is allocated.
+ */
+export function assertCutoutBudget(width: number, height: number): void {
+  assertCanvasBudget(width, height, 'source image');
+  const pixels = Math.round(width) * Math.round(height);
+  if (pixels > MAX_CUTOUT_PIXELS) {
+    throw new ToolError(
+      `That image is too large to cut a background out of safely (${Math.round(width)}×${Math.round(height)} pixels).`,
+      `Cutting a subject out keeps several full-size copies of the image in memory at once, so this tool is capped at ${MAX_CUTOUT_PIXELS.toLocaleString()} pixels (about 24 megapixels). Resize the image first, then try again.`,
+    );
   }
 }
 
-/** Turn an unexpected model failure into a friendly, user-facing error. */
-function producerError(error: unknown): unknown {
-  if (error instanceof ToolError || isAbortError(error)) return error;
-  const detail = error instanceof Error ? error.message : String(error);
-  const trimmed = detail.length > 160 ? `${detail.slice(0, 157)}…` : detail;
-  return new ToolError(
-    'The background could not be removed.',
-    trimmed
-      ? `The model failed to run: ${trimmed}`
-      : 'The model failed to run. Try a recent Chrome, Edge, Firefox or Safari.',
-  );
+/**
+ * Effective coverage of one pixel. A matte can only ever remove coverage, so an
+ * already-transparent source pixel (alpha 0) stays transparent even where the
+ * model says "subject" (1.0).
+ */
+function effectiveAlpha(matte: number, sourceAlpha: number, threshold: number): number {
+  const snapped = threshold > 0 ? (matte >= threshold ? 255 : 0) : matte;
+  return (snapped * sourceAlpha) / 255;
+}
+
+/**
+ * Collapse a pipeline mask (1–4 channels) into a single-channel alpha map of
+ * `width × height`, nearest-neighbour sampling when the matte was predicted at
+ * a different resolution than the source image.
+ */
+export function matteToAlpha(mask: MattingMask, width: number, height: number): Uint8ClampedArray {
+  const mw = Math.round(Number(mask.width));
+  const mh = Math.round(Number(mask.height));
+  const channels = Math.round(Number(mask.channels));
+  if (!Number.isFinite(mw) || !Number.isFinite(mh) || mw < 1 || mh < 1) {
+    throw new ToolError(
+      'The model returned an empty matte for this image.',
+      'Try a different photo, or a portrait with a clearly visible subject.',
+    );
+  }
+  if (channels !== 1 && channels !== 2 && channels !== 3 && channels !== 4) {
+    throw new ToolError('The model returned a matte with an unsupported channel count.');
+  }
+  const available = Math.floor(mask.data.length / channels);
+  if (available < mw * mh) {
+    throw new ToolError('The model returned a truncated matte.');
+  }
+
+  const out = new Uint8ClampedArray(width * height);
+  for (let y = 0; y < height; y++) {
+    const my = mh === height ? y : Math.min(mh - 1, Math.floor((y * mh) / height));
+    for (let x = 0; x < width; x++) {
+      const mx = mw === width ? x : Math.min(mw - 1, Math.floor((x * mw) / width));
+      const i = (my * mw + mx) * channels;
+      if (channels === 2) {
+        out[y * width + x] = mask.data[i + 1] ?? 0;
+      } else if (channels === 3) {
+        const r = mask.data[i] ?? 0;
+        const g = mask.data[i + 1] ?? 0;
+        const b = mask.data[i + 2] ?? 0;
+        out[y * width + x] = Math.round(0.2989 * r + 0.587 * g + 0.114 * b);
+      } else {
+        // 1 channel = alpha; 4 channels = take the alpha plane.
+        out[y * width + x] = mask.data[i + (channels === 4 ? 3 : 0)] ?? 0;
+      }
+    }
+  }
+  return out;
+}
+
+/**
+ * Composite an alpha matte over the source pixels.
+ *
+ * - `transparent`: keep the source colour, replace alpha with the matte.
+ * - `solid`: flatten the subject onto the colour (`src·a + bg·(1−a)`) and mark
+ *   every pixel opaque, so the result is a normal photo on a flat backdrop.
+ *
+ * The blend uses the *effective* alpha — `matte × source alpha / 255` — so an
+ * input that is already transparent (a PNG cut-out, a sprite) is never made
+ * opaque by the model, and never painted over the replacement colour.
+ *
+ * `threshold` (0 = off) snaps the matte to fully transparent/opaque, which
+ * turns the model's soft feathered edges into a hard cut-out.
+ */
+export function compositePixels(
+  source: Uint8ClampedArray,
+  alpha: Uint8ClampedArray,
+  background: Background,
+  threshold = 0,
+): Uint8ClampedArray {
+  const out = new Uint8ClampedArray(alpha.length * 4);
+  for (let p = 0, i = 0; i < alpha.length; i++, p += 4) {
+    const coverage = effectiveAlpha(alpha[i]!, source[p + 3] ?? 255, threshold);
+    const r = source[p] ?? 0;
+    const g = source[p + 1] ?? 0;
+    const b = source[p + 2] ?? 0;
+    if (background.kind === 'transparent') {
+      out[p] = r;
+      out[p + 1] = g;
+      out[p + 2] = b;
+      out[p + 3] = coverage;
+    } else {
+      const f = coverage / 255;
+      const rest = 1 - f;
+      out[p] = r * f + background.r * rest;
+      out[p + 1] = g * f + background.g * rest;
+      out[p + 2] = b * f + background.b * rest;
+      out[p + 3] = 255;
+    }
+  }
+  return out;
+}
+
+export interface Cutout {
+  /** Final RGBA pixels, `width * height * 4` bytes. */
+  pixels: Uint8ClampedArray;
+  /** Mean matte coverage in 0..1 — how much of the frame the subject fills. */
+  coverage: number;
+}
+
+/** Matte + composite in one step. Throws when the source pixel buffer is short. */
+export function cutout(
+  source: Uint8ClampedArray,
+  width: number,
+  height: number,
+  mask: MattingMask,
+  background: Background,
+  threshold = 0,
+): Cutout {
+  if (source.length < width * height * 4) {
+    throw new ToolError('The decoded image is incomplete.');
+  }
+  const alpha = matteToAlpha(mask, width, height);
+  let total = 0;
+  for (let i = 0; i < alpha.length; i++) total += alpha[i]!;
+  return {
+    pixels: compositePixels(source, alpha, background, threshold),
+    coverage: alpha.length ? total / (alpha.length * 255) : 0,
+  };
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Preview                                                                   */
+/* -------------------------------------------------------------------------- */
+
+/** Base64-encode bytes without overflowing the argument limit of `apply`. */
+function toBase64(bytes: Uint8Array): string {
+  const CHUNK = 8192;
+  let binary = '';
+  for (let i = 0; i < bytes.length; i += CHUNK) {
+    binary += String.fromCharCode(...bytes.subarray(i, Math.min(i + CHUNK, bytes.length)));
+  }
+  return btoa(binary);
+}
+
+/**
+ * Side-by-side "before / after" preview as a PNG data URL. Best-effort: a
+ * preview that cannot be encoded must never fail the run.
+ */
+async function beforeAfterDataUrl(
+  before: OffscreenCanvas,
+  after: OffscreenCanvas,
+): Promise<string | undefined> {
+  try {
+    const scale = Math.min(1, PREVIEW_PANEL_MAX / Math.max(before.width, before.height));
+    const panelW = Math.max(1, Math.round(before.width * scale));
+    const panelH = Math.max(1, Math.round(before.height * scale));
+    const canvas = createCanvas(panelW * 2 + PREVIEW_GAP, panelH, 'preview');
+    const ctx = context2d(canvas);
+    ctx.fillStyle = PREVIEW_BACKDROP;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(before, 0, 0, panelW, panelH);
+    ctx.drawImage(after, panelW + PREVIEW_GAP, 0, panelW, panelH);
+    const blob = await canvas.convertToBlob({ type: 'image/png' });
+    return `data:image/png;base64,${toBase64(new Uint8Array(await blob.arrayBuffer()))}`;
+  } catch {
+    return undefined;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Tool entry point                                                          */
+/* -------------------------------------------------------------------------- */
+
+interface ProcessedFile {
+  filename: string;
+  blob: Blob;
+  coverage: number;
 }
 
 async function run(input: FileRunInput): Promise<FileRunResult> {
   const o = resolveOptions(meta, input.options);
-  checkFiles(input.files, false);
-  const file = input.files[0]!;
-
-  // Validate everything cheap before the heavy work starts.
-  assertInputBytes(file.size, file.name);
-  const background = resolveBackground(o.background);
-  const cutoff = normalizeCutoff(o.cutoff);
-
+  checkFiles(input.files, true);
   checkAbort(input.signal);
-  input.onProgress?.(0.02, 'Reading the image…');
 
-  const bitmap = await decodeOriented(file);
-  let width = 0;
-  let height = 0;
-  let source: Uint8ClampedArray = new Uint8ClampedArray(0);
-  let result: MatteResult;
-  try {
-    width = bitmap.width;
-    height = bitmap.height;
-    assertInputPixels(width, height);
+  const background = resolveBackground(o.background, o.backgroundColour);
+  const mime = resolveFormat(o.format);
+  const quality = resolveQuality(o.quality);
+  const threshold = resolveThreshold(o.threshold);
 
-    // Draw the (EXIF-oriented) source into a canvas: the model reads pixels
-    // from there, and the output keeps the same dimensions.
-    const canvas = createCanvas(width, height);
-    const ctx = context2d(canvas);
-    ctx.drawImage(bitmap, 0, 0);
-    // Keep the source pixels around: the model only returns a matte, so the
-    // colours are composited here.
-    source = ctx.getImageData(0, 0, width, height).data;
-
-    input.onProgress?.(0.05, 'Loading the portrait matting model…');
-    const produce = producer ?? runModnet;
-    try {
-      result = await produce(canvas, {
-        signal: input.signal,
-        onProgress: (fraction, message) => input.onProgress?.(fraction, message),
-      });
-    } catch (error) {
-      throw producerError(error);
-    }
-  } finally {
-    bitmap.close();
-  }
-
-  if (result.width !== width || result.height !== height) {
-    throw new ToolError(
-      'The model returned a matte that does not match the image.',
-      'Try another picture.',
-    );
-  }
-
-  input.onProgress?.(0.92, 'Compositing the result…');
-  const pixels = composite(source, result.data, width, height, background.rgb, cutoff);
-
-  const outCanvas = createCanvas(width, height);
-  const outCtx = context2d(outCanvas);
-  const imageData = outCtx.createImageData(width, height);
-  imageData.data.set(pixels.subarray(0, imageData.data.length));
-  outCtx.putImageData(imageData, 0, 0);
-
-  input.onProgress?.(0.97, 'Encoding the PNG…');
-  const blob = await encodeCanvas(outCanvas, OUTPUT_MIME);
-
-  const coverage = matteCoverage(result.data, cutoff);
   const warnings: string[] = [];
-  if (coverage < 0.005) {
-    warnings.push(
-      'No subject was found. MODNet is a portrait matting model, so it works best on a photo of a person.',
-    );
-  } else if (coverage > 0.995) {
-    warnings.push(
-      'Almost the whole image was kept. MODNet is a portrait matting model — on a landscape or an object it usually cannot find a subject.',
-    );
-  }
+  const notes: string[] = [];
+  let pixels = 0;
+  let coverage = 0;
+  let previewName: string | undefined;
+  let previewUrl: string | undefined;
+  let loaded: LoadedModel<SegmentationPipeline> | undefined;
+  let pending: Promise<LoadedModel<SegmentationPipeline>> | undefined;
+  let loadFraction = 0;
 
-  const notes = [
-    `Subject cut out with MODNet, a portrait-matting model: it is built for photos of people, not for scenery or objects.`,
-    `Background: ${background.label}. Foreground coverage: ${Math.round(coverage * 100)}%.`,
-    'The image was processed on your device — only the model weights were downloaded (about 6 MB) and they are cached for the next run.',
-  ];
-  if (result.fromCache) {
-    notes.push('The model was already cached, so nothing was downloaded this time.');
-  }
-
-  input.onProgress?.(1, 'Done');
-
-  return {
-    outputs: [{ filename: outputFilename(file.name), blob }],
-    notes,
-    warnings: warnings.length ? warnings : undefined,
-    stats: {
-      width,
-      height,
+  // The model is loaded lazily, on the first image that survives validation, so
+  // an invalid or oversized file fails before ~25 MB of weights are fetched.
+  const getModel = (): Promise<LoadedModel<SegmentationPipeline>> => {
+    pending ??= loadModel<SegmentationPipeline>({
+      task: 'image-segmentation',
       model: MODEL_ID,
-      backend: result.backend ?? 'unknown',
-      foregroundPercent: Math.round(coverage * 100),
-      outputBytes: blob.size,
-    },
+      signal: input.signal,
+      onProgress: (progress: LoadProgress) => {
+        for (const warning of progress.warnings) {
+          if (!warnings.includes(warning)) warnings.push(warning);
+        }
+        loadFraction = progress.phase === 'ready' ? 1 : (progress.fraction ?? loadFraction);
+        input.onProgress?.(loadFraction * LOAD_SHARE, progress.message);
+      },
+    });
+    return pending;
   };
+
+  try {
+    const outputs = await runBatch<ProcessedFile>(
+      input.files,
+      {
+        signal: input.signal,
+        onProgress: (fraction, message) =>
+          input.onProgress?.(LOAD_SHARE + fraction * (1 - LOAD_SHARE), message),
+      },
+      'Removing the background from',
+      async (file, index) => {
+        if (!file.size) {
+          throw new ToolError(`“${file.name}” is empty.`, 'Choose a real image file.');
+        }
+        const bitmap = await decodeOriented(file);
+        try {
+          assertCanvasBudget(bitmap.width, bitmap.height, 'source image');
+          const width = bitmap.width;
+          const height = bitmap.height;
+
+          // Draw once: the canvas is both the source of our pixels and the
+          // input handed to the model (it preserves the EXIF-corrected decode).
+          const canvas = createCanvas(width, height, 'source image');
+          const ctx = context2d(canvas);
+          ctx.drawImage(bitmap, 0, 0);
+          const source = ctx.getImageData(0, 0, width, height).data;
+
+          const model = await getModel();
+          loaded = model;
+          const result = await model.pipeline(canvas);
+          const segment = Array.isArray(result) ? result[0] : result;
+          if (!segment?.mask) {
+            throw new ToolError(
+              `The model could not isolate a subject in “${file.name}”.`,
+              'MODNet is a portrait model — photos of a single person work best.',
+            );
+          }
+
+          const cut = cutout(source, width, height, segment.mask, background, threshold);
+
+          const output = createCanvas(width, height, 'output image');
+          const outCtx = context2d(output);
+          const frame = outCtx.createImageData(width, height);
+          frame.data.set(cut.pixels);
+          outCtx.putImageData(frame, 0, 0);
+          const blob = await encodeCanvas(output, mime, quality);
+          if (index === 0) {
+            previewName = file.name;
+            previewUrl = await beforeAfterDataUrl(canvas, output);
+          }
+
+          pixels += width * height;
+          coverage += cut.coverage;
+          return {
+            filename: outputFilename(file.name, background, mime),
+            blob,
+            coverage: cut.coverage,
+          };
+        } finally {
+          bitmap.close();
+        }
+      },
+    );
+
+    if (previewUrl) {
+      notes.push(
+        outputs.length > 1
+          ? `The preview above is “${previewName}” — save the other files to see them.`
+          : 'The preview above shows the original and the cut-out side by side.',
+      );
+    }
+    if (loaded) {
+      notes.push(
+        loaded.fromCache
+          ? 'The matting model was reused from your browser’s cache.'
+          : `The matting model (${MODEL_ID}) was downloaded from the Hugging Face Hub and cached for next time.`,
+      );
+      notes.push(
+        loaded.backend === 'webgpu'
+          ? 'Running on your GPU via WebGPU.'
+          : 'Running on your CPU (WASM) — no WebGPU adapter was available.',
+      );
+      if (loaded.fellBack) {
+        warnings.push('WebGPU could not start, so the model was retried on the CPU.');
+      }
+    }
+    notes.push(
+      'The only requests are the model weights (huggingface.co) and the ONNX runtime binary (cdn.jsdelivr.net) — your images never leave this device.',
+    );
+
+    const averageCoverage = outputs.length ? coverage / outputs.length : 0;
+
+    return {
+      outputs: outputs.map(({ filename, blob }) => ({ filename, blob })),
+      report: previewUrl ? { output: previewUrl, render: 'image' } : undefined,
+      notes,
+      warnings: warnings.length ? warnings : undefined,
+      stats: {
+        files: outputs.length,
+        megapixels: Math.round((pixels / 1_000_000) * 100) / 100,
+        subject: `${Math.round(averageCoverage * 100)}% of the frame`,
+        background:
+          background.kind === 'transparent'
+            ? 'transparent'
+            : `#${[background.r, background.g, background.b]
+                .map((channel) => channel.toString(16).padStart(2, '0'))
+                .join('')}`,
+        format: extension(mime),
+      },
+    };
+  } finally {
+    await loaded?.dispose();
+  }
 }
 
 const tool: FileToolModule = { meta, run };

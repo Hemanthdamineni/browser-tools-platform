@@ -1,128 +1,96 @@
-import type { FileToolModule, FileRunInput, FileRunResult } from '@/lib/types';
+import type { FileRunInput, FileRunResult, FileToolModule } from '@/lib/types';
 import { ToolError } from '@/lib/types';
 import { resolveOptions } from '@/lib/options';
-import { formatBytes } from '@/lib/format';
 import { meta } from './mic-test.meta';
 import {
-  computePeakDb,
-  computeRmsDb,
-  dbToFullScalePercent,
-  formatDb,
-  isSilentSummary,
-  parseMeasurements,
-  readFrameSize,
-  readMeterRange,
-  recordingFilename,
-  summariseLevels,
-  type LevelFrame,
+  amplitudeToDb,
+  buildMicReport,
+  meterSettings,
+  recordingExtension,
+  validateRecording,
+  type MicMetrics,
 } from './mic-test.core';
 
 /**
- * The microphone test report.
+ * Extra payload the panel sends alongside the recorded file.
  *
- * The panel owns the browser APIs — it opens the microphone, drives the
- * analyser and records the clip — and hands the raw numbers over here. This
- * module turns them into decibels, a report table and a download.
+ * `run()` stays a pure function of its input: the panel measures the take
+ * (decode → peak/RMS → duration) and hands the numbers over, because decoding
+ * audio needs an AudioContext, which the worker that runs this module has not
+ * got.
  */
-async function run(input: FileRunInput): Promise<FileRunResult> {
-  const o = resolveOptions(meta, input.options);
-  const meterRange = readMeterRange(o.meterRange);
-  const frameSize = readFrameSize(o.frameSize);
-  const clipName = typeof o.clipName === 'string' ? o.clipName.trim() : '';
+export interface MicRunExtras {
+  metrics?: MicMetrics;
+}
 
-  if (!input.files.length) {
+/** Output filename: the recording's basename plus the extension its format implies. */
+function outputName(fileName: string, type: string): string {
+  const base = fileName.replace(/\.[a-z0-9]{1,6}$/i, '').trim() || 'recording';
+  return `${base}.${recordingExtension(type)}`;
+}
+
+async function run(input: FileRunInput & MicRunExtras): Promise<FileRunResult> {
+  const settings = meterSettings(resolveOptions(meta, input.options));
+  const file = input.files[0];
+
+  if (!file) {
     throw new ToolError(
-      'There is no recording to report on.',
-      'Press “Start microphone”, then “Record”, say something and press “Stop recording”.',
+      'Record something first.',
+      'Press “Enable microphone”, then “Record” — the take is analysed here as soon as you stop.',
     );
   }
-  const clip = input.files[0]!;
-  if (clip.size === 0) {
-    throw new ToolError('The recording is empty.', 'Record again — the clip held no data.');
-  }
 
-  input.onProgress?.(0.4, 'Measuring');
-  const measurements = parseMeasurements(input.text);
-  const frames: LevelFrame[] = measurements.rms.map((rms, index) => ({
-    rms: Math.abs(rms),
-    peak: Math.abs(measurements.peak[index] ?? rms),
-  }));
-  const summary = summariseLevels(frames);
-  // The loudest window is kept as raw samples, so the report can also show
-  // what that single window looked like — not just the averaged numbers.
-  const windowPeakDb = measurements.peakWindow.length
-    ? computePeakDb(measurements.peakWindow)
-    : summary.peakDb;
-  const windowRmsDb = measurements.peakWindow.length
-    ? computeRmsDb(measurements.peakWindow)
-    : summary.rmsDb;
-  input.onProgress?.(0.9, 'Building the report');
+  const metrics = input.metrics;
+  const format = file.type || metrics?.format || '';
+  validateRecording({ size: file.size, type: format, durationMs: metrics?.durationMs });
+  input.signal?.throwIfAborted?.();
+  input.onProgress?.(0.5, 'Summarising the recording');
 
-  const mimeType = clip.type || measurements.mimeType || 'audio/webm';
-  const filename = recordingFilename(clipName || measurements.deviceLabel, mimeType, 'mic-clip');
-  const frameMs = measurements.sampleRate ? (frameSize / measurements.sampleRate) * 1000 : 0;
+  const filename = outputName(file.name, format);
+  const report = buildMicReport({
+    filename,
+    sizeBytes: file.size,
+    type: format,
+    metrics,
+    settings,
+  });
 
-  const rows: string[][] = [
-    ['Microphone', measurements.deviceLabel],
-    ['Recording format', mimeType],
-    ['Duration', `${(measurements.durationMs / 1000).toFixed(2)} s`],
-    [
-      'Sample rate',
-      measurements.sampleRate ? `${measurements.sampleRate.toLocaleString()} Hz` : '—',
-    ],
-    ['Channels', String(measurements.channels)],
-    [
-      'Analysis frame',
-      frameMs
-        ? `${frameSize.toLocaleString()} samples (${frameMs.toFixed(1)} ms)`
-        : `${frameSize.toLocaleString()} samples`,
-    ],
-    ['Peak level', formatDb(summary.peakDb)],
-    ['Peak level (% of full scale)', `${dbToFullScalePercent(summary.peakDb).toFixed(1)} %`],
-    ['RMS level', formatDb(summary.rmsDb)],
-    ['Average level', formatDb(summary.averageDb)],
-    ['Loudest window RMS', formatDb(summary.loudestDb)],
-    ['Quietest window RMS', formatDb(summary.quietestDb)],
-    ['Peak of the loudest window', formatDb(windowPeakDb)],
-    ['RMS of the loudest window', formatDb(windowRmsDb)],
-    ['Meter range', `−${meterRange} … 0 dBFS`],
-    ['Clipping', summary.clipped ? 'Yes' : 'No'],
-    ['Readings analysed', String(summary.frames)],
-    ['File size', formatBytes(clip.size)],
-  ];
-
-  const warnings: string[] = [];
-  if (summary.clipped) {
-    warnings.push('The recording reached full scale — the input was too hot.');
+  const stats: Record<string, string | number> = {
+    sizeBytes: file.size,
+    fftSize: settings.fftSize,
+    maxSeconds: settings.maxSeconds,
+  };
+  const peak = metrics?.peak;
+  const rms = metrics?.rms;
+  if (typeof peak === 'number' && Number.isFinite(peak)) {
+    const peakDb = amplitudeToDb(peak);
+    if (Number.isFinite(peakDb)) stats.peakDb = Math.round(peakDb * 10) / 10;
   }
-  if (isSilentSummary(summary)) {
-    warnings.push('The browser returned a silent track — no signal was measured at all.');
+  if (typeof rms === 'number' && Number.isFinite(rms)) {
+    const rmsDb = amplitudeToDb(rms);
+    if (Number.isFinite(rmsDb)) stats.rmsDb = Math.round(rmsDb * 10) / 10;
   }
-  if (measurements.durationMs > 0 && measurements.durationMs < 500) {
-    warnings.push('The recording is shorter than half a second.');
+  const { durationMs, sampleRate, channels } = {
+    durationMs: metrics?.durationMs,
+    sampleRate: metrics?.sampleRate,
+    channels: metrics?.channels,
+  };
+  if (typeof durationMs === 'number' && Number.isFinite(durationMs)) {
+    stats.durationMs = Math.round(durationMs);
   }
+  if (typeof sampleRate === 'number' && Number.isFinite(sampleRate)) stats.sampleRate = sampleRate;
+  if (typeof channels === 'number' && Number.isFinite(channels)) stats.channels = channels;
 
   input.onProgress?.(1, 'Done');
+
   return {
-    outputs: [{ filename, blob: clip }],
+    outputs: [{ filename, blob: file }],
     report: {
-      output: JSON.stringify({ headers: ['Property', 'Value'], rows }),
+      output: JSON.stringify({ headers: report.headers, rows: report.rows }),
       render: 'table',
     },
-    notes: ['Measured on this device — the recording was never uploaded.'],
-    warnings: warnings.length ? warnings : undefined,
-    stats: {
-      peakDb: Math.round(summary.peakDb * 10) / 10,
-      rmsDb: Math.round(summary.rmsDb * 10) / 10,
-      averageDb: Math.round(summary.averageDb * 10) / 10,
-      peakPercent: Math.round(dbToFullScalePercent(summary.peakDb) * 10) / 10,
-      durationMs: Math.round(measurements.durationMs),
-      sampleRate: measurements.sampleRate,
-      channels: measurements.channels,
-      readings: summary.frames,
-      clipped: summary.clipped ? 'yes' : 'no',
-      bytes: clip.size,
-    },
+    warnings: report.warnings.length ? report.warnings : undefined,
+    stats,
   };
 }
 
