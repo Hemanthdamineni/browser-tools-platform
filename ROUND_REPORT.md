@@ -544,3 +544,18 @@ was writing tools there concurrently (its ~20 untracked tools were rescued into 
 - Ideas: `scripts/check-bundle.mjs` should also assert per-tool lazy-chunk budgets; the `/guides` section has
   room for a "privacy model" page that the AI answer engines can quote; `pdf-to-word` and `word-to-pdf` were the
   two highest-demand gaps the demand research found and remain unbuilt.
+
+### round-2026-10-25-complete-2 — outcome (2026-10-26T22:45Z)
+
+Deployed to production at https://hemanthdamineni.github.io/browser-tools-platform/ (GitHub Pages,
+workflow build). The final sitemap sweep returned **423/423 URLs → 200**, including every tool
+page, category, and guide. The two post-deploy defects found in the live smoke were fixed and
+re-deployed: canonical/sitemap URLs missing the project-site base path, and sitemap URLs that
+redirected to a trailing slash.
+
+Final board state: T003 ✅ (twelve broken example payloads repaired with per-example regression
+tests), T004 ✅ (eager entry chunk 711 → 27.2 KB gzip: pdf-lib out of the eager graph, editorial
+prose split into build-time content modules, client loads tools via a lazy glob), T005 ✅,
+T006 ✅, T008 ✅. Gates on the merged master: astro check 0 errors, eslint clean, prettier clean,
+**6452 unit tests green**, **47 e2e green** (chromium + firefox), bundle:check PASS, docs:check
+current. `docs/SEARCH-INDEXING.md` hands the Search Console / Bing / IndexNow steps to the owner.
