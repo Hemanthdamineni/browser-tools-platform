@@ -1,5 +1,5 @@
 ---
-import { site } from '@/lib/site';
+import { absoluteUrl, site } from '@/lib/site';
 
 interface Props {
   title: string;
@@ -21,7 +21,7 @@ const {
   ogType = 'website',
 } = Astro.props;
 
-const canonical = new URL(path ?? Astro.url.pathname, site.url).toString();
+const canonical = absoluteUrl(path ?? Astro.url.pathname);
 const fullTitle = title === site.name ? title : `${title} · ${site.name}`;
 const schemas = jsonLd.filter(Boolean) as Record<string, unknown>[];
 
@@ -54,12 +54,12 @@ const ogHref = toolId ? `${base}/og/${toolId}.png` : `${base}/og.png`;
 <meta property="og:title" content={fullTitle} />
 <meta property="og:description" content={description} />
 <meta property="og:url" content={canonical} />
-<meta property="og:image" content={new URL(ogHref, site.url).toString()} />
+<meta property="og:image" content={absoluteUrl(ogHref)} />
 <meta property="og:image:alt" content={toolId ? `${title} — ${description}` : site.description} />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content={fullTitle} />
 <meta name="twitter:description" content={description} />
-<meta name="twitter:image" content={new URL(ogHref, site.url).toString()} />
+<meta name="twitter:image" content={absoluteUrl(ogHref)} />
 
 <link rel="icon" href={`${base}/favicon.svg`} type="image/svg+xml" />
 <link rel="icon" href={`${base}/favicon.ico`} sizes="32x32" />

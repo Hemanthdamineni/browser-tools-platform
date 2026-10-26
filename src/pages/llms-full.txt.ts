@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { site } from '@/lib/site';
+import { absoluteUrl, site } from '@/lib/site';
 import { VISIBLE_TOOLS, categoriesWithCounts } from '@/lib/registry';
 import { getContent } from '@/lib/content';
 import type { ToolOption } from '@/lib/types';
@@ -10,7 +10,7 @@ import type { ToolOption } from '@/lib/types';
  * the registry. Served as `text/plain` at `/llms-full.txt`.
  */
 export const GET: APIRoute = () => {
-  const url = (path: string) => new URL(path, site.url).toString();
+  const url = (path: string) => absoluteUrl(path);
   const categories = categoriesWithCounts();
 
   const optionLine = (o: ToolOption): string => {

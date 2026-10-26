@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { site } from '@/lib/site';
+import { absoluteUrl } from '@/lib/site';
 
 /**
  * Search and AI crawlers we explicitly welcome. The site is public and every
@@ -25,7 +25,7 @@ export const GET: APIRoute = () => {
     'Allow: /',
     '',
     ...agentGroups,
-    `Sitemap: ${new URL('/sitemap.xml', site.url).toString()}`,
+    `Sitemap: ${absoluteUrl('/sitemap.xml')}`,
     '',
     '# Machine-readable catalogue for AI crawlers: /llms.txt',
     '',

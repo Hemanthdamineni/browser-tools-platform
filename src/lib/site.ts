@@ -15,6 +15,14 @@ const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
 /** Prefix a site-relative path with the deploy base. */
 const link = (path: string): string => `${BASE}${path}`;
 
+/**
+ * Absolute URL for a site-relative path — base-path aware, so a project site
+ * (`https://owner.github.io/repo`) produces `…/repo/tools/x`, never `…/tools/x`
+ * off the origin root. Every canonical/SEO URL must go through here.
+ */
+export const absoluteUrl = (path: string): string =>
+  new URL(link(path), import.meta.env.SITE_URL ?? DEFAULT_URL).toString();
+
 /** The canonical repository for this project. */
 const REPOSITORY = 'https://github.com/Hemanthdamineni/browser-tools-platform';
 

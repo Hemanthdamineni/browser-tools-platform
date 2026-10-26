@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { site } from '@/lib/site';
+import { absoluteUrl, site } from '@/lib/site';
 import { VISIBLE_TOOLS, categoriesWithCounts } from '@/lib/registry';
 
 /**
@@ -8,7 +8,7 @@ import { VISIBLE_TOOLS, categoriesWithCounts } from '@/lib/registry';
  * Served as `text/plain` at `/llms.txt`.
  */
 export const GET: APIRoute = () => {
-  const url = (path: string) => new URL(path, site.url).toString();
+  const url = (path: string) => absoluteUrl(path);
   const categories = categoriesWithCounts();
 
   const lines: string[] = [];

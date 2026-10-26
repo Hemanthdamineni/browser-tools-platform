@@ -1,11 +1,11 @@
 import type { APIRoute } from 'astro';
 import { VISIBLE_TOOLS } from '@/lib/registry';
-import { site } from '@/lib/site';
+import { absoluteUrl } from '@/lib/site';
 import { getContent } from '@/lib/content';
 import { CATEGORIES } from '@/lib/categories';
 import type { ToolOption } from '@/lib/types';
 
-const toolUrl = (path: string) => new URL(path, site.url).toString();
+const toolUrl = (path: string) => absoluteUrl(path);
 
 const serializeOption = (o: ToolOption) => ({
   key: o.key,

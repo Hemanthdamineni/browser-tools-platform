@@ -1,10 +1,8 @@
-import { site } from './site';
+import { absoluteUrl, site } from './site';
 import type { ToolMeta } from './types';
 import { CATEGORIES } from './categories';
 
-export function absoluteUrl(path: string): string {
-  return new URL(path, site.url).toString();
-}
+export { absoluteUrl };
 
 /**
  * Stable `@id` for the whole organisation. Every page that describes the

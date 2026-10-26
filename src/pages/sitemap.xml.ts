@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { site } from '@/lib/site';
+import { absoluteUrl } from '@/lib/site';
 import { VISIBLE_TOOLS, categoriesWithCounts } from '@/lib/registry';
 import { GUIDES } from '@/lib/guides';
 
@@ -17,7 +17,7 @@ export const GET: APIRoute = () => {
   ];
 
   const urls = entries.map(({ path, lastmod }) => {
-    const loc = new URL(path, site.url).toString();
+    const loc = absoluteUrl(path);
     const priority = path === '/' ? '1.0' : path.startsWith('/tools/') ? '0.8' : '0.6';
     const lastmodTag = lastmod && ISO_DATE.test(lastmod) ? `<lastmod>${lastmod}</lastmod>` : '';
     return `  <url><loc>${loc}</loc>${lastmodTag}<changefreq>weekly</changefreq><priority>${priority}</priority></url>`;
