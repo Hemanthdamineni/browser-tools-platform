@@ -17,7 +17,9 @@ export const GET: APIRoute = () => {
   ];
 
   const urls = entries.map(({ path, lastmod }) => {
-    const loc = absoluteUrl(path);
+    // GitHub Pages 301s directory URLs to a trailing slash; emit the final URL
+    // so crawlers never burn a redirect hop. The home page stays slash-less.
+    const loc = absoluteUrl(path === '/' ? path : `${path}/`);
     const priority = path === '/' ? '1.0' : path.startsWith('/tools/') ? '0.8' : '0.6';
     const lastmodTag = lastmod && ISO_DATE.test(lastmod) ? `<lastmod>${lastmod}</lastmod>` : '';
     return `  <url><loc>${loc}</loc>${lastmodTag}<changefreq>weekly</changefreq><priority>${priority}</priority></url>`;
