@@ -10,9 +10,9 @@ describe('border-radius', () => {
   });
 
   it('emits one value for a pill and preserves the unit', async () => {
-    expect(
-      await run({ topLeft: 9999, topRight: 9999, bottomRight: 9999, bottomLeft: 9999 }),
-    ).toBe('border-radius: 9999px;');
+    expect(await run({ topLeft: 9999, topRight: 9999, bottomRight: 9999, bottomLeft: 9999 })).toBe(
+      'border-radius: 9999px;',
+    );
     expect(
       await run({ unit: '%', topLeft: 50, topRight: 50, bottomRight: 50, bottomLeft: 50 }),
     ).toBe('border-radius: 50%;');

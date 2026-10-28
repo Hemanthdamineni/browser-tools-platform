@@ -30,7 +30,9 @@ function toBase64(bytes: Uint8Array): string {
 
 /** A syntactically valid ssh-ed25519 blob; `fill` makes each key distinct. */
 function ed25519Blob(fill: number): string {
-  return toBase64(concat(sshString(encoder.encode('ssh-ed25519')), sshString(new Uint8Array(32).fill(fill))));
+  return toBase64(
+    concat(sshString(encoder.encode('ssh-ed25519')), sshString(new Uint8Array(32).fill(fill))),
+  );
 }
 
 /** An OpenSSH `|1|salt|hash|` host pattern for `host`. */
@@ -78,7 +80,9 @@ describe('known-hosts-inspector', () => {
   });
 
   it('resolves a hashed entry back to the hostname it covers', async () => {
-    const { rows } = table(await runWith(await sampleText(), { format: 'lookup', host: 'github.com' }));
+    const { rows } = table(
+      await runWith(await sampleText(), { format: 'lookup', host: 'github.com' }),
+    );
     expect(rows).toHaveLength(1);
     expect(rows[0]).toContain('Hashed (|1|)');
   });

@@ -4,7 +4,8 @@ export const meta: ToolMeta = {
   id: 'border-radius',
   name: 'CSS Border Radius Generator',
   category: 'web',
-  summary: 'Build border-radius rules per corner — circles, pills, blobs and the elliptical slash syntax.',
+  summary:
+    'Build border-radius rules per corner — circles, pills, blobs and the elliptical slash syntax.',
   description:
     'Set a radius for each corner and get a ready-to-paste border-radius rule, collapsed to the shortest equivalent form (one, two, three or four values). Switch the unit between px and %, use the elliptical form (`x / y`) for squashed corners, and copy the previewed result.',
   keywords: [
@@ -20,10 +21,16 @@ export const meta: ToolMeta = {
   privacy: { processing: 'on-device', network: 'none', offline: true },
   input: 'text',
   options: [
-    { key: 'unit', label: 'Unit', type: 'select', default: 'px', choices: [
-      { value: 'px', label: 'Pixels (px)' },
-      { value: '%', label: 'Percent (%)' },
-    ] },
+    {
+      key: 'unit',
+      label: 'Unit',
+      type: 'select',
+      default: 'px',
+      choices: [
+        { value: 'px', label: 'Pixels (px)' },
+        { value: '%', label: 'Percent (%)' },
+      ],
+    },
     { key: 'topLeft', label: 'Top-left', type: 'number', default: 12, min: 0 },
     { key: 'topRight', label: 'Top-right', type: 'number', default: 12, min: 0 },
     { key: 'bottomRight', label: 'Bottom-right', type: 'number', default: 12, min: 0 },
@@ -64,7 +71,10 @@ export const meta: ToolMeta = {
   ],
   examples: [
     { title: 'Rounded card' },
-    { title: 'Pill', options: { topLeft: 9999, topRight: 9999, bottomRight: 9999, bottomLeft: 9999 } },
+    {
+      title: 'Pill',
+      options: { topLeft: 9999, topRight: 9999, bottomRight: 9999, bottomLeft: 9999 },
+    },
     {
       title: 'Circle',
       options: { unit: '%', topLeft: 50, topRight: 50, bottomRight: 50, bottomLeft: 50 },
