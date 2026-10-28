@@ -204,6 +204,12 @@ export interface DrawingContext {
 /** A decoded sample with a `draw` method that honours rotation metadata. */
 interface SampleLike {
   draw(ctx: DrawingContext, dx: number, dy: number, dw?: number, dh?: number): void;
+  /**
+   * Release the decoded pixel buffer. A decoder-backed sample holds GPU or
+   * native memory until this runs, so one frame per timestamp leaks the whole
+   * video if it is never called. Absent on plain test stubs.
+   */
+  close?(): void;
 }
 
 /** Create an offscreen canvas, stubbable in tests via `globalThis.OffscreenCanvas`. */
@@ -239,16 +245,22 @@ async function extractIndividual(
   for await (const raw of source.samples(settings.timestamps, ctx)) {
     ctx.signal?.throwIfAborted?.();
     const sample = raw as SampleLike | null;
-    drawSample(context, sample, 0, 0, settings.width, settings.height);
-    const blob = await canvas.convertToBlob();
-    const bytes = new Uint8Array(await blob.arrayBuffer());
-    frames.push({
-      bytes,
-      filename: frameOutputFilename(sourceName, index, settings.timestamps.length),
-      width: settings.width,
-      height: settings.height,
-      timestamp: settings.timestamps[index] ?? 0,
-    });
+    try {
+      drawSample(context, sample, 0, 0, settings.width, settings.height);
+      const blob = await canvas.convertToBlob();
+      const bytes = new Uint8Array(await blob.arrayBuffer());
+      frames.push({
+        bytes,
+        filename: frameOutputFilename(sourceName, index, settings.timestamps.length),
+        width: settings.width,
+        height: settings.height,
+        timestamp: settings.timestamps[index] ?? 0,
+      });
+    } finally {
+      // The frame has been painted and encoded; drop its decoder buffers before
+      // the next timestamp is materialised.
+      sample?.close?.();
+    }
     index++;
     written++;
     ctx.onProgress?.(
