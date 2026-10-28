@@ -29,7 +29,9 @@ import {
   bindRangeOutputs,
   clearError,
   readOptions,
+  resetOptions,
   showError,
+  snapshotOptions,
 } from '../workbench/shared';
 import {
   applyCodeHighlighting,
@@ -265,6 +267,7 @@ export function mountMarkdownPanel(root: HTMLElement): void {
   /* ---------------------------------------------------------------------- */
 
   bindRangeOutputs(root);
+  snapshotOptions(optionsRoot);
   applyShowWhen(optionsRoot);
 
   runBtn?.addEventListener('click', () => void run());
@@ -327,6 +330,8 @@ export function mountMarkdownPanel(root: HTMLElement): void {
           options?: Record<string, unknown>;
         };
         input.value = payload.input ?? '';
+        // An example only carries what it changes; reset the rest to defaults.
+        resetOptions(optionsRoot);
         for (const [k, v] of Object.entries(payload.options ?? {})) {
           const el = optionsRoot.querySelector<HTMLInputElement | HTMLSelectElement>(
             `[data-opt-key="${k}"]`,

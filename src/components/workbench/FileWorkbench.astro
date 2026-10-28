@@ -188,6 +188,8 @@ const p = meta.id;
     clearError,
     renderTextResult,
     setOptions,
+    snapshotOptions,
+    resetOptions,
     revealResult,
     notify,
   } from './shared';
@@ -283,6 +285,9 @@ const p = meta.id;
     }
 
     bindRangeOutputs(root);
+    // Capture the declared defaults before any saved/shared state is applied,
+    // so an example can reset the form to a clean slate first.
+    snapshotOptions(optionsRoot);
     applyShowWhen(optionsRoot);
 
     function renderList() {
@@ -559,6 +564,7 @@ const p = meta.id;
             options: Record<string, unknown>;
           };
           if (textEl) textEl.value = payload.input;
+          resetOptions(optionsRoot);
           setOptions(optionsRoot, payload.options);
           applyShowWhen(optionsRoot);
           syncRunState();

@@ -68,6 +68,47 @@ export function notify(message: string): void {
 }
 
 /**
+ * Declared-default state of every option control, captured at mount.
+ *
+ * Examples carry only the options they change; without a reset the values of
+ * the previously clicked example leak into the next one (for instance a
+ * `mode` or a `wildcard` flag stays on and the next example validates
+ * against the wrong shape). Resetting to the rendered defaults first makes
+ * every example self-contained.
+ */
+const initialOptions = new WeakMap<ParentNode, Map<string, string | boolean>>();
+
+/** Remember the rendered defaults; call once, before any state is applied. */
+export function snapshotOptions(root: ParentNode): void {
+  const snapshot = new Map<string, string | boolean>();
+  root.querySelectorAll<HTMLElement>('[data-opt-key]').forEach((el) => {
+    const key = el.dataset.optKey;
+    if (!key) return;
+    if (el instanceof HTMLInputElement && el.type === 'checkbox') snapshot.set(key, el.checked);
+    else snapshot.set(key, (el as HTMLInputElement).value);
+  });
+  initialOptions.set(root, snapshot);
+}
+
+/** Restore every option control to its declared default. */
+export function resetOptions(root: ParentNode): void {
+  const snapshot = initialOptions.get(root);
+  if (!snapshot) return;
+  root.querySelectorAll<HTMLElement>('[data-opt-key]').forEach((el) => {
+    const key = el.dataset.optKey;
+    if (!key || !snapshot.has(key)) return;
+    const value = snapshot.get(key)!;
+    if (el instanceof HTMLInputElement && el.type === 'checkbox') {
+      el.checked = Boolean(value);
+    } else {
+      (el as HTMLInputElement).value = String(value);
+      const out = root.querySelector<HTMLOutputElement>(`[data-range-out="${key}"]`);
+      if (out) out.value = String(value);
+    }
+  });
+}
+
+/**
  * Write a parsed options payload into the form controls (checkbox / select /
  * range / number / text / textarea). Shared by the example chips, the
  * remember-this-input restore and the shareable-hash restore.

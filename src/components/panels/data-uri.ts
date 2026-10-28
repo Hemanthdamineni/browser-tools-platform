@@ -12,7 +12,14 @@ import type { FileRunResult, OptionValues } from '@/lib/types';
 import { createDropZone, downloadBlob, validateFileSelection } from '@/lib/files';
 import { escapeHtml, formatBytes } from '@/lib/format';
 import { runToolById } from '@/lib/worker/client';
-import { applyShowWhen, clearError, readOptions, showError } from '../workbench/shared';
+import {
+  applyShowWhen,
+  clearError,
+  readOptions,
+  resetOptions,
+  showError,
+  snapshotOptions,
+} from '../workbench/shared';
 
 /** The four modes of the merged tool. */
 export type PanelMode = 'text-encode' | 'text-decode' | 'image-encode' | 'image-decode';
@@ -304,6 +311,8 @@ export function mountDataUriPanel(root: HTMLElement): void {
           options?: Record<string, unknown>;
         };
         if (textEl) textEl.value = payload.input ?? '';
+        // An example only carries what it changes; reset the rest to defaults.
+        resetOptions(optionsRoot);
         for (const [key, value] of Object.entries(payload.options ?? {})) {
           const el = optionsRoot.querySelector<HTMLInputElement | HTMLSelectElement>(
             `[data-opt-key="${key}"]`,
@@ -324,6 +333,7 @@ export function mountDataUriPanel(root: HTMLElement): void {
     });
   });
 
+  snapshotOptions(optionsRoot);
   applyShowWhen(optionsRoot);
   syncMode();
   renderFileList();
