@@ -11,7 +11,7 @@ The first round over-produced near-duplicate tools, especially around 80 HTTP he
 - [x] **merge-cache-headers** · web — Merge cache-control, cdn-cache-control, surrogate-control, expires-header, age-header, cache-status, and vary-header into `cache-headers`. Old ids become aliases. ⚠️ run died ✅ 8943bdc
 - [x] **http-header-analyzer** · web · after: merge-cors-headers, merge-conditional-headers, merge-cache-headers — One tool where you paste any headers and each one is auto-detected and parsed. Fold the long-tail header tools in as aliases (alt-used, early-data, trailer-header, priority-header, signature-input, tracestate, and similar). Flag content-md5 and warning-header as deprecated in the UI. ✅ 1faf3a8
 - [x] **merge-escape-tools** · developer — `string-escape` absorbs backslash-escape, json-escape, and unicode-escape as modes. html-entities stays separate. Old ids become aliases. ⚠️ run died ✅ 85eb2e3
-- [x] **merge-base64** · encoding — `base64` gains a file mode; `base64-file` becomes an alias. ⚠️ run died ⚠️ run died ✅ round/complete-2
+- [x] **merge-base64** · encoding — `base64` gains a file mode; `base64-file` becomes an alias. ⚠️ run died ⚠️ run died ✅ 041bfa8
 - [x] **merge-datauri** · web — Merge data-uri, image-to-datauri, and datauri-to-image into one tool with text and image modes. Old ids become aliases. ⚠️ run died ⏳ run-20261021-1604-7f47 @ 2026-10-21T17:30:00Z ✅ 0b2222e
 - [x] **upgrade-image-batch-1** · image — Bring image-compress, image-convert, image-resize, and image-crop to `stable`. Add tests; handle EXIF orientation, transparency, and huge-image limits; add batch mode. ✅ aee042c
 - [x] **upgrade-image-batch-2** · image — Bring image-rotate, image-metadata, and image-palette to `stable`. ⚠️ run died ✅ 4979654
