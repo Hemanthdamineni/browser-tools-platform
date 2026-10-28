@@ -74,7 +74,18 @@ const ogHref = toolId ? `${base}/og/${toolId}.png` : `${base}/og.png`;
   href={`${base}/opensearch.xml`}
 />
 
-{schemas.map((s) => <script is:inline type="application/ld+json" set:html={JSON.stringify(s)} />)}
+{
+  schemas.map((s) => (
+    // `</script>` inside a string value would end this block and spill the
+    // rest of the JSON into the page as JavaScript. Escaping `<` as
+    // `\u003c` is still the same JSON string but can never form a tag.
+    <script
+      is:inline
+      type="application/ld+json"
+      set:html={JSON.stringify(s).replace(/</g, '\\u003c')}
+    />
+  ))
+}
 
 {/* Resolve theme before first paint to avoid a flash. */}
 <script is:inline>
