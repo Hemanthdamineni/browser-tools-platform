@@ -38,9 +38,9 @@ export const meta: ToolMeta = {
         { value: 'page-n-of-total', label: 'Page 1 of 10' },
       ],
     },
-    { key: 'startAt', label: 'Start at', type: 'number', default: 1, min: 1, max: 9999 },
-    { key: 'fontSize', label: 'Font size', type: 'number', default: 10, min: 6, max: 72 },
-    { key: 'margin', label: 'Margin', type: 'number', default: 24, min: 0, max: 200 },
+    { key: 'startAt', label: 'Start at', type: 'number', default: 1, min: 1 },
+    { key: 'fontSize', label: 'Font size', type: 'number', default: 10, min: 6 },
+    { key: 'margin', label: 'Margin', type: 'number', default: 24, min: 0 },
     { key: 'skipFirst', label: 'Skip the first page', type: 'boolean', default: false },
   ],
   examples: [

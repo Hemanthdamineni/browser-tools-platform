@@ -34,7 +34,7 @@ export const meta: ToolMeta = {
         { value: 'split-complementary', label: 'Split-complementary' },
       ],
     },
-    { key: 'count', label: 'Count', type: 'number', default: 7, min: 3, max: 12 },
+    { key: 'count', label: 'Count', type: 'number', default: 7, min: 3 },
   ],
   examples: [
     { title: 'Tints & shades of blue', input: '#3b82f6' },

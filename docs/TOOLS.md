@@ -1,13 +1,14 @@
 # Complete Tool List
 
-Total: **452** tools across **20** categories.
+Total: **456** tools across **20** categories.
 
 Generated from `src/tools/**/*.meta.ts` (source of truth).
 
-## archive (12)
+## archive (13)
 
 | id | name | input | status | summary |
 | --- | --- | --- | --- | --- |
+| `compressed-file-inspector` | Compressed File Inspector | file | stable | Identify zstd, xz, bzip2, gzip, lz4 and brotli files and read their headers, sizes and checksums. |
 | `tar-create` | Create TAR Archive | file | stable | Bundle files into a TAR (optionally gzipped .tar.gz) archive. |
 | `zip-create` | Create ZIP Archive | file | stable | Create a ZIP archive from one or more files. |
 | `tar-extract` | Extract TAR Archive | file | stable | Extract regular files from .tar, .tar.gz and .tgz archives. |
@@ -147,7 +148,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `workday-calculator` | Workday Calculator | text | stable | Add business days to a date or count the working days between two dates, skipping weekends and holidays. |
 | `world-clock` | World Clock | text | stable | Current time, date and UTC offset for any IANA time zones, instantly and on your device. |
 
-## developer (57)
+## developer (58)
 
 | id | name | input | status | summary |
 | --- | --- | --- | --- | --- |
@@ -168,6 +169,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `curl-to-fetch` | curl to fetch | text | stable | Turn a curl command into ready-to-run JavaScript fetch, axios or Python requests code. |
 | `docker-compose` | docker-compose.yml Generator | text | stable | Build a docker-compose.yml for one service — image, ports, environment, volumes and restart policy. |
 | `dockerfile-generator` | Dockerfile Generator | text | stable | Build a Dockerfile from friendly fields — base image, workdir, env, ports, RUN steps and CMD — ready to paste. |
+| `elf-binary-inspector` | ELF Binary Inspector | file | stable | Parse an ELF/Linux binary on-device: class, type, machine, sections, symbols, deps and hardening. |
 | `font-inspector` | Font Inspector | file | stable | Inspect TTF, OTF, TTC, WOFF and WOFF2 fonts: tables, names, embedding rights and glyph coverage. |
 | `glob-tester` | Glob Tester | text | stable | Match a glob pattern against file paths: *, **, ?, [...] classes and {a,b} sets. |
 | `hash-identifier` | Hash Identifier | text | stable | Guess which hash or password format a string is, from its length and character set. |
@@ -335,7 +337,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `vin-validator` | VIN Validator & Decoder | text | stable | Validate and decode 17-character VINs with check digit. |
 | `words-to-number` | Words to Number | text | stable | Parse English number words like "two hundred thirty-four" into 234, with decimals and negatives. |
 
-## pdf (19)
+## pdf (20)
 
 | id | name | input | status | summary |
 | --- | --- | --- | --- | --- |
@@ -350,6 +352,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `images-to-pdf` | Images to PDF | file | stable | Combine image files into a PDF, with one image per page. |
 | `pdf-merge` | Merge PDFs | file | stable | Combine several PDF files into one document, page by page. |
 | `pdf-organize` | Organize PDF Pages | file | beta | Reorder, rotate, delete and add blank pages to a PDF, then save the new order as a PDF. |
+| `pdf-structure-inspector` | PDF Structure Inspector | file | stable | Inspect a PDF’s internals: header version, xref, objects, trailer, encryption and damage. |
 | `pdf-to-images` | PDF to Images | file | stable | Render selected PDF pages as PNG, JPEG, or WebP images. |
 | `pdf-redact` | Redact PDF | file | beta | Burn opaque black boxes over selected areas and export a PDF where the hidden content is truly gone. |
 | `pdf-rotate` | Rotate Pages | file | stable | Rotate every page — or a selection — of a PDF by 90, 180, or 270 degrees. |
@@ -436,7 +439,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `video-to-gif` | Video to GIF | file | beta | Turn a clip into an animated GIF: trim it, pick the frame rate, width and palette quality. |
 | `webcam-recorder` | Webcam Recorder | file | beta | Record your webcam in the browser and download the clip — the video never leaves your device. |
 
-## web (115)
+## web (116)
 
 | id | name | input | status | summary |
 | --- | --- | --- | --- | --- |
@@ -479,6 +482,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `cross-origin-embedder-policy` | Cross-Origin-Embedder-Policy Builder & Analyzer | text | stable | Build or inspect cross-origin resource embedding controls. |
 | `cross-origin-opener-policy` | Cross-Origin-Opener-Policy Builder & Analyzer | text | stable | Build or inspect browsing-context opener isolation. |
 | `cross-origin-resource-policy` | Cross-Origin-Resource-Policy Builder & Analyzer | text | stable | Build or inspect CORP resource-embedding policies. |
+| `border-radius` | CSS Border Radius Generator | text | stable | Build border-radius rules per corner — circles, pills, blobs and the elliptical slash syntax. |
 | `box-shadow` | CSS Box Shadow Generator | text | stable | Generate box-shadow rules — single or layered soft shadows. |
 | `gradient-css` | CSS Gradient Generator | text | stable | Build linear, radial and conic CSS gradients with custom colour stops. |
 | `css-grid` | CSS Grid Generator | text | stable | Generate CSS Grid layout declarations for tracks, gaps, alignment, and named areas. |

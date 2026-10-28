@@ -61,21 +61,21 @@ describe('speech-to-text run', () => {
     await expect(tool.run({ files: [], options: {} })).rejects.toThrow(ToolError);
   });
 
-  it('rejects a file over the byte cap before decoding', async () => {
+  it('warns but still processes a file over the soft byte cap', async () => {
     const big = audioFile('big.wav', MAX_INPUT_BYTES + 1);
-    await expect(tool.run({ files: [big], options: {}, onProgress: () => {} })).rejects.toThrow(
-      /larger than/,
-    );
-    expect(transcriber).not.toHaveBeenCalled();
+    const result = await tool.run({ files: [big], options: {}, onProgress: () => {} });
+    expect(result.warnings?.some((w) => /larger than/.test(w))).toBe(true);
+    expect(transcriber).toHaveBeenCalled();
   });
 
-  it('rejects a recording over the duration cap after decoding', async () => {
+  it('warns but still processes a recording over the soft duration cap', async () => {
     setAudioDecoder(async () => ({
       channels: [new Float32Array(WHISPER_SAMPLE_RATE * (MAX_INPUT_SECONDS + 1))],
       sampleRate: WHISPER_SAMPLE_RATE,
     }));
-    await expect(runWith()).rejects.toThrow(/cap is/);
-    expect(transcriber).not.toHaveBeenCalled();
+    const result = await runWith();
+    expect(result.warnings?.some((w) => /cap is/.test(w))).toBe(true);
+    expect(transcriber).toHaveBeenCalled();
   });
 
   it('transcribes with the faked pipeline and exports TXT, SRT and VTT', async () => {

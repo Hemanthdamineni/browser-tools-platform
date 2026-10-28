@@ -33,7 +33,7 @@ export const meta: ToolMeta = {
         { value: 'custom', label: 'Custom sentence count' },
       ],
     },
-    { key: 'count', label: 'Sentence count', type: 'number', default: 5, min: 1, max: 25, step: 1 },
+    { key: 'count', label: 'Sentence count', type: 'number', default: 5, min: 1, step: 1 },
   ],
   examples: [
     {

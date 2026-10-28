@@ -49,7 +49,6 @@ export const meta: ToolMeta = {
       type: 'range',
       default: 0.6,
       min: 0,
-      max: 1,
       step: 0.05,
     },
     {
@@ -59,7 +58,6 @@ export const meta: ToolMeta = {
       type: 'range',
       default: -80,
       min: -120,
-      max: -20,
       step: 5,
     },
     {
@@ -69,7 +67,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 60,
       min: 5,
-      max: 600,
       step: 5,
     },
   ],

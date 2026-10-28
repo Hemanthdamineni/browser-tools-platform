@@ -42,8 +42,8 @@ describe('random-data', () => {
     expect(row.ulid).toMatch(/^[0-9A-HJKMNP-TV-Z]{26}$/);
   });
 
-  it('rows=500 max is respected', () => {
+  it('accepts any positive row count', () => {
     const parsed: unknown[] = JSON.parse(run('', { dataset: 'lorem', rows: 9999 }));
-    expect(parsed).toHaveLength(500);
+    expect(parsed).toHaveLength(9999);
   });
 });

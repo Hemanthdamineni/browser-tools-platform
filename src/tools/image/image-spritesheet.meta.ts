@@ -32,10 +32,9 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 0,
       min: 0,
-      max: 64,
       showWhen: { key: 'layout', value: 'grid' },
     },
-    { key: 'padding', label: 'Padding (px)', type: 'number', default: 2, min: 0, max: 64 },
+    { key: 'padding', label: 'Padding (px)', type: 'number', default: 2, min: 0 },
     {
       key: 'format',
       label: 'Sheet format',

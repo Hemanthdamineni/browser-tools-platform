@@ -24,7 +24,7 @@ export function computeTargetSize(srcW: number, srcH: number, opts: Record<strin
   };
   const width = Math.max(1, Math.round(finite(opts.width, 800)));
   const height = Math.max(1, Math.round(finite(opts.height, 600)));
-  const percent = Math.max(1, Math.min(400, finite(opts.percent, 50))) / 100;
+  const percent = Math.max(1, finite(opts.percent, 50)) / 100;
   const upscale = Boolean(opts.upscale);
   let w = srcW,
     h = srcH;

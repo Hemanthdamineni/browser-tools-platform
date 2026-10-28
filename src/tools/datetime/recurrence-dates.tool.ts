@@ -95,8 +95,8 @@ function nthDateOfMonth(y: number, m: number, wd: number, nth: string): Day | nu
 
 function occurrences(start: Day, o: Record<string, string | number | boolean>): Day[] {
   const mode = String(o.mode);
-  const count = Math.max(1, Math.min(50, Number(o.count)));
-  const interval = Math.max(1, Math.min(12, Math.trunc(Number(o.interval))));
+  const count = Math.max(1, Number(o.count));
+  const interval = Math.max(1, Math.trunc(Number(o.interval)));
   const clamp = Boolean(o.clamp);
   const out: Day[] = [];
 

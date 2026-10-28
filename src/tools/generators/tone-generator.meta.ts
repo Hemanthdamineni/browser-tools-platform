@@ -43,7 +43,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 440,
       min: 20,
-      max: 20000,
     },
     {
       key: 'durationMs',
@@ -51,9 +50,8 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 2000,
       min: 50,
-      max: 30000,
     },
-    { key: 'amplitude', label: 'Amplitude (%)', type: 'range', default: 50, min: 0, max: 100 },
+    { key: 'amplitude', label: 'Amplitude (%)', type: 'range', default: 50, min: 0 },
     {
       key: 'sampleRate',
       label: 'Sample rate',
@@ -65,7 +63,7 @@ export const meta: ToolMeta = {
         { value: '48000', label: '48,000 Hz' },
       ],
     },
-    { key: 'fadeMs', label: 'Edge fade (ms)', type: 'number', default: 10, min: 0, max: 500 },
+    { key: 'fadeMs', label: 'Edge fade (ms)', type: 'number', default: 10, min: 0 },
     {
       key: 'channels',
       label: 'Channels',

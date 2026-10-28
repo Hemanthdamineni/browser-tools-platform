@@ -300,7 +300,7 @@ function run(input: TextRunInput): TextRunResult {
   const attributes = String(o.attributes);
   const textKeyOption = String(o.textKey).trim();
   const textKey = textKeyOption || '#text';
-  const indentSize = Math.max(0, Math.min(8, Number(o.indent)));
+  const indentSize = Math.max(0, Number(o.indent));
   const indent = ' '.repeat(Number.isFinite(indentSize) ? indentSize : 2);
   const source = input.text.trim();
 

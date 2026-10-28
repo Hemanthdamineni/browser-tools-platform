@@ -167,6 +167,22 @@ describe('typedLayout and typedToSvg', () => {
     expect(svg).not.toContain('url(');
   });
 
+  it('emits a font-family attribute the SVG parser accepts', () => {
+    for (const style of ['script', 'classic', 'modern', 'mono'] as const) {
+      const svg = typedToSvg('Ada', { style, size: 100 });
+      const match = /font-family="([^"]*)"/.exec(svg);
+      expect(match, style).not.toBeNull();
+      const family = match![1]!;
+      // The stack keeps its own single quotes; a stray double quote would end
+      // the XML attribute early and make the whole SVG undecodable.
+      expect(family).not.toContain('"');
+      expect(family).toContain(',');
+      const parsed = new DOMParser().parseFromString(svg, 'image/svg+xml');
+      expect(parsed.querySelector('parsererror'), style).toBeNull();
+      expect(parsed.querySelector('text')?.getAttribute('font-family')).toBe(family);
+    }
+  });
+
   it('throws for a blank name', () => {
     expect(() => typedLayout('   ')).toThrow(/Type a name/);
     expect(() => typedToSvg('')).toThrow(/Type a name/);

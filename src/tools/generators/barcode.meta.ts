@@ -56,7 +56,6 @@ export const meta: ToolMeta = {
       type: 'range',
       default: 2,
       min: 1,
-      max: 6,
       step: 1,
       help: 'Width of the narrowest bar. 2 px or more scans reliably at screen sizes.',
     },
@@ -66,7 +65,6 @@ export const meta: ToolMeta = {
       type: 'range',
       default: 80,
       min: 20,
-      max: 240,
       step: 5,
     },
     {
@@ -82,7 +80,6 @@ export const meta: ToolMeta = {
       type: 'range',
       default: 10,
       min: 0,
-      max: 24,
       step: 1,
       help: 'Blank margin either side. Keep at least 10 for retail codes.',
     },

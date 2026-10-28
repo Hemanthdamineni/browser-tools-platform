@@ -41,7 +41,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 3,
       min: 1,
-      max: 25,
       step: 1,
       showWhen: { key: 'variant', value: 'caesar' },
     },

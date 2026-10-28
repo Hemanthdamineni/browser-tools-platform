@@ -36,7 +36,7 @@ export const meta: ToolMeta = {
       ],
       help: 'Rows adapt to how many images you add: 2 columns with four photos is a 2×2 grid.',
     },
-    { key: 'spacing', label: 'Spacing (px)', type: 'number', default: 8, min: 0, max: 64 },
+    { key: 'spacing', label: 'Spacing (px)', type: 'number', default: 8, min: 0 },
     {
       key: 'background',
       label: 'Background',
@@ -50,7 +50,6 @@ export const meta: ToolMeta = {
       type: 'range',
       default: 0,
       min: 0,
-      max: 64,
       step: 1,
     },
     { key: 'border', label: 'Cell border', type: 'boolean', default: false },
@@ -67,7 +66,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 2,
       min: 1,
-      max: 16,
       showWhen: { key: 'border', value: true },
     },
     {
@@ -86,7 +84,6 @@ export const meta: ToolMeta = {
       type: 'range',
       default: 92,
       min: 40,
-      max: 100,
       step: 1,
       showWhen: { key: 'format', value: 'jpeg' },
     },

@@ -65,7 +65,7 @@ function run(input: TextRunInput): TextRunResult {
     );
   }
 
-  const samples = Math.max(3, Math.min(25, Math.round(Number(o.samples) || 11)));
+  const samples = Math.max(3, Math.round(Number(o.samples) || 11));
   const rows: string[][] = [];
   for (let i = 0; i < samples; i++) {
     const t = i / (samples - 1);

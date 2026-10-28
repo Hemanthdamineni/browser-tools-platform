@@ -305,11 +305,8 @@ export function mountSpeechToTextPanel(panel: HTMLElement): void {
 
   function chooseFile(next: File | null): void {
     if (!next) return;
-    const capError = checkByteCap(next.size);
-    if (capError) {
-      showError(errorBox, capError, `Choose a file under ${formatBytes(MAX_INPUT_BYTES)}.`);
-      return;
-    }
+    // No hard size ceiling: large files are processed in this browser and the
+    // tool reports a warning in the result. The user can stop a slow run.
     file = next;
     micChunks = [];
     clearError(errorBox);

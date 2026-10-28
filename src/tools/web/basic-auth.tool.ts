@@ -3,9 +3,19 @@ import { ToolError } from '@/lib/types';
 import { resolveOptions } from '@/lib/options';
 import { meta } from './basic-auth.meta';
 
-/** UTF-8-safe atob / btoa. */
-const encode64 = (s: string) => btoa(unescape(encodeURIComponent(s)));
-const decode64 = (s: string) => decodeURIComponent(escape(atob(s)));
+/** UTF-8-safe base64 (btoa alone only handles Latin-1). */
+function encode64(value: string): string {
+  const bytes = new TextEncoder().encode(value);
+  let binary = '';
+  for (const byte of bytes) binary += String.fromCharCode(byte);
+  return btoa(binary);
+}
+
+function decode64(value: string): string {
+  const binary = atob(value);
+  const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+  return new TextDecoder().decode(bytes);
+}
 
 function run(input: TextRunInput): TextRunResult {
   const o = resolveOptions(meta, input.options);

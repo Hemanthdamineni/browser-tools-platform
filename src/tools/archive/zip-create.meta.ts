@@ -11,7 +11,7 @@ export const meta: ToolMeta = {
   accept: '',
   multiple: true,
   options: [
-    { key: 'level', label: 'Compression level', type: 'number', default: 6, min: 0, max: 9 },
+    { key: 'level', label: 'Compression level', type: 'number', default: 6, min: 0 },
     { key: 'zipName', label: 'Archive name', type: 'text', default: 'bundle.zip' },
     { key: 'flatten', label: 'Flatten paths', type: 'boolean', default: false },
   ],

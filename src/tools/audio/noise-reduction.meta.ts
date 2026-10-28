@@ -32,7 +32,6 @@ export const meta: ToolMeta = {
       type: 'range',
       default: 1,
       min: 0,
-      max: 1,
       step: 0.05,
       help: 'How much of the denoised signal to keep. 100% is fully denoised; 0% keeps the original untouched.',
     },

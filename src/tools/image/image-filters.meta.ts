@@ -28,7 +28,6 @@ export const meta: ToolMeta = {
       type: 'range',
       default: 0,
       min: -100,
-      max: 100,
       step: 1,
     },
     {
@@ -37,7 +36,6 @@ export const meta: ToolMeta = {
       type: 'range',
       default: 0,
       min: -100,
-      max: 100,
       step: 1,
     },
     {
@@ -46,7 +44,6 @@ export const meta: ToolMeta = {
       type: 'range',
       default: 0,
       min: -100,
-      max: 100,
       step: 1,
     },
     { key: 'grayscale', label: 'Grayscale', type: 'boolean', default: false },
@@ -57,7 +54,6 @@ export const meta: ToolMeta = {
       type: 'range',
       default: 0,
       min: 0,
-      max: 100,
       step: 1,
     },
     {
@@ -73,7 +69,6 @@ export const meta: ToolMeta = {
       type: 'range',
       default: 92,
       min: 10,
-      max: 100,
       step: 1,
       showWhen: { key: 'format', value: 'jpeg' },
     },

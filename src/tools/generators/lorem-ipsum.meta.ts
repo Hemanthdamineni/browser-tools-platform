@@ -31,7 +31,7 @@ export const meta: ToolMeta = {
         { value: 'list-items', label: 'List items' },
       ],
     },
-    { key: 'count', label: 'Count', type: 'number', default: 3, min: 1, max: 200 },
+    { key: 'count', label: 'Count', type: 'number', default: 3, min: 1 },
     {
       key: 'startWithLorem',
       label: 'Start with “Lorem ipsum dolor sit amet…”',

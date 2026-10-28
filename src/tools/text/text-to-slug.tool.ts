@@ -111,7 +111,7 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     lowercase: o.lowercase !== false,
     transliterate: o.transliterate !== false,
     removeStopwords: o.removeStopwords === true,
-    maxLength: Math.max(0, Math.min(200, Number(o.maxLength ?? 0))),
+    maxLength: Math.max(0, Number(o.maxLength ?? 0)),
   };
 
   const raw = String(input.text ?? '');

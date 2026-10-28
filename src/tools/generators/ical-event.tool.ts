@@ -56,7 +56,7 @@ function run(input: TextRunInput): TextRunResult {
   const location = String(o.location ?? '').trim();
   const description = String(o.description ?? '').trim();
   const url = String(o.url ?? '').trim();
-  const reminder = Math.min(1440, Math.max(0, Math.floor(Number(o.reminderMinutes ?? 0))));
+  const reminder = Math.max(0, Math.floor(Number(o.reminderMinutes ?? 0)));
 
   const dateOnly = (v: string, field: string) => {
     const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(v.trim());

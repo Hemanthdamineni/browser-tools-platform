@@ -30,7 +30,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 5000,
       min: 500,
-      max: 60000,
       step: 500,
       help: 'How long each colour stays up while the auto-cycle is running, in milliseconds.',
     },

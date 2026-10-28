@@ -27,8 +27,8 @@ export const meta: ToolMeta = {
       default: '',
       placeholder: 'e.g. 0:45',
     },
-    { key: 'fadeIn', label: 'Fade in (ms)', type: 'number', default: 0, min: 0, max: 10000 },
-    { key: 'fadeOut', label: 'Fade out (ms)', type: 'number', default: 0, min: 0, max: 10000 },
+    { key: 'fadeIn', label: 'Fade in (ms)', type: 'number', default: 0, min: 0 },
+    { key: 'fadeOut', label: 'Fade out (ms)', type: 'number', default: 0, min: 0 },
   ],
   examples: [
     { title: 'First 30 seconds', options: { start: '0:00', end: '0:30' } },

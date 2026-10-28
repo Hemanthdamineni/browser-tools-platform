@@ -80,7 +80,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 500,
       min: 1,
-      max: 100000,
       help: 'Only the preview is capped. An export always contains every row the statement returned.',
     },
   ],

@@ -29,7 +29,6 @@ export const meta: ToolMeta = {
       type: 'range',
       default: 90,
       min: 10,
-      max: 100,
       help: 'Used by JPEG, WebP and AVIF. PNG ignores it.',
     },
     {

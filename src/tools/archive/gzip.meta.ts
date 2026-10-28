@@ -29,7 +29,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 6,
       min: 0,
-      max: 9,
       showWhen: { key: 'mode', value: 'compress' },
     },
   ],

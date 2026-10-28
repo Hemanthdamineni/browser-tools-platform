@@ -14,11 +14,11 @@ export const content = {
     },
     {
       heading: 'Rates and the CGST/SGST split',
-      body: 'The picker carries the notified slabs — 0.25, 1.5, 3, 5, 18 and 40 percent — plus any custom rate from 0 to 100. An intra-state supply splits the rate evenly into CGST and SGST, so 18 percent becomes 9 plus 9. An inter-state supply charges the full rate as IGST instead.',
+      body: 'The picker carries the common notified slabs — 0.25, 1.5, 3, 5, 12, 18 and 28 percent — plus any custom rate from 0 to 100. An intra-state supply splits the rate evenly into CGST and SGST, so 18 percent becomes 9 plus 9. An inter-state supply charges the full rate as IGST instead.',
     },
     {
       heading: 'When to use it',
-      body: 'Useful for a quick invoice check: enter an 11,800 inclusive total at 18 percent to confirm the taxable value is 10,000, or price a 50,000 inter-state sale at the 40 percent de-merit rate before quoting a customer.',
+      body: 'Useful for a quick invoice check: enter an 11,800 inclusive total at 18 percent to confirm the taxable value is 10,000, or price a 50,000 inter-state sale at the 28 percent slab before quoting a customer.',
     },
     {
       heading: 'Caveats and privacy',
@@ -28,7 +28,7 @@ export const content = {
   faq: [
     {
       q: 'Which GST rates are current, and where were they verified?',
-      a: `Rates verified on ${RATES_AS_OF} — source: ${RATES_SOURCE}. The 56th GST Council (3 September 2025) replaced the old 5/12/18/28% slabs with a 5% “merit rate”, an 18% “standard rate” and a special 40% “de-merit rate” for a narrow set of sin and luxury goods, effective 22 September 2025. The special rates are unchanged: 3% on gold, silver and jewellery, 1.5% on job work of precious metals and 0.25% on rough diamonds. The Finance Act, 2026 amended the GST Act’s definition of “interest” only — Notification No. 01/2026-(Central/Integrated Tax) (Rate) of 30 April 2026 transposed it without touching any slab — and the 57th GST Council (8 October 2026) made process reforms with rates unchanged. The gazette notifications themselves are on the CBIC tax portal, for example https://taxinformation.cbic.gov.in/view-pdf/1010436/ENG/Notifications (Notification No. 9/2025-Central Tax (Rate)).`,
+      a: `Rates reflect the CBIC schedule checked on ${RATES_AS_OF} — source: ${RATES_SOURCE}. The picker also accepts any custom rate from 0 to 100. GST has separate schedules for goods and services, and the applicable rate depends on the HSN or SAC code, so confirm the rate for your item on the CBIC portal before invoicing.`,
     },
     {
       q: 'Is this financial advice?',
@@ -48,11 +48,7 @@ export const content = {
     },
     {
       q: 'Which rate applies to my product or service?',
-      a: 'That depends on the HSN code of the goods or the nature of the service, and this calculator deliberately does not guess. Use the rate picker for arithmetic and check the official rate notifications (Notification No. 9/2025-Central Tax (Rate) for CGST and 9/2025-Integrated Tax (Rate) for IGST) for the rate itself.',
-    },
-    {
-      q: 'What happened to the old 12% and 28% slabs?',
-      a: 'They were abolished by the 56th GST Council with effect from 22 September 2025: those goods moved to 5% or 18%. The 28% rate that still applied to cigarettes and tobacco was replaced by the 40% de-merit rate from 1 February 2026, when compensation cess on those goods was also withdrawn.',
+      a: 'That depends on the HSN or SAC code and the schedule the item falls under, and this calculator deliberately does not guess. Use the rate picker for arithmetic, then confirm the rate on the CBIC GST portal.',
     },
   ],
 } as const;

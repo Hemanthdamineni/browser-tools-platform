@@ -37,8 +37,8 @@ function run(input: TextRunInput): TextRunResult {
   const o = resolveOptions(meta, input.options);
   const contentType = String(o.contentType ?? 'text');
   const ecc = String(o.ecc ?? 'M') as 'L' | 'M' | 'Q' | 'H';
-  const cellSize = Math.min(16, Math.max(2, Math.floor(Number(o.cellSize ?? 6))));
-  const margin = Math.min(8, Math.max(0, Math.floor(Number(o.margin ?? 4))));
+  const cellSize = Math.max(2, Math.floor(Number(o.cellSize ?? 6)));
+  const margin = Math.max(0, Math.floor(Number(o.margin ?? 4)));
   const dark = String(o.dark ?? '#000000').trim();
   const light = String(o.light ?? '#ffffff').trim();
   for (const [name, c] of [

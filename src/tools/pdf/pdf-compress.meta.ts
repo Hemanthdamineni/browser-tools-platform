@@ -32,7 +32,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 1600,
       min: 200,
-      max: 6000,
       showWhen: { key: 'preset', value: 'custom' },
     },
     {
@@ -41,7 +40,6 @@ export const meta: ToolMeta = {
       type: 'range',
       default: 75,
       min: 1,
-      max: 100,
       showWhen: { key: 'preset', value: 'custom' },
     },
     { key: 'stripMetadata', label: 'Remove document metadata', type: 'boolean', default: false },

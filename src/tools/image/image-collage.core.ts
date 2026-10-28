@@ -198,13 +198,13 @@ export function readCollageOptions(values: Record<string, unknown>, count: numbe
   const rawBorderColor = resolveBackground(String(values.borderColor ?? '#ffffff'));
   return {
     columns: resolveColumns(values.columns, count),
-    spacing: numberIn(values.spacing, 0, 64, 8),
+    spacing: numberIn(values.spacing, 0, Number.MAX_SAFE_INTEGER, 8),
     background,
-    radius: numberIn(values.radius, 0, 64, 0),
+    radius: numberIn(values.radius, 0, Number.MAX_SAFE_INTEGER, 0),
     // A transparent border would be invisible; fall back to white.
     borderColor: rawBorderColor === 'transparent' ? '#ffffff' : rawBorderColor,
     border: values.border === true || values.border === 'true',
-    borderWidth: numberIn(values.borderWidth, 1, 16, 2),
+    borderWidth: numberIn(values.borderWidth, 1, Number.MAX_SAFE_INTEGER, 2),
     format: String(values.format ?? 'png') === 'jpeg' ? 'jpeg' : 'png',
     quality: numberIn(values.quality, 40, 100, 92),
   };

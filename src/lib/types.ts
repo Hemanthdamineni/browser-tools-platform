@@ -74,7 +74,8 @@ export type ToolOption =
       type: 'range';
       default: number;
       min: number;
-      max: number;
+      /** Optional slider ceiling. Without one the control renders as a number input. */
+      max?: number;
       step?: number;
     })
   | (OptionCommon & { type: 'text'; default: string; placeholder?: string })

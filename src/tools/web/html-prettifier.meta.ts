@@ -28,7 +28,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 2,
       min: 0,
-      max: 8,
     },
     {
       key: 'inlineMax',
@@ -36,7 +35,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 80,
       min: 40,
-      max: 200,
     },
     {
       key: 'prettyComments',

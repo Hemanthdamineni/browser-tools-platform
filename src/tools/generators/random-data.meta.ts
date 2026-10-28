@@ -37,7 +37,7 @@ export const meta: ToolMeta = {
         { value: 'ids', label: 'IDs (uuid, objectId, nanoid, ulid)' },
       ],
     },
-    { key: 'rows', label: 'Rows', type: 'number', default: 10, min: 1, max: 500 },
+    { key: 'rows', label: 'Rows', type: 'number', default: 10, min: 1 },
     {
       key: 'format',
       label: 'Format',

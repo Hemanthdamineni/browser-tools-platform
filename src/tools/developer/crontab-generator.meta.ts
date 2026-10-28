@@ -42,7 +42,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 9,
       min: 0,
-      max: 23,
     },
     {
       key: 'minute',
@@ -50,7 +49,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 0,
       min: 0,
-      max: 59,
     },
     {
       key: 'dayOfWeek',
@@ -65,7 +63,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 1,
       min: 1,
-      max: 31,
     },
     {
       key: 'minuteField',

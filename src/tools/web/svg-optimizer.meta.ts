@@ -37,7 +37,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 2,
       min: 0,
-      max: 6,
     },
     {
       key: 'stripComments',

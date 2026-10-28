@@ -23,7 +23,7 @@ export const meta: ToolMeta = {
         { value: 'webp', label: 'WebP' },
       ],
     },
-    { key: 'scale', label: 'Scale', type: 'number', default: 2, min: 1, max: 4 },
+    { key: 'scale', label: 'Scale', type: 'number', default: 2, min: 1 },
     {
       key: 'pages',
       label: 'Pages',
@@ -37,7 +37,6 @@ export const meta: ToolMeta = {
       type: 'range',
       default: 90,
       min: 1,
-      max: 100,
       showWhen: { key: 'format', value: 'jpeg' },
     },
   ],

@@ -200,7 +200,7 @@ const csvCell = (v: string | number) => {
 function run(input: TextRunInput): TextRunResult {
   const o = resolveOptions(meta, input.options);
   const dataset = String(o.dataset ?? 'person');
-  const rows = Math.min(500, Math.max(1, Math.floor(Number(o.rows ?? 10))));
+  const rows = Math.max(1, Math.floor(Number(o.rows ?? 10)));
   const format = String(o.format ?? 'json');
   const tableName = String(o.tableName || 'data').replace(/[^A-Za-z0-9_]/g, '');
 

@@ -37,7 +37,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 12,
       min: 8,
-      max: 64,
     },
   ],
   examples: [

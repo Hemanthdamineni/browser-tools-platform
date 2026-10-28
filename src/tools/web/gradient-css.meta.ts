@@ -35,7 +35,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 90,
       min: 0,
-      max: 360,
       showWhen: { key: 'type', value: 'linear' },
     },
     {

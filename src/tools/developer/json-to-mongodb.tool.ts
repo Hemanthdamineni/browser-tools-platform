@@ -64,7 +64,7 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   const collection = String(o.collection ?? '').trim();
   const format = String(o.format ?? 'pretty');
   const wrapped = o.wrapped !== false;
-  const indentSpaces = Math.max(0, Math.min(8, Number(o.indentSpaces ?? 2)));
+  const indentSpaces = Math.max(0, Number(o.indentSpaces ?? 2));
 
   const raw = String(input.text ?? '').trim();
   if (!raw) throw new ToolError('Paste JSON documents to convert.');

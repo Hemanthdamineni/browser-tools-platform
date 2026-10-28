@@ -37,7 +37,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 1,
       min: 1,
-      max: 1000,
       showWhen: { key: 'mode', value: 'pick' },
     },
     {
@@ -46,7 +45,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 2,
       min: 2,
-      max: 50,
       showWhen: { key: 'mode', value: 'teams' },
     },
     {

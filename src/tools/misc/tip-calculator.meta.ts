@@ -12,14 +12,13 @@ export const meta: ToolMeta = {
   input: 'text',
   options: [
     { key: 'bill', label: 'Bill amount', type: 'number', default: 0, min: 0 },
-    { key: 'tipPercent', label: 'Tip percentage', type: 'range', default: 18, min: 0, max: 40 },
+    { key: 'tipPercent', label: 'Tip percentage', type: 'range', default: 18, min: 0 },
     {
       key: 'split',
       label: 'People splitting the bill',
       type: 'number',
       default: 1,
       min: 1,
-      max: 50,
       step: 1,
     },
     {

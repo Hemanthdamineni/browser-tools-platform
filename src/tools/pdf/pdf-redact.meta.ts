@@ -44,7 +44,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 2,
       min: 1,
-      max: 4,
       step: 1,
       help: 'How many rendered pixels per PDF point on redacted pages. Higher is sharper but makes a larger file.',
     },

@@ -20,7 +20,7 @@ export const meta: ToolMeta = {
   privacy: { processing: 'on-device', network: 'none', offline: true },
   input: 'text',
   options: [
-    { key: 'words', label: 'Number of words', type: 'number', default: 5, min: 3, max: 12 },
+    { key: 'words', label: 'Number of words', type: 'number', default: 5, min: 3 },
     {
       key: 'separator',
       label: 'Separator',

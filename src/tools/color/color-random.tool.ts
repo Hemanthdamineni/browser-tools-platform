@@ -70,7 +70,7 @@ function format(hsl: HSL, format: string): string {
 
 function run(input: TextRunInput): TextRunResult {
   const o = resolveOptions(meta, input.options);
-  const count = Math.max(1, Math.min(48, Math.floor(Number(o.count) || 8)));
+  const count = Math.max(1, Math.floor(Number(o.count) || 8));
   const fmt = String(o.format);
   const style = String(o.style);
 

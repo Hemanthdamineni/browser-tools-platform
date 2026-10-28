@@ -4,8 +4,10 @@
  *
  * The generic text workbench cannot express this flow (a source editor next
  * to a live, sandboxed rendering of it), so the tool opts into this panel via
- * `meta.panel = 'markdown'`. The panel keeps the `data-text-workbench` marker
- * so the shared workbench sweep treats it like every other tool, but its own
+ * `meta.panel = 'markdown'`. `PanelWorkbench` supplies the
+ * `data-panel-workbench` marker the shared sweep looks for, so this root
+ * deliberately does NOT carry `data-text-workbench`: the generic workbench
+ * script binds to every such root and would double-handle the run. Its own
  * script (`markdown-panel.ts`) drives the run, the highlighting and the
  * preview.
  *
@@ -31,7 +33,6 @@ const opening = examples[0]?.input ?? '';
 
 <section
   class="surface rounded-lg p-4 sm:p-6"
-  data-text-workbench
   data-markdown-workbench
   data-tool-id={meta.id}
   aria-label={`${meta.name} workbench`}

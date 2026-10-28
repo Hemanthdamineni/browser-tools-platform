@@ -19,7 +19,7 @@ export const meta: ToolMeta = {
   privacy: { processing: 'on-device', network: 'none', offline: true },
   input: 'text',
   options: [
-    { key: 'count', label: 'How many colors', type: 'number', default: 8, min: 1, max: 48 },
+    { key: 'count', label: 'How many colors', type: 'number', default: 8, min: 1 },
     {
       key: 'format',
       label: 'Output format',

@@ -153,7 +153,7 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   const trimWhitespace = o.trimWhitespace !== false;
   const sortByScore = String(o.sort ?? 'score') !== 'input';
   const format = String(o.format ?? 'table') === 'lines' ? 'lines' : 'table';
-  const limit = Math.max(1, Math.min(5_000, Number(o.limit ?? 200)));
+  const limit = Math.max(1, Number(o.limit ?? 200));
 
   const text = String(input.text ?? '');
   if (text === '') throw new ToolError('Paste some text to compare.');

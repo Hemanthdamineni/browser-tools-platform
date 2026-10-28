@@ -22,7 +22,7 @@ export const meta: ToolMeta = {
   accept: 'audio/*',
   worker: false,
   options: [
-    { key: 'rate', label: 'Speed (%)', type: 'number', default: 100, min: 25, max: 400 },
+    { key: 'rate', label: 'Speed (%)', type: 'number', default: 100, min: 25 },
     {
       key: 'preservePitch',
       label: 'Preserve pitch (approximate)',

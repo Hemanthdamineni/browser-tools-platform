@@ -29,7 +29,7 @@ export const meta: ToolMeta = {
         { value: 'build', label: 'Build priority' },
       ],
     },
-    { key: 'urgency', label: 'Urgency (0–7)', type: 'number', default: 3, min: 0, max: 7 },
+    { key: 'urgency', label: 'Urgency (0–7)', type: 'number', default: 3, min: 0 },
     { key: 'incremental', label: 'Incremental delivery', type: 'boolean', default: false },
   ],
   examples: [

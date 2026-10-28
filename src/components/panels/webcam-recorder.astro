@@ -33,7 +33,6 @@ const qualityDefault =
 const maxOption = options.find((o) => o.key === 'maxSeconds');
 const maxDefault = maxOption ? String(maxOption.default) : '300';
 const maxMin = maxOption && 'min' in maxOption ? maxOption.min : 0;
-const maxMax = maxOption && 'max' in maxOption ? maxOption.max : 3600;
 const maxStep = maxOption && 'step' in maxOption ? maxOption.step : 5;
 const nameOption = options.find((o) => o.key === 'filename');
 const nameDefault = nameOption ? String(nameOption.default) : 'webcam-recording';
@@ -179,7 +178,6 @@ const nameDefault = nameOption ? String(nameOption.default) : 'webcam-recording'
           id={`${p}-max-seconds`}
           type="number"
           min={maxMin}
-          max={maxMax}
           step={maxStep}
           value={maxDefault}
           data-max-seconds

@@ -30,8 +30,8 @@ function pickUnbiased(alphabet: string, size: number): string {
 
 function run(input: TextRunInput): TextRunResult {
   const o = resolveOptions(meta, input.options);
-  const size = Math.min(64, Math.max(2, Math.floor(Number(o.size ?? 21))));
-  const count = Math.min(200, Math.max(1, Math.floor(Number(o.count ?? 1))));
+  const size = Math.max(2, Math.floor(Number(o.size ?? 21)));
+  const count = Math.max(1, Math.floor(Number(o.count ?? 1)));
   const key = String(o.alphabet ?? 'url-safe');
   const alphabet = key === 'custom' ? String(o.custom ?? '') : ALPHABETS[key];
   if (!alphabet || alphabet.length < 2) {

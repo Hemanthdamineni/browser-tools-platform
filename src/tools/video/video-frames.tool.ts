@@ -171,11 +171,14 @@ async function* decodeAtTimestamps(
     }
   } catch (error) {
     // A cancellation must stay a cancellation; the workbench shows it as such.
-    if ((error as { name?: string })?.name === 'AbortError') throw error;
+    const name =
+      typeof error === 'object' && error !== null && 'name' in error ? error.name : undefined;
+    if (name === 'AbortError') throw error;
     if (error instanceof ToolError) throw error;
+    const detail = error instanceof Error ? error.message : String(error);
     throw new ToolError(
       'This video could not be decoded.',
-      'The file may be damaged, or it may use a codec this browser cannot handle. Try another clip, or re-export it as H.264 (MP4).',
+      `${detail} The file may be damaged, or it may use a codec this browser cannot handle. Try another clip, or re-export it as H.264 (MP4).`,
     );
   }
 }
@@ -362,9 +365,9 @@ export async function extractFrames(
       sourceHeight: source.sourceHeight,
     });
 
-    return settings.layout === 'sheet'
+    return await (settings.layout === 'sheet'
       ? extractSheet(source, settings, ctx, file.name)
-      : extractIndividual(source, settings, ctx, file.name);
+      : extractIndividual(source, settings, ctx, file.name));
   } finally {
     source.dispose();
   }

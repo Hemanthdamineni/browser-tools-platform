@@ -26,7 +26,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 0,
       min: 0,
-      max: 30,
       help: 'Safe-zone border applied only to the 512px Android maskable icon.',
     },
   ],

@@ -71,6 +71,7 @@ export default defineConfig({
     command: 'BASE_PATH=/ npm run build && BASE_PATH=/ npm run preview -- --host --port 4321',
     url: 'http://localhost:4321',
     reuseExistingServer: !process.env.CI,
-    timeout: 180_000,
+    // A cold build of this catalogue takes minutes.
+    timeout: 600_000,
   },
 });

@@ -25,14 +25,19 @@ export const meta: ToolMeta = {
       ],
       help: 'Automatic keeps JPEG as JPEG, or switches everything else to WebP for the smallest size.',
     },
-    { key: 'quality', label: 'Quality (%)', type: 'range', default: 75, min: 10, max: 100 },
+    {
+      key: 'quality',
+      label: 'Quality (%)',
+      type: 'range',
+      default: 75,
+      min: 10,
+    },
     {
       key: 'maxWidth',
       label: 'Maximum width (0 = original)',
       type: 'number',
       default: 0,
       min: 0,
-      max: 16384,
     },
     {
       key: 'stripMetadata',

@@ -18,7 +18,7 @@ function scaleAlpha(color: string, factor: number): string {
 
 function run(input: TextRunInput): TextRunResult {
   const o = resolveOptions(meta, input.options);
-  const layers = Math.max(1, Math.min(6, Math.round(Number(o.layers) || 1)));
+  const layers = Math.max(1, Math.round(Number(o.layers) || 1));
   const x = Number(o.offsetX);
   const y = Number(o.offsetY);
   const blur = Number(o.blur);

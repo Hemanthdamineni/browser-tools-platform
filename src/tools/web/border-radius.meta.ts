@@ -1,0 +1,93 @@
+import type { ToolMeta } from '@/lib/types';
+
+export const meta: ToolMeta = {
+  id: 'border-radius',
+  name: 'CSS Border Radius Generator',
+  category: 'web',
+  summary: 'Build border-radius rules per corner — circles, pills, blobs and the elliptical slash syntax.',
+  description:
+    'Set a radius for each corner and get a ready-to-paste border-radius rule, collapsed to the shortest equivalent form (one, two, three or four values). Switch the unit between px and %, use the elliptical form (`x / y`) for squashed corners, and copy the previewed result.',
+  keywords: [
+    'border radius',
+    'border-radius',
+    'rounded corners',
+    'css radius',
+    'pill shape',
+    'circle css',
+    'elliptical radius',
+    'border radius generator',
+  ],
+  privacy: { processing: 'on-device', network: 'none', offline: true },
+  input: 'text',
+  options: [
+    { key: 'unit', label: 'Unit', type: 'select', default: 'px', choices: [
+      { value: 'px', label: 'Pixels (px)' },
+      { value: '%', label: 'Percent (%)' },
+    ] },
+    { key: 'topLeft', label: 'Top-left', type: 'number', default: 12, min: 0 },
+    { key: 'topRight', label: 'Top-right', type: 'number', default: 12, min: 0 },
+    { key: 'bottomRight', label: 'Bottom-right', type: 'number', default: 12, min: 0 },
+    { key: 'bottomLeft', label: 'Bottom-left', type: 'number', default: 12, min: 0 },
+    { key: 'ellipse', label: 'Elliptical corners (x / y)', type: 'boolean', default: false },
+    {
+      key: 'verticalTopLeft',
+      label: 'Top-left (vertical)',
+      type: 'number',
+      default: 12,
+      min: 0,
+      showWhen: { key: 'ellipse', value: true },
+    },
+    {
+      key: 'verticalTopRight',
+      label: 'Top-right (vertical)',
+      type: 'number',
+      default: 12,
+      min: 0,
+      showWhen: { key: 'ellipse', value: true },
+    },
+    {
+      key: 'verticalBottomRight',
+      label: 'Bottom-right (vertical)',
+      type: 'number',
+      default: 12,
+      min: 0,
+      showWhen: { key: 'ellipse', value: true },
+    },
+    {
+      key: 'verticalBottomLeft',
+      label: 'Bottom-left (vertical)',
+      type: 'number',
+      default: 12,
+      min: 0,
+      showWhen: { key: 'ellipse', value: true },
+    },
+  ],
+  examples: [
+    { title: 'Rounded card' },
+    { title: 'Pill', options: { topLeft: 9999, topRight: 9999, bottomRight: 9999, bottomLeft: 9999 } },
+    {
+      title: 'Circle',
+      options: { unit: '%', topLeft: 50, topRight: 50, bottomRight: 50, bottomLeft: 50 },
+    },
+    {
+      title: 'Blob',
+      options: { unit: '%', topLeft: 60, topRight: 40, bottomRight: 70, bottomLeft: 30 },
+    },
+    {
+      title: 'Elliptical',
+      options: {
+        ellipse: true,
+        topLeft: 20,
+        topRight: 20,
+        bottomRight: 20,
+        bottomLeft: 20,
+        verticalTopLeft: 40,
+        verticalTopRight: 40,
+        verticalBottomRight: 40,
+        verticalBottomLeft: 40,
+      },
+    },
+  ],
+  related: ['box-shadow', 'gradient-css', 'fluid-clamp'],
+  status: 'stable',
+};

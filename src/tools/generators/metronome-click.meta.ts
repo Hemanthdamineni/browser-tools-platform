@@ -11,9 +11,9 @@ export const meta: ToolMeta = {
   privacy: { processing: 'on-device', network: 'none', offline: true },
   input: 'text',
   options: [
-    { key: 'bpm', label: 'Tempo (BPM)', type: 'number', default: 120, min: 20, max: 300 },
-    { key: 'bars', label: 'Bars', type: 'number', default: 4, min: 1, max: 64 },
-    { key: 'beatsPerBar', label: 'Beats per bar', type: 'number', default: 4, min: 1, max: 16 },
+    { key: 'bpm', label: 'Tempo (BPM)', type: 'number', default: 120, min: 20 },
+    { key: 'bars', label: 'Bars', type: 'number', default: 4, min: 1 },
+    { key: 'beatsPerBar', label: 'Beats per bar', type: 'number', default: 4, min: 1 },
     { key: 'accentFirst', label: 'Accent the first beat', type: 'boolean', default: true },
     {
       key: 'clickHz',
@@ -21,7 +21,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 1000,
       min: 100,
-      max: 8000,
     },
     {
       key: 'accentHz',
@@ -29,7 +28,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 1500,
       min: 100,
-      max: 12000,
     },
     {
       key: 'sampleRate',

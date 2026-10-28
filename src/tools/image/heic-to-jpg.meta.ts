@@ -36,11 +36,10 @@ export const meta: ToolMeta = {
     {
       key: 'quality',
       label: 'Quality (%)',
-      type: 'range',
+      type: 'number',
       default: 90,
       min: 10,
-      max: 100,
-      help: 'Used by JPEG and WebP. PNG is lossless and ignores it.',
+      step: 1,
     },
     {
       key: 'background',

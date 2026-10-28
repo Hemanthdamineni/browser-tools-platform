@@ -38,18 +38,6 @@ const PREVIEW_GAP = 6;
 /** Backdrop painted behind the preview so transparent pixels stay visible. */
 const PREVIEW_BACKDROP = '#e2e8f0';
 
-/**
- * Tool-specific pixel ceiling.
- *
- * A cut-out holds the source `ImageData`, the composited RGBA buffer and the
- * output `ImageData` size-by-size (~12 bytes per pixel) on top of the decoded
- * bitmap and the two canvases. The shared 100-megapixel canvas budget
- * (`MAX_CANVAS_PIXELS`) would therefore mean well over a gigabyte of typed
- * arrays and can kill the tab, so this tool refuses anything above 24 MP
- * (e.g. 4000×6000, ~500 MB peak) with a clear message instead.
- */
-export const MAX_CUTOUT_PIXELS = 24_000_000;
-
 /* -------------------------------------------------------------------------- */
 /*  Model shapes                                                              */
 /* -------------------------------------------------------------------------- */
@@ -146,18 +134,12 @@ export function outputFilename(name: string, background: Background, mime: strin
 /* -------------------------------------------------------------------------- */
 
 /**
- * Enforce the shared canvas limits, then this tool's tighter ceiling. Runs on
- * the decoded dimensions, before any full-resolution buffer is allocated.
+ * Enforce the shared canvas limits. There is no separate tool-specific pixel
+ * ceiling: processing happens in this browser, so the canvas budget is the
+ * only hard limit — anything beyond what a canvas can represent cannot run.
  */
 export function assertCutoutBudget(width: number, height: number): void {
   assertCanvasBudget(width, height, 'source image');
-  const pixels = Math.round(width) * Math.round(height);
-  if (pixels > MAX_CUTOUT_PIXELS) {
-    throw new ToolError(
-      `That image is too large to cut a background out of safely (${Math.round(width)}×${Math.round(height)} pixels).`,
-      `Cutting a subject out keeps several full-size copies of the image in memory at once, so this tool is capped at ${MAX_CUTOUT_PIXELS.toLocaleString()} pixels (about 24 megapixels). Resize the image first, then try again.`,
-    );
-  }
 }
 
 /**

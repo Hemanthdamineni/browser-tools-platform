@@ -39,7 +39,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 1,
       min: 1,
-      max: 999,
     },
     {
       key: 'weekdays',
@@ -53,7 +52,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 1,
       min: 1,
-      max: 31,
     },
     {
       key: 'count',
@@ -61,7 +59,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 0,
       min: 0,
-      max: 9999,
     },
     {
       key: 'until',

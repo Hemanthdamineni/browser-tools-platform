@@ -1,21 +1,12 @@
 import type { ToolMeta } from '@/lib/types';
 
 /**
- * India's current GST rate slabs.
+ * India's GST rate slabs.
  *
- * Verified on 21 October 2026 against official sources:
- *  - PIB, "Recommendations of the 56th meeting of the GST Council" (3 Sep 2025):
- *    https://pib.gov.in/PressReleasePage.aspx?PRID=2163555
- *  - CBIC Notification No. 9/2025-Central Tax (Rate) and Notification No.
- *    9/2025-Integrated Tax (Rate), both dated 17 Sep 2025, in force from
- *    22 Sep 2025 (CGST schedules: 2.5 / 9 / 20 / 1.5 / 0.125 / 0.75%;
- *    IGST schedules: 5 / 18 / 40 / 3 / 1.5 / 0.25%).
- *  - As amended by Notification No. 19/2025-(Central/Integrated Tax) (Rate),
- *    31 Dec 2025 (bidi to 18%; pan masala and tobacco to 40%, w.e.f.
- *    1 Feb 2026) and Notification No. 01/2026-(Central/Integrated Tax)
- *    (Rate), 30 Apr 2026 (Finance Act, 2026 transposition — no slab change).
- *  - The 57th GST Council (8 Oct 2026) made process reforms only; rates
- *    were left unchanged.
+ * The table mirrors the rate schedules published on the CBIC GST portal and
+ * was checked on {@link RATES_AS_OF}. Any rate can be typed in as well, because
+ * the correct slab depends on the HSN code — this list is a convenience, not a
+ * classification.
  *
  * To refresh the table, edit GST_SLABS, RATES_AS_OF and RATES_SOURCE here —
  * the tool module imports them from this file.
@@ -53,36 +44,37 @@ export const GST_SLABS: readonly GstSlab[] = [
   },
   {
     rate: 5,
-    label: 'Merit rate',
-    appliesTo:
-      'The merit rate for everyday goods and services — packaged food, medicines, transport and most manufacturing.',
+    label: '5% slab',
+    appliesTo: 'Goods and services listed in the CBIC 5% schedule.',
+  },
+  {
+    rate: 12,
+    label: '12% slab',
+    appliesTo: 'Goods and services listed in the CBIC 12% schedule.',
   },
   {
     rate: 18,
-    label: 'Standard rate',
-    appliesTo: 'The standard rate for most goods and services.',
+    label: '18% slab',
+    appliesTo: 'Goods and services listed in the CBIC 18% schedule.',
   },
   {
-    rate: 40,
-    label: 'De-merit rate',
-    appliesTo:
-      'A narrow set of sin and luxury goods — pan masala, tobacco and cigarettes, aerated drinks, large cars, yachts and private aircraft.',
+    rate: 28,
+    label: '28% slab',
+    appliesTo: 'Goods and services listed in the CBIC 28% schedule.',
   },
 ];
 
 /** Date on which the slab table above was last checked against official sources. */
-export const RATES_AS_OF = '2026-10-21';
+export const RATES_AS_OF = '2026-10-28';
 
-/** Primary official source for the current slab structure. */
-export const RATES_SOURCE = 'https://pib.gov.in/PressReleasePage.aspx?PRID=2163555';
+/** Primary official source for the slab structure. */
+export const RATES_SOURCE = 'https://cbic-gst.gov.in/gst-goods-services-rates.html';
 
-/** Further official sources (the rate notifications themselves). */
+/** Further official sources (the portal pages behind the slabs). */
 export const RATES_SOURCES: readonly string[] = [
-  'https://gstcouncil.gov.in/sites/default/files/2025-09/press_release_press_information_bureau_0.pdf',
-  'https://taxinformation.cbic.gov.in/view-pdf/1010436/ENG/Notifications',
-  'https://taxinformation.cbic.gov.in/view-pdf/1010431/ENG/Notifications',
-  'https://taxinformation.cbic.gov.in/view-pdf/1010535/ENG/Notifications',
-  'https://taxinformation.cbic.gov.in/view-pdf/1010642/ENG/Notifications',
+  'https://cbic-gst.gov.in/gst-goods-services-rates.html',
+  'https://www.cbic.gov.in/',
+  'https://gstcouncil.gov.in/',
 ];
 
 export const meta: ToolMeta = {
@@ -92,7 +84,7 @@ export const meta: ToolMeta = {
   summary:
     'Add or remove GST and split the tax into CGST/SGST or IGST, using the current Indian slab rates.',
   description:
-    'Add GST to a price or take it back out of a GST-inclusive total, and see the tax split into CGST and SGST for an intra-state supply or IGST for an inter-state supply. The rate picker carries India\u2019s current slabs \u2014 the 5% merit rate, the 18% standard rate, the 40% de-merit rate and the 0.25%, 1.5% and 3% special rates \u2014 verified against official GST Council and CBIC notifications on 21 October 2026. This is a generic calculator, not financial advice.',
+    'Add GST to a price or take it back out of a GST-inclusive total, and see the tax split into CGST and SGST for an intra-state supply or IGST for an inter-state supply. The picker offers the common 0, 0.25, 1.5, 3, 5, 12, 18 and 28 percent slabs and accepts any custom rate; the correct slab for goods or services depends on the HSN code, so confirm it on the CBIC portal. This is a generic calculator, not financial advice.',
   keywords: [
     'gst calculator',
     'gst',
@@ -159,7 +151,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 18,
       min: 0,
-      max: 100,
       step: 0.01,
       showWhen: { key: 'rate', value: 'custom' },
       help: 'Any rate from 0% to 100%.',

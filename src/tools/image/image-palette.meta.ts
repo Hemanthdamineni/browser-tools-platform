@@ -13,7 +13,7 @@ export const meta: ToolMeta = {
   accept: 'image/*',
   multiple: true,
   options: [
-    { key: 'colors', label: 'Number of colours', type: 'number', default: 6, min: 2, max: 16 },
+    { key: 'colors', label: 'Number of colours', type: 'number', default: 6, min: 2 },
     {
       key: 'algorithm',
       label: 'Algorithm',

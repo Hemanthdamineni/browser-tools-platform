@@ -16,13 +16,6 @@ import { ToolError } from '@/lib/types';
 
 /** Slowest useful interval between frames (0.1 s). */
 export const FRAMES_MIN_INTERVAL = 0.1;
-/**
- * Hard ceiling on the number of frames we will decode. Each one is a full
- * decode + a PNG encode, so beyond this a long clip would wedge the tab.
- */
-export const FRAMES_MAX = 200;
-/** Widest individual frame we allow (a 1280 px still is plenty for screenshots). */
-export const FRAMES_MAX_WIDTH = 2560;
 /** Narrowest useful still. */
 export const FRAMES_MIN_WIDTH = 16;
 
@@ -86,9 +79,6 @@ function readWhole(value: unknown, fallback: number, label: string, min: number)
 /**
  * Sample the `[start, end]` range of a clip every `interval` seconds.
  * The first frame sits on `start`; the last never passes `end`.
- *
- * Generation stops after {@link FRAMES_MAX} + 1 entries, which is all the
- * caller needs to know the plan is over the cap — it never walks a huge range.
  */
 export function planIntervalTimestamps(start: number, end: number, interval: number): number[] {
   if (!Number.isFinite(interval) || interval <= 0) {
@@ -98,7 +88,6 @@ export function planIntervalTimestamps(start: number, end: number, interval: num
   const out: number[] = [];
   for (let t = start; t <= end + 1e-9; t += step) {
     out.push(roundTimestamp(t));
-    if (out.length > FRAMES_MAX) break;
   }
   if (out.length === 0) out.push(roundTimestamp(start));
   return out;
@@ -266,19 +255,13 @@ export function resolveFramesSettings(
     timestamps = planCountTimestamps(start, end, count);
   }
 
-  if (timestamps.length > FRAMES_MAX) {
-    throw new ToolError(
-      `That range would extract ${timestamps.length} frames — over the ${FRAMES_MAX} frame limit.`,
-      'Pick a longer interval, fewer frames, or a shorter range.',
-    );
-  }
   if (!timestamps.length) {
     throw new ToolError('The chosen range produced no frames to extract.');
   }
 
   const baseWidth = layout === 'sheet' ? SHEET_THUMB_WIDTH : 480;
   const requestedWidth = readPositive(options.width, baseWidth, 'Width');
-  const width = Math.min(Math.max(Math.round(requestedWidth), FRAMES_MIN_WIDTH), FRAMES_MAX_WIDTH);
+  const width = Math.max(Math.round(requestedWidth), FRAMES_MIN_WIDTH);
   const { width: w, height: h } = fitSize(width, source.sourceWidth, source.sourceHeight);
 
   let sheet: SheetGrid | null = null;

@@ -279,7 +279,7 @@ describe('mountSpeechToTextPanel', () => {
     expect(panel.querySelector<HTMLElement>('[data-show-when]')!.hidden).toBe(false);
   });
 
-  it('rejects a file over the byte cap and keeps the run button disabled', () => {
+  it('accepts a large file and enables the run button', () => {
     const panel = fixture();
     mountSpeechToTextPanel(panel);
 
@@ -289,9 +289,8 @@ describe('mountSpeechToTextPanel', () => {
     chooseFile(panel, file);
 
     const error = panel.querySelector<HTMLElement>('[data-error]')!;
-    expect(error.hidden).toBe(false);
-    expect(error.textContent).toMatch(/larger than/);
-    expect(panel.querySelector<HTMLButtonElement>('[data-run]')!.disabled).toBe(true);
+    expect(error.hidden).toBe(true);
+    expect(panel.querySelector<HTMLButtonElement>('[data-run]')!.disabled).toBe(false);
   });
 
   it('accepts a valid file and enables the run button', () => {

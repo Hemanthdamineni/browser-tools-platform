@@ -3,7 +3,6 @@ import type { OptionValues } from '@/lib/types';
 import { ToolError } from '@/lib/types';
 import type { VideoEngine } from '@/lib/video';
 import {
-  FRAMES_MAX,
   fitSize,
   frameOutputFilename,
   planCountTimestamps,
@@ -131,10 +130,9 @@ describe('planIntervalTimestamps', () => {
     expect(() => planIntervalTimestamps(0, 5, -1)).toThrow(ToolError);
   });
 
-  it('stops generating after the frame cap plus one', () => {
-    // 600 seconds at 3 s → 201 timestamps, exactly the stop signal.
+  it('generates every timestamp in the range without a cap', () => {
     const plan = planIntervalTimestamps(0, 600, 3);
-    expect(plan.length).toBe(FRAMES_MAX + 1);
+    expect(plan.length).toBe(201);
   });
 });
 
@@ -289,10 +287,10 @@ describe('resolveFramesSettings', () => {
     expect(settings.width).toBe(320);
   });
 
-  it('rejects a run over the frame cap', () => {
+  it('allows runs of any length', () => {
     expect(() =>
       resolveFramesSettings(defaults({ interval: 0.1 }), sourceInfo({ durationSeconds: 1000 })),
-    ).toThrow(/over the 200 frame limit/i);
+    ).not.toThrow();
   });
 
   it('rejects a missing explicit end when the duration is unknown', () => {
@@ -344,6 +342,25 @@ describe('extractFrames', () => {
     expect(result.frames.every((f) => f.bytes.byteLength > 0)).toBe(true);
     expect(result.sheet).toBeNull();
     expect(src.disposed()).toBe(true);
+  });
+
+  it('keeps the source open until every frame has been written', async () => {
+    let disposedBeforeLastFrame = false;
+    const base = fakeSource(3);
+    const originalSamples = base.samples;
+    const src: FramesSource = {
+      ...base,
+      async *samples(timestamps, runCtx) {
+        yield* originalSamples.call(base, timestamps, runCtx);
+        // The source must still be alive while the frames are being encoded.
+        disposedBeforeLastFrame = base.disposed();
+      },
+    };
+    const open: FramesSourceOpener = async () => src;
+    const result = await extractFrames(file(), defaults({ count: 3 }), {}, open);
+    expect(result.frames).toHaveLength(3);
+    expect(disposedBeforeLastFrame).toBe(false);
+    expect(base.disposed()).toBe(true);
   });
 
   it('reports monotonically increasing progress', async () => {

@@ -52,7 +52,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 440,
       min: 20,
-      max: 20000,
       help: 'The tone you hear. The slider is logarithmic, so every octave gets the same travel.',
     },
     {
@@ -61,7 +60,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 20,
       min: 20,
-      max: 20000,
       showWhen: { key: 'mode', value: 'sweep' },
     },
     {
@@ -70,7 +68,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 20000,
       min: 20,
-      max: 20000,
       showWhen: { key: 'mode', value: 'sweep' },
     },
     {

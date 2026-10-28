@@ -45,7 +45,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 20,
       min: 16,
-      max: 64,
     },
     {
       key: 'digits',
@@ -74,7 +73,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 30,
       min: 15,
-      max: 120,
       showWhen: { key: 'type', value: 'totp' },
     },
     {

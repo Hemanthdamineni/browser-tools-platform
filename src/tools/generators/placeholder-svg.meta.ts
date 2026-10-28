@@ -19,8 +19,8 @@ export const meta: ToolMeta = {
   privacy: { processing: 'on-device', network: 'none', offline: true },
   input: 'text',
   options: [
-    { key: 'width', label: 'Width (px)', type: 'number', default: 600, min: 16, max: 4000 },
-    { key: 'height', label: 'Height (px)', type: 'number', default: 400, min: 16, max: 4000 },
+    { key: 'width', label: 'Width (px)', type: 'number', default: 600, min: 16 },
+    { key: 'height', label: 'Height (px)', type: 'number', default: 400, min: 16 },
     { key: 'bg', label: 'Background colour', type: 'text', default: '#e2e8f0' },
     { key: 'fg', label: 'Text colour', type: 'text', default: '#64748b' },
     { key: 'label', label: 'Label (empty = WxH)', type: 'text', default: '' },
@@ -30,7 +30,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 0,
       min: 0,
-      max: 400,
     },
   ],
   examples: [

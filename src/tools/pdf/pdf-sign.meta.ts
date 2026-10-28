@@ -18,14 +18,13 @@ export const meta: ToolMeta = {
   // usable without the UI.
   panel: 'signature',
   options: [
-    { key: 'page', label: 'Page to sign', type: 'number', default: 1, min: 1, max: 1000 },
+    { key: 'page', label: 'Page to sign', type: 'number', default: 1, min: 1 },
     {
       key: 'x',
       label: 'X position (pt from the left)',
       type: 'number',
       default: 72,
       min: 0,
-      max: 5000,
     },
     {
       key: 'y',
@@ -33,7 +32,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 600,
       min: 0,
-      max: 5000,
     },
     {
       key: 'width',
@@ -41,7 +39,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 180,
       min: 8,
-      max: 2000,
     },
     {
       // Filled in by the signature panel with the PNG data URL of the mark the

@@ -330,7 +330,7 @@ function emit(
 
 async function run(input: TextRunInput): Promise<TextRunResult> {
   const o = resolveOptions(meta, input.options);
-  const indentWidth = Math.max(2, Math.min(8, Number(o.indentWidth ?? 2)));
+  const indentWidth = Math.max(2, Number(o.indentWidth ?? 2));
   const quoteStyle = String(o.quoteStyle ?? 'double');
   const keepComments = o.keepComments !== false;
   const inlineText = o.inlineText !== false;

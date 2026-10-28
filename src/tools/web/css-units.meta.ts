@@ -55,7 +55,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 16,
       min: 1,
-      max: 128,
     },
     {
       key: 'parentFontSize',
@@ -63,7 +62,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 16,
       min: 1,
-      max: 128,
     },
     {
       key: 'percentBase',
@@ -71,7 +69,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 16,
       min: 1,
-      max: 128,
     },
   ],
   examples: [

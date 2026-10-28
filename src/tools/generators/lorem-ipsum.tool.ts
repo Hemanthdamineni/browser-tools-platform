@@ -39,7 +39,7 @@ function paragraph(first: boolean): string {
 function run(input: TextRunInput): TextRunResult {
   const o = resolveOptions(meta, input.options);
   const unit = String(o.unit ?? 'paragraphs');
-  const count = Math.min(200, Math.max(1, Math.floor(Number(o.count ?? 3))));
+  const count = Math.max(1, Math.floor(Number(o.count ?? 3)));
   const start = Boolean(o.startWithLorem);
   const format = String(o.format ?? 'plain');
 

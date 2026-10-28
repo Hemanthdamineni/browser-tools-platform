@@ -52,7 +52,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 4,
       min: 0,
-      max: 12,
       step: 1,
     },
   ],

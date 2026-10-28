@@ -13,7 +13,7 @@ function rel(target: Date, now: Date): string {
       if (args.length === 0) super(now.getTime());
       else super(...(args as ConstructorParameters<typeof RealDate>));
     }
-    static now(): number {
+    static override now(): number {
       return now.getTime();
     }
   }

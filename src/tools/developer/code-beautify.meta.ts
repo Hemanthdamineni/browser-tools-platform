@@ -52,7 +52,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 80,
       min: 20,
-      max: 200,
       help: 'Prettier wraps lines longer than this where it can.',
     },
     {
@@ -61,7 +60,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 2,
       min: 1,
-      max: 8,
       help: 'Number of spaces per indent level.',
     },
     {

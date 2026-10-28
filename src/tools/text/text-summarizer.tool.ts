@@ -135,7 +135,7 @@ function scoreSentences(sentences: string[]): Sentence[] {
 function run(input: TextRunInput): TextRunResult {
   const o = resolveOptions(meta, input.options);
   const length = String(o.length);
-  const customCount = Math.max(1, Math.min(25, Math.trunc(Number(o.count))));
+  const customCount = Math.max(1, Math.trunc(Number(o.count)));
   const text = input.text.trim();
 
   if (!text) {

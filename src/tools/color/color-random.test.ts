@@ -16,10 +16,10 @@ describe('color-random', () => {
     expect(c.every((x) => HEX.test(x))).toBe(true);
   });
 
-  it('respects count within the 1..48 clamp', () => {
+  it('respects any positive count', () => {
     expect(colors(run('', { count: 12 }))).toHaveLength(12);
     expect(colors(run('', { count: 1 }))).toHaveLength(1);
-    expect(colors(run('', { count: 999 }))).toHaveLength(48);
+    expect(colors(run('', { count: 999 }))).toHaveLength(999);
   });
 
   it('formats as rgb() and hsl()', () => {

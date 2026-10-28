@@ -72,7 +72,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 300,
       min: 0,
-      max: 3600,
       step: 5,
       help: 'Safety stop for long recordings. 0 means no limit.',
     },

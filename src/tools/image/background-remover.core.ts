@@ -29,12 +29,6 @@ import { formatBytes } from '@/lib/format';
 import { ToolError } from '@/lib/types';
 import { parseHexColor, stem } from './common';
 
-/** Hard ceiling for the input file: beyond this a browser tab starts to choke. */
-export const MAX_INPUT_BYTES = 25 * 1024 * 1024;
-
-/** Hard ceiling for the decoded image: about 12 megapixels. */
-export const MAX_INPUT_PIXELS = 12_000_000;
-
 /** The output is always a PNG — it is the only format that keeps transparency. */
 export const OUTPUT_MIME = 'image/png';
 
@@ -176,7 +170,11 @@ export function matteCoverage(matte: Uint8ClampedArray, cutoff = 0): number {
   return foreground / pixels;
 }
 
-/** Reject an input file that is empty or larger than the byte ceiling. */
+/**
+ * Validate that an input is a real, non-empty file. There is deliberately no
+ * byte or pixel ceiling: the image is processed in this browser only, and the
+ * canvas budget raised by the shared helpers is the one real limit.
+ */
 export function assertInputBytes(bytes: number, name = 'That file'): void {
   if (!Number.isFinite(bytes) || bytes < 0) {
     throw new ToolError(`${name} has no readable size.`, 'Choose a real image file.');
@@ -184,27 +182,14 @@ export function assertInputBytes(bytes: number, name = 'That file'): void {
   if (bytes === 0) {
     throw new ToolError(`“${name}” is empty.`, 'Choose a real image file.');
   }
-  if (bytes > MAX_INPUT_BYTES) {
-    throw new ToolError(
-      `“${name}” is too large (${formatBytes(bytes)}).`,
-      `The limit is ${formatBytes(MAX_INPUT_BYTES)}. Downscale or re-export the image, then try again.`,
-    );
-  }
 }
 
-/** Reject an image whose pixel count is above the ceiling. */
+/** Validate that an image reports measurable dimensions. */
 export function assertInputPixels(width: number, height: number): void {
   const w = Math.round(width);
   const h = Math.round(height);
   if (!Number.isFinite(w) || !Number.isFinite(h) || w < 1 || h < 1) {
     throw new ToolError('That image has no measurable size.', 'Choose a real image file.');
-  }
-  const pixels = w * h;
-  if (pixels > MAX_INPUT_PIXELS) {
-    throw new ToolError(
-      `That image is too large to process safely (${w}×${h} pixels).`,
-      `The limit is ${MAX_INPUT_PIXELS.toLocaleString('en-US')} pixels (about 12 megapixels). Resize it first, then try again.`,
-    );
   }
 }
 

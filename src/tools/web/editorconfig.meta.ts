@@ -29,7 +29,7 @@ export const meta: ToolMeta = {
         { value: 'tab', label: 'tabs' },
       ],
     },
-    { key: 'indentSize', label: 'Indent size', type: 'number', default: 2, min: 1, max: 8 },
+    { key: 'indentSize', label: 'Indent size', type: 'number', default: 2, min: 1 },
     {
       key: 'endOfLine',
       label: 'End of line',
@@ -63,7 +63,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 0,
       min: 0,
-      max: 200,
     },
   ],
   examples: [

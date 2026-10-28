@@ -27,7 +27,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 10,
       min: 2,
-      max: 36,
     },
     {
       key: 'toBase',
@@ -35,7 +34,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 16,
       min: 2,
-      max: 36,
     },
     {
       key: 'addPrefix',

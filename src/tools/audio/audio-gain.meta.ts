@@ -13,7 +13,7 @@ export const meta: ToolMeta = {
   accept: 'audio/*',
   worker: false,
   options: [
-    { key: 'gainDb', label: 'Gain (dB)', type: 'number', default: 0, min: -60, max: 24 },
+    { key: 'gainDb', label: 'Gain (dB)', type: 'number', default: 0, min: -60 },
     { key: 'hardClip', label: 'Hard clip at full scale', type: 'boolean', default: true },
   ],
   examples: [

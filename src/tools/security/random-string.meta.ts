@@ -21,7 +21,7 @@ export const meta: ToolMeta = {
   privacy: { processing: 'on-device', network: 'none', offline: true },
   input: 'text',
   options: [
-    { key: 'length', label: 'Length', type: 'number', default: 32, min: 1, max: 4096 },
+    { key: 'length', label: 'Length', type: 'number', default: 32, min: 1 },
     {
       key: 'charset',
       label: 'Character set',
@@ -47,7 +47,7 @@ export const meta: ToolMeta = {
       placeholder: 'e.g. ABCDEF0123456789',
       showWhen: { key: 'charset', value: 'custom' },
     },
-    { key: 'count', label: 'How many', type: 'number', default: 1, min: 1, max: 200 },
+    { key: 'count', label: 'How many', type: 'number', default: 1, min: 1 },
   ],
   examples: [
     { title: '32-char alphanumeric', options: { length: 32, charset: 'alphanumeric' } },

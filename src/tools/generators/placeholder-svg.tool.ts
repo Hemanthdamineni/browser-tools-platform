@@ -10,15 +10,13 @@ const isHex = (s: string) => /^#[0-9a-fA-F]{3,8}$/.test(s.trim());
 
 function run(input: TextRunInput): TextRunResult {
   const o = resolveOptions(meta, input.options);
-  const width = Math.min(4000, Math.max(16, Math.floor(Number(o.width ?? 600))));
-  const height = Math.min(4000, Math.max(16, Math.floor(Number(o.height ?? 400))));
+  const width = Math.max(16, Math.floor(Number(o.width ?? 600)));
+  const height = Math.max(16, Math.floor(Number(o.height ?? 400)));
   if (
     Number(o.width) < 16 ||
-    Number(o.width) > 4000 ||
-    Number(o.height) < 16 ||
-    Number(o.height) > 4000
+    Number(o.height) < 16
   ) {
-    throw new ToolError('Width and height must be between 16 and 4000.');
+    throw new ToolError('Width and height must be at least 16.');
   }
   const bg = String(o.bg ?? '#e2e8f0').trim();
   const fg = String(o.fg ?? '#64748b').trim();

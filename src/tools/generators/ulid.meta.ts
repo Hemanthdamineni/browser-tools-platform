@@ -19,7 +19,7 @@ export const meta: ToolMeta = {
   privacy: { processing: 'on-device', network: 'none', offline: true },
   input: 'text',
   options: [
-    { key: 'count', label: 'How many', type: 'number', default: 1, min: 1, max: 200 },
+    { key: 'count', label: 'How many', type: 'number', default: 1, min: 1 },
     { key: 'monotonic', label: 'Monotonic (strictly increasing)', type: 'boolean', default: false },
     { key: 'lowercase', label: 'Lowercase', type: 'boolean', default: false },
   ],

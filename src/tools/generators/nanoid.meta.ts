@@ -19,7 +19,7 @@ export const meta: ToolMeta = {
   privacy: { processing: 'on-device', network: 'none', offline: true },
   input: 'text',
   options: [
-    { key: 'size', label: 'ID size', type: 'number', default: 21, min: 2, max: 64 },
+    { key: 'size', label: 'ID size', type: 'number', default: 21, min: 2 },
     {
       key: 'alphabet',
       label: 'Alphabet',
@@ -43,7 +43,7 @@ export const meta: ToolMeta = {
       showWhen: { key: 'alphabet', value: 'custom' },
       placeholder: 'any characters, at least 2',
     },
-    { key: 'count', label: 'How many', type: 'number', default: 1, min: 1, max: 200 },
+    { key: 'count', label: 'How many', type: 'number', default: 1, min: 1 },
   ],
   examples: [
     { title: 'One 21-char ID (default)', options: { size: 21, alphabet: 'url-safe', count: 1 } },

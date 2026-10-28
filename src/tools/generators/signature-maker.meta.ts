@@ -57,7 +57,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 3,
       min: 1,
-      max: 12,
       showWhen: { key: 'mode', value: 'draw' },
     },
     {
@@ -79,7 +78,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 180,
       min: 16,
-      max: 512,
       showWhen: { key: 'mode', value: 'type' },
     },
   ],

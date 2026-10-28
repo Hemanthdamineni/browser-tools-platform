@@ -41,7 +41,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 2,
       min: 1,
-      max: 8,
       step: 1,
       help: 'How many PNG pixels per SVG pixel when exporting. Higher = sharper, larger file.',
     },

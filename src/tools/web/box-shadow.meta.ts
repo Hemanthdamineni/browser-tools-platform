@@ -24,7 +24,7 @@ export const meta: ToolMeta = {
     { key: 'spread', label: 'Spread (px)', type: 'number', default: 0 },
     { key: 'color', label: 'Colour', type: 'text', default: 'rgba(0,0,0,0.15)' },
     { key: 'inset', label: 'Inset', type: 'boolean', default: false },
-    { key: 'layers', label: 'Layers', type: 'number', default: 1, min: 1, max: 6 },
+    { key: 'layers', label: 'Layers', type: 'number', default: 1, min: 1 },
   ],
   examples: [
     { title: 'Default elevation' },

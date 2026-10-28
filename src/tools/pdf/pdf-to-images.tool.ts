@@ -37,7 +37,7 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
     );
   const format = String(o.format || 'png');
   const mime = format === 'jpeg' ? 'image/jpeg' : format === 'webp' ? 'image/webp' : 'image/png';
-  const scale = Math.max(1, Math.min(4, Number(o.scale) || 2));
+  const scale = Math.max(1, Number(o.scale) || 2);
   const quality = Math.max(1, Math.min(100, Number(o.quality) || 90)) / 100;
   const entries: Record<string, Uint8Array> = {};
   let totalSize = 0;

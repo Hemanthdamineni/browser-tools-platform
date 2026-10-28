@@ -18,7 +18,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 2,
       min: 1,
-      max: 8,
       help: 'Ignored when a width or height override is set.',
     },
     {
@@ -27,7 +26,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 0,
       min: 0,
-      max: 16384,
       help: 'Exact output width in pixels; height follows the aspect ratio.',
     },
     {
@@ -36,7 +34,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 0,
       min: 0,
-      max: 16384,
       help: 'Exact output height in pixels; width follows the aspect ratio.',
     },
     {

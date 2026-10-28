@@ -37,7 +37,6 @@ export const meta: ToolMeta = {
       type: 'range',
       default: 10,
       min: 4,
-      max: 15,
       step: 1,
       help: 'Work factor. Each +1 doubles the time. Default 10 ≈ 0.1 s.',
       showWhen: { key: 'mode', value: 'hash' },

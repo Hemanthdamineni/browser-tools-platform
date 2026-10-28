@@ -53,13 +53,13 @@ function resolveRate(value: unknown, custom: unknown): number {
     if (rate === null) {
       throw new ToolError(
         'Enter a custom GST rate.',
-        'Use a number between 0 and 100, for example 12.5.',
+        'Use a number such as 12.5.',
       );
     }
-    if (rate < 0 || rate > 100) {
+    if (rate < 0) {
       throw new ToolError(
-        `Custom GST rate must be between 0% and 100% (got ${rate}%).`,
-        'Pick one of the notified slabs or enter a rate inside that range.',
+        `Custom GST rate cannot be negative (got ${rate}%).`,
+        'Enter a rate of 0 or more.',
       );
     }
     return rate;
@@ -146,10 +146,10 @@ function run(input: TextRunInput): TextRunResult {
   rows.push(['Gross amount (incl. GST)', '\u2014', money(gross)]);
 
   const notes: string[] = [
-    `Rates verified on ${RATES_AS_OF} \u2014 source: ${RATES_SOURCE}`,
+    `Rates checked on ${RATES_AS_OF} \u2014 source: ${RATES_SOURCE}`,
     'Not financial advice \u2014 this is a generic calculator. It does not decide which rate applies to a product or service, and it ignores input tax credit, compensation cess and anti-profiteering rules.',
     'Rounding: each tax component is computed on the taxable value and rounded to the nearest paisa (2 dp, halves rounded up). The gross amount is the taxable value plus the rounded components, so it can differ from a hand-worked total by up to \u20b90.01.',
-    'Rate notifications: Notification No. 9/2025-Central Tax (Rate) (CGST) and Notification No. 9/2025-Integrated Tax (Rate) (IGST), both dated 17 September 2025.',
+    'The applicable slab depends on the HSN or SAC code \u2014 confirm it on the CBIC GST portal before invoicing.',
   ];
 
   if (mode === 'add') {

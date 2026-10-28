@@ -68,7 +68,6 @@ export const meta: ToolMeta = {
       type: 'range',
       default: 90,
       min: 10,
-      max: 100,
       showWhen: { key: 'format', value: 'webp' },
     },
     {
@@ -77,7 +76,6 @@ export const meta: ToolMeta = {
       type: 'range',
       default: 0,
       min: 0,
-      max: 100,
       help: '0 keeps MODNet’s soft, feathered edges. Higher values snap soft edge pixels to fully transparent or fully opaque for a crisper cut-out.',
     },
   ],

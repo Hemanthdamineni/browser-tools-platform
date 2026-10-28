@@ -33,7 +33,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 5,
       min: 1,
-      max: 20,
     },
     {
       key: 'verbose',

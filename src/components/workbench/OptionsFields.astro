@@ -60,7 +60,7 @@ const fieldId = (key: string) => `${idPrefix}-opt-${key}`;
             </label>
           )}
 
-          {opt.type === 'number' && (
+          {(opt.type === 'number' || (opt.type === 'range' && opt.max === undefined)) && (
             <input
               id={id}
               type="number"
@@ -69,13 +69,13 @@ const fieldId = (key: string) => `${idPrefix}-opt-${key}`;
               data-opt-type="number"
               value={opt.default}
               min={opt.min}
-              max={opt.max}
+              max={opt.type === 'number' ? opt.max : undefined}
               step={opt.step ?? 1}
               aria-describedby={describedBy}
             />
           )}
 
-          {opt.type === 'range' && (
+          {opt.type === 'range' && opt.max !== undefined && (
             <div class="flex items-center gap-3">
               <input
                 id={id}

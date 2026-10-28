@@ -20,7 +20,7 @@ export const meta: ToolMeta = {
   privacy: { processing: 'on-device', network: 'none', offline: true },
   input: 'text',
   options: [
-    { key: 'length', label: 'Length', type: 'range', default: 20, min: 4, max: 128, step: 1 },
+    { key: 'length', label: 'Length', type: 'range', default: 20, min: 4, step: 1 },
     { key: 'uppercase', label: 'Uppercase A–Z', type: 'boolean', default: true },
     { key: 'lowercase', label: 'Lowercase a–z', type: 'boolean', default: true },
     { key: 'digits', label: 'Digits 0–9', type: 'boolean', default: true },
@@ -31,7 +31,7 @@ export const meta: ToolMeta = {
       type: 'boolean',
       default: false,
     },
-    { key: 'count', label: 'How many', type: 'number', default: 1, min: 1, max: 50 },
+    { key: 'count', label: 'How many', type: 'number', default: 1, min: 1 },
   ],
   examples: [
     { title: '20-char, all classes', options: { length: 20 } },

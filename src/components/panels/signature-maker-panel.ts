@@ -172,9 +172,24 @@ export function escapeXml(value: string): string {
     .replace(/'/g, '&apos;');
 }
 
-/** Quote a CSS font stack so its commas stay inside the `font-family` value. */
-function quotedFont(font: string): string {
-  return `"${font.replace(/"/g, "'")}"`;
+/**
+ * Serialise a typed name into a transparent SVG. The background stays
+ * transparent and there are no external references (the font is a system
+ * stack). Throws a {@link ToolError} for a blank name.
+ */
+export function typedToSvg(name: string, options: TypedSvgOptions = {}): string {
+  const layout = typedLayout(name, options);
+  const color = options.color || '#111827';
+  const italic = layout.font.startsWith('italic ') ? ' font-style="italic"' : '';
+  const fontStack = layout.font.replace(/^(italic )?/, '').replace(/^\d+px /, '');
+  // The stack carries its own single quotes; only a double quote would break
+  // the double-quoted XML attribute, so it is replaced.
+  const fontFamily = fontStack.replace(/"/g, "'");
+  return (
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${layout.width}" height="${layout.height}" viewBox="0 0 ${layout.width} ${layout.height}">` +
+    `<text x="${layout.textX}" y="${layout.baseline}" fill="${color}" font-family="${fontFamily}" font-size="${layout.fontSize}"${italic} text-anchor="start" dominant-baseline="central">${escapeXml(String(name).trim())}</text>` +
+    `</svg>`
+  );
 }
 
 /** The path data for one stroke, shifted by `(-ox, -oy)` to sit at the origin. */
@@ -251,23 +266,6 @@ export function typedLayout(name: string, options: TypedSvgOptions = {}): TypedL
     textX: padding,
     baseline: Math.round(height / 2),
   };
-}
-
-/**
- * Serialise a typed name into a transparent SVG. The background stays
- * transparent and there are no external references (the font is a system
- * stack). Throws a {@link ToolError} for a blank name.
- */
-export function typedToSvg(name: string, options: TypedSvgOptions = {}): string {
-  const layout = typedLayout(name, options);
-  const color = options.color || '#111827';
-  const italic = layout.font.startsWith('italic ') ? ' font-style="italic"' : '';
-  const fontStack = layout.font.replace(/^(italic )?/, '').replace(/^\d+px /, '');
-  return (
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${layout.width}" height="${layout.height}" viewBox="0 0 ${layout.width} ${layout.height}">` +
-    `<text x="${layout.textX}" y="${layout.baseline}" fill="${color}" font-family="${quotedFont(fontStack)}" font-size="${layout.fontSize}"${italic} text-anchor="start" dominant-baseline="central">${escapeXml(String(name).trim())}</text>` +
-    `</svg>`
-  );
 }
 
 /** Encode an SVG string as a `data:image/svg+xml;base64` URL for rendering. */

@@ -156,8 +156,11 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   if (!files.length) throw new ToolError('Choose an audio file.');
 
   const file = files[0]!;
-  const byteError = checkByteCap(file.size);
-  if (byteError) throw new ToolError(byteError, `Choose a file under 64 MB.`);
+  const warnings: string[] = [];
+  const byteWarning = checkByteCap(file.size);
+  if (byteWarning) {
+    warnings.push(`${byteWarning} It will still be processed — this may take a while.`);
+  }
 
   const { modelId, englishOnly } = resolveModel(String(o.model ?? 'tiny.en'));
   const language = englishOnly ? 'auto' : String(o.language ?? 'auto');
@@ -179,8 +182,10 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   signal?.throwIfAborted?.();
 
   const durationSec = audio.channels[0]?.length ? audio.channels[0].length / audio.sampleRate : 0;
-  const durationError = checkDurationCap(durationSec);
-  if (durationError) throw new ToolError(durationError, `Keep recordings under 10 minutes.`);
+  const durationWarning = checkDurationCap(durationSec);
+  if (durationWarning) {
+    warnings.push(`${durationWarning} It will still be processed — this may take a while.`);
+  }
 
   // Whisper reads 16 kHz mono samples.
   const mono = remixChannels(audio.channels, 1)[0]!;
@@ -219,7 +224,10 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
         : 'No speech was recognised.',
       'The model weights are cached, so the next run starts immediately.',
     ],
-    warnings: segments.length ? undefined : ['No speech was detected in this clip.'],
+    warnings: [
+      ...warnings,
+      ...(segments.length ? [] : ['No speech was detected in this clip.']),
+    ],
     stats: {
       model: modelId,
       segments: segments.length,

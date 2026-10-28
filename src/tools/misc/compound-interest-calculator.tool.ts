@@ -39,7 +39,7 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
 
   const principal = numOption(o.principal, 0, 0, 1e15);
   const annualRate = numOption(o.rate, 5, 0, 1e6);
-  const years = Math.round(numOption(o.years, 10, 1, 100));
+  const years = Math.round(numOption(o.years, 10, 1, 1e6));
   const contribution = numOption(o.contribution, 0, 0, 1e15);
 
   const freq = FREQ[String(o.compounding)] ?? FREQ.monthly!;

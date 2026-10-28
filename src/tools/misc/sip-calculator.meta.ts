@@ -41,7 +41,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 10,
       min: 0,
-      max: 100,
       step: 0.5,
     },
     {
@@ -51,7 +50,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 12,
       min: 0,
-      max: 100,
       step: 0.1,
     },
     {
@@ -60,7 +58,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 10,
       min: 0,
-      max: 100,
       step: 1,
     },
     {
@@ -70,7 +67,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 0,
       min: 0,
-      max: 11,
       step: 1,
     },
     {

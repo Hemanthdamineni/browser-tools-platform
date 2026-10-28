@@ -57,7 +57,7 @@ export const meta: ToolMeta = {
       default: 'font-size',
       placeholder: 'font-size',
     },
-    { key: 'precision', label: 'Decimal places', type: 'number', default: 3, min: 0, max: 6 },
+    { key: 'precision', label: 'Decimal places', type: 'number', default: 3, min: 0 },
   ],
   examples: [
     {

@@ -22,7 +22,7 @@ export const meta: ToolMeta = {
         { value: 'nil', label: 'Nil UUID' },
       ],
     },
-    { key: 'count', label: 'How many', type: 'number', default: 1, min: 1, max: 1000 },
+    { key: 'count', label: 'How many', type: 'number', default: 1, min: 1 },
     { key: 'uppercase', label: 'Uppercase', type: 'boolean', default: false },
     { key: 'braces', label: 'Wrap in { }', type: 'boolean', default: false },
     { key: 'hyphens', label: 'Include hyphens', type: 'boolean', default: true },

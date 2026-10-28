@@ -33,7 +33,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 1,
       min: 1,
-      max: 20,
     },
     {
       key: 'top',
@@ -41,7 +40,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 25,
       min: 0,
-      max: 500,
     },
     {
       key: 'ignoreCommon',

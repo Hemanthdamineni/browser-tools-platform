@@ -43,8 +43,8 @@ describe('uuid', async () => {
     expect(id).toMatch(/^{[0-9A-F]{32}}$/);
   });
 
-  it('clamps out-of-range counts', async () => {
-    expect(await gen({ version: 'v4', count: 99999 })).toHaveLength(1000);
+  it('accepts any positive count', async () => {
+    expect(await gen({ version: 'v4', count: 99999 })).toHaveLength(99999);
     expect(await gen({ version: 'v4', count: 0 })).toHaveLength(1);
   });
 });

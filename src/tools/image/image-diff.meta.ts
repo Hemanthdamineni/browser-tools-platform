@@ -19,8 +19,6 @@ export const meta: ToolMeta = {
       type: 'range',
       default: 10,
       min: 0,
-      max: 100,
-      help: 'A pixel counts as different when its largest RGBA channel delta exceeds this percentage.',
     },
     {
       key: 'output',
