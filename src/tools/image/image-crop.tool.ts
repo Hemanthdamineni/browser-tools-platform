@@ -45,7 +45,10 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   const o = resolveOptions(meta, input.options);
   checkFiles(input.files, true);
 
+  let originalBytes = 0;
+  let outputBytes = 0;
   const outputs = await runBatch(input.files, input, 'Cropping', async (file) => {
+    originalBytes += file.size;
     const bitmap = await decodeOriented(file);
     try {
       assertCanvasBudget(bitmap.width, bitmap.height, 'source image');
@@ -56,13 +59,22 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
       flattenForJpeg(ctx, mime, rect.w, rect.h);
       ctx.drawImage(bitmap, rect.x, rect.y, rect.w, rect.h, 0, 0, rect.w, rect.h);
       const blob = await encodeCanvas(canvas, mime);
+      outputBytes += blob.size;
       return { filename: `${stem(file.name)}-crop.${extension(mime)}`, blob };
     } finally {
       bitmap.close();
     }
   });
 
-  return { outputs, stats: { files: outputs.length } };
+  return {
+    outputs,
+    stats: {
+      files: outputs.length,
+      originalBytes,
+      outputBytes,
+      savedPercent: originalBytes ? Math.round((1 - outputBytes / originalBytes) * 1000) / 10 : 0,
+    },
+  };
 }
 
 const tool: FileToolModule = { meta, run };

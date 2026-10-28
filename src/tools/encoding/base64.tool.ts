@@ -51,10 +51,14 @@ function base64ToBytes(input: string): Uint8Array {
 
 /** Base64 of a whole file, chunked so huge files do not blow the call stack. */
 function encodeFileBase64(bytes: Uint8Array): string {
-  let binary = '';
-  for (let i = 0; i < bytes.length; i += 0x8000)
-    binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
-  return btoa(binary);
+  // Decode in fixed chunks: a single `String.fromCharCode(...bytes)` spread
+  // blows the argument limit on large files. Chunks are concatenated as one
+  // binary string, which `btoa` needs.
+  const chunk = 0x8000;
+  const parts: string[] = [];
+  for (let i = 0; i < bytes.length; i += chunk)
+    parts.push(String.fromCharCode(...bytes.subarray(i, i + chunk)));
+  return btoa(parts.join(''));
 }
 
 /**
@@ -72,7 +76,9 @@ function decodeFileBase64(text: string): Uint8Array {
   }
   try {
     const binary = atob(normalized);
-    return Uint8Array.from(binary, (character) => character.charCodeAt(0));
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    return bytes;
   } catch {
     throw new ToolError('Invalid Base64 input.', 'Provide a complete Base64 string or data URI.');
   }

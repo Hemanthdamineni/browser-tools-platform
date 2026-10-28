@@ -12,15 +12,7 @@ export const meta: ToolMeta = {
   input: 'file',
   accept: 'application/pdf',
   multiple: true,
-  options: [
-    { key: 'outputName', label: 'Output file name', type: 'text', default: 'merged.pdf' },
-    {
-      key: 'keepBookmarks',
-      label: 'Keep bookmarks (best effort)',
-      type: 'boolean',
-      default: false,
-    },
-  ],
+  options: [{ key: 'outputName', label: 'Output file name', type: 'text', default: 'merged.pdf' }],
   examples: [
     { title: 'Merge two PDFs' },
     { title: 'Combine a cover page and a report' },

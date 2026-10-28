@@ -29,24 +29,54 @@ function weekday(d: Date, utc: boolean): string {
 function relative(d: Date, now: Date): string {
   const diff = d.getTime() - now.getTime();
   if (Math.abs(diff) < 1000) return 'just now';
+  const past = diff < 0;
   const secs = Math.floor(Math.abs(diff) / 1000);
-  const units: [number, string][] = [
-    [31536000, 'year'],
-    [2592000, 'month'],
-    [86400, 'day'],
-    [3600, 'hour'],
-    [60, 'minute'],
-    [1, 'second'],
-  ];
-  let label = '';
-  for (const [unitSecs, name] of units) {
-    if (secs >= unitSecs) {
-      const n = Math.floor(secs / unitSecs);
-      label = `${n} ${name}${n === 1 ? '' : 's'}`;
-      break;
+
+  // Month/year buckets use calendar arithmetic (real months between the two
+  // dates), not fixed 30/365-day approximations: "1 month ago" for 59 days
+  // mislabels both February and 31-day months.
+  let label: string;
+  const months = calendarMonths(d, now);
+  if (months >= 12) {
+    const years = Math.floor(months / 12);
+    const rem = months % 12;
+    label =
+      rem === 0
+        ? `${years} year${years === 1 ? '' : 's'}`
+        : `${years} year${years === 1 ? '' : 's'} ${rem} month${rem === 1 ? '' : 's'}`;
+  } else if (months >= 1) {
+    label = `${months} month${months === 1 ? '' : 's'}`;
+  } else {
+    const units: [number, string][] = [
+      [86400, 'day'],
+      [3600, 'hour'],
+      [60, 'minute'],
+      [1, 'second'],
+    ];
+    label = '';
+    for (const [unitSecs, name] of units) {
+      if (secs >= unitSecs) {
+        const n = Math.floor(secs / unitSecs);
+        label = `${n} ${name}${n === 1 ? '' : 's'}`;
+        break;
+      }
     }
   }
-  return diff > 0 ? `in ${label}` : `${label} ago`;
+  return past ? `${label} ago` : `in ${label}`;
+}
+
+/** Whole calendar months between `d` and `now`, ignoring the time of day. */
+function calendarMonths(d: Date, now: Date): number {
+  const dayA = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+  const dayB = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+  // Earliest first, so the anchor adjustment works the same for future dates.
+  const [from, to] = dayA <= dayB ? [d, now] : [now, d];
+  let months =
+    (to.getUTCFullYear() - from.getUTCFullYear()) * 12 + (to.getUTCMonth() - from.getUTCMonth());
+  // The day-of-month of the later date has not been reached in the span yet:
+  // Mar 31 -> Apr 29 is still 0 whole months.
+  if (to.getUTCDate() < from.getUTCDate()) months -= 1;
+  return Math.max(0, months);
 }
 
 function run(input: TextRunInput): TextRunResult {

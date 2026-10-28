@@ -11,14 +11,28 @@ const DELIMS: Record<string, string> = {
 };
 
 function sniff(text: string): string {
-  const nl = text.search(/\r?\n/);
-  const firstLine = nl === -1 ? text : text.slice(0, nl);
+  // Scan up to the first 10 records, not just the first line: a header row can
+  // legitimately contain fewer delimiters than the data rows below it (quoted
+  // titles, prose), and scoring only line 1 then picks the wrong delimiter.
+  const lines: string[] = [];
+  for (const raw of text.split(/\r?\n/)) {
+    lines.push(raw);
+    if (lines.length >= 10) break;
+  }
   let best = ',';
-  let bestCount = -1;
+  let bestScore = -1;
   for (const ch of [',', ';', '\t', '|']) {
-    const count = firstLine.split(ch).length - 1;
-    if (count > bestCount) {
-      bestCount = count;
+    let score = 0;
+    for (const line of lines) {
+      const count = line.split(ch).length - 1;
+      score += count;
+    }
+    // Prefer a delimiter that appears on every scanned line; total occurrences
+    // break ties so a dense comma table still wins over a sparse one.
+    const onEveryLine = lines.every((line) => line.split(ch).length - 1 > 0);
+    const final = onEveryLine ? score + lines.length : score;
+    if (final > bestScore) {
+      bestScore = final;
       best = ch;
     }
   }

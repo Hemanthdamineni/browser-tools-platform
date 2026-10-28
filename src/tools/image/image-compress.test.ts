@@ -102,11 +102,11 @@ describe('image-compress run', () => {
   });
 
   it('warns that metadata cannot be preserved when stripping is disabled', async () => {
-    mock = installImageMock();
-    const result = await tool.run({
-      files: [makeFile('photo.png')],
-      options: { stripMetadata: false },
-    });
+    // encodeSize: 5000 with a 100-byte input drives the keep-original path —
+    // the warning only applies when the re-encoded output is actually used.
+    mock = installImageMock({ encodeSize: 5000 });
+    const file = makeFile('photo.png', 'image/png', 100);
+    const result = await tool.run({ files: [file], options: { stripMetadata: false } });
     expect(result.warnings?.join(' ')).toMatch(/metadata/i);
   });
 

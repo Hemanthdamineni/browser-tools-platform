@@ -1,6 +1,24 @@
 import { PDFDocument } from 'pdf-lib';
 import { ToolError, type FileRunInput, type FileRunResult, type ToolMeta } from '@/lib/types';
 import { resolveOptions } from '@/lib/options';
+import { formatBytes } from '@/lib/format';
+
+/**
+ * Per-file input ceiling shared by the PDF tools that hold whole documents in
+ * memory (merge, split, organize, extract-pages). Matches pdf-compress /
+ * pdf-protect / pdf-unlock so every PDF tool refuses a too-large file with a
+ * friendly message instead of OOM-crashing the tab.
+ */
+export const MAX_PDF_INPUT_BYTES = 100 * 1024 * 1024;
+
+export function assertPdfWithinLimit(size: number, limit = MAX_PDF_INPUT_BYTES): void {
+  if (size > limit) {
+    throw new ToolError(
+      `This PDF is ${formatBytes(size)} — too large to process in a browser tab.`,
+      `Files up to ${formatBytes(limit)} are supported.`,
+    );
+  }
+}
 
 export function firstFile(input: FileRunInput): File {
   if (!input.files?.length) throw new ToolError('Choose a PDF file.');
@@ -30,6 +48,7 @@ export async function loadPdfBytes(
 }
 export async function loadPdf(file: File): Promise<PDFDocument> {
   if (!file.size) throw new ToolError('This PDF file is empty.');
+  assertPdfWithinLimit(file.size);
   const buffer = await file.arrayBuffer();
   return loadPdfBytes(new Uint8Array(buffer));
 }

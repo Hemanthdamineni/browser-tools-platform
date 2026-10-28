@@ -66,7 +66,7 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
         blob = file;
         filename = file.name;
       }
-      if (!stripMetadata) {
+      if (!stripMetadata && blob === file) {
         warnings.push(`${file.name}: re-encoding always removes metadata; it cannot be preserved.`);
       }
       outputBytes += blob.size;

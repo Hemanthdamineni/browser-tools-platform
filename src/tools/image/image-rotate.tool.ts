@@ -59,11 +59,14 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   const rotate = normalizeRotation(o.rotate);
   const scale = flipScale(o.flip);
 
+  let originalBytes = 0;
+  let outputBytes = 0;
   const outputs = await runBatch(
     input.files,
     input,
     'Rotating',
     async (file): Promise<FileRunResult['outputs'][number]> => {
+      originalBytes += file.size;
       const bitmap = await decodeOriented(file);
       try {
         assertCanvasBudget(bitmap.width, bitmap.height, 'source image');
@@ -83,6 +86,7 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
         ctx.drawImage(bitmap, -bitmap.width / 2, -bitmap.height / 2);
 
         const blob = await encodeCanvas(canvas, mime);
+        outputBytes += blob.size;
         return { filename: `${stem(file.name)}-rotated.${extension(mime)}`, blob };
       } finally {
         bitmap.close();
@@ -90,7 +94,15 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
     },
   );
 
-  return { outputs, stats: { files: outputs.length } };
+  return {
+    outputs,
+    stats: {
+      files: outputs.length,
+      originalBytes,
+      outputBytes,
+      savedPercent: originalBytes ? Math.round((1 - outputBytes / originalBytes) * 1000) / 10 : 0,
+    },
+  };
 }
 
 const tool: FileToolModule = { meta, run };
