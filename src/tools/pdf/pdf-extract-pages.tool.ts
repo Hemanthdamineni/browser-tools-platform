@@ -9,7 +9,7 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   const source = await loadPdf(file);
   const total = source.getPageCount();
   abort(input);
-  const selection = parsePages(o.pages, total, false);
+  const selection = parsePages(o.pages, total);
 
   const out = await PDFDocument.create();
   const pages = await out.copyPages(

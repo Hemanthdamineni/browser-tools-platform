@@ -16,8 +16,9 @@ export const meta: ToolMeta = {
       key: 'pages',
       label: 'Pages to delete',
       type: 'text',
-      default: '2,4',
+      default: '',
       placeholder: 'e.g. 2,4 or 3-6',
+      help: 'Required — name the pages to remove. Use "5-" for page 5 to the end.',
     },
   ],
   examples: [

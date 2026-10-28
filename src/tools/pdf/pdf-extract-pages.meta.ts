@@ -16,8 +16,9 @@ export const meta: ToolMeta = {
       key: 'pages',
       label: 'Pages to extract',
       type: 'text',
-      default: '1,3,5-7',
-      placeholder: 'e.g. 5,1 or 1-3',
+      default: 'all',
+      placeholder: 'all or e.g. 5,1 or 1-3',
+      help: 'Leave "all" (or blank) to copy every page.',
     },
   ],
   examples: [

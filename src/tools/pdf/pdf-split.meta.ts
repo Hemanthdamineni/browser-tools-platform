@@ -27,7 +27,7 @@ export const meta: ToolMeta = {
       key: 'ranges',
       label: 'Ranges',
       type: 'text',
-      default: '1-3,5,7-',
+      default: '',
       help: 'e.g. 1-3,5,7- (7- means to the end)',
       showWhen: { key: 'mode', value: 'ranges' },
     },
