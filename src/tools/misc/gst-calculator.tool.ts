@@ -51,10 +51,7 @@ function resolveRate(value: unknown, custom: unknown): number {
   if (selected === 'custom') {
     const rate = parseNumber(custom);
     if (rate === null) {
-      throw new ToolError(
-        'Enter a custom GST rate.',
-        'Use a number such as 12.5.',
-      );
+      throw new ToolError('Enter a custom GST rate.', 'Use a number such as 12.5.');
     }
     if (rate < 0) {
       throw new ToolError(

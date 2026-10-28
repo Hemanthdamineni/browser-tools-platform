@@ -98,12 +98,19 @@ async function digestMatches(
   const match = /^([a-z0-9-]+):(.+)$/iu.exec(declared.trim());
   const algorithm = (match?.[1] ?? 'sha1').toLowerCase();
   const expected = (match?.[2] ?? declared).trim();
-  const webcryptoName =
-    algorithm === 'sha1' ? 'SHA-1' : algorithm === 'sha256' ? 'SHA-256' : null;
+  const webcryptoName = algorithm === 'sha1' ? 'SHA-1' : algorithm === 'sha256' ? 'SHA-256' : null;
   if (webcryptoName === null)
-    return { checked: false, matches: false, detail: `Unsupported digest algorithm "${algorithm}".` };
+    return {
+      checked: false,
+      matches: false,
+      detail: `Unsupported digest algorithm "${algorithm}".`,
+    };
   if (typeof crypto === 'undefined' || crypto.subtle === undefined)
-    return { checked: false, matches: false, detail: 'WebCrypto is unavailable, so digests were not checked.' };
+    return {
+      checked: false,
+      matches: false,
+      detail: 'WebCrypto is unavailable, so digests were not checked.',
+    };
   const digest = new Uint8Array(await crypto.subtle.digest(webcryptoName, bytes as BufferSource));
   const actual = expected.length === digest.length * 2 ? hex(digest) : base32(digest);
   const matches = actual.toLowerCase() === expected.toLowerCase();
@@ -122,9 +129,9 @@ async function gunzip(bytes: Uint8Array): Promise<Uint8Array> {
       'This browser cannot decompress gzip archives.',
       'DecompressionStream is unavailable; open the uncompressed .warc instead.',
     );
-  const stream = new Blob([bytes.buffer as ArrayBuffer]).stream().pipeThrough(
-    new DecompressionStream('gzip'),
-  );
+  const stream = new Blob([bytes.buffer as ArrayBuffer])
+    .stream()
+    .pipeThrough(new DecompressionStream('gzip'));
   const buf = await new Response(stream).arrayBuffer();
   return new Uint8Array(buf);
 }
@@ -296,9 +303,13 @@ async function parseWarc(b: Uint8Array, compressed: boolean, fileBytes: number):
     let httpStatus: string | null = null;
     if (type === 'response' || type === 'revisit') {
       const head = latin1(b.subarray(bodyStart, Math.min(trailerAt, bodyStart + 2048)));
-      const statusMatch = /^HTTP\/\d\.\d\s+(\d{3})(?:\s+(.*))?$/u.exec(head.split(/\r?\n/u)[0] ?? '');
+      const statusMatch = /^HTTP\/\d\.\d\s+(\d{3})(?:\s+(.*))?$/u.exec(
+        head.split(/\r?\n/u)[0] ?? '',
+      );
       if (statusMatch !== null)
-        httpStatus = statusMatch[2] ? `${statusMatch[1]} ${statusMatch[2].trim()}` : statusMatch[1]!;
+        httpStatus = statusMatch[2]
+          ? `${statusMatch[1]} ${statusMatch[2].trim()}`
+          : statusMatch[1]!;
       else
         findings.push({
           severity: 'warn',
@@ -343,8 +354,7 @@ async function parseWarc(b: Uint8Array, compressed: boolean, fileBytes: number):
 
   // --- Aggregate checks ---------------------------------------------------
   const typeCounts = new Map<string, number>();
-  for (const record of records)
-    typeCounts.set(record.type, (typeCounts.get(record.type) ?? 0) + 1);
+  for (const record of records) typeCounts.set(record.type, (typeCounts.get(record.type) ?? 0) + 1);
 
   const uriCounts = new Map<string, number>();
   for (const record of records) {
@@ -414,7 +424,10 @@ function tableSummary(m: Model): { headers: string[]; rows: string[][] } {
     ['Decoded size', formatBytes(m.decodedBytes)],
     ['Records', String(m.records.length)],
     ['Record types', types === '' ? '—' : types],
-    ['Distinct target URIs', String(new Set(m.records.map((r) => r.uri).filter((u) => u !== '—')).size)],
+    [
+      'Distinct target URIs',
+      String(new Set(m.records.map((r) => r.uri).filter((u) => u !== '—')).size),
+    ],
     ['Duplicate URIs', String(m.duplicateUris.length)],
     [
       'Block digests',
@@ -422,10 +435,7 @@ function tableSummary(m: Model): { headers: string[]; rows: string[][] } {
         ? 'none declared'
         : `${m.digestsChecked} verified, ${m.digestFailures} mismatch`,
     ],
-    [
-      'Findings',
-      `${errors} error, ${warns} warning, ${m.findings.length - errors - warns} note`,
-    ],
+    ['Findings', `${errors} error, ${warns} warning, ${m.findings.length - errors - warns} note`],
   ];
   for (const [key, value] of m.fileHeader) {
     if (key === 'software-info' || key === 'format' || key === 'filename')

@@ -195,7 +195,8 @@ function tableFor(p: Params): Uint32Array {
     const polyRef = reverseBitsSmall(poly, width);
     for (let n = 0; n < 256; n += 1) {
       let c = n;
-      for (let bit = 0; bit < 8; bit += 1) c = c & 1 ? ((c >>> 1) ^ polyRef) & mask : (c >>> 1) & mask;
+      for (let bit = 0; bit < 8; bit += 1)
+        c = c & 1 ? ((c >>> 1) ^ polyRef) & mask : (c >>> 1) & mask;
       table[n] = c;
     }
   } else {
@@ -314,11 +315,7 @@ function parseHex(raw: string, what: string, width: number): bigint {
   return value;
 }
 
-function resolveParams(
-  preset: string,
-  width: number,
-  options: Record<string, unknown>,
-): Params {
+function resolveParams(preset: string, width: number, options: Record<string, unknown>): Params {
   if (preset !== 'custom') {
     const found = PRESETS[preset];
     if (found === undefined)
@@ -360,9 +357,7 @@ function crcCompute(bytes: Uint8Array, p: Params): bigint {
 
 const CHECK_LITERAL = '123456789';
 
-async function readInput(
-  input: FileRunInput,
-): Promise<{ bytes: Uint8Array; label: string }> {
+async function readInput(input: FileRunInput): Promise<{ bytes: Uint8Array; label: string }> {
   const file = (input.files ?? [])[0];
   if (file !== undefined) {
     if (file.size > MAX_BYTES)

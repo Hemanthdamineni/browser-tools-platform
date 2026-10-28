@@ -134,7 +134,10 @@ function readHeader(h: Haystack): { version: string | null; at: number } {
  * `trailer` keyword may be followed by `<< … >>`; the dictionary may itself
  * contain nested `<<>>` (as /ID does), so we balance angle brackets.
  */
-function readDictionary(h: Haystack, from: number): { body: string; start: number; end: number } | null {
+function readDictionary(
+  h: Haystack,
+  from: number,
+): { body: string; start: number; end: number } | null {
   let at = from;
   while (at < h.length && /\s/u.test(h.text.charAt(at))) at += 1;
   if (h.text.slice(at, at + 2) !== '<<') return null;
@@ -358,7 +361,14 @@ function parseXrefStream(h: Haystack, at: number): { rows: XrefRow[]; ok: boolea
     for (let b = 0; b < w2; b += 1) field1 = field1 * 256 + h.bytes[base + w0 + w1 + b]!;
     if (type === 0) {
       if (i === 0) continue;
-      rows.push({ num: i, gen: field1, offset: field0, free: true, compressed: false, lands: true });
+      rows.push({
+        num: i,
+        gen: field1,
+        offset: field0,
+        free: true,
+        compressed: false,
+        lands: true,
+      });
     } else if (type === 1) {
       rows.push({
         num: i,
@@ -652,7 +662,10 @@ function rows_trailer(m: PdfModel): { headers: string[]; rows: string[][] } {
 
 function rows_findings(m: PdfModel): { headers: string[]; rows: string[][] } {
   if (m.findings.length === 0)
-    return { headers: ['Finding', 'Severity', 'Detail'], rows: [['none', 'INFO', 'No structural problems found.']] };
+    return {
+      headers: ['Finding', 'Severity', 'Detail'],
+      rows: [['none', 'INFO', 'No structural problems found.']],
+    };
   return {
     headers: ['Finding', 'Severity', 'Detail'],
     rows: m.findings.map((f) => [f.kind, f.severity.toUpperCase(), f.detail]),

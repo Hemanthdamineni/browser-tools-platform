@@ -30,7 +30,12 @@ const kv = (t: Table): Map<string, string> => new Map(t.rows.map((r) => [r[0] ??
  */
 
 const hex = (s: string): Uint8Array =>
-  new Uint8Array(s.trim().split(/\s+/u).map((h) => Number.parseInt(h, 16)));
+  new Uint8Array(
+    s
+      .trim()
+      .split(/\s+/u)
+      .map((h) => Number.parseInt(h, 16)),
+  );
 
 /** `zstd -q payload.txt -o t.zst` (74 bytes). */
 const ZSTD = hex(
@@ -69,10 +74,14 @@ const BROTLI = hex(
     'dd 80 1f 56 d9 d7 2b ba 05 b8 ce b1 7c 0f 29 07',
 );
 
-const toFile = (data: Uint8Array, name: string): File => new File([data.buffer as ArrayBuffer], name);
+const toFile = (data: Uint8Array, name: string): File =>
+  new File([data.buffer as ArrayBuffer], name);
 
-const run = async (data: Uint8Array, name: string, options: Record<string, string | number | boolean> = {}) =>
-  (await tool.run({ files: [toFile(data, name)], options } as never)) as unknown as Result;
+const run = async (
+  data: Uint8Array,
+  name: string,
+  options: Record<string, string | number | boolean> = {},
+) => (await tool.run({ files: [toFile(data, name)], options } as never)) as unknown as Result;
 
 describe('compressed-file-inspector meta contract', () => {
   it('registers with a unique id, on-device privacy and a short summary', () => {
@@ -218,7 +227,15 @@ describe('brotli honesty', () => {
 describe('views and guards', () => {
   it('lists units in the structure view with headers', async () => {
     const t = table(await run(ZSTD, 't.zst', { format: 'structure' }));
-    expect(t.headers).toEqual(['#', 'Kind', 'Offset', 'Compressed', 'Uncompressed', 'Ratio', 'Detail']);
+    expect(t.headers).toEqual([
+      '#',
+      'Kind',
+      'Offset',
+      'Compressed',
+      'Uncompressed',
+      'Ratio',
+      'Detail',
+    ]);
     expect(t.rows[0]?.[1]).toBe('zstd frame');
     expect(t.rows[0]?.[2]).toBe('0');
   });

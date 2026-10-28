@@ -181,7 +181,15 @@ describe('views', () => {
 
   it('lists program headers with RWE flags', async () => {
     const t = table(await run(syntheticElf64({}), { format: 'segments' }));
-    expect(t.headers).toEqual(['Type', 'Flags', 'Offset', 'Vaddr', 'File size', 'Mem size', 'Align']);
+    expect(t.headers).toEqual([
+      'Type',
+      'Flags',
+      'Offset',
+      'Vaddr',
+      'File size',
+      'Mem size',
+      'Align',
+    ]);
   });
 
   it('lists symbols with bind, type and defined state', async () => {

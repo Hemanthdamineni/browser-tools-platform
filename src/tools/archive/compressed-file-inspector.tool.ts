@@ -251,7 +251,7 @@ function parseBzip2(b: Uint8Array): Model {
     findings.push({
       severity: 'error',
       kind: 'bzip2-bad-level',
-      detail: `Byte 3 should be a block size digit 1-9, found ${b.length > 3 ? `0x${b[3]!.toString(16)}` : "end of file"}.`,
+      detail: `Byte 3 should be a block size digit 1-9, found ${b.length > 3 ? `0x${b[3]!.toString(16)}` : 'end of file'}.`,
     });
 
   findings.push({
@@ -324,7 +324,11 @@ function parseXz(b: Uint8Array): Model {
     }
   } else {
     truncatedAt = 0;
-    findings.push({ severity: 'error', kind: 'truncated', detail: 'File too short to be an xz stream.' });
+    findings.push({
+      severity: 'error',
+      kind: 'truncated',
+      detail: 'File too short to be an xz stream.',
+    });
   }
 
   return {
@@ -476,7 +480,7 @@ function parseLz4(b: Uint8Array): Model {
     at += 1;
     const bd = b[at]!;
     at += 1;
-    if ((b[at - 2]! >>> 6) !== 1)
+    if (b[at - 2]! >>> 6 !== 1)
       findings.push({
         severity: 'warn',
         kind: 'lz4-version',
@@ -556,8 +560,15 @@ function parseBrotli(b: Uint8Array): Model {
   if (b.length === 0) throw new ToolError('That file is empty.');
   // First bits encode the WBITS window size; only 0x81/0x01/… are valid starts.
   const first = b[0]!;
-  const looksBrotli = first === 0x1b || first === 0x21 || first === 0x81 || first === 0x8b ||
-    first === 0xa1 || first === 0xc1 || first === 0xe1 || (first & 0x01) === 0x01;
+  const looksBrotli =
+    first === 0x1b ||
+    first === 0x21 ||
+    first === 0x81 ||
+    first === 0x8b ||
+    first === 0xa1 ||
+    first === 0xc1 ||
+    first === 0xe1 ||
+    (first & 0x01) === 0x01;
   if (!looksBrotli)
     findings.push({
       severity: 'warn',
@@ -671,7 +682,10 @@ function tableHeader(m: Model): { headers: string[]; rows: string[][] } {
 
 function tableFindings(m: Model): { headers: string[]; rows: string[][] } {
   if (m.findings.length === 0)
-    return { headers: ['Finding', 'Severity', 'Detail'], rows: [['none', 'INFO', 'No problems found in the stream headers.']] };
+    return {
+      headers: ['Finding', 'Severity', 'Detail'],
+      rows: [['none', 'INFO', 'No problems found in the stream headers.']],
+    };
   return {
     headers: ['Finding', 'Severity', 'Detail'],
     rows: m.findings.map((f) => [f.kind, f.severity.toUpperCase(), f.detail.slice(0, CLIP * 2)]),
@@ -685,7 +699,8 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   const warnings: string[] = [];
 
   const source = (input.files ?? [])[0];
-  if (source === undefined) throw new ToolError('No file was provided.', 'Choose a compressed file to inspect.');
+  if (source === undefined)
+    throw new ToolError('No file was provided.', 'Choose a compressed file to inspect.');
 
   if (source.size === 0) throw new ToolError('That file is empty.');
   if (source.size > MAX_BYTES)

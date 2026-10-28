@@ -174,15 +174,19 @@ describe('custom parameters reproduce named presets', () => {
   it('supports a 1-bit custom width', async () => {
     const m = kv(
       table(
-        await run([], {
-          preset: 'custom',
-          width: 1,
-          poly: '1',
-          init: '0',
-          refin: 'no',
-          refout: 'no',
-          xorout: '0',
-        }, CHECK_TEXT),
+        await run(
+          [],
+          {
+            preset: 'custom',
+            width: 1,
+            poly: '1',
+            init: '0',
+            refin: 'no',
+            refout: 'no',
+            xorout: '0',
+          },
+          CHECK_TEXT,
+        ),
       ),
     );
     expect(m.get('Width')).toBe('1 bits');
@@ -207,7 +211,9 @@ describe('output formatting', () => {
   });
 
   it('reports decimal when asked', async () => {
-    const m = kv(table(await run([], { preset: 'crc-32-iso-hdlc', output: 'decimal' }, CHECK_TEXT)));
+    const m = kv(
+      table(await run([], { preset: 'crc-32-iso-hdlc', output: 'decimal' }, CHECK_TEXT)),
+    );
     expect(m.get('Result (decimal)')).toBe(String(0xcbf43926));
   });
 
@@ -224,7 +230,9 @@ describe('output formatting', () => {
 
 describe('input validation', () => {
   it('rejects an empty input', async () => {
-    await expect(tool.run({ files: [], options: {} } as never)).rejects.toThrow(/Nothing to checksum/u);
+    await expect(tool.run({ files: [], options: {} } as never)).rejects.toThrow(
+      /Nothing to checksum/u,
+    );
   });
 
   it('rejects a non-hexadecimal polynomial', async () => {

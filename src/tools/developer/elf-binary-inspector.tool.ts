@@ -427,7 +427,9 @@ function parseElf(bytes: Uint8Array): Model {
         value,
         size,
         bind: ['LOCAL', 'GLOBAL', 'WEAK', 'OBJECT'][bindCode] ?? `bind${bindCode}`,
-        type: ['NOTYPE', 'OBJECT', 'FUNC', 'SECTION', 'FILE', 'COMMON', 'TLS'][typeCode] ?? `type${typeCode}`,
+        type:
+          ['NOTYPE', 'OBJECT', 'FUNC', 'SECTION', 'FILE', 'COMMON', 'TLS'][typeCode] ??
+          `type${typeCode}`,
         defined: shndx !== 0,
       });
       if (symbols.length >= 40000) break;
@@ -452,14 +454,16 @@ function parseElf(bytes: Uint8Array): Model {
     findings.push({
       severity: 'warn',
       kind: 'no-relro',
-      detail: 'No GNU_RELRO segment: the GOT and other dynamic data stay writable after relocation.',
+      detail:
+        'No GNU_RELRO segment: the GOT and other dynamic data stay writable after relocation.',
     });
   }
   if (relro && isExecutable && !bindNow) {
     findings.push({
       severity: 'info',
       kind: 'partial-relro',
-      detail: 'GNU_RELRO is present but the dynamic section has no BIND_NOW flag: this is partial RELRO.',
+      detail:
+        'GNU_RELRO is present but the dynamic section has no BIND_NOW flag: this is partial RELRO.',
     });
   }
   if (stack === undefined && (isExecutable || hasInterp)) {
@@ -482,14 +486,16 @@ function parseElf(bytes: Uint8Array): Model {
     findings.push({
       severity: 'info',
       kind: 'no-stack-canary',
-      detail: 'No __stack_chk_fail reference: the binary was probably built without -fstack-protector.',
+      detail:
+        'No __stack_chk_fail reference: the binary was probably built without -fstack-protector.',
     });
   }
   if (isExecutable && eType === 2) {
     findings.push({
       severity: 'warn',
       kind: 'not-pie',
-      detail: 'ELF type is EXEC, not DYN: the binary is not position independent (no PIE/ASLR for code).',
+      detail:
+        'ELF type is EXEC, not DYN: the binary is not position independent (no PIE/ASLR for code).',
     });
   }
 
@@ -547,10 +553,7 @@ function tableSummary(m: Model): { headers: string[]; rows: string[][] } {
       ['Section headers', String(m.sections.length)],
       ['Symbols', String(m.symbols.length)],
       ['Dynamic libraries', String(m.dynNeeded.length)],
-      [
-        'Findings',
-        `${errors} error, ${warns} warning, ${m.findings.length - errors - warns} note`,
-      ],
+      ['Findings', `${errors} error, ${warns} warning, ${m.findings.length - errors - warns} note`],
     ],
   };
 }

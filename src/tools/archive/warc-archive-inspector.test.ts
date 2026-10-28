@@ -31,11 +31,7 @@ const kv = (t: Table): Map<string, string> => new Map(t.rows.map((r) => [r[0] ??
 const FILE_HEADER =
   'WARC/1.0\r\nSoftware-Info: test-writer/1.0\r\nFormat: WARC File Format 1.0\r\n\r\n';
 
-function record(
-  type: string,
-  extra: Record<string, string>,
-  content: string,
-): string {
+function record(type: string, extra: Record<string, string>, content: string): string {
   const lines = [
     'WARC/1.0',
     `WARC-Type: ${type}`,

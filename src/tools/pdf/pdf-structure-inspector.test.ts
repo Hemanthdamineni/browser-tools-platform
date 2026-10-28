@@ -54,7 +54,8 @@ function build(npages: number, version = '1.7', incremental = false): Uint8Array
 
   if (incremental) {
     const at = out.length;
-    out += '9 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << >> >>\nendobj\n';
+    out +=
+      '9 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << >> >>\nendobj\n';
     const x2 = out.length;
     out += `xref\n9 1\n${String(at).padStart(10, '0')} 00000 n \n`;
     out += `trailer\n<< /Size 10 /Root 1 0 R /Prev ${xrefAt} >>\n`;
@@ -90,8 +91,7 @@ describe('pdf-structure-inspector meta contract', () => {
     const options = meta.options ?? [];
     expect(options.map((o) => o.key)).toEqual(['format', 'detail']);
     const format = options.find((o) => o.key === 'format');
-    const choices =
-      format?.type === 'select' ? format.choices.map((c) => c.value) : [];
+    const choices = format?.type === 'select' ? format.choices.map((c) => c.value) : [];
     expect(choices).toEqual(['summary', 'objects', 'trailer', 'findings']);
   });
 });
@@ -159,7 +159,9 @@ describe('trailer view', () => {
     expect(m.get('Root')).toBe('1 0 R');
     expect(m.get('Size')).toBe('5');
     // /ID is an array of two hex strings; it is shown whole, not truncated.
-    expect(m.get('ID')).toMatch(/^\[<0123456789abcdef0123456789abcdef> <0123456789abcdef0123456789abcdef>\]$/u);
+    expect(m.get('ID')).toMatch(
+      /^\[<0123456789abcdef0123456789abcdef> <0123456789abcdef0123456789abcdef>\]$/u,
+    );
   });
 });
 

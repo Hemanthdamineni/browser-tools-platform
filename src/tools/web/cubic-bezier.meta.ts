@@ -17,9 +17,7 @@ export const meta: ToolMeta = {
   ],
   privacy: { processing: 'on-device', network: 'none', offline: true },
   input: 'text',
-  options: [
-    { key: 'samples', label: 'Sample count', type: 'number', default: 11, min: 3 },
-  ],
+  options: [{ key: 'samples', label: 'Sample count', type: 'number', default: 11, min: 3 }],
   examples: [
     { title: 'ease', input: '0.25, 0.1, 0.25, 1' },
     { title: 'Custom snappy', input: '0.68, -0.55, 0.27, 1.55' },

@@ -27,7 +27,8 @@ export const meta: ToolMeta = {
   ],
   privacy: { processing: 'on-device', network: 'none', offline: true },
   input: 'file',
-  accept: '.so,.elf,.bin,.o,.ko,.out,application/octet-stream,application/x-executable,application/x-sharedlib',
+  accept:
+    '.so,.elf,.bin,.o,.ko,.out,application/octet-stream,application/x-executable,application/x-sharedlib',
   options: [
     {
       key: 'format',
@@ -52,6 +53,11 @@ export const meta: ToolMeta = {
     },
   ],
   examples: [{ title: 'Check whether a binary is hardened' }],
-  related: ['binary-file-signature', 'file-metadata', 'font-inspector', 'compressed-file-inspector'],
+  related: [
+    'binary-file-signature',
+    'file-metadata',
+    'font-inspector',
+    'compressed-file-inspector',
+  ],
   status: 'stable',
 };

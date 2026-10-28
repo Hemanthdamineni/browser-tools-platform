@@ -98,8 +98,7 @@ class Decoder {
     while (this.at < this.b.length) {
       const c = this.b[this.at]!;
       if (c === terminator) {
-        if (digits === 0)
-          throw new DecodeError(`${what} at byte ${start} has no digits.`, start);
+        if (digits === 0) throw new DecodeError(`${what} at byte ${start} has no digits.`, start);
         this.at += 1;
         const signed = negative ? -value : value;
         if (!Number.isSafeInteger(signed))
@@ -121,10 +120,7 @@ class Decoder {
   parse(): Benc {
     const node = this.value();
     if (this.at !== this.b.length)
-      throw new DecodeError(
-        `Trailing data after the top-level value at byte ${this.at}.`,
-        this.at,
-      );
+      throw new DecodeError(`Trailing data after the top-level value at byte ${this.at}.`, this.at);
     return node;
   }
 
@@ -181,8 +177,7 @@ class Decoder {
       // byte string: <length>:<bytes>
       const start = this.at;
       const len = this.readInt(0x3a, 'String length');
-      if (len < 0)
-        throw new DecodeError(`String length at byte ${start} is negative.`, start);
+      if (len < 0) throw new DecodeError(`String length at byte ${start} is negative.`, start);
       if (len > MAX_STR)
         throw new DecodeError(
           `String length ${len} at byte ${start} exceeds the ${MAX_STR}-byte limit.`,
@@ -270,7 +265,12 @@ function sha1(bytes: Uint8Array): Uint8Array {
   for (let off = 0; off < withPad.length; off += 64) {
     for (let i = 0; i < 16; i += 1) {
       const j = off + i * 4;
-      w[i] = ((withPad[j]! << 24) | (withPad[j + 1]! << 16) | (withPad[j + 2]! << 8) | withPad[j + 3]!) >>> 0;
+      w[i] =
+        ((withPad[j]! << 24) |
+          (withPad[j + 1]! << 16) |
+          (withPad[j + 2]! << 8) |
+          withPad[j + 3]!) >>>
+        0;
     }
     for (let i = 16; i < 80; i += 1) {
       const x = w[i - 3]! ^ w[i - 8]! ^ w[i - 14]! ^ w[i - 16]!;
@@ -420,14 +420,15 @@ function buildModel(bytes: Uint8Array, root: Benc, decoder: Decoder): Model {
     );
   if (info.kind !== 'dict')
     throw new ToolError(
-      'That torrent\'s info value is not a dictionary.',
+      "That torrent's info value is not a dictionary.",
       `Expected a dictionary under "info", found a ${info.kind}.`,
     );
 
   const name = asStr(info.value.get('name'));
   const pieceLength = asInt(info.value.get('piece length'));
   const piecesNode = info.value.get('pieces');
-  const piecesBytes = piecesNode !== undefined && piecesNode.kind === 'str' ? piecesNode.value.length : 0;
+  const piecesBytes =
+    piecesNode !== undefined && piecesNode.kind === 'str' ? piecesNode.value.length : 0;
   const pieces = Math.floor(piecesBytes / 20);
 
   if (name === null || name === '')

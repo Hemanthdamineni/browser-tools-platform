@@ -93,7 +93,10 @@ function parseSrcset(input: string): { candidates: Candidate[]; findings: Findin
       if (/^\d+w$/iu.test(token)) {
         const value = Number(token.slice(0, -1));
         if (!Number.isInteger(value) || value <= 0) {
-          report('invalid-width', `Width descriptor "${token}" on "${url}" must be a positive integer.`);
+          report(
+            'invalid-width',
+            `Width descriptor "${token}" on "${url}" must be a positive integer.`,
+          );
           invalid = true;
         } else if (width !== null) {
           report('duplicate-width', `"${url}" has more than one width descriptor.`);
@@ -107,7 +110,10 @@ function parseSrcset(input: string): { candidates: Candidate[]; findings: Findin
       } else if (/^(\d+(\.\d+)?|\.\d+)x$/iu.test(token)) {
         const value = Number.parseFloat(token.slice(0, -1));
         if (!Number.isFinite(value) || value <= 0) {
-          report('invalid-density', `Density descriptor "${token}" on "${url}" must be greater than zero.`);
+          report(
+            'invalid-density',
+            `Density descriptor "${token}" on "${url}" must be greater than zero.`,
+          );
           invalid = true;
         } else if (density !== null) {
           report('duplicate-density', `"${url}" has more than one density descriptor.`);
@@ -159,8 +165,7 @@ function splitSizesList(value: string): string[] {
 }
 
 type SizesEntry =
-  | { kind: 'media'; condition: string; length: string }
-  | { kind: 'bare'; length: string };
+  { kind: 'media'; condition: string; length: string } | { kind: 'bare'; length: string };
 
 function parseSizesList(value: string): { entries: SizesEntry[]; findings: Finding[] } {
   const entries: SizesEntry[] = [];
@@ -354,7 +359,8 @@ function buildFindings(candidates: Candidate[], text: string): Finding[] {
     findings.push({
       severity: 'error',
       kind: 'mixed-candidate-types',
-      detail: 'Candidates mix width and density descriptors; a srcset must use one kind or the other.',
+      detail:
+        'Candidates mix width and density descriptors; a srcset must use one kind or the other.',
     });
   }
   return findings;
@@ -415,7 +421,11 @@ function resolveSourceSize(
   const bare = entries[bareIndex]!;
   const px = parsePx(bare.length, viewport);
   if (px === null) {
-    findings.push({ severity: 'error', kind: 'sizes-invalid-length', detail: `Cannot resolve length "${bare.length}".` });
+    findings.push({
+      severity: 'error',
+      kind: 'sizes-invalid-length',
+      detail: `Cannot resolve length "${bare.length}".`,
+    });
     return { size: viewport, findings, usedIndex: null };
   }
   return { size: px, findings, usedIndex: bareIndex };
@@ -460,7 +470,9 @@ function summaryReport(model: Model): string {
   const errors = model.findings.filter((f) => f.severity === 'error').length;
   const warns = model.findings.filter((f) => f.severity === 'warn').length;
   const selected =
-    model.selectedIndex === null ? '(none)' : describeCandidate(model.candidates[model.selectedIndex]!);
+    model.selectedIndex === null
+      ? '(none)'
+      : describeCandidate(model.candidates[model.selectedIndex]!);
   const lines = [
     `Candidates: ${model.candidates.length}`,
     `Errors: ${errors}`,
@@ -481,7 +493,11 @@ const tool: FileToolModule = {
     const file = (input.files ?? [])[0];
     let text = input.text ?? '';
     if (file !== undefined) {
-      if (file.size > MAX_BYTES) throw new ToolError(`File is larger than ${MAX_BYTES} bytes.`, 'Provide a smaller srcset snippet.');
+      if (file.size > MAX_BYTES)
+        throw new ToolError(
+          `File is larger than ${MAX_BYTES} bytes.`,
+          'Provide a smaller srcset snippet.',
+        );
       text = await file.text();
     }
     const model = buildModel(text, options);
@@ -506,7 +522,8 @@ const tool: FileToolModule = {
     }
 
     const notes: string[] = [];
-    if (model.findings.some((f) => f.severity === 'error')) notes.push('Some candidates are invalid; see Findings.');
+    if (model.findings.some((f) => f.severity === 'error'))
+      notes.push('Some candidates are invalid; see Findings.');
     return { outputs: [], report, notes, warnings: [] };
   },
 };

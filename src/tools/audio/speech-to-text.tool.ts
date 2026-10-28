@@ -224,10 +224,7 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
         : 'No speech was recognised.',
       'The model weights are cached, so the next run starts immediately.',
     ],
-    warnings: [
-      ...warnings,
-      ...(segments.length ? [] : ['No speech was detected in this clip.']),
-    ],
+    warnings: [...warnings, ...(segments.length ? [] : ['No speech was detected in this clip.'])],
     stats: {
       model: modelId,
       segments: segments.length,
