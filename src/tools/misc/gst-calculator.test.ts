@@ -45,9 +45,11 @@ describe('gst-calculator — rate table', () => {
   it('carries the common CBIC slabs', () => {
     const rates = GST_SLABS.map((s) => s.rate);
     expect(rates).toContain(5);
-    expect(rates).toContain(12);
     expect(rates).toContain(18);
-    expect(rates).toContain(28);
+    expect(rates).toContain(40);
+    // The 12% and 28% slabs were withdrawn in September 2025.
+    expect(rates).not.toContain(12);
+    expect(rates).not.toContain(28);
     // Special rates: 0.25% rough diamonds, 1.5% job work, 3% precious metals.
     expect(rates).toContain(0.25);
     expect(rates).toContain(1.5);
@@ -118,11 +120,11 @@ describe('gst-calculator — adding GST', () => {
     expect(s.totalTax).toBeCloseTo(2222.22, 2);
   });
 
-  it('applies the 28% slab and the special slabs', () => {
-    const demerit = run('', { mode: 'add', amount: 100000, rate: '28', supply: 'intra' });
-    expect(stats(demerit).cgst).toBe(14000);
-    expect(stats(demerit).sgst).toBe(14000);
-    expect(stats(demerit).gross).toBe(128000);
+  it('applies the 40% de-merit rate and the special slabs', () => {
+    const demerit = run('', { mode: 'add', amount: 100000, rate: '40', supply: 'intra' });
+    expect(stats(demerit).cgst).toBe(20000);
+    expect(stats(demerit).sgst).toBe(20000);
+    expect(stats(demerit).gross).toBe(140000);
 
     const special = run('', { mode: 'add', amount: 100000, rate: '0.25', supply: 'intra' });
     expect(stats(special).cgst).toBe(125);
@@ -167,16 +169,16 @@ describe('gst-calculator — removing GST', () => {
   });
 
   it('takes IGST back out of an inter-state total', () => {
-    const r = run('', { mode: 'remove', amount: 128000, rate: '28', supply: 'inter' });
+    const r = run('', { mode: 'remove', amount: 140000, rate: '40', supply: 'inter' });
     expect(stats(r).base).toBe(100000);
-    expect(stats(r).igst).toBe(28000);
-    expect(stats(r).gross).toBe(128000);
+    expect(stats(r).igst).toBe(40000);
+    expect(stats(r).gross).toBe(140000);
   });
 
   it('round trips: adding then removing GST returns the original base', () => {
     const amounts = [1000, 2500, 999.99, 12345.67, 45000];
     for (const amount of amounts) {
-      for (const rate of ['0.25', '3', '5', '12', '18', '28']) {
+      for (const rate of ['0.25', '3', '5', '18', '40']) {
         const added = run('', { mode: 'add', amount, rate, supply: 'intra' });
         const gross = stats(added).gross!;
         const removed = run('', { mode: 'remove', amount: gross, rate, supply: 'intra' });

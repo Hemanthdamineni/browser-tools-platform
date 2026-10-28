@@ -48,19 +48,15 @@ export const GST_SLABS: readonly GstSlab[] = [
     appliesTo: 'Goods and services listed in the CBIC 5% schedule.',
   },
   {
-    rate: 12,
-    label: '12% slab',
-    appliesTo: 'Goods and services listed in the CBIC 12% schedule.',
-  },
-  {
     rate: 18,
     label: '18% slab',
     appliesTo: 'Goods and services listed in the CBIC 18% schedule.',
   },
   {
-    rate: 28,
-    label: '28% slab',
-    appliesTo: 'Goods and services listed in the CBIC 28% schedule.',
+    rate: 40,
+    label: '40% de-merit rate',
+    appliesTo:
+      'Sin goods and luxury items that moved to the de-merit rate when the 12% and 28% slabs were withdrawn in September 2025.',
   },
 ];
 
