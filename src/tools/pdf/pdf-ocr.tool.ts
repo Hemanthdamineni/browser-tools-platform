@@ -4,7 +4,7 @@ import { resolveOptions } from '@/lib/options';
 import * as pdfjsLib from 'pdfjs-dist';
 import type { PDFDocumentProxy } from 'pdfjs-dist';
 import { PDFDocument, StandardFonts } from 'pdf-lib';
-import { abort, firstFile, output } from './shared';
+import { abort, configurePdfWorker, firstFile, output } from './shared';
 import { meta } from './pdf-ocr.meta';
 import {
   buildOcrPlan,
@@ -19,10 +19,7 @@ import { ocrLanguageLabel, ocrTextStats, resolveOcrMode } from '@/tools/image/oc
 import { supportsSimd } from '@/tools/image/ocr-image';
 import { context2d, createCanvas, encodeCanvas, throwIfAborted } from '@/tools/image/image-batch';
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
-  'pdfjs-dist/build/pdf.worker.min.mjs',
-  import.meta.url,
-).href;
+configurePdfWorker(pdfjsLib);
 
 /**
  * The Tesseract engine, its language models and its worker script are all

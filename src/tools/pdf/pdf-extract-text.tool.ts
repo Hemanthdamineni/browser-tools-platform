@@ -1,6 +1,6 @@
 import type { FileToolModule, FileRunInput, FileRunResult } from '@/lib/types';
 import { ToolError } from '@/lib/types';
-import { abort, firstFile, resolve } from './shared';
+import { abort, configurePdfWorker, firstFile, resolve } from './shared';
 import { meta } from './pdf-extract-text.meta';
 
 // pdfjs-dist ships both a modern ESM build and a legacy build. Bundlers (the
@@ -17,13 +17,7 @@ async function loadPdfJs(): Promise<PdfJsType> {
   return import('pdfjs-dist');
 }
 const pdfjs = await loadPdfJs();
-const isTest = typeof process !== 'undefined' && process.env?.NODE_ENV === 'test';
-if (!isTest && typeof window !== 'undefined') {
-  pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-    'pdfjs-dist/build/pdf.worker.min.mjs',
-    import.meta.url,
-  ).href;
-}
+configurePdfWorker(pdfjs);
 
 async function run(input: FileRunInput): Promise<FileRunResult> {
   resolve(input, meta);

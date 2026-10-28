@@ -87,3 +87,20 @@ export function abort(input: FileRunInput) {
   if (input.signal?.aborted) throw new DOMException('The operation was cancelled.', 'AbortError');
 }
 export { PDFDocument, ToolError };
+
+/**
+ * Point pdf.js at its worker bundle.
+ *
+ * File tools run inside a Web Worker, where `window` is undefined, so a
+ * `typeof window !== 'undefined'` guard silently leaves `workerSrc` empty and
+ * every `getDocument()` call fails with "not a valid PDF". The assignment is
+ * safe in both scopes; only the jsdom test path (which uses pdf.js's legacy
+ * build on the main thread) skips it.
+ */
+export function configurePdfWorker(pdfjs: { GlobalWorkerOptions: { workerSrc: string } }): void {
+  if (typeof process !== 'undefined' && process.env?.NODE_ENV === 'test') return;
+  pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+    'pdfjs-dist/build/pdf.worker.min.mjs',
+    import.meta.url,
+  ).href;
+}

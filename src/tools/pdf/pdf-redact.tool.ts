@@ -1,13 +1,18 @@
 import type { FileRunInput, FileRunResult, FileToolModule } from '@/lib/types';
 import { ToolError } from '@/lib/types';
 import * as pdfjsLib from 'pdfjs-dist';
-import { PDFDocument, abort, firstFile, loadPdfBytes, output, resolve } from './shared';
+import {
+  PDFDocument,
+  abort,
+  configurePdfWorker,
+  firstFile,
+  loadPdfBytes,
+  output,
+  resolve,
+} from './shared';
 import { meta } from './pdf-redact.meta';
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
-  'pdfjs-dist/build/pdf.worker.min.mjs',
-  import.meta.url,
-).href;
+configurePdfWorker(pdfjsLib);
 
 /* -------------------------------------------------------------------------- */
 /*  Pure plan maths — geometry and validation, testable without a canvas       */

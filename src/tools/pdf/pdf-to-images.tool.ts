@@ -2,17 +2,10 @@ import type { FileToolModule, FileRunInput, FileRunResult } from '@/lib/types';
 import { ToolError } from '@/lib/types';
 import { zipSync } from 'fflate';
 import * as pdfjsLib from 'pdfjs-dist';
-import { abort, firstFile, output, parsePages, resolve } from './shared';
+import { abort, configurePdfWorker, firstFile, output, parsePages, resolve } from './shared';
 import { meta } from './pdf-to-images.meta';
 
-// Setting `workerSrc` needs a browser URL context; importing this module in a
-// plain Node/jsdom test must not crash (the same guard pdf-extract-text uses).
-if (typeof window !== 'undefined') {
-  pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
-    'pdfjs-dist/build/pdf.worker.min.mjs',
-    import.meta.url,
-  ).href;
-}
+configurePdfWorker(pdfjsLib);
 
 async function run(input: FileRunInput): Promise<FileRunResult> {
   const o = resolve(input, meta);
