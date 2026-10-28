@@ -13,8 +13,8 @@ export const meta: ToolMeta = {
   accept: 'audio/*',
   worker: false,
   options: [
-    { key: 'fadeInMs', label: 'Fade in (ms)', type: 'number', default: 1000, min: 0, max: 60000 },
-    { key: 'fadeOutMs', label: 'Fade out (ms)', type: 'number', default: 1000, min: 0, max: 60000 },
+    { key: 'fadeInMs', label: 'Fade in (ms)', type: 'number', default: 1000, min: 0 },
+    { key: 'fadeOutMs', label: 'Fade out (ms)', type: 'number', default: 1000, min: 0 },
     {
       key: 'curve',
       label: 'Curve',

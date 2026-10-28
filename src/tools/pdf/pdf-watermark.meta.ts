@@ -13,16 +13,15 @@ export const meta: ToolMeta = {
   accept: 'application/pdf',
   options: [
     { key: 'text', label: 'Watermark text', type: 'text', default: 'CONFIDENTIAL' },
-    { key: 'opacity', label: 'Opacity (%)', type: 'range', default: 15, min: 5, max: 100 },
+    { key: 'opacity', label: 'Opacity (%)', type: 'range', default: 15, min: 5 },
     {
       key: 'rotation',
       label: 'Rotation (degrees)',
       type: 'number',
       default: 45,
       min: -90,
-      max: 90,
     },
-    { key: 'fontSize', label: 'Font size', type: 'number', default: 48, min: 8, max: 144 },
+    { key: 'fontSize', label: 'Font size', type: 'number', default: 48, min: 8 },
     { key: 'color', label: 'Colour (hex)', type: 'text', default: '#ff0000' },
     {
       key: 'pages',

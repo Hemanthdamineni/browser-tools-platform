@@ -31,7 +31,6 @@ export const meta: ToolMeta = {
       type: 'range',
       default: 50,
       min: 0,
-      max: 100,
       step: 5,
       help: 'Overall output level. Start low to protect your ears and equipment.',
     },

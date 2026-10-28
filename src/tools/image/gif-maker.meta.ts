@@ -27,7 +27,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 100,
       min: 10,
-      max: 10000,
       step: 10,
       help: 'Display time for each frame in milliseconds. Lower = faster animation.',
     },
@@ -37,7 +36,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 0,
       min: 0,
-      max: 65535,
       help: 'Number of times to loop the animation. 0 = infinite loop.',
     },
     {
@@ -46,7 +44,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 0,
       min: 0,
-      max: 2048,
       help: 'Resize frames to this width. 0 = use first frame width. Aspect ratio is preserved.',
     },
     {
@@ -55,7 +52,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 0,
       min: 0,
-      max: 2048,
       help: 'Resize frames to this height. 0 = use first frame height. Aspect ratio is preserved.',
     },
     {

@@ -33,27 +33,27 @@ describe('gif-maker resolveGifOptions', () => {
     });
   });
 
-  it('clamps delay to valid range', () => {
+  it('respects min bounds but has no max limits', () => {
     expect(resolveGifOptions({ delay: 5 }).delayMs).toBe(10);
-    expect(resolveGifOptions({ delay: 20000 }).delayMs).toBe(10000);
+    expect(resolveGifOptions({ delay: 20000 }).delayMs).toBe(20000);
     expect(resolveGifOptions({ delay: 250 }).delayMs).toBe(250);
   });
 
-  it('clamps loop count', () => {
+  it('respects min bounds but has no max limits', () => {
     expect(resolveGifOptions({ loop: -1 }).loopCount).toBe(0);
-    expect(resolveGifOptions({ loop: 70000 }).loopCount).toBe(65535);
+    expect(resolveGifOptions({ loop: 70000 }).loopCount).toBe(70000);
     expect(resolveGifOptions({ loop: 3 }).loopCount).toBe(3);
   });
 
-  it('clamps dimensions', () => {
+  it('respects min bounds but has no max limits', () => {
     expect(resolveGifOptions({ width: -100 }).targetWidth).toBe(0);
-    expect(resolveGifOptions({ width: 3000 }).targetWidth).toBe(2048);
+    expect(resolveGifOptions({ width: 3000 }).targetWidth).toBe(3000);
     expect(resolveGifOptions({ height: 500 }).targetHeight).toBe(500);
   });
 
-  it('clamps colors to 2–256', () => {
+  it('respects min bounds but has no max limits', () => {
     expect(resolveGifOptions({ colors: 1 }).maxColors).toBe(2);
-    expect(resolveGifOptions({ colors: 300 }).maxColors).toBe(256);
+    expect(resolveGifOptions({ colors: 300 }).maxColors).toBe(300);
     expect(resolveGifOptions({ colors: 64 }).maxColors).toBe(64);
   });
 

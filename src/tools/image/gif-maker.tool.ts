@@ -98,11 +98,11 @@ export function resolveGifOptions(raw: Record<string, unknown>): ResolvedOptions
   const width = Number(raw.width);
   const height = Number(raw.height);
   const colors = Number(raw.colors);
-  const delayMs = Math.max(10, Math.min(10000, Math.floor(Number.isNaN(delay) ? 100 : delay)));
-  const loopCount = Math.max(0, Math.min(65535, Math.floor(Number.isNaN(loop) ? 0 : loop)));
-  const targetWidth = Math.max(0, Math.min(2048, Math.floor(Number.isNaN(width) ? 0 : width)));
-  const targetHeight = Math.max(0, Math.min(2048, Math.floor(Number.isNaN(height) ? 0 : height)));
-  const maxColors = Math.max(2, Math.min(256, Math.floor(Number.isNaN(colors) ? 256 : colors)));
+  const delayMs = Math.max(10, Math.floor(Number.isNaN(delay) ? 100 : delay));
+  const loopCount = Math.max(0, Math.floor(Number.isNaN(loop) ? 0 : loop));
+  const targetWidth = Math.max(0, Math.floor(Number.isNaN(width) ? 0 : width));
+  const targetHeight = Math.max(0, Math.floor(Number.isNaN(height) ? 0 : height));
+  const maxColors = Math.max(2, Math.floor(Number.isNaN(colors) ? 256 : colors));
   const dither = raw.dither === undefined ? true : Boolean(raw.dither);
 
   return { delayMs, loopCount, targetWidth, targetHeight, maxColors, dither };

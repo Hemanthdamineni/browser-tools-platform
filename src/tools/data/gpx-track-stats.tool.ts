@@ -207,8 +207,7 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
   const o = resolveOptions(meta, input.options);
   const imperial = String(o.units ?? 'metric') === 'imperial';
   const splitChoice = String(o.splits ?? 'off');
-  const threshold = Math.max(0, Math.min(100, Number(o.eleThreshold ?? 0)));
-
+  const threshold = Math.max(0, Number(o.eleThreshold ?? 0));
   const notes: string[] = [];
   const warnings: string[] = [];
 

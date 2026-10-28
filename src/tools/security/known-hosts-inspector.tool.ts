@@ -287,7 +287,7 @@ async function parseKnownHosts(text: string): Promise<{
 
     const parsedPattern = parseHostPattern(hostPattern);
     const isHashed = hostPattern.startsWith('|1|');
-    let keyBlob = new Uint8Array(0);
+    let keyBlob: Uint8Array = new Uint8Array(0);
     let sha256Fp = '';
     let md5Fp = '';
     let bits: number | null = null;

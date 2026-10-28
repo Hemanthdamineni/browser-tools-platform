@@ -27,7 +27,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 25,
       min: 1,
-      max: 120,
       help: 'Length of one focused work phase.',
     },
     {
@@ -36,7 +35,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 5,
       min: 1,
-      max: 60,
       help: 'Length of the break between two work phases.',
     },
     {
@@ -45,7 +43,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 15,
       min: 1,
-      max: 90,
       help: 'Length of the extended break taken after a full set of work phases.',
     },
     {
@@ -54,7 +51,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 4,
       min: 1,
-      max: 12,
       help: 'After this many work phases, take the long break instead of a short one.',
     },
     {
@@ -63,7 +59,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 4,
       min: 1,
-      max: 24,
       help: 'Total number of work phases to plan.',
     },
   ],

@@ -82,8 +82,8 @@ export function resolvePreset(
     return {
       id: 'custom',
       reencode: true,
-      maxEdge: clampNumber(maxEdge, 200, 6000, 1600),
-      quality: clampNumber(quality, 1, 100, 75),
+      maxEdge: clampNumber(maxEdge, 200, Number.MAX_SAFE_INTEGER, 1600),
+      quality: clampNumber(quality, 1, Number.MAX_SAFE_INTEGER, 75),
       minBytes: 8 * 1024,
     };
   }

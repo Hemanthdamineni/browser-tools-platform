@@ -181,13 +181,13 @@ export function mountKeyboardTesterPanel(panel: HTMLElement): void {
   function waitMs(): number {
     const n = Number(windowInput.value);
     if (!Number.isFinite(n)) return DEFAULT_WINDOW_MS;
-    return Math.min(5000, Math.max(200, Math.round(n)));
+    return Math.max(200, Math.round(n));
   }
 
   function historySize(): number {
     const n = Number(historyInput.value);
     if (!Number.isFinite(n)) return 10;
-    return Math.min(50, Math.max(1, Math.round(n)));
+    return Math.max(1, Math.round(n));
   }
 
   /** The combination the panel is currently testing. */

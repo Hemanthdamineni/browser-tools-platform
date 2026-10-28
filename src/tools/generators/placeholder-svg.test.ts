@@ -25,8 +25,8 @@ describe('placeholder-svg', () => {
   });
 
   it('out-of-range size throws', () => {
-    expect(() => run('', { width: 8 })).toThrow(/between 16 and 4000/);
-    expect(() => run('', { height: 5000 })).toThrow(/between 16 and 4000/);
+    expect(() => run('', { width: 8 })).toThrow(/at least 16/);
+    expect(() => run('', { height: 5000 })).not.toThrow();
   });
 
   it('invalid colours throw', () => {

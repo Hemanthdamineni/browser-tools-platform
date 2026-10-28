@@ -82,7 +82,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 32,
       min: 0,
-      max: 128,
       step: 4,
       help: 'Space around the code block.',
     },
