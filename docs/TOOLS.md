@@ -1,10 +1,10 @@
 # Complete Tool List
 
-Total: **456** tools across **20** categories.
+Total: **460** tools across **20** categories.
 
 Generated from `src/tools/**/*.meta.ts` (source of truth).
 
-## archive (13)
+## archive (14)
 
 | id | name | input | status | summary |
 | --- | --- | --- | --- | --- |
@@ -21,6 +21,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `zip-inspect` | Inspect ZIP Archive | file | stable | Inspect the files, sizes and compression ratio inside a ZIP archive. |
 | `file-join` | Join File Chunks | file | stable | Join numbered file chunks into one file and verify an optional manifest. |
 | `file-split` | Split File into Chunks | file | stable | Split a large file into numbered part chunks plus a JSON manifest. |
+| `warc-archive-inspector` | WARC Archive Inspector | file | stable | Inspect WARC web archives: records, block digests, target URIs, lengths and damage. |
 
 ## audio (19)
 
@@ -58,17 +59,19 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `color-convert` | Colour Converter | text | stable | Convert a colour between HEX, RGB, HSL, HSV, CMYK and OKLCH. |
 | `color-random` | Random Color Generator | text | stable | Generate random colors in a chosen style - warm, cool, pastel, vivid and more. |
 
-## converters (2)
+## converters (3)
 
 | id | name | input | status | summary |
 | --- | --- | --- | --- | --- |
 | `docx-to-markdown` | DOCX to Markdown | file | stable | Turn a Word .docx into Markdown or plain text locally — headings, lists and tables. |
 | `subtitle-converter` | Subtitle Converter | text | stable | Convert subtitle files between SRT and WebVTT, and shift cue timings, entirely on-device. |
+| `torrent-file-inspector` | Torrent File Inspector | file | stable | Read a .torrent: info-hash, magnet link, file list, piece size and tracker, decoded on-device. |
 
-## crypto (9)
+## crypto (10)
 
 | id | name | input | status | summary |
 | --- | --- | --- | --- | --- |
+| `crc-calculator` | CRC Calculator | file | stable | Compute any CRC preset — CRC-8, CRC-16, CRC-32, CRC-64 — or your own parameters, over files or text. |
 | `crc32` | CRC-32 / Adler-32 Checksum | text | stable | Compute CRC-32, CRC-32C or Adler-32 checksums of text, as hex or decimal. |
 | `keypair-generator` | Cryptographic Keypair Generator | text | stable | Generate RSA, ECDSA or Ed25519 key pairs in the browser and export them as PEM, with an optional sign-and-verify check. |
 | `csr-decoder` | CSR Decoder | file | stable | Decode a PKCS#10 certificate request: subject, SANs, key details and a signature check. |
@@ -439,7 +442,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `video-to-gif` | Video to GIF | file | beta | Turn a clip into an animated GIF: trim it, pick the frame rate, width and palette quality. |
 | `webcam-recorder` | Webcam Recorder | file | beta | Record your webcam in the browser and download the clip — the video never leaves your device. |
 
-## web (116)
+## web (117)
 
 | id | name | input | status | summary |
 | --- | --- | --- | --- | --- |
@@ -539,6 +542,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `set-cookie` | Set-Cookie Builder & Analyzer | text | stable | Build or review Set-Cookie headers and their security attributes locally. |
 | `signature-input` | Signature-Input Builder & Analyzer | text | stable | Build or inspect HTTP Message Signature-Input fields. |
 | `speculation-rules` | Speculation Rules Analyzer | text | stable | Validate and build prefetch/prerender speculation rules. |
+| `srcset-inspector` | Srcset Inspector | file | stable | Parse and validate srcset and sizes, compute each candidate density and show which image a browser picks. |
 | `strict-transport-security` | Strict-Transport-Security (HSTS) Builder & Analyzer | text | stable | Build or inspect HSTS policies. |
 | `sri-hash-generator` | Subresource Integrity (SRI) Hash Generator | text | stable | Generate SRI integrity hashes for scripts and styles. |
 | `sunset-deprecation` | Sunset & Deprecation Header Analyzer | text | stable | Build or inspect API lifecycle deprecation signals. |
