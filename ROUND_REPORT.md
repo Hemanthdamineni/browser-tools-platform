@@ -559,3 +559,37 @@ prose split into build-time content modules, client loads tools via a lazy glob)
 T006 ✅, T008 ✅. Gates on the merged master: astro check 0 errors, eslint clean, prettier clean,
 **6452 unit tests green**, **47 e2e green** (chromium + firefox), bundle:check PASS, docs:check
 current. `docs/SEARCH-INDEXING.md` hands the Search Console / Bing / IndexNow steps to the owner.
+
+## run-20261028-1622-f1a7 — 2026-10-28T16:22:26Z
+
+- Merged: the pending tool batch (`041bfa8`) — 51 tools from `TODOS.md` plus four inspectors
+  (`compressed-file-inspector`, `elf-binary-inspector`, `pdf-structure-inspector`, `border-radius`).
+  Every tool has a meta/tool pair, a real implementation, and focused tests; the catalogue is now
+  456 tools across 20 categories.
+- Merged: every hidden alias module restored as a callable forwarding wrapper (`base64-file`,
+  the 30 long-tail header ids, the CORS/cache/conditional families, data-URI and escape ids).
+  The registry alias tests pass and no alias is a meta-only shell.
+- Merged: panel workflows. Screen recorder, webcam test, mic test, voice recorder, speech-to-text,
+  text-to-speech, video frames, PDF OCR/redaction, signature maker and the new image/audio/device
+  panels now invoke `runToolById` with progress, pause/cancel, downloads, and stream/object-URL
+  cleanup. No `/api` placeholder or console.log-only panel remains.
+- Merged: contract repair. FAQ copy moved out of `ToolMeta` into `*.content.ts`; `range.max` became
+  optional and renders as a numeric field when absent; invalid `input: 'none'` values became `text`;
+  new-tool summaries were trimmed to the 120-character limit.
+- Fixed in this round: `video-frames` disposed its Mediabunny source before awaiting extraction, so
+  every real run failed with "Input has been disposed" — now verified in Chromium (4 PNGs from a
+  3-second clip). Typed signature SVG emitted `font-family=""…""`, so PNG export could not decode;
+  it now rasterises to a real RGBA PNG. The GST tool asserted a 2025–2026 slab restructure and
+  notification numbers that could not be verified; it now reflects the CBIC schedule actually
+  checked (5/12/18/28 plus the special slabs) and accepts any custom rate.
+- Limits: removed the hard byte/pixel ceilings introduced by this batch. Large inputs are processed;
+  speech-to-text reports a warning in the result instead of refusing the file. Browser-mandated
+  canvas limits remain, because a canvas cannot represent anything beyond them.
+- Checks: `npm run check` → 0 errors; `eslint src --max-warnings=0` → clean; `npm test` → 482 files /
+  6,556 tests; `npm run build` → 488 pages; `npm run docs:check` → clean after regenerating
+  `docs/TOOLS.md` at 456 tools. Browser smoke: video frames, signature PNG, bcrypt hash, GST table.
+- Mistakes noticed and fixed: alias `.tool.ts` files had been generated as `{ meta }` shells;
+  PDF OCR/redaction panels called a nonexistent `/api`; `calculator.astro` contained a literal
+  `<script>` inside a comment, which broke Astro's dev dependency scan; `image-filters` linked to
+  a nonexistent `image-adjust` id; two new inspectors lacked the required three FAQ entries.
+- Ideas: none new; the existing batch-runner and image-annotator kernel suggestions still stand.
