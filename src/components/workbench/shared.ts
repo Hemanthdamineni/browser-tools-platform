@@ -108,11 +108,37 @@ export function revealResult(host: HTMLElement): void {
 /**
  * Rasterise an image data URL to a PNG blob via an offscreen `<img>` + `<canvas>`.
  * SVG must be drawn this way — `createImageBitmap` rejects SVG blobs in Chromium.
+ *
+ * `image.decode()` never settles in some Chromium builds (onload fires but the
+ * promise hangs), so the load is driven by the `load`/`error` events with a
+ * timeout backstop instead.
  */
 async function imageToPngBlob(url: string, scale = 2): Promise<Blob> {
   const image = new Image();
   image.src = url;
-  await image.decode();
+  const { promise, resolve, reject } = Promise.withResolvers<void>();
+  let settled = false;
+  const done = () => {
+    if (!settled) {
+      settled = true;
+      resolve();
+    }
+  };
+  image.onload = done;
+  image.onerror = () => {
+    if (!settled) {
+      settled = true;
+      reject(new Error('The image could not be loaded for rasterisation.'));
+    }
+  };
+  setTimeout(() => {
+    if (image.complete) done();
+    else if (!settled) {
+      settled = true;
+      reject(new Error('The image took too long to load for rasterisation.'));
+    }
+  }, 10_000);
+  await promise;
   const w = image.naturalWidth || image.width;
   const h = image.naturalHeight || image.height;
   const canvas = document.createElement('canvas');

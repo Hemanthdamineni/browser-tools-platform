@@ -302,7 +302,7 @@ describe('pdf-sign', () => {
 
   it('reports an empty file clearly', async () => {
     const empty = new File([], 'empty.pdf', { type: 'application/pdf' });
-    await expect(sign(empty)).rejects.toThrow(/not a valid, readable PDF/);
+    await expect(sign(empty)).rejects.toThrow(/PDF file is empty/);
   });
 
   it('reports a password-protected PDF clearly', async () => {

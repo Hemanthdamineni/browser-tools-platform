@@ -178,24 +178,6 @@ const p = meta.id;
   </noscript>
 </section>
 
-<style>
-  /*
-   * `.btn` sets `display: inline-flex` in the components layer, which beats
-   * Tailwind's base-layer `[hidden] { display: none }` — so a hidden button
-   * (and the `block`/`flex` canvas and placeholder) would still be on screen.
-   * This panel toggles elements with the `hidden` attribute, so the attribute
-   * has to win here.
-   */
-  [hidden] {
-    display: none !important;
-  }
-  /* The panel marks the drop zone with `data-dragging` while a file hovers. */
-  [data-dragging] {
-    border-color: rgb(var(--accent));
-    background: rgb(var(--accent-soft));
-  }
-</style>
-
 <script>
   document.querySelectorAll<HTMLElement>('[data-spectrogram-panel]').forEach((panel) => {
     // Loaded on demand: the DSP (FFT, windows, colour maps, PNG encoder) is

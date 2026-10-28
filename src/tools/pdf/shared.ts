@@ -16,11 +16,12 @@ export async function loadPdfBytes(
   options: LoadPdfBytesOptions = {},
 ): Promise<PDFDocument> {
   try {
-    if (!bytes.byteLength) throw new Error('empty');
+    if (!bytes.byteLength) throw new ToolError('This PDF file is empty.');
     const doc = await PDFDocument.load(bytes, { ignoreEncryption: false, ...options });
-    if (!doc.getPageCount()) throw new Error('empty');
+    if (!doc.getPageCount()) throw new ToolError('This PDF has no pages.');
     return doc;
   } catch (error) {
+    if (error instanceof ToolError) throw error;
     const message = error instanceof Error ? error.message : '';
     if (/password|encrypted/i.test(message))
       throw new ToolError('This PDF is password-protected — unlock it first.');
@@ -28,7 +29,7 @@ export async function loadPdfBytes(
   }
 }
 export async function loadPdf(file: File): Promise<PDFDocument> {
-  if (!file.size) throw new ToolError('This file is not a valid, readable PDF.');
+  if (!file.size) throw new ToolError('This PDF file is empty.');
   const buffer = await file.arrayBuffer();
   return loadPdfBytes(new Uint8Array(buffer));
 }

@@ -168,18 +168,6 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   </noscript>
 </section>
 
-<style>
-  /*
-   * `.btn` sets `display: inline-flex` in the components layer, which beats
-   * Tailwind's base-layer `[hidden] { display: none }` — so a hidden button
-   * would still be on screen. This panel toggles buttons with the `hidden`
-   * attribute, so the attribute has to win here.
-   */
-  [hidden] {
-    display: none !important;
-  }
-</style>
-
 <script>
   document.querySelectorAll<HTMLElement>('[data-voice-recorder]').forEach((root) => {
     // Loaded on demand: the recorder panel is only used by the voice recorder.

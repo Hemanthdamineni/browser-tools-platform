@@ -175,18 +175,6 @@ const opening = examples[0]?.input ?? '';
   </noscript>
 </section>
 
-<style>
-  /*
-   * `.btn` sets `display: inline-flex` in the components layer, which beats
-   * Tailwind's base-layer `[hidden] { display: none }` — so a hidden element
-   * would still be on screen. This panel toggles elements with the `hidden`
-   * attribute, so the attribute has to win here.
-   */
-  [hidden] {
-    display: none !important;
-  }
-</style>
-
 <script>
   import { runToolById } from '@/lib/worker/client';
   import {

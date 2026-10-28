@@ -162,7 +162,7 @@ describe('pdf-compress run: errors and cancellation', () => {
 
   it('rejects an empty file', async () => {
     const empty = new File([], 'empty.pdf', { type: 'application/pdf' });
-    await expect(tool.run({ files: [empty], options: {} })).rejects.toThrow(/valid, readable PDF/i);
+    await expect(tool.run({ files: [empty], options: {} })).rejects.toThrow(/PDF file is empty/i);
   });
 
   it('refuses a file above the size limit instead of crashing', async () => {

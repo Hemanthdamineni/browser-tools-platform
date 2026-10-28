@@ -140,17 +140,6 @@ const headingId = `${p}-heading`;
   </noscript>
 </section>
 
-<style>
-  /*
-   * `.btn` sets `display: inline-flex` in the components layer, which beats
-   * Tailwind's base-layer `[hidden] { display: none }`. The panel toggles
-   * elements with the `hidden` attribute, so it has to win here.
-   */
-  [hidden] {
-    display: none !important;
-  }
-</style>
-
 <script>
   document.querySelectorAll<HTMLElement>('[data-pomodoro-timer-panel]').forEach((root) => {
     // The timer logic is loaded on demand so no timer code ships to pages that

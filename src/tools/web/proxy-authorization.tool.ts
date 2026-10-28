@@ -34,7 +34,8 @@ function run(input: TextRunInput): TextRunResult {
         : String(options.token);
     if (!raw || raw === ':' || /[\r\n]/.test(raw))
       throw new ToolError('Credential values must not be empty or contain line breaks.');
-    const credential = scheme === 'Basic' ? btoa(unescape(encodeURIComponent(raw))) : raw;
+    const credential =
+      scheme === 'Basic' ? btoa(String.fromCharCode(...new TextEncoder().encode(raw))) : raw;
     const value = `${scheme} ${credential}`;
     const parsed = inspect(value);
     if (!parsed || parsed.issues.length)

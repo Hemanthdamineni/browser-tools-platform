@@ -233,19 +233,6 @@ const limitId = `${meta.id}-limit`;
   </noscript>
 </section>
 
-<style>
-  /*
-   * `hidden` must beat the display utilities on the controls it toggles: a
-   * `.btn` is `inline-flex` and the device picker carries `.flex`, both of
-   * which outrank Tailwind's preflight `[hidden]` rule — the same reason
-   * global.css special-cases `[data-option-wrap][hidden]`. Scoped to this
-   * panel so nothing else on the page changes.
-   */
-  [data-mic-test-panel] [hidden] {
-    display: none;
-  }
-</style>
-
 <script>
   document.querySelectorAll<HTMLElement>('[data-mic-test-panel]').forEach((panel) => {
     // The panel's logic is loaded on demand so no microphone code ships to pages
