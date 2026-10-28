@@ -1,6 +1,6 @@
 # Complete Tool List
 
-Total: **449** tools across **20** categories.
+Total: **452** tools across **20** categories.
 
 Generated from `src/tools/**/*.meta.ts` (source of truth).
 
@@ -290,7 +290,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `image-upscale` | Upscale Image | file | stable | Enlarge photos 2× or 4× with sharp Lanczos resampling and edge-preserving sharpening, on-device. |
 | `image-watermark` | Watermark Image | file | beta | Stamp text or a logo onto one or many images — opacity, position or tiled. |
 
-## misc (12)
+## misc (13)
 
 | id | name | input | status | summary |
 | --- | --- | --- | --- | --- |
@@ -299,6 +299,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `compound-interest-calculator` | Compound Interest Calculator | text | stable | Project savings growth with compound interest, optional regular contributions and a per-year breakdown. |
 | `data-size` | Data Size Converter | text | stable | Convert data sizes between bytes, decimal/binary units and bits. |
 | `calculator` | Expression Calculator | text | stable | Evaluate a mathematical expression with a safe parser — no eval, ever. |
+| `gpa-calculator` | GPA Calculator | text | stable | Calculate GPA on 4.0 and 10-point scales with configurable percentage conversion. |
 | `gst-calculator` | GST Calculator | text | beta | Add or remove GST and split the tax into CGST/SGST or IGST, using the current Indian slab rates. |
 | `loan-calculator` | Loan / EMI Calculator | text | stable | Compute monthly payments, total interest and a payoff timeline for a loan. |
 | `percentage-calculator` | Percentage Calculator | text | stable | Percentage of a number, percent change, and percent increase/decrease. |
@@ -358,7 +359,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `pdf-metadata` | View / Edit PDF Metadata | file | stable | Inspect document properties or update PDF title, author, subject, keywords and more. |
 | `pdf-watermark` | Watermark PDF | file | stable | Overlay translucent text on selected PDF pages as a centered or tiled watermark. |
 
-## security (20)
+## security (21)
 
 | id | name | input | status | summary |
 | --- | --- | --- | --- | --- |
@@ -370,6 +371,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `security-headers` | HTTP Security Headers Analyzer | text | stable | Review pasted HTTP response headers for common browser security protections. |
 | `checksum-validator` | Identifier Checksum Validator | text | stable | Check Luhn, IBAN MOD-97, ISBN-10, and ISBN-13 checksums locally. |
 | `iptables-ruleset-auditor` | iptables Ruleset Auditor | file | stable | Audit an iptables-save ruleset: chains, policies, reachable ports, shadowed rules and open ports. |
+| `known-hosts-inspector` | Known Hosts Inspector | file | stable | Audit ~/.ssh/known_hosts: hashed vs plain host entries, host-key fingerprints, duplicates and collisions. |
 | `passphrase` | Passphrase Generator | text | stable | Diceware-style passphrases from an embedded word list — memorable and high-entropy. |
 | `password` | Password Generator | text | stable | Generate strong random passwords with your browser CSPRNG — no bias, nothing uploaded. |
 | `password-strength` | Password Strength Analyzer | text | stable | Estimate password entropy and score strength with feedback. |
@@ -383,7 +385,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `text-encrypt` | Text Encryption (AES-GCM) | text | stable | Encrypt or decrypt text with a passphrase using AES-256-GCM and PBKDF2, entirely on your device. |
 | `totp-authenticator` | TOTP Authenticator Code Generator | text | stable | Generate and verify RFC 6238 TOTP codes from a base32 secret. |
 
-## text (31)
+## text (32)
 
 | id | name | input | status | summary |
 | --- | --- | --- | --- | --- |
@@ -412,6 +414,7 @@ Generated from `src/tools/**/*.meta.ts` (source of truth).
 | `text-stats` | Text Statistics | text | stable | Count characters, words, sentences and paragraphs, with platform limits, readability scores and reading time. |
 | `text-summarizer` | Text Summarizer | text | stable | Extract the most important sentences from a long document to make a quick summary. |
 | `text-to-slug` | Text to Slug | text | stable | Convert text into URL-friendly slugs: lowercase, separator, trim, stopword and unicode options. |
+| `typing-test` | Typing Test | text | stable | Measure your typing speed (WPM) and accuracy with configurable time modes and local history. |
 | `unicode-lookup` | Unicode Code Point Explorer | text | stable | Inspect every character code point, plane, and UTF-8/UTF-16 encodings in a table. |
 | `unicode-normalize` | Unicode Normalizer | text | stable | Normalize Unicode text, optionally remove accents and standardize line endings. |
 | `unicode-styles` | Unicode Style Converter | text | stable | Convert text between plain ASCII and full-width, circled, squared or bold math sans-serif Unicode styles. |
