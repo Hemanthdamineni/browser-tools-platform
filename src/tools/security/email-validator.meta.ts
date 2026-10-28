@@ -51,6 +51,9 @@ export const meta: ToolMeta = {
       a: 'The local part must be 1–64 characters, the domain 1–253 (in whole labels of up to 63), and the total address at most 254 — the real limits email systems use.',
     },
   ],
-  related: ['password-strength', 'url-parse', 'http-status', 'mime-lookup'],
+  related: [  "password-strength",
+  "url-parse",
+  "http-status",
+  "mime-lookup"],
   status: 'stable',
 };

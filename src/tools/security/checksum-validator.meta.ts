@@ -57,6 +57,8 @@ export const meta: ToolMeta = {
       a: 'No. All checks run locally in your browser and no network requests are made.',
     },
   ],
-  related: ['file-hash', 'hash', 'secret-scanner'],
+  related: [  "file-hash",
+  "hash",
+  "secret-scanner"],
   status: 'stable',
 };

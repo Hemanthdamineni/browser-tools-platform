@@ -49,6 +49,8 @@ export const meta: ToolMeta = {
       a: 'It validates common language, script, region, variant, extension, and private-use shapes. It does not maintain the complete IANA language-subtag registry.',
     },
   ],
-  related: ['http-encoding', 'cache-headers', 'meta-tags'],
+  related: [  "http-encoding",
+  "cache-headers",
+  "meta-tags"],
   status: 'stable',
 };

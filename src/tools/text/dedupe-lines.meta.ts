@@ -37,6 +37,6 @@ export const meta: ToolMeta = {
       a: 'No. Original order is preserved. Use Sort Lines first if you also want it sorted.',
     },
   ],
-  related: ['sort-lines', 'whitespace-cleanup', 'unique-words'],
+  related: [  "sort-lines"],
   status: 'stable',
 };

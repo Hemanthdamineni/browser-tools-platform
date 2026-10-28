@@ -71,6 +71,9 @@ export const meta: ToolMeta = {
       a: 'Yes — an ASCII table renders as literal text in markdown with escaping, in code blocks, and in plain-text emails. It is not markdown; use markdown-table for that.',
     },
   ],
-  related: ['markdown-table', 'csv-to-markdown', 'csv-to-html', 'csv-to-sql'],
+  related: [  "markdown-table",
+  "csv-to-markdown",
+  "csv-to-html",
+  "csv-to-sql"],
   status: 'stable',
 };

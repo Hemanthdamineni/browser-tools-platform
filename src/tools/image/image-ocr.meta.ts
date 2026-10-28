@@ -82,7 +82,10 @@ export const meta: ToolMeta = {
       a: 'Nothing is changed and nothing is stored. The images are read in the tab and thrown away when you close it.',
     },
   ],
-  related: ['image-metadata', 'image-convert', 'image-compress', 'image-resize'],
+  related: [  "image-metadata",
+  "image-convert",
+  "image-compress",
+  "image-resize"],
   credits: [
     {
       name: 'tesseract.js',

@@ -82,6 +82,8 @@ export const meta: ToolMeta = {
       a: 'Fields may be wrapped in double quotes; a doubled "" inside a quoted field becomes a literal quote, per RFC 4180.',
     },
   ],
-  related: ['json-to-csv', 'yaml-to-json', 'json-to-yaml'],
+  related: [  "json-to-csv",
+  "yaml-to-json",
+  "json-to-yaml"],
   status: 'stable',
 };

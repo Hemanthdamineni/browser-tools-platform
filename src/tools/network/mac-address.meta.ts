@@ -52,6 +52,8 @@ export const meta: ToolMeta = {
       a: 'AA:BB:CC:DD:EE:FF, AA-BB-CC-DD-EE-FF, aabb.ccdd.eeff, or 12 contiguous hex digits.',
     },
   ],
-  related: ['ipv6-expander', 'cidr-calculator', 'url-parse'],
+  related: [  "ipv6-expander",
+  "cidr-calculator",
+  "url-parse"],
   status: 'stable',
 };

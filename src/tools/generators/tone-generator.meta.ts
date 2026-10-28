@@ -84,6 +84,7 @@ export const meta: ToolMeta = {
     },
     { title: 'Pink noise', options: { waveform: 'pink-noise', durationMs: 5000 } },
   ],
-  related: ['metronome-click', 'audio-info'],
+  related: [  "metronome-click",
+  "audio-info"],
   status: 'stable',
 };

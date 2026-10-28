@@ -96,6 +96,8 @@ export const meta: ToolMeta = {
       a: 'No. It generates one grid rule. Use repeat(auto-fit, minmax(...)) for many responsive layouts, or compose the output with media queries yourself.',
     },
   ],
-  related: ['css-units', 'box-shadow', 'fluid-clamp'],
+  related: [  "css-units",
+  "box-shadow",
+  "fluid-clamp"],
   status: 'stable',
 };

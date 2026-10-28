@@ -45,7 +45,7 @@ export function decodeTime(ulid: string): number {
 
 function run(input: TextRunInput): TextRunResult {
   const o = resolveOptions(meta, input.options);
-  const count = Math.min(200, Math.max(1, Math.floor(Number(o.count ?? 1))));
+  const count = Math.max(1, Math.floor(Number(o.count ?? 1)));
   const monotonic = Boolean(o.monotonic);
   const lowercase = Boolean(o.lowercase);
 

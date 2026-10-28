@@ -139,6 +139,9 @@ export const meta: ToolMeta = {
       a: 'The style and "which characters" options apply when escaping. Unescaping accepts every form at once — \\uXXXX, \\u{…}, \\xXX, \\UXXXXXXXX, U+XXXX, &#xHHHH; and CSS \\HHHHHH — so mixed input just works.',
     },
   ],
-  related: ['html-entities', 'url-encode', 'hex', 'base64'],
+  related: [  "html-entities",
+  "url-encode",
+  "hex",
+  "base64"],
   status: 'stable',
 };

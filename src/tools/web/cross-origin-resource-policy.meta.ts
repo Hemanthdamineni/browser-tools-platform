@@ -59,6 +59,8 @@ export const meta: ToolMeta = {
       a: 'No. CORP controls loading/embedding policy, while CORS controls whether scripts may read cross-origin responses.',
     },
   ],
-  related: ['security-headers', 'origin-agent-cluster', 'content-security-policy'],
+  related: [  "security-headers",
+  "origin-agent-cluster",
+  "content-security-policy"],
   status: 'stable',
 };

@@ -49,6 +49,9 @@ export const meta: ToolMeta = {
       a: 'Spaces are dropped and any other character (a hyphen, comma, symbol) is emitted as its own token. On the reverse pass, a token that is not a phonetic word is kept verbatim, so punctuation survives a round trip.',
     },
   ],
-  related: ['morse-code', 'rot13', 'case-convert', 'slugify'],
+  related: [  "morse-code",
+  "rot13",
+  "case-convert",
+  "slugify"],
   status: 'stable',
 };

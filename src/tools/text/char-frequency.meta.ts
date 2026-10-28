@@ -68,6 +68,9 @@ export const meta: ToolMeta = {
       a: 'Yes. Text is split into Unicode code points, so most emoji and combining sequences are handled sensibly.',
     },
   ],
-  related: ['word-frequency', 'text-stats', 'hex', 'unicode-escape'],
+  related: [  "word-frequency",
+  "text-stats",
+  "hex",
+  "unicode-escape"],
   status: 'stable',
 };

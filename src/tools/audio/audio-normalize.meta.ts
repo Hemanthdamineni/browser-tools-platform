@@ -32,6 +32,7 @@ export const meta: ToolMeta = {
       max: 0,
     },
   ],
-  related: ['audio-gain', 'audio-info'],
+  related: [  "audio-gain",
+  "audio-info"],
   status: 'stable',
 };

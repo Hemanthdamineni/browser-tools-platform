@@ -77,6 +77,9 @@ export const meta: ToolMeta = {
       a: 'Most READMEs link h1–h3. The depth option lets you cap how deep the outline goes — useful when h4+ headings are implementation notes you do not want to navigate.',
     },
   ],
-  related: ['markdown-table', 'markdown-to-html', 'html-to-text', 'text-stats'],
+  related: [  "markdown-table",
+  "markdown-to-html",
+  "html-to-text",
+  "text-stats"],
   status: 'stable',
 };

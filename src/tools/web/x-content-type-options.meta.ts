@@ -58,6 +58,8 @@ export const meta: ToolMeta = {
       a: 'It is a recommended security header for any HTML, CSS, or JavaScript delivered to browsers, especially on CDNs and static hosts.',
     },
   ],
-  related: ['content-type', 'x-frame-options', 'security-headers'],
+  related: [  "content-type",
+  "x-frame-options",
+  "security-headers"],
   status: 'stable',
 };

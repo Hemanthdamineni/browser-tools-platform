@@ -69,6 +69,9 @@ export const meta: ToolMeta = {
       a: 'Yes — you can paste it directly into a LICENSE file. The texts are the standard license texts with the year and holder substituted; verify against the SPDX reference if you ship to a regulated environment.',
     },
   ],
-  related: ['nanoid', 'uuid', 'lorem-ipsum', 'gitignore'],
+  related: [  "nanoid",
+  "uuid",
+  "lorem-ipsum",
+  "gitignore"],
   status: 'stable',
 };

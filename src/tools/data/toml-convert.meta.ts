@@ -58,6 +58,8 @@ export const meta: ToolMeta = {
       a: 'TOML has no null. Keys whose value is null are omitted when serializing, and the result reports how many were skipped.',
     },
   ],
-  related: ['yaml-to-json', 'json-to-yaml', 'dotenv'],
+  related: [  "yaml-to-json",
+  "json-to-yaml",
+  "dotenv"],
   status: 'stable',
 };

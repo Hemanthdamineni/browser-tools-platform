@@ -36,6 +36,7 @@ export const meta: ToolMeta = {
       a: 'Calendar arithmetic: count whole years, then whole months, then remaining days — borrowing the real length of the previous month when the day of month needs it.',
     },
   ],
-  related: ['date-diff', 'week-number'],
+  related: [  "date-diff",
+  "week-number"],
   status: 'stable',
 };

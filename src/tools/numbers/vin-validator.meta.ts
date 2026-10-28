@@ -52,6 +52,7 @@ export const meta: ToolMeta = {
       a: 'Vehicles built for the US market do. Some other markets historically use a serial number in position 9, so a checksum mismatch alone does not always mean a fake VIN.',
     },
   ],
-  related: ['luhn-validator', 'checksum-validator'],
+  related: [  "luhn-validator",
+  "checksum-validator"],
   status: 'stable',
 };

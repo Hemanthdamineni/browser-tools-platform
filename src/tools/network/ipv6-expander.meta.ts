@@ -62,6 +62,7 @@ export const meta: ToolMeta = {
       a: 'Often yes; the compress mode re-applies the rules to shorten the form, though it may choose different zero suppression than a canonical compressor.',
     },
   ],
-  related: ['cidr-calculator', 'punycode'],
+  related: [  "cidr-calculator",
+  "punycode"],
   status: 'stable',
 };

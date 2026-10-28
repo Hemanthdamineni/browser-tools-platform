@@ -69,7 +69,7 @@ export const meta: ToolMeta = {
       a: 'Cache-Control is a request from the origin for the cache. Cache-Status records what the cache actually did. A debug header typically appended by the cache itself.',
     },
   ],
-  related: ['cache-headers'],
+  related: [  "cache-headers"],
   hidden: true,
   redirectTo: 'cache-headers',
   status: 'stable',

@@ -65,6 +65,8 @@ export const meta: ToolMeta = {
       a: 'No. Header filenames are client hints. Servers should sanitize names, prevent path traversal, and avoid deriving authorization from them.',
     },
   ],
-  related: ['mime-lookup', 'url-encode', 'set-cookie'],
+  related: [  "mime-lookup",
+  "url-encode",
+  "set-cookie"],
   status: 'stable',
 };

@@ -59,6 +59,9 @@ export const meta: ToolMeta = {
       a: 'Any run of consecutive blank lines anywhere in the text — including at the start — is reduced to a single blank line.',
     },
   ],
-  related: ['dedupe-lines', 'line-numbers', 'sort-lines', 'find-replace'],
+  related: [  "dedupe-lines",
+  "line-numbers",
+  "sort-lines",
+  "find-replace"],
   status: 'stable',
 };

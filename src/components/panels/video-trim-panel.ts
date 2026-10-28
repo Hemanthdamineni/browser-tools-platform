@@ -216,7 +216,9 @@ export function mountVideoTrimPanel(root: HTMLElement): void {
       }
       return seconds;
     } catch (error) {
-      announce(error instanceof Error ? error.message : `That ${label.toLowerCase()} is not valid.`);
+      announce(
+        error instanceof Error ? error.message : `That ${label.toLowerCase()} is not valid.`,
+      );
       return null;
     }
   }
@@ -243,7 +245,7 @@ export function mountVideoTrimPanel(root: HTMLElement): void {
   /*  The preview                                                             */
   /* ---------------------------------------------------------------------- */
 
-  videoEl.addEventListener('loadedmetadata', () => {
+  function onMetadata(): void {
     const total = videoEl.duration;
     if (!Number.isFinite(total) || total <= 0) {
       announce('The length of this clip could not be read.');
@@ -256,7 +258,12 @@ export function mountVideoTrimPanel(root: HTMLElement): void {
     end = total;
     announce(`The clip is ${formatTrimTime(total)} long — drag the handles to cut it.`);
     syncUi();
-  });
+  }
+
+  videoEl.addEventListener('loadedmetadata', onMetadata);
+  // The panel module is imported lazily, so the metadata of a restored or
+  // already-loading file may have arrived before this listener existed.
+  if (videoEl.readyState >= 1) onMetadata();
 
   videoEl.addEventListener('timeupdate', () => {
     if (duration <= 0) return;
@@ -305,7 +312,9 @@ export function mountVideoTrimPanel(root: HTMLElement): void {
     if (document.activeElement !== endInput) endInput.value = formatTrimTime(end);
 
     durationEl.textContent =
-      duration > 0 ? `Clip length ${formatTrimTime(duration)} · keeping ${formatTrimTime(end - start)}` : '';
+      duration > 0
+        ? `Clip length ${formatTrimTime(duration)} · keeping ${formatTrimTime(end - start)}`
+        : '';
     runBtn.disabled = !file || duration <= 0;
   }
 

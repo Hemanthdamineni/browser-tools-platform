@@ -67,6 +67,9 @@ export const meta: ToolMeta = {
       a: 'The encode output is valid HTML text. The decode output is always plain text. Both are safe to copy into any editor.',
     },
   ],
-  related: ['unicode-escape', 'url-encode', 'json-escape', 'string-escape'],
+  related: [  "unicode-escape",
+  "url-encode",
+  "json-escape",
+  "string-escape"],
   status: 'stable',
 };

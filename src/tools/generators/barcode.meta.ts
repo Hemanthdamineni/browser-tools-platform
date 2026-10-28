@@ -56,7 +56,6 @@ export const meta: ToolMeta = {
       type: 'range',
       default: 2,
       min: 1,
-      max: 6,
       step: 1,
       help: 'Width of the narrowest bar. 2 px or more scans reliably at screen sizes.',
     },
@@ -66,7 +65,6 @@ export const meta: ToolMeta = {
       type: 'range',
       default: 80,
       min: 20,
-      max: 240,
       step: 5,
     },
     {
@@ -136,6 +134,9 @@ export const meta: ToolMeta = {
       a: 'A vector file stays perfectly crisp at any size, which is exactly what scanners and printers want — and it is a fraction of the size of a bitmap. The code is generated entirely on your device; nothing is uploaded.',
     },
   ],
-  related: ['qr-code', 'placeholder-svg', 'data-uri', 'vcard'],
+  related: [  "qr-code",
+  "placeholder-svg",
+  "data-uri",
+  "vcard"],
   status: 'stable',
 };

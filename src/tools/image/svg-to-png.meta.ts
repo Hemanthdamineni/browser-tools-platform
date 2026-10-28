@@ -48,7 +48,8 @@ export const meta: ToolMeta = {
     },
   ],
   examples: [{ title: 'Rasterize SVG at 2×' }],
-  related: ['image-convert', 'image-resize'],
+  related: [  "image-convert",
+  "image-resize"],
   status: 'stable',
   updated: '2026-10-17',
 };

@@ -1,0 +1,80 @@
+import type { ToolMeta } from '@/lib/types';
+
+export const meta: ToolMeta = {
+  id: 'video-frames',
+  name: 'Video Frames',
+  category: 'video',
+  summary: 'Extract frames from a video at a fixed interval or build a thumbnail contact sheet.',
+  description:
+    "Extract frames from a video at a fixed interval (e.g. every 5 seconds) or build a thumbnail contact sheet. The frames are extracted on-device using the browser's WebCodecs API and can be downloaded as images or used to create a contact sheet. Nothing is uploaded.",
+  keywords: [
+    'video',
+    'frames',
+    'extract',
+    'thumbnail',
+    'contact sheet',
+    'keyframe',
+    'screenshot',
+    'webm',
+    'mp4',
+  ],
+  privacy: { processing: 'on-device', network: 'none', offline: true },
+  input: 'file',
+  accept: 'video/*,.mp4,.m4v,.mov,.webm,.mkv,.ogv,.ts',
+  panel: 'video-frames',
+  options: [
+    {
+      key: 'interval',
+      label: 'Frame interval (seconds)',
+      type: 'number',
+      default: 5,
+      min: 1,
+      max: 30,
+      step: 1,
+    },
+    {
+      key: 'count',
+      label: 'Maximum frames to extract',
+      type: 'number',
+      default: 10,
+      min: 1,
+      max: 50,
+      step: 1,
+    },
+    {
+      key: 'width',
+      label: 'Thumbnail width',
+      type: 'number',
+      default: 320,
+      min: 100,
+      max: 1280,
+      step: 10,
+    },
+    {
+      key: 'mode',
+      label: 'Mode',
+      type: 'select',
+      default: 'interval',
+      choices: [
+        { value: 'interval', label: 'Interval' },
+        { value: 'thumbnail', label: 'Thumbnail' },
+      ],
+    },
+  ],
+  examples: [{ title: 'Extract frames every 5 seconds', options: { interval: 5, count: 8 } }],
+  faq: [
+    {
+      q: 'What formats are supported?',
+      a: 'Any video format that the browser can decode with WebCodecs. MP4, WebM, MOV, MKV and Ogg are common. The tool works offline once the file is loaded.',
+    },
+    {
+      q: 'How are the frames encoded?',
+      a: "Frames are extracted as RGBA or JPEG using the browser's OffscreenCanvas and Canvas API. No external libraries are used.",
+    },
+  ],
+  credits: [{ name: 'mediabunny', url: 'https://mediabunny.dev', license: 'MPL-2.0' }],
+  related: [  "video-info",
+  "video-trim",
+  "video-to-gif"],
+  status: 'beta',
+};

@@ -65,6 +65,10 @@ export const meta: ToolMeta = {
       a: 'The first equals on a line splits key from value, so values may contain =. Newlines inside JSON string values are converted to spaces when writing INI, since INI has no multiline value syntax.',
     },
   ],
-  related: ['toml-convert', 'yaml-to-json', 'json-to-yaml', 'dotenv', 'json-diff'],
+  related: [  "toml-convert",
+  "yaml-to-json",
+  "json-to-yaml",
+  "dotenv",
+  "json-diff"],
   status: 'stable',
 };

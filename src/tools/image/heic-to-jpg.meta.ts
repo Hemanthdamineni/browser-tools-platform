@@ -79,7 +79,9 @@ export const meta: ToolMeta = {
       a: 'No. The originals are only read. Every conversion produces a new file next to the original, with the same name and a new extension.',
     },
   ],
-  related: ['image-convert', 'image-compress', 'image-metadata'],
+  related: [  "image-convert",
+  "image-compress",
+  "image-metadata"],
   credits: [
     {
       name: 'libheif-js',

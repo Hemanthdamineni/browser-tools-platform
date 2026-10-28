@@ -60,7 +60,9 @@ export const meta: ToolMeta = {
       a: 'Yes — EXIF orientation is applied while decoding so portrait photos are not rotated.',
     },
   ],
-  related: ['image-compress', 'image-convert', 'image-crop'],
+  related: [  "image-compress",
+  "image-convert",
+  "image-crop"],
   status: 'stable',
   updated: '2026-10-16',
 };

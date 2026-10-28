@@ -65,7 +65,9 @@ export const meta: ToolMeta = {
       a: 'pdf-lib can rebuild streams and re-encode raster pictures, but it cannot re-compress text or vector artwork, and it cannot transcode JPEG 2000, CCITT fax or transparency masks.',
     },
   ],
-  related: ['pdf-to-images', 'pdf-merge', 'image-compress'],
+  related: [  "pdf-to-images",
+  "pdf-merge",
+  "image-compress"],
   credits: [pdfCredit, fflateCredit],
   status: 'beta',
 };

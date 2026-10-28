@@ -75,6 +75,8 @@ export const meta: ToolMeta = {
       a: 'Minify drops text nodes that are only whitespace and keeps the rest verbatim. Pretty-print collapses internal runs of whitespace in text to a single space.',
     },
   ],
-  related: ['json-format', 'html-entities', 'json-to-typescript'],
+  related: [  "json-format",
+  "html-entities",
+  "json-to-typescript"],
   status: 'stable',
 };

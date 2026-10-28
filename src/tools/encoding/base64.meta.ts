@@ -66,6 +66,9 @@ export const meta: ToolMeta = {
       a: 'Yes — drop a file on the workbench and it is encoded as a .base64.txt download. If a file is selected it is used instead of any text you typed.',
     },
   ],
-  related: ['base32', 'url-encode', 'hex', 'jwt-decode'],
+  related: [  "base32",
+  "url-encode",
+  "hex",
+  "jwt-decode"],
   status: 'stable',
 };

@@ -54,8 +54,7 @@ function run(input: TextRunInput): TextRunResult {
 
   const rawCount = Math.floor(Number(o.count));
   if (!Number.isFinite(rawCount)) throw new ToolError('Count must be a number.');
-  const count = Math.min(200, Math.max(1, rawCount));
-
+  const count = Math.max(1, rawCount);
   const chars = resolveCharset(String(o.charset), String(o.custom ?? ''));
 
   const strings: string[] = [];

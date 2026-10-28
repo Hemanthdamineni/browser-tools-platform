@@ -40,6 +40,7 @@ export const meta: ToolMeta = {
       default: false,
     },
   ],
-  related: ['audio-channels', 'audio-normalize'],
+  related: [  "audio-channels",
+  "audio-normalize"],
   status: 'stable',
 };

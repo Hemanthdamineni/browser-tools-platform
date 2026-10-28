@@ -51,6 +51,9 @@ export const meta: ToolMeta = {
       a: 'Yes, a @returns line is always emitted as a template. Async functions keep the same shape — you can annotate Promise<…> yourself.',
     },
   ],
-  related: ['regex-explainer', 'regex-tester', 'semver', 'objectid'],
+  related: [  "regex-explainer",
+  "regex-tester",
+  "semver",
+  "objectid"],
   status: 'stable',
 };

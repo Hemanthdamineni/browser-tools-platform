@@ -60,6 +60,8 @@ export const meta: ToolMeta = {
       a: 'No. Cross-origin isolation generally also needs compatible COOP and resource response policies, plus browser support.',
     },
   ],
-  related: ['cross-origin-opener-policy', 'cross-origin-resource-policy', 'permissions-policy'],
+  related: [  "cross-origin-opener-policy",
+  "cross-origin-resource-policy",
+  "permissions-policy"],
   status: 'stable',
 };

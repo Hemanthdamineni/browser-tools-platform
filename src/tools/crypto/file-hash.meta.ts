@@ -44,6 +44,8 @@ export const meta: ToolMeta = {
       a: 'Hashing runs in a Web Worker so the page stays responsive. The browser Web Crypto API needs the whole file in memory at once, so the practical limit is roughly your device’s free RAM (comfortably hundreds of MB). True multi-gigabyte streaming is on the roadmap.',
     },
   ],
-  related: ['hash', 'hmac', 'crc32'],
+  related: [  "hash",
+  "hmac",
+  "crc32"],
   status: 'stable',
 };

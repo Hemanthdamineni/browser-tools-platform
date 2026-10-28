@@ -63,7 +63,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 0,
       min: 0,
-      max: 200,
     },
   ],
   examples: [{ title: 'Defaults' }],
@@ -73,6 +72,7 @@ export const meta: ToolMeta = {
       a: 'Markdown uses two trailing spaces as a hard line break, so trimming trailing whitespace in .md files would silently change rendering. The generator therefore always sets trim_trailing_whitespace = false for Markdown.',
     },
   ],
-  related: ['gitignore', 'robots-txt'],
+  related: [  "gitignore",
+  "robots-txt"],
   status: 'stable',
 };

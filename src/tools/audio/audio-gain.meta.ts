@@ -20,6 +20,7 @@ export const meta: ToolMeta = {
     { title: 'Boost 6 dB', options: { gainDb: 6 } },
     { title: 'Reduce 3 dB', options: { gainDb: -3 } },
   ],
-  related: ['audio-normalize', 'audio-fade'],
+  related: [  "audio-normalize",
+  "audio-fade"],
   status: 'stable',
 };

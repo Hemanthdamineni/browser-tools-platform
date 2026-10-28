@@ -11,7 +11,8 @@ export const meta: ToolMeta = {
   input: 'file',
   accept: '.tar,.tar.gz,.tgz,application/x-tar,application/gzip',
   examples: [{ title: 'Extract a TAR archive' }],
-  related: ['tar-create', 'zip-extract'],
+  related: [  "tar-create",
+  "zip-extract"],
   credits: [{ name: 'fflate', url: 'https://github.com/101arrowz/fflate', license: 'MIT' }],
   status: 'stable',
 };

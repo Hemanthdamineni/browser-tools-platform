@@ -63,6 +63,8 @@ export const meta: ToolMeta = {
       a: 'same-origin is stricter, while same-origin-allow-popups preserves selected opener relationships but provides less isolation.',
     },
   ],
-  related: ['cross-origin-resource-policy', 'origin-agent-cluster', 'security-headers'],
+  related: [  "cross-origin-resource-policy",
+  "origin-agent-cluster",
+  "security-headers"],
   status: 'stable',
 };

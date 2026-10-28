@@ -21,7 +21,9 @@ export const meta: ToolMeta = {
     },
   ],
   examples: [{ title: 'Extract pages 5 and 1', options: { pages: '5,1' } }],
-  related: ['pdf-split', 'pdf-delete-pages', 'pdf-merge'],
+  related: [  "pdf-split",
+  "pdf-delete-pages",
+  "pdf-merge"],
   credits: [pdfCredit],
   status: 'stable',
 };

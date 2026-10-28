@@ -70,6 +70,8 @@ export const meta: ToolMeta = {
       a: 'Check the secret (base32 without spaces), digits, and that your device clock is roughly correct — the window tolerance covers a few seconds of drift.',
     },
   ],
-  related: ['otp-uri', 'password', 'hmac'],
+  related: [  "otp-uri",
+  "password",
+  "hmac"],
   status: 'stable',
 };

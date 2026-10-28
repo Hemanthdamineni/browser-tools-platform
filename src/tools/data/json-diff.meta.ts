@@ -62,6 +62,9 @@ export const meta: ToolMeta = {
       a: 'Arrays are compared as multisets: an element present in both sides in equal counts is treated as unchanged regardless of position. Otherwise arrays are compared index by index.',
     },
   ],
-  related: ['json-format', 'json-to-yaml', 'querystring', 'ndjson'],
+  related: [  "json-format",
+  "json-to-yaml",
+  "querystring",
+  "ndjson"],
   status: 'stable',
 };

@@ -59,6 +59,8 @@ export const meta: ToolMeta = {
       a: 'Only about 10 bits, and it hurts memorability. Adding one more word is a better way to raise entropy.',
     },
   ],
-  related: ['password', 'random-string', 'uuid'],
+  related: [  "password",
+  "random-string",
+  "uuid"],
   status: 'stable',
 };

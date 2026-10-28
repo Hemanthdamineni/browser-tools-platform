@@ -1,0 +1,98 @@
+---
+import type { ToolMeta } from '@/lib/types';
+
+interface Props {
+  meta: ToolMeta;
+}
+const { meta } = Astro.props;
+const id = meta.id;
+const headingId = `${id}-heading`;
+---
+
+<section
+  class="surface rounded-lg p-4 sm:p-6"
+  data-panel-workbench
+  data-tool-id={meta.id}
+  aria-labelledby={headingId}
+>
+  <h1 id={headingId} class="text-xl font-semibold">{meta.name}</h1>
+  <p class="mt-1.5 max-w-prose text-sm leading-relaxed text-[rgb(var(--muted))]">
+    {meta.description}
+  </p>
+
+  <div class="mt-4 flex flex-col gap-4">
+    <div class="flex items-center gap-3">
+      <label class="label" for="stt-model">Model</label>
+      <select id="stt-model" class="select w-full sm:w-64">
+        <option value="tiny">Tiny (smaller, faster)</option>
+        <option value="base">Base (better accuracy)</option>
+      </select>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <label class="label" for="stt-language">Language</label>
+      <input
+        type="text"
+        id="stt-language"
+        class="input w-full sm:w-64"
+        placeholder="auto (detect)"
+      />
+      <span class="text-sm text-[rgb(var(--muted))]">Leave blank for auto-detect</span>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <label class="checkbox-wrap">
+        <input type="checkbox" id="stt-timestamps" checked />
+        <span>Word-level timestamps</span>
+      </label>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <button class="btn" data-stt-record disabled aria-pressed="false">
+        <span data-stt-record-label>Start Recording</span>
+      </button>
+      <button class="btn-secondary" data-stt-stop disabled aria-pressed="false">Stop</button>
+      <span class="text-sm text-[rgb(var(--muted))]" data-stt-status>Waiting for permission…</span>
+    </div>
+
+    <div class="flex items-center gap-3" data-stt-file-wrap>
+      <label class="label" for="stt-file">Or upload audio file</label>
+      <input type="file" id="stt-file" class="input flex-1" accept="audio/*,.mp3,.wav,.ogg" />
+    </div>
+
+    <div class="mt-4" data-stt-transcript-wrap hidden>
+      <div class="flex items-center justify-between mb-2">
+        <h3 class="text-lg font-semibold">Transcript</h3>
+        <div class="flex items-center gap-2">
+          <select id="stt-export-format" class="select w-32">
+            <option value="txt">TXT</option>
+            <option value="srt">SRT</option>
+            <option value="vtt">VTT</option>
+          </select>
+          <button class="btn-secondary" data-stt-export>Export</button>
+        </div>
+      </div>
+      <pre
+        class="prose-tool p-4 max-h-96 overflow-auto bg-[rgb(var(--bg-subtle))] rounded-md"
+        data-stt-transcript>
+      </pre>
+    </div>
+  </div>
+
+  <noscript>
+    <p class="alert alert-warning mt-4">This tool requires JavaScript to run Whisper locally.</p>
+  </noscript>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-panel-workbench][data-tool-id="speech-to-text"]').forEach((root) => {
+    void import('./speech-to-text')
+      .then(({ mountSpeechToTextWorkbench }) => mountSpeechToTextWorkbench(root))
+      .catch(() => {
+        const status = root.querySelector<HTMLElement>('[data-stt-status]');
+        if (status) {
+          status.textContent = 'The speech-to-text tool could not be loaded in this browser.';
+        }
+      });
+  });
+</script>

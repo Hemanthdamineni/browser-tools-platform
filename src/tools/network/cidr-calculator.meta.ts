@@ -45,6 +45,8 @@ export const meta: ToolMeta = {
       a: 'Yes. IPv6 uses no broadcast address, so ranges are reported as first and last addresses with the exact total count. An IPv4-embedded IPv6 address such as ::ffff:192.0.2.1 is also accepted.',
     },
   ],
-  related: ['number-base', 'hex', 'basic-auth'],
+  related: [  "number-base",
+  "hex",
+  "basic-auth"],
   status: 'stable',
 };

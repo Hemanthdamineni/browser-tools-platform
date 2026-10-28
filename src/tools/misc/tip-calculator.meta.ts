@@ -41,6 +41,7 @@ export const meta: ToolMeta = {
       options: { bill: 100, tipPercent: 20, split: 4 },
     },
   ],
-  related: ['loan-calculator', 'unit-convert'],
+  related: [  "loan-calculator",
+  "unit-convert"],
   status: 'stable',
 };

@@ -82,6 +82,8 @@ export const meta: ToolMeta = {
       a: 'Anything like 2024-01-15, 2024-01-15 12:00, or 2024-01-15T12:00:30. Leave the input blank to use the current time.',
     },
   ],
-  related: ['timestamp', 'date-diff', 'week-number'],
+  related: [  "timestamp",
+  "date-diff",
+  "week-number"],
   status: 'stable',
 };

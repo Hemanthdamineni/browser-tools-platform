@@ -47,6 +47,9 @@ export const meta: ToolMeta = {
       a: 'They are not part of the (a,b,c) triple. Inline styles outrank any selector specificity, and !important declarations outrank normal ones regardless of specificity — both are noted separately in the output.',
     },
   ],
-  related: ['css-units', 'css-minifier', 'css-grid', 'color-contrast'],
+  related: [  "css-units",
+  "css-minifier",
+  "css-grid",
+  "color-contrast"],
   status: 'stable',
 };

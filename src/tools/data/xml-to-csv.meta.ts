@@ -84,6 +84,9 @@ export const meta: ToolMeta = {
       a: 'No. Parsing happens in your browser and no network request is made. Only local files or pasted text are read.',
     },
   ],
-  related: ['xml-json-convert', 'csv-to-json', 'json-to-csv', 'csv-profiler'],
+  related: [  "xml-json-convert",
+  "csv-to-json",
+  "json-to-csv",
+  "csv-profiler"],
   status: 'stable',
 };

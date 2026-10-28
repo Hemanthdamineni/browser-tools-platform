@@ -52,6 +52,8 @@ export const meta: ToolMeta = {
       a: 'Roll out carefully, validate browser support, and test affected code because enforcing a policy can change page behavior.',
     },
   ],
-  related: ['permissions-policy', 'security-headers', 'cross-origin-opener-policy'],
+  related: [  "permissions-policy",
+  "security-headers",
+  "cross-origin-opener-policy"],
   status: 'stable',
 };

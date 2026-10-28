@@ -88,6 +88,9 @@ export const meta: ToolMeta = {
       a: "Nested objects are hoisted into named types (one per shape) so the definition stays readable and reusable. A slice of objects gets its own element type. Duplicate keys in the JSON resolve to the last value, matching Go's encoding/json behaviour.",
     },
   ],
-  related: ['json-to-typescript', 'json-to-yaml', 'json-minify', 'yaml-to-json', 'csv-to-json'],
+  related: [  "json-to-typescript",
+  "json-to-yaml",
+  "yaml-to-json",
+  "csv-to-json"],
   status: 'stable',
 };

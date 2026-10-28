@@ -84,6 +84,9 @@ export const meta: ToolMeta = {
       a: 'No. It removes only the selected unit from the start of each line, stopping at the first character that is not that unit.',
     },
   ],
-  related: ['wrap-text', 'text-repeat', 'case-convert', 'dedupe-lines'],
+  related: [  "wrap-text",
+  "text-repeat",
+  "case-convert",
+  "dedupe-lines"],
   status: 'stable',
 };

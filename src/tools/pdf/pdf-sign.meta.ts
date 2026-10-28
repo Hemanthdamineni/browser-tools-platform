@@ -72,7 +72,9 @@ export const meta: ToolMeta = {
       a: 'Draw it with a mouse, finger or stylus, type a name in one of four styles, or upload a PNG. Typed signatures use fonts that are already on your device, so nothing is fetched from the web.',
     },
   ],
-  related: ['pdf-watermark', 'pdf-page-numbers', 'pdf-metadata'],
+  related: [  "pdf-watermark",
+  "pdf-page-numbers",
+  "pdf-metadata"],
   credits: [pdfCredit, pdfjsCredit],
   status: 'beta',
 };

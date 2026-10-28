@@ -69,6 +69,8 @@ export const meta: ToolMeta = {
       a: 'It signals polite crawlers (GPTBot, CCBot, ClaudeBot, …) not to fetch your site. It cannot bind operators who ignore robots.txt, and it does nothing against humans or scraper networks that ignore it.',
     },
   ],
-  related: ['gitignore', 'editorconfig', 'meta-tags'],
+  related: [  "gitignore",
+  "editorconfig",
+  "meta-tags"],
   status: 'stable',
 };

@@ -57,6 +57,8 @@ export const meta: ToolMeta = {
       a: 'Use "component" for a single query-string value or path segment. Use "whole URL" when the input is already a full URL and you only want to fix unsafe characters without breaking the structure.',
     },
   ],
-  related: ['base64', 'html-entities', 'querystring-json', 'url-parse'],
+  related: [  "base64",
+  "html-entities",
+  "url-parse"],
   status: 'stable',
 };

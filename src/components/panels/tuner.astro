@@ -1,0 +1,467 @@
+---
+// Tuner panel component - runs entirely in browser
+---
+
+<script is:inline>
+  // This script runs in the browser after hydration
+  import { onMount } from 'astro/runtime/client';
+
+  // State
+  let audioContext: AudioContext | null = null;
+  let analyser: AnalyserNode | null = null;
+  let mediaStream: MediaStream | null = null;
+  let animationId: number | null = null;
+  let isRunning = false;
+  let currentDeviceId = '';
+
+  // UI elements
+  const noteEl = document.getElementById('tuner-note') as HTMLDivElement;
+  const freqEl = document.getElementById('tuner-freq') as HTMLDivElement;
+  const centsEl = document.getElementById('tuner-cents') as HTMLDivElement;
+  const confidenceEl = document.getElementById('tuner-confidence') as HTMLDivElement;
+  const meterFill = document.getElementById('tuner-meter-fill') as HTMLDivElement;
+  const meterLabel = document.getElementById('tuner-meter-label') as HTMLDivElement;
+  const deviceSelect = document.getElementById('tuner-device') as HTMLSelectElement;
+  const algorithmSelect = document.getElementById('tuner-algorithm') as HTMLSelectElement;
+  const a4Input = document.getElementById('tuner-a4') as HTMLInputElement;
+  const smoothingInput = document.getElementById('tuner-smoothing') as HTMLInputElement;
+  const startBtn = document.getElementById('tuner-start') as HTMLButtonElement;
+  const stopBtn = document.getElementById('tuner-stop') as HTMLButtonElement;
+  const statusEl = document.getElementById('tuner-status') as HTMLDivElement;
+
+  // Pitch history for smoothing
+  const pitchHistory: number[] = [];
+  let lastStableFreq = 0;
+
+  // YIN and autocorrelation implementations (mirrored from core for client-side use)
+  function yinPitch(buffer: Float32Array, sampleRate: number, minFreq = 20, maxFreq = 2000, threshold = 0.15): number {
+    const minPeriod = Math.floor(sampleRate / maxFreq);
+    const maxPeriod = Math.min(Math.floor(sampleRate / minFreq), buffer.length >> 1);
+    if (maxPeriod <= minPeriod) return 0;
+
+    const yinBuffer = new Float32Array(maxPeriod);
+
+    for (let tau = minPeriod; tau < maxPeriod; tau++) {
+      let sum = 0;
+      for (let i = 0; i < buffer.length - tau; i++) {
+        const delta = buffer[i] - buffer[i + tau];
+        sum += delta * delta;
+      }
+      yinBuffer[tau] = sum;
+    }
+
+    yinBuffer[0] = 1;
+    let runningSum = 0;
+    for (let tau = 1; tau < maxPeriod; tau++) {
+      runningSum += yinBuffer[tau];
+      yinBuffer[tau] *= tau / runningSum;
+    }
+
+    let tau = minPeriod;
+    while (tau < maxPeriod) {
+      if (yinBuffer[tau] < threshold) {
+        while (tau + 1 < maxPeriod && yinBuffer[tau + 1] < yinBuffer[tau]) tau++;
+        if (tau > 0 && tau < maxPeriod - 1) {
+          const y1 = yinBuffer[tau - 1];
+          const y2 = yinBuffer[tau];
+          const y3 = yinBuffer[tau + 1];
+          const shift = (y3 - y1) / (2 * (2 * y2 - y1 - y3));
+          return sampleRate / (tau + shift);
+        }
+        return sampleRate / tau;
+      }
+      tau++;
+    }
+
+    let bestTau = minPeriod;
+    let bestVal = yinBuffer[minPeriod];
+    for (let t = minPeriod + 1; t < maxPeriod; t++) {
+      if (yinBuffer[t] < bestVal) {
+        bestVal = yinBuffer[t];
+        bestTau = t;
+      }
+    }
+    if (bestVal < threshold * 1.5) return sampleRate / bestTau;
+    return 0;
+  }
+
+  function autocorrPitch(buffer: Float32Array, sampleRate: number, minFreq = 20, maxFreq = 2000): number {
+    const minPeriod = Math.floor(sampleRate / maxFreq);
+    const maxPeriod = Math.min(Math.floor(sampleRate / minFreq), buffer.length >> 1);
+    if (maxPeriod <= minPeriod) return 0;
+
+    let bestPeriod = 0;
+    let bestCorr = -1;
+
+    for (let tau = minPeriod; tau < maxPeriod; tau++) {
+      let corr = 0, norm = 0;
+      for (let i = 0; i < buffer.length - tau; i++) {
+        corr += buffer[i] * buffer[i + tau];
+        norm += buffer[i] * buffer[i];
+      }
+      if (norm > 0) {
+        corr /= Math.sqrt(norm);
+        if (corr > bestCorr) { bestCorr = corr; bestPeriod = tau; }
+      }
+    }
+    if (bestPeriod > 0 && bestCorr > 0.3) return sampleRate / bestPeriod;
+    return 0;
+  }
+
+  function highPassFilter(input: Float32Array, sampleRate: number, cutoff = 80): Float32Array {
+    const rc = 1 / (2 * Math.PI * cutoff);
+    const dt = 1 / sampleRate;
+    const alpha = rc / (rc + dt);
+    const output = new Float32Array(input.length);
+    let prevIn = 0, prevOut = 0;
+    for (let i = 0; i < input.length; i++) {
+      output[i] = alpha * (prevOut + input[i] - prevIn);
+      prevIn = input[i];
+      prevOut = output[i];
+    }
+    return output;
+  }
+
+  function isVoiceActive(buffer: Float32Array, threshold = 0.01): boolean {
+    let sum = 0;
+    for (let i = 0; i < buffer.length; i++) sum += buffer[i] * buffer[i];
+    return Math.sqrt(sum / buffer.length) > threshold;
+  }
+
+  function frequencyToNote(freq: number, a4 = 440): { note: string; octave: number; cents: number } {
+    if (!Number.isFinite(freq) || freq <= 0) return { note: '—', octave: 0, cents: 0 };
+    const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    const midi = 69 + 12 * Math.log2(freq / a4);
+    const rounded = Math.round(midi);
+    const cents = Math.round((midi - rounded) * 100);
+    const noteIndex = ((rounded % 12) + 12) % 12;
+    const octave = Math.floor(rounded / 12) - 1;
+    return { note: NOTE_NAMES[noteIndex], octave, cents };
+  }
+
+  function updateUI(freq: number, confidence: number) {
+    const a4 = Number(a4Input.value) || 440;
+    const { note, octave, cents } = frequencyToNote(freq, a4);
+
+    noteEl.textContent = freq > 0 ? `${note}${octave}` : '—';
+    freqEl.textContent = freq > 0 ? `${freq.toFixed(1)} Hz` : '—';
+    centsEl.textContent = freq > 0 ? `${cents > 0 ? '+' : ''}${cents} ¢` : '—';
+    confidenceEl.textContent = `${Math.round(confidence * 100)}%`;
+
+    // Cents meter (-50 to +50)
+    const clampedCents = Math.max(-50, Math.min(50, cents));
+    const meterPercent = 50 + clampedCents; // 0-100
+    meterFill.style.width = `${meterPercent}%`;
+    meterFill.style.background = Math.abs(cents) < 5 ? '#22c55e' : Math.abs(cents) < 15 ? '#eab308' : '#ef4444';
+    meterLabel.textContent = `${cents > 0 ? '+' : ''}${cents} ¢`;
+
+    // Note color based on accuracy
+    if (freq > 0) {
+      noteEl.style.color = Math.abs(cents) < 5 ? '#22c55e' : Math.abs(cents) < 15 ? '#eab308' : '#ef4444';
+    } else {
+      noteEl.style.color = '#64748b';
+    }
+  }
+
+  async function populateDevices() {
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const audioInputs = devices.filter(d => d.kind === 'audioinput');
+      deviceSelect.innerHTML = '';
+      audioInputs.forEach((device, i) => {
+        const opt = document.createElement('option');
+        opt.value = device.deviceId;
+        opt.textContent = device.label || `Microphone ${i + 1}`;
+        deviceSelect.appendChild(opt);
+      });
+      if (audioInputs.length === 0) {
+        const opt = document.createElement('option');
+        opt.value = '';
+        opt.textContent = 'No microphones found';
+        opt.disabled = true;
+        deviceSelect.appendChild(opt);
+        startBtn.disabled = true;
+      }
+    } catch (e) {
+      console.error('Failed to enumerate devices:', e);
+    }
+  }
+
+  async function startTuner() {
+    if (isRunning) return;
+
+    try {
+      statusEl.textContent = 'Requesting microphone...';
+      statusEl.className = 'tuner-status info';
+
+      const deviceId = deviceSelect.value || undefined;
+      const constraints: MediaStreamConstraints = {
+        audio: {
+          echoCancellation: false,
+          noiseSuppression: false,
+          autoGainControl: false,
+          deviceId: deviceId ? { exact: deviceId } : undefined,
+        },
+        video: false,
+      };
+
+      mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+
+      audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      analyser = audioContext.createAnalyser();
+      analyser.fftSize = 2048;
+      analyser.smoothingTimeConstant = 0;
+
+      const source = audioContext.createMediaStreamSource(mediaStream);
+      source.connect(analyser);
+
+      isRunning = true;
+      startBtn.disabled = true;
+      stopBtn.disabled = false;
+      deviceSelect.disabled = true;
+      statusEl.textContent = 'Listening...';
+      statusEl.className = 'tuner-status active';
+
+      requestAnimationFrame(processAudio);
+    } catch (e) {
+      if (e instanceof DOMException && e.name === 'NotAllowedError') {
+        statusEl.textContent = 'Microphone access denied.';
+      } else if (e instanceof DOMException && e.name === 'NotFoundError') {
+        statusEl.textContent = 'No microphone found.';
+      } else {
+        statusEl.textContent = `Error: ${e instanceof Error ? e.message : 'Unknown'}`;
+      }
+      statusEl.className = 'tuner-status error';
+    }
+  }
+
+  function stopTuner() {
+    isRunning = false;
+    if (animationId) cancelAnimationFrame(animationId);
+    animationId = null;
+
+    if (mediaStream) {
+      mediaStream.getTracks().forEach(t => t.stop());
+      mediaStream = null;
+    }
+    if (audioContext) {
+      audioContext.close();
+      audioContext = null;
+    }
+    analyser = null;
+
+    startBtn.disabled = false;
+    stopBtn.disabled = true;
+    deviceSelect.disabled = false;
+    statusEl.textContent = 'Stopped';
+    statusEl.className = 'tuner-status idle';
+    updateUI(0, 0);
+  }
+
+  function processAudio() {
+    if (!isRunning || !analyser) return;
+
+    const bufferLength = analyser.frequencyBinCount;
+    const timeData = new Float32Array(bufferLength);
+    analyser.getFloatTimeDomainData(timeData);
+
+    // High-pass filter
+    const sampleRate = audioContext?.sampleRate || 44100;
+    const filtered = highPassFilter(timeData, sampleRate);
+
+    // Voice activity check
+    if (!isVoiceActive(filtered)) {
+      // Decay confidence
+      pitchHistory.length = 0;
+      updateUI(lastStableFreq, Math.max(0, Number(confidenceEl.textContent?.replace('%','') || '0') / 100 - 0.1));
+      animationId = requestAnimationFrame(processAudio);
+      return;
+    }
+
+    // Detect pitch
+    const algorithm = algorithmSelect.value;
+    let freq = 0;
+    if (algorithm === 'yin') {
+      freq = yinPitch(filtered, sampleRate);
+    } else {
+      freq = autocorrPitch(filtered, sampleRate);
+    }
+
+    // Smoothing
+    const smoothingMs = Number(smoothingInput.value) || 150;
+    const maxHistory = Math.max(1, Math.round(smoothingMs / 16.67)); // ~60fps
+    if (freq > 0) {
+      pitchHistory.push(freq);
+      if (pitchHistory.length > maxHistory) pitchHistory.shift();
+      // Median for robustness
+      const sorted = [...pitchHistory].sort((a, b) => a - b);
+      lastStableFreq = sorted[Math.floor(sorted.length / 2)];
+      freq = lastStableFreq;
+    } else if (pitchHistory.length > 0) {
+      pitchHistory.length = 0;
+    }
+
+    const confidence = freq > 0 ? Math.min(1, pitchHistory.length / maxHistory) : 0;
+    updateUI(freq, confidence);
+
+    animationId = requestAnimationFrame(processAudio);
+  }
+
+  // Event listeners
+  startBtn.addEventListener('click', startTuner);
+  stopBtn.addEventListener('click', stopTuner);
+  deviceSelect.addEventListener('change', () => {
+    if (isRunning) {
+      stopTuner();
+      // Auto-restart with new device
+      setTimeout(startTuner, 100);
+    }
+  });
+
+  // Handle device changes
+  navigator.mediaDevices?.addEventListener?.('devicechange', populateDevices);
+
+  // Initialize
+  populateDevices();
+</script>
+
+<div class="tuner-panel">
+  <div class="tuner-header">
+    <h2>Instrument Tuner</h2>
+    <p class="tuner-desc">Real-time pitch detection from your microphone</p>
+  </div>
+
+  <div class="tuner-controls">
+    <div class="control-group">
+      <label for="tuner-device">Microphone</label>
+      <select id="tuner-device"></select>
+    </div>
+    <div class="control-group">
+      <label for="tuner-algorithm">Algorithm</label>
+      <select id="tuner-algorithm">
+        <option value="yin">YIN (robust)</option>
+        <option value="autocorr">Autocorrelation (fast)</option>
+      </select>
+    </div>
+    <div class="control-group">
+      <label for="tuner-a4">A4 Reference (Hz)</label>
+      <input type="number" id="tuner-a4" value="440" min="415" max="466" step="1">
+    </div>
+    <div class="control-group">
+      <label for="tuner-smoothing">Smoothing (ms)</label>
+      <input type="range" id="tuner-smoothing" min="0" max="500" step="10" value="150">
+      <span id="tuner-smoothing-value">150</span>
+    </div>
+  </div>
+
+  <div class="tuner-main">
+    <div class="tuner-display">
+      <div id="tuner-note" class="tuner-note">—</div>
+      <div id="tuner-freq" class="tuner-freq">—</div>
+      <div class="tuner-cents-row">
+        <span id="tuner-cents" class="tuner-cents">—</span>
+        <span id="tuner-confidence" class="tuner-confidence">0%</span>
+      </div>
+    </div>
+
+    <div class="tuner-meter">
+      <div class="tuner-meter-track">
+        <div id="tuner-meter-fill" class="tuner-meter-fill"></div>
+      </div>
+      <div class="tuner-meter-labels">
+        <span>-50¢</span>
+        <span id="tuner-meter-label" class="tuner-meter-center">0¢</span>
+        <span>+50¢</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="tuner-actions">
+    <button id="tuner-start" class="btn btn-primary">Start Tuner</button>
+    <button id="tuner-stop" class="btn btn-secondary" disabled>Stop</button>
+  </div>
+
+  <div id="tuner-status" class="tuner-status idle">Ready — click Start Tuner</div>
+</div>
+
+<style>
+  .tuner-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 1rem;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  .tuner-header {
+    text-align: center;
+  }
+  .tuner-header h2 { margin: 0 0 0.25rem; font-size: 1.5rem; }
+  .tuner-desc { color: var(--muted); margin: 0; font-size: 0.875rem; }
+
+  .tuner-controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem;
+  }
+  .control-group { display: flex; flex-direction: column; gap: 0.25rem; }
+  .control-group label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+  .control-group select, .control-group input[type="number"] {
+    padding: 0.5rem; border: 1px solid var(--border); border-radius: 4px; background: var(--bg);
+    color: var(--fg); font-size: 0.875rem;
+  }
+  .control-group input[type="range"] { flex: 1; }
+
+  .tuner-main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 2rem 1rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+
+  .tuner-display { text-align: center; }
+  .tuner-note { font-size: 6rem; font-weight: 700; line-height: 1; font-family: monospace; transition: color 0.1s; }
+  .tuner-freq { font-size: 1.5rem; color: var(--muted); margin-top: 0.5rem; font-family: monospace; }
+  .tuner-cents-row { display: flex; justify-content: center; gap: 1.5rem; margin-top: 1rem; font-family: monospace; }
+  .tuner-cents { font-size: 1.5rem; font-weight: 600; }
+  .tuner-confidence { font-size: 0.875rem; color: var(--muted); align-self: flex-end; }
+
+  .tuner-meter { width: 100%; max-width: 360px; }
+  .tuner-meter-track {
+    height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; position: relative;
+  }
+  .tuner-meter-track::before {
+    content: ''; position: absolute; top: 0; bottom: 0; left: 50%;
+    width: 2px; background: var(--fg); opacity: 0.3; transform: translateX(-50%);
+  }
+  .tuner-meter-fill {
+    height: 100%; width: 50%; background: #22c55e; transition: width 0.05s, background 0.1s;
+    border-radius: 4px; transform-origin: left center;
+  }
+  .tuner-meter-labels {
+    display: flex; justify-content: space-between; margin-top: 0.5rem; font-size: 0.75rem; color: var(--muted);
+  }
+  .tuner-meter-center { position: absolute; left: 50%; transform: translateX(-50%); font-weight: 600; color: var(--fg); }
+
+  .tuner-actions { display: flex; gap: 1rem; justify-content: center; }
+  .btn { padding: 0.75rem 1.5rem; border-radius: 6px; font-weight: 600; font-size: 0.875rem; cursor: pointer; border: none; transition: all 0.15s; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-primary { background: var(--accent); color: var(--accent-fg); }
+  .btn-primary:hover:not(:disabled) { filter: brightness(1.1); }
+  .btn-secondary { background: var(--bg-elevated); color: var(--fg); border: 1px solid var(--border); }
+  .btn-secondary:hover:not(:disabled) { background: var(--bg-hover); }
+
+  .tuner-status {
+    text-align: center; padding: 0.75rem; border-radius: 6px; font-size: 0.875rem;
+    transition: all 0.15s;
+  }
+  .tuner-status.idle { background: var(--bg-elevated); color: var(--muted); border: 1px solid var(--border); }
+  .tuner-status.active { background: rgba(34, 197, 94, 0.1); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.3); }
+  .tuner-status.error { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+  .tuner-status.info { background: rgba(59, 130, 246, 0.1); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); }
+</style>

@@ -68,6 +68,9 @@ export const meta: ToolMeta = {
       a: 'The top-level object gets the name you provide in "Root type name"; nested objects are named after their field (camelCase → PascalCase). You can rename freely afterwards.',
     },
   ],
-  related: ['json-to-go-struct', 'json-to-typescript', 'json-to-zod', 'json-schema-to-typescript'],
+  related: [  "json-to-go-struct",
+  "json-to-typescript",
+  "json-to-zod",
+  "json-schema-to-typescript"],
   status: 'stable',
 };

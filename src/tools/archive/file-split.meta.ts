@@ -49,6 +49,7 @@ export const meta: ToolMeta = {
     },
   ],
   examples: [{ title: 'Split a file' }],
-  related: ['file-join', 'file-metadata'],
+  related: [  "file-join",
+  "file-metadata"],
   status: 'stable',
 };

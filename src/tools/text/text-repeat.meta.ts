@@ -26,7 +26,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 10,
       min: 1,
-      max: 100000,
       step: 1,
     },
     {
@@ -70,6 +69,9 @@ export const meta: ToolMeta = {
       a: 'Yes. Choose "Custom…" and type any literal string, including spaces. It is inserted verbatim between copies, not before the first or after the last.',
     },
   ],
-  related: ['reverse-text', 'case-convert', 'sort-lines', 'dedupe-lines'],
+  related: [  "reverse-text",
+  "case-convert",
+  "sort-lines",
+  "dedupe-lines"],
   status: 'stable',
 };

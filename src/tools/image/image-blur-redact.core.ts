@@ -79,10 +79,7 @@ export function parseEffect(value: unknown, fallback: RedactEffect = 'blur'): Re
   if (value === undefined || value === null || value === '') return fallback;
   const text = String(value).toLowerCase();
   if ((REDACT_EFFECTS as readonly string[]).includes(text)) return text as RedactEffect;
-  throw new ToolError(
-    `“${text}” is not a redaction effect.`,
-    'Choose blur, pixelate or black.',
-  );
+  throw new ToolError(`“${text}” is not a redaction effect.`, 'Choose blur, pixelate or black.');
 }
 
 /**
@@ -181,11 +178,7 @@ export function parseRegions(value: unknown): Region[] {
  * `null` when it cannot cover a single pixel (NaN, zero or negative size, or
  * entirely outside the image).
  */
-export function regionToPixels(
-  region: Region,
-  width: number,
-  height: number,
-): Rect | null {
+export function regionToPixels(region: Region, width: number, height: number): Rect | null {
   if (
     !Number.isFinite(region.x) ||
     !Number.isFinite(region.y) ||

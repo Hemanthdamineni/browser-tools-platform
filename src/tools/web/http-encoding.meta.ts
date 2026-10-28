@@ -73,6 +73,8 @@ export const meta: ToolMeta = {
       a: 'No. It only builds and analyzes negotiation headers; it never transforms a response body.',
     },
   ],
-  related: ['gzip', 'mime-lookup', 'http-status'],
+  related: [  "gzip",
+  "mime-lookup",
+  "http-status"],
   status: 'stable',
 };

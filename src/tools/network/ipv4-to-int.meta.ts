@@ -50,6 +50,9 @@ export const meta: ToolMeta = {
       a: 'No — it converts one address to its numeric form. For prefix, range or subnet math use the CIDR calculator; this complements it.',
     },
   ],
-  related: ['cidr-calculator', 'ip-address-inspector', 'number-base', 'ipv6-expander'],
+  related: [  "cidr-calculator",
+  "ip-address-inspector",
+  "number-base",
+  "ipv6-expander"],
   status: 'stable',
 };

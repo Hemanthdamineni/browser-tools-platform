@@ -70,6 +70,8 @@ export const meta: ToolMeta = {
       a: 'q-values outside 0–1 are invalid; duplicate ranges should be combined; and a language with q=0 is explicitly unacceptable.',
     },
   ],
-  related: ['content-language', 'cache-headers', 'accept-post'],
+  related: [  "content-language",
+  "cache-headers",
+  "accept-post"],
   status: 'stable',
 };

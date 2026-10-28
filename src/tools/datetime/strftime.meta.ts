@@ -55,6 +55,9 @@ export const meta: ToolMeta = {
       a: 'Yes — put the Unix timestamp (seconds, not milliseconds) in the timestamp field. The epoch 0 formats 1970-01-01 00:00:00 UTC. Use UTC for fully deterministic output.',
     },
   ],
-  related: ['timestamp', 'timezone-convert', 'date-add', 'date-diff'],
+  related: [  "timestamp",
+  "timezone-convert",
+  "date-add",
+  "date-diff"],
   status: 'stable',
 };

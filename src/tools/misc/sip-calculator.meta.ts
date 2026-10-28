@@ -1,0 +1,111 @@
+import type { ToolMeta } from '@/lib/types';
+
+export const meta: ToolMeta = {
+  id: 'sip-calculator',
+  name: 'SIP Calculator',
+  category: 'misc',
+  summary: 'Calculate SIP, step-up SIP, and lumpsum returns with a growth chart and disclaimer.',
+  description:
+    'Project your mutual fund investments via SIP, step-up SIP (annual increase), or lumpsum. Enter monthly investment, expected annual return, duration, and optional step-up percentage. See year-by-year breakdown with invested amount, estimated returns, and total value. Includes a clear "not financial advice" disclaimer — results are mathematical projections based on your inputs, not guarantees. All calculations run locally in your browser.',
+  keywords: [
+    'sip calculator',
+    'systematic investment plan',
+    'step up sip',
+    'lumpsum calculator',
+    'mutual fund returns',
+    'investment calculator',
+    'sip returns',
+    'compound interest',
+    'wealth calculator',
+    'monthly investment',
+  ],
+  privacy: { processing: 'on-device', network: 'none', offline: true },
+  input: 'text',
+  options: [
+    {
+      key: 'mode',
+      label: 'Investment type',
+      type: 'select',
+      default: 'sip',
+      choices: [
+        { value: 'sip', label: 'SIP (fixed monthly)' },
+        { value: 'step-up', label: 'Step-up SIP (annual increase)' },
+        { value: 'lumpsum', label: 'Lumpsum (one-time)' },
+      ],
+    },
+    {
+      key: 'monthlyInvestment',
+      label: 'Monthly investment (₹)',
+      type: 'number',
+      default: 10000,
+      min: 100,
+      max: 1e7,
+      step: 100,
+    },
+    {
+      key: 'annualReturn',
+      label: 'Expected annual return (%)',
+      type: 'number',
+      default: 12,
+      min: 1,
+      max: 30,
+      step: 0.5,
+    },
+    {
+      key: 'years',
+      label: 'Duration (years)',
+      type: 'number',
+      default: 10,
+      min: 1,
+      max: 50,
+      step: 1,
+    },
+    {
+      key: 'stepUpPercent',
+      label: 'Annual step-up (%)',
+      type: 'number',
+      default: 10,
+      min: 0,
+      max: 100,
+      step: 1,
+    },
+    {
+      key: 'lumpsumAmount',
+      label: 'Lumpsum amount (₹)',
+      type: 'number',
+      default: 100000,
+      min: 1000,
+      max: 1e9,
+      step: 1000,
+    },
+  ],
+  examples: [
+    { title: 'Monthly SIP ₹10,000 for 10 years at 12%', options: { mode: 'sip', monthlyInvestment: 10000, annualReturn: 12, years: 10 } },
+    { title: 'Step-up SIP ₹5,000/month, 10% annual increase, 15 years', options: { mode: 'step-up', monthlyInvestment: 5000, annualReturn: 12, years: 15, stepUpPercent: 10 } },
+    { title: 'Lumpsum ₹1,00,000 for 10 years at 12%', options: { mode: 'lumpsum', lumpsumAmount: 100000, annualReturn: 12, years: 10 } },
+  ],
+  faq: [
+    {
+      q: 'What is a Step-up SIP?',
+      a: 'A Step-up SIP increases your monthly investment by a fixed percentage each year (e.g., 10% per year). This matches income growth and significantly boosts the final corpus compared to a fixed SIP.',
+    },
+    {
+      q: 'How are returns calculated?',
+      a: 'SIP: Monthly compounding using the formula for future value of an annuity due. Step-up: Each year\'s increased amount is compounded for the remaining period. Lumpsum: Standard compound interest P(1+r)^n. All assume monthly compounding for SIP/step-up.',
+    },
+    {
+      q: 'Is the 12% default return guaranteed?',
+      a: 'Absolutely not. The 12% is a common long-term equity mutual fund average for illustration only. Past performance does not guarantee future results. Actual returns vary by fund, market conditions, and time period. This tool is for estimation only.',
+    },
+    {
+      q: 'What does "not financial advice" mean?',
+      a: 'This tool performs mathematical projections based on your inputs. It does not consider your risk profile, financial goals, tax implications, inflation, expense ratios, exit loads, or market volatility. Consult a SEBI-registered investment advisor before making investment decisions.',
+    },
+    {
+      q: 'Does this account for expense ratio or taxes?',
+      a: 'No. The calculator shows gross returns before expense ratio, exit load, STT, capital gains tax, or inflation. Real returns will be lower. Adjust the expected return rate downward to roughly account for expenses (e.g., use 11% instead of 12% for a 1% expense ratio).',
+    },
+  ],
+  related: ['compound-interest-calculator', 'percentage-calculator', 'gst-calculator', 'calculator'],
+  status: 'stable',
+};

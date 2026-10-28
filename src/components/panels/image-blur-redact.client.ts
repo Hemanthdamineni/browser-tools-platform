@@ -228,7 +228,8 @@ export function mountImageBlurRedactPanel(root: HTMLElement): void {
 
   function effectClasses(effect: RedactEffect): string {
     if (effect === 'black') return 'border-solid border-black bg-black/70';
-    if (effect === 'pixelate') return 'border-dotted border-[rgb(var(--accent))] bg-[rgb(var(--accent))]/25';
+    if (effect === 'pixelate')
+      return 'border-dotted border-[rgb(var(--accent))] bg-[rgb(var(--accent))]/25';
     return 'border-dashed border-[rgb(var(--accent))] bg-[rgb(var(--accent))]/20';
   }
 
@@ -724,7 +725,11 @@ export function mountImageBlurRedactPanel(root: HTMLElement): void {
       return;
     }
     if (!fileUsable) {
-      showError(errorBox, 'That file could not be read as an image.', 'Choose a PNG, JPEG or WebP file.');
+      showError(
+        errorBox,
+        'That file could not be read as an image.',
+        'Choose a PNG, JPEG or WebP file.',
+      );
       return;
     }
     if (!regions.length) {
@@ -773,7 +778,8 @@ export function mountImageBlurRedactPanel(root: HTMLElement): void {
     } catch (error) {
       if (generation !== runGeneration) return;
       const err = error as Error & { hint?: string };
-      if (err.name !== 'AbortError') showError(errorBox, err.message || 'Redaction failed', err.hint);
+      if (err.name !== 'AbortError')
+        showError(errorBox, err.message || 'Redaction failed', err.hint);
       else progressMsg.textContent = 'Cancelled';
     } finally {
       if (generation === runGeneration) {

@@ -99,6 +99,9 @@ export const meta: ToolMeta = {
       a: 'No — this emits the raw wire-format request text. Tools like curl-to-fetch or curl-to-code generate programming-language snippets instead.',
     },
   ],
-  related: ['curl-to-fetch', 'curl-to-code', 'http-status', 'http-range'],
+  related: [  "curl-to-fetch",
+  "curl-to-code",
+  "http-status",
+  "http-range"],
   status: 'stable',
 };

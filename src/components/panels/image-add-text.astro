@@ -56,7 +56,9 @@ const hintId = `${p}-drag-hint`;
     aria-label="Choose an image file or drop it here"
   >
     <Icon name="image" size={26} class="opacity-60" />
-    <p class="text-sm font-medium">Drop a PNG, JPEG or WebP here, or <span class="link">browse</span></p>
+    <p class="text-sm font-medium">
+      Drop a PNG, JPEG or WebP here, or <span class="link">browse</span>
+    </p>
     <p class="text-xs text-[rgb(var(--text-muted))]">The image never leaves your device.</p>
   </div>
   <ul class="mt-3 space-y-1.5 text-sm" data-file-list></ul>
@@ -154,7 +156,12 @@ const hintId = `${p}-drag-hint`;
       <button type="button" class="btn btn-ghost" data-position-reset>Reset position</button>
     </div>
   </div>
-  <p class="mt-2 text-xs text-[rgb(var(--text-muted))]" data-preview-status role="status" aria-live="polite">
+  <p
+    class="mt-2 text-xs text-[rgb(var(--text-muted))]"
+    data-preview-status
+    role="status"
+    aria-live="polite"
+  >
     Choose an image to see it here.
   </p>
 

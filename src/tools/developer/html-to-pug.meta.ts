@@ -71,6 +71,9 @@ export const meta: ToolMeta = {
       a: 'Pug cannot represent some HTML directly — for example an element with both leading and trailing text siblings, or mixed inline/block content in one line. Those cases still produce valid Pug, with the text moved to separate | lines and a warning listed in the notes.',
     },
   ],
-  related: ['html-to-jsx', 'html-to-markdown', 'html-prettifier', 'html-to-text'],
+  related: [  "html-to-jsx",
+  "html-to-markdown",
+  "html-prettifier",
+  "html-to-text"],
   status: 'stable',
 };

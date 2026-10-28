@@ -51,6 +51,9 @@ export const meta: ToolMeta = {
       a: 'Each leading zero byte in the input becomes one leading "1" in the output, because "1" is the zero digit. Decoding turns them back into zero bytes.',
     },
   ],
-  related: ['base64', 'base32', 'hex', 'ascii85'],
+  related: [  "base64",
+  "base32",
+  "hex",
+  "ascii85"],
   status: 'stable',
 };

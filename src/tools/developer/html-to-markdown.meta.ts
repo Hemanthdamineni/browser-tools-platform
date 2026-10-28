@@ -76,6 +76,10 @@ export const meta: ToolMeta = {
       a: 'Yes, paste the whole document. Only the body-style content is used; <head>, script, style, and comments are ignored.',
     },
   ],
-  related: ['markdown-to-html', 'html-to-text', 'markdown-toc', 'csv-to-html', 'json-diff'],
+  related: [  "markdown-to-html",
+  "html-to-text",
+  "markdown-toc",
+  "csv-to-html",
+  "json-diff"],
   status: 'stable',
 };

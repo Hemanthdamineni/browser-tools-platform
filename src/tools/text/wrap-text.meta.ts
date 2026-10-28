@@ -38,7 +38,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 80,
       min: 20,
-      max: 200,
       step: 1,
       showWhen: { key: 'mode', value: 'wrap' },
     },
@@ -84,6 +83,9 @@ export const meta: ToolMeta = {
       a: 'One or more blank lines. With "Preserve blank lines" on, those gaps are kept and each paragraph is wrapped or unwrapped independently.',
     },
   ],
-  related: ['indent-text', 'text-repeat', 'case-convert', 'sort-lines'],
+  related: [  "indent-text",
+  "text-repeat",
+  "case-convert",
+  "sort-lines"],
   status: 'stable',
 };

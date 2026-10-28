@@ -47,6 +47,7 @@ export const meta: ToolMeta = {
       choices: [{ value: '16', label: '16-bit PCM' }],
     },
   ],
-  related: ['audio-info', 'audio-trim'],
+  related: [  "audio-info",
+  "audio-trim"],
   status: 'stable',
 };

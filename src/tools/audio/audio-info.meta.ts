@@ -29,6 +29,7 @@ export const meta: ToolMeta = {
       a: 'Whatever your browser can decode — commonly MP3, WAV, OGG, M4A and FLAC.',
     },
   ],
-  related: ['audio-to-wav', 'audio-normalize'],
+  related: [  "audio-to-wav",
+  "audio-normalize"],
   status: 'stable',
 };

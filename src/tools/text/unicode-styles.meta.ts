@@ -78,6 +78,9 @@ export const meta: ToolMeta = {
       a: 'Full-width covers the whole printable ASCII range and turns spaces into ideographic spaces. Circled covers A–Z, a–z and 0–9. Squared covers A–Z. Math sans-serif covers A–Z, a–z and 0–9.',
     },
   ],
-  related: ['case-convert', 'unicode-escape', 'slugify', 'whitespace-visualizer'],
+  related: [  "case-convert",
+  "unicode-escape",
+  "slugify",
+  "whitespace-visualizer"],
   status: 'stable',
 };

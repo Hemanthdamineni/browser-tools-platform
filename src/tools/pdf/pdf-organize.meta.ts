@@ -65,7 +65,10 @@ export const meta: ToolMeta = {
       a: 'No — every source page can appear only once. Copy a page in your PDF viewer first if you need it twice.',
     },
   ],
-  related: ['pdf-merge', 'pdf-split', 'pdf-rotate', 'pdf-delete-pages'],
+  related: [  "pdf-merge",
+  "pdf-split",
+  "pdf-rotate",
+  "pdf-delete-pages"],
   credits: [pdfCredit, pdfjsCredit],
   status: 'beta',
 };

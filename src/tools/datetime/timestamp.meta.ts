@@ -70,6 +70,9 @@ export const meta: ToolMeta = {
       a: 'No. All conversion happens on-device and works fully offline.',
     },
   ],
-  related: ['timezone-convert', 'date-diff', 'duration-convert', 'cron-parser'],
+  related: [  "timezone-convert",
+  "date-diff",
+  "duration-convert",
+  "cron-parser"],
   status: 'stable',
 };

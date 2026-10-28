@@ -82,7 +82,10 @@ export const meta: ToolMeta = {
       a: 'Unified is best for line-level review and pasting into patches. Inline is best for spotting small word or character edits within a sentence.',
     },
   ],
-  related: ['json-diff', 'regex-tester', 'find-replace', 'sort-lines'],
+  related: [  "json-diff",
+  "regex-tester",
+  "find-replace",
+  "sort-lines"],
   credits: [{ name: 'jsdiff', url: 'https://github.com/kpdecker/jsdiff', license: 'BSD-3-Clause' }],
   status: 'stable',
 };

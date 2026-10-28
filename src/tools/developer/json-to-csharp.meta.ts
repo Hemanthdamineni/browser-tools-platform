@@ -69,12 +69,10 @@ export const meta: ToolMeta = {
       a: 'A root array generates a class for the sampled element and a usage comment showing List<Root>. An empty root array cannot be typed, so it errors. Empty nested arrays become List<object> and nulls become object? — tighten these to concrete types where you know them.',
     },
   ],
-  related: [
-    'json-to-typescript',
-    'json-to-go-struct',
-    'json-to-zod',
-    'json-to-yaml',
-    'curl-to-code',
-  ],
+  related: [  "json-to-typescript",
+  "json-to-go-struct",
+  "json-to-zod",
+  "json-to-yaml",
+  "curl-to-code"],
   status: 'stable',
 };

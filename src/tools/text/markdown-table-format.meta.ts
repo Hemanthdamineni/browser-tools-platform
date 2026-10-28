@@ -41,6 +41,9 @@ export const meta: ToolMeta = {
       a: 'Escape it as \\| inside the cell. An escaped pipe is treated as part of the cell content, not as a column separator.',
     },
   ],
-  related: ['markdown-toc', 'markdown-to-html', 'csv-to-json', 'json-to-csv'],
+  related: [  "markdown-toc",
+  "markdown-to-html",
+  "csv-to-json",
+  "json-to-csv"],
   status: 'stable',
 };

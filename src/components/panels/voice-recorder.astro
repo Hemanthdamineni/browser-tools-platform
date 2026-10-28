@@ -1,0 +1,94 @@
+---
+import type { ToolMeta } from '@/lib/types';
+
+interface Props {
+  meta: ToolMeta;
+}
+const { meta } = Astro.props;
+const id = meta.id;
+const headingId = `${id}-heading`;
+---
+
+<section
+  class="surface rounded-lg p-4 sm:p-6"
+  data-panel-workbench
+  data-tool-id={meta.id}
+  aria-labelledby={headingId}
+>
+  <h1 id={headingId} class="text-xl font-semibold">{meta.name}</h1>
+  <p class="mt-1.5 max-w-prose text-sm leading-relaxed text-[rgb(var(--muted))]">
+    {meta.description}
+  </p>
+
+  <div class="mt-4 flex flex-col gap-4">
+    <div class="flex items-center gap-3">
+      <label class="label" for="vr-format">Format</label>
+      <select id="vr-format" class="select w-full sm:w-64">
+        <option value="wav">WAV (lossless, 16-bit)</option>
+        <option value="webm">WebM (compressed, Opus/Vorbis)</option>
+      </select>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <label class="label" for="vr-filename">Filename prefix</label>
+      <input
+        type="text"
+        id="vr-filename"
+        class="input w-full sm:w-64"
+        value="voice-recording"
+        placeholder="voice-recording"
+      />
+    </div>
+
+    <div class="flex items-center gap-3">
+      <button class="btn" data-vr-record aria-pressed="false">Start Recording</button>
+      <button class="btn-secondary" data-vr-stop aria-pressed="false" disabled>Stop</button>
+      <span class="text-sm text-[rgb(var(--muted))]" data-vr-status>Waiting for permission…</span>
+    </div>
+
+    <div class="relative" style="height: 80px;">
+      <canvas
+        data-vr-waveform
+        width="100%"
+        height="100%"
+        class="w-full h-full bg-[rgb(var(--bg-subtle))] rounded-md"
+        aria-label="Audio waveform"></canvas>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <span class="text-sm font-mono text-[rgb(var(--muted))]" data-vr-level>– dB</span>
+      <div class="flex-1 h-2 bg-[rgb(var(--bg-subtle))] rounded-full overflow-hidden">
+        <div
+          class="h-full bg-[rgb(var(--accent))] transition-all duration-75"
+          data-vr-meter
+          style="width: 0%"
+        >
+        </div>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-3" hidden data-vr-playback-wrap>
+      <audio controls data-vr-audio preload="auto"></audio>
+      <button class="btn-secondary" data-vr-download>Download recording</button>
+    </div>
+  </div>
+
+  <noscript>
+    <p class="alert alert-warning mt-4">
+      This tool requires JavaScript to record audio from your microphone.
+    </p>
+  </noscript>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-panel-workbench][data-tool-id="voice-recorder"]').forEach((root) => {
+    void import('./voice-recorder')
+      .then(({ mountVoiceRecorderWorkbench }) => mountVoiceRecorderWorkbench(root))
+      .catch(() => {
+        const status = root.querySelector<HTMLElement>('[data-vr-status]');
+        if (status) {
+          status.textContent = 'The voice recorder could not be loaded in this browser.';
+        }
+      });
+  });
+</script>

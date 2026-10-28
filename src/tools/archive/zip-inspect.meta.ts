@@ -11,7 +11,8 @@ export const meta: ToolMeta = {
   input: 'file',
   accept: '.zip,application/zip',
   examples: [{ title: 'Inspect a ZIP' }],
-  related: ['zip-extract', 'file-metadata'],
+  related: [  "zip-extract",
+  "file-metadata"],
   credits: [{ name: 'fflate', url: 'https://github.com/101arrowz/fflate', license: 'MIT' }],
   status: 'stable',
 };

@@ -137,6 +137,7 @@ export const meta: ToolMeta = {
     },
   ],
   credits: [{ name: 'mediabunny', url: 'https://mediabunny.dev', license: 'MPL-2.0' }],
-  related: ['video-to-gif', 'video-info'],
+  related: [  "video-to-gif",
+  "video-info"],
   status: 'beta',
 };

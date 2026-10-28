@@ -10,7 +10,10 @@ export function readOptions(root: ParentNode): OptionValues {
     if (type === 'boolean') {
       values[key] = (el as HTMLInputElement).checked;
     } else if (type === 'number') {
-      values[key] = Number((el as HTMLInputElement).value);
+      const raw = (el as HTMLInputElement).value;
+      // An empty field means "use the tool's declared default", not zero.
+      // Number('') is 0, which would silently override a non-zero default.
+      if (raw.trim() !== '') values[key] = Number(raw);
     } else {
       values[key] = (el as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement).value;
     }
@@ -52,11 +55,19 @@ export function clearError(box: HTMLElement): void {
 /**
  * Rasterise an image data URL to a PNG blob via an offscreen `<img>` + `<canvas>`.
  * SVG must be drawn this way — `createImageBitmap` rejects SVG blobs in Chromium.
+ *
+ * The image is awaited via its `load`/`error` events, not `decode()`:
+ * `HTMLImageElement.decode()` never settles in the repo's Chromium (the
+ * raster fires and `createImageBitmap` resolves, but the decode promise
+ * hangs), which would leave "Download PNG" spinning forever.
  */
-async function imageToPngBlob(url: string, scale = 2): Promise<Blob> {
+export async function imageToPngBlob(url: string, scale = 2): Promise<Blob> {
   const image = new Image();
   image.src = url;
-  await image.decode();
+  const { promise, resolve, reject } = Promise.withResolvers<void>();
+  image.onload = () => resolve();
+  image.onerror = () => reject(new Error('The image could not be decoded for PNG export.'));
+  await promise;
   const w = image.naturalWidth || image.width;
   const h = image.naturalHeight || image.height;
   const canvas = document.createElement('canvas');

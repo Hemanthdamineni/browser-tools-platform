@@ -66,6 +66,8 @@ export const meta: ToolMeta = {
       a: 'Content-Security-Policy-Report-Only reports violations without enforcing them, which is the recommended way to test a policy before roll-out.',
     },
   ],
-  related: ['security-headers', 'x-frame-options', 'http-header-analyzer'],
+  related: [  "security-headers",
+  "x-frame-options",
+  "http-header-analyzer"],
   status: 'stable',
 };

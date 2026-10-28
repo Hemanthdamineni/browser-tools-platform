@@ -1,0 +1,122 @@
+import type { ToolMeta } from '@/lib/types';
+
+export const meta: ToolMeta = {
+  id: 'pdf-ocr',
+  name: 'PDF OCR',
+  category: 'pdf',
+  summary: 'Make scanned PDFs searchable by adding a Tesseract.js text layer (OCR).',
+  description:
+    'Convert scanned or image-based PDFs into searchable PDFs by running OCR on each page using Tesseract.js. The tool adds an invisible text layer over the page images so you can select, copy, and search text. Supports multiple languages with auto-download of traineddata files.',
+  keywords: [
+    'pdf',
+    'ocr',
+    'tesseract',
+    'searchable',
+    'scanned',
+    'text',
+    'layer',
+    'recognize',
+    'language',
+  ],
+  privacy: { processing: 'on-device', network: 'none', offline: true },
+  input: 'file',
+  accept: 'application/pdf',
+  multiple: false,
+  panel: 'pdf-ocr',
+  options: [
+    {
+      key: 'language',
+      label: 'OCR Language',
+      type: 'select',
+      default: 'eng',
+      choices: [
+        { value: 'eng', label: 'English' },
+        { value: 'eng+fra', label: 'English + French' },
+        { value: 'eng+deu', label: 'English + German' },
+        { value: 'eng+spa', label: 'English + Spanish' },
+        { value: 'eng+ita', label: 'English + Italian' },
+        { value: 'eng+por', label: 'English + Portuguese' },
+        { value: 'eng+rus', label: 'English + Russian' },
+        { value: 'eng+chi_sim', label: 'English + Chinese (Simplified)' },
+        { value: 'fra', label: 'French' },
+        { value: 'deu', label: 'German' },
+        { value: 'spa', label: 'Spanish' },
+        { value: 'ita', label: 'Italian' },
+        { value: 'por', label: 'Portuguese' },
+        { value: 'rus', label: 'Russian' },
+        { value: 'chi_sim', label: 'Chinese (Simplified)' },
+        { value: 'chi_tra', label: 'Chinese (Traditional)' },
+        { value: 'jpn', label: 'Japanese' },
+        { value: 'kor', label: 'Korean' },
+        { value: 'ara', label: 'Arabic' },
+        { value: 'hin', label: 'Hindi' },
+      ],
+      help: 'Language(s) for OCR. Combined languages (e.g., eng+fra) detect multiple scripts. First run downloads traineddata.',
+    },
+    {
+      key: 'dpi',
+      label: 'Render DPI',
+      type: 'select',
+      default: '300',
+      choices: [
+        { value: '150', label: '150 DPI (faster)' },
+        { value: '300', label: '300 DPI (recommended)' },
+        { value: '400', label: '400 DPI (slower, better for small text)' },
+      ],
+      help: 'Resolution to render PDF pages for OCR. Higher DPI = better accuracy for small text but slower.',
+    },
+    {
+      key: 'outputType',
+      label: 'Output Type',
+      type: 'select',
+      default: 'pdf',
+      choices: [
+        { value: 'pdf', label: 'Searchable PDF (image + text layer)' },
+        { value: 'txt', label: 'Plain text only' },
+        { value: 'both', label: 'Both PDF and text file' },
+      ],
+      help: 'Searchable PDF preserves page images and adds invisible text. Text only extracts plain text.',
+    },
+  ],
+  faq: [
+    {
+      q: 'How long does OCR take?',
+      a: 'Depends on page count, DPI, and device speed. A typical 10-page document at 300 DPI takes 30-60 seconds on a modern laptop. The first run for a language downloads traineddata (~10-50 MB).',
+    },
+    {
+      q: 'Does this work on PDFs that already have text?',
+      a: 'Yes, but it will rasterize the pages and re-OCR them, which may lose formatting. For PDFs with extractable text, use "Extract PDF Text" instead.',
+    },
+    {
+      q: 'What languages are supported?',
+      a: 'All Tesseract 4/5 traineddata languages. The dropdown shows common ones; any Tesseract language code works. First use downloads the model automatically.',
+    },
+    {
+      q: 'Can I edit the OCR results?',
+      a: 'The tool produces a searchable PDF with the text layer. To correct OCR errors, open the result in a PDF editor and edit the text layer, or extract text, edit it, and recreate the PDF.',
+    },
+    {
+      q: 'Is my document uploaded anywhere?',
+      a: 'No. Everything runs in your browser. Traineddata models are downloaded from a CDN to your browser cache on first use.',
+    },
+  ],
+  related: ['pdf-extract-text', 'image-ocr', 'pdf-redact'],
+  credits: [
+    {
+      name: 'Tesseract.js',
+      url: 'https://github.com/naptha/tesseract.js',
+      license: 'Apache-2.0',
+    },
+    {
+      name: 'pdf-lib',
+      url: 'https://github.com/Hopding/pdf-lib',
+      license: 'MIT',
+    },
+    {
+      name: 'pdfjs-dist',
+      url: 'https://github.com/mozilla/pdf.js',
+      license: 'Apache-2.0',
+    },
+  ],
+  status: 'beta',
+};

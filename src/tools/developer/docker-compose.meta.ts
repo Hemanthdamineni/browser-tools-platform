@@ -101,6 +101,9 @@ export const meta: ToolMeta = {
       a: 'This builds a single-service file. Reproduce it per service and merge the services: block, or push each generated file through a YAML formatter afterwards.',
     },
   ],
-  related: ['json-to-yaml', 'json-to-env', 'dotenv', 'ini-convert'],
+  related: [  "json-to-yaml",
+  "json-to-env",
+  "dotenv",
+  "ini-convert"],
   status: 'stable',
 };

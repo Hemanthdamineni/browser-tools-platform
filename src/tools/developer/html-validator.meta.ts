@@ -48,6 +48,9 @@ export const meta: ToolMeta = {
       a: 'No — this is structural well-formedness only. A tidy parser-parseable document can still have broken attributes or invalid nesting; those need further tools. This catches the common “unclosed tag breaks the whole page” failure fast.',
     },
   ],
-  related: ['html-prettifier', 'html-to-text', 'html-to-markdown', 'markdown-to-html'],
+  related: [  "html-prettifier",
+  "html-to-text",
+  "html-to-markdown",
+  "markdown-to-html"],
   status: 'stable',
 };

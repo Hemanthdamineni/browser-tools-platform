@@ -75,6 +75,10 @@ export const meta: ToolMeta = {
       a: 'Yes. Choose from comma, tab, semicolon, or pipe in the delimiter option. The parser detects the field separator exactly as configured.',
     },
   ],
-  related: ['csv-to-json', 'csv-to-markdown', 'csv-profiler', 'html-to-text', 'json-diff'],
+  related: [  "csv-to-json",
+  "csv-to-markdown",
+  "csv-profiler",
+  "html-to-text",
+  "json-diff"],
   status: 'stable',
 };

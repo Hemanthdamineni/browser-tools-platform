@@ -86,6 +86,9 @@ export const meta: ToolMeta = {
       a: 'Date-times are written as floating local times by default (no zone), which most importers treat as the calendar owner’s zone. Turn on “Treat times as UTC” to append Z instead.',
     },
   ],
-  related: ['ical-event', 'vcard', 'csv-to-json', 'recurrence-dates'],
+  related: [  "ical-event",
+  "vcard",
+  "csv-to-json",
+  "recurrence-dates"],
   status: 'stable',
 };

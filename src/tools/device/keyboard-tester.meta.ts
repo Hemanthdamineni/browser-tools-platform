@@ -86,6 +86,8 @@ export const meta: ToolMeta = {
       a: 'Yes. The lights follow the physical position (the code), so they are right on any layout. The readout shows both the character your layout produced and the US character for the same physical key.',
     },
   ],
-  related: ['unicode-lookup', 'whitespace-visualizer', 'morse-code'],
+  related: [  "unicode-lookup",
+  "whitespace-visualizer",
+  "morse-code"],
   status: 'beta',
 };

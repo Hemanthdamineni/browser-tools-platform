@@ -72,6 +72,8 @@ export const meta: ToolMeta = {
       a: 'Modern browsers generally require SameSite=None cookies to also include Secure. The analyzer flags that combination when Secure is absent.',
     },
   ],
-  related: ['security-headers', 'url-encode', 'basic-auth'],
+  related: [  "security-headers",
+  "url-encode",
+  "basic-auth"],
   status: 'stable',
 };

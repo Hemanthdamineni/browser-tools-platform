@@ -57,6 +57,8 @@ export const meta: ToolMeta = {
       a: 'Mojibake happens when bytes encoded in one UTF flavour are decoded as another. The UTF-8 column shows exactly how many bytes each character requires (1-4).',
     },
   ],
-  related: ['char-frequency', 'text-stats', 'case-convert'],
+  related: [  "char-frequency",
+  "text-stats",
+  "case-convert"],
   status: 'stable',
 };

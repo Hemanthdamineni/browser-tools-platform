@@ -57,7 +57,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 0,
       min: 0,
-      max: 200,
     },
   ],
   examples: [
@@ -80,6 +79,9 @@ export const meta: ToolMeta = {
       a: 'The slug is truncated at a word boundary and trailing separators are removed, so you never get a dangling "my-page-".',
     },
   ],
-  related: ['url-parse', 'url-encode', 'case-convert', 'text-stats'],
+  related: [  "url-parse",
+  "url-encode",
+  "case-convert",
+  "text-stats"],
   status: 'stable',
 };

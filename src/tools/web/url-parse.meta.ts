@@ -41,6 +41,9 @@ export const meta: ToolMeta = {
       a: 'The URL API returns an empty port string when the URL uses the scheme’s default port (443 for https, 80 for http). That is the standards-compliant answer, not a parsing bug.',
     },
   ],
-  related: ['querystring', 'basic-auth', 'utm-builder', 'punycode'],
+  related: [  "querystring",
+  "basic-auth",
+  "utm-builder",
+  "punycode"],
   status: 'stable',
 };

@@ -70,6 +70,9 @@ export const meta: ToolMeta = {
       a: 'Yes. A whole number infers "integer"; a number with a fractional part infers "number".',
     },
   ],
-  related: ['json-to-typescript', 'json-format', 'json-to-yaml', 'ndjson'],
+  related: [  "json-to-typescript",
+  "json-format",
+  "json-to-yaml",
+  "ndjson"],
   status: 'stable',
 };

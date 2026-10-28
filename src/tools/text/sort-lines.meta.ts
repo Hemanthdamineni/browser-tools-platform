@@ -49,6 +49,7 @@ export const meta: ToolMeta = {
       a: 'Numbers inside the text are compared by value, not character by character, so "item2" sorts before "item10". Standard alphabetical sort would put "item10" first.',
     },
   ],
-  related: ['dedupe-lines', 'reverse-text', 'whitespace-cleanup'],
+  related: [  "dedupe-lines",
+  "reverse-text"],
   status: 'stable',
 };

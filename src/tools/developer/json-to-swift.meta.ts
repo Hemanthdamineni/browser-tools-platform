@@ -80,12 +80,10 @@ export const meta: ToolMeta = {
       a: 'A root array generates a struct for the sampled element plus a comment showing `JSONDecoder().decode([Root].self, from: data)`. An empty array cannot be typed, so it raises an error, as do primitive roots.',
     },
   ],
-  related: [
-    'json-to-typescript',
-    'json-to-go-struct',
-    'json-to-zod',
-    'json-to-csharp',
-    'json-to-csv',
-  ],
+  related: [  "json-to-typescript",
+  "json-to-go-struct",
+  "json-to-zod",
+  "json-to-csharp",
+  "json-to-csv"],
   status: 'stable',
 };

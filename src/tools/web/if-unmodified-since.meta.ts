@@ -52,7 +52,7 @@ export const meta: ToolMeta = {
       a: 'It can be sent with several methods, but it is most useful for state-changing requests that must not overwrite a newer representation.',
     },
   ],
-  related: ['conditional-request-headers'],
+  related: [  "conditional-request-headers"],
   hidden: true,
   redirectTo: 'conditional-request-headers',
   status: 'stable',

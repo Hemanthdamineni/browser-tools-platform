@@ -30,6 +30,7 @@ export const meta: ToolMeta = {
       default: false,
     },
   ],
-  related: ['audio-trim', 'audio-reverse'],
+  related: [  "audio-trim",
+  "audio-reverse"],
   status: 'stable',
 };

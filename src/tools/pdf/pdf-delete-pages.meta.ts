@@ -21,7 +21,9 @@ export const meta: ToolMeta = {
     },
   ],
   examples: [{ title: 'Delete pages 2 and 4', options: { pages: '2,4' } }],
-  related: ['pdf-extract-pages', 'pdf-split', 'pdf-rotate'],
+  related: [  "pdf-extract-pages",
+  "pdf-split",
+  "pdf-rotate"],
   credits: [pdfCredit],
   status: 'stable',
 };

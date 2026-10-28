@@ -60,6 +60,9 @@ export const meta: ToolMeta = {
       a: 'Export the first table or all tables in document order, each separated by a blank line. Choose with the option.',
     },
   ],
-  related: ['csv-to-html', 'html-to-text', 'html-to-markdown', 'csv-to-markdown'],
+  related: [  "csv-to-html",
+  "html-to-text",
+  "html-to-markdown",
+  "csv-to-markdown"],
   status: 'stable',
 };

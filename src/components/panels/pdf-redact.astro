@@ -1,0 +1,675 @@
+---
+// PDF Redact panel component
+---
+
+<script is:inline>
+  import { onMount } from 'astro/runtime/client';
+  import { runToolById } from '@/lib/worker/client';
+  import type { FileRunResult } from '@/lib/types';
+
+  // State
+  let pdfDoc: any = null;
+  let pdfjsDoc: any = null;
+  let currentPage = 1;
+  let totalPages = 0;
+  let scale = 1;
+  let redactions: Redaction[] = [];
+  let isDrawing = false;
+  let startX = 0;
+  let startY = 0;
+  let currentRect: Redaction | null = null;
+  let selectedRedaction: Redaction | null = null;
+  let controller: AbortController | null = null;
+  let runGeneration = 0;
+  const outputUrls = new Set<string>();
+
+  interface Redaction {
+    page: number;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    id: string;
+  }
+
+  // UI elements
+  const canvas = document.getElementById('pdf-redact-canvas') as HTMLCanvasElement;
+  const overlay = document.getElementById('pdf-redact-overlay') as HTMLDivElement;
+  const prevBtn = document.getElementById('pdf-redact-prev') as HTMLButtonElement;
+  const nextBtn = document.getElementById('pdf-redact-next') as HTMLButtonElement;
+  const pageInput = document.getElementById('pdf-redact-page') as HTMLInputElement;
+  const pageInfo = document.getElementById('pdf-redact-page-info') as HTMLSpanElement;
+  const zoomInBtn = document.getElementById('pdf-redact-zoom-in') as HTMLButtonElement;
+  const zoomOutBtn = document.getElementById('pdf-redact-zoom-out') as HTMLButtonElement;
+  const zoomResetBtn = document.getElementById('pdf-redact-zoom-reset') as HTMLButtonElement;
+  const colorSelect = document.getElementById('pdf-redact-color') as HTMLSelectElement;
+  const dpiSelect = document.getElementById('pdf-redact-dpi') as HTMLSelectElement;
+  const applyBtn = document.getElementById('pdf-redact-apply') as HTMLButtonElement;
+  const clearBtn = document.getElementById('pdf-redact-clear') as HTMLButtonElement;
+  const downloadBtn = document.getElementById('pdf-redact-download') as HTMLButtonElement;
+  const fileInput = document.getElementById('pdf-redact-file') as HTMLInputElement;
+  const fileBtn = document.getElementById('pdf-redact-file-btn') as HTMLButtonElement;
+  const fileName = document.getElementById('pdf-redact-filename') as HTMLSpanElement;
+  const statusEl = document.getElementById('pdf-redact-status') as HTMLDivElement;
+  const redactionList = document.getElementById('pdf-redact-list') as HTMLDivElement;
+  const progressBar = document.getElementById('pdf-redact-progress') as HTMLDivElement;
+  const progressFill = document.getElementById('pdf-redact-progress-fill') as HTMLDivElement;
+  const progressText = document.getElementById('pdf-redact-progress-text') as HTMLDivElement;
+
+  // PDF.js
+  let pdfjsLib: any = null;
+
+  async function loadPdfJs() {
+    if (!pdfjsLib) {
+      pdfjsLib = await import('pdfjs-dist');
+      if (typeof window !== 'undefined') {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
+          'pdfjs-dist/build/pdf.worker.min.mjs',
+          import.meta.url
+        ).href;
+      }
+    }
+    return pdfjsLib;
+  }
+
+  function setStatus(text: string, type: 'idle' | 'active' | 'error' | 'info' | 'success' = 'idle') {
+    statusEl.textContent = text;
+    statusEl.className = `pdf-redact-status ${type}`;
+  }
+
+  function updateProgress(percent: number, message: string) {
+    progressBar.style.display = 'block';
+    progressFill.style.width = `${percent * 100}%`;
+    progressText.textContent = message;
+  }
+
+  function hideProgress() {
+    progressBar.style.display = 'none';
+    progressFill.style.width = '0%';
+  }
+
+  function updatePageInfo() {
+    pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+    pageInput.value = String(currentPage);
+    pageInput.max = String(totalPages);
+    prevBtn.disabled = currentPage <= 1;
+    nextBtn.disabled = currentPage >= totalPages;
+  }
+
+  function updateRedactionList() {
+    const pageRedactions = redactions.filter(r => r.page === currentPage);
+    redactionList.innerHTML = '';
+    if (pageRedactions.length === 0) {
+      redactionList.innerHTML = '<div class="redaction-empty">No redactions on this page</div>';
+      return;
+    }
+    for (const r of pageRedactions) {
+      const div = document.createElement('div');
+      div.className = `redaction-item ${r === selectedRedaction ? 'selected' : ''}`;
+      div.innerHTML = `
+        <span>Redaction #${redactions.indexOf(r) + 1}</span>
+        <button class="redaction-delete" data-id="${r.id}" aria-label="Delete">✕</button>
+      `;
+      div.addEventListener('click', (e) => {
+        if ((e.target as HTMLElement).classList.contains('redaction-delete')) return;
+        selectRedaction(r);
+      });
+      div.querySelector('.redaction-delete')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        deleteRedaction(r.id);
+      });
+      redactionList.appendChild(div);
+    }
+  }
+
+  function selectRedaction(r: Redaction | null) {
+    selectedRedaction = r;
+    updateRedactionList();
+    renderRedactions();
+  }
+
+  function deleteRedaction(id: string) {
+    redactions = redactions.filter(r => r.id !== id);
+    if (selectedRedaction?.id === id) selectedRedaction = null;
+    updateRedactionList();
+    renderRedactions();
+    setStatus(`Deleted redaction. ${redactions.length} total.`, 'info');
+  }
+
+  function clearAllRedactions() {
+    redactions = [];
+    selectedRedaction = null;
+    updateRedactionList();
+    renderRedactions();
+    setStatus('All redactions cleared', 'info');
+  }
+
+  function renderRedactions() {
+    overlay.innerHTML = '';
+    const pageRedactions = redactions.filter(r => r.page === currentPage);
+    const rect = canvas.getBoundingClientRect();
+
+    for (const r of pageRedactions) {
+      const div = document.createElement('div');
+      div.className = `redaction-box ${r === selectedRedaction ? 'selected' : ''}`;
+      div.style.left = `${r.x}px`;
+      div.style.top = `${r.y}px`;
+      div.style.width = `${r.width}px`;
+      div.style.height = `${r.height}px`;
+      div.dataset.id = r.id;
+
+      // Resize handles
+      const handles = ['nw', 'ne', 'sw', 'se'];
+      for (const h of handles) {
+        const handle = document.createElement('div');
+        handle.className = `redaction-handle ${h}`;
+        handle.dataset.handle = h;
+        div.appendChild(handle);
+      }
+
+      overlay.appendChild(div);
+    }
+  }
+
+  async function renderPage() {
+    if (!pdfjsDoc) return;
+
+    const page = await pdfjsDoc.getPage(currentPage);
+    const viewport = page.getViewport({ scale });
+
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+    canvas.style.width = `${viewport.width}px`;
+    canvas.style.height = `${viewport.height}px`;
+
+    const context = canvas.getContext('2d')!;
+    context.clearRect(0, 0, canvas.width, canvas.height);
+
+    await page.render({ canvasContext: context, viewport }).promise;
+
+    renderRedactions();
+    page.cleanup();
+  }
+
+  async function loadPdf(file: File) {
+    try {
+      setStatus('Loading PDF...', 'info');
+
+      pdfjsLib = await loadPdfJs();
+      const arrayBuffer = await file.arrayBuffer();
+      pdfjsDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      totalPages = pdfjsDoc.numPages;
+      currentPage = 1;
+      scale = 1;
+      redactions = [];
+      selectedRedaction = null;
+
+      updatePageInfo();
+      await renderPage();
+      updateRedactionList();
+
+      fileName.textContent = file.name;
+      fileBtn.style.display = 'none';
+      applyBtn.disabled = false;
+      clearBtn.disabled = false;
+      downloadBtn.disabled = true;
+
+      setStatus(`Loaded ${totalPages} page(s). Click and drag to draw redaction boxes.`, 'success');
+    } catch (e) {
+      setStatus(`Failed to load PDF: ${e instanceof Error ? e.message : 'Unknown error'}`, 'error');
+    }
+  }
+
+  function getCanvasPoint(clientX: number, clientY: number): { x: number; y: number } {
+    const rect = canvas.getBoundingClientRect();
+    return {
+      x: clientX - rect.left,
+      y: clientY - rect.top,
+    };
+  }
+
+  // Mouse events for drawing
+  canvas.addEventListener('mousedown', (e) => {
+    if (!pdfjsDoc) return;
+    if (e.button !== 0) return;
+
+    const pt = getCanvasPoint(e.clientX, e.clientY);
+    isDrawing = true;
+    startX = pt.x;
+    startY = pt.y;
+    currentRect = {
+      page: currentPage,
+      x: pt.x,
+      y: pt.y,
+      width: 0,
+      height: 0,
+      id: `redact-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+    };
+    canvas.style.cursor = 'crosshair';
+  });
+
+  canvas.addEventListener('mousemove', (e) => {
+    if (!isDrawing || !currentRect) return;
+
+    const pt = getCanvasPoint(e.clientX, e.clientY);
+    currentRect.width = pt.x - startX;
+    currentRect.height = pt.y - startY;
+
+    // Normalize negative dimensions
+    if (currentRect.width < 0) {
+      currentRect.x += currentRect.width;
+      currentRect.width = Math.abs(currentRect.width);
+    }
+    if (currentRect.height < 0) {
+      currentRect.y += currentRect.height;
+      currentRect.height = Math.abs(currentRect.height);
+    }
+
+    renderRedactions();
+  });
+
+  canvas.addEventListener('mouseup', () => {
+    if (!isDrawing || !currentRect) return;
+    isDrawing = false;
+    canvas.style.cursor = 'default';
+
+    // Only keep if large enough
+    if (currentRect.width > 5 && currentRect.height > 5) {
+      redactions.push(currentRect);
+      selectRedaction(currentRect);
+      setStatus(`Added redaction. Total: ${redactions.length}`, 'info');
+    }
+    currentRect = null;
+  });
+
+  canvas.addEventListener('mouseleave', () => {
+    if (isDrawing && currentRect) {
+      isDrawing = false;
+      canvas.style.cursor = 'default';
+      currentRect = null;
+      renderRedactions();
+    }
+  });
+
+  // Handle resize handles
+  overlay.addEventListener('mousedown', (e) => {
+    const target = e.target as HTMLElement;
+    if (!target.classList.contains('redaction-handle')) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    const box = target.closest('.redaction-box') as HTMLDivElement;
+    const id = box.dataset.id;
+    const redaction = redactions.find(r => r.id === id);
+    if (!redaction) return;
+
+    selectRedaction(redaction);
+
+    const handle = target.dataset.handle!;
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const startRect = { ...redaction };
+
+    function onMove(e: MouseEvent) {
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+
+      if (handle.includes('w')) {
+        redaction.x = startRect.x + dx;
+        redaction.width = startRect.width - dx;
+      }
+      if (handle.includes('e')) {
+        redaction.width = startRect.width + dx;
+      }
+      if (handle.includes('n')) {
+        redaction.y = startRect.y + dy;
+        redaction.height = startRect.height - dy;
+      }
+      if (handle.includes('s')) {
+        redaction.height = startRect.height + dy;
+      }
+
+      // Normalize
+      if (redaction.width < 0) { redaction.x += redaction.width; redaction.width = Math.abs(redaction.width); }
+      if (redaction.height < 0) { redaction.y += redaction.height; redaction.height = Math.abs(redaction.height); }
+
+      renderRedactions();
+    }
+
+    function onUp() {
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    }
+
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+
+  // Navigation
+  prevBtn.addEventListener('click', async () => {
+    if (currentPage > 1) {
+      currentPage--;
+      await renderPage();
+      updatePageInfo();
+      updateRedactionList();
+    }
+  });
+
+  nextBtn.addEventListener('click', async () => {
+    if (currentPage < totalPages) {
+      currentPage++;
+      await renderPage();
+      updatePageInfo();
+      updateRedactionList();
+    }
+  });
+
+  pageInput.addEventListener('change', async () => {
+    const page = Number(pageInput.value);
+    if (page >= 1 && page <= totalPages && page !== currentPage) {
+      currentPage = page;
+      await renderPage();
+      updatePageInfo();
+      updateRedactionList();
+    }
+  });
+
+  // Zoom
+  function setZoom(newScale: number) {
+    scale = Math.max(0.25, Math.min(4, newScale));
+    renderPage();
+  }
+
+  zoomInBtn.addEventListener('click', () => setZoom(scale * 1.25));
+  zoomOutBtn.addEventListener('click', () => setZoom(scale / 1.25));
+  zoomResetBtn.addEventListener('click', () => setZoom(1));
+
+  // File input
+  fileBtn.addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files?.[0]) loadPdf(fileInput.files[0]);
+  });
+
+  // Clear
+  clearBtn.addEventListener('click', clearAllRedactions);
+
+  // Apply redactions
+  applyBtn.addEventListener('click', async () => {
+    if (redactions.length === 0) {
+      setStatus('No redactions to apply', 'error');
+      return;
+    }
+
+    try {
+      setStatus('Applying redactions...', 'info');
+      applyBtn.disabled = true;
+      updateProgress(0, 'Preparing...');
+
+      // Get original file data
+      const file = fileInput.files?.[0];
+      if (!file) throw new Error('No file loaded');
+
+      // Convert canvas coordinates to PDF points (72 DPI)
+      const pdfRedactions = redactions.map(r => ({
+        pageIndex: r.page - 1,
+        x: r.x / scale,
+        y: r.y / scale,
+        width: r.width / scale,
+        height: r.height / scale,
+      }));
+
+      controller?.abort();
+      const generation = ++runGeneration;
+      controller = new AbortController();
+
+      const result = await runToolById<FileRunResult>(
+        'pdf-redact',
+        {
+          files: [file],
+          options: {
+            redactionColor: colorSelect.value,
+            dpi: Number(dpiSelect.value),
+            redactions: JSON.stringify(pdfRedactions),
+          },
+        },
+        {
+          signal: controller.signal,
+          onProgress: (fraction, message) => {
+            if (generation !== runGeneration) return;
+            updateProgress(fraction, message || `Processing... ${Math.round(fraction * 100)}%`);
+          },
+        }
+      );
+
+      if (generation !== runGeneration) return;
+
+      // Download the result
+      if (result.outputs && result.outputs.length > 0) {
+        const output = result.outputs[0];
+        const url = URL.createObjectURL(output.blob);
+        outputUrls.add(url);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = output.filename;
+        a.click();
+      }
+
+      downloadBtn.disabled = false;
+      setStatus('Redacted PDF downloaded!', 'success');
+    } catch (e) {
+      if (generation !== runGeneration) return;
+      const err = e as Error & { hint?: string };
+      if (err.name !== 'AbortError') {
+        setStatus(`Redaction failed: ${err.message || 'Unknown error'}`, 'error');
+      } else {
+        setStatus('Cancelled', 'idle');
+      }
+    } finally {
+      if (generation === runGeneration) {
+        applyBtn.disabled = false;
+        hideProgress();
+        controller = null;
+      }
+    }
+  });
+
+  // Drag and drop
+  const dropZone = document.getElementById('pdf-redact-dropzone') as HTMLDivElement;
+  dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropZone.classList.add('dragover');
+  });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+  dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+    if (e.dataTransfer.files[0]) loadPdf(e.dataTransfer.files[0]);
+  });
+
+  // Keyboard shortcuts
+  document.addEventListener('keydown', (e) => {
+    if (e.target instanceof HTMLInputElement) return;
+    if (e.key === 'ArrowLeft') prevBtn.click();
+    if (e.key === 'ArrowRight') nextBtn.click();
+    if (e.key === 'Delete' && selectedRedaction) deleteRedaction(selectedRedaction.id);
+    if (e.key === 'Escape') selectRedaction(null);
+  });
+
+  window.addEventListener(
+    'beforeunload',
+    () => {
+      controller?.abort();
+      runGeneration += 1;
+      for (const url of outputUrls) URL.revokeObjectURL(url);
+    },
+    { once: true },
+  );
+</script>
+
+<div class="pdf-redact-panel">
+  <div class="pdf-redact-header">
+    <h2>PDF Redact</h2>
+    <p class="pdf-redact-desc">Draw boxes to permanently redact sensitive content</p>
+  </div>
+
+  <div id="pdf-redact-dropzone" class="pdf-redact-dropzone">
+    <div class="pdf-redact-toolbar">
+      <div class="toolbar-group">
+        <button id="pdf-redact-file-btn" class="btn btn-secondary">📄 Choose PDF</button>
+        <input type="file" id="pdf-redact-file" accept="application/pdf" hidden>
+        <span id="pdf-redact-filename" class="pdf-redact-filename"></span>
+      </div>
+
+      <div class="toolbar-group">
+        <button id="pdf-redact-prev" class="btn btn-sm" disabled aria-label="Previous page">←</button>
+        <span id="pdf-redact-page-info" class="pdf-redact-page-info">No PDF loaded</span>
+        <input type="number" id="pdf-redact-page" class="pdf-redact-page-input" min="1" value="1" disabled>
+        <button id="pdf-redact-next" class="btn btn-sm" disabled aria-label="Next page">→</button>
+      </div>
+
+      <div class="toolbar-group">
+        <button id="pdf-redact-zoom-out" class="btn btn-sm" aria-label="Zoom out">−</button>
+        <button id="pdf-redact-zoom-reset" class="btn btn-sm" aria-label="Reset zoom">100%</button>
+        <button id="pdf-redact-zoom-in" class="btn btn-sm" aria-label="Zoom in">+</button>
+      </div>
+    </div>
+
+    <div class="pdf-redact-canvas-container">
+      <canvas id="pdf-redact-canvas"></canvas>
+      <div id="pdf-redact-overlay" class="pdf-redact-overlay"></div>
+    </div>
+
+    <div class="pdf-redact-sidebar">
+      <div class="sidebar-section">
+        <h4>Redactions on this page</h4>
+        <div id="pdf-redact-list" class="redaction-list"></div>
+      </div>
+
+      <div class="sidebar-section">
+        <h4>Settings</h4>
+        <div class="setting">
+          <label for="pdf-redact-color">Redaction Color</label>
+          <select id="pdf-redact-color">
+            <option value="black">Black</option>
+            <option value="white">White</option>
+            <option value="red">Red</option>
+          </select>
+        </div>
+        <div class="setting">
+          <label for="pdf-redact-dpi">Rasterization DPI</label>
+          <select id="pdf-redact-dpi">
+            <option value="72">72 DPI</option>
+            <option value="150" selected>150 DPI</option>
+            <option value="300">300 DPI</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <button id="pdf-redact-apply" class="btn btn-primary btn-block" disabled>Apply Redactions</button>
+        <button id="pdf-redact-clear" class="btn btn-secondary btn-block" disabled>Clear All</button>
+        <button id="pdf-redact-download" class="btn btn-accent btn-block" disabled>Download Redacted PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="pdf-redact-warning">
+    ⚠️ <strong>Warning:</strong> Redacted pages are rasterized and lose their text layer. Text under redactions cannot be recovered. Keep a backup of the original.
+  </div>
+
+  <div id="pdf-redact-progress" class="pdf-redact-progress" style="display: none;">
+    <div id="pdf-redact-progress-fill" class="pdf-redact-progress-fill"></div>
+  </div>
+  <div id="pdf-redact-progress-text" class="pdf-redact-progress-text"></div>
+
+  <div id="pdf-redact-status" class="pdf-redact-status idle">Drop a PDF file or click "Choose PDF" to begin</div>
+</div>
+
+<style>
+  .pdf-redact-panel { display: flex; flex-direction: column; gap: 1rem; padding: 1rem; max-width: 1200px; margin: 0 auto; }
+  .pdf-redact-header { text-align: center; }
+  .pdf-redact-header h2 { margin: 0 0 0.25rem; font-size: 1.5rem; }
+  .pdf-redact-desc { color: var(--muted); margin: 0; font-size: 0.875rem; }
+
+  .pdf-redact-dropzone {
+    display: flex; flex-direction: column; gap: 1rem;
+    border: 2px dashed var(--border); border-radius: 8px;
+    background: var(--bg-elevated); transition: border-color 0.15s, background 0.15s;
+  }
+  .pdf-redact-dropzone.dragover { border-color: var(--accent); background: rgba(var(--accent-rgb), 0.05); }
+
+  .pdf-redact-toolbar {
+    display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; justify-content: space-between;
+    padding: 1rem; border-bottom: 1px solid var(--border);
+  }
+  .toolbar-group { display: flex; align-items: center; gap: 0.5rem; }
+  .pdf-redact-filename { font-size: 0.875rem; color: var(--muted); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  .pdf-redact-page-info { font-weight: 600; min-width: 120px; text-align: center; }
+  .pdf-redact-page-input { width: 60px; text-align: center; padding: 0.375rem; border: 1px solid var(--border); border-radius: 4px; background: var(--bg); color: var(--fg); }
+
+  .pdf-redact-canvas-container { position: relative; flex: 1; background: #1e293b; border-radius: 0 0 8px 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; min-height: 500px; }
+  .pdf-redact-canvas-container canvas { display: block; box-shadow: 0 4px 20px rgba(0,0,0,0.3); max-width: 100%; max-height: 70vh; }
+  .pdf-redact-overlay { position: absolute; top: 0; left: 0; pointer-events: none; }
+
+  .redaction-box {
+    position: absolute; border: 2px solid var(--accent); background: rgba(var(--accent-rgb), 0.15);
+    pointer-events: auto; cursor: move; box-sizing: border-box;
+  }
+  .redaction-box.selected { border-color: #fbbf24; background: rgba(251, 191, 36, 0.2); }
+  .redaction-handle {
+    position: absolute; width: 10px; height: 10px; background: var(--accent); border: 2px solid var(--bg); border-radius: 2px;
+    transform: translate(-50%, -50%);
+  }
+  .redaction-handle.nw { top: 0; left: 0; cursor: nwse-resize; }
+  .redaction-handle.ne { top: 0; right: 0; cursor: nesw-resize; }
+  .redaction-handle.sw { bottom: 0; left: 0; cursor: nesw-resize; }
+  .redaction-handle.se { bottom: 0; right: 0; cursor: nwse-resize; }
+
+  .pdf-redact-sidebar { display: flex; flex-direction: column; gap: 1.5rem; }
+  .sidebar-section { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; }
+  .sidebar-section h4 { margin: 0 0 0.75rem; font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+  .redaction-list { display: flex; flex-direction: column; gap: 0.5rem; max-height: 200px; overflow-y: auto; }
+  .redaction-item { display: flex; align-items: center; justify-content: space-between; padding: 0.5rem; background: var(--bg); border: 1px solid var(--border); border-radius: 4px; font-size: 0.875rem; }
+  .redaction-item.selected { border-color: var(--accent); }
+  .redaction-delete { background: none; border: none; color: var(--muted); cursor: pointer; padding: 0.25rem; font-size: 0.75rem; }
+  .redaction-delete:hover { color: #ef4444; }
+  .redaction-empty { color: var(--muted); font-size: 0.875rem; text-align: center; padding: 1rem; }
+
+  .setting { display: flex; flex-direction: column; gap: 0.25rem; }
+  .setting label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+  .setting select { padding: 0.5rem; border: 1px solid var(--border); border-radius: 4px; background: var(--bg); color: var(--fg); }
+
+  .btn { padding: 0.5rem 1rem; border-radius: 4px; font-weight: 600; font-size: 0.875rem; cursor: pointer; border: none; transition: all 0.15s; display: inline-flex; align-items: center; gap: 0.5rem; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-sm { padding: 0.375rem 0.75rem; font-size: 0.8125rem; }
+  .btn-block { width: 100%; justify-content: center; }
+  .btn-primary { background: var(--accent); color: var(--accent-fg); }
+  .btn-primary:hover:not(:disabled) { filter: brightness(1.1); }
+  .btn-secondary { background: var(--bg-elevated); color: var(--fg); border: 1px solid var(--border); }
+  .btn-secondary:hover:not(:disabled) { background: var(--bg-hover); }
+  .btn-accent { background: var(--fg); color: var(--bg); }
+  .btn-accent:hover:not(:disabled) { background: var(--fg-hover); }
+
+  .pdf-redact-warning {
+    background: #fef3c7; border: 1px solid #fcd34d; color: #92400e; padding: 1rem; border-radius: 8px;
+    font-size: 0.875rem; display: flex; align-items: flex-start; gap: 0.75rem;
+  }
+  .pdf-redact-status { text-align: center; padding: 0.75rem; border-radius: 6px; font-size: 0.875rem; transition: all 0.15s; }
+  .pdf-redact-status.idle { background: var(--bg-elevated); color: var(--muted); border: 1px solid var(--border); }
+  .pdf-redact-status.active { background: rgba(34, 197, 94, 0.1); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.3); }
+  .pdf-redact-status.error { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+  .pdf-redact-status.info { background: rgba(59, 130, 246, 0.1); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); }
+  .pdf-redact-status.success { background: rgba(34, 197, 94, 0.1); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.3); }
+
+  .pdf-redact-progress { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin-top: 0.5rem; }
+  .pdf-redact-progress-fill { height: 100%; width: 0%; background: var(--accent); transition: width 0.2s ease; border-radius: 3px; }
+  .pdf-redact-progress-text { text-align: center; margin-top: 0.5rem; font-size: 0.875rem; color: var(--muted); min-height: 1.25rem; }
+
+  @media (min-width: 900px) {
+    .pdf-redact-dropzone { flex-direction: row; }
+    .pdf-redact-sidebar { width: 300px; flex-shrink: 0; }
+    .pdf-redact-canvas-container { flex: 1; }
+  }
+</style>

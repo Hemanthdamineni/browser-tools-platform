@@ -34,7 +34,8 @@ export const meta: ToolMeta = {
     },
   ],
   examples: [{ title: 'Compress a file' }],
-  related: ['zip-create', 'base64'],
+  related: [  "zip-create",
+  "base64"],
   credits: [{ name: 'fflate', url: 'https://github.com/101arrowz/fflate', license: 'MIT' }],
   status: 'stable',
 };

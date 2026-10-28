@@ -47,7 +47,7 @@ export const meta: ToolMeta = {
       placeholder: 'e.g. ABCDEF0123456789',
       showWhen: { key: 'charset', value: 'custom' },
     },
-    { key: 'count', label: 'How many', type: 'number', default: 1, min: 1, max: 200 },
+    { key: 'count', label: 'How many', type: 'number', default: 1, min: 1 },
   ],
   examples: [
     { title: '32-char alphanumeric', options: { length: 32, charset: 'alphanumeric' } },
@@ -68,6 +68,8 @@ export const meta: ToolMeta = {
       a: 'Yes — the randomness comes from crypto.getRandomValues, the same CSPRNG used for cryptographic keys. The entropy figure shown is log2(set size) × length.',
     },
   ],
-  related: ['password', 'passphrase', 'uuid'],
+  related: [  "password",
+  "passphrase",
+  "uuid"],
   status: 'stable',
 };

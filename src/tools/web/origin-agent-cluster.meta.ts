@@ -49,6 +49,8 @@ export const meta: ToolMeta = {
       a: 'Changing the value across responses can create compatibility issues; deploy consistently and test pages that use document.domain or related legacy behavior.',
     },
   ],
-  related: ['permissions-policy', 'security-headers', 'content-security-policy'],
+  related: [  "permissions-policy",
+  "security-headers",
+  "content-security-policy"],
   status: 'stable',
 };

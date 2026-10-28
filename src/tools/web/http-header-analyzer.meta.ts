@@ -123,12 +123,10 @@ export const meta: ToolMeta = {
       a: 'Yes. Paste the raw response head, status line and body included: the status line and the body are ignored and only the headers are analyzed.',
     },
   ],
-  related: [
-    'http-request-builder',
-    'security-headers',
-    'cache-headers',
-    'cors-headers',
-    'conditional-request-headers',
-  ],
+  related: [  "http-request-builder",
+  "security-headers",
+  "cache-headers",
+  "cors-headers",
+  "conditional-request-headers"],
   status: 'beta',
 };

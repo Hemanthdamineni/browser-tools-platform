@@ -120,12 +120,7 @@ export function resolveAlignment(value: unknown): Alignment {
 }
 
 /** Validate a numeric option, rejecting blanks and out-of-range values. */
-export function resolveNumber(
-  value: unknown,
-  label: string,
-  min: number,
-  max: number,
-): number {
+export function resolveNumber(value: unknown, label: string, min: number, max: number): number {
   if (typeof value === 'string' && value.trim() === '') {
     throw new ToolError(`Enter a number for the ${label}.`);
   }

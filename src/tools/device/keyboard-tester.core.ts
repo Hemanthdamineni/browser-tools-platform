@@ -1,12 +1,17 @@
 /**
  * Pure keyboard logic for the keyboard tester.
- *
- * Nothing in this file touches the DOM: the on-screen layout, the description
- * of a key event and the rollover (ghosting) verdict are all plain data, so
- * they can be unit-tested without a browser. The panel module owns the
- * listeners and the DOM; this module owns the rules.
  */
 import { ToolError } from '@/lib/types';
+import type { OptionValues, TextRunResult } from '@/lib/types';
+
+const HEADERS = ['Combination', 'Result', 'Missing', 'Down together', 'When (UTC)'];
+
+/** Clamp a numeric option into a sane range. */
+function clampInt(value: unknown, min: number, max: number, fallback: number): number {
+  const n = Number(value);
+  if (isNaN(n)) return fallback;
+  return Math.min(Math.max(n, min), max);
+}
 
 /* -------------------------------------------------------------------------- */
 /*  The on-screen layout                                                       */
@@ -14,54 +19,43 @@ import { ToolError } from '@/lib/types';
 
 /** One key on the on-screen layout. */
 export interface KeyDef {
-  /** `KeyboardEvent.code` — the physical position of the key. */
   code: string;
-  /** The text drawn on the keycap. */
   label: string;
-  /**
-   * The accessible name. It contains `label`, so the visible text stays part
-   * of the announced name (WCAG 2.5.3, label in name). Defaults to `label`.
-   */
-  name?: string;
-  /** The key value the browser reports for this key, e.g. 'a' or 'Enter'. */
-  base?: string;
-  /** The character the key produces while Shift is held. */
-  shifted?: string;
-  /** Width in key units — 1u is one letter key. */
-  width: number;
+  altLabel?: string;
+  row: number;
+  col: number;
 }
 
 /** A horizontal run of keys. */
 export interface KeyRow {
-  /** Stable identifier, e.g. 'number'. */
   id: string;
-  /** The keys, left to right. */
   keys: KeyDef[];
 }
 
 /** The letter keys of a row, in QWERTY order. */
 function letterKeys(letters: string): KeyDef[] {
-  return [...letters].map((ch) => ({
-    code: `Key${ch}`,
-    label: ch,
-    name: `Key ${ch}`,
-    base: ch.toLowerCase(),
-    shifted: ch,
-    width: 1,
+  return letters.split('').map((letter, i) => ({
+    code: letter.toUpperCase(),
+    label: letter.toUpperCase(),
+    row: 0,
+    col: i,
   }));
 }
 
 /** The number keys, with the US layout's shifted symbols. */
 function digitKeys(): KeyDef[] {
-  const shifted = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')'];
-  return [1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map((n, i) => ({
-    code: `Digit${n}`,
-    label: String(n),
-    name: `Key ${n}`,
-    base: String(n),
-    shifted: shifted[i] ?? '',
-    width: 1,
-  }));
+  return [
+    { code: 'Digit0', label: '0', altLabel: ')', row: 1, col: 0 },
+    { code: 'Digit1', label: '1', altLabel: '!', row: 1, col: 1 },
+    { code: 'Digit2', label: '2', altLabel: '@', row: 1, col: 2 },
+    { code: 'Digit3', label: '3', altLabel: '#', row: 1, col: 3 },
+    { code: 'Digit4', label: '4', altLabel: '$', row: 1, col: 4 },
+    { code: 'Digit5', label: '5', altLabel: '%', row: 1, col: 5 },
+    { code: 'Digit6', label: '6', altLabel: '^', row: 1, col: 6 },
+    { code: 'Digit7', label: '7', altLabel: '&', row: 1, col: 7 },
+    { code: 'Digit8', label: '8', altLabel: '*', row: 1, col: 8 },
+    { code: 'Digit9', label: '9', altLabel: '(', row: 1, col: 9 },
+  ];
 }
 
 /**
@@ -72,75 +66,166 @@ export const KEYBOARD_LAYOUT: KeyRow[] = [
   {
     id: 'function',
     keys: [
-      { code: 'Escape', label: 'Esc', name: 'Escape', base: 'Escape', width: 1 },
-      ...Array.from({ length: 12 }, (_, i) => ({
-        code: `F${i + 1}`,
-        label: `F${i + 1}`,
-        base: `F${i + 1}`,
-        width: 1,
-      })),
+      { code: 'F1', label: 'F1', row: 0, col: 0 },
+      { code: 'F2', label: 'F2', row: 0, col: 1 },
+      { code: 'F3', label: 'F3', row: 0, col: 2 },
+      { code: 'F4', label: 'F4', row: 0, col: 3 },
+      { code: 'F5', label: 'F5', row: 0, col: 4 },
+      { code: 'F6', label: 'F6', row: 0, col: 5 },
+      { code: 'F7', label: 'F7', row: 0, col: 6 },
+      { code: 'F8', label: 'F8', row: 0, col: 7 },
+      { code: 'F9', label: 'F9', row: 0, col: 8 },
+      { code: 'F10', label: 'F10', row: 0, col: 9 },
+      { code: 'F11', label: 'F11', row: 0, col: 10 },
+      { code: 'F12', label: 'F12', row: 0, col: 11 },
+      { code: 'PrintScreen', label: 'Print', row: 0, col: 12 },
+      { code: 'ScrollLock', label: 'Scroll', row: 0, col: 13 },
+      { code: 'Pause', label: 'Pause', row: 0, col: 14 },
     ],
   },
   {
-    id: 'number',
+    id: 'main',
     keys: [
-      { code: 'Backquote', label: '`', base: '`', shifted: '~', width: 1 },
-      ...digitKeys(),
-      { code: 'Minus', label: '-', base: '-', shifted: '_', width: 1 },
-      { code: 'Equal', label: '=', base: '=', shifted: '+', width: 1 },
-      { code: 'Backspace', label: 'Backspace', base: 'Backspace', width: 2 },
+      { code: 'Backquote', label: '`', altLabel: '~', row: 1, col: 0 },
+      { code: 'Digit1', label: '1', altLabel: '!', row: 1, col: 1 },
+      { code: 'Digit2', label: '2', altLabel: '@', row: 1, col: 2 },
+      { code: 'Digit3', label: '3', altLabel: '#', row: 1, col: 3 },
+      { code: 'Digit4', label: '4', altLabel: '$', row: 1, col: 4 },
+      { code: 'Digit5', label: '5', altLabel: '%', row: 1, col: 5 },
+      { code: 'Digit6', label: '6', altLabel: '^', row: 1, col: 6 },
+      { code: 'Digit7', label: '7', altLabel: '&', row: 1, col: 7 },
+      { code: 'Digit8', label: '8', altLabel: '*', row: 1, col: 8 },
+      { code: 'Digit9', label: '9', altLabel: '(', row: 1, col: 9 },
+      { code: 'Digit0', label: '0', altLabel: ')', row: 1, col: 10 },
+      { code: 'Minus', label: '-', altLabel: '_', row: 1, col: 11 },
+      { code: 'Equal', label: '=', altLabel: '+', row: 1, col: 12 },
+      { code: 'Backspace', label: '⌫', row: 1, col: 13 },
+      { code: 'Insert', label: 'Ins', row: 1, col: 14 },
     ],
   },
   {
-    id: 'qwerty',
+    id: 'main',
     keys: [
-      { code: 'Tab', label: 'Tab', base: 'Tab', width: 1.5 },
-      ...letterKeys('QWERTYUIOP'),
-      { code: 'BracketLeft', label: '[', base: '[', shifted: '{', width: 1 },
-      { code: 'BracketRight', label: ']', base: ']', shifted: '}', width: 1 },
-      { code: 'Backslash', label: '\\', base: '\\', shifted: '|', width: 1.5 },
+      { code: 'Tab', label: 'Tab', row: 2, col: 0 },
+      { code: 'KeyQ', label: 'Q', row: 2, col: 1 },
+      { code: 'KeyW', label: 'W', row: 2, col: 2 },
+      { code: 'KeyE', label: 'E', row: 2, col: 3 },
+      { code: 'KeyR', label: 'R', row: 2, col: 4 },
+      { code: 'KeyT', label: 'T', row: 2, col: 5 },
+      { code: 'KeyY', label: 'Y', row: 2, col: 6 },
+      { code: 'KeyU', label: 'U', row: 2, col: 7 },
+      { code: 'KeyI', label: 'I', row: 2, col: 8 },
+      { code: 'KeyO', label: 'O', row: 2, col: 9 },
+      { code: 'KeyP', label: 'P', row: 2, col: 10 },
+      { code: 'BracketLeft', label: '[', altLabel: '{', row: 2, col: 11 },
+      { code: 'BracketRight', label: ']', altLabel: '}', row: 2, col: 12 },
+      { code: 'Backslash', label: '\\', altLabel: '|', row: 2, col: 13 },
+      { code: 'Delete', label: 'Del', row: 2, col: 14 },
     ],
   },
   {
-    id: 'asdf',
+    id: 'main',
     keys: [
-      { code: 'CapsLock', label: 'Caps', name: 'Caps Lock', base: 'CapsLock', width: 1.75 },
-      ...letterKeys('ASDFGHJKL'),
-      { code: 'Semicolon', label: ';', base: ';', shifted: ':', width: 1 },
-      { code: 'Quote', label: "'", base: "'", shifted: '"', width: 1 },
-      { code: 'Enter', label: 'Enter', base: 'Enter', width: 2.25 },
+      { code: 'CapsLock', label: 'Caps', row: 3, col: 0 },
+      { code: 'KeyA', label: 'A', row: 3, col: 1 },
+      { code: 'KeyS', label: 'S', row: 3, col: 2 },
+      { code: 'KeyD', label: 'D', row: 3, col: 3 },
+      { code: 'KeyF', label: 'F', row: 3, col: 4 },
+      { code: 'KeyG', label: 'G', row: 3, col: 5 },
+      { code: 'KeyH', label: 'H', row: 3, col: 6 },
+      { code: 'KeyJ', label: 'J', row: 3, col: 7 },
+      { code: 'KeyK', label: 'K', row: 3, col: 8 },
+      { code: 'KeyL', label: 'L', row: 3, col: 9 },
+      { code: 'Semicolon', label: ';', altLabel: ':', row: 3, col: 10 },
+      { code: 'Quote', label: "'", altLabel: '"', row: 3, col: 11 },
+      { code: 'Enter', label: '↵', row: 3, col: 12 },
+      { code: 'PageUp', label: 'PgUp', row: 3, col: 13 },
+      { code: 'PageDown', label: 'PgDn', row: 3, col: 14 },
     ],
   },
   {
-    id: 'zxcv',
+    id: 'main',
     keys: [
-      { code: 'ShiftLeft', label: 'Shift', name: 'Left Shift', base: 'Shift', width: 2.25 },
-      ...letterKeys('ZXCVBNM'),
-      { code: 'Comma', label: ',', base: ',', shifted: '<', width: 1 },
-      { code: 'Period', label: '.', base: '.', shifted: '>', width: 1 },
-      { code: 'Slash', label: '/', base: '/', shifted: '?', width: 1 },
-      { code: 'ShiftRight', label: 'Shift', name: 'Right Shift', base: 'Shift', width: 2.75 },
+      { code: 'ShiftLeft', label: 'Shift', altLabel: '⇧', row: 4, col: 0 },
+      { code: 'KeyZ', label: 'Z', row: 4, col: 1 },
+      { code: 'KeyX', label: 'X', row: 4, col: 2 },
+      { code: 'KeyC', label: 'C', row: 4, col: 3 },
+      { code: 'KeyV', label: 'V', row: 4, col: 4 },
+      { code: 'KeyB', label: 'B', row: 4, col: 5 },
+      { code: 'KeyN', label: 'N', row: 4, col: 6 },
+      { code: 'KeyM', label: 'M', row: 4, col: 7 },
+      { code: 'Comma', label: ',', altLabel: '<', row: 4, col: 8 },
+      { code: 'Period', label: '.', altLabel: '>', row: 4, col: 9 },
+      { code: 'Slash', label: '/', altLabel: '?', row: 4, col: 10 },
+      { code: 'ShiftRight', label: 'Shift', altLabel: '⇧', row: 4, col: 11 },
+      { code: 'ArrowUp', label: '↑', row: 4, col: 12 },
+      { code: 'Up', label: 'Up', row: 4, col: 13 },
+      { code: 'Down', label: 'Down', row: 4, col: 14 },
     ],
   },
   {
-    id: 'bottom',
+    id: 'main',
     keys: [
-      { code: 'ControlLeft', label: 'Ctrl', name: 'Left Ctrl', base: 'Control', width: 1.25 },
-      { code: 'MetaLeft', label: 'Meta', name: 'Left Meta', base: 'Meta', width: 1.25 },
-      { code: 'AltLeft', label: 'Alt', name: 'Left Alt', base: 'Alt', width: 1.25 },
-      { code: 'Space', label: 'Space', base: ' ', width: 6.25 },
-      { code: 'AltRight', label: 'Alt', name: 'Right Alt', base: 'Alt', width: 1.25 },
-      { code: 'MetaRight', label: 'Meta', name: 'Right Meta', base: 'Meta', width: 1.25 },
-      { code: 'ContextMenu', label: 'Menu', base: 'ContextMenu', width: 1.25 },
-      { code: 'ControlRight', label: 'Ctrl', name: 'Right Ctrl', base: 'Control', width: 1.25 },
+      { code: 'ControlLeft', label: 'Ctrl', row: 5, col: 0 },
+      { code: 'MetaLeft', label: '⌘', row: 5, col: 1 },
+      { code: 'AltLeft', label: 'Alt', row: 5, col: 2 },
+      { code: 'Space', label: ' ', row: 5, col: 3 },
+      { code: 'AltRight', label: 'Alt', row: 5, col: 4 },
+      { code: 'MetaRight', label: '⌘', row: 5, col: 5 },
+      { code: 'ControlRight', label: 'Ctrl', row: 5, col: 6 },
+      { code: 'ArrowLeft', label: '←', row: 5, col: 7 },
+      { code: 'ArrowDown', label: '↓', row: 5, col: 8 },
+      { code: 'ArrowRight', label: '→', row: 5, col: 9 },
+      { code: 'End', label: 'End', row: 5, col: 10 },
+      { code: 'Home', label: 'Home', row: 5, col: 11 },
+      { code: 'Insert', label: 'Ins', row: 5, col: 12 },
+    ],
+  },
+  {
+    id: 'numeric',
+    keys: [
+      { code: 'NumLock', label: 'Num', row: 6, col: 0 },
+      { code: 'NumpadDivide', label: '/', row: 6, col: 1 },
+      { code: 'NumpadMultiply', label: '*', row: 6, col: 2 },
+      { code: 'NumpadSubtract', label: '-', row: 6, col: 3 },
+      { code: 'Numpad7', label: '7', row: 6, col: 4 },
+      { code: 'Numpad8', label: '8', row: 6, col: 5 },
+      { code: 'Numpad9', label: '9', row: 6, col: 6 },
+      { code: 'NumpadAdd', label: '+', row: 6, col: 7 },
+      { code: 'Numpad4', label: '4', row: 6, col: 8 },
+      { code: 'Numpad5', label: '5', row: 6, col: 9 },
+      { code: 'Numpad6', label: '6', row: 6, col: 10 },
+      { code: 'Numpad1', label: '1', row: 6, col: 11 },
+      { code: 'Numpad2', label: '2', row: 6, col: 12 },
+      { code: 'Numpad3', label: '3', row: 6, col: 13 },
+      { code: 'Numpad0', label: '0', row: 6, col: 14 },
+      { code: 'NumpadDecimal', label: '.', row: 6, col: 15 },
+      { code: 'NumpadEqual', label: '=', row: 6, col: 16 },
+      { code: 'NumpadEnter', label: '↵', row: 6, col: 17 },
+      { code: 'NumpadComma', label: ',', row: 6, col: 18 },
+    ],
+  },
+  {
+    id: 'function2',
+    keys: [
+      { code: 'F13', label: 'F13', row: 7, col: 0 },
+      { code: 'F14', label: 'F14', row: 7, col: 1 },
+      { code: 'F15', label: 'F15', row: 7, col: 2 },
+      { code: 'F16', label: 'F16', row: 7, col: 3 },
+      { code: 'F17', label: 'F17', row: 7, col: 4 },
+      { code: 'F18', label: 'F18', row: 7, col: 5 },
+      { code: 'F19', label: 'F19', row: 7, col: 6 },
+      { code: 'F20', label: 'F20', row: 7, col: 7 },
+      { code: 'F21', label: 'F21', row: 7, col: 8 },
+      { code: 'F22', label: 'F22', row: 7, col: 9 },
+      { code: 'F23', label: 'F23', row: 7, col: 10 },
+      { code: 'F24', label: 'F24', row: 7, col: 11 },
     ],
   },
 ];
 
-/** Every key of the layout, flattened. */
 export const ALL_KEYS: KeyDef[] = KEYBOARD_LAYOUT.flatMap((row) => row.keys);
 
-/** The main block of the keyboard — everything except the function row. */
 export const MAIN_ROWS: KeyRow[] = KEYBOARD_LAYOUT.filter((row) => row.id !== 'function');
 
 /** Every known code, indexed by its exact spelling. */
@@ -162,8 +247,8 @@ export const MODIFIER_BY_CODE = new Map<string, string>([
   ['ShiftRight', 'Shift'],
   ['AltLeft', 'Alt'],
   ['AltRight', 'Alt'],
-  ['MetaLeft', 'Meta'],
-  ['MetaRight', 'Meta'],
+  ['MetaLeft', '⌘'],
+  ['MetaRight', '⌘'],
 ]);
 
 /** True when the code is one of the eight modifier keys. */
@@ -173,26 +258,50 @@ export function isModifierCode(code: string): boolean {
 
 /**
  * Resolve a code to the key it refers to.
- *
- * The lookup is forgiving: surrounding whitespace is ignored and the spelling
- * is matched case-insensitively, so ` keya ` finds `KeyA`.
+ */
+export function resolveCode(code: string): KeyDef | undefined {
+  return KEY_BY_CODE.get(code) || KEY_BY_LOWER_CODE.get(code.toLowerCase());
+}
+
+/**
+ * Resolve a code to the key it refers to, or throw.
+ */
+export function resolveCodeOrThrow(code: string): KeyDef {
+  const key = resolveCode(code);
+  if (!key) {
+    throw new ToolError(`Unknown key code: ${code}`);
+  }
+  return key;
+}
+
+/**
+ * Resolve a code to the key it refers to, or return the code unchanged.
+ */
+export function resolveCodeSafe(code: string): string {
+  return resolveCode(code)?.code || code;
+}
+
+/**
+ * Resolve a code to the key it refers to, or return the code unchanged.
+ * Trims whitespace from the input and resolves known aliases.
  */
 export function normalizeCode(code: string): string {
-  const trimmed = (code ?? '').trim();
-  if (!trimmed) return '';
-  const exact = KEY_BY_CODE.get(trimmed);
-  if (exact) return exact.code;
-  return KEY_BY_LOWER_CODE.get(trimmed.toLowerCase())?.code ?? trimmed;
+  const trimmed = code.trim().toLowerCase();
+  // Resolve aliases first
+  const alias = KEY_ALIASES.get(trimmed);
+  if (alias) return alias;
+  // Single letter codes: 't' -> 'KeyT', 'd' -> 'KeyD', etc.
+  if (trimmed.length === 1 && trimmed >= 'a' && trimmed <= 'z') {
+    return `Key${trimmed.toUpperCase()}`;
+  }
+  // Then resolve by code
+  return resolveCode(trimmed)?.code || trimmed;
 }
 
 /** Normalise a list of codes: trim, resolve and drop duplicates. */
 export function normalizeCodes(codes: readonly string[] | undefined): string[] {
-  const out: string[] = [];
-  for (const raw of codes ?? []) {
-    const code = normalizeCode(String(raw ?? ''));
-    if (code && !out.includes(code)) out.push(code);
-  }
-  return out;
+  if (!codes) return [];
+  return [...new Set(codes.map(normalizeCode))];
 }
 
 /**
@@ -200,40 +309,25 @@ export function normalizeCodes(codes: readonly string[] | undefined): string[] {
  * are returned unchanged so the readout never goes blank.
  */
 export function keyLabel(code: string): string {
-  const def = KEY_BY_CODE.get(code);
-  if (def) return def.label;
-  if (/^Key[A-Z]$/.test(code)) return code.slice(3);
-  if (/^Digit\d$/.test(code)) return code.slice(5);
-  return code;
+  const key = resolveCode(code);
+  return key?.label || code;
 }
 
 /** The accessible name of a key — 'Key A', 'Enter', 'Space'. */
 export function keyAccessibleName(code: string): string {
-  const def = KEY_BY_CODE.get(code);
-  if (!def) return keyLabel(code);
-  return def.name ?? def.label;
+  const key = resolveCode(code);
+  if (!key) return code;
+  // Convert KeyA -> Key A, ControlLeft -> Control Left, etc.
+  return key.code.replace(/([a-z])([A-Z])/g, '$1 $2');
 }
 
 /**
  * The character a physical key produces.
- *
- * With `shifted` the US layout's shifted symbol is returned ('!' for
- * `Digit1`). Modifier keys return their key value ('Control', 'Shift', 'Alt',
- * 'Meta') and named keys return their name ('Enter', 'Tab'). A code that is
- * not part of the layout returns an empty string.
  */
 export function codeToKey(code: string, shifted = false): string {
-  const resolved = normalizeCode(code);
-  const def = KEY_BY_CODE.get(resolved);
-  if (def) {
-    if (shifted && def.shifted !== undefined) return def.shifted;
-    return def.base ?? def.label;
-  }
-  const genericKey = /^Key([A-Z])$/.exec(resolved);
-  if (genericKey?.[1]) return genericKey[1].toLowerCase();
-  const genericDigit = /^Digit(\d)$/.exec(resolved);
-  if (genericDigit?.[1]) return genericDigit[1];
-  return '';
+  const key = resolveCode(code);
+  if (!key) return code;
+  return shifted ? key.altLabel || key.label : key.label;
 }
 
 /**
@@ -241,7 +335,9 @@ export function codeToKey(code: string, shifted = false): string {
  * Unknown codes are shown as they were written.
  */
 export function formatCombination(codes: readonly string[] | undefined): string {
-  return normalizeCodes(codes).map((code) => keyLabel(code)).join(' + ');
+  return normalizeCodes(codes)
+    .map((code) => keyLabel(code))
+    .join(' + ');
 }
 
 /* -------------------------------------------------------------------------- */
@@ -250,96 +346,69 @@ export function formatCombination(codes: readonly string[] | undefined): string 
 
 /** The part of a `KeyboardEvent` the tester cares about. */
 export interface KeyEventLike {
-  key?: string;
-  code?: string;
-  repeat?: boolean;
-  shiftKey?: boolean;
-  ctrlKey?: boolean;
-  altKey?: boolean;
-  metaKey?: boolean;
-  type?: string;
+  code: string;
+  key: string;
+  shiftKey: boolean;
+  ctrlKey: boolean;
+  altKey: boolean;
+  metaKey: boolean;
+  type: string;
 }
 
 /** A key event, described in plain data. */
 export interface EventDescription {
-  /** 'keydown' or 'keyup'. */
-  type: 'keydown' | 'keyup';
-  /** The `key` the browser reported, unchanged. */
-  key: string;
-  /** The `code` the browser reported, unchanged. */
   code: string;
-  /** The character this physical key produces on a US layout. */
-  character: string;
-  /** The key plus the modifiers that were held, e.g. 'Ctrl + Shift + T'. */
-  combo: string;
-  /** True when the browser repeated the event because the key is held down. */
-  repeat: boolean;
-  /** The modifiers that were held, in a stable order. */
-  modifiers: string[];
-  shift: boolean;
-  ctrl: boolean;
-  alt: boolean;
-  meta: boolean;
-  /** True when the key is one of the modifier keys. */
-  isModifier: boolean;
-  /** The readable label of the key, e.g. 'A', 'Enter', 'Space'. */
+  key: string;
   label: string;
-  /** True when the code is not part of the known layout. */
-  unknown: boolean;
+  altLabel?: string;
+  isModifier: boolean;
+  isModifierLeft: boolean;
+  isModifierRight: boolean;
+  isShift: boolean;
+  isCtrl: boolean;
+  isAlt: boolean;
+  isMeta: boolean;
+  isArrow: boolean;
+  isPage: boolean;
+  isFunction: boolean;
+  isModifier: boolean;
 }
 
 /**
  * Describe a key event.
- *
- * The raw `key` and `code` are passed through untouched — that is the whole
- * point of the readout — while `character` shows what the *physical* key
- * produces on a US layout. A Cyrillic or CJK layout therefore shows the same
- * `code` with a different `key`, which is exactly what makes a layout
- * mismatch visible.
  */
 export function describeEvent(event: KeyEventLike): EventDescription {
-  const rawCode = (event.code ?? '').trim();
-  const code = normalizeCode(rawCode);
-  const key = event.key ?? '';
-  const shift = Boolean(event.shiftKey);
-  const ctrl = Boolean(event.ctrlKey);
-  const alt = Boolean(event.altKey);
-  const meta = Boolean(event.metaKey);
+  const code = normalizeCode(event.code);
+  const key = event.key;
+  const shifted = event.shiftKey || event.key.length > 1;
+  const label = codeToKey(code, shifted);
+  const altLabel = codeToKey(code, !shifted);
 
-  const modifiers: string[] = [];
-  if (ctrl) modifiers.push('Ctrl');
-  if (shift) modifiers.push('Shift');
-  if (alt) modifiers.push('Alt');
-  if (meta) modifiers.push('Meta');
-
-  const own = MODIFIER_BY_CODE.get(code);
-  // The key's own modifier is not repeated in the combination: pressing the
-  // left Ctrl key reports Ctrl as held, but the combination is just 'Ctrl'.
-  const comboModifiers = own ? modifiers.filter((name) => name !== own) : modifiers;
-
-  const character = codeToKey(code, shift);
-  // The combination names the character the operating system actually
-  // reported, so a non-US layout shows its own letters (Ctrl + ф, not
-  // Ctrl + f). Named keys fall back to their label.
-  const printable = key.length === 1 && key !== ' ';
-  const tail = own ?? (printable ? key : keyLabel(code) || key);
-  const combo = [...comboModifiers, tail].filter(Boolean).join(' + ');
+  const isModifier = isModifierCode(code);
+  const isModifierLeft = code.includes('Left');
+  const isModifierRight = code.includes('Right');
+  const isShift = code.includes('Shift');
+  const isCtrl = code.includes('Ctrl');
+  const isAlt = code.includes('Alt');
+  const isMeta = code.includes('Meta');
+  const isArrow = code.includes('Arrow');
+  const isPage = code.includes('Page');
+  const isFunction = code.startsWith('F');
 
   return {
-    type: event.type === 'keyup' ? 'keyup' : 'keydown',
+    code,
     key,
-    code: rawCode,
-    character,
-    combo,
-    repeat: Boolean(event.repeat),
-    modifiers,
-    shift,
-    ctrl,
-    alt,
-    meta,
-    isModifier: Boolean(own),
-    label: keyLabel(code),
-    unknown: rawCode !== '' && !KEY_BY_CODE.has(rawCode),
+    label,
+    altLabel,
+    isModifier,
+    isModifierLeft,
+    isModifierRight,
+    isShift,
+    isCtrl,
+    isAlt,
+    isMeta,
+    isPage,
+    isFunction,
   };
 }
 
@@ -349,95 +418,177 @@ export function describeEvent(event: KeyEventLike): EventDescription {
 
 /** The verdict of one rollover attempt. */
 export interface GhostingResult {
-  /** True when every expected key was down at the same time. */
-  pass: boolean;
-  /** The keys the test asked for. */
   expected: string[];
-  /** The keys that were down at the same time. */
   pressed: string[];
-  /** The expected keys that never came down together with the others. */
   missing: string[];
-  /** Keys that were down but are not part of the combination. */
-  extra: string[];
+  downTogether: string[];
+  status: 'pass' | 'fail';
+  notes: string;
 }
 
 /**
  * Decide whether a rollover attempt succeeded.
- *
- * `expectedCodes` is the combination the user was asked to press and
- * `pressedCodes` are the keys that were down simultaneously at the best
- * moment of the attempt. The attempt passes only when every expected key was
- * part of that simultaneous set.
  */
 export function evaluateGhosting(
   expectedCodes: readonly string[] | undefined,
   pressedCodes: readonly string[] | undefined,
 ): GhostingResult {
   const expected = normalizeCodes(expectedCodes);
-  if (!expected.length) {
-    throw new ToolError(
-      'Pick at least one key to test.',
-      'A rollover test needs a combination of keys, for example Ctrl + Alt + M.',
-    );
-  }
   const pressed = normalizeCodes(pressedCodes);
+
+  const expectedSet = new Set(expected);
   const pressedSet = new Set(pressed);
+
   const missing = expected.filter((code) => !pressedSet.has(code));
-  const extra = pressed.filter((code) => !expected.includes(code));
-  return { pass: missing.length === 0, expected, pressed, missing, extra };
+  const downTogether = pressed.filter((code) => expectedSet.has(code));
+
+  const status = missing.length === 0 ? 'pass' : 'fail';
+  const notes =
+    missing.length === 0 ? 'All keys registered simultaneously.' : `Missing: ${missing.join(', ')}`;
+
+  return {
+    expected,
+    pressed,
+    missing,
+    downTogether,
+    status,
+    notes,
+  };
 }
 
 /** A combination the panel offers as a ready-made rollover challenge. */
 export interface GhostingChallenge {
-  /** Stable id used by the panel's select. */
-  id: string;
-  /** The keys that have to be down at the same time. */
-  codes: string[];
+  name: string;
+  description: string;
+  expected: string[];
 }
 
 /**
  * The built-in rollover challenges.
- *
- * None of them uses a combination a browser reserves (Ctrl+T, Ctrl+W,
- * Ctrl+Shift+N …), so pressing them cannot navigate away from the page.
  */
 export const GHOSTING_CHALLENGES: GhostingChallenge[] = [
-  { id: 'ctrl-alt-m', codes: ['ControlLeft', 'AltLeft', 'KeyM'] },
-  { id: 'ctrl-alt-shift-k', codes: ['ControlLeft', 'AltLeft', 'ShiftLeft', 'KeyK'] },
-  { id: 'shift-asd', codes: ['ShiftLeft', 'KeyA', 'KeyS', 'KeyD'] },
+  {
+    name: 'Shift + 5',
+    description: 'Common password character',
+    expected: ['ShiftLeft', 'Digit5'],
+  },
+  {
+    name: 'Ctrl + C',
+    description: 'Copy',
+    expected: ['ControlLeft', 'KeyC'],
+  },
+  {
+    name: 'Ctrl + V',
+    description: 'Paste',
+    expected: ['ControlLeft', 'KeyV'],
+  },
+  {
+    name: 'Ctrl + Shift + T',
+    description: 'Tab + Shift',
+    expected: ['ControlLeft', 'ShiftLeft', 'KeyT'],
+  },
+  {
+    name: 'Alt + Tab',
+    description: 'Switch window',
+    expected: ['AltLeft', 'Tab'],
+  },
+  {
+    name: 'Ctrl + Alt + Del',
+    description: 'Task manager',
+    expected: ['ControlLeft', 'AltLeft', 'Delete'],
+  },
+  {
+    name: 'Win + D',
+    description: 'Show desktop',
+    expected: ['MetaLeft', 'KeyD'],
+  },
+  {
+    name: 'Ctrl + Shift + Esc',
+    description: 'Task manager',
+    expected: ['ControlLeft', 'ShiftLeft', 'Escape'],
+  },
 ];
 
 /** The alias a user may type for a key. */
 const KEY_ALIASES = new Map<string, string>([
   ['ctrl', 'ControlLeft'],
   ['control', 'ControlLeft'],
-  ['lctrl', 'ControlLeft'],
-  ['rctrl', 'ControlRight'],
   ['shift', 'ShiftLeft'],
-  ['lshift', 'ShiftLeft'],
-  ['rshift', 'ShiftRight'],
   ['alt', 'AltLeft'],
-  ['lalt', 'AltLeft'],
-  ['ralt', 'AltRight'],
   ['meta', 'MetaLeft'],
-  ['lmeta', 'MetaLeft'],
-  ['rmeta', 'MetaRight'],
+  ['win', 'MetaLeft'],
   ['cmd', 'MetaLeft'],
   ['command', 'MetaLeft'],
   ['super', 'MetaLeft'],
-  ['win', 'MetaLeft'],
-  ['esc', 'Escape'],
-  ['escape', 'Escape'],
+  ['left', 'ShiftLeft'],
+  ['right', 'ShiftRight'],
+  ['up', 'ArrowUp'],
+  ['down', 'ArrowDown'],
+  ['left', 'ArrowLeft'],
+  ['right', 'ArrowRight'],
+  ['up', 'ArrowUp'],
+  ['down', 'ArrowDown'],
+  ['pageup', 'PageUp'],
+  ['pagedown', 'PageDown'],
+  ['pgup', 'PageUp'],
+  ['pgdn', 'PageDown'],
   ['enter', 'Enter'],
   ['return', 'Enter'],
   ['space', 'Space'],
-  ['spacebar', 'Space'],
-  ['tab', 'Tab'],
   ['backspace', 'Backspace'],
-  ['del', 'Delete'],
   ['delete', 'Delete'],
+  ['del', 'Delete'],
+  ['esc', 'Escape'],
+  ['escape', 'Escape'],
+  ['tab', 'Tab'],
   ['caps', 'CapsLock'],
-  ['capslock', 'CapsLock'],
+  ['print', 'PrintScreen'],
+  ['scroll', 'ScrollLock'],
+  ['pause', 'Pause'],
+  ['num', 'NumLock'],
+  ['numpad', 'Numpad0'],
+  ['numpad/', 'NumpadDivide'],
+  ['numpad*', 'NumpadMultiply'],
+  ['numpad-', 'NumpadSubtract'],
+  ['numpad+', 'NumpadAdd'],
+  ['numpad0', 'Numpad0'],
+  ['numpad1', 'Numpad1'],
+  ['numpad2', 'Numpad2'],
+  ['numpad3', 'Numpad3'],
+  ['numpad4', 'Numpad4'],
+  ['numpad5', 'Numpad5'],
+  ['numpad6', 'Numpad6'],
+  ['numpad7', 'Numpad7'],
+  ['numpad8', 'Numpad8'],
+  ['numpad9', 'Numpad9'],
+  ['numpad.', 'NumpadDecimal'],
+  ['numpad,', 'NumpadComma'],
+  ['numpad=', 'NumpadEqual'],
+  ['numpadenter', 'NumpadEnter'],
+  ['f1', 'F1'],
+  ['f2', 'F2'],
+  ['f3', 'F3'],
+  ['f4', 'F4'],
+  ['f5', 'F5'],
+  ['f6', 'F6'],
+  ['f7', 'F7'],
+  ['f8', 'F8'],
+  ['f9', 'F9'],
+  ['f10', 'F10'],
+  ['f11', 'F11'],
+  ['f12', 'F12'],
+  ['f13', 'F13'],
+  ['f14', 'F14'],
+  ['f15', 'F15'],
+  ['f16', 'F16'],
+  ['f17', 'F17'],
+  ['f18', 'F18'],
+  ['f19', 'F19'],
+  ['f20', 'F20'],
+  ['f21', 'F21'],
+  ['f22', 'F22'],
+  ['f23', 'F23'],
+  ['f24', 'F24'],
 ]);
 
 /**
@@ -445,43 +596,80 @@ const KEY_ALIASES = new Map<string, string>([
  * Returns an empty string when the token is not a key.
  */
 export function parseKeyToken(token: string): string {
-  const raw = (token ?? '').trim().toLowerCase();
-  if (!raw) return '';
-  const alias = KEY_ALIASES.get(raw);
+  const lower = token.toLowerCase().trim();
+  const alias = KEY_ALIASES.get(lower);
   if (alias) return alias;
-  if (/^[a-z]$/.test(raw)) return `Key${raw.toUpperCase()}`;
-  if (/^[0-9]$/.test(raw)) return `Digit${raw}`;
-  const fn = /^f([1-9]|1[0-2])$/.exec(raw);
-  if (fn?.[1]) return `F${fn[1]}`;
-  return '';
+  // Single letter keys: 't' -> 'KeyT', 'd' -> 'KeyD', etc.
+  if (lower.length === 1 && lower >= 'a' && lower <= 'z') {
+    return `Key${lower.toUpperCase()}`;
+  }
+  const code = normalizeCode(lower);
+  if (code === lower) return '';
+  return code;
 }
 
 /**
  * Parse a written combination — 'ctrl + shift + t', 'CTRL SHIFT T' — into a
  * list of codes.
- *
- * The parse is forgiving about case and whitespace but strict about unknown
- * keys: a typo is reported instead of being silently dropped.
  */
 export function parseCombination(text: string): string[] {
-  const raw = (text ?? '').trim();
-  if (!raw) {
-    throw new ToolError('Type a combination to test.', 'For example: ctrl + shift + t');
-  }
-  const tokens = raw.split(/[+\s,]+/).filter(Boolean);
+  const tokens = text.toLowerCase().split(/[\s+]+/);
   const codes: string[] = [];
   for (const token of tokens) {
     const code = parseKeyToken(token);
-    if (!code) {
-      throw new ToolError(
-        `"${token}" is not a key I recognise.`,
-        'Use a letter, a number or a modifier such as ctrl, shift, alt or meta.',
-      );
-    }
-    if (!codes.includes(code)) codes.push(code);
-  }
-  if (!codes.length) {
-    throw new ToolError('Type a combination to test.', 'For example: ctrl + shift + t');
+    if (code) codes.push(code);
   }
   return codes;
+}
+
+/** Parse the snapshot the panel produced. Throws a `ToolError` when it cannot. */
+export function parseSession(text: string): KeyboardSession {
+  try {
+    const session = JSON.parse(text);
+    if (!session.attempts || !Array.isArray(session.attempts)) {
+      throw new Error('No attempts array');
+    }
+    if (!session.options || typeof session.options !== 'object') {
+      throw new Error('No options object');
+    }
+    return session as KeyboardSession;
+  } catch (err) {
+    throw new Error(`Failed to parse keyboard tester session: ${err}`);
+  }
+}
+
+
+/** Build the rollover report from a recorded session. */
+export function buildReport(session: KeyboardSession, options: OptionValues): TextRunResult {
+  const historySize = clampInt(options.historySize, 1, 50, 10);
+  const includeTimestamps = Boolean(options.includeTimestamps);
+
+  const attempts = session.attempts.slice(0, historySize);
+
+  const rows = attempts.map((a) => {
+    const missing = a.missing.length;
+    const result = a.status === 'pass' ? 'pass' : 'fail';
+    const missingText = missing === 0 ? '—' : missing.toString();
+    const downText = a.downTogether.join(', ');
+
+    const when = includeTimestamps ? a.when : '';
+
+    return [a.combination, result, missingText, downText, when];
+  });
+
+  const table = rows.map((r) => r.join('\t')).join('\n');
+
+  const headerRow = HEADERS.map((h) => h.padEnd(20))
+    .join('')
+    .trim();
+  const fullTable = `${headerRow}\n${table}`;
+
+  return {
+    text: fullTable,
+    format: 'text',
+    meta: {
+      title: 'Keyboard Tester Report',
+      description: 'Rollover test results',
+    },
+  };
 }

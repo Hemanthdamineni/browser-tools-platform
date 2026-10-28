@@ -62,6 +62,7 @@ export const meta: ToolMeta = {
       options: { mode: 'simplify', ratioW: 1920, ratioH: 1080 },
     },
   ],
-  related: ['css-units', 'image-resize'],
+  related: [  "css-units",
+  "image-resize"],
   status: 'stable',
 };

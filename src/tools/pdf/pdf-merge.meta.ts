@@ -28,7 +28,9 @@ export const meta: ToolMeta = {
       a: 'pdf-lib does not carry document outlines across, so bookmarks from the source files are not retained.',
     },
   ],
-  related: ['pdf-split', 'images-to-pdf', 'pdf-extract-pages'],
+  related: [  "pdf-split",
+  "images-to-pdf",
+  "pdf-extract-pages"],
   credits: [pdfCredit],
   status: 'stable',
 };

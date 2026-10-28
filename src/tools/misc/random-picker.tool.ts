@@ -51,7 +51,7 @@ function run(input: TextRunInput): TextRunResult {
   if (mode === 'pick') {
     const count = Math.floor(Number(o.pickCount) || 1);
     const allowDup = Boolean(o.allowDuplicates);
-    if (count < 1 || count > 1000) throw new ToolError('Pick count must be between 1 and 1000.');
+    if (count < 1) throw new ToolError('Pick count must be at least 1.');
     if (!allowDup && count > items.length) {
       throw new ToolError(
         `Cannot pick ${count} distinct items from a list of ${items.length}.`,
@@ -68,9 +68,10 @@ function run(input: TextRunInput): TextRunResult {
     return { output: picked.join('\n'), render: 'text', stats: { picked: picked.length } };
   }
 
+
   if (mode === 'teams') {
     const teams = Math.floor(Number(o.teamCount) || 2);
-    if (teams < 2 || teams > 50) throw new ToolError('Team count must be between 2 and 50.');
+    if (teams < 2) throw new ToolError('Team count must be at least 2.');
     const deck = shuffle(items);
     const groups: string[][] = Array.from({ length: teams }, () => []);
     deck.forEach((item, i) => groups[i % teams]!.push(item));

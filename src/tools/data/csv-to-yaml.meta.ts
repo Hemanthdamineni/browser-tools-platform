@@ -63,6 +63,9 @@ export const meta: ToolMeta = {
       a: 'The parser follows RFC 4180: commas and newlines inside double quotes are part of the cell, and "" is an escaped quote. Such values are emitted as quoted YAML strings that round-trip exactly.',
     },
   ],
-  related: ['csv-to-json', 'json-to-yaml', 'csv-profiler', 'csv-to-markdown'],
+  related: [  "csv-to-json",
+  "json-to-yaml",
+  "csv-profiler",
+  "csv-to-markdown"],
   status: 'stable',
 };

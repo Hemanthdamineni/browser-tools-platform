@@ -59,6 +59,7 @@ export const meta: ToolMeta = {
       a: 'Tagged URLs are treated as separate addresses by analytics, but search engines canonicalise them away. Use them in campaigns, not in your internal links.',
     },
   ],
-  related: ['url-parse', 'querystring'],
+  related: [  "url-parse",
+  "querystring"],
   status: 'stable',
 };

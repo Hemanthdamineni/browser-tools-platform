@@ -66,6 +66,9 @@ export const meta: ToolMeta = {
       a: 'A table, a flat JSON object, a JavaScript object, or SCSS $variables. The JSON/JS forms are handy for feeding tokens into a design system.',
     },
   ],
-  related: ['css-minifier', 'css-specificity-calculator', 'css-units', 'color-palette'],
+  related: [  "css-minifier",
+  "css-specificity-calculator",
+  "css-units",
+  "color-palette"],
   status: 'stable',
 };

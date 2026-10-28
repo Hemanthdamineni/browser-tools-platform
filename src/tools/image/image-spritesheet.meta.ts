@@ -48,7 +48,8 @@ export const meta: ToolMeta = {
     },
   ],
   examples: [{ title: 'Grid sprite sheet' }],
-  related: ['favicon-generator', 'image-resize'],
+  related: [  "favicon-generator",
+  "image-resize"],
   status: 'stable',
   updated: '2026-10-17',
 };

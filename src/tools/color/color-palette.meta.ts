@@ -46,6 +46,8 @@ export const meta: ToolMeta = {
       a: 'Complementary yields 2, triadic 3, tetradic 4, split-complementary 3 - the count option is ignored for those. Tints & shades, monochromatic and analogous fill/repeat to the chosen count.',
     },
   ],
-  related: ['color-convert', 'gradient-css', 'color-blend'],
+  related: [  "color-convert",
+  "gradient-css",
+  "color-blend"],
   status: 'stable',
 };

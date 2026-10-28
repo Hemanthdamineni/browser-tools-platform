@@ -66,6 +66,8 @@ export const meta: ToolMeta = {
       a: 'No. It validates field syntax only and cannot verify a response digest without the request context and secret.',
     },
   ],
-  related: ['www-authenticate', 'basic-auth', 'secret-scanner'],
+  related: [  "www-authenticate",
+  "basic-auth",
+  "secret-scanner"],
   status: 'stable',
 };

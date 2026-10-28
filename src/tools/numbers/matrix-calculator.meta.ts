@@ -77,6 +77,6 @@ export const meta: ToolMeta = {
       a: 'Determinants and inverses use partial pivoting. Inverse rejects pivots at or below a scale-relative tolerance; determinant results may be affected by floating-point rounding.',
     },
   ],
-  related: ['number-base', 'combinatorics'],
+  related: [  "number-base"],
   status: 'stable',
 };

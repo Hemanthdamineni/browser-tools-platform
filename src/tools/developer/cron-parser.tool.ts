@@ -112,8 +112,7 @@ function run(input: TextRunInput): TextRunResult {
   const verbose = Boolean(o.verbose);
   let count = Math.floor(Number(o.count));
   if (!Number.isFinite(count)) count = 5;
-  count = Math.max(1, Math.min(20, count));
-
+  count = Math.max(1, count);
   const parts = expr.split(/\s+/);
   if (parts.length < 5 || parts.length > 6) {
     throw new ToolError(

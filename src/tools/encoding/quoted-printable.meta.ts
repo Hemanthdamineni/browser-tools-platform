@@ -36,6 +36,8 @@ export const meta: ToolMeta = {
       a: 'An = at the very end of a line means "this line continues" — it is removed on decode. Encoding wraps at 76 characters using soft breaks.',
     },
   ],
-  related: ['base64', 'url-encode', 'hex'],
+  related: [  "base64",
+  "url-encode",
+  "hex"],
   status: 'stable',
 };

@@ -153,7 +153,10 @@ export const meta: ToolMeta = {
       title: 'Tiled diagonal text',
       options: { mode: 'text', text: 'CONFIDENTIAL', tiled: true, tileAngle: -30, opacity: 25 },
     },
-    { title: 'Corner text', options: { mode: 'text', text: '© Your Name', position: 'bottom-right' } },
+    {
+      title: 'Corner text',
+      options: { mode: 'text', text: '© Your Name', position: 'bottom-right' },
+    },
   ],
   faq: [
     {
@@ -173,7 +176,9 @@ export const meta: ToolMeta = {
       a: 'PNG and WebP keep it. JPEG has no alpha channel, so transparent pixels are flattened onto white before the watermark is drawn.',
     },
   ],
-  related: ['image-crop', 'image-resize', 'image-rotate'],
+  related: [  "image-crop",
+  "image-resize",
+  "image-rotate"],
   status: 'beta',
   updated: '2026-10-24',
 };

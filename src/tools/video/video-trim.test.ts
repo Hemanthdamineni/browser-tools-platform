@@ -179,18 +179,20 @@ function fakeEngine(config: FakeEngineConfig = {}): VideoEngine {
         const track = output.addVideoTrack(
           video === 'copy' ? new EncodedVideoPacketSource('avc') : new VideoSampleSource('avc'),
         );
-        track.codec = video === 'copy'
-          ? (videoCodec ?? 'avc1.640028')
-          : (config.reencodedVideoCodec ?? 'avc1.42E01E');
+        track.codec =
+          video === 'copy'
+            ? (videoCodec ?? 'avc1.640028')
+            : (config.reencodedVideoCodec ?? 'avc1.42E01E');
       }
 
       if (audio !== 'none' && audio !== 'drop' && !audioOptions.discard) {
         const track = output.addAudioTrack(
           audio === 'copy' ? new EncodedAudioPacketSource('aac') : new AudioSampleSource('aac'),
         );
-        track.codec = audio === 'copy'
-          ? (audioCodec ?? 'mp4a.40.2')
-          : (config.reencodedAudioCodec ?? 'mp4a.40.2');
+        track.codec =
+          audio === 'copy'
+            ? (audioCodec ?? 'mp4a.40.2')
+            : (config.reencodedAudioCodec ?? 'mp4a.40.2');
       }
 
       for (const entry of config.discarded ?? []) {
@@ -508,15 +510,11 @@ describe('resolveTrimSettings', () => {
 
   it('rejects a range that starts after it ends', () => {
     expect(() => resolveTrimSettings({ start: 5, end: 2 }, source)).toThrow(ToolError);
-    expect(() => resolveTrimSettings({ start: 5, end: 2 }, source)).toThrow(
-      /before the end time/i,
-    );
+    expect(() => resolveTrimSettings({ start: 5, end: 2 }, source)).toThrow(/before the end time/i);
   });
 
   it('rejects a zero-length range', () => {
-    expect(() => resolveTrimSettings({ start: 3, end: 3 }, source)).toThrow(
-      /before the end time/i,
-    );
+    expect(() => resolveTrimSettings({ start: 3, end: 3 }, source)).toThrow(/before the end time/i);
   });
 
   it('rejects a negative start', () => {
@@ -529,9 +527,7 @@ describe('resolveTrimSettings', () => {
   });
 
   it('rejects a start past the end of the clip', () => {
-    expect(() => resolveTrimSettings({ start: 30 }, source)).toThrow(
-      /past the end of the clip/i,
-    );
+    expect(() => resolveTrimSettings({ start: 30 }, source)).toThrow(/past the end of the clip/i);
   });
 
   it('rejects an unparseable time', () => {
@@ -540,9 +536,9 @@ describe('resolveTrimSettings', () => {
   });
 
   it('rejects a range that is too short to hold a frame', () => {
-    expect(() =>
-      resolveTrimSettings({ start: 1, end: 1 + TRIM_MIN_SECONDS / 2 }, source),
-    ).toThrow(/too short/i);
+    expect(() => resolveTrimSettings({ start: 1, end: 1 + TRIM_MIN_SECONDS / 2 }, source)).toThrow(
+      /too short/i,
+    );
   });
 
   it('refuses to guess when the duration is unknown', () => {
@@ -550,10 +546,7 @@ describe('resolveTrimSettings', () => {
       /length of this clip could not be read/i,
     );
     // An explicit end time still works — the clip is simply not checked.
-    const settings = resolveTrimSettings(
-      { end: 4 },
-      { durationSeconds: null, formatName: 'MP4' },
-    );
+    const settings = resolveTrimSettings({ end: 4 }, { durationSeconds: null, formatName: 'MP4' });
     expect(settings.endSeconds).toBe(4);
   });
 
@@ -881,12 +874,7 @@ describe('trimVideo', () => {
 
   it('keeps the container of the source file when asked to', async () => {
     const engine = fakeEngine({ formatName: 'WebM' });
-    const result = await trimVideo(
-      file('clip.webm'),
-      { ...options, format: 'source' },
-      {},
-      engine,
-    );
+    const result = await trimVideo(file('clip.webm'), { ...options, format: 'source' }, {}, engine);
     expect(result.mimeType).toBe('video/webm');
     expect(result.filename).toBe('clip-trim.webm');
   });
@@ -922,9 +910,9 @@ describe('trimVideo', () => {
   });
 
   it('refuses an empty file before anything else happens', async () => {
-    await expect(
-      trimVideo(file('empty.mp4', 0), options, {}, fakeEngine()),
-    ).rejects.toThrow(/empty/i);
+    await expect(trimVideo(file('empty.mp4', 0), options, {}, fakeEngine())).rejects.toThrow(
+      /empty/i,
+    );
   });
 
   it('reports a conversion that cannot be run', async () => {
@@ -953,9 +941,9 @@ describe('trimVideo', () => {
 
   it('refuses a range that lies outside the clip', async () => {
     const engine = fakeEngine({ durationSeconds: 5 });
-    await expect(
-      trimVideo(file(), { start: '0:01', end: '0:30' }, {}, engine),
-    ).rejects.toThrow(/past the end of the clip/i);
+    await expect(trimVideo(file(), { start: '0:01', end: '0:30' }, {}, engine)).rejects.toThrow(
+      /past the end of the clip/i,
+    );
   });
 });
 

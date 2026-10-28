@@ -56,6 +56,8 @@ export const meta: ToolMeta = {
       a: 'No. It reports character and newline findings without changing the input or sending network requests.',
     },
   ],
-  related: ['unicode-normalize', 'unicode-escape', 'line-numbers'],
+  related: [  "unicode-normalize",
+  "unicode-escape",
+  "line-numbers"],
   status: 'stable',
 };

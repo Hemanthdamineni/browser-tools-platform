@@ -46,6 +46,7 @@ export const meta: ToolMeta = {
       a: 'The day is clamped to the last day of the target month: January 31 + 1 month is February 28 (or 29 in a leap year), never March 2 or 3.',
     },
   ],
-  related: ['date-diff', 'age-calculator'],
+  related: [  "date-diff",
+  "age-calculator"],
   status: 'stable',
 };

@@ -29,6 +29,8 @@ export const meta: ToolMeta = {
       a: 'Both colors are converted to CIE L*a*b* and compared with the CIE76 Euclidean distance. Lower distance means the colors look more alike.',
     },
   ],
-  related: ['color-convert', 'color-contrast', 'color-palette'],
+  related: [  "color-convert",
+  "color-contrast",
+  "color-palette"],
   status: 'stable',
 };

@@ -64,6 +64,6 @@ export const meta: ToolMeta = {
       a: 'Digits after the decimal point are spoken individually, so 3.14 becomes "three point one four".',
     },
   ],
-  related: ['roman-numeral', 'fraction'],
+  related: [  "roman-numeral"],
   status: 'stable',
 };

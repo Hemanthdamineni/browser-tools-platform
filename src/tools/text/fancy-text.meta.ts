@@ -1,0 +1,82 @@
+import type { ToolMeta } from '@/lib/types';
+
+export const meta: ToolMeta = {
+  id: 'fancy-text',
+  name: 'Fancy Text Generator',
+  category: 'text',
+  summary: 'Convert text into Unicode bold, italic, script, fraktur, double-struck, and monospace styles.',
+  description:
+    'Transform ordinary text into stylized Unicode characters across 15+ styles including bold, italic, bold-italic, script, fraktur, double-struck, monospace, sans-serif, and circled variants. Each style maps standard ASCII letters to their Unicode mathematical alphanumeric equivalents. Characters without a styled form pass through unchanged. All processing happens locally in your browser — no data leaves your device.',
+  keywords: [
+    'fancy text generator',
+    'unicode text styles',
+    'bold text generator',
+    'italic text',
+    'script font',
+    'fraktur text',
+    'double struck',
+    'math bold',
+    'math italic',
+    'fancy font converter',
+    'stylish text',
+    'unicode fonts',
+  ],
+  privacy: { processing: 'on-device', network: 'none', offline: true },
+  input: 'text',
+  options: [
+    {
+      key: 'style',
+      label: 'Style',
+      type: 'select',
+      default: 'bold',
+      choices: [
+        { value: 'bold', label: 'Bold (𝐀𝐛𝐜)' },
+        { value: 'italic', label: 'Italic (𝐴𝑏𝑐)' },
+        { value: 'bold-italic', label: 'Bold Italic (𝑨𝒃𝒸)' },
+        { value: 'script', label: 'Script (𝒜𝒷𝒸)' },
+        { value: 'bold-script', label: 'Bold Script (𝓐𝓫𝓬)' },
+        { value: 'fraktur', label: 'Fraktur (𝔄𝔟𝔠)' },
+        { value: 'bold-fraktur', label: 'Bold Fraktur (𝕬𝖇𝖈)' },
+        { value: 'double-struck', label: 'Double-struck (𝔸𝕓𝕔)' },
+        { value: 'monospace', label: 'Monospace (𝙰𝚋𝚌)' },
+        { value: 'sans-serif', label: 'Sans-serif (𝖠𝖻𝖼)' },
+        { value: 'sans-serif-bold', label: 'Sans-serif Bold (𝗔𝗯𝗰)' },
+        { value: 'sans-serif-italic', label: 'Sans-serif Italic (𝘈𝘣𝘤)' },
+        { value: 'sans-serif-bold-italic', label: 'Sans-serif Bold Italic (𝘼𝙗𝘾)' },
+        { value: 'circled', label: 'Circled (Ⓐⓑⓒ)' },
+        { value: 'circled-negative', label: 'Circled Negative (🅐🅑🅒)' },
+        { value: 'parenthesized', label: 'Parenthesized (⒜⒝⒞)' },
+        { value: 'squared', label: 'Squared (🄰🄱🄲)' },
+        { value: 'fullwidth', label: 'Full-width (Ａｂｃ)' },
+      ],
+    },
+  ],
+  examples: [
+    { title: 'Bold', input: 'Hello World', options: { style: 'bold' } },
+    { title: 'Script', input: 'Hello World', options: { style: 'script' } },
+    { title: 'Fraktur', input: 'Hello World', options: { style: 'fraktur' } },
+    { title: 'Double-struck', input: 'Hello World', options: { style: 'double-struck' } },
+    { title: 'Sans-serif Bold', input: 'Hello World', options: { style: 'sans-serif-bold' } },
+    { title: 'Circled', input: 'ABC', options: { style: 'circled' } },
+  ],
+  faq: [
+    {
+      q: 'Why do screen readers handle these poorly?',
+      a: 'These are mathematical alphanumeric symbols, not regular letters with styling. Screen readers may read them as individual code point names (e.g., "mathematical bold capital A") or skip them entirely. Do not use for accessible content.',
+    },
+    {
+      q: 'Will this work everywhere?',
+      a: 'Most modern browsers and platforms render these correctly, but some fonts may not include all mathematical alphanumeric blocks. Fallback fonts usually cover the common styles.',
+    },
+    {
+      q: 'Can I convert fancy text back to plain text?',
+      a: 'This tool only encodes plain → fancy. For decoding, use the Unicode Style Converter tool which supports round-trip conversion for several styles.',
+    },
+    {
+      q: 'Which characters are supported?',
+      a: 'Basic Latin letters (A–Z, a–z) and digits (0–9) for most styles. Full-width covers the entire printable ASCII range. Circled/parenthesized/squared have limited coverage (A–Z, a–z, 0–9 for circled; A–Z for parenthesized; A–Z for squared).',
+    },
+  ],
+  related: ['unicode-styles', 'case-convert', 'slugify', 'whitespace-visualizer'],
+  status: 'stable',
+};

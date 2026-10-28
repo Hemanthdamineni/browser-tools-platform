@@ -117,6 +117,6 @@ export const meta: ToolMeta = {
     { name: 'mediabunny', url: 'https://mediabunny.dev', license: 'MPL-2.0' },
     { name: 'gifenc', url: 'https://github.com/mattdesl/gifenc', license: 'MIT' },
   ],
-  related: ['video-info'],
+  related: [  "video-info"],
   status: 'beta',
 };

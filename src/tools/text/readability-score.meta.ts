@@ -48,6 +48,9 @@ export const meta: ToolMeta = {
       a: 'The formulas are meant for prose like articles. A single word or a very short phrase can produce a score that does not generalise, so the result is marked as approximate for input under about 100 words.',
     },
   ],
-  related: ['text-stats', 'word-frequency', 'char-frequency', 'text-summarizer'],
+  related: [  "text-stats",
+  "word-frequency",
+  "char-frequency",
+  "text-summarizer"],
   status: 'stable',
 };

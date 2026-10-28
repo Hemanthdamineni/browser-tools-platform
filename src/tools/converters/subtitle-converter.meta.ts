@@ -77,6 +77,9 @@ export const meta: ToolMeta = {
       a: 'Yes. The notes include the detected input format and the number of cues converted, and the target option can be set explicitly to override auto-detection.',
     },
   ],
-  related: ['markdown-to-html', 'csv-to-markdown', 'docx-to-markdown', 'html-to-text'],
+  related: [  "markdown-to-html",
+  "csv-to-markdown",
+  "docx-to-markdown",
+  "html-to-text"],
   status: 'stable',
 };

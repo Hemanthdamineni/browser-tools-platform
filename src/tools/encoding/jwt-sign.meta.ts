@@ -110,6 +110,9 @@ export const meta: ToolMeta = {
       a: 'It proves the signature matches for the secret you supply and reports whether the exp/nbf claims are in range. It cannot prove the secret itself is the issuer’s — make sure you paste the real secret.',
     },
   ],
-  related: ['jwt-decode', 'hmac', 'base64', 'hash'],
+  related: [  "jwt-decode",
+  "hmac",
+  "base64",
+  "hash"],
   status: 'stable',
 };

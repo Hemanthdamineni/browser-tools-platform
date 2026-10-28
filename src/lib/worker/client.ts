@@ -11,7 +11,7 @@ let worker: Worker | null = null;
 
 function getWorker(): Worker {
   if (!worker) {
-    worker = new Worker(new URL('./tool.worker.ts', import.meta.url), {
+    worker = new Worker(new URL('./tool.worker.ts?worker', import.meta.url), {
       type: 'module',
       name: 'toolbench-tool',
     });

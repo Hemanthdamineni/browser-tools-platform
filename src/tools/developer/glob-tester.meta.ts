@@ -66,6 +66,9 @@ export const meta: ToolMeta = {
       a: 'No. Leading ./ or / on both the pattern and the input paths is normalized away before matching.',
     },
   ],
-  related: ['regex-tester', 'jsonpath', 'json-format', 'css-units'],
+  related: [  "regex-tester",
+  "jsonpath",
+  "json-format",
+  "css-units"],
   status: 'stable',
 };

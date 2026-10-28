@@ -30,6 +30,7 @@ export const meta: ToolMeta = {
       a: 'TCP and UDP are separate namespaces, and some historical services registered both. The Protocol column shows whether an entry applies to TCP, UDP, or both.',
     },
   ],
-  related: ['ip-info', 'http-status', 'cidr-calculator'],
+  related: [  "http-status",
+  "cidr-calculator"],
   status: 'stable',
 };

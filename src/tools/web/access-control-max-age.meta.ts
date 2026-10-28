@@ -49,7 +49,7 @@ export const meta: ToolMeta = {
       a: 'If you change CORS rules often, a short value or omission avoids stale preflight caches during rollout.',
     },
   ],
-  related: ['cors-headers'],
+  related: [  "cors-headers"],
   hidden: true,
   redirectTo: 'cors-headers',
   status: 'stable',

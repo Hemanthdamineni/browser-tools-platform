@@ -36,6 +36,7 @@ export const meta: ToolMeta = {
       a: 'Layer i of N uses offset/blur/spread multiplied by i/N and the colour alpha divided by i. It mimics the multi-shadow "elevation" technique popularised by Material Design.',
     },
   ],
-  related: ['gradient-css', 'color-blend'],
+  related: [  "gradient-css",
+  "color-blend"],
   status: 'stable',
 };

@@ -60,6 +60,8 @@ export const meta: ToolMeta = {
       a: 'Broken; only the last name in the HTTP header would normally survive. Servers should treat repeats as an anomaly, and proxies rarely tolerate them.',
     },
   ],
-  related: ['set-cookie', 'secret-scanner', 'url-encode'],
+  related: [  "set-cookie",
+  "secret-scanner",
+  "url-encode"],
   status: 'stable',
 };

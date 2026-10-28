@@ -74,6 +74,8 @@ export const meta: ToolMeta = {
       a: 'The checksum is shown as a big-endian, zero-padded 8-digit hex number, matching the value reported by zip and gzip tooling.',
     },
   ],
-  related: ['hash', 'hmac', 'file-hash'],
+  related: [  "hash",
+  "hmac",
+  "file-hash"],
   status: 'stable',
 };

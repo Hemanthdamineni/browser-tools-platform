@@ -36,6 +36,7 @@ export const meta: ToolMeta = {
       a: 'DOCX, XLSX, PPTX, and other package formats use ZIP containers. Distinguishing them requires inspecting archive entries; this tool reports the container signature only.',
     },
   ],
-  related: ['file-hash', 'mime-lookup'],
+  related: [  "file-hash",
+  "mime-lookup"],
   status: 'stable',
 };

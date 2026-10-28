@@ -87,8 +87,7 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
           ? normalized
           : '';
       const selected = !String(o.filter) || path.includes(String(o.filter));
-      const available = n < 200;
-      if (selected && safe && available) {
+      if (selected && safe) {
         outputs.push({
           filename: safe.replace(/\//g, '__'),
           blob: new Blob([bytes.slice().buffer as ArrayBuffer]),
@@ -98,7 +97,7 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
       rows.push([
         path,
         String(bytes.length),
-        selected && safe ? (available ? 'extracted' : 'skipped (limit)') : 'skipped',
+        selected && safe ? 'extracted' : 'skipped',
       ]);
     }
     onProgress?.(1, 'ZIP entries processed');
@@ -109,8 +108,6 @@ async function run(input: FileRunInput): Promise<FileRunResult> {
       output: JSON.stringify({ headers: ['Path', 'Size', 'Status'], rows }),
       render: 'table',
     },
-    notes:
-      rows.length > 200 ? ['Extraction is limited to the first 200 matching entries.'] : undefined,
     stats: { entries: rows.length, extracted: outputs.length },
   };
 }

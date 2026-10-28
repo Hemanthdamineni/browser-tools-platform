@@ -61,6 +61,9 @@ export const meta: ToolMeta = {
       a: 'ROT13 and Caesar touch A–Z/a–z only, ROT5 touches 0–9 only, ROT18 touches both, and ROT47 touches every printable ASCII character from "!" (33) to "~" (126). Everything else, including spaces and non-ASCII letters, is left untouched.',
     },
   ],
-  related: ['case-convert', 'reverse-text', 'morse-code', 'nato-phonetic'],
+  related: [  "case-convert",
+  "reverse-text",
+  "morse-code",
+  "nato-phonetic"],
   status: 'stable',
 };

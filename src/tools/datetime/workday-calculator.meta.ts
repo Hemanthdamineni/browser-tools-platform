@@ -72,6 +72,9 @@ export const meta: ToolMeta = {
       a: 'Yes — the weekend option supports Saturday+Sunday (default), Friday+Saturday (common in the Gulf), or Thursday+Friday.',
     },
   ],
-  related: ['date-add', 'date-diff', 'duration-convert', 'week-number'],
+  related: [  "date-add",
+  "date-diff",
+  "duration-convert",
+  "week-number"],
   status: 'stable',
 };

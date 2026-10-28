@@ -55,6 +55,8 @@ export const meta: ToolMeta = {
       a: 'sqrt, cbrt, abs, round, floor, ceil, sign, ln, log, log2, exp, sin, cos, tan, asin, acos, atan, atan2, sinh, cosh, tanh, min, max, pow, hypot, gcd, factorial, plus the constants pi and e and the postfix factorial operator !.',
     },
   ],
-  related: ['programmer-calculator', 'unit-convert', 'percentage'],
+  related: [  "programmer-calculator",
+  "unit-convert",
+  "percentage-calculator"],
   status: 'stable',
 };

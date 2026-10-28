@@ -64,6 +64,8 @@ export const meta: ToolMeta = {
       a: 'It sends full URLs, potentially including paths, queries, or tokens, on cross-origin requests.',
     },
   ],
-  related: ['security-headers', 'cross-origin-opener-policy', 'permissions-policy'],
+  related: [  "security-headers",
+  "cross-origin-opener-policy",
+  "permissions-policy"],
   status: 'stable',
 };

@@ -80,7 +80,9 @@ export const meta: ToolMeta = {
       a: 'M is the usual default. Choose H when the code may be printed small, worn, or partly covered — higher levels let scanners still decode a damaged code.',
     },
   ],
-  related: ['placeholder-svg', 'data-uri', 'vcard'],
+  related: [  "placeholder-svg",
+  "data-uri",
+  "vcard"],
   credits: [
     {
       name: 'qrcode-generator',

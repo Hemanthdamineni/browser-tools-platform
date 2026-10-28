@@ -47,6 +47,8 @@ export const meta: ToolMeta = {
       a: 'Some policies depend on context. For example, HSTS should only be sent over HTTPS and CSP needs to match the resources your application actually uses. Read the suggestions before changing production settings.',
     },
   ],
-  related: ['http-status', 'basic-auth', 'jwt-decode'],
+  related: [  "http-status",
+  "basic-auth",
+  "jwt-decode"],
   status: 'stable',
 };

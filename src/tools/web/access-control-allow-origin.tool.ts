@@ -1,77 +1,11 @@
 import type { TextToolModule, TextRunInput, TextRunResult } from '@/lib/types';
-import { ToolError } from '@/lib/types';
-import { resolveOptions } from '@/lib/options';
 import { meta } from './access-control-allow-origin.meta';
+import corsHeadersTool from './cors-headers.tool';
 
-const ORIGIN_RE = /^(https?:\/\/[^\s"']+|\*)$/i;
-function inspect(value: string, credentials: boolean): { normal: string; issues: string[] } {
-  const trimmed = value.trim();
-  const issues: string[] = [];
-  if (!trimmed) issues.push('No Access-Control-Allow-Origin value provided');
-  else if (!ORIGIN_RE.test(trimmed)) issues.push('Value must be * or a single http(s) origin');
-  else if (trimmed === '*' && credentials)
-    issues.push('Wildcard cannot be used with Access-Control-Allow-Credentials: true');
-  else if (trimmed !== '*' && credentials === false && /,/.test(trimmed))
-    issues.push(
-      'Multiple origins are not a valid header value; emit one per response and add Vary: Origin',
-    );
-  return { normal: trimmed, issues };
-}
-function run(input: TextRunInput): TextRunResult {
-  const options = resolveOptions(meta, input.options);
-  const mode = String(options.mode);
-  if (mode !== 'build' && mode !== 'analyze') throw new ToolError('Choose a supported mode.');
-  if (mode === 'build') {
-    const origin = String(options.origin);
-    const credentials = String(options.credentials) === 'yes';
-    const result = inspect(origin, credentials);
-    if (result.issues.length) throw new ToolError(result.issues[0]!);
-    return {
-      output: result.normal,
-      render: 'code',
-      language: 'http',
-      filename: 'access-control-allow-origin.txt',
-      stats: {
-        wildcard: result.normal === '*' ? 'yes' : 'no',
-        credentials: credentials ? 'yes' : 'no',
-      },
-    };
-  }
-  const result = inspect(input.text, false);
-  if (!input.text.trim())
-    return {
-      output: JSON.stringify({ headers: ['Value', 'Status', 'Assessment'], rows: [] }),
-      render: 'table',
-      notes: ['Paste * or a single origin to analyze.'],
-    };
-  const assessment =
-    result.normal === '*'
-      ? 'Allows any origin to read the response (no credentials)'
-      : /^https?:\/\//i.test(result.normal)
-        ? 'Allows only this origin to read the response'
-        : (result.issues[0] ?? 'Invalid value');
-  return {
-    output: JSON.stringify({
-      headers: ['Value', 'Status', 'Assessment'],
-      rows: [
-        [
-          result.normal || input.text.trim(),
-          result.issues.length ? 'Invalid' : 'Valid',
-          assessment,
-        ],
-      ],
-    }),
-    render: 'table',
-    stats: {
-      valid: result.issues.length ? 'no' : 'yes',
-      wildcard: result.normal === '*' ? 'yes' : 'no',
-    },
-    notes: result.issues.length
-      ? result.issues
-      : [
-          'Combine with Access-Control-Allow-Credentials only for specific origins, and send Vary: Origin when the grant is dynamic.',
-        ],
-  };
-}
-const tool: TextToolModule = { meta, run };
+const tool: TextToolModule = {
+  meta,
+  async run(input: TextRunInput): Promise<TextRunResult> {
+    return corsHeadersTool.run(input);
+  },
+};
 export default tool;

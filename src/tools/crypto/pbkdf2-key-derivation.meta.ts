@@ -133,6 +133,10 @@ export const meta: ToolMeta = {
       a: 'An even number of hex digits (spaces, colons and dashes are ignored) is read as hex; anything else is decoded as base64. Match the output encoding to whatever format your stored hash uses.',
     },
   ],
-  related: ['hash', 'hmac', 'password-strength', 'file-hash', 'text-encrypt'],
+  related: [  "hash",
+  "hmac",
+  "password-strength",
+  "file-hash",
+  "text-encrypt"],
   status: 'stable',
 };

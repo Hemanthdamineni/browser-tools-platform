@@ -45,6 +45,8 @@ export const meta: ToolMeta = {
       a: 'Codes that were never standardised (unregistered NGX extensions, drafts that expired) are omitted. Everything in the current IANA HTTP Status Code Registry is included.',
     },
   ],
-  related: ['port-lookup', 'mime-lookup', 'user-agent'],
+  related: [  "port-lookup",
+  "mime-lookup",
+  "user-agent"],
   status: 'stable',
 };

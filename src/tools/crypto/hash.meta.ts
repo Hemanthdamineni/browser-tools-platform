@@ -87,6 +87,9 @@ export const meta: ToolMeta = {
       a: 'Standard Base64 with "+" and "/" replaced by "-" and "_" and the trailing "=" padding removed, so the digest can be dropped straight into URLs and filenames.',
     },
   ],
-  related: ['hmac', 'crc32', 'file-hash', 'base64'],
+  related: [  "hmac",
+  "crc32",
+  "file-hash",
+  "base64"],
   status: 'stable',
 };

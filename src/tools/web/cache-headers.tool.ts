@@ -749,6 +749,7 @@ function run(input: TextRunInput): TextRunResult {
   const options = resolveOptions(meta, input.options);
   return renderFamily(String(options.header), input, options);
 }
+export { run };
 
 const tool: TextToolModule = { meta, run };
 export default tool;

@@ -12,6 +12,7 @@ export const meta: ToolMeta = {
   input: 'file',
   accept: 'audio/*',
   worker: false,
-  related: ['audio-trim', 'audio-speed'],
+  related: [  "audio-trim",
+  "audio-speed"],
   status: 'stable',
 };

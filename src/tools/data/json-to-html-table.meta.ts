@@ -64,6 +64,9 @@ export const meta: ToolMeta = {
       a: 'Objects and arrays inside a cell are pretty-printed as JSON so nothing is lost, and cell text is HTML-escaped (with the option to disable it) so the table markup stays valid.',
     },
   ],
-  related: ['csv-to-html', 'json-format', 'csv-to-json', 'csv-profiler'],
+  related: [  "csv-to-html",
+  "json-format",
+  "csv-to-json",
+  "csv-profiler"],
   status: 'stable',
 };

@@ -1,0 +1,309 @@
+---
+// Dead Pixel Test panel component
+---
+
+<script is:inline>
+  import { onMount } from 'astro/runtime/client';
+
+  const colors = [
+    { name: 'White', css: '#ffffff', desc: 'Reveals dead pixels (black dots)' },
+    { name: 'Black', css: '#000000', desc: 'Reveals hot/stuck-white pixels' },
+    { name: 'Red', css: '#ff0000', desc: 'Reveals stuck red sub-pixels' },
+    { name: 'Green', css: '#00ff00', desc: 'Reveals stuck green sub-pixels' },
+    { name: 'Blue', css: '#0000ff', desc: 'Reveals stuck blue sub-pixels' },
+    { name: 'Cyan', css: '#00ffff', desc: 'Reveals stuck red sub-pixels (complement)' },
+    { name: 'Magenta', css: '#ff00ff', desc: 'Reveals stuck green sub-pixels (complement)' },
+    { name: 'Yellow', css: '#ffff00', desc: 'Reveals stuck blue sub-pixels (complement)' },
+  ];
+
+  let currentIndex = 0;
+  let isFullscreen = false;
+  let autoCycleInterval: number | null = null;
+  let autoCycleSeconds = 0;
+
+  const screen = document.getElementById('dpt-screen') as HTMLDivElement;
+  const colorName = document.getElementById('dpt-color-name') as HTMLDivElement;
+  const colorDesc = document.getElementById('dpt-color-desc') as HTMLDivElement;
+  const colorIndex = document.getElementById('dpt-color-index') as HTMLDivElement;
+  const prevBtn = document.getElementById('dpt-prev') as HTMLButtonElement;
+  const nextBtn = document.getElementById('dpt-next') as HTMLButtonElement;
+  const fullscreenBtn = document.getElementById('dpt-fullscreen') as HTMLButtonElement;
+  const exitBtn = document.getElementById('dpt-exit') as HTMLButtonElement;
+  const autoCycleInput = document.getElementById('dpt-auto-cycle') as HTMLInputElement;
+  const flashBtn = document.getElementById('dpt-flash') as HTMLButtonElement;
+  const statusEl = document.getElementById('dpt-status') as HTMLDivElement;
+
+  function applyColor(index: number) {
+    currentIndex = (index + colors.length) % colors.length;
+    const color = colors[currentIndex];
+    screen.style.background = color.css;
+    colorName.textContent = color.name;
+    colorDesc.textContent = color.desc;
+    colorIndex.textContent = `${currentIndex + 1} / ${colors.length}`;
+
+    // Adjust text color for visibility
+    const isLight = color.name === 'White' || color.name === 'Yellow' || color.name === 'Cyan';
+    screen.style.color = isLight ? '#000' : '#fff';
+    colorName.style.color = isLight ? '#000' : '#fff';
+  }
+
+  function showColor(index: number) {
+    applyColor(index);
+    if (isFullscreen) {
+      document.body.style.background = colors[currentIndex].css;
+    }
+  }
+
+  async function toggleFullscreen() {
+    if (!isFullscreen) {
+      try {
+        await screen.requestFullscreen();
+        isFullscreen = true;
+        document.body.style.background = colors[currentIndex].css;
+        document.body.style.margin = '0';
+        document.body.style.overflow = 'hidden';
+        fullscreenBtn.style.display = 'none';
+        exitBtn.style.display = 'inline-flex';
+        statusEl.textContent = 'Fullscreen — press Escape or click Exit to leave';
+        statusEl.className = 'dpt-status active';
+      } catch (e) {
+        statusEl.textContent = 'Fullscreen request denied';
+        statusEl.className = 'dpt-status error';
+      }
+    } else {
+      exitFullscreen();
+    }
+  }
+
+  function exitFullscreen() {
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    }
+    isFullscreen = false;
+    document.body.style.background = '';
+    document.body.style.margin = '';
+    document.body.style.overflow = '';
+    fullscreenBtn.style.display = 'inline-flex';
+    exitBtn.style.display = 'none';
+    statusEl.textContent = 'Exited fullscreen';
+    statusEl.className = 'dpt-status idle';
+  }
+
+  function startAutoCycle() {
+    stopAutoCycle();
+    autoCycleSeconds = Number(autoCycleInput.value) || 0;
+    if (autoCycleSeconds > 0) {
+      autoCycleInterval = window.setInterval(() => {
+        showColor(currentIndex + 1);
+      }, autoCycleSeconds * 1000);
+      statusEl.textContent = `Auto-cycling every ${autoCycleSeconds}s`;
+      statusEl.className = 'dpt-status info';
+    }
+  }
+
+  function stopAutoCycle() {
+    if (autoCycleInterval) {
+      clearInterval(autoCycleInterval);
+      autoCycleInterval = null;
+    }
+  }
+
+  function flashColors() {
+    let flashIndex = 0;
+    const flashColors = ['#ffffff', '#000000', '#ff0000', '#00ff00', '#0000ff'];
+    const originalBg = screen.style.background;
+
+    function doFlash() {
+      if (flashIndex >= flashColors.length * 3) {
+        screen.style.background = originalBg;
+        flashBtn.disabled = false;
+        flashBtn.textContent = 'Flash Colors';
+        return;
+      }
+      screen.style.background = flashColors[flashIndex % flashColors.length];
+      flashIndex++;
+      setTimeout(doFlash, 100);
+    }
+
+    flashBtn.disabled = true;
+    flashBtn.textContent = 'Flashing...';
+    doFlash();
+  }
+
+  // Keyboard navigation
+  document.addEventListener('keydown', (e) => {
+    if (!isFullscreen && document.activeElement?.tagName === 'INPUT') return;
+
+    switch (e.key) {
+      case 'ArrowRight':
+      case ' ':
+        e.preventDefault();
+        showColor(currentIndex + 1);
+        break;
+      case 'ArrowLeft':
+        e.preventDefault();
+        showColor(currentIndex - 1);
+        break;
+      case 'Escape':
+        if (isFullscreen) exitFullscreen();
+        break;
+      case 'f':
+      case 'F':
+        if (e.target === document.body || e.target === screen) {
+          e.preventDefault();
+          toggleFullscreen();
+        }
+        break;
+    }
+  });
+
+  // Fullscreen change event
+  document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement && isFullscreen) {
+      isFullscreen = false;
+      document.body.style.background = '';
+      document.body.style.margin = '';
+      document.body.style.overflow = '';
+      fullscreenBtn.style.display = 'inline-flex';
+      exitBtn.style.display = 'none';
+      statusEl.textContent = 'Exited fullscreen';
+      statusEl.className = 'dpt-status idle';
+    }
+  });
+
+  // Event listeners
+  prevBtn.addEventListener('click', () => showColor(currentIndex - 1));
+  nextBtn.addEventListener('click', () => showColor(currentIndex + 1));
+  fullscreenBtn.addEventListener('click', toggleFullscreen);
+  exitBtn.addEventListener('click', exitFullscreen);
+  autoCycleInput.addEventListener('change', startAutoCycle);
+  flashBtn.addEventListener('click', flashColors);
+
+  // Click screen to cycle in fullscreen
+  screen.addEventListener('click', () => {
+    if (isFullscreen) showColor(currentIndex + 1);
+  });
+
+  // Initialize
+  applyColor(0);
+  startAutoCycle();
+</script>
+
+<div class="dpt-panel">
+  <div class="dpt-header">
+    <h2>Dead Pixel Test</h2>
+    <p class="dpt-desc">Full-screen solid colors to find dead, stuck, or hot pixels</p>
+  </div>
+
+  <div id="dpt-screen" class="dpt-screen" role="img" aria-label="Dead pixel test color">
+    <div class="dpt-overlay">
+      <div id="dpt-color-name" class="dpt-color-name">White</div>
+      <div id="dpt-color-desc" class="dpt-color-desc">Reveals dead pixels (black dots)</div>
+      <div id="dpt-color-index" class="dpt-color-index">1 / 8</div>
+    </div>
+  </div>
+
+  <div class="dpt-controls">
+    <div class="dpt-nav">
+      <button id="dpt-prev" class="btn btn-secondary" aria-label="Previous color">← Previous</button>
+      <button id="dpt-next" class="btn btn-secondary" aria-label="Next color">Next →</button>
+    </div>
+
+    <div class="dpt-actions">
+      <button id="dpt-fullscreen" class="btn btn-primary">⛶ Enter Fullscreen</button>
+      <button id="dpt-exit" class="btn btn-secondary" style="display: none;">⛶ Exit Fullscreen</button>
+      <button id="dpt-flash" class="btn btn-accent">⚡ Flash Colors</button>
+    </div>
+
+    <div class="dpt-options">
+      <label for="dpt-auto-cycle">Auto-cycle Interval (seconds, 0 = off)</label>
+      <input type="number" id="dpt-auto-cycle" min="0" max="60" step="1" value="0">
+    </div>
+  </div>
+
+  <div class="dpt-legend">
+    <h4>Test Colors</h4>
+    <ul>
+      <li><strong>White</strong> — Dead pixels appear as black dots</li>
+      <li><strong>Black</strong> — Hot/stuck-white pixels appear as bright dots</li>
+      <li><strong>Red / Green / Blue</strong> — Stuck sub-pixels (each pixel has R, G, B sub-pixels)</li>
+      <li><strong>Cyan / Magenta / Yellow</strong> — Complementary colors for complete sub-pixel testing</li>
+    </ul>
+  </div>
+
+  <div class="dpt-instructions">
+    <h4>Instructions</h4>
+    <ul>
+      <li>Click <strong>Enter Fullscreen</strong> or press <kbd>F</kbd> for full-screen testing</li>
+      <li>Use <kbd>←</kbd> / <kbd>→</kbd> arrows or <kbd>Space</kbd> to cycle colors</li>
+      <li>Press <kbd>Escape</kbd> to exit fullscreen</li>
+      <li>Inspect each color carefully for dots that don't match the background</li>
+      <li>Use <strong>Flash Colors</strong> to rapidly cycle — may help unstick stuck pixels</li>
+    </ul>
+  </div>
+
+  <div id="dpt-status" class="dpt-status idle">Ready — click Enter Fullscreen or use arrow keys</div>
+</div>
+
+<style>
+  .dpt-panel { display: flex; flex-direction: column; gap: 1.5rem; padding: 1rem; max-width: 720px; margin: 0 auto; }
+  .dpt-header { text-align: center; }
+  .dpt-header h2 { margin: 0 0 0.25rem; font-size: 1.5rem; }
+  .dpt-desc { color: var(--muted); margin: 0; font-size: 0.875rem; }
+
+  .dpt-screen {
+    aspect-ratio: 16 / 9;
+    background: #ffffff;
+    border-radius: 8px;
+    border: 2px solid var(--border);
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+  }
+  .dpt-overlay {
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 0.5rem;
+    pointer-events: none; padding: 2rem; text-align: center;
+  }
+  .dpt-color-name { font-size: 3rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
+  .dpt-color-desc { font-size: 1rem; opacity: 0.8; }
+  .dpt-color-index { font-size: 1.25rem; font-family: monospace; font-weight: 600; opacity: 0.7; }
+
+  .dpt-controls { display: flex; flex-direction: column; gap: 1rem; }
+  .dpt-nav { display: flex; justify-content: center; gap: 1rem; }
+  .dpt-actions { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+  .dpt-options { display: flex; align-items: center; gap: 1rem; justify-content: center; flex-wrap: wrap; font-size: 0.875rem; }
+  .dpt-options label { color: var(--muted); }
+  .dpt-options input { width: 80px; padding: 0.5rem; border: 1px solid var(--border); border-radius: 4px; background: var(--bg); color: var(--fg); }
+
+  .dpt-legend, .dpt-instructions {
+    background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 8px; padding: 1rem;
+  }
+  .dpt-legend h4, .dpt-instructions h4 { margin: 0 0 0.75rem; font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+  .dpt-legend ul, .dpt-instructions ul { margin: 0; padding-left: 1.25rem; font-size: 0.875rem; line-height: 1.8; }
+  .dpt-legend li, .dpt-instructions li { color: var(--fg); }
+  .dpt-instructions kbd {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 0.125rem 0.375rem;
+    font-family: monospace; font-size: 0.75rem; box-shadow: 0 1px 0 var(--border);
+  }
+
+  .btn { padding: 0.75rem 1.5rem; border-radius: 6px; font-weight: 600; font-size: 0.875rem; cursor: pointer; border: none; transition: all 0.15s; display: inline-flex; align-items: center; gap: 0.5rem; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-primary { background: var(--accent); color: var(--accent-fg); }
+  .btn-primary:hover:not(:disabled) { filter: brightness(1.1); }
+  .btn-secondary { background: var(--bg-elevated); color: var(--fg); border: 1px solid var(--border); }
+  .btn-secondary:hover:not(:disabled) { background: var(--bg-hover); }
+  .btn-accent { background: var(--fg); color: var(--bg); }
+  .btn-accent:hover:not(:disabled) { background: var(--fg-hover); }
+
+  .dpt-status { text-align: center; padding: 0.75rem; border-radius: 6px; font-size: 0.875rem; transition: all 0.15s; }
+  .dpt-status.idle { background: var(--bg-elevated); color: var(--muted); border: 1px solid var(--border); }
+  .dpt-status.active { background: rgba(34, 197, 94, 0.1); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.3); }
+  .dpt-status.error { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+  .dpt-status.info { background: rgba(59, 130, 246, 0.1); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); }
+
+  /* Fullscreen styles */
+  :fullscreen { background: #000; }
+  :fullscreen .dpt-screen { border-radius: 0; border: none; box-shadow: none; }
+  :fullscreen .dpt-overlay { font-size: 2.5rem; }
+</style>

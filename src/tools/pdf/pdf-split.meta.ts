@@ -37,7 +37,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 10,
       min: 1,
-      max: 500,
       showWhen: { key: 'mode', value: 'fixed-size' },
     },
   ],
@@ -51,7 +50,9 @@ export const meta: ToolMeta = {
       a: 'When the split produces more than one file they are bundled into a single ZIP download.',
     },
   ],
-  related: ['pdf-merge', 'pdf-extract-pages', 'pdf-delete-pages'],
+  related: [  "pdf-merge",
+  "pdf-extract-pages",
+  "pdf-delete-pages"],
   credits: [pdfCredit],
   status: 'stable',
 };

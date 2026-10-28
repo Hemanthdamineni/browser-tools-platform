@@ -99,6 +99,8 @@ export const meta: ToolMeta = {
     },
   ],
   credits: [{ name: 'mediabunny', url: 'https://mediabunny.dev', license: 'MPL-2.0' }],
-  related: ['video-info', 'video-to-gif', 'audio-trim'],
+  related: [  "video-info",
+  "video-to-gif",
+  "audio-trim"],
   status: 'beta',
 };

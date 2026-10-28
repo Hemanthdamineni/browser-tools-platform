@@ -68,6 +68,9 @@ export const meta: ToolMeta = {
       a: 'Paste words like "Alpha Bravo" and each recognised word maps back to its letter; unknown words are preserved in brackets so nothing is silently lost.',
     },
   ],
-  related: ['morse-code', 'text-stats', 'case-convert', 'char-frequency'],
+  related: [  "morse-code",
+  "text-stats",
+  "case-convert",
+  "char-frequency"],
   status: 'stable',
 };

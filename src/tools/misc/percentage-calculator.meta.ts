@@ -53,6 +53,8 @@ export const meta: ToolMeta = {
       a: 'Results are reported with full precision by default; use the provided rounded figures when you need money-style values.',
     },
   ],
-  related: ['calculator', 'programmer-calculator', 'tip-calculator'],
+  related: [  "calculator",
+  "programmer-calculator",
+  "tip-calculator"],
   status: 'stable',
 };

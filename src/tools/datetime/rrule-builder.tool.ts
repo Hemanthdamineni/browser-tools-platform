@@ -41,11 +41,11 @@ function run(input: TextRunInput): TextRunResult {
     throw new ToolError('Choose a valid recurrence frequency.');
 
   const interval = Number(options.interval);
-  if (!Number.isInteger(interval) || interval < 1 || interval > 999)
-    throw new ToolError('Repeat interval must be a whole number from 1 to 999.');
+  if (!Number.isInteger(interval) || interval < 1)
+    throw new ToolError('Repeat interval must be a whole number >= 1.');
   const count = Number(options.count);
-  if (!Number.isInteger(count) || count < 0 || count > 9999)
-    throw new ToolError('Occurrence count must be a whole number from 0 to 9999.');
+  if (!Number.isInteger(count) || count < 0)
+    throw new ToolError('Occurrence count must be a whole number >= 0.');
   const untilText = String(options.until ?? '').trim();
   if (count > 0 && untilText)
     throw new ToolError('Use either an occurrence count or an end date, not both.');

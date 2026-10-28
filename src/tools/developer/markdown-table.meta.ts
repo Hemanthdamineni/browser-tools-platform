@@ -53,6 +53,8 @@ export const meta: ToolMeta = {
       a: 'Only surrounding whitespace is trimmed. Content characters and backslash escapes are preserved; separator rows are rebuilt using Markdown alignment markers.',
     },
   ],
-  related: ['markdown-to-html', 'csv-to-json', 'json-to-csv'],
+  related: [  "markdown-to-html",
+  "csv-to-json",
+  "json-to-csv"],
   status: 'stable',
 };

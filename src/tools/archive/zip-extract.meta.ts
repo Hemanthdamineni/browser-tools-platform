@@ -20,7 +20,8 @@ export const meta: ToolMeta = {
     },
   ],
   examples: [{ title: 'Extract a ZIP' }],
-  related: ['zip-create', 'zip-inspect'],
+  related: [  "zip-create",
+  "zip-inspect"],
   credits: [{ name: 'fflate', url: 'https://github.com/101arrowz/fflate', license: 'MIT' }],
   status: 'stable',
 };

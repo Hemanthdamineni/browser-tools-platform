@@ -74,9 +74,7 @@ export function output(
   bytes: Uint8Array,
   type = 'application/pdf',
 ): FileRunResult {
-  const copy = new Uint8Array(bytes.byteLength);
-  copy.set(bytes);
-  return { outputs: [{ filename, blob: new Blob([copy.buffer], { type }) }] };
+  return { outputs: [{ filename, blob: new Blob([bytes.buffer], { type }) }] };
 }
 export function abort(input: FileRunInput) {
   if (input.signal?.aborted) throw new DOMException('The operation was cancelled.', 'AbortError');

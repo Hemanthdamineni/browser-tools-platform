@@ -147,7 +147,8 @@ export function mountWatermarkPanel(root: HTMLElement): void {
     root.querySelectorAll<HTMLInputElement | HTMLSelectElement>('[data-opt]').forEach((el) => {
       const key = el.dataset.opt;
       if (!key) return;
-      values[key] = el instanceof HTMLInputElement && el.type === 'checkbox' ? el.checked : el.value;
+      values[key] =
+        el instanceof HTMLInputElement && el.type === 'checkbox' ? el.checked : el.value;
     });
     values.logo = logoData ?? '';
     return values;
@@ -310,13 +311,16 @@ export function mountWatermarkPanel(root: HTMLElement): void {
       return;
     }
     if (!file.type.startsWith('image/')) {
-      showError(errorBox, 'Choose a PNG, JPEG or SVG logo.', 'SVG logos are rasterised on your device.');
+      showError(
+        errorBox,
+        'Choose a PNG, JPEG or SVG logo.',
+        'SVG logos are rasterised on your device.',
+      );
       return;
     }
     try {
       const url = await readAsDataURL(file);
-      const declared =
-        file.type === 'image/svg+xml' ? svgIntrinsicSize(await file.text()) : null;
+      const declared = file.type === 'image/svg+xml' ? svgIntrinsicSize(await file.text()) : null;
       const image = await loadImage(url);
       logoData = rasteriseLogo(image, declared);
       logoImage = image;

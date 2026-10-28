@@ -64,6 +64,10 @@ export const meta: ToolMeta = {
       a: 'Pursuant to Java properties semantics, the last occurrence of a key wins during parsing. When generating, keys are written once.',
     },
   ],
-  related: ['ini-convert', 'toml-convert', 'json-to-yaml', 'yaml-to-json', 'dotenv'],
+  related: [  "ini-convert",
+  "toml-convert",
+  "json-to-yaml",
+  "yaml-to-json",
+  "dotenv"],
   status: 'stable',
 };

@@ -58,6 +58,8 @@ export const meta: ToolMeta = {
       a: 'Yes - they come from the browser cryptographic random number generator (crypto.getRandomValues), not a seeded pseudo-random generator.',
     },
   ],
-  related: ['color-palette', 'random-data', 'color-blend'],
+  related: [  "color-palette",
+  "random-data",
+  "color-blend"],
   status: 'stable',
 };

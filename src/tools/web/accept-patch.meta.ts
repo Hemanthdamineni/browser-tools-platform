@@ -60,6 +60,8 @@ export const meta: ToolMeta = {
       a: 'A server may reject the request with 415 Unsupported Media Type.',
     },
   ],
-  related: ['content-type', 'http-status', 'http-header-analyzer'],
+  related: [  "content-type",
+  "http-status",
+  "http-header-analyzer"],
   status: 'stable',
 };

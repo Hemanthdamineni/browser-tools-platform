@@ -64,6 +64,8 @@ export const meta: ToolMeta = {
       a: 'It is a server-declared space-delimited scope hint for the requested authorization context. Exact meaning depends on the authorization system.',
     },
   ],
-  related: ['basic-auth', 'set-cookie', 'security-headers'],
+  related: [  "basic-auth",
+  "set-cookie",
+  "security-headers"],
   status: 'stable',
 };

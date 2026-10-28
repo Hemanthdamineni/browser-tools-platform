@@ -33,6 +33,7 @@ export const meta: ToolMeta = {
       a: '#rgb, #rgba, #rrggbb, #rrggbbaa, rgb()/rgba() with commas or spaces, hsl()/hsla(), and the 148 CSS named colours.',
     },
   ],
-  related: ['color-contrast', 'color-palette', 'gradient-generator'],
+  related: [  "color-contrast",
+  "color-palette"],
   status: 'stable',
 };

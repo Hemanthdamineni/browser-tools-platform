@@ -90,7 +90,8 @@ export const meta: ToolMeta = {
     },
   ],
   examples: [{ title: 'Square center crop' }],
-  related: ['image-resize', 'image-rotate'],
+  related: [  "image-resize",
+  "image-rotate"],
   status: 'stable',
   updated: '2026-10-16',
 };

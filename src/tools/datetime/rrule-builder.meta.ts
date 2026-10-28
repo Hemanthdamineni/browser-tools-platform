@@ -39,7 +39,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 1,
       min: 1,
-      max: 999,
     },
     {
       key: 'weekdays',
@@ -61,7 +60,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 0,
       min: 0,
-      max: 9999,
     },
     {
       key: 'until',
@@ -96,6 +94,8 @@ export const meta: ToolMeta = {
       a: 'UNTIL is emitted as a date-only value in YYYYMMDD form. For date-time DTSTART values, RFC 5545 generally requires UNTIL in UTC; use a UTC timestamp-aware calendar library for that case.',
     },
   ],
-  related: ['ical-event', 'cron-parser', 'date-add'],
+  related: [  "ical-event",
+  "cron-parser",
+  "date-add"],
   status: 'stable',
 };

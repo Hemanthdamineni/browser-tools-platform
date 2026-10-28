@@ -30,7 +30,7 @@ export const meta: ToolMeta = {
     { key: 'outputName', label: 'Decoded filename', type: 'text', default: 'decoded.bin' },
   ],
   examples: [{ title: 'Encode or decode a file' }],
-  related: ['base64'],
+  related: [  "base64"],
   status: 'stable',
   hidden: true,
   redirectTo: 'base64',

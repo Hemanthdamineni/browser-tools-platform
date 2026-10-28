@@ -62,6 +62,9 @@ export const meta: ToolMeta = {
       a: 'It runs the Sieve of Eratosthenes up to your limit and shows the count and the primes (capped for very large limits).',
     },
   ],
-  related: ['luhn-validator', 'vin-validator', 'barcode-validator', 'unit-convert'],
+  related: [  "luhn-validator",
+  "vin-validator",
+  "barcode-validator",
+  "unit-convert"],
   status: 'stable',
 };

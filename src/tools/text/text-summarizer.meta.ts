@@ -61,6 +61,8 @@ export const meta: ToolMeta = {
       a: 'This is an extractive summarizer — it selects whole sentences from the input. Multi-paragraph documents work well; a single short paragraph shrinks to the same paragraph rather than a rewrite.',
     },
   ],
-  related: ['text-stats', 'word-frequency', 'char-frequency'],
+  related: [  "text-stats",
+  "word-frequency",
+  "char-frequency"],
   status: 'stable',
 };

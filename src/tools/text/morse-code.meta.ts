@@ -51,6 +51,8 @@ export const meta: ToolMeta = {
       a: 'Runs of whitespace are collapsed, and both "/" and "|" (with or without surrounding spaces) are treated as word separators. An unrecognised dot/dash group raises an error rather than being dropped silently.',
     },
   ],
-  related: ['nato-phonetic', 'rot13', 'binary-text', 'case-convert'],
+  related: [  "nato-phonetic",
+  "rot13",
+  "case-convert"],
   status: 'stable',
 };

@@ -76,6 +76,9 @@ export const meta: ToolMeta = {
       a: 'Standard quoting works for PostgreSQL, SQLite and MySQL. Pick the MySQL option if you prefer backtick-quoted identifiers.',
     },
   ],
-  related: ['csv-to-sql', 'json-to-csv', 'sql-format', 'json-to-yaml'],
+  related: [  "csv-to-sql",
+  "json-to-csv",
+  "sql-format",
+  "json-to-yaml"],
   status: 'stable',
 };

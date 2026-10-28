@@ -36,7 +36,7 @@ const NIL = '00000000-0000-0000-0000-000000000000';
 function run(input: TextRunInput): TextRunResult {
   const o = resolveOptions(meta, input.options);
   const version = String(o.version ?? 'v4');
-  const count = Math.min(1000, Math.max(1, Math.floor(Number(o.count ?? 1))));
+  const count = Math.max(1, Math.floor(Number(o.count ?? 1)));
   if (!Number.isFinite(count)) throw new ToolError('Count must be a number.');
 
   const base = Date.now();

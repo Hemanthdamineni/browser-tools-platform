@@ -16,7 +16,8 @@ export const meta: ToolMeta = {
     { key: 'gzip', label: 'Gzip (.tar.gz)', type: 'boolean', default: false },
   ],
   examples: [{ title: 'Create a TAR archive' }],
-  related: ['tar-extract', 'zip-create'],
+  related: [  "tar-extract",
+  "zip-create"],
   credits: [{ name: 'fflate', url: 'https://github.com/101arrowz/fflate', license: 'MIT' }],
   status: 'stable',
 };

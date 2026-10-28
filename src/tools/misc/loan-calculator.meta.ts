@@ -49,6 +49,7 @@ export const meta: ToolMeta = {
       a: 'With the standard amortisation formula: P · r / (1 − (1+r)^−n), where r is the monthly rate and n is the number of monthly payments. When the rate is zero the payment is simply the principal divided by the number of payments.',
     },
   ],
-  related: ['tip-calculator', 'unit-convert'],
+  related: [  "tip-calculator",
+  "unit-convert"],
   status: 'stable',
 };

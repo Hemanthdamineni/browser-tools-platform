@@ -58,7 +58,9 @@ export const meta: ToolMeta = {
       a: 'Yes. Every object in the tree has its keys sorted; array order is always preserved.',
     },
   ],
-  related: ['json-to-yaml', 'csv-to-json', 'json-to-csv'],
+  related: [  "json-to-yaml",
+  "csv-to-json",
+  "json-to-csv"],
   credits: [{ name: 'yaml', url: 'https://github.com/eemeli/yaml', license: 'ISC' }],
   status: 'stable',
 };

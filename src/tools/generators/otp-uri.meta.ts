@@ -105,6 +105,8 @@ export const meta: ToolMeta = {
       a: 'It is generated in your browser with crypto.getRandomValues and never leaves the device. Still, treat any 2FA secret like a password: anyone who has it can generate your codes.',
     },
   ],
-  related: ['qr-code', 'random-string', 'hmac'],
+  related: [  "qr-code",
+  "random-string",
+  "hmac"],
   status: 'stable',
 };

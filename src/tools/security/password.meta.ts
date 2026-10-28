@@ -55,6 +55,8 @@ export const meta: ToolMeta = {
       a: 'No. Generation is local and offline; the passwords never leave your device.',
     },
   ],
-  related: ['passphrase', 'random-string', 'uuid'],
+  related: [  "passphrase",
+  "random-string",
+  "uuid"],
   status: 'stable',
 };

@@ -56,6 +56,8 @@ export const meta: ToolMeta = {
       a: 'A server may reject the request with 415 Unsupported Media Type.',
     },
   ],
-  related: ['content-type', 'accept-patch', 'http-status'],
+  related: [  "content-type",
+  "accept-patch",
+  "http-status"],
   status: 'stable',
 };

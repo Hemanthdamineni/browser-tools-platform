@@ -39,6 +39,7 @@ export const meta: ToolMeta = {
     { title: 'Shift', input: '1 << 4' },
     { title: 'Complement', input: '~0', options: { bits: '8' } },
   ],
-  related: ['number-base', 'calculator'],
+  related: [  "number-base",
+  "calculator"],
   status: 'stable',
 };

@@ -113,6 +113,8 @@ export const meta: ToolMeta = {
       a: 'Save it as a .vcf file, attach it to an email, host it on your site, or pair it with the QR Code Generator to make a scannable contact card.',
     },
   ],
-  related: ['ical-event', 'qr-code', 'meta-tags'],
+  related: [  "ical-event",
+  "qr-code",
+  "meta-tags"],
   status: 'stable',
 };

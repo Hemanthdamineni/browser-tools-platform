@@ -72,6 +72,9 @@ export const meta: ToolMeta = {
       a: 'This tool reports them. Use the dedupe-lines tool to actually delete repeats, keeping the first or last occurrence — they work together.',
     },
   ],
-  related: ['dedupe-lines', 'sort-lines', 'remove-empty-lines', 'line-numbers'],
+  related: [  "dedupe-lines",
+  "sort-lines",
+  "remove-empty-lines",
+  "line-numbers"],
   status: 'stable',
 };

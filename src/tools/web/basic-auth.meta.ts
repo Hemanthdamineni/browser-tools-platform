@@ -60,6 +60,8 @@ export const meta: ToolMeta = {
       a: 'Send it as a plain HTTP header: Authorization: Basic <token>. The browser or HTTP client attaches it to every request; it never touches this page once you copy it.',
     },
   ],
-  related: ['url-parse', 'jwt-decode', 'base64'],
+  related: [  "url-parse",
+  "jwt-decode",
+  "base64"],
   status: 'stable',
 };

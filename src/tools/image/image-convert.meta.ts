@@ -42,7 +42,8 @@ export const meta: ToolMeta = {
     },
   ],
   examples: [{ title: 'Convert to WebP' }],
-  related: ['image-compress', 'svg-to-png'],
+  related: [  "image-compress",
+  "svg-to-png"],
   status: 'stable',
   updated: '2026-10-16',
 };

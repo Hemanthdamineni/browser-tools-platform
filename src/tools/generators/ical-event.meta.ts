@@ -44,7 +44,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 0,
       min: 0,
-      max: 1440,
     },
   ],
   examples: [
@@ -77,6 +76,8 @@ export const meta: ToolMeta = {
       a: 'Save it as event.ics and double-click it, or paste the text into a .ics file. You can also host it and link to it from a website.',
     },
   ],
-  related: ['vcard', 'date-add', 'timezone-convert'],
+  related: [  "vcard",
+  "date-add",
+  "timezone-convert"],
   status: 'stable',
 };

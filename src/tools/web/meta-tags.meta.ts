@@ -62,6 +62,8 @@ export const meta: ToolMeta = {
       a: 'Quotes and angle brackets are escaped (&quot; &lt; &gt; &amp;) so the generated HTML is safe to paste even when your title contains special characters.',
     },
   ],
-  related: ['robots-txt', 'gitignore', 'url-parse'],
+  related: [  "robots-txt",
+  "gitignore",
+  "url-parse"],
   status: 'stable',
 };

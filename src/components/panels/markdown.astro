@@ -1,0 +1,697 @@
+---
+/**
+ * The Markdown Preview panel: split-pane live editor with sandboxed preview.
+ *
+ * The `markdown-preview` tool opts into this panel via `meta.panel = 'markdown'`.
+ * It receives sanitised HTML from the tool's helpers and renders it inside a
+ * sandboxed iframe (no scripts, no same-origin) to honour the tool's
+ * `network: 'none'` privacy guarantee.
+ */
+import type { ToolMeta } from '@/lib/types';
+import OptionsFields from '../workbench/OptionsFields.astro';
+import Icon from '@/components/Icon.astro';
+
+interface Props {
+  meta: ToolMeta;
+}
+const { meta } = Astro.props;
+const options = meta.options ?? [];
+const examples = meta.examples ?? [];
+const p = meta.id;
+---
+
+<section
+  class="surface rounded-lg p-4 sm:p-6"
+  data-markdown-panel
+  data-tool-id={meta.id}
+  aria-label={`${meta.name} workbench`}
+>
+  <!-- Toolbar -->
+  <div class="mb-4 flex flex-wrap items-center gap-2.5">
+    <button
+      type="button"
+      class="flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium transition-colors hover:bg-[rgb(var(--bg-subtle))]"
+      data-paste
+      aria-label="Paste from clipboard"
+    >
+      <Icon name="clipboard" class="w-4 h-4" />
+      <span>Paste</span>
+    </button>
+    <button
+      type="button"
+      class="flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium transition-colors hover:bg-[rgb(var(--bg-subtle))]"
+      data-clear
+      aria-label="Clear editor"
+    >
+      <Icon name="trash-2" class="w-4 h-4" />
+      <span>Clear</span>
+    </button>
+    <div class="flex-1 min-w-0" />
+    <button
+      type="button"
+      class="flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium transition-colors hover:bg-[rgb(var(--bg-subtle))]"
+      data-export
+      aria-label="Export as HTML file"
+    >
+      <Icon name="download" class="w-4 h-4" />
+      <span>Export .html</span>
+    </button>
+    <button
+      type="button"
+      class="flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium transition-colors hover:bg-[rgb(var(--bg-subtle))]"
+      data-copy
+      aria-label="Copy HTML to clipboard"
+    >
+      <Icon name="copy" class="w-4 h-4" />
+      <span>Copy HTML</span>
+    </button>
+    <button
+      type="button"
+      class="flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium transition-colors hover:bg-[rgb(var(--bg-subtle))]"
+      data-print
+      aria-label="Print or save as PDF"
+    >
+      <Icon name="printer" class="w-4 h-4" />
+      <span>Print / PDF</span>
+    </button>
+  </div>
+
+  <!-- Examples -->
+  {
+    examples.length > 0 && (
+      <div class="mb-4 flex flex-wrap items-center gap-2">
+        <span class="text-xs text-[rgb(var(--text-muted))]">Examples:</span>
+        {
+          examples.map((ex, i) => (
+            <button
+              type="button"
+              class="rounded-lg border px-2.5 py-1.5 text-xs transition-colors hover:bg-[rgb(var(--bg-subtle))]"
+              data-example={i}
+              aria-label={`Load example: ${ex.title}`}
+            >
+              {ex.title}
+            </button>
+          ))
+        }
+      </div>
+    )
+  }
+
+  <!-- Split-pane layout -->
+  <div class="grid gap-4 lg:grid-cols-2" data-split-pane>
+    <!-- Editor pane -->
+    <div class="flex flex-col min-w-0" data-editor-pane>
+      <label
+        for={`${p}-editor`}
+        class="mb-1.5 text-sm font-medium text-[rgb(var(--text))]"
+      >
+        Markdown source
+      </label>
+      <textarea
+        id={`${p}-editor`}
+        class="flex-1 min-h-[400px] resize-none rounded-lg border bg-[rgb(var(--bg))] px-3 py-2.5 text-sm font-mono leading-relaxed text-[rgb(var(--text))] placeholder-[rgb(var(--text-muted))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--accent))] focus:border-transparent"
+        data-editor
+        spellcheck="false"
+        placeholder="Write Markdown here…"
+      ></textarea>
+      <p class="mt-1.5 text-xs text-[rgb(var(--text-muted))]" data-editor-hint>
+        Type to see the live preview on the right. Options below control rendering.
+      </p>
+    </div>
+
+    <!-- Preview pane -->
+    <div class="flex flex-col min-w-0" data-preview-pane>
+      <label
+        for={`${p}-preview`}
+        class="mb-1.5 text-sm font-medium text-[rgb(var(--text))]"
+      >
+        Live preview
+      </label>
+      <div class="flex-1 relative min-h-[400px] rounded-lg border bg-[rgb(var(--bg))] overflow-hidden">
+        <iframe
+          id={`${p}-preview`}
+          class="absolute inset-0 w-full h-full border-0 bg-transparent"
+          sandbox="allow-forms allow-pointer-lock"
+          data-preview
+          title="Markdown preview"
+          aria-label="Markdown preview"
+        ></iframe>
+        <div
+          class="absolute inset-0 flex items-center justify-center px-4 text-center text-[rgb(var(--text-muted))]"
+          data-preview-placeholder
+          aria-hidden="true"
+        >
+          <p>The preview will appear here as you type.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Options -->
+  {
+    options.length > 0 && (
+      <details class="mt-4 rounded-lg border" open>
+        <summary class="px-4 py-3 text-sm font-medium text-[rgb(var(--text))] cursor-pointer select-none">
+          Options
+        </summary>
+        <div class="px-4 pb-4">
+          <OptionsFields options={options} idPrefix={p} />
+        </div>
+      </details>
+    )
+  }
+
+  <!-- Progress -->
+  <div class="mt-4" hidden data-progress-wrap>
+    <div class="mb-2 flex items-center justify-between">
+      <span class="text-sm font-medium text-[rgb(var(--text))]" data-progress-label>Working…</span>
+      <span class="text-xs text-[rgb(var(--text-muted))]" data-progress-pct>0%</span>
+    </div>
+    <progress class="w-full h-2" value="0" max="100" data-progress-bar></progress>
+  </div>
+
+  <!-- Error -->
+  <div class="mt-4 rounded-lg bg-[rgb(var(--danger)/0.1)] p-3 text-sm text-[rgb(var(--danger))]" hidden data-error>
+    <p class="font-medium" data-error-title>Error</p>
+    <p data-error-message></p>
+  </div>
+
+  <!-- Result / stats -->
+  <div class="mt-4" hidden data-result-wrap>
+    <details class="rounded-lg border" open>
+      <summary class="px-4 py-3 text-sm font-medium text-[rgb(var(--text))] cursor-pointer select-none">
+        Result
+      </summary>
+      <div class="p-4 space-y-3">
+        <div class="grid gap-2 sm:grid-cols-2" data-result-stats></div>
+        <div data-result-notes>
+          <h4 class="text-sm font-medium text-[rgb(var(--text))]">Notes</h4>
+          <ul class="mt-1.5 list-disc list-inside text-sm text-[rgb(var(--text-muted))]" data-notes-list></ul>
+        </div>
+      </div>
+    </details>
+  </div>
+</section>
+
+<style>
+  /* Split-pane: equal columns on large screens, stacked on mobile */
+  @media (min-width: 1024px) {
+    [data-split-pane] {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  /* Ensure textarea and preview iframe take available height */
+  [data-editor-pane] {
+    display: flex;
+    flex-direction: column;
+  }
+
+  [data-editor-pane] textarea {
+    flex: 1;
+    min-height: 400px;
+  }
+
+  [data-preview-pane] {
+    display: flex;
+    flex-direction: column;
+  }
+
+  [data-preview-pane] > div {
+    flex: 1;
+  }
+
+  /* Hide placeholder when iframe has content */
+  [data-preview]:not([srcdoc=""]) + [data-preview-placeholder],
+  [data-preview][data-has-content] + [data-preview-placeholder] {
+    display: none;
+  }
+
+  /* Example buttons active state */
+  [data-example][aria-pressed="true"] {
+    background-color: rgb(var(--accent));
+    border-color: rgb(var(--accent));
+    color: rgb(var(--accent-foreground));
+  }
+
+  /* Progress bar styling */
+  [data-progress-wrap] progress {
+    -webkit-appearance: none;
+    appearance: none;
+    border: none;
+    border-radius: 9999px;
+    background: rgb(var(--bg-subtle));
+  }
+
+  [data-progress-wrap] progress::-webkit-progress-bar {
+    border-radius: 9999px;
+    background: rgb(var(--bg-subtle));
+  }
+
+  [data-progress-wrap] progress::-webkit-progress-value {
+    border-radius: 9999px;
+    background: rgb(var(--accent));
+    transition: width 0.15s ease-out;
+  }
+
+  [data-progress-wrap] progress::-moz-progress-bar {
+    border-radius: 9999px;
+    background: rgb(var(--accent));
+    transition: width 0.15s ease-out;
+  }
+</style>
+
+<script>
+  // Import pure helpers for live preview
+  import {
+    renderMarkdown,
+    sanitizeHtml,
+    buildPreviewDocument,
+    buildPrintFragment,
+    documentStats,
+    extractTitle,
+    extractCodeFences,
+    applyCodeHighlighting,
+    type RenderOptions,
+    type PreviewTheme,
+  } from '@/tools/developer/markdown-preview.tool';
+
+  // Lazy-loaded highlighter
+  import { loadHighlighter, resolveTheme, type ThemeName } from '@/tools/developer/markdown-preview.highlight';
+
+  // Worker client for export/copy actions
+  import { runToolById } from '@/lib/worker/client';
+
+  // DOM elements
+  const panel = document.currentScript?.parentElement;
+  if (!panel) throw new Error('Panel element not found');
+
+  const editor = panel.querySelector<HTMLTextAreaElement>('[data-editor]')!;
+  const previewIframe = panel.querySelector<HTMLIFrameElement>('[data-preview]')!;
+  const previewPlaceholder = panel.querySelector('[data-preview-placeholder]')!;
+  const exportBtn = panel.querySelector<HTMLButtonElement>('[data-export]')!;
+  const copyBtn = panel.querySelector<HTMLButtonElement>('[data-copy]')!;
+  const printBtn = panel.querySelector<HTMLButtonElement>('[data-print]')!;
+  const pasteBtn = panel.querySelector<HTMLButtonElement>('[data-paste]')!;
+  const clearBtn = panel.querySelector<HTMLButtonElement>('[data-clear]')!;
+  const exampleBtns = panel.querySelectorAll<HTMLButtonElement>('[data-example]');
+  const progressWrap = panel.querySelector('[data-progress-wrap]')!;
+  const progressLabel = panel.querySelector('[data-progress-label]')!;
+  const progressPct = panel.querySelector('[data-progress-pct]')!;
+  const progressBar = panel.querySelector<HTMLProgressElement>('[data-progress-bar]')!;
+  const errorEl = panel.querySelector('[data-error]')!;
+  const errorTitle = panel.querySelector('[data-error-title]')!;
+  const errorMessage = panel.querySelector('[data-error-message]')!;
+  const resultWrap = panel.querySelector('[data-result-wrap]')!;
+  const resultStats = panel.querySelector('[data-result-stats]')!;
+  const notesList = panel.querySelector('[data-notes-list]')!;
+
+  // State
+  let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+  let highlighterPromise: Promise<(code: string, lang: string) => string | null> | null = null;
+  let currentHighlighter: ((code: string, lang: string) => string | null) | null = null;
+  let currentOptions: RenderOptions & { highlight: boolean; codeTheme: string; theme: PreviewTheme } = {
+    gfm: true,
+    breaks: false,
+    headerIds: true,
+    highlight: true,
+    codeTheme: 'auto',
+    theme: 'light',
+  };
+
+  // Initialize options from defaults
+  function initOptions() {
+    const optionEls = panel.querySelectorAll('[data-option-wrap]');
+    optionEls.forEach((wrap) => {
+      const key = wrap.getAttribute('data-option-wrap');
+      if (!key) return;
+
+      const input = wrap.querySelector<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>(
+        'input, select, textarea'
+      );
+      if (!input) return;
+
+      // Find the option definition
+      const optDef = (panel as any).__options?.find?.((o: any) => o.key === key);
+      // Use default from meta.options
+      const metaOpt = meta.options?.find((o) => o.key === key);
+      if (metaOpt) {
+        (currentOptions as any)[key] = metaOpt.default;
+        if (input.type === 'checkbox') {
+          input.checked = Boolean(metaOpt.default);
+        } else {
+          input.value = String(metaOpt.default);
+        }
+      }
+
+      // Listen for changes
+      input.addEventListener('change', () => {
+        if (input.type === 'checkbox') {
+          (currentOptions as any)[key] = input.checked;
+        } else if (input.type === 'number' || input.type === 'range') {
+          (currentOptions as any)[key] = Number(input.value);
+        } else {
+          (currentOptions as any)[key] = input.value;
+        }
+        scheduleRender();
+        updateHighlighter();
+      });
+    });
+  }
+
+  // Schedule a debounced render
+  function scheduleRender() {
+    if (debounceTimer) clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(renderPreview, 180);
+  }
+
+  // Update highlighter based on current options
+  async function updateHighlighter() {
+    if (!currentOptions.highlight) {
+      currentHighlighter = null;
+      return;
+    }
+
+    const themeChoice = currentOptions.codeTheme;
+    const pageTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    const resolvedTheme = resolveTheme(themeChoice, pageTheme) as ThemeName;
+
+    if (highlighterPromise) return;
+
+    highlighterPromise = loadHighlighter(resolvedTheme);
+    try {
+      currentHighlighter = await highlighterPromise;
+    } catch {
+      currentHighlighter = null;
+    }
+  }
+
+  // Render markdown to the preview iframe
+  async function renderPreview() {
+    const text = editor.value;
+    if (!text.trim()) {
+      previewIframe.removeAttribute('srcdoc');
+      previewIframe.removeAttribute('data-has-content');
+      previewPlaceholder.style.display = 'flex';
+      return;
+    }
+
+    previewPlaceholder.style.display = 'none';
+    previewIframe.setAttribute('data-has-content', 'true');
+
+    try {
+      // Render markdown
+      const html = renderMarkdown(text, {
+        gfm: currentOptions.gfm,
+        breaks: currentOptions.breaks,
+        headerIds: currentOptions.headerIds,
+      });
+
+      // Sanitize
+      const safeHtml = sanitizeHtml(html);
+
+      // Apply code highlighting if enabled
+      let finalHtml = safeHtml;
+      if (currentOptions.highlight && currentHighlighter) {
+        finalHtml = applyCodeHighlighting(safeHtml, currentHighlighter);
+      }
+
+      // Build preview document
+      const previewDoc = buildPreviewDocument(finalHtml, currentOptions.theme);
+
+      // Write to iframe
+      previewIframe.srcdoc = previewDoc;
+    } catch (err) {
+      console.error('Preview render error:', err);
+      showError('Preview failed', err instanceof Error ? err.message : String(err));
+    }
+  }
+
+  // Show error in the error region
+  function showError(title: string, message: string) {
+    errorTitle.textContent = title;
+    errorMessage.textContent = message;
+    errorEl.hidden = false;
+  }
+
+  // Hide error
+  function hideError() {
+    errorEl.hidden = true;
+  }
+
+  // Show result stats/notes
+  function showResult(stats: Record<string, string | number>, notes: string[]) {
+    // Stats
+    resultStats.innerHTML = '';
+    for (const [key, value] of Object.entries(stats)) {
+      const dt = document.createElement('dt');
+      dt.className = 'text-sm text-[rgb(var(--text-muted))]';
+      dt.textContent = key;
+      const dd = document.createElement('dd');
+      dd.className = 'text-sm font-medium text-[rgb(var(--text))]';
+      dd.textContent = String(value);
+      resultStats.append(dt, dd);
+    }
+
+    // Notes
+    notesList.innerHTML = '';
+    for (const note of notes) {
+      const li = document.createElement('li');
+      li.textContent = note;
+      notesList.append(li);
+    }
+
+    resultWrap.hidden = false;
+  }
+
+  // Handle toolbar actions
+  async function handleExport() {
+    const text = editor.value;
+    if (!text.trim()) return;
+
+    showProgress('Exporting…', 0);
+    try {
+      const result = await runToolById('markdown-preview', {
+        text,
+        options: currentOptions,
+      }, {
+        onProgress: (frac) => updateProgress(frac * 100),
+      });
+
+      const title = extractTitle(text);
+      const exportHtml = buildExportDocument({
+        title,
+        body: result.output,
+        theme: currentOptions.theme,
+      });
+
+      const blob = new Blob([exportHtml], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${title.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.html`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      showError('Export failed', err instanceof Error ? err.message : String(err));
+    } finally {
+      hideProgress();
+    }
+  }
+
+  async function handleCopy() {
+    const text = editor.value;
+    if (!text.trim()) return;
+
+    try {
+      const result = await runToolById('markdown-preview', {
+        text,
+        options: currentOptions,
+      });
+
+      await navigator.clipboard.writeText(result.output);
+      copyBtn.textContent = 'Copied!';
+      setTimeout(() => {
+        copyBtn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg><span>Copy HTML</span>';
+      }, 1500);
+    } catch (err) {
+      showError('Copy failed', err instanceof Error ? err.message : String(err));
+    }
+  }
+
+  function handlePrint() {
+    const text = editor.value;
+    if (!text.trim()) return;
+
+    try {
+      const html = renderMarkdown(text, {
+        gfm: currentOptions.gfm,
+        breaks: currentOptions.breaks,
+        headerIds: currentOptions.headerIds,
+      });
+      const safeHtml = sanitizeHtml(html);
+
+      let finalHtml = safeHtml;
+      if (currentOptions.highlight && currentHighlighter) {
+        finalHtml = applyCodeHighlighting(safeHtml, currentHighlighter);
+      }
+
+      const printFragment = buildPrintFragment(finalHtml, currentOptions.theme);
+
+      const printWindow = window.open('', '_blank');
+      if (!printWindow) {
+        showError('Print blocked', 'Please allow popups for this site to use Print/PDF.');
+        return;
+      }
+
+      printWindow.document.write(`<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Print</title>
+<style>
+@media print {
+  @page { margin: 2cm; }
+  body { font-family: system-ui, sans-serif; line-height: 1.6; }
+}
+</style>
+${printFragment}
+</head>
+<body>
+<\/script>
+  window.onload = function() {
+    window.print();
+    window.onafterprint = function() { window.close(); };
+  };
+<\/script>
+</body>
+</html>`);
+      printWindow.document.close();
+    } catch (err) {
+      showError('Print failed', err instanceof Error ? err.message : String(err));
+    }
+  }
+
+  async function handlePaste() {
+    try {
+      const text = await navigator.clipboard.readText();
+      editor.value = text;
+      scheduleRender();
+      editor.focus();
+    } catch {
+      showError('Paste failed', 'Could not read clipboard. Please check permissions.');
+    }
+  }
+
+  function handleClear() {
+    editor.value = '';
+    scheduleRender();
+    editor.focus();
+  }
+
+  function handleExample(index: number) {
+    const ex = examples[index];
+    if (!ex) return;
+
+    // Update example button states
+    exampleBtns.forEach((btn, i) => {
+      btn.setAttribute('aria-pressed', String(i === index));
+    });
+
+    // Load example text
+    editor.value = ex.input;
+    scheduleRender();
+
+    // Apply example options if provided
+    if (ex.options) {
+      Object.entries(ex.options).forEach(([key, value]) => {
+        (currentOptions as any)[key] = value;
+        const wrap = panel.querySelector(`[data-option-wrap="${key}"]`);
+        if (wrap) {
+          const input = wrap.querySelector<HTMLInputElement | HTMLSelectElement>('input, select');
+          if (input) {
+            if (input.type === 'checkbox') {
+              input.checked = Boolean(value);
+            } else {
+              input.value = String(value);
+            }
+          }
+        }
+      });
+      updateHighlighter();
+    }
+
+    // Trigger a render to show stats
+    const text = editor.value;
+    if (text.trim()) {
+      try {
+        const html = renderMarkdown(text, {
+          gfm: currentOptions.gfm,
+          breaks: currentOptions.breaks,
+          headerIds: currentOptions.headerIds,
+        });
+        const safeHtml = sanitizeHtml(html);
+        const stats = documentStats(text);
+        showResult({
+          'input chars': text.length,
+          words: stats.words,
+          headings: stats.headings,
+          'code blocks': stats.codeBlocks,
+          links: stats.links,
+        }, [
+          'The preview panel renders this HTML inside a sandboxed frame, so raw HTML in the document can never run scripts.',
+          'The exported file is sanitised: scripts, frames, embedded objects, event-handler attributes and javascript:/data: URLs are removed.',
+        ]);
+      } catch {
+        // Ignore
+      }
+    }
+
+    editor.focus();
+  }
+
+  function showProgress(label: string, pct: number) {
+    progressLabel.textContent = label;
+    progressPct.textContent = `${Math.round(pct)}%`;
+    progressBar.value = pct;
+    progressWrap.hidden = false;
+  }
+
+  function updateProgress(pct: number) {
+    progressPct.textContent = `${Math.round(pct)}%`;
+    progressBar.value = pct;
+  }
+
+  function hideProgress() {
+    progressWrap.hidden = true;
+  }
+
+  // Event listeners
+  editor.addEventListener('input', scheduleRender);
+
+  exportBtn.addEventListener('click', handleExport);
+  copyBtn.addEventListener('click', handleCopy);
+  printBtn.addEventListener('click', handlePrint);
+  pasteBtn.addEventListener('click', handlePaste);
+  clearBtn.addEventListener('click', handleClear);
+
+  exampleBtns.forEach((btn, i) => {
+    btn.addEventListener('click', () => handleExample(i));
+  });
+
+  // Load first example on mount if available
+  if (examples.length > 0) {
+    handleExample(0);
+  }
+
+  // Initialize options from defaults
+  initOptions();
+
+  // Initialize highlighter if needed
+  updateHighlighter();
+
+  // Cleanup
+  window.addEventListener('beforeunload', () => {
+    if (debounceTimer) clearTimeout(debounceTimer);
+  });
+</script>

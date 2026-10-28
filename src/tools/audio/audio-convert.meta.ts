@@ -1,0 +1,83 @@
+import type { ToolMeta } from '@/lib/types';
+
+export const meta: ToolMeta = {
+  id: 'audio-convert',
+  name: 'Convert Audio',
+  category: 'audio',
+  summary: 'Convert audio to WAV, MP3, Opus or OGG with sample rate, channels and bitrate.',
+  description:
+    'Decode supported audio (MP3, OGG, WAV, etc.) to PCM then re-encode to target format using WebCodecs. All processing is client-side.',
+  keywords: [
+    'audio',
+    'convert',
+    'wav',
+    'mp3',
+    'opus',
+    'ogg',
+    'vorbis',
+    'sample rate',
+    'channels',
+    'bitrate',
+  ],
+  privacy: { processing: 'on-device', network: 'none', offline: true },
+  input: 'file',
+  accept: 'audio/*',
+  multiple: true,
+  worker: false,
+  options: [
+    {
+      key: 'format',
+      label: 'Output format',
+      type: 'select',
+      default: 'wav',
+      choices: [
+        { value: 'wav', label: 'WAV (16-bit PCM)' },
+        { value: 'mp3', label: 'MP3' },
+        { value: 'opus', label: 'Opus' },
+        { value: 'ogg', label: 'OGG (Vorbis)' },
+      ],
+    },
+    {
+      key: 'sampleRate',
+      label: 'Sample rate',
+      type: 'select',
+      default: 'original',
+      choices: [
+        { value: 'original', label: 'Original' },
+        { value: '8000', label: '8,000 Hz' },
+        { value: '16000', label: '16,000 Hz' },
+        { value: '22050', label: '22,050 Hz' },
+        { value: '44100', label: '44,100 Hz' },
+        { value: '48000', label: '48,000 Hz' },
+      ],
+    },
+    {
+      key: 'channels',
+      label: 'Channels',
+      type: 'select',
+      default: 'original',
+      choices: [
+        { value: 'original', label: 'Original' },
+        { value: 'mono', label: 'Mono' },
+        { value: 'stereo', label: 'Stereo' },
+      ],
+    },
+    {
+      key: 'bitrate',
+      label: 'Bitrate (kbit/s)',
+      type: 'select',
+      default: '192',
+      choices: [
+        { value: '64', label: '64 kbit/s' },
+        { value: '128', label: '128 kbit/s' },
+        { value: '192', label: '192 kbit/s' },
+        { value: '256', label: '256 kbit/s' },
+        { value: '320', label: '320 kbit/s' },
+      ],
+    },
+  ],
+  related: [  "audio-info",
+  "audio-to-wav",
+  "audio-trim"],
+  status: 'stable',
+};

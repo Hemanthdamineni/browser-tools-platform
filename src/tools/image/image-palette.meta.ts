@@ -38,7 +38,9 @@ export const meta: ToolMeta = {
       a: 'Yes. Select multiple files and each image is listed with its dominant colour and full palette.',
     },
   ],
-  related: ['color-palette', 'color-name', 'image-metadata'],
+  related: [  "color-palette",
+  "color-name",
+  "image-metadata"],
   status: 'stable',
   updated: '2026-10-17',
 };

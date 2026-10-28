@@ -55,6 +55,9 @@ export const meta: ToolMeta = {
       a: 'fractions as a/b, decimals like 0.75 or -1.5, and plain integers (3 → 3/1). A zero denominator or unparseable text is rejected with a clear error.',
     },
   ],
-  related: ['unit-convert', 'roman-numeral', 'prime-factorization', 'statistics-calculator'],
+  related: [  "unit-convert",
+  "roman-numeral",
+  "prime-factorization",
+  "statistics-calculator"],
   status: 'stable',
 };

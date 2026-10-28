@@ -54,6 +54,9 @@ export const meta: ToolMeta = {
       a: 'Yes. A 10-character symbolic string such as -rwxr-xr-x or drwxr-xr-x is accepted; the first character is ignored.',
     },
   ],
-  related: ['number-base', 'hash-identifier', 'hex', 'base64'],
+  related: [  "number-base",
+  "hash-identifier",
+  "hex",
+  "base64"],
   status: 'stable',
 };

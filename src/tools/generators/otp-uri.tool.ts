@@ -40,7 +40,7 @@ function run(input: TextRunInput): TextRunResult {
     }
     secret = secretInput.toUpperCase().replace(/=+$/, '');
   } else {
-    const n = Math.min(64, Math.max(16, Math.floor(Number(o.secretBytes ?? 20))));
+    const n = Math.max(16, Math.floor(Number(o.secretBytes ?? 20)));
     secret = base32Encode(crypto.getRandomValues(new Uint8Array(n)));
   }
 
@@ -52,7 +52,7 @@ function run(input: TextRunInput): TextRunResult {
   if (type === 'hotp') {
     params.set('counter', String(Math.max(0, Math.floor(Number(o.counter ?? 0)))));
   } else {
-    params.set('period', String(Math.min(120, Math.max(15, Math.floor(Number(o.period ?? 30))))));
+    params.set('period', String(Math.max(15, Math.floor(Number(o.period ?? 30)))));
   }
 
   const uri = `otpauth://${type}/${encodeURIComponent(issuer)}:${encodeURIComponent(account)}?${params.toString()}`;

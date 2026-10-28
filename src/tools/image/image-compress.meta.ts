@@ -43,7 +43,8 @@ export const meta: ToolMeta = {
     },
   ],
   examples: [{ title: 'Compress at 75% quality' }],
-  related: ['image-resize', 'image-convert'],
+  related: [  "image-resize",
+  "image-convert"],
   status: 'stable',
   updated: '2026-10-16',
 };

@@ -62,6 +62,8 @@ export const meta: ToolMeta = {
       a: 'Basic credentials are only Base64-encoded. Use TLS and prefer stronger schemes where available.',
     },
   ],
-  related: ['www-authenticate', 'basic-auth', 'security-headers'],
+  related: [  "www-authenticate",
+  "basic-auth",
+  "security-headers"],
   status: 'stable',
 };

@@ -82,6 +82,9 @@ export const meta: ToolMeta = {
       a: 'HMAC stays secure with SHA-1 far longer than plain SHA-1 does, and some legacy APIs still require it. Prefer HMAC-SHA256 for new systems.',
     },
   ],
-  related: ['hash', 'crc32', 'file-hash', 'base64'],
+  related: [  "hash",
+  "crc32",
+  "file-hash",
+  "base64"],
   status: 'stable',
 };

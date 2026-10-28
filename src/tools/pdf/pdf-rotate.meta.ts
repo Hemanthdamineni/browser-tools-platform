@@ -32,7 +32,8 @@ export const meta: ToolMeta = {
     },
   ],
   examples: [{ title: 'Rotate all pages 90°' }],
-  related: ['pdf-delete-pages', 'pdf-page-numbers'],
+  related: [  "pdf-delete-pages",
+  "pdf-page-numbers"],
   credits: [pdfCredit],
   status: 'stable',
 };

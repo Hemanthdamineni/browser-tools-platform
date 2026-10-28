@@ -72,6 +72,9 @@ export const meta: ToolMeta = {
       a: 'POJO emits fields plus getters and setters; Lombok emits @Data with fields only; record emits a Java 16+ record with a canonical constructor. Nested types are emitted as nested static classes (or nested records).',
     },
   ],
-  related: ['json-to-typescript', 'json-to-csharp', 'json-to-go-struct', 'json-to-swift'],
+  related: [  "json-to-typescript",
+  "json-to-csharp",
+  "json-to-go-struct",
+  "json-to-swift"],
   status: 'stable',
 };

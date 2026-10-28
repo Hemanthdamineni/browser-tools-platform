@@ -45,6 +45,8 @@ export const meta: ToolMeta = {
       a: 'No. Parsing and validation run entirely in your browser.',
     },
   ],
-  related: ['json-to-jsonschema', 'json-format', 'json-patch'],
+  related: [  "json-to-jsonschema",
+  "json-format",
+  "json-patch"],
   status: 'stable',
 };

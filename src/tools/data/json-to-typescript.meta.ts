@@ -78,6 +78,9 @@ export const meta: ToolMeta = {
       a: 'No. JSON has one number type, so every number becomes number.',
     },
   ],
-  related: ['json-to-jsonschema', 'json-format', 'json-to-yaml', 'yaml-to-json'],
+  related: [  "json-to-jsonschema",
+  "json-format",
+  "json-to-yaml",
+  "yaml-to-json"],
   status: 'stable',
 };

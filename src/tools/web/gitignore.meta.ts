@@ -45,6 +45,7 @@ export const meta: ToolMeta = {
       a: 'No. .gitignore only affects untracked files. Run git rm -r --cached . once (then commit) to stop tracking files that were committed before the rule existed.',
     },
   ],
-  related: ['editorconfig', 'robots-txt'],
+  related: [  "editorconfig",
+  "robots-txt"],
   status: 'stable',
 };

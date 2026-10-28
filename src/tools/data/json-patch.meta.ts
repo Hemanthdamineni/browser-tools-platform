@@ -73,6 +73,8 @@ export const meta: ToolMeta = {
       a: 'No. Parsing and patching happen in your browser; no network requests are made by this tool.',
     },
   ],
-  related: ['json-format', 'json-diff', 'json-to-jsonschema'],
+  related: [  "json-format",
+  "json-diff",
+  "json-to-jsonschema"],
   status: 'stable',
 };

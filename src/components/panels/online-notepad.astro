@@ -1,0 +1,416 @@
+---
+import type { ToolMeta } from '@/lib/types';
+
+interface Props {
+  meta: ToolMeta;
+}
+const { meta } = Astro.props;
+const id = meta.id;
+const headingId = `${id}-heading`;
+---
+
+<section
+  class="surface rounded-lg p-4 sm:p-6"
+  data-panel-workbench
+  data-tool-id={meta.id}
+  aria-labelledby={headingId}
+>
+  <h1 id={headingId} class="text-xl font-semibold">{meta.name}</h1>
+  <p class="mt-1.5 max-w-prose text-sm leading-relaxed text-[rgb(var(--muted))]">
+    {meta.description}
+  </p>
+
+  <div class="mt-4 flex flex-col lg:flex-row gap-4 h-[calc(100vh-280px)] min-h-[400px]">
+    <!-- Sidebar -->
+    <aside class="lg:w-64 flex-shrink-0 flex flex-col border-r border-[rgb(var(--border))] bg-[rgb(var(--bg-subtle))] rounded-lg overflow-hidden">
+      <div class="p-3 border-b border-[rgb(var(--border))] flex items-center justify-between">
+        <h2 class="font-medium text-sm">Notes</h2>
+        <button class="btn-sm" id="new-note-btn" aria-label="New note">+</button>
+      </div>
+
+      <div class="flex-1 overflow-y-auto" id="notes-list" role="list" aria-label="Notes list">
+        <div class="p-3 text-sm text-[rgb(var(--muted))]" id="empty-state">
+          No notes yet. Click + to create one.
+        </div>
+      </div>
+
+      <div class="p-3 border-t border-[rgb(var(--border))] text-xs text-[rgb(var(--muted))]">
+        <div>Stored in IndexedDB</div>
+        <div class="mt-1 flex gap-2">
+          <button class="btn-xs" id="export-all-btn">Export All</button>
+          <button class="btn-xs" id="import-btn">Import</button>
+          <input type="file" id="import-file" accept=".json" hidden multiple />
+        </div>
+      </div>
+    </aside>
+
+    <!-- Editor -->
+    <div class="flex-1 flex flex-col min-w-0">
+      <div class="flex items-center gap-3 p-3 border-b border-[rgb(var(--border))] bg-[rgb(var(--bg-subtle))] rounded-t-lg">
+        <input
+          type="text"
+          id="note-title"
+          class="input flex-1 text-lg font-medium bg-transparent border-none focus:outline-none"
+          placeholder="Untitled note"
+          aria-label="Note title"
+        />
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-[rgb(var(--muted))]" id="word-count">0 words</span>
+          <span class="text-xs text-[rgb(var(--muted))]" id="char-count">0 chars</span>
+          <select id="export-format" class="select text-sm" aria-label="Export format">
+            <option value="md">.md</option>
+            <option value="txt">.txt</option>
+          </select>
+          <button class="btn-secondary btn-sm" id="export-btn">Export</button>
+          <button class="btn-danger btn-sm" id="delete-btn" aria-label="Delete note">🗑</button>
+        </div>
+      </div>
+
+      <textarea
+        id="editor"
+        class="flex-1 font-mono text-sm p-3 bg-transparent border-none focus:outline-none resize-none"
+        placeholder="Start typing... (auto-saves to IndexedDB)"
+        aria-label="Note content"
+        spellcheck="false"
+      ></textarea>
+
+      <div class="p-2 border-t border-[rgb(var(--border))] text-xs text-[rgb(var(--muted))] flex items-center justify-between">
+        <span id="last-saved">Not saved yet</span>
+        <span>All data stays in your browser</span>
+      </div>
+    </div>
+  </div>
+
+  <noscript>
+    <p class="alert alert-warning mt-4">
+      This tool requires JavaScript for IndexedDB persistence and the editor.
+    </p>
+  </noscript>
+</section>
+
+<script>
+  console.log('online-notepad panel loaded for', meta.id);
+
+  // IndexedDB setup
+  const DB_NAME = 'online-notepad';
+  const STORE_NAME = 'notes';
+  let db: IDBDatabase | null = null;
+  let currentNoteId: string | null = null;
+  let saveTimer: number | null = null;
+  let isSaving = false;
+
+  // DOM elements
+  const notesList = document.getElementById('notes-list')!;
+  const emptyState = document.getElementById('empty-state')!;
+  const newNoteBtn = document.getElementById('new-note-btn')!;
+  const noteTitle = document.getElementById('note-title') as HTMLInputElement;
+  const editor = document.getElementById('editor') as HTMLTextAreaElement;
+  const wordCount = document.getElementById('word-count')!;
+  const charCount = document.getElementById('char-count')!;
+  const exportFormat = document.getElementById('export-format') as HTMLSelectElement;
+  const exportBtn = document.getElementById('export-btn')!;
+  const deleteBtn = document.getElementById('delete-btn')!;
+  const exportAllBtn = document.getElementById('export-all-btn')!;
+  const importBtn = document.getElementById('import-btn')!;
+  const importFile = document.getElementById('import-file') as HTMLInputElement;
+  const lastSaved = document.getElementById('last-saved')!;
+
+  // Initialize IndexedDB
+  function initDB(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open(DB_NAME, 1);
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => {
+        db = request.result;
+        resolve();
+      };
+      request.onupgradeneeded = (event) => {
+        const database = (event.target as IDBOpenDBRequest).result;
+        if (!database.objectStoreNames.contains(STORE_NAME)) {
+          const store = database.createObjectStore(STORE_NAME, { keyPath: 'id' });
+          store.createIndex('updatedAt', 'updatedAt', { unique: false });
+        }
+      };
+    });
+  }
+
+  // Generate unique ID
+  function generateId(): string {
+    return Date.now().toString(36) + Math.random().toString(36).slice(2, 9);
+  }
+
+  // Format date
+  function formatDate(ts: number): string {
+    const d = new Date(ts);
+    const now = new Date();
+    if (d.toDateString() === now.toDateString()) {
+      return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+    return d.toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  }
+
+  // Update counts
+  function updateCounts() {
+    const text = editor.value;
+    const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+    const chars = text.length;
+    wordCount.textContent = `${words} word${words !== 1 ? 's' : ''}`;
+    charCount.textContent = `${chars} char${chars !== 1 ? 's' : ''}`;
+  }
+
+  // Save current note
+  async function saveNote(): Promise<void> {
+    if (!db || !currentNoteId || isSaving) return;
+    isSaving = true;
+
+    const note = {
+      id: currentNoteId,
+      title: noteTitle.value.trim() || 'Untitled',
+      content: editor.value,
+      createdAt: Date.now(), // will be overwritten if exists
+      updatedAt: Date.now(),
+      wordCount: editor.value.trim() ? editor.value.trim().split(/\s+/).length : 0,
+    };
+
+    // Preserve createdAt if note exists
+    try {
+      const existing = await getNote(currentNoteId);
+      if (existing) note.createdAt = existing.createdAt;
+    } catch {}
+
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    const store = tx.objectStore(STORE_NAME);
+    store.put(note);
+
+    tx.oncomplete = () => {
+      isSaving = false;
+      lastSaved.textContent = `Saved ${formatDate(note.updatedAt)}`;
+      renderNotesList();
+    };
+    tx.onerror = () => {
+      isSaving = false;
+      console.error('Save failed:', tx.error);
+    };
+  }
+
+  // Debounced save
+  function scheduleSave() {
+    if (saveTimer) clearTimeout(saveTimer);
+    saveTimer = window.setTimeout(saveNote, 500);
+  }
+
+  // Get note by ID
+  function getNote(id: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      if (!db) return reject(new Error('DB not ready'));
+      const tx = db.transaction(STORE_NAME, 'readonly');
+      const store = tx.objectStore(STORE_NAME);
+      const request = store.get(id);
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  // Get all notes
+  function getAllNotes(): Promise<any[]> {
+    return new Promise((resolve, reject) => {
+      if (!db) return reject(new Error('DB not ready'));
+      const tx = db.transaction(STORE_NAME, 'readonly');
+      const store = tx.objectStore(STORE_NAME);
+      const request = store.getAll();
+      request.onsuccess = () => resolve(request.result.sort((a, b) => b.updatedAt - a.updatedAt));
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  // Delete note
+  function deleteNote(id: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if (!db) return reject(new Error('DB not ready'));
+      const tx = db.transaction(STORE_NAME, 'readwrite');
+      const store = tx.objectStore(STORE_NAME);
+      store.delete(id);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+
+  // Render notes list
+  async function renderNotesList() {
+    const notes = await getAllNotes();
+    notesList.innerHTML = '';
+
+    if (notes.length === 0) {
+      notesList.appendChild(emptyState);
+      return;
+    }
+
+    for (const note of notes) {
+      const el = document.createElement('button');
+      el.className = 'w-full text-left p-3 hover:bg-[rgb(var(--accent))] transition-colors border-b border-[rgb(var(--border))] last:border-0';
+      el.dataset.id = note.id;
+      el.setAttribute('role', 'listitem');
+      if (note.id === currentNoteId) {
+        el.classList.add('bg-[rgb(var(--accent))]');
+        el.setAttribute('aria-current', 'true');
+      }
+      el.innerHTML = `
+        <div class="font-medium text-sm truncate">${escapeHtml(note.title)}</div>
+        <div class="text-xs text-[rgb(var(--muted))] mt-0.5">${note.wordCount} words · ${formatDate(note.updatedAt)}</div>
+      `;
+      el.addEventListener('click', () => loadNote(note.id));
+      notesList.appendChild(el);
+    }
+  }
+
+  function escapeHtml(text: string): string {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  // Load note into editor
+  async function loadNote(id: string) {
+    // Save current first
+    if (currentNoteId) await saveNote();
+
+    const note = await getNote(id);
+    if (!note) return;
+
+    currentNoteId = note.id;
+    noteTitle.value = note.title;
+    editor.value = note.content;
+    updateCounts();
+    lastSaved.textContent = `Loaded ${formatDate(note.updatedAt)}`;
+
+    // Update active state in list
+    document.querySelectorAll('#notes-list button').forEach(btn => {
+      btn.classList.toggle('bg-[rgb(var(--accent))]', btn.dataset.id === id);
+      btn.setAttribute('aria-current', btn.dataset.id === id ? 'true' : 'false');
+    });
+
+    editor.focus();
+  }
+
+  // Create new note
+  async function createNote() {
+    if (currentNoteId) await saveNote();
+
+    const id = generateId();
+    currentNoteId = id;
+    noteTitle.value = 'Untitled';
+    editor.value = '';
+    updateCounts();
+    lastSaved.textContent = 'New note';
+
+    document.querySelectorAll('#notes-list button').forEach(btn => {
+      btn.classList.remove('bg-[rgb(var(--accent))]');
+      btn.setAttribute('aria-current', 'false');
+    });
+
+    editor.focus();
+    await saveNote();
+  }
+
+  // Export current note
+  function exportNote() {
+    if (!currentNoteId) return;
+    const content = editor.value;
+    const title = noteTitle.value.trim() || 'untitled';
+    const format = exportFormat.value;
+    const blob = new Blob([content], { type: format === 'md' ? 'text/markdown' : 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${title.replace(/[^a-z0-9_-]/gi, '_')}.${format}`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // Export all notes as JSON
+  async function exportAll() {
+    const notes = await getAllNotes();
+    const data = {
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      notes: notes.map(n => ({
+        title: n.title,
+        content: n.content,
+        createdAt: n.createdAt,
+        updatedAt: n.updatedAt,
+      })),
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `notepad-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // Import notes
+  importBtn.addEventListener('click', () => importFile.click());
+  importFile.addEventListener('change', async (e) => {
+    const file = (e.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    const text = await file.text();
+    try {
+      const data = JSON.parse(text);
+      if (data.notes && Array.isArray(data.notes)) {
+        for (const note of data.notes) {
+          const id = generateId();
+          const tx = db!.transaction(STORE_NAME, 'readwrite');
+          tx.objectStore(STORE_NAME).put({
+            id,
+            title: note.title || 'Imported',
+            content: note.content || '',
+            createdAt: note.createdAt || Date.now(),
+            updatedAt: note.updatedAt || Date.now(),
+            wordCount: (note.content || '').trim().split(/\s+/).length,
+          });
+          await new Promise<void>((resolve, reject) => {
+            tx.oncomplete = () => resolve();
+            tx.onerror = () => reject(tx.error);
+          });
+        }
+        await renderNotesList();
+        if (notes.length > 0) await loadNote(notes[notes.length - 1].id);
+      }
+    } catch (err) {
+      alert('Invalid import file');
+      console.error(err);
+    }
+    importFile.value = '';
+  });
+
+  // Event listeners
+  newNoteBtn.addEventListener('click', createNote);
+  noteTitle.addEventListener('input', scheduleSave);
+  editor.addEventListener('input', () => {
+    updateCounts();
+    scheduleSave();
+  });
+  exportBtn.addEventListener('click', exportNote);
+  exportAllBtn.addEventListener('click', exportAll);
+  deleteBtn.addEventListener('click', async () => {
+    if (!currentNoteId) return;
+    if (!confirm('Delete this note? This cannot be undone.')) return;
+    await deleteNote(currentNoteId);
+    currentNoteId = null;
+    noteTitle.value = '';
+    editor.value = '';
+    updateCounts();
+    lastSaved.textContent = 'Note deleted';
+    await renderNotesList();
+  });
+
+  // Initialize
+  initDB().then(async () => {
+    await renderNotesList();
+    const notes = await getAllNotes();
+    if (notes.length > 0) {
+      await loadNote(notes[0].id);
+    }
+  }).catch(console.error);
+</script>

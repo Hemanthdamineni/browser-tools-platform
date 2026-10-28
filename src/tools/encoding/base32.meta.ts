@@ -50,6 +50,7 @@ export const meta: ToolMeta = {
       a: 'Base32 is case-insensitive and avoids look-alike characters, so it survives being read aloud, typed by hand, or put in a filename or URL. TOTP secrets use it.',
     },
   ],
-  related: ['base64', 'hex', 'otp-secret'],
+  related: [  "base64",
+  "hex"],
   status: 'stable',
 };

@@ -1,15 +1,15 @@
-import type { TextToolModule, TextRunInput, TextRunResult } from '@/lib/types';
+import type { OptionValues, TextToolModule, TextRunInput, TextRunResult } from '@/lib/types';
 import { resolveOptions } from '@/lib/options';
 import { meta } from './cdn-cache-control.meta';
 import { renderFamily } from './cache-headers.tool';
 
 /**
- * Legacy route kept for URL stability. This tool is now a thin delegate to the
- * unified `cache-headers` tool with the "cdn-cache-control" family preselected; the
- * original option keys and behaviour are unchanged.
+ * CDN-Cache-Control builder/analyzer - forwards to cache-headers 'cdn-cache-control' family.
+ * Preserves original option defaults and behavior via its own meta.
  */
 function run(input: TextRunInput): TextRunResult {
-  return renderFamily('cdn-cache-control', input, resolveOptions(meta, input.options));
+  const options = resolveOptions(meta, input.options) as OptionValues;
+  return renderFamily('cdn-cache-control', input, options);
 }
 
 const tool: TextToolModule = { meta, run };

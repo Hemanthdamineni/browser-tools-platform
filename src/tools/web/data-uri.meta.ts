@@ -107,6 +107,8 @@ export const meta: ToolMeta = {
       a: 'No. Encoding and decoding happen in this tab; nothing is uploaded and the URI never leaves your browser.',
     },
   ],
-  related: ['base64', 'url-encode', 'base64-file'],
+  related: [  "base64",
+  "url-encode",
+  "base64-file"],
   status: 'stable',
 };

@@ -24,7 +24,9 @@ export const meta: ToolMeta = {
     { title: 'View PDF metadata' },
     { title: 'Set a title', options: { title: 'My document' } },
   ],
-  related: ['pdf-page-numbers', 'pdf-watermark', 'image-metadata'],
+  related: [  "pdf-page-numbers",
+  "pdf-watermark",
+  "image-metadata"],
   credits: [pdfCredit],
   status: 'stable',
 };

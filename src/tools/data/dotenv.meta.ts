@@ -74,6 +74,9 @@ export const meta: ToolMeta = {
       a: 'With expansion on, ${NAME} in an unquoted or double-quoted value is replaced by the value of an earlier key. Single-quoted values are left literal.',
     },
   ],
-  related: ['querystring', 'json-format', 'json-to-yaml', 'yaml-to-json'],
+  related: [  "querystring",
+  "json-format",
+  "json-to-yaml",
+  "yaml-to-json"],
   status: 'stable',
 };

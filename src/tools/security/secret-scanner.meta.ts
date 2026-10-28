@@ -65,6 +65,8 @@ export const meta: ToolMeta = {
       a: 'No. Scanning runs in your browser and makes no network requests.',
     },
   ],
-  related: ['file-hash', 'text-encrypt', 'json-format'],
+  related: [  "file-hash",
+  "text-encrypt",
+  "json-format"],
   status: 'stable',
 };

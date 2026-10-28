@@ -83,6 +83,9 @@ export const meta: ToolMeta = {
       a: 'It reports a clear error if the opening <svg> element is missing or tags are unbalanced, rather than emitting a broken document.',
     },
   ],
-  related: ['svg-to-jsx', 'data-uri', 'html-prettifier', 'css-minifier'],
+  related: [  "svg-to-jsx",
+  "data-uri",
+  "html-prettifier",
+  "css-minifier"],
   status: 'stable',
 };

@@ -3,7 +3,6 @@ import { ToolError } from '@/lib/types';
 import { resolveOptions } from '@/lib/options';
 import { meta } from './text-to-slug.meta';
 
-const MAX_LEN = 20_000;
 
 const STOPWORDS = new Set([
   'a',
@@ -111,13 +110,11 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
     lowercase: o.lowercase !== false,
     transliterate: o.transliterate !== false,
     removeStopwords: o.removeStopwords === true,
-    maxLength: Math.max(0, Math.min(200, Number(o.maxLength ?? 0))),
+    maxLength: Math.max(0, Number(o.maxLength ?? 0)),
   };
 
   const raw = String(input.text ?? '');
   if (raw.trim() === '') throw new ToolError('Paste some text to turn into a slug.');
-  if (raw.length > MAX_LEN)
-    throw new ToolError('Input is too large.', 'Keep it under ' + MAX_LEN + ' characters.');
 
   const collapsed = raw.replace(/\s+/g, ' ').trim();
   const slug = slugify(collapsed, opts);

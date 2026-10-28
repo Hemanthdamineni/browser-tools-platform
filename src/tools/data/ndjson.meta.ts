@@ -68,6 +68,7 @@ export const meta: ToolMeta = {
       a: 'No. When producing NDJSON each line is always a single compact JSON value. The indent option only pretty-prints the array in the other direction.',
     },
   ],
-  related: ['json-format', 'json-escape'],
+  related: [  "json-format",
+  "json-escape"],
   status: 'stable',
 };

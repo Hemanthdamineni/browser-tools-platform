@@ -97,6 +97,8 @@ export const meta: ToolMeta = {
       a: 'Yes, modulo the selected decimal precision. The computed preferred value equals the minimum at the minimum viewport and the maximum at the maximum viewport.',
     },
   ],
-  related: ['css-units', 'aspect-ratio', 'color-contrast'],
+  related: [  "css-units",
+  "aspect-ratio",
+  "color-contrast"],
   status: 'stable',
 };

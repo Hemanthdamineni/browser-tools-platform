@@ -63,6 +63,8 @@ export const meta: ToolMeta = {
       a: 'No. The tool only formats and validates values locally and never sends credentials over the network.',
     },
   ],
-  related: ['proxy-authenticate', 'basic-auth', 'secret-scanner'],
+  related: [  "proxy-authenticate",
+  "basic-auth",
+  "secret-scanner"],
   status: 'stable',
 };

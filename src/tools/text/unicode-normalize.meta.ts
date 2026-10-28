@@ -69,6 +69,8 @@ export const meta: ToolMeta = {
       a: 'No. Normalization uses the browser’s built-in String.normalize API and runs entirely on your device.',
     },
   ],
-  related: ['slugify', 'case-convert', 'json-format'],
+  related: [  "slugify",
+  "case-convert",
+  "json-format"],
   status: 'stable',
 };

@@ -25,6 +25,6 @@ export const meta: ToolMeta = {
     { key: 'outputName', label: 'Output filename', type: 'text', default: 'joined.bin' },
   ],
   examples: [{ title: 'Join split file parts' }],
-  related: ['file-split'],
+  related: [  "file-split"],
   status: 'stable',
 };

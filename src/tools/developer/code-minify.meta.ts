@@ -109,7 +109,10 @@ export const meta: ToolMeta = {
       a: 'No, it is the raw size of the text in UTF-8 bytes, before and after minifying. Gzip would shrink both numbers further, but by a different amount.',
     },
   ],
-  related: ['code-beautify', 'css-minifier', 'json-format', 'html-validator'],
+  related: [  "code-beautify",
+  "css-minifier",
+  "json-format",
+  "html-validator"],
   credits: [
     { name: 'Terser', url: 'https://github.com/terser/terser', license: 'BSD-2-Clause' },
     { name: 'Sucrase', url: 'https://github.com/alangpierce/sucrase', license: 'MIT' },

@@ -69,6 +69,9 @@ export const meta: ToolMeta = {
       a: 'If the data parses as JSON it is emitted as a pretty-printed object (with JSON.stringify for fetch) and a JSON content type is added when you did not set one. Otherwise it is emitted as a quoted string, and --data-urlencode values become URL-encoded form fields.',
     },
   ],
-  related: ['url-parse', 'http-status', 'json-format', 'random-data'],
+  related: [  "url-parse",
+  "http-status",
+  "json-format",
+  "random-data"],
   status: 'stable',
 };

@@ -41,6 +41,9 @@ export const meta: ToolMeta = {
       a: 'This parser runs entirely in your browser. The string never leaves your device.',
     },
   ],
-  related: ['diff-text', 'http-status', 'regex-tester', 'port-lookup'],
+  related: [  "diff-text",
+  "http-status",
+  "regex-tester",
+  "port-lookup"],
   status: 'stable',
 };

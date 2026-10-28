@@ -57,7 +57,7 @@ export const meta: ToolMeta = {
       a: 'No. Stale serving can expose outdated or user-specific data; pair policies with correct cache keys and privacy controls.',
     },
   ],
-  related: ['cache-headers'],
+  related: [  "cache-headers"],
   hidden: true,
   redirectTo: 'cache-headers',
   status: 'stable',

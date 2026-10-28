@@ -43,7 +43,7 @@ export const meta: ToolMeta = {
       showWhen: { key: 'alphabet', value: 'custom' },
       placeholder: 'any characters, at least 2',
     },
-    { key: 'count', label: 'How many', type: 'number', default: 1, min: 1, max: 200 },
+    { key: 'count', label: 'How many', type: 'number', default: 1, min: 1 },
   ],
   examples: [
     { title: 'One 21-char ID (default)', options: { size: 21, alphabet: 'url-safe', count: 1 } },
@@ -59,6 +59,8 @@ export const meta: ToolMeta = {
       a: 'Yes. It uses the rejection-sampling variant of the official NanoID algorithm: random bytes are masked and values outside the alphabet are discarded rather than wrapped.',
     },
   ],
-  related: ['uuid', 'ulid', 'random-string'],
+  related: [  "uuid",
+  "ulid",
+  "random-string"],
   status: 'stable',
 };

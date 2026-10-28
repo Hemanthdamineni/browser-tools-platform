@@ -47,6 +47,9 @@ export const meta: ToolMeta = {
       a: 'It covers the common set (about 250 names) plus all decimal (&#NN;) and hex (&#xNN;) references. Rare names fall through unchanged.',
     },
   ],
-  related: ['url-encode', 'unicode-escape', 'string-escape', 'html-to-text'],
+  related: [  "url-encode",
+  "unicode-escape",
+  "string-escape",
+  "html-to-text"],
   status: 'stable',
 };

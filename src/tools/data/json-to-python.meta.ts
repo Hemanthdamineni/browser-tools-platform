@@ -100,6 +100,9 @@ export const meta: ToolMeta = {
       a: 'No — it is a type-guessing tool like the rest of the JSON family. Edge cases such as genuinely mixed-type arrays or optional fields missing from the sample are inferred optimistically, so review the output.',
     },
   ],
-  related: ['json-to-typescript', 'json-to-go-struct', 'json-to-zod', 'json-to-jsonschema'],
+  related: [  "json-to-typescript",
+  "json-to-go-struct",
+  "json-to-zod",
+  "json-to-jsonschema"],
   status: 'stable',
 };

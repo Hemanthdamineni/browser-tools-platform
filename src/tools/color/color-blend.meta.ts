@@ -52,6 +52,8 @@ export const meta: ToolMeta = {
       a: 'RGB blends each channel linearly, which can produce muddy midpoints. HSL blending moves around the hue wheel instead and often looks more natural for vivid colors.',
     },
   ],
-  related: ['color-palette', 'gradient-css', 'color-convert'],
+  related: [  "color-palette",
+  "gradient-css",
+  "color-convert"],
   status: 'stable',
 };

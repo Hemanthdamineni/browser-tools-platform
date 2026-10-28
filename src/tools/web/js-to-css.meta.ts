@@ -51,6 +51,9 @@ export const meta: ToolMeta = {
       a: 'Yes. A nested object becomes rules: { "@media (max-width: 600px)": { … } } or per-selector keys work the same way as css-to-js.',
     },
   ],
-  related: ['css-to-js', 'css-minifier', 'css-units', 'gradient-css'],
+  related: [  "css-to-js",
+  "css-minifier",
+  "css-units",
+  "gradient-css"],
   status: 'stable',
 };

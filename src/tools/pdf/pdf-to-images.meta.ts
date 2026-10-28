@@ -42,7 +42,8 @@ export const meta: ToolMeta = {
     },
   ],
   examples: [{ title: 'Convert PDF pages to PNG' }],
-  related: ['images-to-pdf', 'pdf-extract-text'],
+  related: [  "images-to-pdf",
+  "pdf-extract-text"],
   credits: [pdfjsCredit, fflateCredit],
   status: 'stable',
 };

@@ -95,6 +95,9 @@ export const meta: ToolMeta = {
       a: 'Blank input asks for numbers; input with no recognisable numbers reports an error. Text mixed in with numbers is skipped and counted so you can spot copy-paste problems.',
     },
   ],
-  related: ['percentage-calculator', 'prime-factorization', 'calculator', 'unit-convert'],
+  related: [  "percentage-calculator",
+  "prime-factorization",
+  "calculator",
+  "unit-convert"],
   status: 'stable',
 };

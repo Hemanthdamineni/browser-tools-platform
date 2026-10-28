@@ -30,6 +30,7 @@ export const meta: ToolMeta = {
       a: 'Week 1 is the week containing the first Thursday of the year, weeks run Monday to Sunday, and 1 January can therefore belong to week 52 or 53 of the previous year.',
     },
   ],
-  related: ['date-diff', 'timestamp'],
+  related: [  "date-diff",
+  "timestamp"],
   status: 'stable',
 };

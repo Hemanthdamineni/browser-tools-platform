@@ -52,6 +52,7 @@ export const meta: ToolMeta = {
       a: 'Process digits from the right, doubling every second one and subtracting 9 from results over 9, then choose the digit that makes the sum a multiple of 10.',
     },
   ],
-  related: ['checksum-validator', 'random-string'],
+  related: [  "checksum-validator",
+  "random-string"],
   status: 'stable',
 };

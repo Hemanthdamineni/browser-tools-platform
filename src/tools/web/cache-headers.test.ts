@@ -4,14 +4,6 @@ import { ToolError } from '@/lib/types';
 import tool from './cache-headers.tool';
 import { meta } from './cache-headers.meta';
 import { getTool, redirectTarget, VISIBLE_TOOLS, SEARCH_INDEX } from '@/lib/registry';
-import cacheControlTool from './cache-control.tool';
-import cdnCacheControlTool from './cdn-cache-control.tool';
-import surrogateControlTool from './surrogate-control.tool';
-import expiresTool from './expires-header.tool';
-import ageTool from './age-header.tool';
-import cacheStatusTool from './cache-status.tool';
-import varyTool from './vary-header.tool';
-
 type Result = {
   output: string;
   filename?: string;
@@ -20,8 +12,6 @@ type Result = {
 };
 type Options = Record<string, string | number | boolean>;
 const run = (text: string, options: Options = {}) => tool.run({ text, options }) as Result;
-const runTool = (mod: TextToolModule, text: string, options: Options = {}) =>
-  mod.run({ text, options }) as Result;
 const rows = (result: Result) => JSON.parse(result.output).rows as string[][];
 const DATE = 'Wed, 21 Oct 2030 07:28:00 GMT';
 
@@ -237,9 +227,10 @@ describe('cache-headers — malformed input raises ToolError', () => {
   });
 });
 
-describe('cache-headers — legacy ids delegate with unchanged behaviour', () => {
-  it('cache-control delegation', () => {
-    const result = runTool(cacheControlTool, '', {
+describe('cache-headers — build happy path for every family', () => {
+  it('builds a Cache-Control policy', () => {
+    const result = run('', {
+      header: 'cache-control',
       mode: 'build',
       visibility: 'public',
       maxAge: 31536000,
@@ -248,41 +239,42 @@ describe('cache-headers — legacy ids delegate with unchanged behaviour', () =>
     });
     expect(result.output).toBe('public, max-age=31536000, immutable, stale-while-revalidate=60');
     expect(result.filename).toBe('cache-control.txt');
-    expect(cacheControlTool.meta.id).toBe('cache-control');
   });
 
-  it('cdn-cache-control delegation', () => {
-    const result = runTool(cdnCacheControlTool, '', {
+  it('builds a CDN-Cache-Control policy', () => {
+    const result = run('', {
+      header: 'cdn-cache-control',
       mode: 'build',
-      directives: 'max-age=3600, stale-while-revalidate=60',
+      cdnDirectives: 'max-age=3600, stale-while-revalidate=60',
     });
     expect(result.output).toBe('max-age=3600, stale-while-revalidate=60');
     expect(result.filename).toBe('cdn-cache-control.txt');
   });
 
-  it('surrogate-control delegation', () => {
-    const result = runTool(surrogateControlTool, '', {
+  it('builds a Surrogate-Control policy', () => {
+    const result = run('', {
+      header: 'surrogate-control',
       mode: 'build',
-      directives: 'max-age=3600, content="ESI/1.0"',
+      surrogateDirectives: 'max-age=3600, content="ESI/1.0"',
     });
     expect(result.output).toBe('max-age=3600, content="ESI/1.0"');
     expect(result.filename).toBe('surrogate-control.txt');
   });
-
-  it('expires-header delegation', () => {
-    const result = runTool(expiresTool, '', { mode: 'build', date: DATE });
+  it('builds an Expires header', () => {
+    const result = run('', { header: 'expires', mode: 'build', date: DATE });
     expect(result.output).toBe(DATE);
     expect(result.filename).toBe('expires.txt');
   });
 
-  it('age-header delegation', () => {
-    const result = runTool(ageTool, '', { mode: 'build', seconds: '120' });
+  it('builds an Age header', () => {
+    const result = run('', { header: 'age', mode: 'build', seconds: '120' });
     expect(result.output).toBe('Age: 120');
     expect(result.filename).toBe('age-header.txt');
   });
 
-  it('cache-status delegation', () => {
-    const result = runTool(cacheStatusTool, '', {
+  it('builds a Cache-Status header', () => {
+    const result = run('', {
+      header: 'cache-status',
       mode: 'build',
       cc: 'CDN',
       hit: 'hit',
@@ -293,13 +285,12 @@ describe('cache-headers — legacy ids delegate with unchanged behaviour', () =>
     expect(result.filename).toBe('cache-status.txt');
   });
 
-  it('vary-header delegation', () => {
-    const result = runTool(varyTool, '', { mode: 'build', fields: 'Accept-Encoding, Origin' });
+  it('builds a Vary header', () => {
+    const result = run('', { header: 'vary', mode: 'build', fields: 'Accept-Encoding, Origin' });
     expect(result.output).toBe('accept-encoding, origin');
     expect(result.filename).toBe('vary.txt');
   });
 });
-
 describe('cache-headers — Unicode and token edges', () => {
   it('rejects non-ASCII directive names but keeps Unicode inside quoted values', () => {
     const bad = run('max-âge=60', { header: 'cache-control' });

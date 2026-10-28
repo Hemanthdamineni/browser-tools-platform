@@ -19,7 +19,7 @@ export const meta: ToolMeta = {
   privacy: { processing: 'on-device', network: 'none', offline: true },
   input: 'text',
   options: [
-    { key: 'count', label: 'How many', type: 'number', default: 1, min: 1, max: 200 },
+    { key: 'count', label: 'How many', type: 'number', default: 1, min: 1 },
     { key: 'monotonic', label: 'Monotonic (strictly increasing)', type: 'boolean', default: false },
     { key: 'lowercase', label: 'Lowercase', type: 'boolean', default: false },
   ],
@@ -37,6 +37,8 @@ export const meta: ToolMeta = {
       a: 'When two ULIDs are generated in the same millisecond, monotonic mode increments the random part by one instead of re-rolling, so ids generated in the same ms are still strictly ordered.',
     },
   ],
-  related: ['uuid', 'nanoid', 'snowflake'],
+  related: [  "uuid",
+  "nanoid",
+  "snowflake"],
   status: 'stable',
 };

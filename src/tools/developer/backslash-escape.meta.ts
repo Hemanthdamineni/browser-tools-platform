@@ -5,7 +5,7 @@ export const meta: ToolMeta = {
   name: 'Backslash Escape / Unescape',
   category: 'developer',
   summary:
-    'Turn control characters into readable \\n \\t \\xNN \\uNNNN sequences, or interpret those sequences back into characters.',
+    'Turn control characters into readable \\n \\t \\xNN \\uNNNN sequences, or interpret back.',
   description:
     'Escape converts real control and non-printable characters into backslash sequences (\\n, \\t, \\r, \\f, \\v, \\0, \\\\, and \\xNN / \\uNNNN / \\u{…} for anything else). Unescape reverses them. An unknown escape such as \\q simply loses its backslash and is reported as a note.',
   keywords: [
@@ -60,7 +60,10 @@ export const meta: ToolMeta = {
       a: 'Only when unescaping a \\u{…} sequence that is unterminated, is not hexadecimal, or names a code point above U+10FFFF.',
     },
   ],
-  related: ['string-escape', 'unicode-escape', 'json-escape', 'hex'],
+  related: [  "string-escape",
+  "unicode-escape",
+  "json-escape",
+  "hex"],
   hidden: true,
   redirectTo: 'string-escape',
   status: 'stable',

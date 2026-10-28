@@ -86,6 +86,9 @@ export const meta: ToolMeta = {
       a: 'The spec suggests keeping subjects below ~72 characters so git and emailing lists stay readable. A note appears when yours is longer; it is only a hint, not a hard failure.',
     },
   ],
-  related: ['diff-text', 'markdown-table', 'semver', 'slugify'],
+  related: [  "diff-text",
+  "markdown-table",
+  "semver",
+  "slugify"],
   status: 'stable',
 };

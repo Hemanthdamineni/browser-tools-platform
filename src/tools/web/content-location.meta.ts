@@ -56,6 +56,8 @@ export const meta: ToolMeta = {
       a: 'No. The tool only validates syntax locally and never makes a network request.',
     },
   ],
-  related: ['url-parse', 'http-status', 'cache-headers'],
+  related: [  "url-parse",
+  "http-status",
+  "cache-headers"],
   status: 'stable',
 };

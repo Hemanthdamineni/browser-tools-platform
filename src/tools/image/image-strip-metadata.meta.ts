@@ -54,7 +54,9 @@ export const meta: ToolMeta = {
       a: 'No. Parsing and rewriting happen entirely in your browser; the files never leave your device.',
     },
   ],
-  related: ['image-metadata', 'image-compress', 'image-convert'],
+  related: [  "image-metadata",
+  "image-compress",
+  "image-convert"],
   status: 'beta',
   updated: '2026-10-17',
 };

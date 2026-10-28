@@ -52,6 +52,7 @@ export const meta: ToolMeta = {
       a: 'No. The text is processed entirely in your browser and is not sent over the network.',
     },
   ],
-  related: ['normalize-whitespace', 'remove-empty-lines', 'unicode-escape'],
+  related: [  "remove-empty-lines",
+  "unicode-escape"],
   status: 'stable',
 };

@@ -53,6 +53,9 @@ export const meta: ToolMeta = {
       a: 'It computes the time when you run it. Times are accurate to the second at that moment — refresh to update.',
     },
   ],
-  related: ['timezone-convert', 'timestamp', 'recurrence-dates', 'date-diff'],
+  related: [  "timezone-convert",
+  "timestamp",
+  "recurrence-dates",
+  "date-diff"],
   status: 'stable',
 };

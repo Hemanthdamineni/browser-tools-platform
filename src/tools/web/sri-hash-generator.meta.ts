@@ -66,6 +66,8 @@ export const meta: ToolMeta = {
       a: 'Cross-origin resources require the crossorigin="anonymous" attribute for SRI to work correctly.',
     },
   ],
-  related: ['http-header-analyzer', 'repr-digest', 'hash'],
+  related: [  "http-header-analyzer",
+  "repr-digest",
+  "hash"],
   status: 'stable',
 };

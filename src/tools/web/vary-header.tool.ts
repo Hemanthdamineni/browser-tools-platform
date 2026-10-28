@@ -1,15 +1,15 @@
-import type { TextToolModule, TextRunInput, TextRunResult } from '@/lib/types';
+import type { OptionValues, TextToolModule, TextRunInput, TextRunResult } from '@/lib/types';
 import { resolveOptions } from '@/lib/options';
 import { meta } from './vary-header.meta';
 import { renderFamily } from './cache-headers.tool';
 
 /**
- * Legacy route kept for URL stability. This tool is now a thin delegate to the
- * unified `cache-headers` tool with the "vary" family preselected; the
- * original option keys and behaviour are unchanged.
+ * Vary header builder/analyzer - forwards to cache-headers 'vary' family.
+ * Preserves original option defaults and behavior via its own meta.
  */
 function run(input: TextRunInput): TextRunResult {
-  return renderFamily('vary', input, resolveOptions(meta, input.options));
+  const options = resolveOptions(meta, input.options) as OptionValues;
+  return renderFamily('vary', input, options);
 }
 
 const tool: TextToolModule = { meta, run };

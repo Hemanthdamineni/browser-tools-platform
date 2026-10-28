@@ -75,6 +75,9 @@ export const meta: ToolMeta = {
       a: 'Not by default — everything is kept as a string so the conversion is lossless. Numbers are only emitted when you convert a JSON document containing real numbers back to XML.',
     },
   ],
-  related: ['xml-format', 'json-to-yaml', 'yaml-to-json', 'toml-convert'],
+  related: [  "xml-format",
+  "json-to-yaml",
+  "yaml-to-json",
+  "toml-convert"],
   status: 'stable',
 };

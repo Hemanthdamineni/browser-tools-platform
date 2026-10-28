@@ -64,6 +64,9 @@ export const meta: ToolMeta = {
       a: 'Yes — with "Wrap multiple roots" enabled, several top-level elements are wrapped in a JSX fragment so the output is a valid component body.',
     },
   ],
-  related: ['svg-to-jsx', 'html-to-markdown', 'html-prettifier', 'markdown-to-html'],
+  related: [  "svg-to-jsx",
+  "html-to-markdown",
+  "html-prettifier",
+  "markdown-to-html"],
   status: 'stable',
 };

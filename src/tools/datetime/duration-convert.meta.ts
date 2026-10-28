@@ -54,6 +54,7 @@ export const meta: ToolMeta = {
       a: 'Two-part clock values are read as MM:SS (90 seconds here). Use 1:30:00 or 1h 30m when you mean ninety minutes.',
     },
   ],
-  related: ['timestamp', 'date-diff'],
+  related: [  "timestamp",
+  "date-diff"],
   status: 'stable',
 };

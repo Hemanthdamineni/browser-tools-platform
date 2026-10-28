@@ -75,6 +75,8 @@ export const meta: ToolMeta = {
       a: 'A row that is a string, number, or null raises an error. Use an array of arrays if you want positional columns.',
     },
   ],
-  related: ['csv-to-json', 'json-to-yaml', 'yaml-to-json'],
+  related: [  "csv-to-json",
+  "json-to-yaml",
+  "yaml-to-json"],
   status: 'stable',
 };

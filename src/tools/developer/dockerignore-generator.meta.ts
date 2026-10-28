@@ -72,6 +72,9 @@ export const meta: ToolMeta = {
       a: 'Related but different: .gitignore keeps files out of version control; .dockerignore keeps them out of the Docker build context. Both are here — check the gitignore tool for the former.',
     },
   ],
-  related: ['docker-compose', 'dockerfile-generator', 'gitignore', 'editorconfig'],
+  related: [  "docker-compose",
+  "dockerfile-generator",
+  "gitignore",
+  "editorconfig"],
   status: 'stable',
 };

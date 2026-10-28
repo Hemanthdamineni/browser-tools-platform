@@ -86,6 +86,9 @@ export const meta: ToolMeta = {
       a: 'RFC 4122 defines DNS 6ba7b810-9dad-11d1-80b4-00c04fd430c8, URL 6ba7b811-…, OID 6ba7b812-… and X.500 6ba7b814-… (all sharing the same suffix).',
     },
   ],
-  related: ['uuid', 'objectid', 'snowflake', 'hash'],
+  related: [  "uuid",
+  "objectid",
+  "snowflake",
+  "hash"],
   status: 'stable',
 };

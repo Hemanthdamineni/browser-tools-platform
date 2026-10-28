@@ -50,7 +50,9 @@ export const meta: ToolMeta = {
       a: 'No. Line wrapping is disabled so scalar content is not reflowed solely to meet a display width.',
     },
   ],
-  related: ['yaml-to-json', 'json-to-yaml', 'xml-format'],
+  related: [  "yaml-to-json",
+  "json-to-yaml",
+  "xml-format"],
   credits: [{ name: 'yaml', url: 'https://github.com/eemeli/yaml', license: 'ISC' }],
   status: 'stable',
 };

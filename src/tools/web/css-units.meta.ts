@@ -85,6 +85,7 @@ export const meta: ToolMeta = {
       a: 'Both resolve against a font size — em against the parent font size and % against the percent base. With both left at 16 px they match; change either option to model a different context.',
     },
   ],
-  related: ['aspect-ratio', 'gradient-css'],
+  related: [  "aspect-ratio",
+  "gradient-css"],
   status: 'stable',
 };

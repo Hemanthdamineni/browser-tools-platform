@@ -16,7 +16,9 @@ export const meta: ToolMeta = {
     { key: 'flatten', label: 'Flatten paths', type: 'boolean', default: false },
   ],
   examples: [{ title: 'Create an archive' }],
-  related: ['zip-extract', 'zip-inspect', 'tar-create'],
+  related: [  "zip-extract",
+  "zip-inspect",
+  "tar-create"],
   credits: [{ name: 'fflate', url: 'https://github.com/101arrowz/fflate', license: 'MIT' }],
   status: 'stable',
 };

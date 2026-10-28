@@ -45,6 +45,8 @@ export const meta: ToolMeta = {
       a: 'They cannot be set by scripts due to their forbidden-header status, which is what makes them a trustworthy signal.',
     },
   ],
-  related: ['security-headers', 'cors-headers', 'http-status'],
+  related: [  "security-headers",
+  "cors-headers",
+  "http-status"],
   status: 'stable',
 };

@@ -65,6 +65,9 @@ export const meta: ToolMeta = {
       a: 'Their contents are removed entirely before any text is extracted.',
     },
   ],
-  related: ['markdown-to-html', 'html-entities', 'xml-format', 'sql-format'],
+  related: [  "markdown-to-html",
+  "html-entities",
+  "xml-format",
+  "sql-format"],
   status: 'stable',
 };

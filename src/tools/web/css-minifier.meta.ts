@@ -66,6 +66,9 @@ export const meta: ToolMeta = {
       a: 'No. It is a safe, lossless whitespace and comment minifier: selectors, properties, values and their order are left exactly as written.',
     },
   ],
-  related: ['css-units', 'css-grid', 'gradient-css', 'media-query-builder'],
+  related: [  "css-units",
+  "css-grid",
+  "gradient-css",
+  "media-query-builder"],
   status: 'stable',
 };

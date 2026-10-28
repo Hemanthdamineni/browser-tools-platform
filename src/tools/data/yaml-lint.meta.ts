@@ -64,6 +64,9 @@ export const meta: ToolMeta = {
       a: 'It is a focused validator and normalizer for the common YAML subset described above — enough to catch most real-world mistakes — not a conformance implementation of the whole spec.',
     },
   ],
-  related: ['json-to-yaml', 'csv-to-yaml', 'yaml-to-json', 'ini-convert'],
+  related: [  "json-to-yaml",
+  "csv-to-yaml",
+  "yaml-to-json",
+  "ini-convert"],
   status: 'stable',
 };

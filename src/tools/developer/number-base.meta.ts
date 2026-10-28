@@ -77,6 +77,9 @@ export const meta: ToolMeta = {
       a: 'The tool reports which character is out of range for the "from base" you selected.',
     },
   ],
-  related: ['hex', 'chmod-calculator', 'hash-identifier', 'base32'],
+  related: [  "hex",
+  "chmod-calculator",
+  "hash-identifier",
+  "base32"],
   status: 'stable',
 };

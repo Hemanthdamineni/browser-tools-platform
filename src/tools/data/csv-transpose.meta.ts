@@ -55,6 +55,7 @@ export const meta: ToolMeta = {
       a: 'The first record is checked for comma, semicolon, tab, and pipe separators. The delimiter appearing most often is selected; ties favor comma.',
     },
   ],
-  related: ['csv-to-json', 'json-to-csv'],
+  related: [  "csv-to-json",
+  "json-to-csv"],
   status: 'stable',
 };

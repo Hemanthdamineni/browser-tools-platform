@@ -1,0 +1,103 @@
+---
+import type { ToolMeta } from '@/lib/types';
+
+interface Props {
+  meta: ToolMeta;
+}
+const { meta } = Astro.props;
+const id = meta.id;
+const headingId = `${id}-heading`;
+---
+
+<section
+  class="surface rounded-lg p-4 sm:p-6"
+  data-panel-workbench
+  data-tool-id={meta.id}
+  aria-labelledby={headingId}
+>
+  <h1 id={headingId} class="text-xl font-semibold">{meta.name}</h1>
+  <p class="mt-1.5 max-w-prose text-sm leading-relaxed text-[rgb(var(--muted))]">
+    {meta.description}
+  </p>
+
+  <div class="mt-4 flex flex-col gap-4">
+    <div class="flex flex-wrap items-center gap-3">
+      <label class="label" for="wt-device">Camera</label>
+      <select id="wt-device" class="select w-full sm:w-64">
+        <option value="">Select a camera…</option>
+      </select>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-3">
+      <label class="label" for="wt-resolution">Resolution</label>
+      <select id="wt-resolution" class="select w-full sm:w-64">
+        <option value="">Auto</option>
+      </select>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-3">
+      <label class="label" for="wt-fps">Frame rate</label>
+      <select id="wt-fps" class="select w-full sm:w-64">
+        <option value="">Auto</option>
+      </select>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <button class="btn" data-wt-start disabled>Start Test</button>
+      <button class="btn-secondary" data-wt-stop disabled>Stop</button>
+      <span class="text-sm text-[rgb(var(--muted))]" data-wt-status>Select a camera to begin</span>
+    </div>
+
+    <div
+      class="grid gap-4"
+      style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));"
+      data-wt-readout
+    >
+      <div class="surface-subtle rounded-lg p-4 text-center">
+        <div class="text-3xl font-mono font-bold text-[rgb(var(--accent))]" data-wt-width>–</div>
+        <div class="text-sm text-[rgb(var(--muted))]">Width</div>
+      </div>
+      <div class="surface-subtle rounded-lg p-4 text-center">
+        <div class="text-3xl font-mono font-bold text-[rgb(var(--accent))]" data-wt-height>–</div>
+        <div class="text-sm text-[rgb(var(--muted))]">Height</div>
+      </div>
+      <div class="surface-subtle rounded-lg p-4 text-center">
+        <div class="text-3xl font-mono font-bold text-[rgb(var(--accent))]" data-wt-fps>–</div>
+        <div class="text-sm text-[rgb(var(--muted))]">FPS</div>
+      </div>
+      <div class="surface-subtle rounded-lg p-4 text-center">
+        <div class="text-3xl font-mono font-bold text-[rgb(var(--accent))]" data-wt-aspect>–</div>
+        <div class="text-sm text-[rgb(var(--muted))]">Aspect</div>
+      </div>
+    </div>
+
+    <video
+      class="w-full max-h-96 bg-[rgb(var(--bg-subtle))] rounded-md"
+      data-wt-preview
+      autoplay
+      muted
+      playsinline></video>
+
+    <div class="flex items-center gap-3" hidden data-wt-snapshot-wrap>
+      <button class="btn" data-wt-snapshot>Take Snapshot</button>
+      <a class="btn-secondary" data-wt-download download>Download PNG</a>
+    </div>
+  </div>
+
+  <noscript>
+    <p class="alert alert-warning mt-4">This tool requires JavaScript to access the webcam.</p>
+  </noscript>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-panel-workbench][data-tool-id="webcam-test"]').forEach((root) => {
+    void import('./webcam-test')
+      .then(({ mountWebcamTestWorkbench }) => mountWebcamTestWorkbench(root))
+      .catch(() => {
+        const status = root.querySelector<HTMLElement>('[data-wt-status]');
+        if (status) {
+          status.textContent = 'The webcam test could not be loaded in this browser.';
+        }
+      });
+  });
+</script>

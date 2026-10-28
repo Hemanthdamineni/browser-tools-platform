@@ -91,6 +91,9 @@ export const meta: ToolMeta = {
       a: 'Only g, i, m, s, u and y are accepted, and each flag may appear once.',
     },
   ],
-  related: ['find-replace', 'cron-parser', 'slugify', 'case-convert'],
+  related: [  "find-replace",
+  "cron-parser",
+  "slugify",
+  "case-convert"],
   status: 'stable',
 };

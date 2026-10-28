@@ -464,7 +464,9 @@ export async function runVideoTrim(
   if (result.verdict.lossless) {
     notes.push('The encoded packets were copied untouched, so the cut is lossless.');
   } else if (result.verdict.kind === 'copy') {
-    notes.push('The encoded packets were reused, but the codec of the result could not be verified.');
+    notes.push(
+      'The encoded packets were reused, but the codec of the result could not be verified.',
+    );
   } else if (result.verdict.kind === 'mixed') {
     notes.push(
       'Part of the clip was copied and part was re-encoded — the re-encoded part lost a little quality.',

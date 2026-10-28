@@ -80,6 +80,10 @@ export const meta: ToolMeta = {
       a: 'Auto-detect counts comma, semicolon, tab and pipe characters in the first lines and picks the most frequent. You can also force one from the dropdown.',
     },
   ],
-  related: ['csv-profiler', 'json-diff', 'csv-to-json', 'csv-sanitize', 'csv-to-markdown'],
+  related: [  "csv-profiler",
+  "json-diff",
+  "csv-to-json",
+  "csv-sanitize",
+  "csv-to-markdown"],
   status: 'stable',
 };

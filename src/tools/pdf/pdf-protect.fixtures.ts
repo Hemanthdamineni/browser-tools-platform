@@ -78,6 +78,20 @@ export function createCliEngine(): QpdfEngine {
         rmSync(dir, { recursive: true, force: true });
       }
     },
+    unlock(bytes: Uint8Array, password: string): Uint8Array<ArrayBuffer> {
+      const dir = mkdtempSync(join(tmpdir(), 'toolbench-protect-'));
+      const input = join(dir, 'input.pdf');
+      const output = join(dir, 'output.pdf');
+      try {
+        writeFileSync(input, bytes);
+        execFileSync('qpdf', ['--password', password, '--decrypt', input, output], {
+          stdio: ['ignore', 'pipe', 'pipe'],
+        });
+        return new Uint8Array(readFileSync(output));
+      } finally {
+        rmSync(dir, { recursive: true, force: true });
+      }
+    },
   };
 }
 

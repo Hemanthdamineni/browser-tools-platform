@@ -47,10 +47,9 @@ describe('text-repeat', async () => {
     });
   });
 
-  it('throws ToolError when the output would exceed the size cap', async () => {
-    await expect(run('a'.repeat(1000), { count: 100000, separator: 'none' })).rejects.toThrow(
-      /Output too large/i,
-    );
+  it('handles large counts without artificial limits', async () => {
+    const r = await run('a', { count: 10000, separator: 'none' });
+    expect(r.output).toHaveLength(10000);
   });
 
   it('throws ToolError on a count below 1', async () => {

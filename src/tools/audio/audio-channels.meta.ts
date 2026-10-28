@@ -28,6 +28,7 @@ export const meta: ToolMeta = {
       ],
     },
   ],
-  related: ['audio-merge', 'audio-to-wav'],
+  related: [  "audio-merge",
+  "audio-to-wav"],
   status: 'stable',
 };

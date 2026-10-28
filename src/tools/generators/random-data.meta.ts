@@ -37,7 +37,7 @@ export const meta: ToolMeta = {
         { value: 'ids', label: 'IDs (uuid, objectId, nanoid, ulid)' },
       ],
     },
-    { key: 'rows', label: 'Rows', type: 'number', default: 10, min: 1, max: 500 },
+    { key: 'rows', label: 'Rows', type: 'number', default: 10, min: 1 },
     {
       key: 'format',
       label: 'Format',
@@ -71,6 +71,8 @@ export const meta: ToolMeta = {
       a: 'Person: first/last/full name, age, gender. Contact adds email and phone. Address: street, city, state, zip, country. Network: ipv4, ipv6, mac, domain, url, user agent. Commerce: product, category, price, currency, sku. Company: name, catch phrase, industry, domain. IDs: uuid, objectId, nanoid, ulid.',
     },
   ],
-  related: ['random-string', 'lorem-ipsum', 'uuid'],
+  related: [  "random-string",
+  "lorem-ipsum",
+  "uuid"],
   status: 'stable',
 };

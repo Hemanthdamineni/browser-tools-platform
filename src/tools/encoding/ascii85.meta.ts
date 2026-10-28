@@ -67,6 +67,9 @@ export const meta: ToolMeta = {
       a: 'When decoding they are optional — the tool strips them if present. When encoding with the Adobe variant they are always added.',
     },
   ],
-  related: ['base64', 'base32', 'base58', 'hex'],
+  related: [  "base64",
+  "base32",
+  "base58",
+  "hex"],
   status: 'stable',
 };

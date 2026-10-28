@@ -62,6 +62,10 @@ export const meta: ToolMeta = {
       a: 'Paste the generated code and run the schema: const parsed = schema.parse(raw) gives you validated data, and type User = z.infer<typeof schema> gives you the inferred TypeScript type automatically.',
     },
   ],
-  related: ['json-to-typescript', 'json-to-go-struct', 'json-to-yaml', 'json-to-csv', 'json-diff'],
+  related: [  "json-to-typescript",
+  "json-to-go-struct",
+  "json-to-yaml",
+  "json-to-csv",
+  "json-diff"],
   status: 'stable',
 };

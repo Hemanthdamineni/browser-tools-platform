@@ -104,6 +104,9 @@ export const meta: ToolMeta = {
       a: 'A tag is recommended but not required — whatever you type in “Base image” is emitted verbatim, so private registries and digests work too.',
     },
   ],
-  related: ['docker-compose', 'json-to-env', 'dotenv', 'glob-tester'],
+  related: [  "docker-compose",
+  "json-to-env",
+  "dotenv",
+  "glob-tester"],
   status: 'stable',
 };

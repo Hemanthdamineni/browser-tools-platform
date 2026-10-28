@@ -55,6 +55,7 @@ export const meta: ToolMeta = {
       a: 'Runs are split on spaces, hyphens, underscores, dots and slashes, and also at lowercase→uppercase transitions and acronym boundaries (e.g. "HTTPServer" → "HTTP" + "Server").',
     },
   ],
-  related: ['slugify', 'text-stats', 'whitespace-cleanup'],
+  related: [  "slugify",
+  "text-stats"],
   status: 'stable',
 };

@@ -164,6 +164,16 @@ describe('registry aliases', () => {
     }
   });
 
+  it('all related ids in visible tools point to existing tools', () => {
+    for (const tool of VISIBLE_TOOLS) {
+      for (const rel of tool.meta.related ?? []) {
+        const found = getTool(rel);
+        expect(found, `Related tool "${rel}" referenced by "${tool.meta.id}" does not exist`).toBeTruthy();
+        expect(found?.meta.id).toBe(rel);
+      }
+    }
+  });
+
   it('points every alias at a real, non-alias, visible tool', () => {
     expect(ALIAS_TOOLS.length).toBeGreaterThanOrEqual(legacyIds.length);
     for (const alias of ALIAS_TOOLS) {

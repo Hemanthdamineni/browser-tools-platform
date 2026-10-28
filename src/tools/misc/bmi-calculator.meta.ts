@@ -85,6 +85,7 @@ export const meta: ToolMeta = {
       a: 'Underweight is below 18.5, Normal is 18.5–24.9, Overweight is 25–29.9 and Obese is 30 or above. BMI is a screening measure, not a diagnosis.',
     },
   ],
-  related: ['unit-convert', 'calculator'],
+  related: [  "unit-convert",
+  "calculator"],
   status: 'stable',
 };

@@ -95,6 +95,9 @@ export const meta: ToolMeta = {
       a: 'No, and it does not resolve remote $ref URLs. Only local references such as #/$defs/Name are resolved.',
     },
   ],
-  related: ['json-to-jsonschema', 'json-to-typescript', 'json-schema-check', 'json-to-zod'],
+  related: [  "json-to-jsonschema",
+  "json-to-typescript",
+  "json-schema-check",
+  "json-to-zod"],
   status: 'stable',
 };

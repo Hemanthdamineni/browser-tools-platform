@@ -30,6 +30,6 @@ export const meta: ToolMeta = {
       a: 'Actually the reverse: CSS requires 0 ≤ x1,x2 ≤ 1 (they parametrise time), while y may overshoot to create bounce effects. Values outside that x range are rejected exactly like the browser would.',
     },
   ],
-  related: ['gradient-css'],
+  related: [  "gradient-css"],
   status: 'stable',
 };

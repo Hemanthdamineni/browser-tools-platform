@@ -611,6 +611,7 @@ function run(input: TextRunInput): TextRunResult {
 
   return analyze(input.text, target);
 }
+export { run };
 
 const tool: TextToolModule = { meta, run };
 export default tool;

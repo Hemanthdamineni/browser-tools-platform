@@ -38,12 +38,14 @@ export const meta: ToolMeta = {
   examples: [
     {
       title: 'Extract an array of names',
-      input: '$.users[*].name',
+      input:
+        '$.users[*].name\n\n{\n  "users": [\n    { "id": 1, "name": "Ada Lovelace" },\n    { "id": 2, "name": "Grace Hopper" },\n    { "id": 3, "name": "Katherine Johnson" }\n  ]\n}',
       options: {},
     },
     {
       title: 'Filter objects where price is above a threshold',
-      input: '$.products[?(@.price > 20)].name',
+      input:
+        '$.products[?(@.price > 20)].name\n\n{\n  "products": [\n    { "name": "Keyboard", "price": 12.5 },\n    { "name": "Monitor", "price": 240 },\n    { "name": "Mouse", "price": 8 }\n  ]\n}',
       options: {},
     },
   ],
@@ -65,6 +67,10 @@ export const meta: ToolMeta = {
       a: 'It covers the common operators and nested paths of the widely used JSONPath for JavaScript dialect. Advanced script expressions are not supported, but the implemented subset handles typical real-world queries.',
     },
   ],
-  related: ['json-to-go-struct', 'json-to-zod', 'json-to-csharp', 'json-to-swift', 'json-diff'],
+  related: [  "json-to-go-struct",
+  "json-to-zod",
+  "json-to-csharp",
+  "json-to-swift",
+  "json-diff"],
   status: 'stable',
 };

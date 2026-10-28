@@ -9,6 +9,7 @@ visitor's browser.
 - mediabunny         — MPL-2.0  — https://github.com/vanilagy/mediabunny
 - gifenc             — MIT      — https://github.com/mattdesl/gifenc
 - yaml               — ISC      — https://github.com/eemeli/yaml
+- xlsx (SheetJS)     — Apache-2.0 — https://github.com/SheetJS/sheetjs
 - diff               — BSD-3-Clause — https://github.com/kpdecker/jsdiff
 - marked             — MIT      — https://github.com/markedjs/marked
 - qrcode-generator   — MIT      — https://github.com/kazuhikoarase/qrcode-generator
@@ -22,6 +23,13 @@ visitor's browser.
 - tesseract.js-core   — Apache-2.0 — https://github.com/naptha/tesseract.js-core
 - Tesseract tessdata language models — Apache-2.0 — https://github.com/tesseract-ocr/tessdata
 - terser              — BSD-2-Clause — https://github.com/terser/terser
+- sql.js              — MIT      — https://github.com/sql-js/sql.js
+- xlsx (SheetJS)      — Apache-2.0 — https://sheetjs.com
+- mermaid             — MIT      — https://github.com/mermaid-js/mermaid
+- shiki               — MIT      — https://github.com/shikijs/shiki
+- bcryptjs            — MIT      — https://github.com/dcodeIO/bcrypt.js
+- openpgp             — LGPL-3.0 — https://github.com/openpgpjs/openpgpjs
+- @breezystack/lamejs — LGPL-3.0 — https://github.com/zhuker/lamejs
 - sucrase             — MIT      — https://github.com/alangpierce/sucrase
 - csso                — MIT      — https://github.com/css/csso
 - css-tree            — MIT      — https://github.com/csstree/csstree

@@ -31,7 +31,7 @@ export const meta: ToolMeta = {
         { value: 'list-items', label: 'List items' },
       ],
     },
-    { key: 'count', label: 'Count', type: 'number', default: 3, min: 1, max: 200 },
+    { key: 'count', label: 'Count', type: 'number', default: 3, min: 1 },
     {
       key: 'startWithLorem',
       label: 'Start with “Lorem ipsum dolor sit amet…”',
@@ -65,6 +65,7 @@ export const meta: ToolMeta = {
       a: 'No — beyond the optional “Lorem ipsum dolor sit amet…” opening, the word order and sentence lengths are randomized each run.',
     },
   ],
-  related: ['random-data', 'text-repeat'],
+  related: [  "random-data",
+  "text-repeat"],
   status: 'stable',
 };

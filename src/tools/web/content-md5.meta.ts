@@ -53,6 +53,8 @@ export const meta: ToolMeta = {
       a: 'No. Digest computation and verification run entirely in your browser.',
     },
   ],
-  related: ['http-header-analyzer', 'checksum-validator', 'hash'],
+  related: [  "http-header-analyzer",
+  "checksum-validator",
+  "hash"],
   status: 'stable',
 };

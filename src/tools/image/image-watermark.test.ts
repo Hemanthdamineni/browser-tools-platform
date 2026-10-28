@@ -88,7 +88,9 @@ const mockHasSave = typeof proto.save === 'function';
 
 if (typeof proto.measureText !== 'function') {
   proto.measureText = function (text: string): { width: number } {
-    return { width: Math.max(1, [...text].length * fontPxOf(this.font ?? '') * ESTIMATED_GLYPH_RATIO) };
+    return {
+      width: Math.max(1, [...text].length * fontPxOf(this.font ?? '') * ESTIMATED_GLYPH_RATIO),
+    };
   };
 }
 
@@ -110,11 +112,18 @@ proto.fillText = function (text: string, x: number, y: number): void {
 
 if (!mockHasSave) {
   proto.save = function (): void {
-    const ctx = this as PatchedContext & { __wmStack?: { transform?: Transform; alpha?: number }[] };
-    (ctx.__wmStack ??= []).push({ transform: cloneTransform(this.transform), alpha: this.globalAlpha });
+    const ctx = this as PatchedContext & {
+      __wmStack?: { transform?: Transform; alpha?: number }[];
+    };
+    (ctx.__wmStack ??= []).push({
+      transform: cloneTransform(this.transform),
+      alpha: this.globalAlpha,
+    });
   };
   proto.restore = function (): void {
-    const ctx = this as PatchedContext & { __wmStack?: { transform?: Transform; alpha?: number }[] };
+    const ctx = this as PatchedContext & {
+      __wmStack?: { transform?: Transform; alpha?: number }[];
+    };
     const saved = ctx.__wmStack?.pop();
     if (!saved) return;
     this.transform = cloneTransform(saved.transform);
@@ -413,8 +422,13 @@ describe('computeLayout (single mark)', () => {
   });
 
   it('maps opacity through to alpha at both extremes', () => {
-    expect(computeLayout({ settings: settings({ opacity: 0 }), imageWidth: 10, imageHeight: 10 }).alpha).toBe(0);
-    expect(computeLayout({ settings: settings({ opacity: 100 }), imageWidth: 10, imageHeight: 10 }).alpha).toBe(1);
+    expect(
+      computeLayout({ settings: settings({ opacity: 0 }), imageWidth: 10, imageHeight: 10 }).alpha,
+    ).toBe(0);
+    expect(
+      computeLayout({ settings: settings({ opacity: 100 }), imageWidth: 10, imageHeight: 10 })
+        .alpha,
+    ).toBe(1);
   });
 
   it('scales a logo to a percentage of the image width and keeps its aspect ratio', () => {
@@ -453,7 +467,9 @@ describe('computeLayout (tiled)', () => {
     });
     expect(layout.tiled).toBe(true);
     expect(layout.angle).toBeCloseTo((-30 * Math.PI) / 180);
-    expect(layout.marks.length).toBe(tileMarks(400, 300, 75, (-30 * Math.PI) / 180, 162, 36).length);
+    expect(layout.marks.length).toBe(
+      tileMarks(400, 300, 75, (-30 * Math.PI) / 180, 162, 36).length,
+    );
     const x = layout.marks.map((m) => m.x);
     const y = layout.marks.map((m) => m.y);
     expect(Math.min(...x)).toBeLessThanOrEqual(0);
@@ -658,10 +674,24 @@ describe('image-watermark run — logo', () => {
         { width: 200, height: 200 },
       ],
     });
-    await runTool({ mode: 'logo', logo: PNG_LOGO, logoScale: 10, tiled: true, tileSpacing: 25, tileAngle: 45 });
+    await runTool({
+      mode: 'logo',
+      logo: PNG_LOGO,
+      logoScale: 10,
+      tiled: true,
+      tileSpacing: 25,
+      tileAngle: 45,
+    });
 
     const expected = computeLayout({
-      settings: settings({ mode: 'logo', logo: PNG_LOGO, logoScale: 10, tiled: true, tileSpacing: 25, tileAngle: 45 }),
+      settings: settings({
+        mode: 'logo',
+        logo: PNG_LOGO,
+        logoScale: 10,
+        tiled: true,
+        tileSpacing: 25,
+        tileAngle: 45,
+      }),
       imageWidth: 200,
       imageHeight: 200,
       logoWidth: 20,
@@ -846,9 +876,7 @@ describe('image-watermark run — failures', () => {
 
   it('honours an aborted signal', async () => {
     mock = installImageMock();
-    await expect(
-      runTool({}, [png()], { signal: AbortSignal.abort() }),
-    ).rejects.toThrow(/cancel/i);
+    await expect(runTool({}, [png()], { signal: AbortSignal.abort() })).rejects.toThrow(/cancel/i);
   });
 
   it('stops a long tiling as soon as the signal aborts', async () => {

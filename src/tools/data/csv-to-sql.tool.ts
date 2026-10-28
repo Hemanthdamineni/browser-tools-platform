@@ -117,8 +117,7 @@ async function run(input: TextRunInput): Promise<TextRunResult> {
   const emptyAsNull = o.emptyAsNull !== false;
   const mysqlEscapes = o.mysqlEscapes === true;
   const rawBatch = Number(o.batch);
-  const batch = Number.isFinite(rawBatch) ? Math.max(1, Math.min(1000, Math.trunc(rawBatch))) : 100;
-
+  const batch = Number.isFinite(rawBatch) ? Math.max(1, Math.trunc(rawBatch)) : 100;
   const text = (input.text ?? '').trim();
   if (!text) {
     throw new ToolError(

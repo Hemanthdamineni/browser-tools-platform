@@ -51,6 +51,9 @@ export const meta: ToolMeta = {
       a: 'Up to trillions (1e12). Values larger than about a quadrillion are rejected with an error rather than guessed.',
     },
   ],
-  related: ['number-to-words', 'roman-numeral', 'prime-factorization', 'case-convert'],
+  related: [  "number-to-words",
+  "roman-numeral",
+  "prime-factorization",
+  "case-convert"],
   status: 'stable',
 };

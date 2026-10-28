@@ -36,7 +36,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 80,
       min: 40,
-      max: 200,
     },
     {
       key: 'prettyComments',
@@ -75,6 +74,9 @@ export const meta: ToolMeta = {
       a: 'No, it does the opposite. There is nothing removed and no attribute reordered. Use it to make inline messy markup human-readable again.',
     },
   ],
-  related: ['html-to-text', 'html-to-markdown', 'html-entities', 'markdown-link-checker'],
+  related: [  "html-to-text",
+  "html-to-markdown",
+  "html-entities",
+  "markdown-link-checker"],
   status: 'stable',
 };

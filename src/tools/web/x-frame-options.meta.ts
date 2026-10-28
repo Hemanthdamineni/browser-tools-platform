@@ -58,6 +58,8 @@ export const meta: ToolMeta = {
       a: 'Browsers that support CSP ignore XFO when frame-ancestors is present. Use frame-ancestors for modern control and XFO for older clients that do not support CSP.',
     },
   ],
-  related: ['security-headers', 'content-security-policy', 'permissions-policy'],
+  related: [  "security-headers",
+  "content-security-policy",
+  "permissions-policy"],
   status: 'stable',
 };

@@ -52,7 +52,7 @@ export const meta: ToolMeta = {
   examples: [
     {
       title: 'Sanitize formula-leading cells',
-      input: 'name,comment\nAda,=HYPERLINK("https://example.com")\nLinus,+1+1',
+      input: 'name,comment\nAda,=SUM(A1:A2)\nLinus,+1+1\nGrace,@COUNT(A4:A6)',
     },
     {
       title: 'Inspect risky cells',
@@ -74,6 +74,8 @@ export const meta: ToolMeta = {
       a: 'Yes. The parser handles quoted delimiters, doubled quotes, CRLF/LF records and newlines inside quoted fields. Malformed quoting is rejected rather than guessed.',
     },
   ],
-  related: ['csv-to-json', 'json-to-csv', 'file-metadata'],
+  related: [  "csv-to-json",
+  "json-to-csv",
+  "file-metadata"],
   status: 'stable',
 };

@@ -131,6 +131,9 @@ export const meta: ToolMeta = {
       a: 'Cron syntax is easy to tie in knots. The plain-English summary confirms what you actually scheduled before you save it, complementing cron-parser for next-run times.',
     },
   ],
-  related: ['cron-parser', 'recurrence-dates', 'timestamp', 'timezone-convert'],
+  related: [  "cron-parser",
+  "recurrence-dates",
+  "timestamp",
+  "timezone-convert"],
   status: 'stable',
 };

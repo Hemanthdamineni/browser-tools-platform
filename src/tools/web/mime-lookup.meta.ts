@@ -40,6 +40,8 @@ export const meta: ToolMeta = {
       a: 'Only the last extension is matched (.gz → application/gzip). Full compound-extension matching (.tar.gz) is ambiguous and intentionally not attempted.',
     },
   ],
-  related: ['data-uri', 'http-status', 'file-metadata'],
+  related: [  "data-uri",
+  "http-status",
+  "file-metadata"],
   status: 'stable',
 };

@@ -1,0 +1,91 @@
+---
+import type { ToolMeta } from '@/lib/types';
+
+interface Props {
+  meta: ToolMeta;
+}
+const { meta } = Astro.props;
+const id = meta.id;
+const headingId = `${id}-heading`;
+---
+
+<section
+  class="surface rounded-lg p-4 sm:p-6"
+  data-panel-workbench
+  data-tool-id={meta.id}
+  aria-labelledby={headingId}
+>
+  <h1 id={headingId} class="text-xl font-semibold">{meta.name}</h1>
+  <p class="mt-1.5 max-w-prose text-sm leading-relaxed text-[rgb(var(--muted))]">
+    {meta.description}
+  </p>
+
+  <div class="mt-4 flex flex-col gap-4">
+    <div class="flex items-center gap-3">
+      <label class="label" for="screen-source">Source</label>
+      <select id="screen-source" class="select w-full sm:w-64">
+        <option value="screen">Entire screen</option>
+        <option value="window">Application window</option>
+        <option value="tab">Browser tab</option>
+      </select>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <label class="label" for="screen-audio">Microphone</label>
+      <select id="screen-audio" class="select w-full sm:w-64">
+        <option value="none">None</option>
+        <option value="system">System audio (if supported)</option>
+        <option value="mic">Microphone</option>
+      </select>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <label class="label" for="screen-mime">Format</label>
+      <select id="screen-mime" class="select w-full sm:w-64">
+        <option value="video/webm;codecs=vp9">WebM (VP9)</option>
+        <option value="video/webm;codecs=vp8">WebM (VP8)</option>
+        <option value="video/mp4">MP4 (if supported)</option>
+      </select>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <button class="btn" data-screen-record disabled aria-pressed="false">
+        <span data-screen-record-label>Start Recording</span>
+      </button>
+      <button class="btn-secondary" data-screen-stop disabled aria-pressed="false">Stop</button>
+      <span class="text-sm text-[rgb(var(--muted))]" data-screen-status
+        >Waiting for permission…</span
+      >
+    </div>
+
+    <video
+      class="w-full max-h-96 bg-[rgb(var(--bg-subtle))] rounded-md"
+      data-screen-preview
+      controls
+      muted
+      hidden></video>
+
+    <div class="flex items-center gap-3" hidden data-screen-download-wrap>
+      <button class="btn-secondary" data-screen-download>Download recording</button>
+    </div>
+  </div>
+
+  <noscript>
+    <p class="alert alert-warning mt-4">
+      This tool requires JavaScript to access the screen recording API.
+    </p>
+  </noscript>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-panel-workbench][data-tool-id="screen-recorder"]').forEach((root) => {
+    void import('./screen-recorder')
+      .then(({ mountScreenRecorderWorkbench }) => mountScreenRecorderWorkbench(root))
+      .catch(() => {
+        const status = root.querySelector<HTMLElement>('[data-screen-status]');
+        if (status) {
+          status.textContent = 'The screen recorder could not be loaded in this browser.';
+        }
+      });
+  });
+</script>

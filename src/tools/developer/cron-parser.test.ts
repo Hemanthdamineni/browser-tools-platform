@@ -80,8 +80,8 @@ describe('cron-parser', async () => {
     expect(wordy).toContain('every day');
   });
 
-  it('count: clamps to 1..20', async () => {
-    expect(parts(await run('* * * * *', { count: 100 })).isos).toHaveLength(20);
+  it('count: accepts any positive number', async () => {
+    expect(parts(await run('* * * * *', { count: 100 })).isos).toHaveLength(100);
     expect(parts(await run('* * * * *', { count: 0 })).isos).toHaveLength(1);
   });
 

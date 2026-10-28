@@ -70,6 +70,7 @@ export const meta: ToolMeta = {
       a: 'Temperature is not a simple factor table — values are converted to Kelvin first, then out to Celsius, Fahrenheit, Kelvin or Rankine.',
     },
   ],
-  related: ['css-units', 'data-size', 'scientific-notation'],
+  related: [  "css-units",
+  "data-size"],
   status: 'stable',
 };

@@ -68,6 +68,9 @@ export const meta: ToolMeta = {
       a: 'The input has an opening quote or /* with no matching close, so the formatter cannot tell where the literal ends.',
     },
   ],
-  related: ['json-format', 'xml-format', 'markdown-to-html', 'regex-tester'],
+  related: [  "json-format",
+  "xml-format",
+  "markdown-to-html",
+  "regex-tester"],
   status: 'stable',
 };

@@ -40,6 +40,8 @@ export const meta: ToolMeta = {
       a: 'No — this tool performs the RFC 3492 code conversion only. DNS label length limits (63 bytes) and whole-domain validation are the responsibility of your registrar or DNS tooling.',
     },
   ],
-  related: ['url-parse', 'url-encode', 'unicode-escape'],
+  related: [  "url-parse",
+  "url-encode",
+  "unicode-escape"],
   status: 'stable',
 };

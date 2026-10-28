@@ -17,13 +17,12 @@ export function generateClickTrack(options: Record<string, string | number | boo
   const clickHz = Number(options.clickHz ?? 1000);
   const accentHz = Number(options.accentHz ?? 1500);
   const sampleRate = Number(options.sampleRate ?? 44100);
-
-  if (!Number.isFinite(bpm) || bpm < 20 || bpm > 300)
-    throw new ToolError('Tempo must be between 20 and 300 BPM.');
-  if (!Number.isInteger(bars) || bars < 1 || bars > 64)
-    throw new ToolError('Bars must be a whole number between 1 and 64.');
-  if (!Number.isInteger(beatsPerBar) || beatsPerBar < 1 || beatsPerBar > 16)
-    throw new ToolError('Beats per bar must be a whole number between 1 and 16.');
+  if (!Number.isFinite(bpm) || bpm < 20)
+    throw new ToolError('Tempo must be at least 20 BPM.');
+  if (!Number.isInteger(bars) || bars < 1)
+    throw new ToolError('Bars must be a whole number >= 1.');
+  if (!Number.isInteger(beatsPerBar) || beatsPerBar < 1)
+    throw new ToolError('Beats per bar must be a whole number >= 1.');
   if (![22050, 44100, 48000].includes(sampleRate))
     throw new ToolError('Choose a supported sample rate.');
 

@@ -52,7 +52,9 @@ export const meta: ToolMeta = {
       a: 'No. JSON has no comments, so the input must be strict JSON. Use YAML to JSON for the reverse direction.',
     },
   ],
-  related: ['yaml-to-json', 'json-to-csv', 'csv-to-json'],
+  related: [  "yaml-to-json",
+  "json-to-csv",
+  "csv-to-json"],
   credits: [{ name: 'yaml', url: 'https://github.com/eemeli/yaml', license: 'ISC' }],
   status: 'stable',
 };

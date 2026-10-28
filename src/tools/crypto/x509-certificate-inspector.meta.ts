@@ -31,7 +31,7 @@ export const meta: ToolMeta = {
     {
       title: 'Certificate details',
       input:
-        '-----BEGIN CERTIFICATE-----\nMIID/DCCAuSgAwIBAgIUTnVaXxVzi9vZDzYpqiLQgcpK/vEwDQYJKoZIhvcNAQEL\nBQAweTELMAk...XjQ==\n-----END CERTIFICATE-----',
+        '-----BEGIN CERTIFICATE-----\nMIIDDTCCAfWgAwIBAgIUIzbRrIBVwVq+cqJKWzBoa4cWZaIwDQYJKoZIhvcNAQEL\nBQAwFjEUMBIGA1UEAwwLZXhhbXBsZS5jb20wHhcNMjYxMDI3MDc1OTQ5WhcNMjYx\nMTI2MDc1OTQ5WjAWMRQwEgYDVQQDDAtleGFtcGxlLmNvbTCCASIwDQYJKoZIhvcN\nAQEBBQADggEPADCCAQoCggEBAK6J/1F7RGZFJNIuikBr3vDaKH6in9TiaAR5ya1y\n1ITCJovAabo3JoKbje6/XLPQi7mvcKQxgy24WjWwpqC6PkhpJqulHOcwwD2i8Cb3\nBft6TipPi3IR3ukuxL0LIu0ndTJsvt5SQa5BHFVJEXAgelUrTNwdwLITd/P6eCDv\n0HIDPkYXACA16Lg7GBzPutJMQr8wy3FMSk+B+Ojhucxoy0X2VbzAAwj55FgsZFU1\npXOVcv0pM13mZsiUWLgGcMwRLygpeVDmEg4ZbQ/B7Z1pbWImjPHvzuI9/vRZzzgZ\nUNBnzrXZnQYpV4JpWM+/L29Lp55vI2pzHGSeuUWVKRvr3Q8CAwEAAaNTMFEwHQYD\nVR0OBBYEFDg1uyV73MiuOhpaPl5KNNCJMvWUMB8GA1UdIwQYMBaAFDg1uyV73Miu\nOhpaPl5KNNCJMvWUMA8GA1UdEwEB/wQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEB\nAKaYOo5qqTsgAydaiRnyUEVBsfdFQ7oHKZV6t27+PjNSwW1ZbZIjKPhdjCp0xUic\nS53RHVvr3kpN4ivL5+toOzibXME2oSG5eiVmU5wztiAlPflncBakmfHCNH/loC1f\nuPkyRNBu8Np4kSm5Sxxea83Rq4JJx+h1NasbDXZYD5teeGRpjuiLVzDGppH5bOtJ\nEqg+jHFoOWZrQuICC81unObqbMD/G23ZtH9QktVE0DB5UCR5X/E8TscMTAtbu90p\nnsrmj+nOD5LlB35csL5xgphikN0o5WD7766Csh2KpGOaVrLlg1NwW+u3gIoOLnMq\nS6H6MWicyWlmW9IXSAfEMGY=\n-----END CERTIFICATE-----',
     },
   ],
   faq: [
@@ -48,6 +48,8 @@ export const meta: ToolMeta = {
       a: 'RSA (bit size and modulus/exponent), ECDSA (curve), Ed25519 and DSA. Unknown OIDs are still reported by their dotted OID form.',
     },
   ],
-  related: ['ssh-key-fingerprint', 'hash', 'text-encrypt'],
+  related: [  "ssh-key-fingerprint",
+  "hash",
+  "text-encrypt"],
   status: 'stable',
 };

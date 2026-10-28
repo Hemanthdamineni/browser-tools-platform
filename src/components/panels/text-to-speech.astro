@@ -1,0 +1,95 @@
+---
+import type { ToolMeta } from '@/lib/types';
+
+interface Props {
+  meta: ToolMeta;
+}
+const { meta } = Astro.props;
+const id = meta.id;
+const headingId = `${id}-heading`;
+---
+
+<section
+  class="surface rounded-lg p-4 sm:p-6"
+  data-panel-workbench
+  data-tool-id={meta.id}
+  aria-labelledby={headingId}
+>
+  <h1 id={headingId} class="text-xl font-semibold">{meta.name}</h1>
+  <p class="mt-1.5 max-w-prose text-sm leading-relaxed text-[rgb(var(--muted))]">
+    {meta.description}
+  </p>
+
+  <div class="mt-4 flex flex-col gap-4">
+    <div class="flex items-center gap-3">
+      <label class="label" for="tts-text">Text to speak</label>
+      <textarea
+        id="tts-text"
+        class="input min-h-[100px] resize-y"
+        placeholder="Enter text to speak..."></textarea>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-3">
+      <label class="label" for="tts-voice">Voice</label>
+      <select id="tts-voice" class="select w-full sm:w-64">
+        <option value="">Default voice</option>
+      </select>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-3">
+      <label class="label" for="tts-rate">Rate</label>
+      <input
+        type="number"
+        id="tts-rate"
+        class="input w-24"
+        min="0.1"
+        max="10"
+        step="0.1"
+        value="1"
+      />
+      <span class="text-sm text-[rgb(var(--muted))]">0.1–10</span>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-3">
+      <label class="label" for="tts-pitch">Pitch</label>
+      <input
+        type="number"
+        id="tts-pitch"
+        class="input w-24"
+        min="0.1"
+        max="2"
+        step="0.1"
+        value="1"
+      />
+      <span class="text-sm text-[rgb(var(--muted))]">0.1–2</span>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <button class="btn" data-tts-speak aria-pressed="false">Speak</button>
+      <button class="btn-secondary" data-tts-pause aria-pressed="false" disabled>Pause</button>
+      <button class="btn-secondary" data-tts-resume aria-pressed="false" disabled>Resume</button>
+      <button class="btn-secondary" data-tts-stop aria-pressed="false" disabled>Stop</button>
+    </div>
+
+    <div class="text-sm text-[rgb(var(--muted))]" data-tts-status>Ready</div>
+  </div>
+
+  <noscript>
+    <p class="alert alert-warning mt-4">
+      This tool requires JavaScript to use the Web Speech Synthesis API.
+    </p>
+  </noscript>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-panel-workbench][data-tool-id="text-to-speech"]').forEach((root) => {
+    void import('./text-to-speech')
+      .then(({ mountTextToSpeechWorkbench }) => mountTextToSpeechWorkbench(root))
+      .catch(() => {
+        const status = root.querySelector<HTMLElement>('[data-tts-status]');
+        if (status) {
+          status.textContent = 'The text-to-speech tool could not be loaded in this browser.';
+        }
+      });
+  });
+</script>

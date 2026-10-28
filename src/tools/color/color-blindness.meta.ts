@@ -60,6 +60,8 @@ export const meta: ToolMeta = {
       a: 'Enter one color per line - each line is simulated in order.',
     },
   ],
-  related: ['color-contrast', 'color-palette', 'color-convert'],
+  related: [  "color-contrast",
+  "color-palette",
+  "color-convert"],
   status: 'stable',
 };

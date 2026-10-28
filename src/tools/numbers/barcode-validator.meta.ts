@@ -58,6 +58,9 @@ export const meta: ToolMeta = {
       a: 'No. This validates the numeric code itself. To generate barcodes, use the Barcode / QR generator instead.',
     },
   ],
-  related: ['barcode', 'luhn-validator', 'checksum-validator', 'vin-validator'],
+  related: [  "barcode",
+  "luhn-validator",
+  "checksum-validator",
+  "vin-validator"],
   status: 'stable',
 };

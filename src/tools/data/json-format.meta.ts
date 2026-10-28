@@ -67,6 +67,7 @@ export const meta: ToolMeta = {
       a: 'It confirms the text is valid JSON and notes the top-level value type plus how many keys or elements it has.',
     },
   ],
-  related: ['json-escape', 'ndjson'],
+  related: [  "json-escape",
+  "ndjson"],
   status: 'stable',
 };

@@ -29,6 +29,9 @@ function spyEngine(output: Uint8Array<ArrayBuffer>): EngineSpy {
       spy.plans.push(plan);
       return output;
     },
+    unlock() {
+      throw new Error('unlock not implemented in spyEngine');
+    },
   };
   return spy;
 }
@@ -37,6 +40,9 @@ function spyEngine(output: Uint8Array<ArrayBuffer>): EngineSpy {
 function refusingEngine(error: ToolError): QpdfEngine {
   return {
     protect() {
+      throw error;
+    },
+    unlock() {
       throw error;
     },
   };

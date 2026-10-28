@@ -62,6 +62,9 @@ function fakeModule(options: {
         if (!file) throw new Error(`ENOENT: ${path}`);
         return file;
       },
+      unlink(path: string): void {
+        files.delete(path);
+      },
     },
     callMain(args: string[]): number {
       module.calls.push(args);

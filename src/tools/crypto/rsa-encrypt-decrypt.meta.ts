@@ -69,14 +69,18 @@ export const meta: ToolMeta = {
     {
       title: 'Encrypt a secret for a recipient',
       input:
-        '-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA...\n-----END PUBLIC KEY-----',
+        '-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAron/UXtEZkUk0i6KQGve\n8NoofqKf1OJoBHnJrXLUhMImi8BpujcmgpuN7r9cs9CLua9wpDGDLbhaNbCmoLo+\nSGkmq6Uc5zDAPaLwJvcF+3pOKk+LchHe6S7EvQsi7Sd1Mmy+3lJBrkEcVUkRcCB6\nVStM3B3AshN38/p4IO/QcgM+RhcAIDXouDsYHM+60kxCvzDLcUxKT4H46OG5zGjL\nRfZVvMADCPnkWCxkVTWlc5Vy/SkzXeZmyJRYuAZwzBEvKCl5UOYSDhltD8HtnWlt\nYiaM8e/O4j3+9FnPOBlQ0GfOtdmdBilXgmlYz78vb0unnm8janMcZJ65RZUpG+vd\nDwIDAQAB\n-----END PUBLIC KEY-----',
       options: { operation: 'encrypt', payload: 'attack at dawn' },
     },
     {
       title: 'Decrypt with a PKCS#8 private key',
       input:
-        '-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC4...\n-----END PRIVATE KEY-----',
-      options: { operation: 'decrypt', payload: 'm2zNw5q1...' },
+        '-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCuif9Re0RmRSTS\nLopAa97w2ih+op/U4mgEecmtctSEwiaLwGm6NyaCm43uv1yz0Iu5r3CkMYMtuFo1\nsKaguj5IaSarpRznMMA9ovAm9wX7ek4qT4tyEd7pLsS9CyLtJ3UybL7eUkGuQRxV\nSRFwIHpVK0zcHcCyE3fz+ngg79ByAz5GFwAgNei4Oxgcz7rSTEK/MMtxTEpPgfjo\n4bnMaMtF9lW8wAMI+eRYLGRVNaVzlXL9KTNd5mbIlFi4BnDMES8oKXlQ5hIOGW0P\nwe2daW1iJozx787iPf70Wc84GVDQZ8612Z0GKVeCaVjPvy9vS6eebyNqcxxknrlF\nlSkb690PAgMBAAECggEAA9eJXQzqRIBrXxiOQkX0c3dnN+KUSZHkpE6svuCW5Znh\ns8ImljWMbaDZd1FEITIyue9r9IrSLmmHgp/ZnQaJbvWccDsjUmzlgdXSpyJxlyYF\ndrBYFJHu2S03QFZSD50MqkzXr8ZpCalo0TpZZuR44vwNnQnqJU8NNXKquAlcTVQ7\n34aZX4jXO019bvCQiRLzOzmszw2E6Xgcm+bnf5WjNRaOkVngdlaDlzOx38UcnpOx\nn6mGFSd/9rf0LJT5B9490Hvt9Bdum6CTIwOtRnMuoaKZlKzocwZ7DNi3zZsY5AlI\nUw2pVtQS7mYymqLJFMZ2mjYXoJHH/XAj09+e6C3P5QKBgQDbNfSiVY85KThhhcVN\nhIa5xLD3/UraTyt+evecKwZtX8ucmP3IwwNwT0ZTCd2bSMoSxv5PHgZlpE3Keixz\nZfgxjT7HUYmFtkopNZr1VIDivmSH210LYYYjT3Fzw0aWEMO4llHq0aZFwBsoQOGL\nqODHvnoz9aD9t/fZhxIEsreYAwKBgQDL1MrKuiF00v0Fs8bPuvc7hD1+L7kowhv2\nX3MHkYYsltAs0hDojtwhXUnYNsp159Qof5m76NwIcBgoIAeHskWQRr/+ctXK65MH\nxnh28jcNYe9Th9kwKUGrloP6bB2msXsuhe8rQAltM3rHC+4LsPd9SX4pAAPH1U4A\nLbc7Njn3BQKBgQC56o37rDMXmMUvuQO4lgCpx48MFLAKbYEG+YXN1pPR6aBHxV3g\nirz84M9VGBXyYI651DnVojJsvCgZ5PqUONSCOjgXVikb1ZoaT1OIZM4XAMFElCDa\nyTC5++PN+b2BAuDsSdlaHcs2dxLRVg20pFtYLU15igariP7VaAA5KdYaPwKBgFx0\nvjOssAZMueZ/QFvzg7dkaXw2a3d4bLSZYRT6xnCtS+o4suC6BFHB/f/sAnPu30Yr\ncvFQU5YkOmDg/mlnzLP/05C4SA+OQZgSR4w0nBIe7S7nfPWikR4i3OSXa++zq5tT\nt0PX/S6iXjuxRp3Y/LnAv1AbqJtZPtNH6Ugbdbl9AoGADllk++LjT0M7FWuDnlAl\ned/zIfCORupEHbzJrVxjCgTKokONMAMIfaqKaEx4v8/bREm006Lj8VaTACgTAxXC\nItygtlk1wS6K4JLj/miW+2nXWwtCzK/0BX1iBuzVwouti7dRhHZCvSCOKg1dJAQv\n5zPA5UAyDVMMQW5o1i+XTH0=\n-----END PRIVATE KEY-----',
+      options: {
+        operation: 'decrypt',
+        payload:
+          'NE3SYZqwgRfIxr1opkTpe2JF5J9IjbhDQ4AbcywWxXh296nq2/xbe4+e7BDeVGftN3IoRBrAWCXNSgb2KW+q6f5ticbxGQ1LE9cgJY+iwwKpk8qVWLLnQDC0kZdao8XiDtKlquh9QfQhSazyM8PLav6bTFLK4i1lixFIoYqzqcqyBnoipNU3VEgZ0HRkqi9hOfPgCFaQtVhr2O6sP4L+VgxCCywdFsZSjUFslE3sqmfEtTYjaBKcSQU7OY3psRgrUnyOa2kwAQSso38T5jnIOBNN5DacwpT2ntQwsJqLFLcuSOGaC43dTNuiMj+cmFm89Xf/Km1gO6+QPThPvSXNxw==',
+      },
     },
   ],
   faq: [
@@ -97,12 +101,10 @@ export const meta: ToolMeta = {
       a: 'No. The key is parsed and used only in the browser\u2019s Web Crypto implementation. The page makes no network requests (this is enforced by the platform\u2019s privacy tests), so the private key stays on your machine.',
     },
   ],
-  related: [
-    'keypair-generator',
-    'text-encrypt',
-    'ssh-key-fingerprint',
-    'base64',
-    'x509-certificate-inspector',
-  ],
+  related: [  "keypair-generator",
+  "text-encrypt",
+  "ssh-key-fingerprint",
+  "base64",
+  "x509-certificate-inspector"],
   status: 'stable',
 };

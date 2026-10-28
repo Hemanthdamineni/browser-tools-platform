@@ -51,7 +51,8 @@ export const meta: ToolMeta = {
       a: 'EXIF orientation is applied while decoding, so an upright photo stays upright. Exporting to JPEG flattens transparency onto white.',
     },
   ],
-  related: ['image-crop', 'image-resize'],
+  related: [  "image-crop",
+  "image-resize"],
   status: 'stable',
   updated: '2026-10-17',
 };

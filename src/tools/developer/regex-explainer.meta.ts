@@ -54,6 +54,9 @@ export const meta: ToolMeta = {
       a: 'The letters you enter (g, i, m, s, u, y, d, v) are decoded so the anchors, dot and case sensitivity read correctly in the explanation.',
     },
   ],
-  related: ['regex-tester', 'jsonpath', 'find-replace', 'markdown-link-checker'],
+  related: [  "regex-tester",
+  "jsonpath",
+  "find-replace",
+  "markdown-link-checker"],
   status: 'stable',
 };

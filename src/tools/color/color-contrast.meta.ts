@@ -37,6 +37,8 @@ export const meta: ToolMeta = {
       a: 'APCA (Accessible Perceptual Contrast Algorithm,) the successor to WCAG contrast, estimates perceived contrast in Lc units. This is an approximation off the full APCA 0.0.98G algorithm, labelled "approx".',
     },
   ],
-  related: ['color-convert', 'color-palette', 'color-name'],
+  related: [  "color-convert",
+  "color-palette",
+  "color-name"],
   status: 'stable',
 };

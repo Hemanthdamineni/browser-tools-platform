@@ -34,6 +34,8 @@ export const meta: ToolMeta = {
       a: 'It splits on Unicode code points (Array.from), not UTF-16 units, so multi-byte characters stay intact. Some emoji built from several joined code points may still separate.',
     },
   ],
-  related: ['sort-lines', 'case-convert', 'rot13'],
+  related: [  "sort-lines",
+  "case-convert",
+  "rot13"],
   status: 'stable',
 };

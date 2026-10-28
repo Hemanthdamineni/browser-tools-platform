@@ -56,6 +56,7 @@ export const meta: ToolMeta = {
   examples: [
     { title: 'One gigabyte in mebibytes', input: '1', options: { from: 'GB', to: 'MiB' } },
   ],
-  related: ['unit-convert', 'css-units'],
+  related: [  "unit-convert",
+  "css-units"],
   status: 'stable',
 };

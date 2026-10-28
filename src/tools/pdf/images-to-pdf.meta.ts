@@ -36,7 +36,7 @@ export const meta: ToolMeta = {
       ],
       showWhen: { key: 'pageSize', value: 'a4' },
     },
-    { key: 'margin', label: 'Margin (points)', type: 'number', default: 0, min: 0, max: 200 },
+    { key: 'margin', label: 'Margin (points)', type: 'number', default: 0, min: 0 },
     {
       key: 'fitMode',
       label: 'Fit image',
@@ -50,7 +50,8 @@ export const meta: ToolMeta = {
     },
   ],
   examples: [{ title: 'Combine images into a PDF' }],
-  related: ['pdf-to-images', 'pdf-merge'],
+  related: [  "pdf-to-images",
+  "pdf-merge"],
   credits: [pdfCredit],
   status: 'stable',
 };

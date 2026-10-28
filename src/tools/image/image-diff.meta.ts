@@ -35,7 +35,8 @@ export const meta: ToolMeta = {
     },
   ],
   examples: [{ title: 'Compare two images' }],
-  related: ['diff-text', 'image-metadata'],
+  related: [  "diff-text",
+  "image-metadata"],
   status: 'stable',
   updated: '2026-10-17',
 };

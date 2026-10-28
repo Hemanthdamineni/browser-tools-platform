@@ -50,6 +50,9 @@ export const meta: ToolMeta = {
       a: 'Yes — one flat object for a declaration list, or one object with selectors as keys when rules are given. Value strings are escaped so the output is always valid JS.',
     },
   ],
-  related: ['css-minifier', 'css-units', 'js-to-css', 'html-to-jsx'],
+  related: [  "css-minifier",
+  "css-units",
+  "js-to-css",
+  "html-to-jsx"],
   status: 'stable',
 };

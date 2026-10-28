@@ -86,6 +86,9 @@ export const meta: ToolMeta = {
       a: 'Finding two 2048-bit primes takes a few seconds of computation. If the page seems frozen, it is working — larger keys are safer but slower both here and on every sign/verify.',
     },
   ],
-  related: ['ssh-key-fingerprint', 'x509-certificate-inspector', 'hmac', 'base64'],
+  related: [  "ssh-key-fingerprint",
+  "x509-certificate-inspector",
+  "hmac",
+  "base64"],
   status: 'stable',
 };

@@ -32,8 +32,10 @@ describe('nanoid', () => {
     expect(() => run('', { alphabet: 'custom', custom: 'x' })).toThrow(/at least 2/);
   });
 
-  it('clamps size and count', () => {
-    expect(run('', { size: 999, count: 999 })).toHaveLength(200);
+  it('accepts any size and count', () => {
+    const result = run('', { size: 999, count: 999 });
+    expect(result).toHaveLength(999);
+    expect(result[0]).toHaveLength(999);
     const [id] = run('', { size: 1 });
     expect(id).toHaveLength(2);
   });

@@ -45,6 +45,9 @@ export const meta: ToolMeta = {
       a: 'The character count after removing every whitespace character, including tabs and newlines.',
     },
   ],
-  related: ['word-frequency', 'char-frequency', 'case-convert', 'sort-lines'],
+  related: [  "word-frequency",
+  "char-frequency",
+  "case-convert",
+  "sort-lines"],
   status: 'stable',
 };

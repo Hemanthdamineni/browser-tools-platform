@@ -32,6 +32,6 @@ export const meta: ToolMeta = {
       a: 'No. User-agent strings are free-form text and browsers misrepresent each other for compatibility (the "like Gecko" convention). Results are best-effort heuristics, ordered so the most specific signal wins.',
     },
   ],
-  related: ['http-status', 'ip-info'],
+  related: [  "http-status"],
   status: 'stable',
 };

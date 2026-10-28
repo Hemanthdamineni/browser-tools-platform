@@ -57,6 +57,8 @@ export const meta: ToolMeta = {
       a: 'No. It only parses or builds the header value and cannot infer how an external body was actually encoded.',
     },
   ],
-  related: ['mime-lookup', 'http-range', 'quoted-printable'],
+  related: [  "mime-lookup",
+  "http-range",
+  "quoted-printable"],
   status: 'stable',
 };

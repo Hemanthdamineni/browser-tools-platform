@@ -50,6 +50,9 @@ export const meta: ToolMeta = {
       a: 'The Luhn check still runs. Unknown prefixes are reported as an unrecognised brand with no length requirement, so the verdict rests on the checksum.',
     },
   ],
-  related: ['hash', 'totp-authenticator', 'random-string', 'password-strength'],
+  related: [  "hash",
+  "totp-authenticator",
+  "random-string",
+  "password-strength"],
   status: 'stable',
 };

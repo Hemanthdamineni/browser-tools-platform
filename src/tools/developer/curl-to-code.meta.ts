@@ -72,6 +72,9 @@ export const meta: ToolMeta = {
       a: 'No. Parsing and code generation run entirely in your browser tab. Commands often contain tokens and cookies, so trim or rotate any secrets before sharing generated snippets.',
     },
   ],
-  related: ['http-status', 'basic-auth', 'mime-lookup', 'url-parse'],
+  related: [  "http-status",
+  "basic-auth",
+  "mime-lookup",
+  "url-parse"],
   status: 'stable',
 };

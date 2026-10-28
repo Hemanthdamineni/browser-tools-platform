@@ -48,6 +48,9 @@ export const meta: ToolMeta = {
       a: 'No — this tool inspects a single address. For network math (prefix, range, broadcast, host count), use the CIDR Calculator instead.',
     },
   ],
-  related: ['ipv6-expander', 'cidr-calculator', 'mac-address', 'port-lookup'],
+  related: [  "ipv6-expander",
+  "cidr-calculator",
+  "mac-address",
+  "port-lookup"],
   status: 'stable',
 };

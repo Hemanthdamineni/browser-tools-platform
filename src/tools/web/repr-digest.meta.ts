@@ -56,6 +56,7 @@ export const meta: ToolMeta = {
       a: 'This tool hashes the UTF-8 bytes of the entered text. Real deployments must hash the exact representation bytes specified by their protocol.',
     },
   ],
-  related: ['http-header-analyzer', 'content-md5'],
+  related: [  "http-header-analyzer",
+  "content-md5"],
   status: 'stable',
 };

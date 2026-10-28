@@ -47,6 +47,9 @@ export const meta: ToolMeta = {
       a: 'A string whose length is a multiple of 4 and uses only A-Z a-z 0-9 + / = fits the base64 rule, so it is offered as a low-confidence option.',
     },
   ],
-  related: ['hex', 'base64', 'number-base', 'chmod-calculator'],
+  related: [  "hex",
+  "base64",
+  "number-base",
+  "chmod-calculator"],
   status: 'stable',
 };

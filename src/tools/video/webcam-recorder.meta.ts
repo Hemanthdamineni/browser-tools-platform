@@ -118,6 +118,8 @@ export const meta: ToolMeta = {
       a: 'Yes. The recording appears in a player on the page, so you can watch it back and only then download it.',
     },
   ],
-  related: ['video-info', 'video-to-gif', 'qr-scanner'],
+  related: [  "video-info",
+  "video-to-gif",
+  "qr-scanner"],
   status: 'beta',
 };

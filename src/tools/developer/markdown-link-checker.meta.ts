@@ -59,12 +59,10 @@ export const meta: ToolMeta = {
       a: 'Yes. Links inside fenced code blocks (``` and ~~~) and indented code are ignored so example URLs in snippets do not trigger false alarms.',
     },
   ],
-  related: [
-    'markdown-toc',
-    'markdown-to-html',
-    'html-to-markdown',
-    'json-diff',
-    'subtitle-converter',
-  ],
+  related: [  "markdown-toc",
+  "markdown-to-html",
+  "html-to-markdown",
+  "json-diff",
+  "subtitle-converter"],
   status: 'stable',
 };

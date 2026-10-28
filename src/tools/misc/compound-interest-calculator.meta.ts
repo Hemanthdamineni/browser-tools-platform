@@ -107,12 +107,10 @@ export const meta: ToolMeta = {
       a: 'Banks often quote APR and accrue through a year-end of 360 days. This tool uses the nominal annual rate divided by the compounding frequency and a 365-day year. Tiny differences in rounding convention can also appear; figures are shown to 2 decimal places.',
     },
   ],
-  related: [
-    'loan-calculator',
-    'percentage-calculator',
-    'tip-calculator',
-    'statistics-calculator',
-    'calculator',
-  ],
+  related: [  "loan-calculator",
+  "percentage-calculator",
+  "tip-calculator",
+  "statistics-calculator",
+  "calculator"],
   status: 'stable',
 };

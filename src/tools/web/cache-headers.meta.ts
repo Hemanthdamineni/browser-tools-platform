@@ -249,6 +249,7 @@ export const meta: ToolMeta = {
       a: 'Only if the CDN supports the field and its documented precedence rules. Treat provider-specific fields as advisory unless the provider documents otherwise.',
     },
   ],
-  related: ['conditional-request-headers', 'http-header-analyzer'],
+  related: [  "conditional-request-headers",
+  "http-header-analyzer"],
   status: 'beta',
 };

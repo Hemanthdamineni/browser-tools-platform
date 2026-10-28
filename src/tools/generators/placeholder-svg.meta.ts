@@ -47,6 +47,8 @@ export const meta: ToolMeta = {
       a: 'Any hex colour works. The image is generated in your browser, so nothing is fetched from placeholder services like via.placeholder.com.',
     },
   ],
-  related: ['qr-code', 'data-uri', 'image-resize'],
+  related: [  "qr-code",
+  "data-uri",
+  "image-resize"],
   status: 'stable',
 };

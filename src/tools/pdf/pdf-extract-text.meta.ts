@@ -13,7 +13,9 @@ export const meta: ToolMeta = {
   input: 'file',
   accept: 'application/pdf',
   examples: [{ title: 'Extract text from a PDF' }],
-  related: ['pdf-to-images', 'pdf-metadata', 'pdf-extract-pages'],
+  related: [  "pdf-to-images",
+  "pdf-metadata",
+  "pdf-extract-pages"],
   credits: [pdfjsCredit],
   status: 'stable',
 };

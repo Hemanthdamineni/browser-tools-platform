@@ -303,6 +303,7 @@ export interface QpdfModule {
      * exactly what a `Blob` can be handed without another copy.
      */
     readFile(path: string): Uint8Array<ArrayBuffer>;
+    unlink(path: string): void;
   };
   callMain(args: string[]): number;
 }
@@ -341,6 +342,8 @@ export async function withStderrCapture<T>(log: QpdfLog, start: () => Promise<T>
 export interface QpdfEngine {
   /** Encrypt `bytes` according to `plan`. Throws `ToolError` when qpdf refuses. */
   protect(bytes: Uint8Array, plan: ProtectPlan): Uint8Array<ArrayBuffer>;
+  /** Decrypt `bytes` using `password`. Throws `ToolError` when qpdf refuses. */
+  unlock(bytes: Uint8Array, password: string): Uint8Array<ArrayBuffer>;
 }
 
 export function createQpdfEngine(module: QpdfModule, log: QpdfLog): QpdfEngine {
@@ -396,6 +399,72 @@ export function createQpdfEngine(module: QpdfModule, log: QpdfLog): QpdfEngine {
           'The original file is untouched.',
         );
       }
+      return output;
+    },
+    unlock(bytes: Uint8Array, password: string): Uint8Array<ArrayBuffer> {
+      const redact = (line: string): string =>
+        password ? line.split(password).join('[password]') : line;
+
+      log.stderr.length = 0;
+
+      try {
+        module.FS.writeFile(INPUT_PATH, bytes);
+      } catch (error) {
+        throw new ToolError(
+          'The PDF could not be handed to the decryption engine.',
+          error instanceof Error ? error.message : undefined,
+        );
+      }
+
+      let exitCode: number;
+      try {
+        exitCode = module.callMain([
+          '--decrypt',
+          `--password=${password}`,
+          INPUT_PATH,
+          OUTPUT_PATH,
+        ]);
+      } catch (error) {
+        const detail = error instanceof Error ? error.message : String(error);
+        throw new ToolError(
+          'The decryption engine stopped unexpectedly.',
+          `${detail} — try a smaller PDF or run the tool again.`,
+        );
+      }
+
+      if (exitCode !== 0) {
+        const failure = describeQpdfFailure(log.stderr.map(redact), exitCode);
+        throw new ToolError(failure.message, failure.hint);
+      }
+
+      let output: Uint8Array<ArrayBuffer>;
+      try {
+        output = module.FS.readFile(OUTPUT_PATH);
+      } catch {
+        throw new ToolError(
+          'The decryption engine produced no output.',
+          'Nothing was written, so the original file is untouched.',
+        );
+      }
+      if (!output.byteLength) {
+        throw new ToolError(
+          'The decryption engine produced an empty file.',
+          'The original file is untouched.',
+        );
+      }
+
+      // Clean up temp files
+      try {
+        module.FS.unlink(INPUT_PATH);
+      } catch {
+        // ignore
+      }
+      try {
+        module.FS.unlink(OUTPUT_PATH);
+      } catch {
+        // ignore
+      }
+
       return output;
     },
   };

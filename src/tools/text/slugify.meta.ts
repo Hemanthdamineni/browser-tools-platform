@@ -50,6 +50,6 @@ export const meta: ToolMeta = {
       a: 'In strict mode they are removed. Turn strict off to keep letters from other scripts (Cyrillic, Greek, CJK) — useful for localised URLs on sites that allow Unicode paths.',
     },
   ],
-  related: ['case-convert', 'remove-accents', 'whitespace-cleanup'],
+  related: [  "case-convert"],
   status: 'stable',
 };

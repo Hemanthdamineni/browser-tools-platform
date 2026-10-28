@@ -1,0 +1,355 @@
+---
+// PDF OCR panel component
+---
+
+<script is:inline>
+  import { onMount } from 'astro/runtime/client';
+  import { runToolById } from '@/lib/worker/client';
+  import type { FileRunResult } from '@/lib/types';
+
+  // State
+  let isProcessing = false;
+  let currentFile: File | null = null;
+  let controller: AbortController | null = null;
+  let runGeneration = 0;
+  const outputUrls = new Set<string>();
+
+  // UI elements
+  const fileInput = document.getElementById('pdf-ocr-file') as HTMLInputElement;
+  const fileBtn = document.getElementById('pdf-ocr-file-btn') as HTMLButtonElement;
+  const fileName = document.getElementById('pdf-ocr-filename') as HTMLSpanElement;
+  const languageSelect = document.getElementById('pdf-ocr-language') as HTMLSelectElement;
+  const dpiSelect = document.getElementById('pdf-ocr-dpi') as HTMLSelectElement;
+  const outputTypeSelect = document.getElementById('pdf-ocr-output-type') as HTMLSelectElement;
+  const startBtn = document.getElementById('pdf-ocr-start') as HTMLButtonElement;
+  const cancelBtn = document.getElementById('pdf-ocr-cancel') as HTMLButtonElement;
+  const progressBar = document.getElementById('pdf-ocr-progress') as HTMLDivElement;
+  const progressFill = document.getElementById('pdf-ocr-progress-fill') as HTMLDivElement;
+  const progressText = document.getElementById('pdf-ocr-progress-text') as HTMLDivElement;
+  const statusEl = document.getElementById('pdf-ocr-status') as HTMLDivElement;
+  const resultsEl = document.getElementById('pdf-ocr-results') as HTMLDivElement;
+  const downloadPdfBtn = document.getElementById('pdf-ocr-download-pdf') as HTMLButtonElement;
+  const downloadTxtBtn = document.getElementById('pdf-ocr-download-txt') as HTMLButtonElement;
+  let pdfBlob: Blob | null = null;
+  let txtBlob: Blob | null = null;
+
+  function setStatus(text: string, type: 'idle' | 'active' | 'error' | 'info' | 'success' = 'idle') {
+    statusEl.textContent = text;
+    statusEl.className = `pdf-ocr-status ${type}`;
+  }
+
+  function updateProgress(percent: number, message: string) {
+    progressBar.style.display = 'block';
+    progressFill.style.width = `${percent * 100}%`;
+    progressText.textContent = message;
+  }
+
+  function hideProgress() {
+    progressBar.style.display = 'none';
+    progressFill.style.width = '0%';
+  }
+
+  function showResults(pdf: Blob | null, txt: Blob | null, stats: any) {
+    pdfBlob = pdf;
+    txtBlob = txt;
+    resultsEl.style.display = 'block';
+    downloadPdfBtn.style.display = pdf ? 'inline-flex' : 'none';
+    downloadTxtBtn.style.display = txt ? 'inline-flex' : 'none';
+
+    resultsEl.innerHTML = `
+      <h4>OCR Complete</h4>
+      <div class="stats-grid">
+        <div class="stat"><span class="stat-value">${stats.pages}</span><span class="stat-label">Pages</span></div>
+        <div class="stat"><span class="stat-value">${stats.totalWords}</span><span class="stat-label">Words</span></div>
+        <div class="stat"><span class="stat-value">${stats.avgConfidence.toFixed(1)}%</span><span class="stat-label">Avg Confidence</span></div>
+      </div>
+      <p class="results-note">Click the download buttons to save your files.</p>
+    `;
+  }
+
+  function cleanupOutputUrls() {
+    for (const url of outputUrls) URL.revokeObjectURL(url);
+    outputUrls.clear();
+  }
+
+  fileBtn.addEventListener('click', () => fileInput.click());
+
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files?.[0]) {
+      currentFile = fileInput.files[0];
+      fileName.textContent = currentFile.name;
+      startBtn.disabled = false;
+      resultsEl.style.display = 'none';
+      setStatus(`Ready: ${currentFile.name}`, 'success');
+    }
+  });
+
+  // Drag and drop
+  const dropZone = document.getElementById('pdf-ocr-dropzone') as HTMLDivElement;
+  dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropZone.classList.add('dragover');
+  });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+  dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+    if (e.dataTransfer.files[0]) {
+      currentFile = e.dataTransfer.files[0];
+      fileInput.files = e.dataTransfer.files;
+      fileName.textContent = currentFile.name;
+      startBtn.disabled = false;
+      resultsEl.style.display = 'none';
+      setStatus(`Ready: ${currentFile.name}`, 'success');
+    }
+  });
+
+  startBtn.addEventListener('click', async () => {
+    if (!currentFile || isProcessing) return;
+
+    isProcessing = true;
+    startBtn.disabled = true;
+    cancelBtn.disabled = false;
+    resultsEl.style.display = 'none';
+    cleanupOutputUrls();
+    setStatus('Starting OCR...', 'info');
+
+    controller?.abort();
+    const generation = ++runGeneration;
+    controller = new AbortController();
+
+    try {
+      const result = await runToolById<FileRunResult>(
+        'pdf-ocr',
+        {
+          files: [currentFile],
+          options: {
+            language: languageSelect.value,
+            dpi: dpiSelect.value,
+            outputType: outputTypeSelect.value,
+          },
+        },
+        {
+          signal: controller.signal,
+          onProgress: (fraction, message) => {
+            if (generation !== runGeneration) return;
+            updateProgress(fraction, message || `Processing... ${Math.round(fraction * 100)}%`);
+          },
+        }
+      );
+
+      if (generation !== runGeneration) return;
+
+      // Extract blobs from outputs
+      pdfBlob = null;
+      txtBlob = null;
+      if (result.outputs) {
+        for (const output of result.outputs) {
+          if (output.filename.endsWith('.pdf')) {
+            pdfBlob = output.blob;
+          } else if (output.filename.endsWith('.txt')) {
+            txtBlob = output.blob;
+          }
+        }
+      }
+
+      showResults(pdfBlob, txtBlob, result.stats);
+      setStatus('OCR completed successfully!', 'success');
+    } catch (e) {
+      if (generation !== runGeneration) return;
+      const err = e as Error & { hint?: string };
+      if (err.name !== 'AbortError') {
+        setStatus(`Error: ${err.message || 'Unknown error'}`, 'error');
+      } else {
+        setStatus('Cancelled', 'idle');
+      }
+    } finally {
+      if (generation === runGeneration) {
+        isProcessing = false;
+        startBtn.disabled = false;
+        cancelBtn.disabled = true;
+        hideProgress();
+        controller = null;
+      }
+    }
+  });
+
+  cancelBtn.addEventListener('click', () => {
+    controller?.abort();
+  });
+
+  downloadPdfBtn.addEventListener('click', () => {
+    if (pdfBlob) {
+      const url = URL.createObjectURL(pdfBlob);
+      outputUrls.add(url);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = currentFile?.name.replace(/\.pdf$/i, '-ocr.pdf') || 'ocr.pdf';
+      a.click();
+    }
+  });
+
+  downloadTxtBtn.addEventListener('click', () => {
+    if (txtBlob) {
+      const url = URL.createObjectURL(txtBlob);
+      outputUrls.add(url);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = currentFile?.name.replace(/\.pdf$/i, '-ocr.txt') || 'ocr.txt';
+      a.click();
+    }
+  });
+
+  window.addEventListener(
+    'beforeunload',
+    () => {
+      controller?.abort();
+      runGeneration += 1;
+      cleanupOutputUrls();
+    },
+    { once: true },
+  );
+</script>
+
+<div class="pdf-ocr-panel">
+  <div class="pdf-ocr-header">
+    <h2>PDF OCR</h2>
+    <p class="pdf-ocr-desc">Make scanned PDFs searchable with Tesseract.js</p>
+  </div>
+
+  <div id="pdf-ocr-dropzone" class="pdf-ocr-dropzone">
+    <div class="pdf-ocr-dropzone-content">
+      <div class="upload-icon">📄</div>
+      <p>Drop a PDF here or click to browse</p>
+      <button id="pdf-ocr-file-btn" class="btn btn-primary">Choose PDF</button>
+      <input type="file" id="pdf-ocr-file" accept="application/pdf" hidden>
+      <span id="pdf-ocr-filename" class="pdf-ocr-filename"></span>
+    </div>
+  </div>
+
+  <div class="pdf-ocr-options">
+    <div class="option-group">
+      <label for="pdf-ocr-language">OCR Language</label>
+      <select id="pdf-ocr-language">
+        <option value="eng">English</option>
+        <option value="eng+fra">English + French</option>
+        <option value="eng+deu">English + German</option>
+        <option value="eng+spa">English + Spanish</option>
+        <option value="eng+ita">English + Italian</option>
+        <option value="eng+por">English + Portuguese</option>
+        <option value="eng+rus">English + Russian</option>
+        <option value="eng+chi_sim">English + Chinese (Simplified)</option>
+        <option value="fra">French</option>
+        <option value="deu">German</option>
+        <option value="spa">Spanish</option>
+        <option value="ita">Italian</option>
+        <option value="por">Portuguese</option>
+        <option value="rus">Russian</option>
+        <option value="chi_sim">Chinese (Simplified)</option>
+        <option value="chi_tra">Chinese (Traditional)</option>
+        <option value="jpn">Japanese</option>
+        <option value="kor">Korean</option>
+        <option value="ara">Arabic</option>
+        <option value="hin">Hindi</option>
+      </select>
+      <small class="option-hint">First use downloads the language model (~10-50 MB)</small>
+    </div>
+
+    <div class="option-group">
+      <label for="pdf-ocr-dpi">Render DPI</label>
+      <select id="pdf-ocr-dpi">
+        <option value="150">150 DPI (faster)</option>
+        <option value="300" selected>300 DPI (recommended)</option>
+        <option value="400">400 DPI (better for small text)</option>
+      </select>
+      <small class="option-hint">Higher DPI = better accuracy but slower</small>
+    </div>
+
+    <div class="option-group">
+      <label for="pdf-ocr-output-type">Output Type</label>
+      <select id="pdf-ocr-output-type">
+        <option value="pdf">Searchable PDF (image + text layer)</option>
+        <option value="txt">Plain text only</option>
+        <option value="both">Both PDF and text file</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="pdf-ocr-actions">
+    <button id="pdf-ocr-start" class="btn btn-primary btn-lg" disabled>Start OCR</button>
+    <button id="pdf-ocr-cancel" class="btn btn-secondary btn-lg" disabled>Cancel</button>
+  </div>
+
+  <div id="pdf-ocr-progress" class="pdf-ocr-progress" style="display: none;">
+    <div id="pdf-ocr-progress-fill" class="pdf-ocr-progress-fill"></div>
+  </div>
+  <div id="pdf-ocr-progress-text" class="pdf-ocr-progress-text"></div>
+
+  <div id="pdf-ocr-results" class="pdf-ocr-results" style="display: none;">
+    <!-- Results injected dynamically -->
+  </div>
+
+  <div class="pdf-ocr-downloads" style="display: none;">
+    <button id="pdf-ocr-download-pdf" class="btn btn-primary">Download Searchable PDF</button>
+    <button id="pdf-ocr-download-txt" class="btn btn-secondary">Download Text File</button>
+  </div>
+
+  <div id="pdf-ocr-status" class="pdf-ocr-status idle">Drop a PDF file or click "Choose PDF" to begin</div>
+</div>
+
+<style>
+  .pdf-ocr-panel { display: flex; flex-direction: column; gap: 1.5rem; padding: 1rem; max-width: 600px; margin: 0 auto; }
+  .pdf-ocr-header { text-align: center; }
+  .pdf-ocr-header h2 { margin: 0 0 0.25rem; font-size: 1.5rem; }
+  .pdf-ocr-desc { color: var(--muted); margin: 0; font-size: 0.875rem; }
+
+  .pdf-ocr-dropzone {
+    border: 2px dashed var(--border); border-radius: 12px;
+    background: var(--bg-elevated); transition: border-color 0.15s, background 0.15s;
+    padding: 3rem 2rem; text-align: center;
+  }
+  .pdf-ocr-dropzone.dragover { border-color: var(--accent); background: rgba(var(--accent-rgb), 0.05); }
+  .upload-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
+  .pdf-ocr-dropzone p { margin: 0 0 1rem; color: var(--muted); }
+  .pdf-ocr-filename { margin-top: 1rem; display: block; font-size: 0.875rem; color: var(--accent); font-weight: 500; }
+
+  .pdf-ocr-options {
+    display: grid; grid-template-columns: 1fr; gap: 1rem;
+    background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem;
+  }
+  .option-group { display: flex; flex-direction: column; gap: 0.375rem; }
+  .option-group label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); font-weight: 600; }
+  .option-group select { padding: 0.625rem; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--fg); font-size: 0.875rem; }
+  .option-hint { font-size: 0.75rem; color: var(--muted); }
+
+  .pdf-ocr-actions { display: flex; gap: 1rem; justify-content: center; }
+  .btn { padding: 0.875rem 2rem; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer; border: none; transition: all 0.15s; display: inline-flex; align-items: center; gap: 0.5rem; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-lg { padding: 1rem 2.5rem; font-size: 1.0625rem; }
+  .btn-primary { background: var(--accent); color: var(--accent-fg); }
+  .btn-primary:hover:not(:disabled) { filter: brightness(1.1); }
+  .btn-secondary { background: var(--bg-elevated); color: var(--fg); border: 1px solid var(--border); }
+  .btn-secondary:hover:not(:disabled) { background: var(--bg-hover); }
+
+  .pdf-ocr-progress { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin-top: 0.5rem; }
+  .pdf-ocr-progress-fill { height: 100%; width: 0%; background: var(--accent); transition: width 0.2s ease; border-radius: 3px; }
+  .pdf-ocr-progress-text { text-align: center; margin-top: 0.5rem; font-size: 0.875rem; color: var(--muted); min-height: 1.25rem; }
+
+  .pdf-ocr-results {
+    background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem;
+  }
+  .pdf-ocr-results h4 { margin: 0 0 1rem; font-size: 1rem; }
+  .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; text-align: center; }
+  .stat-value { display: block; font-size: 2rem; font-weight: 700; color: var(--accent); line-height: 1; }
+  .stat-label { display: block; font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.25rem; }
+  .results-note { margin: 1rem 0 0; font-size: 0.875rem; color: var(--muted); text-align: center; }
+
+  .pdf-ocr-downloads { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+
+  .pdf-ocr-status { text-align: center; padding: 1rem; border-radius: 8px; font-size: 0.875rem; transition: all 0.15s; }
+  .pdf-ocr-status.idle { background: var(--bg-elevated); color: var(--muted); border: 1px solid var(--border); }
+  .pdf-ocr-status.active { background: rgba(34, 197, 94, 0.1); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.3); }
+  .pdf-ocr-status.error { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+  .pdf-ocr-status.info { background: rgba(59, 130, 246, 0.1); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); }
+  .pdf-ocr-status.success { background: rgba(34, 197, 94, 0.1); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.3); }
+</style>

@@ -78,6 +78,9 @@ export const meta: ToolMeta = {
       a: 'Yes. Keys and values are percent-decoded and + is treated as a space when parsing, and re-encoded when building.',
     },
   ],
-  related: ['json-format', 'url-encode', 'json-to-yaml', 'csv-to-json'],
+  related: [  "json-format",
+  "url-encode",
+  "json-to-yaml",
+  "csv-to-json"],
   status: 'stable',
 };

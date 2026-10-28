@@ -74,6 +74,9 @@ export const meta: ToolMeta = {
       a: 'insertMany runs in any shell and keeps your data as plain script you can review and version, while mongoimport is a bulk file path. This tool targets the script path.',
     },
   ],
-  related: ['json-to-sql', 'json-to-csv', 'json-to-yaml', 'json-format'],
+  related: [  "json-to-sql",
+  "json-to-csv",
+  "json-to-yaml",
+  "json-format"],
   status: 'stable',
 };

@@ -71,6 +71,9 @@ export const meta: ToolMeta = {
       a: 'The primitives are standard and run locally via the Web Crypto API, but security still depends on a strong, unique passphrase and a trusted device. For high-stakes secrets use dedicated, audited software.',
     },
   ],
-  related: ['file-hash', 'uuid', 'base64', 'hex'],
+  related: [  "file-hash",
+  "uuid",
+  "base64",
+  "hex"],
   status: 'stable',
 };

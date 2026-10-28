@@ -87,6 +87,9 @@ export const meta: ToolMeta = {
       a: 'Yes. Rows that compare equal keep their original relative order, and the comparison happens on trimmed cell values, so the output is deterministic.',
     },
   ],
-  related: ['markdown-table', 'markdown-toc', 'csv-to-markdown', 'sort-lines'],
+  related: [  "markdown-table",
+  "markdown-toc",
+  "csv-to-markdown",
+  "sort-lines"],
   status: 'stable',
 };

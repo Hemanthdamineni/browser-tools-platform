@@ -61,6 +61,8 @@ export const meta: ToolMeta = {
       a: 'OSC payloads are shown literally in analysis and visualization output. Avoid sharing the output if it contains private terminal hyperlinks or commands.',
     },
   ],
-  related: ['backslash-escape', 'string-escape', 'html-to-text'],
+  related: [  "backslash-escape",
+  "string-escape",
+  "html-to-text"],
   status: 'stable',
 };

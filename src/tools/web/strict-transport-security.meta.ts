@@ -63,6 +63,7 @@ export const meta: ToolMeta = {
       a: "Chrome's HSTS preload submissions require max-age of at least 31,536,000 seconds (one year) and includeSubDomains.",
     },
   ],
-  related: ['security-headers', 'http-header-analyzer'],
+  related: [  "security-headers",
+  "http-header-analyzer"],
   status: 'stable',
 };

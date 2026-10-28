@@ -53,6 +53,9 @@ export const meta: ToolMeta = {
       a: 'ssh-rsa, ssh-ed25519, ecdsa-sha2-nistp256 (and the nistp384/521 variants), ssh-dss, and the sk- prefixed security-key variants.',
     },
   ],
-  related: ['text-encrypt', 'totp-authenticator', 'secret-scanner', 'passphrase'],
+  related: [  "text-encrypt",
+  "totp-authenticator",
+  "secret-scanner",
+  "passphrase"],
   status: 'stable',
 };

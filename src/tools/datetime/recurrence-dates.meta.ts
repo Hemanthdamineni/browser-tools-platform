@@ -105,6 +105,9 @@ export const meta: ToolMeta = {
       a: 'No — it computes the concrete next dates directly. If you need an RRULE string, use the iCalendar Recurrence Rule Builder instead.',
     },
   ],
-  related: ['rrule-builder', 'date-add', 'timestamp', 'week-number'],
+  related: [  "rrule-builder",
+  "date-add",
+  "timestamp",
+  "week-number"],
   status: 'stable',
 };

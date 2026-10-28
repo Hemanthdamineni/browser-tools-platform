@@ -53,6 +53,7 @@ export const meta: ToolMeta = {
       a: '3999 (MMMCMXCIX) — Roman numerals have no native symbol beyond 1000. Extended mode wraps thousands groups in parentheses, so (X) = 10,000.',
     },
   ],
-  related: ['number-to-words', 'number-base'],
+  related: [  "number-to-words",
+  "number-base"],
   status: 'stable',
 };

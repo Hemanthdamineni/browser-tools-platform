@@ -86,6 +86,9 @@ export const meta: ToolMeta = {
       a: 'No. It reformats markup; it does not check geometry, references, or accessibility. Use your editor for that.',
     },
   ],
-  related: ['svg-to-png', 'html-prettifier', 'json-to-typescript', 'html-to-markdown'],
+  related: [  "svg-to-png",
+  "html-prettifier",
+  "json-to-typescript",
+  "html-to-markdown"],
   status: 'stable',
 };

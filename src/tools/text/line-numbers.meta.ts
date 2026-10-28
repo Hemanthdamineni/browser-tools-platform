@@ -79,6 +79,9 @@ export const meta: ToolMeta = {
       a: 'The width of the largest number that will be printed, so every prefix lines up.',
     },
   ],
-  related: ['remove-empty-lines', 'sort-lines', 'dedupe-lines', 'find-replace'],
+  related: [  "remove-empty-lines",
+  "sort-lines",
+  "dedupe-lines",
+  "find-replace"],
   status: 'stable',
 };

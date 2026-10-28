@@ -70,7 +70,10 @@ export const meta: ToolMeta = {
       a: 'Plain marked output has no ids. Turn on "Add id to headings" to get slugified anchors like id="install-steps".',
     },
   ],
-  related: ['html-to-text', 'html-entities', 'slugify', 'sql-format'],
+  related: [  "html-to-text",
+  "html-entities",
+  "slugify",
+  "sql-format"],
   credits: [{ name: 'marked', url: 'https://github.com/markedjs/marked', license: 'MIT' }],
   status: 'stable',
 };

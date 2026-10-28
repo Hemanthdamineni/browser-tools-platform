@@ -43,7 +43,8 @@ export const meta: ToolMeta = {
     },
   ],
   examples: [{ title: 'Add a confidential watermark' }],
-  related: ['pdf-page-numbers', 'pdf-metadata'],
+  related: [  "pdf-page-numbers",
+  "pdf-metadata"],
   credits: [pdfCredit],
   status: 'stable',
 };

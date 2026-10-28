@@ -36,6 +36,8 @@ export const meta: ToolMeta = {
       a: 'Each calendar day from Monday to Friday between the two dates counts once; Saturdays and Sundays are skipped. The count is exclusive of the later date.',
     },
   ],
-  related: ['date-add', 'age-calculator', 'week-number'],
+  related: [  "date-add",
+  "age-calculator",
+  "week-number"],
   status: 'stable',
 };

@@ -64,6 +64,8 @@ export const meta: ToolMeta = {
       a: 'Browsers that fail to parse the gradient (very old engines) still get a solid fill of the first stop colour. It is the standard progressive-enhancement pattern.',
     },
   ],
-  related: ['box-shadow', 'color-palette', 'color-blend'],
+  related: [  "box-shadow",
+  "color-palette",
+  "color-blend"],
   status: 'stable',
 };

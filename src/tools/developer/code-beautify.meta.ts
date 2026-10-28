@@ -52,7 +52,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 80,
       min: 20,
-      max: 200,
       help: 'Prettier wraps lines longer than this where it can.',
     },
     {
@@ -145,7 +144,10 @@ export const meta: ToolMeta = {
       a: 'Prettier is opinionated. Line width, indent width, quotes and semicolons are the knobs it exposes; nearly everything else is fixed.',
     },
   ],
-  related: ['json-format', 'sql-format', 'diff-text', 'markdown-to-html'],
+  related: [  "json-format",
+  "sql-format",
+  "diff-text",
+  "markdown-to-html"],
   credits: [{ name: 'Prettier', url: 'https://github.com/prettier/prettier', license: 'MIT' }],
   status: 'beta',
 };

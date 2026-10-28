@@ -1,71 +1,11 @@
 import type { TextToolModule, TextRunInput, TextRunResult } from '@/lib/types';
-import { ToolError } from '@/lib/types';
-import { resolveOptions } from '@/lib/options';
 import { meta } from './access-control-expose-headers.meta';
+import corsHeadersTool from './cors-headers.tool';
 
-const HEADER_RE = /^[A-Za-z0-9-]+$/;
-function splitHeaders(text: string): string[] {
-  return text
-    .split(',')
-    .map((value) => value.trim())
-    .filter(Boolean);
-}
-function inspect(value: string): { headers: string[]; issues: string[] } {
-  const issues: string[] = [];
-  const headers = splitHeaders(value);
-  if (!headers.length) issues.push('No Access-Control-Expose-Headers value provided');
-  for (const item of headers)
-    if (item !== '*' && !HEADER_RE.test(item)) issues.push(`Invalid header name token: ${item}`);
-  if (new Set(headers).size !== headers.length) issues.push('Duplicate header names were provided');
-  return { headers, issues };
-}
-function run(input: TextRunInput): TextRunResult {
-  const options = resolveOptions(meta, input.options);
-  const mode = String(options.mode);
-  if (mode !== 'build' && mode !== 'analyze') throw new ToolError('Choose a supported mode.');
-  const value = mode === 'build' ? String(options.headers) : input.text;
-  const result = inspect(value);
-  if (mode === 'build') {
-    if (!result.headers.length || result.issues.length)
-      throw new ToolError(result.issues[0] ?? 'Enter at least one header name.');
-    return {
-      output: result.headers.join(', '),
-      render: 'code',
-      language: 'http',
-      filename: 'access-control-expose-headers.txt',
-      stats: {
-        headers: result.headers.length,
-        wildcard: result.headers.includes('*') ? 'yes' : 'no',
-      },
-    };
-  }
-  if (!value.trim())
-    return {
-      output: JSON.stringify({ headers: ['Header', 'Status', 'Purpose'], rows: [] }),
-      render: 'table',
-      notes: ['Paste an Access-Control-Expose-Headers value to analyze.'],
-    };
-  const rows = result.headers.map((item) => [
-    item,
-    HEADER_RE.test(item) ? 'Valid' : 'Invalid',
-    item === '*'
-      ? 'Wildcard exposes the safe default set plus all allowlisted headers'
-      : 'Cross-origin scripts may read this response header',
-  ]);
-  return {
-    output: JSON.stringify({ headers: ['Header', 'Status', 'Purpose'], rows }),
-    render: 'table',
-    stats: {
-      headers: result.headers.length,
-      issues: result.issues.length,
-      wildcard: result.headers.includes('*') ? 'yes' : 'no',
-    },
-    notes: result.issues.length
-      ? result.issues
-      : [
-          'By default only the CORS-safelisted response headers are readable cross-origin (e.g. Cache-Control, Content-Language); add custom ones here to expose them.',
-        ],
-  };
-}
-const tool: TextToolModule = { meta, run };
+const tool: TextToolModule = {
+  meta,
+  async run(input: TextRunInput): Promise<TextRunResult> {
+    return corsHeadersTool.run(input);
+  },
+};
 export default tool;

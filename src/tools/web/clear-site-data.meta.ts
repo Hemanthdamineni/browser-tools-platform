@@ -57,6 +57,8 @@ export const meta: ToolMeta = {
       a: 'No. Browsers require the response to be secure (HTTPS) and typically apply it only to the secure origin context.',
     },
   ],
-  related: ['security-headers', 'set-cookie', 'origin-agent-cluster'],
+  related: [  "security-headers",
+  "set-cookie",
+  "origin-agent-cluster"],
   status: 'stable',
 };

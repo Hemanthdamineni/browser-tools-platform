@@ -70,6 +70,9 @@ export const meta: ToolMeta = {
       a: 'Only when they need it — values containing spaces, #, a quote or a newline are wrapped in double quotes with the contents escaped. Plain tokens stay bare so they behave predictably in shells and tools.',
     },
   ],
-  related: ['dotenv', 'json-flatten', 'yaml-to-json', 'properties-convert'],
+  related: [  "dotenv",
+  "json-flatten",
+  "yaml-to-json",
+  "properties-convert"],
   status: 'stable',
 };

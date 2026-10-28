@@ -27,6 +27,7 @@ export const meta: ToolMeta = {
       ],
     },
   ],
-  related: ['audio-trim', 'audio-gain'],
+  related: [  "audio-trim",
+  "audio-gain"],
   status: 'stable',
 };

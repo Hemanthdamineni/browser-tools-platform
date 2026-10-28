@@ -37,7 +37,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 1,
       min: 1,
-      max: 1000,
       showWhen: { key: 'mode', value: 'pick' },
     },
     {
@@ -46,7 +45,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 2,
       min: 2,
-      max: 50,
       showWhen: { key: 'mode', value: 'teams' },
     },
     {
@@ -72,6 +70,8 @@ export const meta: ToolMeta = {
       a: 'The browser cryptographic random number generator is used for each selection and shuffle step. Picks are without replacement by default.',
     },
   ],
-  related: ['random-string', 'random-data', 'sort-lines'],
+  related: [  "random-string",
+  "random-data",
+  "sort-lines"],
   status: 'stable',
 };

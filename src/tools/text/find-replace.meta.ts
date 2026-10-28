@@ -91,6 +91,9 @@ export const meta: ToolMeta = {
       a: 'Plain and whole-word mode always replace all matches. Regex mode replaces all only when the flags include "g".',
     },
   ],
-  related: ['remove-empty-lines', 'line-numbers', 'case-convert', 'slugify'],
+  related: [  "remove-empty-lines",
+  "line-numbers",
+  "case-convert",
+  "slugify"],
   status: 'stable',
 };

@@ -33,7 +33,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 1,
       min: 1,
-      max: 20,
     },
     {
       key: 'top',
@@ -41,7 +40,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 25,
       min: 0,
-      max: 500,
     },
     {
       key: 'ignoreCommon',
@@ -81,6 +79,9 @@ export const meta: ToolMeta = {
       a: 'About 40 of the most common English function words such as the, a, an, and, or, of, to, in, is and it.',
     },
   ],
-  related: ['text-stats', 'char-frequency', 'case-convert', 'dedupe-lines'],
+  related: [  "text-stats",
+  "char-frequency",
+  "case-convert",
+  "dedupe-lines"],
   status: 'stable',
 };

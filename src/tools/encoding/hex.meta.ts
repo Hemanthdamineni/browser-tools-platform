@@ -53,6 +53,9 @@ export const meta: ToolMeta = {
       a: 'Any hex string. Spaces, colons, newlines, 0x and \\x prefixes are ignored, so you can paste output from most tools directly.',
     },
   ],
-  related: ['base64', 'base32', 'binary-text', 'unicode-escape'],
+  related: [  "base64",
+  "base32",
+  "text-to-binary",
+  "unicode-escape"],
   status: 'stable',
 };

@@ -76,6 +76,10 @@ export const meta: ToolMeta = {
       a: 'Yes. The parser follows RFC 4180: fields wrapped in double quotes can contain the delimiter and newlines, and doubled quotes inside a field are unescaped. Rows with fewer fields than the header are padded; extra fields are ignored.',
     },
   ],
-  related: ['csv-to-json', 'csv-to-sql', 'csv-sanitize', 'csv-to-markdown', 'json-diff'],
+  related: [  "csv-to-json",
+  "csv-to-sql",
+  "csv-sanitize",
+  "csv-to-markdown",
+  "json-diff"],
   status: 'stable',
 };

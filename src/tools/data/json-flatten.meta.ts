@@ -80,6 +80,9 @@ export const meta: ToolMeta = {
       a: 'Yes. Leaves are kept with their JSON types, and unflatten parses them back the same way they were given.',
     },
   ],
-  related: ['json-format', 'json-to-python', 'json-to-yaml', 'properties-convert'],
+  related: [  "json-format",
+  "json-to-python",
+  "json-to-yaml",
+  "properties-convert"],
   status: 'stable',
 };

@@ -60,6 +60,8 @@ export const meta: ToolMeta = {
       a: 'A version with a prerelease has lower precedence than the corresponding normal version. Numeric identifiers compare numerically, and numeric identifiers always precede non-numeric identifiers.',
     },
   ],
-  related: ['number-base', 'timestamp', 'json-format'],
+  related: [  "number-base",
+  "timestamp",
+  "json-format"],
   status: 'stable',
 };

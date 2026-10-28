@@ -291,7 +291,7 @@ crashed the session twice — each sub-agent committed in small steps, so no wor
     form labels, landmark structure — as a linter rather than the single-purpose checks that
     exist today.
   - **Burn subtitles into a video** (SRT/VTT → hardcoded or soft): `subtitle-converter` changes
-  the text file, but nothing can put the subtitles on the picture.
+    the text file, but nothing can put the subtitles on the picture.
   - A **font inspector** for WOFF2/WOFF — coverage, variation axes, unicode ranges, licence bits
     — since nothing in the catalogue touches fonts at all.
 
@@ -346,7 +346,7 @@ crashed the session twice — each sub-agent committed in small steps, so no wor
   Dubious-looking but left alone: `code-minify` and `merge-base64` sit at two ⚠️ without a ⛔.
 - Mistakes noticed:
   - **Panel tools and `data-file-workbench`.** `FileWorkbench.astro:152-176` binds the generic
-    workbench behaviour to *every* `[data-file-workbench]` root and skips only the hardcoded
+    workbench behaviour to _every_ `[data-file-workbench]` root and skips only the hardcoded
     `data-signature-workbench`, dereferencing `[data-report]`, `[data-download-all]` and friends with
     `!`. Any custom panel that carries the marker therefore gets a second drop zone and a second Run
     handler and throws as soon as the generic code touches a node the panel does not have. My three
@@ -398,6 +398,7 @@ crashed the session twice — each sub-agent committed in small steps, so no wor
     `workbench/shared.ts` should export `imageToPngBlob`.
 
 ## run-20261023-2031-a3f2 — 2026-10-24T10:35:00Z
+
 - Merged: merge-datauri (0b2222e) — `data-uri` gains four modes (text/image × encode/decode); `image-to-datauri` and `datauri-to-image` stay routable as redirect aliases; deprecated `unescape`/`escape` path replaced with TextEncoder/TextDecoder.
 - Merged: image-ocr (8784cc2) — tesseract.js OCR with 10 self-hosted languages (all traineddata vendored under `/vendor/tesseract/`, no third-party fetch); lazy dynamic import; text report + per-image .txt download.
 - Merged: webcam-recorder (f6cb8ad) — getUserMedia + MediaRecorder recorder panel; VP9→VP8→WebM→MP4 mime fallback; resolution + mic options; camera device picker; shared mockable `webcam-recorder-core` ready for screen-recorder reuse.

@@ -39,6 +39,8 @@ export const meta: ToolMeta = {
       a: 'Entropy is only a model. Uniqueness, not being reused elsewhere, and using a password manager still matter.',
     },
   ],
-  related: ['password', 'random-string', 'hash-identifier'],
+  related: [  "password",
+  "random-string",
+  "hash-identifier"],
   status: 'stable',
 };

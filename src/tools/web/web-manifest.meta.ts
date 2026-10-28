@@ -73,6 +73,8 @@ export const meta: ToolMeta = {
       a: 'It creates a minimal JSON object with name, short_name, start_url, display, theme_color, and background_color, plus scope when provided. Add icons and other fields appropriate to your app.',
     },
   ],
-  related: ['robots-txt', 'meta-tags', 'json-format'],
+  related: [  "robots-txt",
+  "meta-tags",
+  "json-format"],
   status: 'stable',
 };

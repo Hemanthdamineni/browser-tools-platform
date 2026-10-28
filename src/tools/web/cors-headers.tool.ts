@@ -385,6 +385,7 @@ function run(input: TextRunInput): TextRunResult {
 
   return analyze(input.text);
 }
+export { run };
 
 const tool: TextToolModule = { meta, run };
 export default tool;

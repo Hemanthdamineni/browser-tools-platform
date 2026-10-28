@@ -33,7 +33,6 @@ export const meta: ToolMeta = {
       type: 'number',
       default: 5,
       min: 1,
-      max: 20,
     },
     {
       key: 'verbose',
@@ -66,7 +65,10 @@ export const meta: ToolMeta = {
       a: 'Asterisk, ranges (1-5), steps (*/10 or 10-30/5), and comma lists, plus JAN–DEC and SUN–SAT names.',
     },
   ],
-  related: ['regex-tester', 'jwt-decode', 'uuid', 'json-format'],
+  related: [  "regex-tester",
+  "jwt-decode",
+  "uuid",
+  "json-format"],
   credits: [{ name: 'cronstrue', url: 'https://github.com/bradymholt/cronstrue', license: 'MIT' }],
   status: 'stable',
 };

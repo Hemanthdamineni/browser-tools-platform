@@ -84,7 +84,10 @@ export const meta: ToolMeta = {
       a: 'Text in a paragraph body is included. Complex objects such as equations, embedded charts, SmartArt, headers/footers, footnotes and comments are not converted.',
     },
   ],
-  related: ['markdown-to-html', 'html-to-text', 'pdf-extract-text', 'zip-extract'],
+  related: [  "markdown-to-html",
+  "html-to-text",
+  "pdf-extract-text",
+  "zip-extract"],
   credits: [{ name: 'fflate', url: 'https://github.com/101arrowz/fflate', license: 'MIT' }],
   status: 'stable',
 };

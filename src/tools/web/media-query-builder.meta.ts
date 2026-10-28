@@ -57,6 +57,8 @@ export const meta: ToolMeta = {
       a: 'Media queries nest feature expressions in parentheses; unbalanced parens make the whole rule invalid and the declaration block is dropped.',
     },
   ],
-  related: ['css-grid', 'fluid-clamp', 'css-units'],
+  related: [  "css-grid",
+  "fluid-clamp",
+  "css-units"],
   status: 'stable',
 };
