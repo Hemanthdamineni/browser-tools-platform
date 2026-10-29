@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 const fixture = (name: string) => fileURLToPath(new URL(`./fixtures/${name}`, import.meta.url));
 
 test('reset hides prior results and leaves a clean workbench', async ({ page, baseURL }) => {
-  await page.goto(`${baseURL}/tools/audio-to-wav`);
+  await page.goto(`${baseURL}/tools/audio-convert`);
   const fileInput = page.locator('[data-file-workbench] input[type="file"]');
   await fileInput.setInputFiles(fixture('tone.wav'));
   await page.locator('[data-run]').click();
@@ -22,10 +22,18 @@ test('an in-flight run cannot publish a result after cancel and reset', async ({
   page,
   baseURL,
 }) => {
-  await page.goto(`${baseURL}/tools/audio-to-wav`);
+  // file-hash runs in a Web Worker; hashing a 24 MiB buffer keeps the run
+  // in-flight long enough to cancel deterministically (audio-convert finishes
+  // in a few ms, so Cancel was already re-hidden before the click landed).
+  await page.goto(`${baseURL}/tools/file-hash`);
   const fileInput = page.locator('[data-file-workbench] input[type="file"]');
-  await fileInput.setInputFiles(fixture('tone.wav'));
+  await fileInput.setInputFiles({
+    name: 'payload.bin',
+    mimeType: 'application/octet-stream',
+    buffer: Buffer.alloc(24 * 1024 * 1024, 0x5a),
+  });
   await page.locator('[data-run]').click();
+  await expect(page.locator('[data-cancel]')).toBeVisible({ timeout: 5_000 });
   await page.locator('[data-cancel]').click();
   await page.locator('[data-reset]').click();
   // Give any late worker message a chance to land, then assert nothing stale reappears.
@@ -35,7 +43,7 @@ test('an in-flight run cannot publish a result after cancel and reset', async ({
 });
 
 test('a file name is rendered as text, never as markup', async ({ page, baseURL }) => {
-  await page.goto(`${baseURL}/tools/audio-to-wav`);
+  await page.goto(`${baseURL}/tools/audio-convert`);
   const fileInput = page.locator('[data-file-workbench] input[type="file"]');
   await fileInput.setInputFiles({
     name: '<img src=x onerror=alert(1)>.wav',
