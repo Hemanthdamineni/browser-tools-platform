@@ -70,7 +70,12 @@ export default defineConfig({
   webServer: {
     // The suite addresses pages from the site root (`/tools/...`), so build the
     // e2e copy with a root base rather than the GitHub Pages project path.
-    command: 'BASE_PATH=/ npm run build && BASE_PATH=/ npm run preview -- --host --port 4321',
+    // Astro 7 daemonizes `astro preview` (returns immediately) and `vite
+    // preview` applies SPA fallback (returns the homepage for a missing tool
+    // page), so the e2e server is the tiny static server in
+    // scripts/serve-static.mjs: exact directory-per-page serving, no fallback.
+    command:
+      'BASE_PATH=/ npm run build && node scripts/serve-static.mjs',
     url: 'http://localhost:4321',
     reuseExistingServer: !process.env.CI,
     // A cold build of this catalogue takes minutes.
