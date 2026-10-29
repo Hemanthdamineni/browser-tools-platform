@@ -13,7 +13,6 @@
  * with no matching file fails the build instead of quietly shipping an empty
  * page.
  */
-import type { ComponentInstance } from 'astro';
 import type { ToolMeta } from '@/lib/types';
 
 interface Props {
@@ -21,7 +20,15 @@ interface Props {
 }
 const { meta } = Astro.props;
 
-const panels = import.meta.glob<ComponentInstance>('../../components/panels/*.astro');
+/**
+ * Lazy-glob module shape for a panel Astro component. Each panel's default
+ * export is a component taking the shared `meta` prop.
+ */
+interface PanelModule {
+  default: (_props: Props) => unknown;
+}
+
+const panels = import.meta.glob<PanelModule>('../../components/panels/*.astro');
 const panelId = meta.panel ?? '';
 const key = Object.keys(panels).find((path) => path.endsWith(`/${panelId}.astro`));
 

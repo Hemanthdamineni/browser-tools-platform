@@ -1,6 +1,55 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@theme {
+  --color-brand-50: #fbf1ed;
+  --color-brand-100: #f7e4de;
+  --color-brand-200: #efc7bc;
+  --color-brand-300: #e4a08e;
+  --color-brand-400: #d47a63;
+  --color-brand-500: #b3422a;
+  --color-brand-600: #963520;
+  --color-brand-700: #7b2c1c;
+  --color-brand-800: #64271b;
+  --color-brand-900: #54241b;
+  --color-brand-950: #32140f;
+  --color-surface-0: #fffefd;
+  --color-surface-50: #faf9f7;
+  --color-surface-100: #f6f5f2;
+  --color-surface-200: #eeece7;
+  --color-surface-300: #dedbd4;
+  --color-surface-400: #bdb9b0;
+  --color-surface-500: #88837a;
+  --color-surface-600: #5e5a53;
+  --color-surface-700: #3b3935;
+  --color-surface-800: #2d2c29;
+  --color-surface-900: #1d1d1b;
+  --color-surface-950: #141412;
+  --font-sans: 'Geist', 'ui-sans-serif', 'system-ui', 'sans-serif';
+  --font-mono: 'Geist Mono', 'ui-monospace', 'monospace';
+  --max-width-content: 76rem;
+  --max-width-prose: 68ch;
+  --animate-fade-in: fade-in 0.2s ease-out;
+  --animate-slide-up: slide-up 0.2s ease-out;
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes slide-up {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
 
 @font-face {
   font-family: 'Geist';

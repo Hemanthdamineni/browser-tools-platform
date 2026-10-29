@@ -6,7 +6,7 @@
   "description": "Toolbench - a fast, privacy-first collection of browser utilities. Every tool runs entirely on your device; nothing is uploaded.",
   "license": "MIT",
   "engines": {
-    "node": ">=20"
+    "node": ">=22.23.4"
   },
   "scripts": {
     "dev": "astro dev",
@@ -30,11 +30,11 @@
     "verify": "npm run check && npm run lint && npm run format:check && npm run test && npm run build && npm run bundle:check && npm run test:e2e"
   },
   "dependencies": {
-    "@astrojs/tailwind": "^5.1.5",
     "@breezystack/lamejs": "^1.2.7",
     "@huggingface/transformers": "^4.3.1",
     "@jitsi/rnnoise-wasm": "^0.2.1",
     "@jspawn/qpdf-wasm": "^0.0.2",
+    "@tailwindcss/vite": "^4.3.3",
     "@tesseract.js-data/chi_sim": "^1.0.0",
     "@tesseract.js-data/deu": "^1.0.0",
     "@tesseract.js-data/eng": "^1.0.0",
@@ -45,7 +45,7 @@
     "@tesseract.js-data/por": "^1.0.0",
     "@tesseract.js-data/rus": "^1.0.0",
     "@tesseract.js-data/spa": "^1.0.0",
-    "astro": "^4.16.19",
+    "astro": "^7.4.4",
     "bcryptjs": "^3.0.3",
     "compromise": "^14.17.0",
     "cronstrue": "^3.24.0",
@@ -67,14 +67,14 @@
     "shiki": "^4.5.0",
     "sql.js": "^1.15.1",
     "sucrase": "^3.35.1",
-    "tailwindcss": "^3.4.19",
+    "tailwindcss": "^4.3.3",
     "terser": "^5.51.2",
     "tesseract.js": "^7.0.0",
     "xlsx": "file:vendor/tarballs/xlsx-0.20.3.tgz",
     "yaml": "^2.9.0"
   },
   "devDependencies": {
-    "@astrojs/check": "^0.9.10",
+    "@astrojs/check": "^0.9.12",
     "@eslint/js": "^9.39.5",
     "@playwright/test": "^1.62.1",
     "@types/diff": "^5.2.3",

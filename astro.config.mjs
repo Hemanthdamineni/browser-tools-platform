@@ -1,6 +1,6 @@
 import { defineConfig } from 'astro/config';
 import { fileURLToPath } from 'node:url';
-import tailwind from '@astrojs/tailwind';
+import tailwindcss from '@tailwindcss/vite';
 
 /**
  * Public site URL. Override at build time with SITE_URL for your deployment,
@@ -43,8 +43,9 @@ export default defineConfig({
     prefetchAll: false,
     defaultStrategy: 'hover',
   },
-  integrations: [tailwind({ applyBaseStyles: false })],
+  integrations: [],
   vite: {
+    plugins: [tailwindcss()],
     resolve: { alias: srcAlias },
     build: {
       target: 'es2022',
