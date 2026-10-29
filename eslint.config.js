@@ -62,7 +62,10 @@ export default [
   ...astro.configs.recommended,
   {
     files: ['**/*.astro'],
-    rules: { 'no-undef': 'off' },
+    // Frontmatter is type-checked by `astro check`, not ESLint's untyped AST:
+    // base no-unused-vars flags real-but-ignored params (e.g. `_props`) with no
+    // TS-aware ignorePattern here.
+    rules: { 'no-undef': 'off', 'no-unused-vars': 'off' },
   },
   {
     files: ['**/*.test.ts', 'test/**/*.ts', 'e2e/**/*.ts'],

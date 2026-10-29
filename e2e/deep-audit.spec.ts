@@ -356,13 +356,11 @@ test.describe('deep-audit', () => {
       }
     }
 
-    // eslint-disable-next-line no-console
     console.log(
       `[deep-audit] shard ${shardIndex + 1}/${shardTotal}: audited=${slice.length} ` +
         `passed=${passed} expected=${expected} skipped=${skipped} realFailures=${realFailures.length}`,
     );
     if (realFailures.length) {
-      // eslint-disable-next-line no-console
       console.log(`[deep-audit] real failures:\n  ${realFailures.join('\n  ')}`);
     }
 
