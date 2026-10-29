@@ -63,3 +63,27 @@ jobs:
           name: playwright-report
           path: playwright-report
           retention-days: 7
+
+  # Full-catalogue runtime audit — clicks every example and runs every file
+  # tool. Sharded 4 ways so the whole catalogue finishes in a few minutes.
+  audit:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        shard: [1, 2, 3, 4]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Deep runtime audit (shard ${{ matrix.shard }}/4)
+        run: AUDIT_SHARDS=4 AUDIT_SHARD=$(( ${{ matrix.shard }} - 1 )) npm run test:audit
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: deep-audit-report
+          path: test-results/deep-audit-report.jsonl
+          retention-days: 7
